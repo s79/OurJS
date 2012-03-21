@@ -20,7 +20,7 @@
 #content legend { height: 16px; padding: 0 5px; color: steelblue; font-weight: bold; font-size: 16px; line-height: 16px; }
 #content h2 { margin: 5px 0 0; padding: 0 5px; border-bottom: 1px solid #d5dfe5; color: seagreen; font-weight: normal; font-size: 12px; }
 #content h2 strong { margin-right: 5px; color: seagreen; font-weight: normal; }
-#content dl { margin: 2px 0; font-size: 12px; color: #333; }
+#content dl { margin: 2px 0; font-size: 12px; color: #666; }
 #content dt { font-weight: normal; font-size: 14px; font-family: Consolas, "Lucida Console", Courier, "Microsoft YaHei", SimSun, monospace; }
 #content dd { display: block; padding-left: 0; color: #666; }
 #content samp { font-style: italic; color: purple; }
@@ -32,68 +32,7 @@
   <!-- API { -->
   <h1>OurJS API Reference</h1>
   <div id="left_column" class="column"></div>
-  <div id="right_column" class="column">
-    <!-- DOMWindow { -->
-    <fieldset id="window">
-      <legend>window</legend>
-      <h2><strong>&lt;static&gt;</strong> 全局作用域 - DOMWindow</h2>
-      <dl>
-        <dt><dfn>$</dfn>(<var>e</var>)</dt>
-        <dd>document.$ 的别名，根据指定的参数获取/创建一个元素。</dd>
-      </dl>
-      <dl>
-        <dt><samp>window</samp>.<dfn>getClientSize</dfn>()</dt>
-        <dd>获取视口可视区域的尺寸。</dd>
-      </dl>
-      <dl>
-        <dt><samp>window</samp>.<dfn>getScrollSize</dfn>()</dt>
-        <dd>获取视口滚动区域的尺寸。</dd>
-      </dl>
-      <dl>
-        <dt><samp>window</samp>.<dfn>getPageOffset</dfn>()</dt>
-        <dd>获取视口的滚动偏移量。</dd>
-      </dl>
-      <dl>
-        <dt><samp>window</samp>.<dfn>on</dfn>(<var>name</var>, <var>listener</var>[, <var>filter</var>])</dt>
-        <dd>为 window 添加监听器。</dd>
-      </dl>
-      <dl>
-        <dt><samp>window</samp>.<dfn>off</dfn>(<var>name</var>)</dt>
-        <dd>根据名称删除 window 上已添加的监听器。</dd>
-      </dl>
-      <dl>
-        <dt><samp>window</samp>.<dfn>fire</dfn>(<var>type</var>[, <var>data</var>])</dt>
-        <dd>触发 window 的某类事件，运行相关的监听器。</dd>
-      </dl>
-    </fieldset>
-    <!-- } DOMWindow -->
-    <!-- document { -->
-    <fieldset id="document">
-      <legend>document</legend>
-      <h2><strong>&lt;static&gt;</strong></h2>
-      <dl>
-        <dt><samp>document</samp>.<dfn>$</dfn>(<var>e</var>)</dt>
-        <dd>根据指定的参数获取/创建一个元素。</dd>
-      </dl>
-      <dl>
-        <dt><samp>document</samp>.<dfn>preloadImages</dfn>(<var>urlArray</var>)</dt>
-        <dd>预加载图片。</dd>
-      </dl>
-      <dl>
-        <dt><samp>document</samp>.<dfn>on</dfn>(<var>name</var>, <var>listener</var>[, <var>filter</var>])</dt>
-        <dd>为 document 添加监听器。</dd>
-      </dl>
-      <dl>
-        <dt><samp>document</samp>.<dfn>off</dfn>(<var>name</var>)</dt>
-        <dd>根据名称删除 document 上已添加的监听器。</dd>
-      </dl>
-      <dl>
-        <dt><samp>document</samp>.<dfn>fire</dfn>(<var>type</var>[, <var>data</var>])</dt>
-        <dd>触发 document 的某类事件，运行相关的监听器。</dd>
-      </dl>
-    </fieldset>
-    <!-- } document -->
-  </div>
+  <div id="right_column" class="column"></div>
   <!-- } API -->
 </div>
 <script>
@@ -128,6 +67,7 @@ function getSyntax(name) {
     // 生成函数对象的参数部分。
     if (symbol.category !== 'OBJECT') {
       var parameters = symbol.parameters;
+      var optionalCount = 0;
       syntax += '(' + parameters.filter(
           function(parameter) {
             // 忽略选项中的参数。
@@ -135,10 +75,17 @@ function getSyntax(name) {
           }
       ).map(
           function(parameter, index) {
+            var name = '<var>' + parameter.name + '</var>';
             var separator = index ? ', ' : '';
-            return parameter.isOptional ? ('[' + separator + '<var>' + parameter.name + '</var>]') : (separator + '<var>' + parameter.name + '</var>');
+            if (parameter.isOptional) {
+              name = '[' + separator + name;
+              optionalCount++;
+            } else {
+              name = separator + name;
+            }
+            return name;
           }
-      ).join('') + ')';
+      ).join('') + ']'.repeat(optionalCount) + ')';
     }
   }
   return syntax;
@@ -180,8 +127,35 @@ function buildSheet(side, name) {
 
 // 开始生成。
 document.on('domready', function() {
-  Object.forEach(manifest, function(value, key) {
+  [
+    'Global',
+    'Object',
+    'Array',
+    'String',
+    'Boolean',
+    'Number',
+    'Math',
+    'Date',
+    'RegExp',
+    'JSON',
+    'navigator',
+    'location',
+    'cookie',
+    'localStorage'
+  ].forEach(function(key) {
     buildSheet('left', key);
+  });
+  [
+    'window',
+    'document',
+    'HTMLElement',
+    'Element',
+    'Request',
+    'Animation',
+    'components.Switcher',
+    'components.Dialog'
+  ].forEach(function(key) {
+    buildSheet('right', key);
   });
 });
 </script>

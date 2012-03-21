@@ -36,6 +36,7 @@ var manifest = {
   'String': [
     '<instance> ES5',
     'String.prototype.trim',
+    'String.prototype.toJSON',
     '<instance> ES6',
     'String.prototype.repeat',
     'String.prototype.startsWith',
@@ -45,7 +46,13 @@ var manifest = {
     '<instance> 自定义扩展',
     'String.prototype.clean'
   ],
+  'Boolean': [
+    '<instance> ES5',
+    'Boolean.prototype.toJSON'
+  ],
   'Number': [
+    '<instance> ES5',
+    'Number.prototype.toJSON',
     '<instance> ES6',
     'Number.prototype.isFinite',
     'Number.prototype.isNaN',
@@ -61,7 +68,9 @@ var manifest = {
   ],
   'Date': [
     '<static> ES5',
-    'Date.now'
+    'Date.now',
+    '<instance> ES5',
+    'Date.prototype.toJSON'
   ],
   'RegExp': [
     '<static> 自定义扩展',
