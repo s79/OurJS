@@ -1,0 +1,99 @@
+﻿.calendar
+{
+	width: 110px;
+	height: 176px;
+	background: url("month_bg.gif");
+	position: absolute;
+	cursor: default;
+}
+.calendar div
+{
+	color: #333333;
+	width: 110px;
+	height: 35px;
+	text-align: center;
+	line-height: 34px;
+}
+.calendar div button
+{
+	margin: 3px 2px;
+	padding: 0px;
+	width: 11px;
+	height: 11px;
+	border: 0px none;
+	cursor: pointer;
+}
+.calendar div span
+{
+	margin: 2px;
+}
+.calendar div button.p_y-out
+{
+	background: url("button.gif") 0px 0px;
+}
+.calendar div button.p_y-over
+{
+	background: url("button.gif") 0px -11px;
+}
+.calendar div button.p_y-down
+{
+	background: url("button.gif") 0px -22px;
+}
+.calendar div button.p_y-disabled
+{
+	background: url("button.gif") 0px -33px;
+}
+.calendar div button.n_y-out
+{
+	background: url("button.gif") -33px 0px;
+}
+.calendar div button.n_y-over
+{
+	background: url("button.gif") -33px -11px;
+}
+.calendar div button.n_y-down
+{
+	background: url("button.gif") -33px -22px;
+}
+.calendar div button.n_y-disabled
+{
+	background: url("button.gif") -33px -33px;
+}
+.calendar table
+{
+	margin-left: 3px;
+}
+.calendar table td
+{
+	text-align: center;
+}
+.calendar table tbody
+{
+	background: #ffffff;
+}
+.calendar table tbody td
+{
+	width: 33px;
+	height: 33px;
+	font-size: 11px;
+}
+.calendar table tbody td.enabled
+{
+	cursor: pointer;
+}
+.calendar table tbody td.disabled
+{
+	color: #e0e0e0;
+}
+.calendar table tbody td.selected
+{
+	font-weight: bold;
+	color: #696969;
+	background: url("calendar_selected.gif");
+}
+.calendar table tbody td.hover
+{
+	font-weight: bold;
+	text-decoration: underline;
+	background: url("calendar_hover.gif");
+}

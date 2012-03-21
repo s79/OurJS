@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>FX.createAnimation</title>
+<script src="FX.js"></script>
+<style>
+body {
+  margin: 10px;
+  padding: 0;
+  font: 12px Verdana;
+}
+
+h1 {
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  font: 24px/30px Verdana;
+}
+
+#test1,
+#test2,
+#test3,
+#test4 {
+  width: 500px;
+  margin: 5px;
+  padding: 30px;
+  background: #f5f5f5;
+  font: 10px Verdana;
+  text-align: center;
+}
+
+#test1 button,
+#test2 button,
+#test3 button,
+#test4 button {
+  cursor: pointer;
+}
+
+#msg1 {
+  height: 15px;
+  text-align: left;
+}
+
+#div {
+  position: absolute;
+  background: #c0c0c0;
+  font: 22px Verdana;
+  text-align: center;
+}
+
+#canvas {
+  position: relative;
+  width: 400px;
+  height: 300px;
+  background: black;
+}
+
+#canvas div {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: white;
+  overflow: hidden;
+}
+</style>
+<script>
+//--------------------------------------------------[window.onload]
+window.onload = function() {
+  //效果一。
+  window.animation1 = FX.createAnimation
+      ({
+        before:function() {
+          document.getElementById("msg1").innerHTML = "&gt;|";
+        },
+        tween:function(n) {
+          document.getElementById("msg1").innerHTML += (255 * n).toFixed(2) + "|";
+          document.getElementById("test1").style.backgroundColor = "rgb(245,245," + Math.round(245 * n) + ")";
+        },
+        after:function() {
+          document.getElementById("msg1").innerHTML += "&lt;";
+        },
+        mode:"easeOut",
+        duration:1000,
+        interval:50
+      });
+  //效果二。
+  window.animation2 = FX.createAnimation
+      ({
+        tween:function(n) {
+          document.getElementById("test2").style.backgroundColor = "rgb(245," + Math.round(245 * n) + ",245)";
+        }
+      });
+  //效果三。
+  window.animation3 = FX.createAnimation
+      ({
+        before:function() {
+          o.nLTWH =
+          {
+            left:o.tLTWH.left - o.sLTWH.left,
+            top:o.tLTWH.top - o.sLTWH.top,
+            width:o.tLTWH.width - o.sLTWH.width,
+            height:o.tLTWH.height - o.sLTWH.height
+          };
+          o.div.innerHTML = "Moving...";
+        },
+        tween:function(n) {
+          var s = o.div.style;
+          s.left = (o.sLTWH.left + o.nLTWH.left * n) + "px";
+          s.top = (o.sLTWH.top + o.nLTWH.top * n) + "px";
+          s.width = (o.sLTWH.width + o.nLTWH.width * n) + "px";
+          s.height = s.lineHeight = (o.sLTWH.height + o.nLTWH.height * n) + "px";
+          o.setOpacity(o.div, n > 0.8 ? 0.8 : n);
+        },
+        after:function() {
+          o.div.innerHTML = "Done!";
+        },
+        mode:"Bounce",
+        duration:1500,
+        interval:10
+      });
+  var o =
+  {
+    div:document.getElementById("div"),
+    sLTWH:
+    {
+      left:575,
+      top:200,
+      width:50,
+      height:20
+    },
+    tLTWH:
+    {
+      left:350,
+      top:250,
+      width:500,
+      height:300
+    },
+    nLTWH:
+    {
+    },
+    setOpacity:function($target, opacity) {
+      window.ActiveXObject ? $target.style.filter = "alpha(opacity=" + opacity * 100 + ")" : $target.style.opacity = opacity;
+    }
+  };
+  o.setOpacity(document.getElementById("div"), 0);
+
+  //效果四。
+  window.animation4 = FX.createAnimation({
+    before:function(){
+      window.x = new Date().getTime();
+    },
+    tween:function(n) {
+      var div = document.createElement('div');
+      var x = new Date().getTime() - window.x;
+      var y = n;
+      div.style.left = parseInt(x / 10) + 'px';
+      div.style.bottom = 100 + parseInt(y * 100) + 'px';
+      document.getElementById("canvas").appendChild(div);
+    },
+    mode:"Bounce",
+    duration:3000,
+    interval:10
+  });
+};
+function drowLine() {
+
+}
+</script>
+</head>
+<body>
+<h1>FX.createAnimation</h1>
+
+<div id="test1">
+  <button type="button" onclick="animation1.play();">play</button>
+  <p id="msg1"></p>
+</div>
+<div id="test2">
+  <button type="button" onclick="animation2.play();">play</button>
+</div>
+<div id="test3">
+  <button type="button" onclick="animation3.play();">play</button>
+  <button type="button" onclick="animation3.stop();">stop</button>
+  <div id="div"></div>
+</div>
+<div id="test4">
+  <div id="canvas"></div>
+  <button type="button" onclick="animation4.play();">play</button>
+  <button type="button" onclick="animation4.stop();">stop</button>
+</div>
+<button type="button"
+        onclick="animation1.play();animation2.play();animation3.play();">play
+  all
+</button>
+<button type="button"
+        onclick="animation1.stop();animation2.stop();animation3.stop();">stop
+  all
+</button>
+</body>
+</html>

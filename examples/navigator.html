@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>navigator</title>
+<link rel="stylesheet" href="common.css">
+<script src="../src/lang.js"></script>
+<script src="../src/base.js"></script>
+<script src="../src/dom.js"></script>
+<script src="../src/plugins/json2.js"></script>
+<style>
+col { width: 100px; }
+col.name { width: 200px; }
+pre { clear: both; }
+</style>
+</head>
+<body>
+<h1>base</h1>
+<fieldset>
+  <legend>navigator.*</legend>
+  <table>
+    <colgroup>
+      <col class="name">
+      <col class="value">
+      <col class="type">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Value</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+    <tbody id="list">
+    </tbody>
+  </table>
+</fieldset>
+<pre id="ua_info"></pre>
+<fieldset>
+  <legend>location.parameters</legend>
+  <p id="parameters"></p>
+</fieldset>
+<script>
+(function() {
+  // navigator.* 预览。
+  var $table = document.getElementById('list');
+  var $tr;
+  var $td;
+  var extendedProperties = ['inStandardsMode', 'isIE', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'];
+  extendedProperties.forEach(function(key) {
+    var value = navigator[key];
+    $tr = $table.insertRow(-1);
+    $td = $tr.insertCell(-1);
+    $td.innerHTML = key;
+    $td = $tr.insertCell(-1);
+    $td.innerHTML = value;
+    if (value === true) {
+      $td.style.backgroundColor = 'greenyellow';
+    }
+    $td = $tr.insertCell(-1);
+    $td.innerHTML = typeof value;
+  });
+
+  // navigator.userAgent 和 navigator.userAgentInfo 预览。
+  $('#ua_info').innerHTML = navigator.userAgent + '\n' + JSON.stringify(navigator.userAgentInfo);
+
+  // location.parameters 预览。
+  $('#parameters').innerHTML = JSON.stringify(location.parameters);
+})();
+</script>
+</body>
+</html>

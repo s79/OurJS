@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Encoder</title>
+<link rel="stylesheet" type="text/css" href="public.css" media="all"/>
+<script type="text/javascript">
+//--------------------------------------------------[Encoder]
+function toUxxxx(string){
+	var prefix=["\\u0000","\\u000","\\u00","\\u0","\\u"];
+	var unicodeChar="";
+	var unicodeString="";
+	for(var i=0,l=string.length;i<l;i++){
+		unicodeChar=string.charCodeAt(i).toString(16);
+		unicodeString+=prefix[unicodeChar.length]+unicodeChar;
+	}
+	return unicodeString;
+}
+
+var Encoder=function(options){
+	this.prefix=options.prefix||"%";
+	this.suffix=options.suffix||";";
+	this.key=this.prefix+options.key+this.suffix;
+};
+Encoder.prototype.encode=function(string){
+	var prefix=this.prefix;
+	var suffix=this.suffix;
+	return string.replace(new RegExp("["+toUxxxx(this.key)+"]","g"),function(match){
+		return prefix+match.charCodeAt(0)+suffix;
+	});
+};
+Encoder.prototype.decode=function(string){
+	var prefix=this.prefix;
+	var suffix=this.suffix;
+	return string.replace(new RegExp(prefix+"\\d+"+suffix,"g"),function(match){
+		return String.fromCharCode(match.slice(prefix.length,-suffix.length));
+	});
+};
+//--------------------------------------------------[Test]
+window.onload=function(){
+	var TestEncoder=new Encoder({
+		key:" \f\n\r\t\v-.*+?^$()[]{}|/\\"
+//		key:" &<>",
+//		prefix:"&#",
+//		suffix:";"
+	});
+	var $form=document.getElementById("test");
+	window.Test={
+		encode:function(){
+			$form.encode.value=TestEncoder.encode($form.text.value);
+		},
+		decode:function(){
+			$form.decode.value=TestEncoder.decode($form.encode.value);
+			if($form.decode.value===$form.text.value){
+			}
+			else{
+				alert("不相等，转化出错！");
+			}
+		}
+	};
+//	$form.reset();
+//*.32,&amp;<33>s.10,&%#+&#5.123,data.58,.34,33.34,.44,age.58,26.125,5;79.46,12.44,23.10,.32,*
+console.log(TestEncoder);
+};
+</script>
+</head>
+<body>
+<h1>Encoder</h1>
+<!-- Test -->
+<fieldset>
+	<legend>Test</legend>
+	<form id="test">
+		<textarea name="text"></textarea>
+		<button type="button" onclick="Test.encode();">Encode</button>
+		<textarea name="encode"></textarea>
+		<button type="button" onclick="Test.decode();">Decode</button>
+		<textarea name="decode"></textarea>
+	</form>
+</fieldset>
+</body>
+</html>

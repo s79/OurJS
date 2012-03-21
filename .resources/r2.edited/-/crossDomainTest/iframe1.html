@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>iFrame</title>
+<script type="text/javascript" src="../../common.js"></script>
+<script type="text/javascript" src="../../utilities/iFrame.js"></script>
+<style type="text/css">
+body
+{
+	margin: 10px;
+	padding: 0px;
+	font: 12px Verdana;
+	text-align: center;
+}
+div.content
+{
+	height: 200px;
+	font: 14px/200px Verdana;
+	text-align: center;
+}
+#pop1,
+#pop2
+{
+	display: none;
+}
+</style>
+<script type="text/javascript">
+//--------------------------------------------------[popParent]
+function showPopup(id,url)
+{
+	var self=arguments.callee;
+	if(!self.pool[id])
+	{
+		var $div=parent.document.createElement("div");
+		$div.id=id;
+		$div.className="popup";
+		$div.innerHTML=document.getElementById(id).innerHTML;
+		parent.document.body.appendChild($div);
+		self.pool[id]=true;
+		if(url)$div.getElementsByTagName("iframe")[0].src=url;
+	}
+	else
+	{
+		var $target=parent.document.getElementById(id);
+		$target.style.display="block";
+	}
+}
+showPopup.pool={};
+</script>
+</head>
+<body>
+	<div class="content">http://test.r2online.cn/R2Correct/js/-/crossDomainTest/iframe1.html</div>
+	<button onclick="showPopup('pop1');">在父页弹出本页定义的静态窗口</button><br/>
+	<button onclick="showPopup('pop2','http://design.r2online.cn/R2Correct/js/-/crossDomainTest/iframe2.html');">在父页弹出iframe窗口</button>
+	<div class="content">http://test.r2online.cn/R2Correct/js/-/crossDomainTest/iframe1.html</div>
+	<!--要显示在父页的弹出窗口内容-->
+	<div id="pop1">
+		<button onclick="closePopup('pop1');">关闭</button>
+		<h2>http://test.r2online.cn/R2Correct/js/-/crossDomainTest/iframe1.html</h2>
+		<h2>内定义的弹出窗口，被复制到</h2>
+		<h2>http://design.r2online.cn/R2Correct/js/-/crossDomainTest/index.html</h2>
+		<h2>显示，因此其样式受到该页的css影响。</h2>
+	</div>
+	<div id="pop2">
+		<iframe id="iframePopup" scrolling="auto" frameborder="0" src=""></iframe>
+	</div>
+</body>
+</html>

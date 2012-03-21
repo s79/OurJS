@@ -1,0 +1,85 @@
+﻿.info_content
+{
+	position: absolute;
+	left: -10000px;
+	top: -10000px;
+	clear: both;
+	width: 500px;
+	height: 500px;
+}
+.info_1
+{
+	position: absolute;
+	float:left;
+	right: 1px;
+	top: 15px;
+	background: url('bg_pop.gif') no-repeat right top;
+	z-index: 100;
+}
+.info_1_text
+{
+	margin-top: 3px;
+	padding: 10px 15px 7px 15px;
+	border: 1px solid #f46200;
+	border-top: none;
+	color: #ffffff;
+	font: 12px/20px Verdana;
+	text-align: left
+}
+.info_1_close
+{
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	width: 9px;
+	height: 9px;
+	background: url('close_pop.gif') no-repeat right top;
+	cursor: pointer;
+}
+.info_2
+{
+	position: absolute;
+	right: 1px;
+	top: 15px;
+	width: 300px;
+	height: 100px;
+	background: url('bg_pop.gif') no-repeat right top;
+	z-index: 100;
+}
+.info_2_content
+{
+	position: absolute; left: 2px;
+	top: 5px;
+	width: 296px;
+	height: 93px;
+}
+.info_2_text
+{
+	float: left;
+	width: 250px;
+	height: 73px;
+	padding: 10px 0px 10px 15px;
+	color: #ffffff;
+	font: 12px/20px Verdana;
+	text-align: left;
+	overflow: hidden;
+}
+.info_2_close
+{
+	position: absolute;
+	right: 20px;
+	top: 5px;
+	width: 9px;
+	height: 9px;
+	background: url('close_pop.gif') no-repeat right top;
+	cursor: pointer;
+}
+table td div.cotBtn
+{
+	position: relative;
+	float: left;
+}
+table td var
+{
+	display: none;
+}

@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>components.Mask</title>
+<link rel="stylesheet" href="demo/common.css">
+<script src="/framework/import.js"></script>
+<script src="src/components/mask.js"></script>
+<style>
+button { position: absolute; z-index: 1000; width: 135px; height: 30px; }
+select { width: 100px; background: orangered; }
+</style>
+</head>
+<body>
+<h1>components.Mask</h1>
+<h2 id="x" style="position: absolute; left: 1500px; top: 1500px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
+<!--[if IE 6]>
+<div style="position: absolute; left: 0; top: 450px; width: 800px; padding: 20px;">
+  <p>
+    IE6，bodyMask.show() - divMask.show() - bodyMask.hide() 这种乱序显示/隐藏遮掩层的操作会导致一些 select 元素被错误的显现，由于这种情况极其罕见，未作处理。<br>
+    只要按照后进先出的顺序显示/隐藏遮掩层，就不会出现这个问题。
+  </p>
+</div>
+<![endif]-->
+<select></select>
+<select></select>
+<span id="span" style="position: absolute; left: 575px; top: 350px; z-index: 50; width: 400px; height: 50px; margin: 25px; padding: 5px 15px; border: 7px solid mediumorchid; background: white">
+  <var id="var" style="position: absolute; left: 10px; bottom: 0; display: block; width: 100px; height:20px; margin: 2px 2px 2px -30px; padding: 5px; border: 3px solid black; background: silver; overflow: hidden;"></var>
+</span>
+<div id="div" style="position: absolute; left: 600px; top: 100px; width: 400px; height: 300px; margin: 10px; padding: 5px; border: 7px solid black; overflow: auto;">
+  <select></select>
+  <select style="visibility: hidden;"></select>
+  <select></select>
+  <p id="p" style="position: relative; width: 800px; height: 200px; margin: 10px; padding: 10px; border: 10px solid black;"></p>
+</div>
+<button style="left: 100px; top: 100px;" onclick="bodyMask.show();">bodyMask.show();</button>
+<button style="left: 250px; top: 100px;" onclick="bodyMask.hide();">bodyMask.hide();</button>
+<button style="left: 100px; top: 150px;" onclick="divMask.show();">divMask.show();</button>
+<button style="left: 250px; top: 150px;" onclick="divMask.hide();">divMask.hide();</button>
+<button style="left: 100px; top: 200px;" onclick="pMask.show();">pMask.show();</button>
+<button style="left: 250px; top: 200px;" onclick="pMask.hide();">pMask.hide();</button>
+<button style="left: 100px; top: 250px;" onclick="spanMask.show();">spanMask.show();</button>
+<button style="left: 250px; top: 250px;" onclick="spanMask.hide();">spanMask.hide();</button>
+<button style="left: 100px; top: 300px;" onclick="varMask.show();">varMask.show();</button>
+<button style="left: 250px; top: 300px;" onclick="varMask.hide();">varMask.hide();</button>
+<button style="left: 175px; top: 350px;" onclick="$div.setStyle('position', 'fixed');">div.position=fixed</button>
+<button style="left: 175px; top: 400px;" onclick="$div.setStyle('position', 'absolute');">div.position=absolute</button>
+<button style="left: 175px; top: 450px;" onclick="$div.setStyle('display', 'block');">div.display=block</button>
+<button style="left: 175px; top: 500px;" onclick="$div.setStyle('display', 'none');">div.display=none</button>
+<button style="left: 175px; top: 550px;" onclick="$div.animate({left: 0, top: 0, backgroundColor: '#ff0000'}, {duration: 5000, onFinish: function(){console.log('finish');}}).fadeOut().fadeIn();">div.animate</button>
+<script>
+//--------------------------------------------------[Mask]
+var bodyMask = new components.Mask(document.body, {
+  styles: {backgroundColor: 'black', opacity: 0.2, zIndex: 100},
+  onShow: function() {
+    console.log(Date.now(), 'SHOW');
+  },
+  onHide: function() {
+    console.log(Date.now(), 'HIDE');
+  }
+});
+var pMask = new components.Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 0.5, zIndex: 100}});
+var divMask = new components.Mask($('#div'), {styles: {backgroundColor: 'cornflowerblue', opacity: 0.75, zIndex: 100}});
+var spanMask = new components.Mask($('#span'), {styles: {backgroundColor: 'orchid', opacity: 0.5, zIndex: 100}});
+var varMask = new components.Mask($('#var'), {styles: {backgroundColor: 'springgreen', opacity: 0.35, zIndex: 100}});
+
+//--------------------------------------------------[fix support]
+var $span = $('#span').setStyle('opacity', .75);
+var $div = $('#div');
+
+$(document.body).find('button').forEach(function($button) {
+  $button.setStyle('position', 'fixed');
+});
+
+var length = window.getPageOffset().y + $span.getClientRect().top - parseInt($span.getStyle('marginTop'), 10);
+window.on('scroll', function() {
+  var position = $span.getStyle('position');
+  if (window.getPageOffset().y >= length) {
+    if (position !== 'fixed') {
+      $span.setStyles({position: 'fixed', top: 0});
+      if (spanMask.isShown) {
+        setTimeout(function() {
+          spanMask.hide().show();
+        }, 0);
+      }
+    }
+  } else {
+    if (position !== 'absolute') {
+      $span.setStyles({position: 'absolute', top: length});
+      if (spanMask.isShown) {
+        setTimeout(function() {
+          spanMask.hide().show();
+        }, 0);
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

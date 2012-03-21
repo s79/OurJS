@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>iFrame</title>
+<script type="text/javascript" src="../../common.js"></script>
+<script type="text/javascript" src="../../utilities/iFrame.js"></script>
+<style type="text/css">
+body
+{
+	margin: 10px;
+	padding: 0px;
+	font: 12px Verdana;
+	text-align: center;
+}
+div.content
+{
+	height: 200px;
+	font: 14px/200px Verdana;
+	text-align: center;
+}
+</style>
+<script type="text/javascript">
+//--------------------------------------------------[writeParent]
+function writeParent()
+{
+	var $h1=parent.document.getElementsByTagName("h1")[0];
+	$h1.innerHTML+="★";
+	if($h1.innerHTML=="crossDomainTest★★★★★★★★★★")$h1.innerHTML="crossDomainTest";
+}
+</script>
+</head>
+<body>
+	<div class="content">http://design.r2online.cn/R2Correct/js/-/crossDomainTest/iframe2.html</div>
+	<button onclick="parent.closePopup('pop2');">iframe里的关闭按钮</button><br/>
+	<button onclick="writeParent();">修改父页的标题</button>
+	<div class="content">http://design.r2online.cn/R2Correct/js/-/crossDomainTest/iframe2.html</div>
+</body>
+</html>

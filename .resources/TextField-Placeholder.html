@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Placeholder</title>
+<!--
+【测试环境】
+IE6
+IE7
+IE8
+IE9
+Firefox 6.0
+Chrome 13.0.782.215 m
+Safari 5.1
+Opera 11.50
+
+【结果】
+IE6 IE7 IE8 IE9 不支持 text fields 的 placeholder 属性。
+
+【参考】
+http://dev.w3.org/html5/spec/Overview.html#the-placeholder-attribute
+-->
+<style>
+body {
+  margin: 10px;
+  padding: 0;
+  font: 12px Verdana;
+}
+
+h1 {
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+  font-size: 24px;
+  line-height: 30px;
+}
+
+fieldset {
+  float: left;
+  width: 500px;
+  margin: 10px;
+}
+
+fieldset legend {
+  color: orangered;
+  font-size: 14px;
+}
+
+input, textarea {
+  width: 100px;
+  height: 16px;
+  margin: 5px 0;
+  padding: 2px;
+  border: 1px solid silver;
+  font: 14px/16px Consolas;
+  background: whitesmoke;
+}
+
+input {
+  width: 400px;
+}
+
+textarea {
+  width: 400px;
+  height: 200px;
+  resize: none;
+}
+</style>
+</head>
+<body>
+<h1>Placeholder</h1>
+<fieldset id="text_range">
+  <legend>Placeholder</legend>
+  <input type="text" value="">
+  <input type="text" value="" placeholder="INPUT[type=text]">
+  <input type="password" value="" placeholder="INPUT[type=password]">
+  <textarea placeholder="TEXTAREA"></textarea>
+</fieldset>
+</body>
+</html>

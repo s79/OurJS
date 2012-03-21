@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript" src="../widgets/createDropMenu.js"></script>
+<title>createDropMenu</title>
+<style type="text/css">
+.dropmenu
+{
+	width: 100px;
+	background: gold;
+	cursor: default;
+}
+.dropmenu *
+{
+	-moz-user-select: none;
+}
+.dropmenu .value
+{
+	width: 100px;
+	height: 20px;
+	background: silver;
+}
+.dropmenu .options
+{
+	display: none;
+	position: absolute;
+	z-index: 15;
+	width: 100px;
+	background: silver;
+}
+.dropmenu .options div.top
+{
+	height: 5px;
+	background: red;
+	overflow: hidden;
+}
+.dropmenu .options div.bottom
+{
+	height: 5px;
+	background: blue;
+	overflow: hidden;
+}
+.dropmenu .options ul
+{
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+	height: 200px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+.dropmenu .options ul li
+{
+	background: #dcdcdc;
+}
+.dropmenu .options ul li.over
+{
+	background: whitesmoke;
+}
+.dropmenu_active .value
+{
+	background: whitesmoke;
+}
+.dropmenu_active .options
+{
+	display: block;
+}
+</style>
+<script type="text/javascript">
+function makeValueObject(from,to)
+{
+	var valueObject={};
+	for(var i=from;i<=to;i++)valueObject[i.toString()]=i;
+	return valueObject;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+EventManager.setOnDOMReady(function()
+{
+	var mYear=createDropMenu({
+		$target:$("d1"),
+		$value:$("year"),
+		options:makeValueObject(2000,2008),
+		selected:"2008",
+		onChange:function(text,value){menuSVR.setOptions(svr[text]);},
+		className:"dropmenu"
+	});
+	var mMonth=createDropMenu({
+		$target:$("d2"),
+		$value:$("month"),
+		options:makeValueObject(1,12),
+		selected:"1",
+		className:"dropmenu"
+	});
+	var mDate=createDropMenu({
+		$target:$("d3"),
+		$value:$("date"),
+		options:makeValueObject(1,31),
+		selected:"1",
+		className:"dropmenu"
+	});
+});
+</script>
+</head>
+<body>
+
+<input id="year" type="text" value=""/>
+<input id="month" type="text" value=""/>
+<input id="date" type="text" value=""/>
+<input id="hour" type="text" value=""/>
+<input id="minute" type="text" value=""/>
+
+<div style="float: left; margin-right: 20px;"><div id="d1"></div></div>
+<div style="float: left; margin-right: 20px;"><div id="d2"></div></div>
+<div style="float: left; margin-right: 20px;"><div id="d3"></div></div>
+<div style="float: left; margin-right: 20px;"><div id="d4"></div></div>
+<div style="float: left; margin-right: 20px;"><div id="d5"></div></div>
+
+</body>
+</html>

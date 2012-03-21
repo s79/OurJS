@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!--
+【测试环境】IE6 IE7 未实测
+IE 6
+IE 7
+IE 8
+Firefox 3.6.13
+Chrome 10.0.648.45 dev
+Safari 5.0 (7533.16)
+Opera 11.00
+
+【结果】
+监视 location.hash 的改变。
+IE8- 不支持 document.body.onhashchange 事件，并且不能将 location.hash 的改变记入历史纪录。
+
+【参考】
+http://retchless.com/hash/hash.html
+-->
+</head>
+<body>
+<div style="width: 300px; background-color: #dddddd; border: 3px solid black; padding: 16px 13px; margin: 0 auto; text-align: center; font-family: Verdana; font-size: 11pt; font-weight: bold">
+  <div style="font-size: 14pt; margin-bottom: 10px;">Choose a background color</div>
+  <p><a href="#color=blue">Blue</a></p>
+  <p><a href="#color=red">Red</a></p>
+  <p><a href="#color=yellow">Yellow</a></p>
+  <p><a href="#color=green">Green</a></p>
+  <hr color="#666666">
+  <div id="travel-log" style="font-weight: normal;">
+    <div style="font-size: 12pt; margin-bottom: 10px; font-weight: bold">Travel log:</div>
+  </div>
+</div>
+<script>
+// 多事件处理函数绑定与事件处理函数解绑暂不实现。
+var addListenerOnHashChange = function(handler) {
+  function getHash() {
+    return location.hash.slice(1);
+  }
+
+  // HTML5 的 onhashchange 事件从 IE8+ Firefox 3.6+ Webkit 528+ (Chrome 1.0.154+
+  // Safari 4.0+) 开始被支持。
+  if ('onhashchange' in window && 'Event' in window) {
+    // 支持 onhashchange 事件的浏览器，此处未使用 addEventListener 以兼容 IE8。
+    window.onhashchange = function() {
+      handler(getHash());
+    };
+  } else {
+    // 保存改变前的 hash 用。
+    window.hash = getHash();
+
+    var iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    // 对于 IE6 IE7 的处理。
+    // TODO: 需考虑其他内核的浏览器。
+    iframe.onreadystatechange = function() {
+      // iframe 在第一次载入时不应触发 change 事件。此时 iframe.src 为空，可以根据这点
+      // 判断。
+      if (iframe.src && this.readyState == 'complete') {
+        handler(getHash());
+      }
+    };
+    document.body.appendChild(iframe);
+    iframe.src = 'iframe.html?~';
+
+    window.setInterval(function() {
+      var newHash = getHash();
+      if (hash != newHash) {
+        iframe.src = 'iframe.html?' + newHash;
+      }
+    }, 100);
+  }
+
+  // 如果当前有 hash，则执行一次。
+  var currentHash = location.hash.slice(1);
+  if (currentHash) {
+    handler(currentHash);
+  }
+};
+
+// 测试。
+function test(hash) {
+  document.body.style.backgroundColor = hash.slice(6);
+  document.getElementById('travel-log').innerHTML += '<div>' + hash + '</div>';
+}
+addListenerOnHashChange(test);
+</script>
+</body>
+</html>

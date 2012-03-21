@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TextFieldSelection</title>
+<!--
+【测试环境】
+IE6
+IE7
+IE8
+IE9
+Firefox 6.0
+Chrome 13.0.782.215 m
+Safari 5.1
+Opera 11.50
+
+【结果】
+IE6 IE7 IE8 不支持 W3C 标准的 Range 接口，计算起来比较复杂。
+IE9 中 INPUT 和 TEXTAREA 的 Selection 在点击其他元素后会丢失。
+因此，给 IE 6 - 9 单独做处理，每当 Range 改变即将新的 Selection 坐标保存起来。
+
+Firefox Chrome Safari Opera 使用 W3C 标准方法可以很容易的达到目标。
+
+【参考】
+http://w3help.org/zh-cn/causes/SD9031
+http://dev.w3.org/html5/spec-author-view/textFieldSelection.html
+-->
+<style>
+body {
+  margin: 10px;
+  padding: 0;
+  font: 12px Verdana;
+}
+
+h1 {
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+  font-size: 24px;
+  line-height: 30px;
+}
+
+fieldset {
+  float: left;
+  width: 500px;
+  margin: 10px;
+}
+
+fieldset legend {
+  color: orangered;
+  font-size: 14px;
+}
+
+#text_range input,
+#text_range textarea {
+  width: 100px;
+  height: 16px;
+  margin: 5px 0;
+  padding: 2px;
+  border: 1px solid silver;
+  font: 14px/16px Consolas;
+  background: whitesmoke;
+}
+
+#text_range #test_input {
+  width: 400px;
+}
+
+#text_range #test_textarea {
+  width: 400px;
+  height: 200px;
+  resize: none;
+}
+</style>
+<script>
+//--------------------------------------------------[TextFieldSelection]
+var TextFieldSelection = function() {
+  function getSelectionRangeForIE($target) {
+    var selection = {
+      start: 0,
+      end: 0
+    };
+    if ($target.setSelectionRange) {
+      // IE9 使用 W3C 标准接口获取。
+      selection = {
+        start: $target.selectionStart,
+        end: $target.selectionEnd
+      };
+    } else {
+      // IE6 IE7 IE8 使用 MS 的方法获取。
+      var range = document.selection.createRange();
+      if (range.parentElement() === $target) {
+        switch ($target.nodeName) {
+          case 'INPUT':
+            range = range.duplicate();
+            var valueLength = $target.value.length;
+            selection = {
+              start: -range.moveStart('character', -valueLength),
+              end: valueLength - range.moveEnd('character', valueLength)
+            };
+          break;
+          case 'TEXTAREA':
+            // 计算 start。
+            var rangeAll = document.body.createTextRange();
+            rangeAll.moveToElementText($target);
+            for (var start = 0; rangeAll.compareEndPoints('StartToStart', range) < 0; start++) {
+              rangeAll.moveStart('character', 1);
+            }
+            // 换行符 \n 也算一个字符。
+            for (var i = 0; i <= start; i++) {
+              if ($target.value.charAt(i) === '\n') {
+                start++;
+              }
+            }
+            // 计算 end。
+            rangeAll = document.body.createTextRange();
+            rangeAll.moveToElementText($target);
+            for (var end = 0; rangeAll.compareEndPoints('StartToEnd', range) < 0; end++) {
+              rangeAll.moveStart('character', 1);
+            }
+            // 换行符 \n 也算一个字符。
+            for (i = 0; i <= end; i++) {
+              if ($target.value.charAt(i) === '\n') {
+                end++;
+              }
+            }
+            selection = {
+              start: start,
+              end: end
+            };
+          break
+        }
+      }
+    }
+    return selection;
+  }
+
+  function TextFieldSelection($target) {
+    this.$target = $target;
+    if (window.ActiveXObject) {
+      // IE 6 - 9 保存坐标。
+      var this_ = this;
+      $target.onmouseup = function() {
+        // IE bug，选中后再点。
+        setTimeout(function() {
+          this_.selection = getSelectionRangeForIE($target);
+        }, 100);
+      };
+      $target.onkeyup = function() {
+        this_.selection = getSelectionRangeForIE($target);
+      };
+    }
+  }
+  TextFieldSelection.prototype.getSelectionRange = function() {
+    var $target = this.$target;
+    var selection = {
+      start: 0,
+      end: 0
+    };
+    if (this.selection) {
+      // IE6 IE7 IE8 IE9 已保存坐标，取保存的坐标。
+      selection = this.selection;
+    } else if ($target.setSelectionRange) {
+      // W3C 标准接口，直接获取坐标。
+      selection = {
+        start: $target.selectionStart,
+        end: $target.selectionEnd
+      };
+    }
+    return selection;
+  };
+  TextFieldSelection.prototype.setSelectionRange = function(start, end) {
+    if (window.ActiveXObject) {
+      // IE 6 - 9 保存坐标。
+      this.selection = {
+        start: start,
+        end: end
+      };
+    }
+    var $target = this.$target;
+    if (typeof end === 'undefined') {
+      end = start;
+    }
+    if ($target.setSelectionRange) {
+      $target.setSelectionRange(start, end);
+    } else if ($target.createTextRange) {
+      if ($target.nodeName === 'TEXTAREA') {
+        var start_ = start;
+        var end_ = end;
+        for (var i = 0; i <= start_; i++) {
+          if ($target.value.charAt(i) === '\n') {
+            start--;
+          }
+        }
+        for (i = 0; i <= end_; i++) {
+          if ($target.value.charAt(i) === '\n') {
+            end--;
+          }
+        }
+      }
+      var range = $target.createTextRange();
+      range.collapse(true);
+      range.moveStart('character', start);
+      range.moveEnd('character', end - start);
+      range.select();
+    }
+  };
+  TextFieldSelection.prototype.cut = function() {
+    var text = this.copy();
+    this.paste('');
+    return text;
+  };
+  TextFieldSelection.prototype.copy = function() {
+    var selection = this.getSelectionRange();
+    return this.$target.value.slice(selection.start, selection.end);
+  };
+  TextFieldSelection.prototype.paste = function(text) {
+    var $target = this.$target;
+    var selection = this.getSelectionRange();
+
+    var valueText = $target.value;
+    var textBeforeSelection = valueText.slice(0, selection.start);
+    var textAfterSelection = valueText.slice(selection.end);
+    valueText = textBeforeSelection + text + textAfterSelection;
+
+    // 防止 Firefox 中 TEXTAREA 滚到顶部。
+    var top = $target.scrollTop;
+    $target.value = valueText;
+    $target.scrollTop = top;
+
+    this.setSelectionRange(selection.start, selection.start + text.length);
+    $target.focus();
+  };
+
+  return TextFieldSelection;
+}();
+
+//--------------------------------------------------[window.onload]
+window.onload = function() {
+  textRange = new TextFieldSelection(document.getElementById('test_textarea'));
+
+  var copiedText = '[hellow]';
+  var $start = document.getElementById('start');
+  var $end = document.getElementById('end');
+
+  document.getElementById('cut').onclick = function() {
+    copiedText = textRange.cut();
+  };
+  document.getElementById('copy').onclick = function() {
+    copiedText = textRange.copy();
+  };
+  document.getElementById('paste').onclick = function() {
+    textRange.paste(copiedText);
+  };
+
+  document.getElementById('get_selection').onclick = function() {
+    var selection = textRange.getSelectionRange();
+    $start.value = selection.start;
+    $end.value = selection.end;
+  };
+};
+</script>
+</head>
+<body>
+<h1>TextFieldSelection</h1>
+<fieldset id="text_range">
+  <legend>TextFieldSelection</legend>
+  <input id="test_input" type="text" value="123456789">
+  <textarea id="test_textarea">
+    DOM Level 2 Traversal Range 规范中定义了 Range：一个 Range（范围）是文档、文档片段或属性中的一个内容范围。从某种意义上说 Range 是连续的， 它由一对边界点之间的选中的所有内容构成并会被突出标注。
+    一个 Range 是由范围对应的开始和结束两个边界点组成的，在 Document 或 DocumentFragment 树中， 一个边界点位置（boundary-point's position）表现为一个节点和一个偏移量（offset）。 这个节点被称为边界点的容器或节点位置的容器，该容器以及它的祖先节点被称为边界点的祖先容器或祖先节点位置的容器。 节点中的偏移量被称为边界点和它的位置的偏移量。如果容器是一个 Attr、Document、DocumentFragment、Element 或 EntityReference 节点， 则偏移量位于它们的子节点之间；如果容器是一个 CharacterData、Comment 或 ProcessingInstruction 节点， 则偏移量位于它们包含的 UTF-16 编码的字符串中的 16 位单元之间。
+    Range 接口提供了访问和操作文档树的方法，这些方法比 Node 接口中类似的一些方法更高级。 每一个 Range 接口提供的插入、删除以及复制内容的方法可以直接映射到一系列 DOM Core 允许的节点编辑操作上， 也就是说 Range 接口的操作可以被看成是常用编辑操作的高效实现。
+    可以通过调用 DocumentRange 接口的 createRange() 方法来创建一个 Range，DocumentRange 接口可以从 Document 接口的对象实现中得到。
+    关于 Range 的更详细信息，请参考 Document Object Model Range。
+  </textarea>
+  <input id="start" type="text">
+  <input id="end" type="text">
+  <button id="get_selection">get selection</button>
+  <br>
+  <button id="cut">cut</button>
+  <button id="copy">copy</button>
+  <button id="paste">paste</button>
+</fieldset>
+</body>
+</html>

@@ -1,0 +1,403 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>dom-event</title>
+<link rel="stylesheet" href="demo/common.css">
+<script src=".references/jquery-1.7.1.js"></script>
+<script src="/framework/import.js"></script>
+<style>
+fieldset { width: 500px; height: 200px; }
+button { padding: 0 5px; }
+.debug { float: right; width: 180px; height: 180px; margin: 0 5px; background: gold; overflow: auto; line-height: 1.2; }
+#scroll { float: left; width: 100px; height: 180px; background: #9acd32; font: bold 14px/180px Verdana; text-align: center; }
+#div { height: 150px; background: whitesmoke; }
+#mouse { height: 180px; background: crimson; }
+#div code,
+#div samp,
+#div kbd,
+#div var,
+#div span,
+#mouse code,
+#mouse samp,
+#mouse kbd,
+#mouse var,
+#mouse span { float: left; display: block; width: 100px; height: 30px; margin: 5px; background: #c0c0c0; line-height: 30px; text-align: center; cursor: default; }
+#div p,
+#mouse p { clear: both; height: 30px; margin: 5px; background: #8fbc8b; font: 12px/30px Verdana; text-align: center; cursor: default; }
+#mouse div { height: 20px; background: #ffd711; line-height: 20px; cursor: default; }
+#container { position: relative; height: 150px; background: #f5f5f5; }
+#drag { position: absolute; left: 0; top: 0; width: 160px; height: 120px; padding: 3px; border: 2px solid lightsteelblue; background: lightsteelblue; cursor: default; }
+#drag.dragging { border-color: dodgerblue; }
+.click { background: silver; }
+.focusin { border-style: dotted; }
+</style>
+</head>
+<body>
+<h1>Event</h1>
+<!-- 多监听器添加及删除 -->
+<fieldset id="focusin">
+  <legend>多监听器添加及删除</legend>
+  <div id="d1" class="debug"></div>
+  <button id="b1">按钮一</button>
+  <br>
+  <button id="b2">按钮二</button>
+  <button id="b3">解除按钮二的所有监听器</button>
+  <br>
+  <button id="b4">清除信息 + 按钮二加一个监听器</button>
+  <br>
+  <input id="c1" type="checkBox" value="checkbox1">
+  <input id="c2" type="checkBox" value="checkbox2">
+  <input id="r1" name="r1" type="Radio" value="111">
+  <input id="r2" name="r1" type="Radio" value="222">
+  <input id="t1" type="text" value="select select select">
+</fieldset>
+<script>
+var $ = document.$;
+
+//$('#r3').on('focus', function(e) {
+//  this.blur();
+//  console.log('::propertychange::', e.event.propertyName);
+//});
+//$('#r3').on('propertychange', function(e) {
+//  console.log('::propertychange::', e.event.propertyName);
+//});
+//
+$('#focusin').find('input').forEach(function(item) {
+  item.on('change', function(e) {
+    console.log('::change::', e.target.value);
+  });
+});
+//document.on('click', function(e) {
+//  console.log('--click--', e.target.value);
+//});
+//jQuery('#r1').on('change', function(e) {
+//  console.log('::change::', e.target.value);
+//});
+//jQuery('#r2').on('change', function(e) {
+//  console.log('::change::', e.target.value);
+//});
+//jQuery('#r2').off('click');
+//jQuery(document).on('click', function(e) {
+//  console.log('--click--', e.target.value);
+//});
+/* select IE9- 会在鼠标拖拽选择时频繁触发，并且不冒泡。
+
+ $('#i2').on('select', function(e) {
+ console.log('::select::', e.target.value);
+ });
+ window.on('select', function(e) {
+ console.log('--select--', e.target.value);
+ });*/
+</script>
+<!-- 鼠标滚动、移动、按键及键盘按键 -->
+<fieldset>
+  <legend>鼠标滚动、移动、按键及键盘按键</legend>
+  <div id="scroll">鼠标滚动</div>
+  <div id="d21" class="debug"></div>
+  <div id="d22" class="debug"></div>
+</fieldset>
+<!-- 事件传播 -->
+<fieldset>
+  <legend>事件传播</legend>
+  <div id="div"><code>code</code><samp>samp</samp><kbd>kbd</kbd><var>var</var><span>span</span><p id="p">p</p></div>
+  <button id="button">取消以上P元素的冒泡</button>
+</fieldset>
+<!-- 拖动事件 { -->
+<fieldset>
+  <legend>拖动事件</legend>
+  <div id="container">
+    <div id="drag">
+      <div id="d41">Draggable</div>
+      <div id="d42">Draggable</div>
+      <div id="i_gray">[灰]</div>
+      <div id="i_blue">[蓝]</div>
+    </div>
+  </div>
+  <button id="freez">解除以上蓝方块拖动</button>
+  <button id="clear">解除以上蓝方块代理</button>
+</fieldset>
+<script>
+//--------------------------------------------------[拖动事件]
+var $container = $('#container');
+var $drag = $('#drag');
+
+// 自身。
+var currentX = 0;
+var currentY = 0;
+var maxX = $container.offsetWidth - $drag.offsetWidth;
+var maxY = $container.offsetHeight - $drag.offsetHeight;
+$drag.on('mousedragstart.f', function() {
+  currentX = $drag.offsetLeft;
+  currentY = $drag.offsetTop;
+  this.addClass('mousedragging');
+})
+    .on('mousedrag.f', function(e) {
+      var x = Math.max(Math.min(currentX + e.offsetX, maxX), 0);
+      var y = Math.max(Math.min(currentY + e.offsetY, maxY), 0);
+      this.setStyles({left: x + 'px', top: y + 'px'});
+      $('#i_blue').innerHTML = '[蓝]' + x + ':' + y;
+    })
+    .on('mousedragend.f', function(e) {
+      this.removeClass('mousedragging');
+    });
+$container.on('mousedrag', function(e) {
+  $('#i_gray').innerHTML = '[灰]' + e.offsetX + ':' + e.offsetY;
+});
+
+// 代理。
+var filter = function() {
+  return this.id.slice(0, 2) === 'd4';
+};
+$drag.on('mousedragstart.c', function(e) {
+  this.setStyle('background', 'greenyellow').innerHTML = 'START';
+//    return false;
+}, filter)
+    .on('mousedrag.c', function(e) {
+      this.innerHTML = e.offsetX + ':' + e.offsetY;
+    }, filter)
+    .on('mousedragend.c', function(e) {
+      this.setStyle('background', 'transparent').innerHTML = 'END';
+    }, filter);
+
+// 解除。
+$('#freez').on('click', function() {
+  $drag.off('mousedragstart.f mousedrag.f mousedragend.f');
+});
+
+$('#clear').on('click', function() {
+  $drag.off('mousedragstart.c mousedrag.c mousedragend.c');
+});
+
+/*
+ $drag.on('mousedragstart', function(e) {
+ console.log('::dragstart::', e.target, e.offsetX, e.offsetY);
+ })
+ .on('mousedrag', function(e) {
+ console.log('::drag::', e.offsetX, e.offsetY);
+ })
+ .on('mousedragend', function(e) {
+ console.log('::dragend::', e.offsetX, e.offsetY);
+ });
+ */
+
+</script>
+<!-- } 拖动事件 -->
+
+<!-- 鼠标进入、离开 -->
+<fieldset>
+  <legend>鼠标进入、离开</legend>
+  <div id="mouse">
+    <div id="d51"></div>
+    <div id="d52"></div>
+    <div id="d53"></div>
+    <code>code</code><samp>samp</samp><kbd>kbd</kbd><var id="var">var</var><span>span</span><p id="inner">p</p></div>
+</fieldset>
+
+<script>
+//--------------------------------------------------[多监听器添加及删除]
+var $d1 = $('#d1');
+var $b1 = $('#b1');
+var $b2 = $('#b2');
+var $b3 = $('#b3');
+var $b4 = $('#b4');
+
+function onClick1() {
+  $d1.innerHTML += this.id + '<br>';
+}
+
+function onClick2() {
+  $d1.innerHTML += this.tagName + '<br>';
+}
+
+function onClick3() {
+  $d1.innerHTML += this.innerHTML + '<br>';
+}
+
+$b1.on('click', onClick1)
+    .on('click', onClick2)
+    .on('click', onClick3);
+$b2.on('click', onClick1)
+    .on('click', onClick2)
+    .on('click', onClick3);
+$b3.on('click', function() {
+  $b2.off('click', onClick1)
+      .off('click', onClick2)
+      .off('click', onClick3);
+  $d1.innerHTML += '【按钮二】监听器已解除<br>';
+  $d1.innerHTML += '鼠标滚动的监听器已解除<br>';
+
+  $scroll.off('mousewheel', wheel);
+});
+$b4.on('click', function() {
+  $d1.innerHTML = '';
+  $b2.on('click', onClick1);
+});
+//--------------------------------------------------[鼠标滚动、坐标、按键及键盘按键]
+var $d21 = $('#d21');
+var $d22 = $('#d22');
+var $scroll = $('#scroll');
+
+function wheel(event) {
+  this.innerHTML = event.wheelUp ? '↑鼠标滚动↑' : (event.wheelDown ? '↓鼠标滚动↓' : '-鼠标滚动-');
+  // IE8 会自动 preventDefault，因此建议加上，以确保各浏览器中行为一致。
+  event.preventDefault();
+}
+function wheel2(event) {
+  console.log(event, event.type + ':' + event.wheelUp + ':' + event.wheelDown);
+}
+$scroll.on('mousewheel', wheel);
+$scroll.on('mousewheel', wheel2);
+
+var mousePositions = 'clientX clientY screenX screenY pageX pageY'.split(' ');
+ document.on('mousemove mousedown', function(event) {
+ var text = '<strong>鼠标坐标</strong><br>';
+ mousePositions.forEach(function(item) {
+ text += item + ':' + event[item] + '<br>';
+ });
+ $d21.innerHTML = text;
+ });
+
+function t(e) {
+  e = e || window.event;
+  e.customType = '~customType~';
+  console.log(e.customType);
+}
+//document.addEventListener ? document.addEventListener('mousemove', t, false) : document.attachEvent('onmousemove', t);
+
+function mouseButtonChange(event) {
+  var text = '<strong>鼠标按键</strong><br>';
+  'leftButton middleButton rightButton'.split(' ').forEach(function(item) {
+    text += item + ':' + event[item] + '<br>';
+  });
+  $d22.innerHTML = text;
+}
+document.on('mousedown', mouseButtonChange);
+
+var keys = 'which ctrlKey altKey shiftKey metaKey'.split(' ');
+function keyChange(event) {
+  var text = '<strong>键盘按键</strong><br>';
+  keys.forEach(function(item) {
+    text += item + ':' + event[item] + '<br>';
+  });
+  $d22.innerHTML = text;
+  var e = event.originalEvent;
+//  console.log(e.keyCode + ':' + e.charCode + ':' + e.which);
+}
+//document.on('keyup', keyChange);
+//document.on('keydown', keyChange);
+document.on('keydown', keyChange);
+
+//--------------------------------------------------[事件传播]
+$('#div').on('click', function(event) {
+  console.log('触发元素 > 捕获元素 = ' + event.target.tagName + ' > ' + this.tagName);
+});
+
+$('#button').on('click', function(event) {
+  $('#p').on('click', function(event) {
+    event.stopPropagation();
+//    return false;
+  });
+});
+
+//--------------------------------------------------[鼠标进入、离开]
+var $d51 = $('#d51');
+var $mouse = $('#mouse');
+var $inner = $('#inner');
+
+function showMessage($target, message) {
+  if ($target.innerHTML.length + message.length > 60) {
+    $target.innerHTML = '';
+  }
+  $target.innerHTML += message;
+}
+
+function over(event) {
+  showMessage($d51, '|Over');
+  console.log(event.originalEvent);
+}
+
+function out(event) {
+  showMessage($d51, '|Out');
+}
+
+function enter(event) {
+  showMessage($(this.tagName == 'DIV' ? '#d52' : '#d53'), '|Enter:' + this.tagName);
+  console.log(event.type);
+}
+
+function leave(event) {
+  showMessage($(this.tagName == 'DIV' ? '#d52' : '#d53'), '|Leave:' + this.tagName);
+  console.log(event.type);
+}
+
+//$mouse.on('mouseover', over);
+//$mouse.on('mouseout', out);
+//$mouse.on('mouseenter', enter);
+//$mouse.on('mouseleave', leave);
+//$inner.on('mouseenter', enter);
+//$inner.on('mouseleave', leave);
+jQuery($mouse).on('mouseover', over);
+jQuery($mouse).on('mouseout', out);
+jQuery($mouse).on('mouseenter', enter);
+jQuery($mouse).on('mouseleave', leave);
+jQuery($inner).on('mouseenter', enter);
+jQuery($inner).on('mouseleave', leave);
+
+function F() {
+  return this.getStyle('float') === 'left';
+}
+function E1() {
+  this.setStyle('text-decoration', 'line-through');
+}
+function L1() {
+  this.setStyle('text-decoration', 'none');
+}
+function E2() {
+  this.setStyle('color', 'white');
+}
+function L2() {
+  this.setStyle('color', 'black');
+}
+//$mouse.on('mouseenter', E1, F);
+//$mouse.on('mouseleave', L1, F);
+//$mouse.on('mouseenter', E2, F);
+//$mouse.on('mouseleave', L2, F);
+
+/*
+ document.on('focusin focusout', function(event) {
+ console.log(event, event.type, event.target.outerHTML, this.tagName);
+ }, function() {
+ return this.tagName === 'FIELDSET' && !this.id;
+ });
+ */
+//jQuery(document).delegate('fieldset', 'focusin', function(event) {
+//  console.log(event.type, event.target.outerHTML, this.tagName);
+//});
+
+$b1.getParent().on('click', function(e) {
+  this.toggleClass('click');
+});
+$b1.getParent().on('focusin', function(e) {
+  this.toggleClass('focusin');
+});
+
+$(document.body).on('foo.bar', function(e) {
+  console.log(e);
+//  e.stopPropagation();
+});
+
+/*
+ window.on('beforeunload', function() {
+ return 'NONONO!';
+ });
+*/
+
+/*
+window.on('click keydown mouseover', function() {
+  console.log(this);
+});
+*/
+</script>
+</body>
+</html>

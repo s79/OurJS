@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript" src="createFileBrowser.js"></script>
+<title>createFileBrowser</title>
+<style type="text/css">
+.browser input.text
+{
+	float: left;
+	width: 200px;
+	height: 17px;
+	margin-right: 10px;
+	padding: 0px;
+	border: 1px solid #c0c0c0;
+	font: 12px/17px Verdana;
+}
+.browser span
+{
+	display: block;
+	position: relative;
+	width: 46px;
+	height: 19px;
+	overflow: hidden;
+	background: url("btn_browse.gif") no-repeat 0px 0px;
+}
+.browser span.over
+{
+	background: url("btn_browse.gif") no-repeat 0px -19px;
+}
+.browser span input
+{
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	width: 220px;
+	height: 50px;
+	opacity: 0;
+	filter: alpha(opacity=0);
+}
+</style>
+<script type="text/javascript">
+EventManager.setOnDOMReady(function()
+{
+	createFileBrowser($("b1"));
+	createFileBrowser($("b2"));
+	createFileBrowser($("b3"));
+});
+</script>
+</head>
+<body>
+<form>
+	<input id="b1" name="file1" type="file"/>
+	<br>
+	<input id="b2" name="file2" type="file"/>
+	<br>
+	<input id="b3" name="file3" type="file"/>
+</form>
+</body>
+</html>

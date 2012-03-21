@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>createValidator</title>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript" src="toggleRemind.js"></script>
+<style type="text/css">
+*
+{
+	margin: 0px;
+	padding: 0px;
+}
+body
+{
+	padding: 50px;
+}
+form
+{
+	padding: 15px;
+	border: 1px solid #dcdcdc;
+}
+form table td.text
+{
+	color: 303030;
+	font: 12px Verdana;
+	text-align: right;
+}
+form input
+{
+	height: 16px;
+	padding-top: 2px;
+	border: 1px solid #dcdcdc;
+	font: 12px Verdana;
+}
+.fl
+{
+	float: left;
+}
+.putRemind
+{
+	display: none;
+	position: absolute;
+	cursor: pointer;
+}
+.putRemind div
+{
+	position: relative;
+	top: -10px;
+	left: 20px;
+	height: 22px;
+	float: left;
+	background: url("bg_remind_l.gif") no-repeat top left;
+}
+.putRemind div span
+{
+	display: block;
+	position: relative;
+	left: 10px;
+	height: 22px;
+	float: left;
+	padding-right: 10px;
+	background: url("bg_remind_r.gif") no-repeat top right;
+	font: 12px/19px Verdana;
+	color: #ffffff;
+}
+</style>
+<script type="text/javascript">
+EventManager.setOnDOMReady(function()
+{
+	toggleRemind($("form"),["name","pid","pid2"]);
+});
+</script>
+</head>
+<body>
+	<form id="form" onsubmit="return false;">
+	<table border="0" cellspacing="10" cellpadding="0">
+	<tbody>
+	<tr>
+	<td width="150" class="text">真实姓名</td>
+	<td><input name="name" type="text"/></td>
+	</tr>
+	<tr>
+	<td class="text">游戏帐户</td>
+	<td><input name="account" type="text"/></td>
+	</tr>
+	<tr>
+	<td class="text">身份证号码</td>
+	<td><input name="pid" type="text"/></td>
+	</tr>
+	<tr>
+	<td class="text">重新输入身份证号码</td>
+	<td><input name="pid2" type="text"/></td>
+	</tr>
+	</tbody>
+	</table>
+	</form>
+
+	<div id="r_name" class="putRemind"><div><span>您输入的姓名不正确</span></div></div>
+	<div id="r_account" class="putRemind"><div><span>您所输入的游戏帐户信息错误</span></div></div>
+	<div id="r_pid" class="putRemind"><div><span>您的身份证信息不合法</span></div></div>
+	<div id="r_pid2" class="putRemind"><div><span>两次输入的身份证号码不一致</span></div></div>
+</body>
+</html>

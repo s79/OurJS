@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>crossDomainTest</title>
+<script type="text/javascript" src="../../common.js"></script>
+<style type="text/css">
+body
+{
+	margin: 10px;
+	padding: 0px;
+	background: #f5f5f5;
+	font: 12px Verdana;
+}
+h1
+{
+	height: 30px;
+	margin: 0px;
+	padding: 0px;
+	border-bottom: 1px solid #000000;
+	font: 24px/30px Verdana;
+}
+h2
+{
+	height: 20px;
+	margin: 0px;
+	padding: 0px;
+	color: #dc143c;
+	font: 14px/20px Verdana;
+}
+div.content
+{
+	height: 150px;
+	font: 14px/150px Verdana;
+	text-align: center;
+}
+#pop2,
+iframe
+{
+	position: relative;
+	z-index: 10;
+	width: 600px;
+	height: 400px;
+	border: 1px solid #000000;
+	background: #ffffff;
+}
+#pop1
+{
+	position: absolute;
+	z-index: 10;
+	top: 100px;
+	left: 200px;
+	width: 800px;
+	height: 600px;
+	background: #ffd711;
+	border: 1px solid #000000;
+	text-align: center;
+}
+#pop2
+{
+	position: absolute;
+	z-index: 10;
+	top: 100px;
+	left: 200px;
+}
+</style>
+<script type="text/javascript">
+//--------------------------------------------------[closePopup]
+function closePopup(id)
+{
+	var $target=parent.document.getElementById(id);
+	$target.style.display="none";
+}
+</script>
+</head>
+<body>
+<h1>crossDomainTest</h1>
+	<div class="content">http://design.r2online.cn/R2Correct/js/-/crossDomainTest/index.html</div>
+	<iframe id="iframe" scrolling="no" frameborder="0" src="http://test.r2online.cn/R2Correct/js/-/crossDomainTest/iframe1.html" onload="alert('loaded');"></iframe>
+	<div class="content">http://design.r2online.cn/R2Correct/js/-/crossDomainTest/index.html</div>
+</body>
+</html>

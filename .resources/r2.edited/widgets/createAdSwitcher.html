@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>createAdSwitcher</title>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript" src="createAdSwitcher.js"></script>
+<style type="text/css">
+/* ad1 */
+.ad1
+{
+	position: relative;
+	width: 573px;
+	height: 156px;
+}
+.ad1 img
+{
+	display: none;
+	position: absolute;
+	z-index: 10;
+	width: 573px;
+	height: 156px;
+	border: 0px none;
+}
+.ad1 ul
+{
+	list-style: none;
+	position: absolute;
+	z-index: 20;
+	bottom: 3px;
+	right: 5px;
+	height: 12px;
+	margin: 0px;
+	padding: 0px;
+}
+.ad1 ul li
+{
+	float: left;
+	width: 25px;
+	height: 12px;
+	margin-right: 2px;
+	background: #ffffff;
+	color: #000000;
+	font: 10px Verdana;
+	line-height: 12px;
+	text-align: center;
+	cursor: pointer;
+}
+.ad1 ul li.mouseover
+{
+	background: #dc143c;
+}
+.ad1 ul li.selected
+{
+	background: #000000;
+	color: #ffffff;
+}
+/* ad2 */
+.ad2
+{
+	position: relative;
+	width: 410px;
+	height: 184px;
+	background: #000000;
+}
+.ad2 img
+{
+	display: none;
+	position: absolute;
+	z-index: 10;
+	width: 410px;
+	height: 184px;
+	border: 0px none;
+}
+.ad2 ul
+{
+	list-style: none;
+	position: absolute;
+	z-index: 20;
+	bottom: 0px;
+	right: 5px;
+	height: 21px;
+	margin: 0px;
+	padding: 0px;
+}
+.ad2 ul li
+{
+	float: left;
+	width: 23px;
+	height: 21px;
+	margin-right: 1px;
+	background-image: url("btn.gif");
+	cursor: pointer;
+}
+.ad2 ul li span
+{
+	display: none;
+}
+.ad2 ul li.mouseover
+{
+}
+.ad2 ul li.selected
+{
+	width: 25px;
+}
+</style>
+<script type="text/javascript">
+//--------------------------------------------------[window.onload]
+EventManager.setOnDOMReady(function()
+{
+	createAdSwitcher({
+		$target:$("t1"),
+		ad:
+		[
+			["a.jpg","01","01.html"],
+			["b.jpg","02","02.html"]
+		],
+		duration:1000,
+		className:"ad1"
+	});
+	createAdSwitcher({
+		$target:$("t2"),
+		ad:
+		[
+			["a.jpg","01","01.html"],
+			["b.jpg","02","02.html"],
+			["a.jpg","03","03.html"],
+			["b.jpg","04","04.html"]
+		],
+		duration:1000,
+		className:"ad1"
+	});
+	createAdSwitcher({
+		$target:$("t3"),
+		ad:
+		[
+			["a.jpg","01","01.html"],
+			["b.jpg","02","02.html"],
+			["a.jpg","03","03.html"],
+			["b.jpg","04","04.html"],
+			["a.jpg","05","05.html"],
+			["b.jpg","06","06.html"]
+		],
+		duration:1000,
+		className:"ad1"
+	});
+	createAdSwitcher({
+		$target:$("t4"),
+		ad:
+		[
+			["a.jpg","01","01.html"],
+			["b.jpg","02","02.html"],
+			["a.jpg","03","03.html"],
+			["b.jpg","04","04.html"],
+			["a.jpg","05","05.html"],
+			["b.jpg","06","06.html"],
+			["a.jpg","07","07.html"],
+			["b.jpg","08","08.html"],
+			["a.jpg","09","09.html"],
+			["b.jpg","10","10.html"]
+		],
+		duration:1000,
+		className:"ad1"
+	});
+	createAdSwitcher({
+		$target:$("t5"),
+		ad:
+		[
+			["1.jpg","1","1.html"],
+			["2.jpg","2","2.html"],
+			["3.jpg","3","3.html"]
+		],
+		duration:5000,
+		className:"ad2"
+	});
+});
+</script>
+</head>
+<body>
+<ol>
+<li id="t1">1</li>
+<li id="t2">2</li>
+<li id="t3">3</li>
+<li id="t4">4</li>
+<li id="t5">5</li>
+</ol>
+</body>
+</html>

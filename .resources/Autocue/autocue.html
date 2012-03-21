@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Autocue</title>
+<script src="jquery-1.6.2.min.js"></script>
+<style>
+#autocue {position:relative; width:500px; border:1px solid black; background-color:whitesmoke; overflow:hidden;}
+#autocue ul {position:absolute; list-style:none; margin:0; padding:0;}
+#autocue li {width:500px; border-bottom:1px dotted gray;}
+</style>
+<script>
+/**************************************************
+* 组件：字幕机。
+**************************************************/
+var Autocue = function (content, items, duration) {
+  this.content = $(content);
+  this.items = items || 1;
+  this.messages = [];
+  this.inited = false;
+  this.processing = false;
+  // 下一次刷新。
+  var this_ = this;
+  var timer = null;
+  function play() {
+    timer = setInterval(function () {
+      this_.showNext();
+    }, duration);
+  }
+  this.content.hover(function () {
+    clearInterval(timer);
+  }, function () {
+    play();
+  });
+  play();
+};
+Autocue.prototype.addMessages = function (newMessages) {
+  var messages = this.messages;
+  var m = messages.length;
+  var message = null;
+  var n = newMessages.length;
+  var newMessage = null;
+  while (newMessage = newMessages[--n]) {
+    while (message = messages[--m]) {
+      if (newMessage === message) {
+        newMessage = null;
+        break;
+      }
+    }
+    if (newMessage) {
+      messages.push(newMessage);
+    }
+    m = messages.length;
+  }
+};
+Autocue.prototype.showNext = function () {
+  if (this.processing) {
+    return;
+  }
+  this.processing = true;
+  var content = this.content;
+  var messages = this.messages;
+  var message = null;
+  // 初始化。
+  if (!this.inited) {
+    for (var i = 0; i < this.items; i++) {
+      if (message = messages.shift()) {
+        $('<li>' + message + '</li>').appendTo(content);
+        messages.push(message);
+      }
+    }
+    $('<li></li>').appendTo(content);
+    content.parent().css('height', content.children().last()[0].offsetTop);
+    this.inited = true;
+    this.processing = false;
+    return;
+  }
+  // 显示下一条。
+  var newMessageContainer = content.children().last();
+  message = messages.shift();
+  // 保留 20 条旧信息。
+  if (messages.length < 20) {
+    messages.push(message);
+  }
+  // 显示下一条。
+  var this_ = this;
+  newMessageContainer.html(message);
+  var step = newMessageContainer[0].offsetHeight;
+  var currentViewportHeight = newMessageContainer[0].offsetTop;
+  var targetViewportHeight = currentViewportHeight + step - newMessageContainer.prev()[0].offsetHeight;
+  content.prepend(newMessageContainer);
+  content.css('top', -step);
+  content.animate({top: 0}, 500, function() {
+    this_.processing = false;
+  });
+  content.parent().animate({height: targetViewportHeight});
+};
+/**************************************************
+* 组件：字幕机。
+**************************************************/
+$(function () {
+  // 字幕机。
+  var container = $('#autocue-viewport');
+  var autocue = new Autocue(container, 5, 2000);
+  var inited = false;
+  function getNewMessages() {
+    $.ajax({
+      type: 'get',
+      url: 'fake_message.txt',
+      data: 'uid=' + new Date().getTime().toString(36),
+      contentType: 'application/json',
+      success: function (data) {
+        data = eval('(' + data + ')');
+        if (data.state === 1) {
+          var newMessages = [];
+          $.each(data.value, function (i, value) {
+            newMessages.push(value.content);
+          });
+          autocue.addMessages(newMessages);
+          if (!inited) {
+            autocue.showNext();
+            inited = true;
+          }
+        }
+      }
+    });
+    // 每隔一分钟获取新消息。
+    setTimeout(getNewMessages, 60 * 1000);
+  }
+  getNewMessages();
+});
+</script>
+</head>
+<body>
+<div id="autocue">
+  <ul id="autocue-viewport" class="autocue"></ul>
+</div>
+</body>
+</html>

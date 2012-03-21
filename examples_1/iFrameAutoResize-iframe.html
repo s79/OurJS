@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>enableOnDOMReadyEvent</title>
+<script src="enableondomreadyevent.js"></script>
+<style>
+body {
+  background: #ffd711;
+}
+div {
+  padding: 10px;
+  border: 1px solid #ff0000;
+  background: #f5f5f5;
+}
+img {
+  width: 400px;
+  height: 300px;
+}
+</style>
+<script>
+//--------------------------------------------------[onDOMReady]
+function onDOMReady() {
+  parent.debug("帧页面 - DOM Ready(" + document.getElementById("test").offsetHeight + ")");
+}
+//--------------------------------------------------[window.onload]
+window.onload = function() {
+  parent.debug("帧页面 - Loaded(" + document.getElementById("test").offsetHeight + ")");
+};
+</script>
+</head>
+<body>
+<div id="test">
+  <img id="img" src="http://www.abc.com" alt="null">
+</div>
+<script>
+function getRandom(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+document.getElementById('img').style.height = getRandom(150, 600) + 'px';
+</script>
+</body>
+</html>

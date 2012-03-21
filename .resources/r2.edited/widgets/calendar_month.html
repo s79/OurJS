@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Calendar</title>
+<link rel="stylesheet" type="text/css" href="calendarMonth.css" media="all"/>
+<script type="text/javascript" src="calendarMonth.js"></script>
+<script type="text/javascript" src="createDatepickerMonth.js"></script>
+<style type="text/css">
+body
+{
+	font: 12px Verdana,宋体,微软雅黑;
+}
+.coop_time
+{
+	position: relative;
+}
+.date_box
+{
+	width: 143px;
+	height: 25px;
+	text-indent: 20px;
+	line-height: 25px;
+	cursor: pointer;
+}
+.date_box_show
+{
+	background: url("bg_time_list.gif") left top;
+}
+.date_box_hide
+{
+	background: url("bg_time_list.gif") left bottom;
+}
+</style>
+<script type="text/javascript">
+function setValue(sDate)
+{
+	document.getElementById("i_date").value=sDate;
+}
+window.onload=function()
+{
+	createDatePicker("date");
+};
+</script>
+</head>
+<body>
+<ul class="coop_time fl">
+	<li class="text">按日期查看</li>
+	<li id="date" class="date_box date_box_hide">2000-05-20</li>
+	<input id="i_date" type="hidden"/>
+</ul>
+</body>
+</html>

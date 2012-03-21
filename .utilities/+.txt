@@ -1,0 +1,231 @@
+//--------------------------------------------------[组件：对话框]
+(function() {
+  /**
+   * @require uiComponents.Mask
+   * 创建对话框之前，对话框容器应有 display:none; position:absolute/fixed; 的设置。
+   * 对话框容器的 zIndex 建议设置范围为 1000 - 9999，不要动态修改对话框容器的 zIndex。
+   */
+  var $first;
+
+  function Dialog($dialog, options) {
+    options = Object.update(Object.clone(Dialog.defaultOptions), options);
+
+    var $reference = options.reference;
+    var zIndex = parseInt($dialog.getStyle('z-index'), 10) || 0;
+
+    if (zIndex === 0) {
+      $dialog.setStyle('z-index', zIndex = 1000);
+    }
+
+    this.mask = new uiComponents.Mask({attributes: 'id="mask"'});
+    this.element = $dialog;
+    this.reference = $reference;
+    this.zIndex = zIndex;
+    this.isOpen = false;
+    this.onOpen = options.onOpen;
+    this.onClose = options.onClose;
+
+    // 阻止 tab 键遍历到对话框之外。
+    if (!$first) {
+      var $body = document.body;
+      $first = $('<input type="text" maxlength="0" style="position: absolute; top:0; left: -100000px;">');
+      $body.insertBefore($first, $body.traversal('firstChild'));
+    }
+
+    var $before = $('<input type="text" maxlength="0" style="position: absolute; top:0; left: -100000px;">');
+    $before.addListener('keydown', function(e) {
+      if (e.keyCode === 9 && e.shiftKey) {
+        $after.focus();
+        e.stopPropagation();
+      }
+    });
+    $dialog.insertBefore($before, $dialog.traversal('firstChild'));
+
+    var $after = $('<input type="text" maxlength="0" style="position: absolute; top:0; left: -100000px;">');
+    $after.addListener('keydown', function(e) {
+      if (e.keyCode === 9 && !e.shiftKey) {
+        $before.focus();
+        e.stopPropagation();
+      }
+    });
+    $dialog.appendChild($after);
+
+    this.mask.element.addListener('mousedown', function() {
+      setTimeout(function() {
+        $before.focus();
+      }, 0);
+    });
+
+    $first.addListener('focus', function() {
+      if ($before.offsetWidth) {
+        $before.focus();
+      }
+    });
+
+  }
+
+  Dialog.defaultOptions = {
+    reference: $(document.body), // TODO: 默认为视口。并且此处的 $body 最好在 domready 后赋值。 (All compunents?)
+    onOpen: function() {
+    },
+    onClose: function() {
+    }
+  };
+
+  Dialog.prototype.setPosition = function() {
+    var $dialog = this.element;
+    var computedStyle = $dialog.getComputedStyle();
+    var isClosed = computedStyle.getPropertyValue('display') === 'none';
+//    var positionIsFixed = computedStyle.getPropertyValue('position') === 'fixed'; // TODO: 参照元素为视口则自动为 Fixed？
+    if (isClosed) {
+      $dialog.setInlineStyle('display:block; visibility:hidden;');
+    }
+    var dCR = $dialog.getClientRect();
+    var rCR = this.reference.getClientRect();
+
+    var left = Math.floor(rCR.left + (rCR.width - dCR.width) / 2);
+    var top = Math.floor(rCR.top + (rCR.height - dCR.height) / 2);
+    $dialog.setInlineStyle('left:' + left + 'px; top:' + top + 'px;');
+    if (isClosed) {
+      $dialog.setInlineStyle('display:none; visibility:visible;');
+    }
+  };
+  Dialog.prototype.open = function() {
+    this.setPosition();
+    this.mask.show(this.reference, this.zIndex - 1);
+    this.element.setInlineStyle('display:block;');
+    this.element.traversal('firstChild').focus();
+    this.onOpen();
+    this.isOpen = true;
+  };
+  Dialog.prototype.close = function() {
+    this.mask.hide();
+    var $dialog = this.element;
+    $dialog.setInlineStyle('display:none;');
+    this.onClose();
+    this.isOpen = false;
+  };
+
+  uiComponents.Dialog = Dialog;
+
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /**
+   * 省略某部分内容以达到要求，内容被省略的元素会被加入 title 属性，其值为其进行省略处理前的内容。
+   * @param {Element} targetElement 可以进行内容省略处理的元素，其内容只能是文本，不能有其他 HTML 代码。
+   * @param {Function} fitTester 判断是否符合既定要求的函数，返回 true 为符合，false 则要继续进行省略处理。谨慎设计此函数，本功能未做防止进入死循环的处理。
+   * @param {?number} minLengthAssert 最短长度断言，即 targetElement 包含该数目的字符时必定不会导致 fitTester 函数的返回值为 false。
+   * @param {?string} ellipsisText 省略符。
+   */
+  ellipsisToFit: function(targetElement, fitTester, minLengthAssert, ellipsisText) {
+    if (fitTester()) {
+      return;
+    }
+    minLengthAssert = minLengthAssert || 1;
+    ellipsisText = ellipsisText || '...';
+    var text = $(targetElement).text();
+    var fitText = targetElement.innerHTML = '';
+    while (fitTester()) {
+      fitText = targetElement.innerHTML;
+      targetElement.innerHTML = text.slice(0, minLengthAssert++) + ellipsisText;
+    }
+    targetElement.innerHTML = fitText;
+    targetElement.title = text;
+  },
+  getFormattedGoldText: function(gold) {
+    var goldText = '';
+    var charactors = gold.toString().split('');
+    var newCharactors = [];
+    var i = charactors.length;
+    var n = 0;
+    while (i--) {
+      n++;
+      if (n === 5) {
+        newCharactors.unshift('万');
+      } else if (n === 9) {
+        newCharactors.unshift('亿');
+      }
+      newCharactors.unshift(charactors[i]);
+    }
+    goldText = newCharactors.join('');
+    if (goldText.slice(-4) === '0000') {
+      goldText = goldText.slice(0, -4);
+    }
+    if (goldText.slice(-5) === '0000万') {
+      goldText = goldText.slice(0, -5);
+    }
+    return goldText;
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**************************************************
+ * 为 INPUT[type=text] 添加 placeholder。
+ **************************************************/
+jQuery.fn.extend({addPlaceholder: function(placeholder) {
+  if ($.trim(this.val()) === '') {
+    this.addClass('c-placeholder');
+    this.val(placeholder);
+  }
+  this.focus(function() {
+    if ($(this).hasClass('c-placeholder')) {
+      $(this).removeClass('c-placeholder');
+      this.value = '';
+    }
+  });
+  this.blur(function() {
+    if ($.trim(this.value) === '') {
+      $(this).addClass('c-placeholder');
+      this.value = placeholder;
+    }
+  });
+  return this;
+}});

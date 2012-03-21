@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>EventList</title>
+<link rel="stylesheet" href="demo/common.css">
+<script src="/framework/import.js"></script>
+<style>
+col { width: 100px; }
+col.type { width: 200px; }
+.true { background-color: green; }
+</style>
+</head>
+<body>
+<h1>EventList</h1>
+<fieldset>
+  <legend>EventList 后两列可能没有用了……</legend>
+  <table>
+    <colgroup>
+      <col class="type">
+      <col class="isMouseEvent">
+      <col class="isKeyboardEvent">
+      <col class="canNotBubble">
+      <col class="isFixedEvent">
+      <col class="isCompoundEvent">
+    </colgroup>
+    <thead>
+      <tr>
+        <th title="事件类型。">type</th>
+        <th title="鼠标事件。">isMouseEvent</th>
+        <th title="键盘事件。">isKeyboardEvent</th>
+        <th title="不可冒泡，不可代理。">canNotBubble</th>
+        <th title="需要修复的事件，使用常规事件模拟，当替代的事件（组合）发生时触发。">isFixedEvent</th>
+        <th title="复合事件，当条件成立时使用 fire 触发。">isCompoundEvent</th>
+      </tr>
+    </thead>
+    <tbody id="list"></tbody>
+  </table>
+</fieldset>
+<script>
+(function() {
+  var $tbody = document.getElementById('list');
+  var $tr;
+  var $td;
+  var operators = [0, 1, 2, 4, 8, 16];
+
+  function showResult(name, mask) {
+    $tr = $tbody.insertRow(-1);
+    for (var i = 0; i < 6; i++) {
+      var result = i === 0 ? name : mask & operators[i];
+      $td = $tr.insertCell(-1);
+      if (result > 0) {
+        $td.className = 'true';
+      }
+      $td.innerHTML = result;
+    }
+  }
+
+  window.showResult = showResult;
+})();
+// 低位 - 高位。
+var events = [
+  ['mousedown', 1, 0, 0, 0, 0],
+  ['mouseup', 1, 0, 0, 0, 0],
+  ['click', 1, 0, 0, 0, 0],
+  ['dblclick', 1, 0, 0, 0, 0],
+  ['contextmenu', 1, 0, 0, 0, 0],
+  ['mousemove', 1, 0, 0, 0, 0],
+  ['mouseover', 1, 0, 0, 0, 0],
+  ['mouseout', 1, 0, 0, 0, 0],
+  ['mousewheel', 1, 0, 0, 1, 0],
+  ['mouseenter', 1, 0, 0, 1, 0],
+  ['mouseleave', 1, 0, 0, 1, 0],
+  ['dragstart', 1, 0, 0, 0, 1],
+  ['drag', 1, 0, 0, 0, 1],
+  ['dragend', 1, 0, 0, 0, 1],
+//  ['dragenter', 1, 0, 0, 0, 1],
+//  ['dragover', 1, 0, 0, 0, 1],
+//  ['dragleave', 1, 0, 0, 0, 1],
+//  ['drop', 1, 0, 0, 0, 1],
+  ['keydown', 0, 1, 0, 0, 0],
+  ['keyup', 0, 1, 0, 0, 0],
+  ['keypress', 0, 1, 0, 0, 0],
+  ['focus', 0, 0, 1, 0, 0],
+  ['blur', 0, 0, 1, 0, 0],
+  ['focusin', 0, 0, 0, 1, 0],
+  ['focusout', 0, 0, 0, 1, 0],
+  ['select', 0, 0, 0, 0, 0],
+  ['input', 0, 0, 1, 1, 0],
+  ['change', 0, 0, 1, 1, 0],
+  ['submit', 0, 0, 1, 0, 0],
+  ['reset', 0, 0, 1, 0, 0],
+  ['scroll', 0, 0, 1, 0, 0],
+  ['resize', 0, 0, 1, 0, 0],
+  ['load', 0, 0, 1, 0, 0],
+  ['unload', 0, 0, 1, 0, 0],
+  ['error', 0, 0, 1, 0, 0],
+  ['domready', 0, 0, 0, 0, 0]  // TODO: 事件类型待定。
+];
+
+var eventsObject = {};
+events.forEach(function(item) {
+  var mask = parseInt(('' + item[5] + item[4] + item[3] + item[2] + item[1]), 2);
+  showResult.apply(this, [item[0], mask]);
+  eventsObject[item[0]] = mask;
+});
+console.log(JSON.stringify(eventsObject));
+</script>
+</body>
+</html>

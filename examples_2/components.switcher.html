@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>components.Switcher</title>
+<link rel="stylesheet" href="demo/common.css">
+<script src="/framework/import.js"></script>
+<script src="src/components/switcher.js"></script>
+<style>
+span { float: left; width: 100px; height: 100px; margin: 10px; background: yellowgreen; font: 14px/100px Verdana; text-align: center; }
+.active { background: greenyellow; }
+</style>
+</head>
+<body>
+<h1>components.Switcher</h1>
+<span>1</span>
+<span>2</span>
+<span>3</span>
+<span>4</span>
+<span>5</span>
+<script>
+//--------------------------------------------------[x]
+var x = new components.Switcher([undefined, null, 0, false, '', []], {
+  activeItem: 1,
+  onActive: function(item) {
+    console.log('active: ' + item);
+  }, onInactive: function(item) {
+    console.log('inactive: ' + item);
+  }
+});
+
+//--------------------------------------------------[o]
+var $body = $(document.body);
+var spans = $body.find('span');
+var timer;
+var o = new components.Switcher(spans, {
+  activeItem: spans[1],
+  onActive: function(item) {
+    item.addClass('active');
+    console.group();
+    console.log('active:', item);
+    setTimeout(function() {
+      console.groupEnd();
+    }, 0);
+  }, onInactive: function(item) {
+    item.removeClass('active');
+    console.log('inactive:', item);
+  }
+});
+$body.on('mouseover', function(e) {
+  var $span = this;
+  timer = setTimeout(function() {
+    o.active($span);
+  }, 200);
+}, function() {
+  return this.nodeName === 'SPAN';
+});
+$body.on('mouseout', function(e) {
+  clearTimeout(timer);
+}, function() {
+  return this.nodeName === 'SPAN';
+});
+
+</script>
+</body>
+</html>

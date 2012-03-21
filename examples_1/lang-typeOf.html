@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>lang-typeOf</title>
+<script src="../import.js"></script>
+<style>
+body { margin: 0; padding: 10px; font: 12px Verdana; }
+table { border-collapse: collapse; font: 14px Verdana; }
+th,
+td { border: 1px solid gray; }
+th { background: #f5f5f5; }
+td.true { background-color: #9acd32; }
+td.false { background-color: #ff6347; }
+pre { margin: 0; padding: 10px; font: 12px Consolas, "Lucida Console", Courier; }
+</style>
+</head>
+<body>
+<table>
+  <tbody id="list">
+    <tr>
+      <th>value</th>
+      <th>value + ''</th>
+      <th>Object.prototype.toString.call(value)</th>
+      <th>typeof value</th>
+      <th>期望值</th>
+      <th>实际值</th>
+    </tr>
+  </tbody>
+</table>
+<pre>
+var XHR = window.XMLHttpRequest ? XMLHttpRequest : ActiveXObject;
+var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+</pre>
+<script>
+(function() {
+  var $tbody = document.getElementById('list');
+  var $tr;
+  var $td;
+
+  function showResult() {
+    $tr = $tbody.insertRow(-1);
+    var length = arguments.length;
+    for (var i = 0; i < length; i++) {
+      var result = arguments[i];
+      $td = $tr.insertCell(-1);
+      if (i === length - 1) {
+        $td.className = result === $tbody.rows[$td.parentNode.rowIndex].cells[i - 1].innerText ? 'true' : 'false';
+      }
+      $td.innerHTML = result;
+    }
+  }
+
+  window.showResult = showResult;
+})();
+
+var XHR = window.XMLHttpRequest ? XMLHttpRequest : ActiveXObject;
+var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+
+[
+  ['undefined', undefined, 'undefined'],
+  ['null', null, 'null'],
+
+  ['false', false, 'boolean'],
+  ['0', 0, 'number'],
+  ['string', 'string', 'string'],
+
+  ['function() {}', function() {}, 'function'],
+  ['alert', alert, 'function'],
+  ['XHR', XHR, 'function'],
+  ['xhr', xhr, 'object.Object'],
+//  [xhr.abort, 'function'], // IE6 无法取此值。
+
+  ['new Boolean(false)', new Boolean(false), 'object.Boolean'],
+  ['new Number(0)', new Number(0), 'object.Number'],
+  ['new String(\'String\')', new String('String'), 'object.String'],
+  ['[1, 2, 3]', [1, 2, 3], 'object.Array'],
+  ['new Date()', new Date(), 'object.Date'],
+  ['/./', /./, 'object.RegExp'],
+  ['new SyntaxError()', new SyntaxError(), 'object.Error'],
+  ['Math', Math, 'object.Math'],
+  ['JSON', JSON, 'object.JSON'],
+  ['(function() {return arguments;})()', (function() {return arguments;})(), 'object.Arguments'],
+
+  ['window', window, 'object.Global'],
+  ['document.head', document.head, 'object.Node'],
+  ['document.head.children', document.head.children, 'object.Collection'],
+  ['{}', {}, 'object.Object']
+].forEach(function(item) {
+  showResult(
+      item[0],
+      item[1] + '',
+      (function() {
+        try {
+          return Object.prototype.toString.call(item[1]);
+        } catch (e) {
+          return '';
+        }
+      })(),
+      typeof item[1],
+      item[2],
+      typeOf(item[1])
+  );
+});
+
+
+
+Object.forEach({key: 'key', toString: 'toString'}, function(value) {
+  console.log(value);
+});
+</script>
+</body>
+</html>

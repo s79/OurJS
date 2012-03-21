@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+text_before
+<!-- test -->
+text_after
+<html>
+text_before
+<!-- test -->
+text_after
+<head>
+<meta charset="utf-8">
+<!--
+【测试目的】
+1 测试 ElementTraversal 在各浏览器中的支持情况。
+  http://dev.w3.org/2006/webapi/ElementTraversal/publish/ElementTraversal.html#interface-elementTraversal
+2 测试 document.head 在各浏览器中的支持情况。
+3 尝试通过 currentStyle.minWidth 区分 IE6 和 IE7。
+4 测试 compareDocumentPosition 在各浏览器中的支持情况。
+
+【测试环境】
+IE6
+IE7
+IE8
+IE9
+Firefox 6.0.2
+Chrome 14.0.835.186 m
+Safari 5.1.1 (7534.51.22)
+Opera 11.51
+
+【测试结果】
+1 在以下列表中：
+  childElementCount
+  parentElement
+  previousElementSibling
+  nextElementSibling
+  firstElementChild
+  lastElementChild
+IE6 IE7 IE8 只支持 parentElement；
+Firefox 只不支持 parentElement；
+IE9 Chrome Safari Opera 全部支持。
+
+2 IE6 IE7 IE8 不支持 document.head。
+
+3 可以使用以下表达式比较准确的定位 IE6:
+  'currentStyle' in $html && !('minWidth' in $html.currentStyle)
+
+4 IE6 IE7 IE8 不支持 compareDocumentPosition。
+-->
+<title>dom-head_traversal_min-width</title>
+<style>
+body { margin: 0; padding: 10px; font: 12px Verdana; }
+table { border-collapse: collapse; font: 14px Verdana; }
+td { border: 1px solid gray; }
+td.true { background-color: #9acd32; }
+td.false { background-color: #ff6347; }
+</style>
+<script>
+var $html = document.documentElement;
+var $head = document.documentElement.firstChild;
+
+var tests = [
+  'childElementCount',
+  'parentElement',
+  'previousElementSibling',
+  'nextElementSibling',
+  'firstElementChild',
+  'lastElementChild'/*,
+  'innerText',
+  'outerText',
+  'innerHTML',
+  'outerHTML',
+  'dataset'*/
+];
+var results = [
+  ['&nbsp;', '$html', '$head']
+];
+
+var test;
+results.push(['document.head', 'head' in document, '-----']);
+results.push(['-----', '-----', '-----']);
+while (test = tests.shift()) {
+  results.push([test, test in $html, test in $head]);
+}
+results.push(['-----', '-----', '-----']);
+results.push([
+  'minWidth in currentStyle',
+  'currentStyle' in $html && ('minWidth' in $html.currentStyle),
+  'currentStyle' in $head && ('minWidth' in $head.currentStyle)
+]);
+results.push(['-----', '-----', '-----']);
+results.push([
+  'compareDocumentPosition in Element',
+  'compareDocumentPosition' in $html,
+  'compareDocumentPosition' in $head
+]);
+results.push([
+  'contains in Element',
+  'contains' in $html,
+  'contains' in $head
+]);
+results.push([
+  $html.compareDocumentPosition($head) & 16,
+  $html.compareDocumentPosition($html) & 16,
+  $head.compareDocumentPosition($html) & 16
+]);
+</script>
+</head>
+text_before
+<!-- test -->
+text_after
+<body>
+<table>
+  <tbody id="list"></tbody>
+</table>
+<script>
+(function() {
+  var $tbody = document.getElementById('list');
+  var $tr;
+  var $td;
+
+  function showResult() {
+    $tr = $tbody.insertRow(-1);
+    var length = arguments.length;
+    for (var i = 0; i < length; i++) {
+      var result = arguments[i];
+      $td = $tr.insertCell(-1);
+      if (typeof result === 'boolean') {
+        $td.className = String(result);
+      }
+      $td.innerHTML = result;
+    }
+  }
+
+  window.showResult = showResult;
+})();
+
+var item;
+while (item = results.shift()) {
+  showResult(item[0], item[1], item[2]);
+}
+</script>
+</body>
+text_before
+<!-- test -->
+text_after
+</html>
+text_before
+<!-- test -->
+text_after

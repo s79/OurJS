@@ -1,0 +1,291 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Animation</title>
+<script src=".references/jquery-1.7.1.js"></script>
+<script src="/framework/import.js"></script>
+<style>
+body { margin: 10px; padding: 0; font: 12px Verdana; }
+h1 { height: 30px; margin: 0; padding: 0; font: 24px/30px Verdana; }
+button { font: 12px Verdana; }
+#test1,
+#test2,
+#test3 { width: 500px; margin: 5px; padding: 30px; background: #f5f5f5; font: 12px Verdana; text-align: center; }
+#msg { height: 15px; text-align: left; }
+#ani,
+#layer { position: absolute; left: 450px; top: 10px; width: 200px; height: 50px; background: #c0c0c0; font: 22px/22px Verdana; text-align: center; }
+#ani { left: 1200px; top: -150px; height: 150px; z-index: 1; background: #c0c0c0; line-height: 75px; }
+#ani p { margin: 0; }
+#layer { z-index: 2; }
+#canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
+#canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
+</style>
+</head>
+<body>
+<h1>Animation</h1>
+<div id="test1">
+  <p id="msg"></p>
+  <button id="highlight">highlight</button>
+  <button id="fade_in">fadeIn</button>
+  <button id="fade_out">fadeOut</button>
+</div>
+<div id="test2">
+  <div id="layer"></div>
+  <button id="play2">play</button>
+  <button id="stop2">stop</button>
+</div>
+<div id="test3">
+  <div id="canvas"></div>
+  <p>点击 = 清除，Ctrl + 点击 = 一起跑，Shift + 点击 = 分别跑。</p>
+  <button style="background-color: white;">linear</button>
+  <button style="background-color: gold;">bounce</button>
+  <br>
+  <button style="background-color: orangered;">ease</button>
+  <button style="background-color: greenyellow;;">easeIn</button>
+  <button style="background-color: cornflowerblue;">easeOut</button>
+  <button style="background-color: springgreen;">easeInOut</button>
+  <button style="background-color: orchid;">easeOutIn</button>
+  <br>
+  <button style="background-color: tomato;">cubicBezier(.6,0,.6,1.35)</button>
+  <button style="background-color: yellowgreen;">cubicBezier(.4,-0.35,.4,1)</button>
+  <button style="background-color: steelblue;">cubicBezier(.5,.29,.23,-0.58)</button>
+  <button style="background-color: mediumseagreen;">cubicBezier(.25,1.25,.75,-0.25)</button>
+</div>
+<style>
+#ani_count_1,
+#ani_count_2 { float: left; font-size: 12px; background: black; color: white; }
+</style>
+<div id="ani">
+  <p><span id="ani_count_1"></span> <span id="ani_info_1"></span></p>
+  <p><span id="ani_count_2"></span> <span id="ani_info_2"></span></p>
+</div>
+<script>
+var $ani = $('#ani');
+var uid = $ani.uid;
+var $aniCount1 = $('#ani_count_1');
+var $aniCount2 = $('#ani_count_2');
+var $aniInfo1 = $('#ani_info_1');
+var $aniInfo2 = $('#ani_info_2');
+function chainTest() {
+  // 默认队列。
+  $ani.animate({
+    left: 600,
+    top: 30
+  }, {
+    duration: 500,
+    transition: 'easeInOut',
+    onBeforeStart: function() {
+    },
+    onStart: function() {
+      $aniCount1.innerText = queuePool[uid].length;
+      $aniInfo1.innerText = '1';
+    },
+    onFinish: function() {
+      $aniInfo1.innerText = '=1=';
+    }
+  })
+      .animate(null, {
+        duration: 500,
+        transition: 'easeOutIn',
+        onStart: function() {
+          $aniCount1.innerText = queuePool[uid].length;
+          $aniInfo1.innerText = 'WAIT';
+        },
+        onFinish: function() {
+          $aniInfo1.innerText = '=WAIT=';
+        }
+      })
+      .animate({
+        left: 400,
+        top: 100
+      }, {
+        duration: 500,
+        transition: 'cubicBezier(.4,-0.35,.4,1)',
+        onStart: function() {
+          $aniCount1.innerText = queuePool[uid].length;
+          $aniInfo1.innerText = '2';
+        },
+        onFinish: function() {
+          $aniInfo1.innerText = '=OVER=';
+        }
+      })
+    // 新队列。
+      .animate({
+        width: 350,
+        height: 80,
+        fontSize: 25,
+        lineHeight: '40px',
+        color: '#ffffff',
+        backgroundColor: '#dc143c',
+        opacity: .3
+      }, {
+        duration: 600,
+        transition: 'linear',
+        onStart: function() {
+          $aniCount2.innerText = queuePool[uid + ':2'].length;
+          $aniInfo2.innerText = '1';
+        },
+        onFinish: function() {
+          $aniInfo2.innerText = '=1= layer run';
+          $('#layer').animate({
+            left: 400,
+            top: 100,
+            width: 200,
+            height: 150,
+            backgroundColor: '#adff2f',
+            lineHeight: '150px',
+            opacity: .5
+          }, {
+            duration: 500,
+            transition: 'cubicBezier(.6,0,.6,1.35)',
+            onStart: function() {
+//              this.innerText = 'GO';
+            },
+            onFinish: function() {
+//              this.innerText = '';
+            }
+          });
+        },
+        queueName: '2'
+      })
+      .animate(null, {
+        duration: 500,
+        onStart: function() {
+          $aniCount2.innerText = queuePool[uid + ':2'].length;
+          $aniInfo2.innerText = 'WAIT';
+        },
+        onFinish: function() {
+          $aniInfo2.innerText = '=WAIT=';
+        },
+        queueName: '2'
+      })
+      .animate({
+        height: 150,
+        width: 200,
+        fontSize: 40,
+        lineHeight: '75px',
+        color: '#000000',
+        backgroundColor: '#ffd711',
+        opacity: 1
+      }, {
+        duration: 300,
+        transition: 'easeIn',
+        onStart: function() {
+          $aniCount2.innerText = queuePool[uid + ':2'].length;
+          $aniInfo2.innerText = '2';
+        },
+        onFinish: function() {
+          $aniInfo2.innerText = '=OVER=';
+//          chainTest();
+        },
+        queueName: '2'
+      });
+}
+$ani.on('mouseover', function() {
+  this.stopAnimate('2');
+  $aniInfo2.innerText = '=STOP=';
+  $aniCount2.innerText = queuePool['1:2'] && queuePool[uid + ':2'].length || 0;
+});
+$('#layer').on('click', function() {
+  chainTest();
+  return false;
+});
+
+//--------------------------------------------------[TEST 1]
+$('#highlight').on('click', function() {
+  $layer.stopAnimate()
+      .animate({
+        backgroundColor: '#C0C0C0'
+      }, {
+        duration: '1500',
+        onBeforeStart: function() {
+          this.setStyle('backgroundColor', '#FF6347');
+//          return false;
+        }
+      });
+});
+$('#fade_in').on('click', function() {
+  $layer.fadeIn(/*{onBeforeStart: function() {
+   //    return false;
+   }}*/);
+});
+$('#fade_out').on('click', function() {
+  $layer.fadeOut(/*{onBeforeStart: function() {
+   //    return false;
+   }}*/);
+});
+//--------------------------------------------------[TEST 2]
+var frames = 0;
+var $layer = $('#layer').setStyle('opacity', 1);
+var animation = new Animation(function(x, y) {
+  var heightAndLineHeight = (20 + 280 * y) + 'px';
+  $layer.setStyles({
+    left: (700 - 225 * y) + 'px',
+    top: (600 - 500 * y) + 'px',
+    width: (50 + 450 * y) + 'px',
+    height: heightAndLineHeight,
+    lineHeight: heightAndLineHeight,
+    opacity: (y > 0.6 ? 0.6 : y)
+  });
+  frames++;
+}, {
+  duration: 1000,
+  onBeforeStart: function() {
+    //    return false;
+  },
+  onStart: function() {
+    frames = 0;
+    $layer.innerHTML = 'Moving...';
+  },
+  onFinish: function() {
+    $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').animate(null, {duration: 1000}).fadeOut({onFinish: function() {
+      this.remove();
+    }}));
+
+    //    animation.play();
+  }
+});
+$('#play2').on('click', function() {
+  animation.play();
+});
+$('#stop2').on('click', function() {
+  animation.stop();
+});
+
+//--------------------------------------------------[TEST 3]
+var $canvas = $('#canvas');
+$('#test3').on('click', function(e) {
+  var color = this.getStyle('backgroundColor');
+  new Animation(function(x, y) {
+    x = Math.floor(x * 299);
+    y = Math.floor(y * 299);
+    $canvas.appendChild($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
+  }, {
+    transition: this.innerText,
+    duration: 2500
+  }).play();
+}, function() {
+  return this.nodeName === 'BUTTON';
+});
+$canvas.on('click', function(e) {
+  if (e.shiftKey) {
+    $('#test3').find('button').forEach(function($button, index) {
+      setTimeout(function() {
+        $button.fire('click');
+      }, index * 100);
+    });
+    return false;
+  }
+  if (e.ctrlKey) {
+    $('#test3').find('button').forEach(function($button) {
+      $button.fire('click');
+    });
+    return false;
+  }
+  this.empty();
+  return false;
+});
+</script>
+</body>
+</html>

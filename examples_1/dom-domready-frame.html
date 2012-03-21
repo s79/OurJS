@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>test-domready</title>
+<script src="../.references/jquery-1.7.1.js"></script>
+<script src="../import.js"></script>
+<style>
+body { margin: 0; padding:5px; background: gainsboro; }
+iframe { display: block; width: 300px; height: 200px; border: 1px solid black; }
+img { display: none; }
+</style>
+<script>
+//--------------------------------------------------[domready]
+document.on('domready', function() {
+  top.log('<span class="frame domready">' + $('#domready').value + '</span>');
+});
+jQuery(function() {
+  top.log('<span class="frame domready">' + $('#domready').value + ' <var>jQuery</var></span>');
+});
+//--------------------------------------------------[load]
+window.on('load', function() {
+  top.log('<span class="frame load">' + $('#load').value + '</span>');
+});
+
+</script>
+</head>
+<body>
+<iframe src="dom-domready-frame-frame.html" frameborder="0"></iframe>
+<img src="http://www.abc.com" alt="null">
+<div id="log"></div>
+<input id="domready" type="hidden" value="frame - DOM Ready">
+<input id="load" type="hidden" value="frame - Loaded">
+</body>
+</html>

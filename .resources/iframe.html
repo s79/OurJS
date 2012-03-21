@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script>
+var hash = location.search.slice(1);
+if (hash) {
+  parent.hash = parent.location.hash = document.title = hash;
+}
+</script>
+</head>
+<body>
+</body>
+</html>

@@ -1,0 +1,353 @@
+﻿>2012-03-20
+将 JS 文件内的注释使用 jsdoc-tookit 转换为 JSON 格式的数据。
+
+>2012-03-15
+编写 api 文档。
+
+>2012-03-11
+修改 Dialog 的设计，省略三个参数，将 maskTarget 和 pinnedTarget 合并为对话框元素的父元素，这样处理便于理解和使用。
+以前的注释如下：
+/**
+ * 对话框。
+ * @param {Element} element 要作为对话框显示的元素。
+ *   该元素的 position 将在创建后视情况而被修改为 absolute 或 fixed，另外建议为该元素设置像素单位的 left、top 和明确的 zIndex。
+ * @param {Object=} options 可选参数，这些参数的默认值保存在 Dialog.options 中。
+ * @option {?Element|Object} maskTarget 要遮掩的元素，该元素必须创建了 stacking context。可以为 null，但如果指定，则应为 element 的同级或祖先级元素。
+ *   当其值为 window 时，将遮掩整个视口。
+ *   当多个对话框指定了同一个 maskTarget 时，则视这些对话框为一组，将对话框分组有利于重叠显示这些对话框。
+ * @option {Object} maskAttributes 为遮掩层元素附加的属性，仅在 maskTarget 不为 null 时有效。
+ * @option {Object} maskStyles 为遮掩层元素设置的样式，仅在 maskTarget 不为 null 时有效。
+ * @option {?Element|Object} pinnedTarget 定位的目标元素，将对话框的中心点固定在该元素的中心点，可以为 null，但如果指定，则应为 element 的同级或祖先级元素。
+ *   当其值为 window 时，对话框的中心点将保持与视口的中心点重合。
+ * @option {number} pinnedOffsetX 对话框的左边与 pinnedTarget 的左边的横向差值，仅在 pinnedTarget 不为 null 时有效。
+ *   如果指定，对话框的中心点在横向将不再与 pinnedTarget 的中心点重合。
+ * @option {number} pinnedOffsetY 对话框的顶边与 pinnedTarget 的顶边的纵向差值，仅在 pinnedTarget 不为 null 时有效。
+ *   如果指定，对话框的中心点在纵向将不再与 pinnedTarget 的中心点重合。
+ * @option {Function} onOpen 调用 open 方法时触发。
+ * @option {Function} onClose 调用 close 方法时触发。
+ *
+ * 注意：
+ *   为避免复杂嵌套导致的对话框定位有误的问题，建议将对话框元素作为 body 的子元素。
+ *   对话框的默认状态为关闭。因此 element 的 display 将被设置为 none。
+ *   若对话框的 position 为 fixed，则当对话框无法完整显示在视口内的时候，忽略上述 pinnedTarget 和 pinnedOffsetX/pinnedOffsetY 的设置，自动调整对话框的位置，使其保持可见。
+ *   maskTarget 和 pinnedTarget 指定为 window 时，内部实现是转化为 document.body 处理的。
+ *   // TODO: window/document/document.documentElement/document.body 全部接受？
+ */
+
+>2012-03-10
+freezeFocusArea
+修改 Mask，参考以前的 setMaskBehind，实际上 Mask 是为了衬托另一个元素，因此应与上一个元素紧密相关。
+Dialog
+
+>2012-03-09
+plugins.console 升级，界面更实用，并支持历史纪录保存。
+
+>2012-03-08
+position:fixed 植入 setStyle
+同时对相关特性 position/display/left/right/top/bottom 进行修复。
+
+>2012-03-07
+修复 IE6 的 position:fixed。
+
+>2012-03-05
+components.switcher
+完善 components.mask，支持任意元素覆盖，并修正 IE8 Opera 的 bug。
+
+>2012-03-04
+- 调用 runApplication 之后，这两个方法都将不能再次调用。加入此限制是为了确保可读性（declareModule 在 runApplication 之前，并且 runApplication 只被调用一次）。
+可以在一个应用运行之后建立新模块，或者新应用，以增加可扩展性。
+
+>2012-03-01
+document.preloadImages
+为便于脚本编写，修改以下部分：
+getStyle/getStyles/setStyle/setStyles 的 css property name 参数改为允许 camelCase。
+setStyle/setStyles 的长度单位允许省略像素单位 'px'。
+
+>2012-02-28
+storage
+
+>2012-02-26
+modularization
+
+>2012-02-24
+Element.prototype 提前，后添加各方法。
+
+>2012-02-23
+修复 fadeIn/fadeOut 的 bug。
+request animation dom 代码微调，加注释。
+
+>2012-02-21
+修复 Request 同步回调的问题，限制 minTime 和 maxTime 仅在异步模式下生效。
+
+>2012-02-17
+-Element.prototype.wait
+Element.prototype.fadeIn
+Element.prototype.fadeOut
+
+>2012-02-16
+Element.prototype.animate + 队列（参数暂不公开）
+Element.prototype.stopAnimate
+Element.prototype.wait
+
+>2012-02-15
+Animation & +engine
+Element.prototype.animate
+
+>2012-02-14
+String.prototype.clean
+
+>2012-02-13
+调整注释结构
+正则提出为常量 (还差 dom)
+辅助函数改为函数表达式
+  - WebStorm 格式化代码时会自动在函数声明上下插入空行，另外函数声明的函数名称会被特殊高亮，这两点有时会影响代码阅读。
+
+>2012-02-12
+整理代码，调整注释结构。
+-browser.js
++base.js
+
+>2012-02-11
+Object.forEach
+String.prototype.repeat
+String.prototype.startsWitht
+String.prototype.endsWitht
+String.prototype.containst
+String.prototype.toArrayt
+Number.prototype.isFinite
+Number.prototype.isNaN
+Number.prototype.isInteger
+Number.prototype.toInteger
+扩充 typeOf，解决旧 IE 的 function 为 object.Object 的问题。
+
+>2012-02-10
+XHR -> Request
+
+>2012-02-09
+XHR
+
+>2012-02-08
+ua -> browser
+Number.prototype.toRegular
+
+>2012-02-07
+domReady 整理
+window.onbeforeunload 处理
+getComputedStyle -> getStyles
+setInlineStyle -> setStyles
+Math.limit
+
+>2012-02-06
+remove
+replace
+empty
+
+>2012-01-30
+事件模型使用 2012-01-24 版本，2012-01-29 版的删除事件时麻烦……
+drag 事件原本可以实现没有拖拽位移时仍可以弹出右键菜单的功能，但 Safari 在 mousedown 时即出现右键菜单，因此调整功能，改为仅支持左键拖拽，简单。
+
+>2012-01-29
+事件模型继续进行中，缩减一层更利于 debug。
+
+>2012-01-28
+drag 一组事件完成，实现冒泡、排除异常操作干扰等特性。
+
+>2012-01-24
+事件模型新规划：
+/*
+pool - item(uid) - manager(type): {
+                                     handlers: [
+                                       {
+                                         name: <string>
+                                         listener: <Function>
+                                         filter: <Function>
+                                       }
+                                     ].delegateCount: <number>,
+                                     dispatcher: <Function>.domEventType<string>
+                                                           .useCapture<string>
+                                   }
+*/
+
+Lv1:
+内置 - Direct & 自定义事件
+  1 个，绑定的事件发生时触发。
+
+Lv2:
+内置 - 需 Fix
+  1 个或 2 个，替代的事件（组合）发生时触发。
+  dispatcher: domEventListener<Function>.domEventType<string>
+                                        .useCapture<string>
+
+Lv3:
+复合事件（目前仅有 dragstart drag dragend）
+  三类共用 1 个，这个事件发生时再额外注册 3 个。
+  dispatcher: domEventListener<Function>.domEventType<string>
+                                        .useCapture<string>
+
+不能使用 Lv1 的事件模拟 Lv2+ 的事件，避免出现 jQuery 中类似以下代码的问题（移除一个事件影响到另一个事件的正常处理）：
+/*
+jQuery('#i2').on('change', function(e) {
+  console.log('::change::', e.target.value);
+});
+jQuery('#i2').off('click');
+*/
+因此每个 category 必然有至少一个 dispatcher。
+另外 jQuery 向派发器中仅传递目标元素，因此每个元素只使用一个公用的 dispatcher，并为此建立了原生事件类型-自定时间类型的哈希表。
+（垂直+变种结构）
+本方案要向派发器中传递目标元素及事件类型，因此都使用各自的 dispatcher。
+（平铺结构）
+
+>2012-01-21
+整理事件处理部分。
+fire
+
+>2012-01-16
+加入 putBefore/putAfter，append，prepend，remove，replace 方法。
+
+>2012-01-15
+将 traversal 方法拆分和扩展为 getParent getPrevious getNext getFirstChild getLastChild getChildren 六个方法。
+getChildElementCount -> getChildrenCount
+为了向后兼容和简化功能，本框架处理 Node 时仅关注 Element，因此上述 API 均未直接体现具体 Node 类型，因为涉及的类型全部为 Element。
+
+__uid__ -> uid; 1201 -> 1;
+
+取消跨 Frame 的支持，去掉 document 参数，参见 2011-11-14。
+
+$xxx 只被用来命名于已被扩展的 Element 对象，框架内代码也是如此。
+
+>2012-01-12
+更新 typeOf 函数，并调整影响到的代码。
+
+>2011-12-05
+json2.js
+
+>2011-12-01
+为 setStyle 加入 number 类型误传的处理。
+
+>2011-11-30
+getData
+setData
+removeData
+
+>2011-11-28
+加入事件代理支持。
+contains -> isAncestorOf
+
+>2011-11-25
+拟更改事件模型，以支持事件代理。
+/*
+pool = {
+  item(元素的 __uid__ 属性值): {
+    type(事件类型): {
+      'dispatcher': (普通事件调度器 = 仅在 type in generalEvents 时存在的 DOM 事件监听器),
+      'listeners': [
+        listener(事件监听器 - 并未绑定到 DOM 树上),
+        ...
+      ],
+      'filters': [
+        filter(事件代理过滤器)
+        ...
+      ]
+    }(handler)
+    ...
+  }
+  ...
+};
+*/
+1. runEventListeners 中加入判断事件是否成立的函数（for 特殊事件）。
+2. 重构 pool，传入 runEventListeners {dataset} 对象，在其中进行处理，先处理 delegates，逐级向上。
+
+>2011-11-23
+eventBus
+Fix: relatedTarget 的 bug。
+
+>2011-11-22
+DD_belatedPNG
+
+>2011-11-18
+domready
+
+>2011-11-17
+addListener
+removeListener
+/*
+pool = {
+  item(元素的 __uid__ 属性值): {
+    type(事件类型): [
+      listener(事件监听器 - 并未绑定到 DOM 树上),
+    ].handler(普通事件处理器 = 仅在 type in generalEvents 时存在的 DOM 事件监听器),
+    ...
+  }
+  ...
+};
+*/
+
+>2011-11-16
+移除 viewport。
+Event 相关资料收集。
+
+>2011-11-15
+由于不打算提供跨 frame 操作，因此可以取消 viewport 的设定，将获取视口尺寸、滚动的三个方法直接绑在 window 上。
+原本计划在 viewport 上提供的 scrollTo/By resizeTo/By 方法，其实只有一个 resizeTo 在弹出窗口时可能会用到，但弹出窗口目前几乎不
+会使用。
+去掉 viewport 后，就在基础库里减少了这个唯一新增的对象。
+
+>2011-11-14
+comparePosition
+Event(part)
+$ 方法仍只支持传入 Element 或 null，因此需要扩充 typeOf。
+考虑：是否支持跨 Frame？
+  现在的版本支持该功能，但有个问题：frame 中的 window/document 默认没有 addListener 属性，如果支持，为保持 API 的一致性，要么
+  页面内的 window/document 不做预处理（这样的话用起来会显得很奇怪），要么在 frame 页面载入后马上为其扩充（这个代价太大）。
+  mootools 是通过 IFrame 构造函数来达到目的的，为此引入一个新类型，也是无奈之举。难免会让人想为什么没有 select/table 类？他们
+  甚至有 DOM 专门为其提供的 API……
+  实际上跨 frame 操作并不常见，通常也不建议这样做。必须跨 frame 时，应将 frame 作为一个模块，在其内也引入 js 库，两侧通过
+  事件通信，这样的代码更易于理解与划分模块。
+结论：抛弃此功能，该功能将在“事件”部分完成后去除（即去除所有相关的“document”参数），这样可以确保 API 的一致性（仅供在当前页面
+操作），并且更简单。
+
+>2011-11-11
+viewport.getxxx
+
+>2011-11-08
+HTMLElement.prototype.innerText
+HTMLElement.prototype.outerText
+HTMLElement.prototype.outerHTML
+console 完善，解决作用域的问题。（昨天没有将创建的节点插入文档树，导致脚本执行后的结果丢失。）
+
+>2011-11-07
+console
+Object.update
+
+>2011-11-06
+ElementWrapper 方式改为直接绑定 + 扩展 Element.prototype 方式。
+Object.append
+getChildElementCount
+traversal
+
+>2011-11-05
+DOM 的静态方法模式改为 ElementWrapper 方式。
+封装并扩展 Element，将 attributes 和 properties 区别对待。
+对于 attributes，拟建立一个映射表，仅允许合法的 set/get attribute，不建议的给出警告（调试信息）。其中特殊处理的如下：
+  class -> has/add/remove/toggleClass
+  style -> getComputedStyle setStyle
+对于 properties，将常用的部分封装为方法：
+  Element Traversal
+  CSS Object Model View
+  增/删/移动 DOM 节点的方法
+
+>2011-11-04
+find (Sizzle)
+
+>2011-11-03
+ES5 Shims
+
+>2011-11-02
+typeOf
+Array.from
+getComputedStyle
+
+>2011-11-01
+getElement
+createElement
+$

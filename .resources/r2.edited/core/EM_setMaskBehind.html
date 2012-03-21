@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>ElementManager.setMaskBehind</title>
+<script type="text/javascript" src="EventManager.js"></script>
+<script type="text/javascript" src="ElementManager.js"></script>
+<script type="text/javascript" src="EM_setMaskBehind.js"></script>
+<style type="text/css">
+body
+{
+	margin: 10px;
+	padding: 0px;
+	font: 12px Verdana;
+}
+h1
+{
+	height: 30px;
+	margin: 0px;
+	padding: 0px;
+	font: 24px/30px Verdana;
+}
+fieldset
+{
+	float: left;
+	width: 500px;
+	margin: 10px;
+}
+fieldset legend
+{
+	color: #ff7300;
+	font: 14px Verdana;
+}
+#dialog
+{
+	position: absolute;
+	left: 100px;
+	top: 200px;
+	width: 400px;
+	height: 300px;
+	background: #8fbc8b;
+	text-align: center;
+}
+#dialog button
+{
+	margin: 130px 5px 0px 5px;
+}
+</style>
+</head>
+<body>
+<h1>ElementManager.setMaskBehind</h1>
+<fieldset>
+	<legend>遮罩出现时里边的元素不可用tab键聚焦</legend>
+	<input type="button" value="button"/>
+	<input type="text" value="text"/>
+	<a href="#">a</a>
+</fieldset>
+<div id="dialog">
+	<button onclick="ElementManager.setMaskBehind(document.getElementById('dialog'));">启用</button>
+	<button onclick="ElementManager.setMaskBehind();">撤销</button>
+</div>
+</body>
+</html>

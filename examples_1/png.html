@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>png</title>
+<script src="../src/plugins/DD_belatedPNG.js"></script>
+<style>
+body { background: white; }
+iframe { display: none; width: 640px; height: 480px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<button onclick="test();">click</button>
+<iframe id="i" src="png-iframe.html" frameborder="0"></iframe>
+<script>
+function test() {
+  var $i = document.getElementById('i');
+  $i.style.display = $i.offsetWidth ? 'none' : 'block';
+}
+</script>
+</body>
+</html>

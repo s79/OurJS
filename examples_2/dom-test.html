@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>dom-test</title>
+<script src=".references/jquery-1.7.1.js"></script>
+<script src="/framework/import.js"></script>
+<style>
+#y { position: absolute; left: 10%; top: 0; border: 1px dotted black; opacity: .25; filter: progid:DXImageTransform.Microsoft.MotionBlur(strength = 50); zoom: 1; }
+div { float: right; }
+h1 { float: left; }
+</style>
+</head>
+
+text_before
+<!-- test -->
+text_after
+<script>
+//alert(document.body.previousSibling.tagName);
+//Chrome Firefox Safari 此时的 document.body 未定义。
+</script>
+
+<body>
+
+<h1>TEST</h1>
+
+<div id="x" class="  a
+a
+a
+b
+     b
+     b
+     c   d" style="filter: progid:DXImageTransform.Microsoft.MotionBlur(strength=50); zoom: 1;">
+<!-- comment -->
+  THIS IS <span>A</span> TEST
+<!-- comment -->
+</div>
+
+<h1 id="y" style="filter: alpha(opacity = 25);" data-my-data="Yes, it is!" data-A="I'm A.">this is a test</h1>
+
+<pre id="output" style="position: absolute; left: 0; top: 100px; font: 12px Consolas;"></pre>
+
+<script>
+var $ = document.$;
+console.log($);
+
+var $output = $('#output');
+function log(message) {
+  $output.innerHTML += message + '<br>';
+}
+
+log('x.float: ' + $('#x').getStyle('float'));
+log('x.float: ' + (jQuery('#x').css('float')));
+log(' ----- ');
+log('x.opacity: ' + $('#x').getStyle('opacity'));
+log('x.opacity: ' + jQuery('#x').css('opacity'));
+log(' ----- ');
+log('x.zoom: ' + $('#x').getStyle('zoom'));
+log('x.zoom: ' + jQuery('#x').css('zoom'));
+log(' ----- ');
+log('y.float: ' + $('#y').getStyle('float'));
+log('y.float: ' + jQuery('#y').css('float'));
+log(' ----- ');
+log('y.opacity: ' + $('#y').getStyle('opacity'));
+log('y.opacity: ' + jQuery('#y').css('opacity'));
+log(' ----- ');
+log('y.border-right-style: ' + $('#y').getStyle('border-right-style'));
+log('y.border-right-style: ' + jQuery('#y').css('border-right-style'));
+
+console.log('innerText=', 'innerText' in document.head);
+console.log('outerText=', 'outerText' in document.head);
+console.log('outerHTML=', 'outerHTML' in document.head);
+
+var $html = $(document.documentElement);
+var $body = $(document.body);
+var $x = $('#x');
+var $y = $('#y');
+console.log('$html.isAncestorOf($body)=', $html.isAncestorOf($body));
+console.log('$body.isAncestorOf($x)=', $body.isAncestorOf($x));
+console.log('$y.isAncestorOf($html)=', $y.isAncestorOf($html));
+console.log('$x.isAncestorOf($y)=', $x.isAncestorOf($y));
+console.log('$x.isAncestorOf($x)=', $x.isAncestorOf($x));
+
+//alert(document.body.innerText);
+//x.style.fontFamily = 'Arial';
+$x.setStyle('font-family','Arial');
+
+console.log(1, $y.getData('MyData'));
+console.log(2, $y.getData('myData'));
+console.log(3, $y.getData('A'));
+console.log(4, $y.getData('a'));
+$y.removeData('MyData');
+console.log(5, $y.getData('myData'));
+$y.removeData('myData');
+console.log(6, $y.getData('myData'));
+$y.setData('whatData', 'WHAT?');
+console.log(7, $y.getData('whatData'));
+
+
+/* This test will be true in all browsers.
+var test = document.createElement('var');
+alert(test.ownerDocument === window.document);
+*/
+
+
+jQuery('#x').mousedown(function(e) {
+  console.log(e.which);
+});
+
+</script>
+</body>
+</html>

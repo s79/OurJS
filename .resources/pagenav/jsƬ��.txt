@@ -1,0 +1,90 @@
+/**************************************************
+ * 组件：页面导航。
+ **************************************************/
+var PageNavigator = function() {
+  function getPageNavItem_(currentPage, totalPage, options) {
+    var edgeEntries = options.edgeEntries || 1;
+    var sideEntries = options.sideEntries || 2;
+
+    var ranges = {left: {}, middle: {}, right: {}};
+    ranges.left.min = 1;
+    ranges.left.max = Math.min(edgeEntries, totalPage);
+    ranges.middle.min = Math.max(Math.min(currentPage - sideEntries, totalPage - (sideEntries * 2 + 1)), ranges.left.max + 1);
+    ranges.middle.max = Math.min(ranges.middle.min + (sideEntries * 2), totalPage);
+    ranges.right.min = Math.max(totalPage - edgeEntries + 1, ranges.middle.max + 1);
+    ranges.right.max = totalPage;
+
+    var pageItems = [];
+    var n = null;
+    n = ranges.left.min;
+    while (n <= ranges.left.max) {
+      pageItems.push(n++);
+    }
+    if (ranges.middle.min > ranges.left.max + 1) {
+      pageItems.push(0);
+    }
+    n = ranges.middle.min;
+    while (n <= ranges.middle.max) {
+      pageItems.push(n++);
+    }
+    if (ranges.right.min > ranges.middle.max + 1) {
+      pageItems.push(0);
+    }
+    n = ranges.right.min;
+    while (n <= ranges.right.max) {
+      pageItems.push(n++);
+    }
+
+    return pageItems;
+  }
+
+  function PageNavigator(navElement, onClick) {
+    this.element = navElement;
+    this.current = 0;
+    this.total = 0;
+
+    var this_ = this;
+    navElement.click(function(e) {
+      var target = e.target;
+      if (target.tagName != 'A') {
+        return;
+      }
+      target = $(target);
+      if (target.hasClass('onpage') || target.hasClass('disabled')) {
+        return;
+      }
+      if (target.hasClass('prev')) {
+        --this_.current;
+      } else if (target.hasClass('next')) {
+        ++this_.current;
+      } else {
+        this_.current = parseInt(target.text());
+      }
+      onClick(this_.current);
+    });
+  }
+  PageNavigator.prototype.render = function(current, total) {
+    this.current = current || 1;
+    this.total = total || 1;
+    if (this.current > this.total) {
+      this.current = this.total;
+    }
+    var pageItems = getPageNavItem_(this.current, this.total, {edgeEntries: 1, sideEntries: 4});
+    var ellipsis = '<span>...</span>';
+    var prev = '<img src="images/arrow_prev.gif" alt="上一页"><a href="javascript:void(\'prev\');" class="prev' + (this.current == 1 ? ' disabled' : '') + '">上一页</a><span>|</span>';
+    var next = '<span>|</span><a href="javascript:void(\'next\');" class="next' + (this.current == this.total ? ' disabled' : '') + '">下一页</a><img src="images/arrow_next.gif" alt="下一页">';
+    var html = [prev];
+    for (var i = 0, l = pageItems.length; i < l; i++) {
+      var pageItem = pageItems[i];
+      if (pageItem) {
+        html.push('<a href="javascript:void(' + pageItem + ');"' + (pageItem == this.current ? ' class="onpage"' : '')+ '>' + pageItem + '</a>');
+      } else {
+        html.push(ellipsis);
+      }
+    }
+    html.push(next);
+    this.element.html(html.join('\n'));
+  };
+
+  return PageNavigator;
+}();

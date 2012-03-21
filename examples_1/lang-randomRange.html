@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>lang-randomRange</title>
+<script src="../src/plugins/console.js"></script>
+<script src="../src/plugins/json2.js"></script>
+<script src="../src/lang.js"></script>
+<script src="../src/dom.js"></script>
+<style type="text/css">
+p {
+  margin: 0;
+  padding: 0;
+  font: normal 10px/10px Verdana;
+}
+p span {
+  display: inline-block;
+  width: 100px;
+  text-align: right;
+}
+</style>
+</head>
+<body>
+<script>
+//正确算法。
+function getRandom(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+//错误算法，min 和 max 的概率比其他数字要低。
+function getRandomWrong(min, max) {
+  return Math.round(Math.random() * (max - min) + min);
+}
+
+// 测试 1。
+function testRandom(min, max, times) {
+  function getLine(num) {
+    var line = '';
+    for (var i = 0; i < num; i++) {
+      line += '|';
+    }
+    return line;
+  }
+
+  var i;
+  var o = {};
+  var s = '';
+  for (i = min; i <= max; i++) {
+    o[i] = 0;
+  }
+  for (i = 0; i < times; i++) {
+    o[getRandom(min, max)]++;
+  }
+  for (i in o) {
+    s += '<p><span>' + i + '</span>:' + getLine(o[i]) + '</p>';
+  }
+  document.body.innerHTML = s;
+}
+window.onload = function() {
+  testRandom(-10, 10, 100)
+};
+
+// 测试 2。
+function generateMixed(n) {
+  var chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+  var s = '';
+  for (var i = 0; i < n; i++) {
+    s += chars[Math.randomRange(0, chars.length - 1)];
+  }
+  return s;
+}
+generateMixed(25);
+</script>
+</body>
+</html>

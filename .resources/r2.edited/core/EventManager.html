@@ -1,0 +1,381 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>EventManager</title>
+<script type="text/javascript" src="EventManager.js"></script>
+<script type="text/javascript" src="ElementManager.js"></script>
+<style type="text/css">
+body {
+  margin: 10px;
+  padding: 0;
+  font: 12px Verdana;
+}
+h1 {
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  font: 24px/30px Verdana;
+}
+fieldset {
+  float: left;
+  width: 500px;
+  height: 200px;
+  margin: 10px;
+}
+fieldset legend {
+  color: #ff7300;
+  font: 14px Verdana;
+}
+.debug {
+  float: right;
+  width: 180px;
+  height: 180px;
+  margin: 0 5px;
+  background: #ffd711;
+  overflow: auto;
+}
+#scroll {
+  float: left;
+  width: 100px;
+  height: 180px;
+  background: #9acd32;
+  font: bold 14px/180px Verdana;
+  text-align: center;
+}
+#div {
+  height: 150px;
+  background: #f5f5f5;
+}
+#mouse {
+  height: 180px;
+  background: #dc143c;
+}
+#div code,
+#div samp,
+#div kbd,
+#div var,
+#div span,
+#mouse code,
+#mouse samp,
+#mouse kbd,
+#mouse var,
+#mouse span {
+  float: left;
+  display: block;
+  width: 100px;
+  height: 30px;
+  margin: 5px;
+  background: #c0c0c0;
+  line-height: 30px;
+  text-align: center;
+  cursor: default;
+}
+#div p,
+#mouse p {
+  clear: both;
+  height: 30px;
+  margin: 5px;
+  background: #8fbc8b;
+  font: 12px/30px Verdana;
+  text-align: center;
+  cursor: default;
+}
+#mouse div {
+  height: 16px;
+  background: #ffd711;
+  cursor: default;
+}
+#container {
+  position: relative;
+  height: 150px;
+  background: #f5f5f5;
+}
+#drag {
+  position: absolute;
+  width: 160px;
+  height: 120px;
+  background: #b0c4de;
+  cursor: default;
+}
+</style>
+<script type="text/javascript">
+window.onblur = function() {
+  console.log('[[[BLUR]]]');
+};
+window.onfocus = function() {
+  console.log('[[[FOCUS]]]');
+};
+
+function onDOMReady() {
+  function $(sId) {
+    return document.getElementById(sId);
+  }
+
+  //多重事件绑定及解除
+  function onClick1() {
+    $("d1").innerHTML += this.id + "<br/>";
+  }
+
+  function onClick2() {
+    $("d1").innerHTML += this.tagName + "<br/>";
+  }
+
+  function onClick3() {
+    $("d1").innerHTML += this.innerHTML + "<br/>";
+  }
+
+  function unbindButton2() {
+    EventManager.unbind($("b2"), "click", onClick1);
+    EventManager.unbind($("b2"), "click", onClick2);
+    EventManager.unbind($("b2"), "click", onClick3);
+    $("d1").innerHTML += "【按钮二】事件已解除<br/>";
+  }
+
+  function clearMessage() {
+    $("d1").innerHTML = "";
+  }
+
+  EventManager.bind($("b1"), "click", onClick1);
+  EventManager.bind($("b1"), "click", onClick2);
+  EventManager.bind($("b1"), "click", onClick3);
+  EventManager.bind($("b2"), "click", onClick1);
+  EventManager.bind($("b2"), "click", onClick2);
+  EventManager.bind($("b2"), "click", onClick3);
+  EventManager.bind($("b3"), "click", unbindButton2);
+  EventManager.bind($("b4"), "click", clearMessage);
+  //鼠标滚动、移动、按键及键盘按键
+  function scroll(event) {
+    this.innerHTML = EventManager.getMouseWheel(event) == 1 ? "↓鼠标滚动↓" : "↑鼠标滚动↑";
+    EventManager.preventDefault(event);
+  }
+
+  function mouseMove(event) {
+    var mousePosition = EventManager.getMousePosition(event);
+    var s = "<strong>鼠标坐标</strong><br/>";
+    for (var i in mousePosition) {
+      s += i + ":" + mousePosition[i] + "<br/>";
+    }
+    $("d21").innerHTML = s;
+  }
+
+  function mouseDown(event) {
+    var mouseStatus = EventManager.getMouseButton(event);
+    var s = "<strong>鼠标按键</strong><br/>";
+    for (var i in mouseStatus) {
+      s += i + ":" + mouseStatus[i] + "<br/>";
+    }
+    this.innerHTML = s;
+  }
+
+  function keyDown(event) {
+    var key = EventManager.getKey(event);
+    var s = "<strong>键盘按键</strong><br/>";
+    for (var i in key) {
+      s += i + ":" + key[i] + "<br/>";
+    }
+    $("d22").innerHTML = s;
+  }
+
+  EventManager.bind($("scroll"), "DOMMouseScroll", scroll);
+  EventManager.bind(document, "mousemove", mouseMove);
+  EventManager.bind($("d22"), "mousedown", mouseDown);
+  EventManager.bind(document, "keydown", keyDown);
+  //事件传播
+  function click(event) {
+    alert("触发元素：" + EventManager.getTargetElement(event).tagName + "\n" + "捕获元素：" + this.tagName);
+  }
+
+  function stopPropagation(event) {
+    EventManager.bind($("p"), "click", function(event) {
+      EventManager.stopPropagation(event);
+    });
+  }
+
+  EventManager.bind($("div"), "click", click);
+  EventManager.bind($("button"), "click", stopPropagation);
+  //拖动事件
+  function drag(event, x, y) {
+    var maxX = $("container").offsetWidth - $("drag").offsetWidth;
+    var maxY = $("container").offsetHeight - $("drag").offsetHeight;
+    var currentX = window.currentX || 0;
+    var currentY = window.currentY || 0;
+    x = currentX + x;
+    y = currentY + y;
+    this.style.left = Math.max(Math.min(x, maxX), 0) + "px";
+    this.style.top = Math.max(Math.min(y, maxY), 0) + "px";
+    document.getElementById("d42").innerHTML = "[蓝]" + x + ":" + y;
+  }
+
+  drag.before = function(event) {
+    window.currentX = $("drag").offsetLeft;
+    window.currentY = $("drag").offsetTop;
+  };
+  drag.after = function(event) {
+  };
+  EventManager.bind($("drag"), "DOMDrag", drag);
+  EventManager.bind($("container"), "DOMDrag", function(event, x, y) {
+    $("d41").innerHTML = "[灰]" + x + ":" + y;
+  });
+  EventManager.bind($("unbind"), "click", function(event, x, y) {
+    EventManager.unbind($("drag"), "DOMDrag", drag);
+  });
+  //鼠标进入、离开
+  function showMessage($target, message) {
+    if ($target.innerHTML.length > 60) {
+      $target.innerHTML = "";
+    }
+    $target.innerHTML += message;
+  }
+
+  function over(event) {
+    showMessage($("d51"), "|Over");
+  }
+
+  function out(event) {
+    showMessage($("d51"), "|Out");
+  }
+
+  function enter(event) {
+    showMessage($(this.tagName == "DIV" ? "d52" : "d53"), "|Enter:" + this.tagName);
+  }
+
+  function leave(event) {
+    showMessage($(this.tagName == "DIV" ? "d52" : "d53"), "|Leave:" + this.tagName);
+  }
+
+  EventManager.bind($("mouse"), "mouseover", over);
+  EventManager.bind($("mouse"), "mouseout", out);
+  EventManager.bind($("mouse"), "DOMMouseEnter", enter);
+  EventManager.bind($("mouse"), "DOMMouseLeave", leave);
+  EventManager.bind($("inner"), "DOMMouseEnter", enter);
+  EventManager.bind($("inner"), "DOMMouseLeave", leave);
+
+//	以下是模仿mootools.js的处理方法写的mouseEnter、mouseLeave事件。
+//	mootools.js的mouseEnter、mouseLeave事件，在firefox从窗口外直接移入目标元素的子元素时出现频繁调用。是不完善的。
+//	mootools.js的fireEvent，只是在绑定时将时间放在该元素包装对象的$event数组里，fireEvent时简单运行之。并没有传入生成的事件。
+//	这些函数存储在如Garbage.elements.5.$events.mousedown里。
+//	mootools.js的事件部分搜刮完毕。
+//	function hasChild($target,$element)
+//	{
+//		var $elements=$target.getElementsByTagName("*");
+//		for(var i=0;i<$elements.length;i++)if($elements[i]==$element)return true;
+//		return false;
+//	}
+//	function getRelatedTarget(event)
+//	{
+//		var $t=event.relatedTarget||(event.type=="mouseover"?event.fromElement:event.toElement)||window;
+//		if($t.nodeType==3)$t=$t.parentNode;
+//		return $t;
+//	}
+//	EventManager.bind($("mouse"),"mouseover",function(event)
+//	{
+//		showMessage($("d51"),"|Over");
+//		var $t=getRelatedTarget(event);
+//		if(!hasChild(this,$t)&&(this!=$t))showMessage($("d52"),"|MouseEnter");
+//	}
+//	);
+//	EventManager.bind($("mouse"),"mouseout",function(event)
+//	{
+//		showMessage($("d51"),"|Out");
+//		var $t=getRelatedTarget(event);
+//		if(!hasChild(this,$t)&&(this!=$t))showMessage($("d52"),"|MouseLeave");
+//	}
+//	);
+//
+//	自定义事件，prototype.js的自定义事件及触发：
+//	var fire=function($target,eventName,memo)
+//	{
+//		var event;
+//		if (document.createEvent) {
+//		event = document.createEvent("HTMLEvents");
+//		event.initEvent("dataavailable", true, true);
+//		} else {
+//		event = document.createEventObject();
+//		event.eventType = "ondataavailable";
+//		}
+//
+//		event.eventName = eventName;
+//		event.memo = memo || { };
+//
+//		if (document.createEvent) {
+//		$target.dispatchEvent(event);
+//		} else {
+//		$target.fireEvent(event.eventType, event);
+//		}
+//	};
+//	EventManager.bind($("b1"),"dataavailable",onClick1);
+//	fire($("b1"),"dataavailable");
+//
+//	模拟用户事件，由于KeyEvent在DOM2没有标准化，只能模拟MouseEvent，而这些模拟，几乎不会用到。
+//	var fire=function($target,eventName)
+//	{
+//		if(document.createEvent)		//DOM event model.
+//		{
+//			var e=document.createEvent("MouseEvents");
+//			e.initEvent(eventName,true,true,null,2,2,2,2,2,1,1,1,1,1);
+//		}
+//		else if(document.createEventObject)	//IE event model.
+//		{
+//			var e=document.createEventObject();
+//			e.button=1;
+//			e.clientX=1;
+//			e.clientY=2;
+//		}
+//		else return;
+//		if($target.dispatchEvent)$target.dispatchEvent(e);
+//		else if($target.fireEvent)$target.fireEvent("on"+eventName,e);
+//	};
+//	fire($("d21"),"mousemove");
+}
+</script>
+</head>
+<body>
+<h1>EventManager</h1>
+<!--多重事件绑定及解除-->
+<fieldset>
+  <legend>多重事件绑定及解除</legend>
+  <div id="d1" class="debug"></div>
+  <button id="b1">按钮一</button>
+  <br/>
+  <button id="b2">按钮二</button>
+  <button id="b3">解除按钮二所有事件</button>
+  <br/>
+  <button id="b4">清除信息</button>
+</fieldset>
+<!--鼠标滚动、移动、按键及键盘按键-->
+<fieldset>
+  <legend>鼠标滚动、移动、按键及键盘按键</legend>
+  <div id="scroll">鼠标滚动</div>
+  <div id="d21" class="debug"></div>
+  <div id="d22" class="debug"></div>
+</fieldset>
+<!--事件传播-->
+<fieldset>
+  <legend>事件传播</legend>
+  <div id="div"><code>code</code><samp>samp</samp><kbd>kbd</kbd><var>var</var><span>span</span><p id="p">p</p></div>
+  <button id="button">取消以上P元素的冒泡</button>
+</fieldset>
+<!--拖动事件-->
+<fieldset>
+  <legend>拖动事件</legend>
+  <div id="container">
+    <div id="drag">
+      <div id="d41">[灰]</div>
+      <div id="d42">[蓝]</div>
+      &#160;
+    </div>
+  </div>
+  <button id="unbind">解除以上蓝方块拖动</button>
+</fieldset>
+<!--鼠标进入、离开-->
+<fieldset>
+  <legend>鼠标进入、离开</legend>
+  <div id="mouse">
+    <div id="d51"></div>
+    <div id="d52"></div>
+    <div id="d53"></div>
+    <code>code</code><samp>samp</samp><kbd>kbd</kbd><var>var</var><span>span</span><p id="inner">p</p></div>
+</fieldset>
+</body>
+</html>

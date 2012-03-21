@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>pageNavigator</title>
+<style>
+</style>
+</head>
+<body>
+<div id="page_navigator" style="width:500px; height:20px; margin:200px; background:whitesmoke; text-align:center;"></div>
+<script>
+var getParameters = function() {
+  var parameters = null;
+  return function() {
+    if (!parameters) {
+      var searchString = location.search.slice(1);
+      if (searchString) {
+        parameters = {};
+        var valuePairs = searchString.split('&');
+        var valuePair = null;
+        while (valuePair = valuePairs.shift()) {
+          valuePair = valuePair.split('=');
+          parameters[valuePair[0]] = valuePair[1];
+        }
+      }
+    }
+    return parameters;
+  };
+}();
+</script>
+<script>
+/**
+ * 获取一个命名空间，该命名空间挂载在 rootObject 上，如果该命名空间不存在则新建一个并返回。
+ * @name getNamespace
+ * @param {string} namespace
+ * @param {Object} rootObject
+ * @return {Object}
+ */
+function getNamespace(namespace, rootObject) {
+  namespace = namespace || '';
+  rootObject = rootObject || window;
+  var object = rootObject;
+  var names = namespace.split('.');
+  var name = null;
+  while (name = names.shift()) {
+    if (!object.hasOwnProperty(name)) {
+      object[name] = {};
+    }
+    object = object[name];
+  }
+  return object;
+}
+
+/**************************************************
+ * 生成导航条。
+ **************************************************/
+getNamespace('Utilities').getPageNavigator = function(currentPage, totalPage, options) {
+  var edgeEntries = options.edgeEntries || 1;
+  var sideEntries = options.sideEntries || 2;
+
+  var ranges = {left: {}, middle: {}, right: {}};
+  ranges.left.min = 1;
+  ranges.left.max = Math.min(edgeEntries, totalPage);
+  ranges.middle.min = Math.max(Math.min(currentPage - sideEntries, totalPage - (sideEntries * 2 + 1)), ranges.left.max + 1);
+//  ranges.middle.max = Math.min(Math.max(currentPage + sideEntries, ranges.left.max + (sideEntries *2 + 1)), totalPage);
+  ranges.middle.max = Math.min(ranges.middle.min + (sideEntries * 2), totalPage);
+  ranges.right.min = Math.max(totalPage - edgeEntries + 1, ranges.middle.max + 1);
+  ranges.right.max = totalPage;
+//  console.log(JSON.stringify(ranges));
+
+  var pageItems = [];
+  var n = null;
+// 左侧数字。
+  n = ranges.left.min;
+  while (n <= ranges.left.max) {
+    pageItems.push(n++);
+  }
+// 左侧省略。
+  if (ranges.middle.min > ranges.left.max + 1) {
+    pageItems.push(0);
+  }
+// 中部数字。
+  n = ranges.middle.min;
+  while (n <= ranges.middle.max) {
+    pageItems.push(n++);
+  }
+// 右侧省略。
+  if (ranges.right.min > ranges.middle.max + 1) {
+    pageItems.push(0);
+  }
+// 右侧数字。
+  n = ranges.right.min;
+  while (n <= ranges.right.max) {
+    pageItems.push(n++);
+  }
+
+  return pageItems;
+};
+
+/**************************************************
+ * 测试。
+ **************************************************/
+var totalRows = 80;
+var pageSize = 10;
+var totalPage = Math.ceil(totalRows / pageSize);
+var currentPage = Math.min(Math.max(parseInt(getParameters().page, 10) || 1, 1), totalPage);
+var pageItems = Utilities.getPageNavigator(currentPage, totalPage, {edgeEntries: 1, sideEntries: 2});
+console.log(currentPage)
+
+var ellipsisText = '<span>...</span>';
+var pageItemTemplate = '<a href="pageNavigator.html?page={n}">{n}</a>';
+var html = [];
+var pageNavigator = document.getElementById('page_navigator');
+for (var i = 0, l = pageItems.length; i < l; i++) {
+  var pageItem = pageItems[i];
+  if (pageItem) {
+    html.push(pageItemTemplate.replace(/\{n\}/g, pageItem));
+  } else {
+    html.push(ellipsisText);
+  }
+}
+pageNavigator.innerHTML = html.join('\n');
+</script>
+
+</body>
+</html>

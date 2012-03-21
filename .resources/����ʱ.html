@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>无标题文档</title>
+<link href="style/style.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">
+window.onload = function() {
+  function fillZero(num) {
+    return num < 10 ? '0' + num : String(num);
+  }
+  var elements = {
+    days: document.getElementById('day'),
+    hours: document.getElementById('hour'),
+    miniutes: document.getElementById('min'),
+    seconds: document.getElementById('sec')
+  };
+  var timer = setInterval(function() {
+    var iRemain = (new Date(2011, 6, 21).getTime() - new Date().getTime()) / 1000;
+    if (iRemain <= 0) {
+      clearInterval(timer);
+      iRemain = 0;
+      alert('已过时间');
+    }
+    var values = {};
+    values.days = Math.floor(iRemain / 86400);
+    iRemain %= 86400;
+    values.hours =  Math.floor(iRemain % 86400 / 3600);
+    iRemain %= 3600;
+    values.miniutes = Math.floor(iRemain / 60);
+    iRemain %= 60;
+    values.seconds = Math.floor(iRemain).toString().slice(-2);
+    for (var i in elements) {
+      elements[i].innerHTML = fillZero(values[i]);
+    }
+  }, 1000);
+};
+</script>
+</head>
+
+<body>
+<div id="content">
+  <div class="top"></div>
+  <div class="center">
+    <a href="www.baidu.com"> <img src="images/buutton.gif"/></a>
+    <div class="date">
+      <p id="day">00</p>
+      <p id="hour">00</p>
+      <p id="min">00</p>
+      <p id="sec">00</p>
+    </div>
+  </div>
+  <div class="bottom">
+    <div class="num1"><a href="###"></a></div>
+    <div class="num2"><a href="###"></a></div>
+    <div class="num3"><a href="###"></a></div>
+    <div class="num4"><a href="###"></a></div>
+  </div>
+</div>
+</body>
+</html>

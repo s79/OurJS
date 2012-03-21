@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>翻页导航</title>
+<style type="text/css">
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  font: 14px Verdana;
+}
+#nav {
+  width: 300px;
+  padding: 40px;
+  background: gold;
+  text-align: center;
+}
+#nav span,
+#nav em {
+  /*	display: block;
+    float: left;
+    margin: 2px;
+    padding: 2px 5px;
+    border: 1px solid #dcdcdc;
+    background: #f5f5f5;
+  */ color: #000000;
+}
+#nav span {
+  color: white;
+}
+#nav span.he {
+  color: silver;
+}
+#nav em {
+  border: 1px solid transparent;
+  background: transparent;
+}
+#nav a:link,
+#nav a:visited,
+#nav a:active {
+  /*	display: block;
+    float: left;
+    margin: 2px;
+    padding: 2px 5px;
+    border: 1px solid #c0c0c0;
+    background: #dcdcdc;
+  */ color: #1f3a87;
+  text-decoration: none;
+}
+#nav a:hover {
+  background: #eeeeee;
+}
+#nav a.he:hover {
+  background: #dc143c;
+}
+</style>
+<script type="text/javascript">
+function getParameter(parameter) {
+  var value = location.search.match(new RegExp("(?:[\?|&]" + parameter + "=)(.*?)(?:&|$)", "i"));
+  return value ? value[1] : "";
+}
+function createNavigator($target) {
+  var totalPage = 8;
+  var currentPage = Math.max(Math.min(parseInt(getParameter("page"), 10), totalPage), 1) || 1;
+  var html = "";
+  //上一页。
+  html += currentPage == 1 ? '<span class="he">&#139;</span>' : '<a href="createNavigator.html?page=' + (currentPage - 1) + '" title="上一页" class="he">&#139;</a>';
+  //第一页。
+  html += currentPage == 1 ? '<span>1</span>' : '<a href="createNavigator.html?page=1" title="第1页">1</a>';
+  //其他页。
+  var nMin = Math.max(Math.min(currentPage - 2, totalPage - 5), 2);
+  var nMax = Math.min(Math.max(currentPage + 2, 6), totalPage - 1);
+  if (nMin > 2) {
+    html += "<em>...</em>";
+  }
+  else if (totalPage > 1) {
+    html += "<em>|</em>";
+  }
+  for (var i = nMin; i <= nMax; i++) {
+    html += currentPage == i ? '<span>' + i + '</span>' : '<a href="createNavigator.html?page=' + i + '" title="第' + i + '页">' + i + '</a>';
+    if (i != nMax) {
+      html += "<em>|</em>";
+    }
+  }
+  if (nMax < totalPage - 1) {
+    html += "<em>...</em>";
+  }
+  else if (totalPage > i - 1) {
+    html += "<em>|</em>";
+  }
+  //最后一页。
+  if (totalPage > 1) {
+    html += currentPage == totalPage ? '<span>' + totalPage + '</span>' : '<a href="createNavigator.html?page=' + totalPage + '" title="第' + totalPage + '页">' + totalPage + '</a>';
+  }
+  //下一页。
+  html += currentPage == totalPage ? '<span class="he">&#155;</span>' : '<a href="createNavigator.html?page=' + (currentPage + 1) + '" title="下一页" class="he">&#155;</a>';
+  $target.innerHTML = html;
+}
+window.onload = function() {
+  createNavigator(document.getElementById("nav"));
+};
+</script>
+</head>
+<body>
+<div id="nav"></div>
+</body>
+</html>

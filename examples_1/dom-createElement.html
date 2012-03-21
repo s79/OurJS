@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>dom-createElement</title>
+<script src="../src/lang.js"></script>
+<script src="../src/base.js"></script>
+<script src="../src/dom.js"></script>
+<script src="../src/plugins/console.js"></script>
+</head>
+<body>
+<h1>$</h1>
+<script>
+document.body.appendChild($('<link rel="stylesheet" href="dom-createElement.css">'));
+document.body.appendChild($('<style>body{color: crimson;}</style>'));
+document.body.appendChild($('<script src="dom-createElement.js" defer></' + 'script>'));
+document.body.appendChild($('<script defer>alert("innerScript");<' + '/script>'));
+document.body.appendChild($('<h1>test<var>var</var>text<del>del</del>text</h1>'));
+document.body.appendChild($('<div style="white-space: pre;"> test<div>  jQuery</div>   text  <div>    del  </div></div>'));
+document.body.appendChild($('<>'));
+var elementTest = {
+  area: $('<area shape="rect" coords="0,0,82,126" href="">'),
+  legend: $('<legend>~legend~</legend>'),
+  option: $('<option>~option~</option>'),
+  optgroup: $('<optgroup>~optgroup~</optgroup>'),
+  tbody: $('<tbody><tr><td><table><tr><td>111</td></tr></table></td></tr></tbody>'),
+  thead: $('<thead>~thead~</thead>'),
+  tfoot: $('<tfoot>~tfoot~</tfoot>'),
+  colgroup : $('<colgroup></colgroup>'),
+  caption: $('<caption>~caption~</caption>'),
+  tr: $('<tr>~tr~</tr>'),
+  th: $('<th>~th~</th>'),
+  td: $('<td>~td~</td>'),
+  col: $('<col>')
+};
+
+var result = '';
+for (var i in elementTest) {
+  var $element = elementTest[i];
+  result += $element ? ($element.tagName + '\t\t"' + $element.innerHTML + '"\n') : '';
+}
+alert(result);
+</script>
+</body>
+</html>

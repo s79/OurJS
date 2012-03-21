@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>ImageCropper</title>
+<script type="text/javascript" src="../../common.js"></script>
+<script type="text/javascript" src="../../widgets/createImageCropper.js"></script>
+<style type="text/css">
+html,body
+{
+	margin: 0px;
+	padding: 0px;
+	font: 12px Verdana;
+}
+p
+{
+	margin: 0px;
+	padding: 0px;
+	font: 12px/14px Verdana;
+	text-indent: 20px;
+}
+h1
+{
+	font: 30px/40px Verdana;
+}
+#bg
+{
+	width: 420px;
+	height: 400px;
+	margin: auto;
+	background: url("bg.gif");
+}
+#bg .p
+{
+	height: 80px;
+}
+#cropper
+{
+	width: 372px;
+	height: 260px;
+	margin: auto;
+}
+/****************************************************/
+.view
+{
+	position: relative;
+	width: 372px;
+	height: 231px;
+	overflow: hidden;
+}
+.mask
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 372px;
+	height: 231px;
+	background: url("mask.gif");
+	cursor: default;
+	filter: alpha(opacity=50);
+	opacity: 0.50;
+}
+.view img
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+.btn_l
+{
+	float: left;
+	margin-left: 5px;
+	background: url("btn_l.gif") no-repeat;
+}
+.btn_r
+{
+	float: right;
+	margin-right: 5px;
+	background: url("btn_r.gif") no-repeat;
+}
+.btn_l,
+.btn_r
+{
+	position: relative;
+	top: -20px;
+	width: 15px;
+	height: 15px;
+}
+.track
+{
+	position: relative;
+	width: 320px;
+	height: 8px;
+	margin: 10px auto;
+	background: url("track.gif") no-repeat;
+	overflow: hidden;
+}
+.track_left
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 0px;
+	height: 8px;
+	background: url("track_left.gif") no-repeat;
+	overflow: hidden;
+}
+.bar
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 14px;
+	height: 8px;
+	background: url("bar.gif") no-repeat;
+	overflow: hidden;
+}
+/****************************************************/
+
+
+.control
+{
+	text-align: center;
+}
+.control p
+{
+	width: 400px;
+	margin: 5px auto;
+	text-align: left;
+}
+.control button
+{
+	width: 44px;
+	height: 19px;
+	margin: 10px auto 5px auto;
+	border: 0px none;
+	background: url("btn.gif") no-repeat;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+//--------------------------------------------------[onDOMReady]
+function onDOMReady()
+{
+	ic=createImageCropper({$target:$("cropper"),imageSrc:"http://hiphotos.baidu.com/%E7%8C%AB%E5%A4%A7%E7%9E%8E/pic/item/3cea22ed8635afc3b31cb1d9.jpg",width:154,height:115});
+}
+</script>
+</head>
+<body>
+
+<h1 id="debug"></h1>
+
+<div id="bg">
+	<p class="p"></p>
+	<div id="cropper"></div>
+	<div class="control">
+		<button onclick="alert(ic.getValue());"></button><br/>
+	</div>
+</div>
+
+</body>
+</html>

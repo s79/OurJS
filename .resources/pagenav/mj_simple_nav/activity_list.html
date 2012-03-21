@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>达人麻将</title>
+<style>
+* { padding: 0; margin: 0; }
+#content { position: relative; width: 585px; margin: 0 auto; height: 416px; }
+.list_top { width: 585px; height: 113px; background: url(images/list.png) no-repeat; -background: transparent; -filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled = true, sizingMethod = crop, src = 'images/list.png'); }
+.list_center { width: 585px; height: 270px; background: url(images/list_02.jpg) no-repeat; overflow: hidden; }
+.list_bottom { width: 585px; height: 33px; background: url(images/list_03.png) no-repeat; -background: transparent; -filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled = true, sizingMethod = crop, src = 'images/list_03.png'); }
+#close { position: absolute; top: 2px; right: 0; width: 36px; height: 36px; }
+table { table-layout: fixed; width: 508px; font-size: 12px; margin: 39px 0 0 38px; }
+table th { height: 35px; text-align: center; line-height: 35px; font-weight: bold; color: #005772; }
+table td { height: 26px; line-height: 26px; text-align: center; color: #005772; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+table td span { color: #f86b40; }
+#nav { width: 73px; height: 17px; margin: 15px auto 0; font-size: 14px; color: #666666; }
+#nav a {
+  display: inline-block;
+  width: 10px;
+  height: 17px;
+  background: url(images/nav.png) no-repeat;
+}
+#nav span {
+  display: inline-block;
+  height: 17px;
+  line-height: 17px;
+  padding: 0 15px;
+  vertical-align: top;
+}
+#nav #prev {
+  background-position: 0 0;
+}
+#nav #next {
+  background-position: -10px 0;
+}
+#nav #prev.disabled {
+  background-position: -20px 0;
+  cursor: default;
+}
+#nav #next.disabled {
+  background-position: -30px 0;
+  cursor: default;
+}
+</style>
+</head>
+
+<body>
+<div id="content">
+  <div class="list_top"></div>
+  <div class="list_center">
+    <table cellpadding="0" cellspacing="0">
+      <thead>
+        <tr>
+          <th width="130px;">角色名</th>
+          <th width="130px;">超过1000番次数</th>
+          <th width="130px;">超过5000番次数</th>
+          <th>获得奖励</th>
+        </tr>
+      </thead>
+      <tbody id="list">
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="nav"><a id="prev" href="javascript:prev();"></a><span id="num">1/4</span><a id="next" href="javascript:next();"></a></div>
+  </div>
+  <div class="list_bottom"></div>
+  <a id="close" href="javascript:parent.dialogThree.close();"></a>
+</div>
+<script>
+var dataSet = [
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包10元红包'],
+  ['角色名称角色名称角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称角色名称角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包'],
+  ['角色名称', 99, 99, '10元红包10元红包']
+];
+
+var currentPage = 1;
+var totalPage = Math.ceil(dataSet.length / 6);
+var pageSize = 6;
+var $list = document.getElementById('list');
+var $prev = document.getElementById('prev');
+var $next = document.getElementById('next');
+var $num = document.getElementById('num');
+
+function fillData(pageIndex) {
+  var $tr, $td;
+  var data;
+  for (var i = 0; i < 6; i++) {
+    $tr = $list.rows[i];
+    data = dataSet[(pageIndex - 1) * pageSize + i] || ['', '', '', ''];
+    for (var j = 0; j < 4; j++) {
+      $td = $tr.cells[j];
+      $td.innerHTML = data[j];
+    }
+  }
+  currentPage = pageIndex;
+  $prev.className = currentPage > 1 ? '' : 'disabled';
+  $next.className = currentPage < totalPage ? '' : 'disabled';
+  $num.innerHTML = currentPage + '/' + totalPage;
+}
+
+function prev() {
+  if (currentPage > 1) {
+    fillData(--currentPage);
+  }
+}
+
+function next() {
+  if (currentPage < totalPage) {
+    fillData(++currentPage);
+  }
+}
+
+fillData(1);
+</script>
+
+</body>
+</html>

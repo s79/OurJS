@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Request</title>
+<script src="/framework/import.js"></script>
+</head>
+<body>
+<textarea id="output" style="display: block; width: 800px; height:300px; background: whitesmoke;"></textarea>
+<button id="send1">send1</button>
+<button id="abort1">abort1</button>
+<br>
+<button id="send2">send2</button>
+<button id="abort2">abort2</button>
+<script>
+var $ = Element.$;
+
+var $output = $('output');
+$output.value = '';
+
+var times = 0;
+
+var request1 = new Request('request.asp', {
+  method: 'post',
+  contentType: 'application/json',
+  cache: true,
+  async: true,
+  minTime: 1,
+  maxTime: 1200,
+  onBeforeRequest: function(data) {
+    return typeOf(data) === 'string' ? data : JSON.stringify(data);
+  },
+  onResponse: function(response) {
+    var message = 'request1: ' + JSON.stringify(response);
+//    message += ' ' + JSON.parse(response)['randomString'];
+    $output.value += message + '\n';
+
+    if (times < 5) {
+      times++;
+      this.send('{"times": ' + times + '}');
+
+      if (times === 1 || times === 3) {
+        request1.abort();
+      } else if (times === 5 || times === 7 || times === 9) {
+        setTimeout(function() {
+          request1.abort();
+        }, 50);
+      }
+    }
+  }
+});
+var request2 = new Request('request.xml', {
+  method: 'get',
+  cache: true,
+  onResponse: function(response) {
+    var message = 'request2: ' + response.status + ' ' + response.statusText + ' ' + response.xml.documentElement.nodeName;
+    $output.value += message + '\n';
+  }
+});
+
+var $send1 = $('send1');
+var $abort1 = $('abort1');
+$send1.on('click', function() {
+  request1.send('{"type": "wait", "orderByTime": "true", "pageSize": 10, "pageIndex": 1}');
+});
+$abort1.on('click', function() {
+  request1.abort();
+});
+$send1.fire('click');
+
+var $send2 = $('send2');
+var $abort2 = $('abort2');
+$send2.on('click', function() {
+  request2.send();
+});
+$abort2.on('click', function() {
+  request2.abort();
+});
+</script>
+</body>
+</html>

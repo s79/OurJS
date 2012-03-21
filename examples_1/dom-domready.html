@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>test-domready</title>
+<script src="../.references/jquery-1.7.1.js"></script>
+<script src="../import.js"></script>
+<style>
+body { margin: 0; padding: 0; background: white; }
+iframe { display: block; width: 400px; height: 300px; border: 1px solid black; }
+img { display: none; }
+p { font: 14px/20px Verdana; }
+span { padding: 5px; }
+var { color: tomato; }
+.top { font-weight: bold; color: black; }
+.frame { }
+.domready { background: greenyellow; }
+.load { background: dodgerblue; }
+#log { position: absolute; left: 500px; top: 0; }
+</style>
+<script>
+//--------------------------------------------------[log]
+var startTime = Date.now();
+function log(message) {
+  $('#log').append($('<p>' + message + ' (' + ((Date.now() - startTime) / 1000).toFixed(2) + ' : ' + document.readyState + ')</p>'));
+}
+
+//--------------------------------------------------[domready]
+document.on('domready', function() {
+  top.log('<span class="top domready">' + $('#domready').value + '</span>');
+});
+jQuery(function() {
+  top.log('<span class="top domready">' + $('#domready').value + ' <var>jQuery</var></span>');
+});
+
+//--------------------------------------------------[load]
+window.on('load', function() {
+  document.on('domready', function() {
+    top.log('= 在 window.load 中添加的 document.domready (index) =');
+  });
+  top.log('<span class="top load">' + $('#load').value + '</span>');
+});
+
+</script>
+</head>
+<body>
+<iframe src="dom-domready-frame.html" frameborder="0"></iframe>
+<img src="http://www.abc.com" alt="null">
+<div id="log"></div>
+<input id="domready" type="hidden" value="index - DOM Ready">
+<input id="load" type="hidden" value="index - Loaded">
+</body>
+</html>

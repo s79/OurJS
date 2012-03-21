@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>storage</title>
+<link rel="stylesheet" href="../../demo/common.css">
+<script src="../../import.js"></script>
+<style>
+body { background: whitesmoke; }
+h1 { background: gold; font: bold 14px "Microsoft Yahei"; text-align: center; }
+table th { width: 50px; text-align: left; }
+table td { text-align: right; }
+input { width: 100px; padding: 2px; border: 1px solid #c0c0c0; line-height: 1; }
+button { margin: 2px; padding: 0 6px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<!-- localStorage { -->
+<div>
+  <h1>另一路径</h1>
+  <fieldset>
+    <legend>set</legend>
+    <form id="form_local_storage_set">
+      <table>
+        <tbody>
+          <tr>
+            <th>key:</th>
+            <td><input name="key" type="text" value=""></td>
+          </tr>
+          <tr>
+            <th>value:</th>
+            <td><input name="value" type="text" value=""></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <button id="local_storage_set" type="button">localStorage.setItem</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </fieldset>
+  <fieldset>
+    <legend>get</legend>
+    <form id="form_local_storage_get">
+      <table>
+        <tbody>
+          <tr>
+            <th>key:</th>
+            <td><input name="key" type="text" value=""></td>
+          </tr>
+          <tr>
+            <th>value:</th>
+            <td><input name="value" type="text" value="" disabled></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <button id="local_storage_get" type="button">localStorage.getItem</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </fieldset>
+  <fieldset>
+    <legend>remove</legend>
+    <form id="form_local_storage_remove">
+      <table>
+        <tbody>
+          <tr>
+            <th>key:</th>
+            <td><input name="key" type="text" value=""></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <button id="local_storage_remove" type="button">localStorage.removeItem</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </fieldset>
+  <fieldset>
+    <legend>clear</legend>
+    <form id="form_local_storage_clear">
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <button id="local_storage_clear" type="button">localStorage.clear</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </fieldset>
+  <script>
+  $('#local_storage_set').on('click', function() {
+    var $form = $('#form_local_storage_set');
+    localStorage.setItem($form.key.value, $form.value.value);
+  });
+
+  $('#local_storage_get').on('click', function() {
+    var $form = $('#form_local_storage_get');
+    var value = localStorage.getItem($form.key.value);
+    $form.value.value = value || '';
+  });
+
+  $('#local_storage_remove').on('click', function() {
+    var $form = $('#form_local_storage_remove');
+    localStorage.removeItem($form.key.value);
+  });
+
+  $('#local_storage_clear').on('click', function() {
+    localStorage.clear();
+  });
+  </script>
+</div>
+<!-- } localStorage -->
+</body>
+</html>

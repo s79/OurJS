@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>enableOnDOMReadyEvent</title>
+<script src="enableondomreadyevent.js"></script>
+<style>
+body {
+  background: #ffffff;
+}
+iframe {
+  float: left;
+  width: 500px;
+  height: 100px;
+}
+#debug {
+  float: left;
+  font: 14px Verdana;
+  text-align: left;
+}
+</style>
+<script>
+//--------------------------------------------------[debug]
+var startTime = new Date().getTime();
+function debug(message) {
+  document.getElementById("debug").innerHTML += '[' + (new Date().getTime() - startTime) + ']' + message + '<br>';
+}
+//--------------------------------------------------[onDOMReady]
+function onDOMReady() {
+  debug("主页面 - DOM Ready");
+}
+//--------------------------------------------------[window.onload]
+window.onload = function() {
+  debug("主页面 - Loaded");
+};
+</script>
+</head>
+<body>
+<iframe id="iframe" frameborder="0" scrolling="auto" src="iframe.html"></iframe>
+<div id="debug"></div>
+<script>
+function iFrameAutoResize(iframe) {
+  function resizeIframe() {
+    var iframeDocument = iframe.contentWindow.document;
+    iframe.style.height = '300px';
+    iframe.style.height = Math.max((iframeDocument.documentElement.clientHeight ? Math.max(iframeDocument.body.scrollHeight, iframeDocument.documentElement.scrollHeight) : iframeDocument.body.scrollHeight)) + 'px';
+  }
+
+  iframe.onload = function() {
+    debug('= iframe.onload');
+    resizeIframe();
+  };
+  iframe.onreadystatechange = function() {
+    debug('~ ' + this.readyState);
+    if (this.readyState === 'complete') {
+      resizeIframe();
+    }
+  };
+}
+iFrameAutoResize(document.getElementById('iframe'));
+</script>
+</body>
+</html>

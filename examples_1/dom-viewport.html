@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>dom-viewport</title>
+<script src="../lianzhong.js"></script>
+<style>
+html { margin: 2px; padding: 3px; border: 5px solid blue; }  /* 10 */
+body { margin: 7px; padding: 11px; border: 13px solid red; }  /* 31 */
+/*html, body { margin: 0; padding: 0; border: 0; }*/
+#log { position: absolute; left: 190px; top: 80px; width: 200px; height: 30px; background: white; color: #000; font: 14px/30px Verdana; text-align: center; }
+#size_400x200 { position: absolute; left: 0; top: 0; width: 400px; height: 200px; background: #ffd711; opacity: 0.5; filter: alpha(opacity = 50); }
+#size_2000x2000 { display: none; width: 2000px; height: 2000px; background: black; opacity: 0.75; filter: alpha(opacity = 75); }
+table { position: absolute; left: 10px; top: 5px; border-collapse: collapse; border: 1px solid black; opacity: 0.75; filter: alpha(opacity = 75); }
+table th,
+table td { width: 50px; padding: 2px; border: 1px solid black; font: bold 14px Courier New; }
+table th { background: #f5f5f5; }
+table td { background: #fff; text-align: right; }
+</style>
+<script>
+/*
+ 测试：
+ 即使内容能被完全显示，混杂模式下的IE6、IE7、IE8和标准模式下的IE6、IE7也永远显示纵向滚动条。
+ */
+//--------------------------------------------------[test]
+window.onload = function() {
+//  window.scrollTo(7, 5);
+
+  // 标尺。
+  $('size_400x200').setStyle('background', document.compatMode === 'CSS1Compat' ? 'greenyellow' : 'crimson');
+
+  //输出结果。
+  var $resault = $('resault');
+  var elements = [document.body, document.documentElement];
+  var attributes = [
+    'clientWidth',
+    'clientHeight',
+    'offsetWidth',
+    'offsetHeight',
+    'scrollWidth',
+    'scrollHeight',
+    'scrollLeft',
+    'scrollTop'
+  ];
+
+  for (var i = 0; i < 2; i++) {
+    for (var j = 0; j < 8; j++) {
+      $resault.rows[j + 1].cells[i + 1].innerHTML = elements[i][attributes[j]];
+    }
+  }
+
+  var offset = getPageOffset();
+  var clientSize = getClientSize();
+  var scrollSize = getScrollSize();
+  document.getElementById('log').innerHTML = offset.x + ':' + offset.y + '<br>' +
+      clientSize.width + ' x ' + clientSize.height + '<br>' +
+      scrollSize.width + ' x ' + scrollSize.height;
+};
+</script>
+</head>
+<body>
+<div id="size_400x200"></div>
+<div id="size_2000x2000"></div>
+<div id="log"></div>
+<table>
+  <tbody id="resault">
+    <tr>
+      <th></th>
+      <th>DB</th>
+      <th>DE</th>
+    </tr>
+    <tr>
+      <th>CW</th>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>CH</th>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>OW</th>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>OH</th>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>SW</th>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>SH</th>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>SL</th>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>ST</th>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

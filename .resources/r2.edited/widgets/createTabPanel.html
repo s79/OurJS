@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>createTabPanel</title>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript" src="createTabPanel.js"></script>
+<style type="text/css">
+*
+{
+	margin: 0px;
+	padding: 0px;
+}
+ul.tab
+{
+	list-style: none;
+	width: 300px;
+	height: 25px;
+}
+ul.tab li
+{
+	float: left;
+	width: 100px;
+	height: 25px;
+	font: 12px/25px Verdana;
+	text-align: center;
+	cursor: default;
+}
+ul.tab li.tab_off
+{
+	background: #dcdcdc;
+}
+ul.tab li.tab_on
+{
+	background: #f5f5f5;
+}
+ul.text
+{
+	list-style: none;
+	width: 300px;
+	height: 200px;
+}
+ul.text li
+{
+	display: none;
+	width: 300px;
+	height: 200px;
+	font: 14px/200px Verdana;
+	text-align: center;
+	background: #f5f5f5;
+}
+</style>
+<script type="text/javascript">
+//--------------------------------------------------[setOnDOMReady]
+function showIt(n)
+{
+	alert(n);
+}
+EventManager.setOnDOMReady(function()
+{
+	//createTabPanel(baseId,total,active,onActive)
+	test=createTabPanel("tab",3,2,showIt);
+});
+</script>
+</head>
+<body>
+<ul class="tab">
+<li id="tab_1" class="tab_off">Tab 1</li>
+<li id="tab_2" class="tab_off">Tab 2</li>
+<li id="tab_3" class="tab_off">Tab 3</li>
+</ul>
+<ul class="text">
+<li id="text-tab_1">Text 1</li>
+<li id="text-tab_2">Text 2</li>
+<li id="text-tab_3">Text 3</li>
+</ul>
+</body>
+</html>

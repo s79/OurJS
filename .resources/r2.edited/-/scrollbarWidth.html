@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title></title>
+<link rel="stylesheet" type="text/css" href="css.css" media="all"/>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript">
+var getScrollbarWidth=function()
+{
+	if(scrollbarWidth)return scrollbarWidth;
+	alert("getting...");
+	var $outer=$("<div>");
+	$outer.style.position="absolute";
+	$outer.style.top="0px";
+	$outer.style.left="-10000px";
+	$outer.style.width="100px";
+	$outer.style.height="100px";
+	$outer.style.overflow="scroll";
+	var $inner=$("<div>");
+	$inner.style.height="200px";
+	$outer.appendChild($inner);
+	document.body.appendChild($outer);
+	scrollbarWidth=100-$inner.offsetWidth;
+	document.body.removeChild($outer);
+	return scrollbarWidth;
+};
+var scrollbarWidth=0;
+EventManager.setOnDOMReady(function()
+{
+//	alert(getScrollbarWidth());
+});
+</script>
+</head>
+<body>
+	<button onclick="alert(getScrollbarWidth());">alert(getScrollbarWidth());</button>
+</body>
+</html>

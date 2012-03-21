@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dialog</title>
+<link rel="stylesheet" href="demo/common.css">
+<script src="import.js"></script>
+<script src="src/components/dialog.js"></script>
+<style>
+body { wid ` th: 1500px; height: 1500px; }
+#dialog_1 { display: none; position: absolute; left: 10px; top: 10px; z-index: 10; width: 400px; height: 300px; background: #8fbc8b; text-align: center; }
+#dialog_2 { display: none; position: fixed; left: 20px; top: 20px; z-index: 20; width: 300px; height: 200px; background: navy; text-align: center; }
+</style>
+</head>
+<body>
+<h1>Dialog</h1>
+<fieldset>
+  <legend>对话框出现时遮罩下边的元素不可用 tab 键聚焦</legend>
+  <input type="button" value="button">
+  <input type="text" value="text">
+  <a href="#">a</a>
+  <button onclick="dialogOne.open();">打开对话框1</button>
+</fieldset>
+<div id="pin" style="position: relative; top: 100px; width: 50%; height: 400px; background: whitesmoke;">
+  <input type="button" value="button">
+  <input type="text" value="text">
+  <a href="javascript:void('test');">a</a>
+</div>
+
+<div id="dialog_1">
+  <button onclick="dialogTwo.open();">打开对话框2</button>
+  <button onclick="dialogOne.close();">关闭1</button>
+</div>
+<div id="dialog_2">
+  <button onclick="dialogTwo.close();">关闭2</button>
+  <button onclick="runAnimation(true);">变长</button>
+  <button onclick="runAnimation(false);">变短</button>
+</div>
+
+<script>
+//==================================================[test]
+//$('#pin').setStyle('position', 'fixed');
+
+var dialogOne = new components.Dialog($('#dialog_1'), {pinnedOffsetY: 300});
+var dialogTwo = new components.Dialog($('#dialog_2'), {onClose: function() {
+  console.log('CLOSE');
+}});
+
+function runAnimation(flag) {
+  var timer;
+  dialogTwo.element.animate({height: flag ? 400 : 200}, {
+    onStart: function() {
+      timer = setInterval(function() {
+        dialogTwo.adjust();
+      }, 15);
+    },
+    onFinish: function() {
+      clearInterval(timer);
+    }
+  });
+}
+
+</script>
+</body>
+</html>

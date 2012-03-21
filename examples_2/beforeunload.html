@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="/framework/import.js"></script>
+</head>
+<body>
+<script>
+var showMessage = true;
+var isMozilla = Object.prototype.toString.call(window['Components']) === '[object nsXPCComponents]';
+window.on('beforeunload', function(e) {
+
+console.log(window.event);
+  if (showMessage) {
+    var message = '您正在应战中，请勿离开此页；否则将做失败处理！';
+    if (isMozilla) {
+      alert(message + '\n请在稍后的对话框点击“留在页面”以继续游戏。');
+    }
+    return message;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>createListArea</title>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript" src="../widgets/createListArea.js"></script>
+<style type="text/css">
+body
+{
+	margin:10px;
+	padding:0px;
+	font:12px Verdana;
+}
+ul
+{
+	list-style:none;
+	width:200px;
+	height:150px;
+	margin:0px;
+	padding:0px;
+	border:1px solid #c0c0c0;
+	background:#f5f5f5;
+}
+ul li
+{
+	width:200px;
+	height:16px;
+	margin:0px;
+	padding:0px;
+	cursor:default;
+	overflow:hidden;
+}
+ul li.selected
+{
+	background:#dcdcdc;
+}
+</style>
+<script type="text/javascript">
+EventManager.setOnDOMReady(function()
+{
+	window.listArea=createListArea($("list"));
+});
+</script>
+</head>
+<body>
+
+<h1>createListArea</h1>
+
+<ul id="list">
+<li class="readonly">-----<strong>附件</strong>-----</li>
+<li>D:\files\fileName.extName</li>
+<li>E:\Softs\soft.exe</li>
+<li>D:\images\photo003.jpeg</li>
+</ul>
+
+<input id="text" type="text" value="test"/>
+<button onclick="listArea.add($('text').value);">+</button>
+<button onclick="listArea.remove();">-</button>
+
+</body>
+</html>

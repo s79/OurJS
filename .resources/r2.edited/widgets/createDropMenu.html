@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript" src="../data/idcsvr.js"></script>
+<script type="text/javascript" src="createDropMenu.js"></script>
+<title>createDropMenu</title>
+<style type="text/css">
+.dropmenu
+{
+	width: 200px;
+	background: gold;
+	cursor: default;
+}
+.dropmenu *
+{
+	-moz-user-select: none;
+}
+.dropmenu .value
+{
+	width: 200px;
+	height: 20px;
+	background: silver;
+}
+.dropmenu .options
+{
+	display: none;
+	position: absolute;
+	z-index: 15;
+	width: 200px;
+	background: silver;
+}
+.dropmenu .options div.top
+{
+	height: 5px;
+	background: red;
+	overflow: hidden;
+}
+.dropmenu .options div.bottom
+{
+	height: 5px;
+	background: blue;
+	overflow: hidden;
+}
+.dropmenu .options ul
+{
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+.dropmenu .options ul li
+{
+	background: #dcdcdc;
+}
+.dropmenu .options ul li.over
+{
+	background: whitesmoke;
+}
+.dropmenu_active .value
+{
+	background: whitesmoke;
+}
+.dropmenu_active .options
+{
+	display: block;
+}
+</style>
+<script type="text/javascript">
+EventManager.setOnDOMReady(function()
+{
+	var menuIDC=createDropMenu({
+		$target:$("d1"),
+		$value:$("idc"),
+		options:idc,
+		selected:"南部电信",
+		onChange:function(text,value){menuSVR.setOptions(svr[text]);},
+		className:"dropmenu"
+	});
+	var menuSVR=createDropMenu({
+		$target:$("d2"),
+		$value:$("svr"),
+		options:svr["南部电信"],
+		selected:"恶魔之触",
+		className:"dropmenu"
+	});
+//	如果上边创建时没有设置options/selected，可以在这里进行后续设置。
+//	menuIDC.setOptions(idc,"南部电信");
+//	menuSVR.setOptions(svr["南部电信"],"恶魔之触");
+});
+</script>
+</head>
+<body>
+
+<input id="idc" type="text" value=""/>
+<input id="svr" type="text" value=""/>
+
+<div style="float: left; margin-right: 20px;"><div id="d1"></div></div>
+<div style="float: left; margin-right: 20px;"><div id="d2"></div></div>
+
+</body>
+</html>

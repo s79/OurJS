@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>dom-getBoundingClientRect</title>
+<script src="../src/plugins/console.js"></script>
+<script src="../src/lang.js"></script>
+<script src="../src/dom.js"></script>
+<style>
+html { margin: 2px; padding: 3px; border: 15px solid blue; }
+body { margin: 7px; padding: 11px; border: 13px solid red; }
+  /*
+    本页仅为测试 getBoundingClientRect 用，取某元素相对于窗口的坐标，而不是取某元素相对于页面的坐标，因此禁用页面的滚动条，不考虑页面或内容滚动的情况。
+    除标准模式下的 IE6、IE7 是 html 的 overflow 属性生效外，标准模式的其他浏览器及混杂模式的所有浏览器都是 body 的 overflow 属性生效。
+  */
+html { /*overflow: hidden;*/ direction: RtL; }
+body { /*overflow: hidden;*/ }
+div { font: normal 12px/20px Verdana; }
+table { table-layout: fixed; border-spacing: 5px; width: 500px; }
+td { padding: 3px; border: 1px solid lightgray; }
+#container { position: relative; width: 300px; height: 200px; margin-top: 900px; }
+#margin { margin-top: 200px; }
+#relative { position: relative; left: -50px; top: 10px; height: 50px; border: 10px solid tan; background: gray; }
+#m_fixed { position: fixed; left: 0; top: 0; width: 100px; height: 20px; background: blue; opacity: 0.75; filter: alpha(opacity = 75); color: white; }
+#m_container { position: absolute; left: 0; top: 0; width: 120px; height: 20px; background: yellow; opacity: 0.75; filter: alpha(opacity = 75); }
+#m_relative { position: absolute; left: 0; top: 0; width: 120px; height: 20px; background: skyblue; opacity: 0.75; filter: alpha(opacity = 75); }
+</style>
+<script>
+//--------------------------------------------------[test]
+window.onload = function() {
+  //获取测试元素。
+  var $container = $('container');
+  $container.setStyle('background', document.compatMode === 'CSS1Compat' ? 'greenyellow' : 'crimson');
+
+  //直接取值，在 IE6 IE7 里会有误差。
+  var rect = $container.getBoundingClientRect();
+
+  //输出结果。
+  $('resault').innerHTML = '<div style="margin-top:0;">*</div>' +
+      'clientOffset [' + rect.left + ',' + rect.top + ']' +
+      '<br>DE.clientLeft = ' + document.documentElement.clientLeft +
+      '<br>DB.clientLeft = ' + document.body.clientLeft;
+
+  //移动 m_container 与 container 对齐。
+  var posC = $container.getClientRect();
+  $('m_container').setInlineStyle('left: ' + posC.left + 'px; top: ' + posC.top + 'px').innerHTML = '[' + posC.left + ',' + posC.top + ']';
+
+  //移动 m_relative 与 relative 对齐。
+  var posR = $('relative').getClientRect();
+  $('m_relative').setInlineStyle('left: ' + posR.left + 'px; top: ' + posR.top + 'px').innerHTML = '[' + posR.left + ',' + posR.top + ']';
+}
+</script>
+</head>
+<body>
+<div id="container">
+  <div id="margin">
+    <div id="resault"></div>
+    <table>
+      <tbody>
+        <tr>
+          <td>td</td>
+          <td>
+            <div id="relative"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div id="m_fixed">[0,0]</div>
+<div id="m_container">[0,0]</div>
+<div id="m_relative">[0,0]</div>
+</body>
+</html>

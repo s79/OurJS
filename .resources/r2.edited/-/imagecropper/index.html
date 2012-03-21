@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>ImageCropper</title>
+<script type="text/javascript" src="../../common.js"></script>
+<script type="text/javascript" src="../../widgets/createFileBrowser.js"></script>
+<script type="text/javascript" src="../../widgets/createImageCropper.js"></script>
+<style type="text/css">
+html,body
+{
+	margin: 0px;
+	padding: 0px;
+	font: 12px Verdana;
+}
+.browser input.text
+{
+	float: left;
+	width: 200px;
+	height: 17px;
+	margin-right: 10px;
+	padding: 0px;
+	border: 1px solid #c0c0c0;
+	font: 12px/17px Verdana;
+}
+.browser span
+{
+	display: block;
+	position: relative;
+	width: 46px;
+	height: 19px;
+	overflow: hidden;
+	background: url("btn_browse.gif") no-repeat 0px 0px;
+}
+.browser span.over
+{
+	background: url("btn_browse.gif") no-repeat 0px -19px;
+}
+.browser span input
+{
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	width: 220px;
+	height: 50px;
+	opacity: 0;
+	filter: alpha(opacity=0);
+}
+#hidden_frame
+{
+	display: none;
+}
+#ic
+{
+	display: none;
+}
+#cropper
+{
+	width: 372px;
+	height: 260px;
+}
+/****************************************************/
+.view
+{
+	position: relative;
+	width: 372px;
+	height: 231px;
+	overflow: hidden;
+}
+.mask
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 372px;
+	height: 231px;
+	background: url("mask.gif");
+	cursor: default;
+	filter: alpha(opacity=50);
+	opacity: 0.50;
+}
+.view img
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+.btn_l
+{
+	float: left;
+	margin-left: 5px;
+	background: url("btn_l.gif") no-repeat;
+}
+.btn_r
+{
+	float: right;
+	margin-right: 5px;
+	background: url("btn_r.gif") no-repeat;
+}
+.btn_l,
+.btn_r
+{
+	position: relative;
+	top: -20px;
+	width: 15px;
+	height: 15px;
+}
+.track
+{
+	position: relative;
+	width: 320px;
+	height: 8px;
+	margin: 10px auto;
+	background: url("track.gif") no-repeat;
+	overflow: hidden;
+}
+.track_left
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 0px;
+	height: 8px;
+	background: url("track_left.gif") no-repeat;
+	overflow: hidden;
+}
+.bar
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 14px;
+	height: 8px;
+	background: url("bar.gif") no-repeat;
+	overflow: hidden;
+}
+/****************************************************/
+
+</style>
+<script type="text/javascript">
+function selectFile()
+{
+	var fileTypes=["jpg","jpeg","gif","png","bmp"];
+	var filePathName=$("b1").value.toLowerCase();
+	var fileType=filePathName.match(/[^\.]+$/);
+	var wrongType=true;
+	for(var i=0;i<fileTypes.length;i++)
+	{
+		if(fileType==fileTypes[i])
+		{
+			wrongType=false;
+			break;
+		}
+	}
+	if(wrongType)
+	{
+		alert("错误的文件类型！您要上传的文件是 "+fileType+" 格式，系统只允许上传 "+fileTypes+" 格式的文件。");
+		$("upload").reset();
+	}
+	else
+	{
+		$("upload").onsubmit=null;
+	}
+}
+function onUploadDone(string)
+{
+	if(string.indexOf("Error-")>-1)
+	{
+		alert("上传失败！\n"+string.substring(6));
+	}
+	else
+	{
+		alert("上传成功！\n"+string);
+		$("data").style.display="none";
+		$("ic").style.display="block";
+		window.IC=createImageCropper({$target:$("cropper"),imageSrc:string,width:154,height:115});
+	}
+}
+function cropDone()
+{
+	var o=IC.getValue();
+	var s=[];
+	for(var i in o)s.push(i+":"+o[i]);
+	alert(s.join("\n"));
+	$("data").style.display="block";
+	$("ic").style.display="none";
+	$("upload").style.display="none";
+	var $preview=$("preview");
+	$preview.style.position="relative";
+	$preview.style.width=o.cropWidth+"px";
+	$preview.style.height=o.cropHeight+"px";
+	$preview.style.overflow="hidden";
+	var $img=$("<img>");
+	$img.src=o.imgSrc;
+	$img.style.position="absolute";
+	$img.style.left=-o.cropLeft+"px";
+	$img.style.top=-o.cropTop+"px";
+	$img.style.width=o.width+"px";
+	$img.style.height=o.height+"px";
+	$preview.appendChild($img);
+	$preview.style.display="block";
+	$("submit").disabled=false;
+}
+EventManager.setOnDOMReady(function()
+{
+	createFileBrowser($("b1"));
+});
+</script>
+</head>
+<body>
+
+<div id="data">
+	<form>
+		<input name="server" type="text" value="server"/>
+		<br>
+		<input name="name" type="text" value="name"/>
+	</form>
+	<form id="upload" method="post" action="upload.html" enctype="multipart/form-data" target="hidden_frame" onsubmit="return false">
+		<input id="b1" name="file" type="file" onchange="selectFile()"/><input type="submit" value="开始上传"/>
+	</form>
+	<div id="preview"></div>
+	<button id="submit" onclick="alert('提交了！');" disabled="disabled">提交</button>
+</div>
+<div id="ic">
+	<div id="cropper"></div>
+	<button onclick="cropDone();">确定</button>
+</div>
+<iframe id="hidden_frame" name="hidden_frame" src=""></iframe>
+
+</body>
+</html>

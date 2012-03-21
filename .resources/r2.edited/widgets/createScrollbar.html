@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>createScrollbar</title>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript" src="createScrollbar.js"></script>
+<style type="text/css">
+html,
+body
+{
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+}
+#body
+{
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+.track
+{
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	width: 17px;
+	height: 100%;
+	background: url("bar.gif") repeat-y 0px 0px;
+	overflow: hidden;
+}
+.track div
+{
+	overflow: hidden;
+}
+.track span
+{
+	position: relative;
+	top: -100px;
+}
+.track .button_t
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 17px;
+	height: 17px;
+	background: url("bar.gif") no-repeat -17px 0px;
+}
+.track .button_t_down
+{
+	background: url("bar.gif") no-repeat -102px 0px;
+}
+.track .button_t_disabled
+{
+	background: url("bar.gif") no-repeat -187px 0px;
+}
+.track .button_b
+{
+	position: absolute;
+	left: 0px;
+	bottom: 0px;
+	width: 17px;
+	height: 17px;
+	background: url("bar.gif") no-repeat -34px 0px;
+}
+.track .button_b_down
+{
+	background: url("bar.gif") no-repeat -119px 0px;
+}
+.track .button_b_disabled
+{
+	background: url("bar.gif") no-repeat -204px 0px;
+}
+.track .bar
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 17px;
+	height: 30px;
+	background: url("bar.gif") repeat-y -51px 0px;
+}
+.track .bar .bar_m
+{
+	width: 17px;
+	height: 100%;
+	background: url("bar.gif") no-repeat -85px center;
+}
+.track .bar .bar_t
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 17px;
+	height: 3px;
+	background: url("bar.gif") no-repeat -68px 0px;
+}
+.track .bar .bar_b
+{
+	position: absolute;
+	left: 0px;
+	bottom: 0px;
+	width: 17px;
+	height: 3px;
+	background: url("bar.gif") no-repeat -68px -14px;
+}
+.track .bar_down
+{
+	background: url("bar.gif") repeat-y -136px 0px;
+}
+.track .bar_down .bar_m
+{
+	background: url("bar.gif") no-repeat -170px center;
+}
+.track .bar_down .bar_t
+{
+	background: url("bar.gif") no-repeat -153px 0px;
+}
+.track .bar_down .bar_b
+{
+	background: url("bar.gif") no-repeat -153px -14px;
+}
+
+
+
+
+
+
+
+/**************************************************************/
+#bg
+{
+	background: #ffffff url(http://design.r2online.cn/R2Correct/images/bg/loop_community.jpg) left top repeat-x;
+}
+#content
+{
+	background: url(http://design.r2online.cn/R2Correct/images/bg/bg_community.jpg) center 33px no-repeat;
+}
+p
+{
+	height: 1000px;
+	margin: 0px;
+	padding: 0px;
+	font: 500px/1000px Verdana;
+}
+.text
+{
+	position: relative;
+	width: 400px;
+	height: 300px;
+	background: gold;
+	overflow: hidden;
+}
+.text #text
+{
+	width: 383px;
+	margin: 0px;
+	padding: 0px;
+	border: 0px none;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+</style>
+<script type="text/javascript">
+EventManager.setOnDOMReady(function()
+{
+//	alert(EventManager.onDOMReady.pool);
+	createScrollbar
+	({
+		$box:$("body"),
+		$track:$("track")
+	});
+	createScrollbar
+	({
+		$box:$("text"),
+		$track:$("track_text")
+	});
+//	var $t=$("text");
+//	var s=[];
+//	for(var i in $t)s.push(i+"\t:"+$t[i]+"\n");
+//	$t.value=s.join("");
+});
+</script>
+</head>
+<body>
+	<div id="body">
+		<div id="bg">
+			<div id="content">
+				<input type="text" value="">
+				<input type="button" value="button">
+				<div class="text">
+				<textarea id="text" rows="5" cols="10"></textarea>
+				<div id="track_text" class="track"></div>
+				</div>
+				<a href="#a">Go</a>
+				<p>p</p>
+				<p>p</p>
+				<p>p</p>
+				<p>p</p>
+				<p>p</p>
+				<p>p</p>
+				<a name="a">a</a>
+				<p>p</p>
+				<p>p</p>
+				<p>p</p>
+				<p>p</p>
+				<p>p</p>
+				<p>p</p>
+			</div>
+		</div>
+	</div>
+	<div id="track" class="track"></div>
+</body>
+</html>

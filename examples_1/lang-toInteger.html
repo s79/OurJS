@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>lang-tointeger</title>
+</head>
+<body>
+<script>
+function a(n) {
+  n = Number(n) || 0;
+  n = Math[n < 0 ? 'ceil' : 'floor'](n);
+  return n;
+}
+
+function b(n) {
+  n = Number(n) || 0;
+  if (n && isFinite(n)) {
+    n = (n > 0 || -1) * Math.floor(Math.abs(n));
+  }
+  return n;
+}
+
+// 不能处理 Infinity 和 -Infinity。
+// 整型，上限为 2147483647。
+function c(n) {
+  return n | 0;
+}
+
+// 不能为负数。
+// 不能处理 Infinity 和 -Infinity。
+// 无符号整型，上限为 4294967295。
+function d(n) {
+  return n >>> 0;
+}
+
+// 可能 为 NaN。
+// 不能取整。
+function e(n) {
+  return +n;
+}
+
+function test(n) {
+  console.log(a(n));
+  console.log(b(n));
+  console.log(c(n));
+  console.log(d(n));
+  console.log(e(n));
+}
+</script>
+</body>
+</html>

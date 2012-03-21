@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<script type="text/javascript" src="../common.js"></script>
+<script type="text/javascript" src="createMarquee.js"></script>
+<style type="text/css">
+.roll
+{
+	width: 500px;
+	height: 22px;
+	margin-top: 10px;
+	background: #f5f5f5;
+	overflow: hidden;
+}
+.roll div
+{
+	height: 22px;
+	font: 12px/22px Verdana;
+}
+</style>
+<script type="text/javascript">
+//--------------------------------------------------[window.onload]
+EventManager.setOnDOMReady(function()
+{
+	createMarquee($("marquee"));
+});
+</script>
+</head>
+<body>
+
+<div id="marquee" class="roll">
+	<div><span class="fnt_01"><a href="#">Xxx公会招募骑士会员加入</a></span><span><em class="fnt_01">XXXX</em>公会欢迎加盟</span></div>
+	<div><span><em class="fnt_01">XXXX</em>公会欢迎加盟</span></div>
+</div>
+
+</body>
+</html>

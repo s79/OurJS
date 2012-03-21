@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>jQuery</title>
+<script src=".references/jquery-1.7.1.js"></script>
+<script src="src/lang.js"></script>
+<script src="src/base.js"></script>
+<script src="src/dom.js"></script>
+<script src="src/plugins/console.js"></script>
+<style>
+div { padding: 10px; border: 1px solid black; }
+</style>
+</head>
+<body>
+<div id="div">
+  text
+  <div>
+    text
+    <div>
+      text
+      <div>
+        text
+        <div>
+          text
+          <div>
+            text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function J(e) {
+  this.appendChild(document.createTextNode(' jQuery '));
+}
+function L(e) {
+  this.appendChild(document.createTextNode(' lianzhong '));
+}
+
+jQuery('#div').click(J);
+jQuery('#div').click(J);
+$('div').addListener('click', L);
+$('div').addListener('click', L);
+
+jQuery('#div').on('click', 'div', function(e) {
+  this.appendChild(document.createTextNode(' J '));
+//  return false;
+//  e.stopImmediatePropagation();
+});
+jQuery('#div').on('click', 'div', function(e) {
+  this.appendChild(document.createTextNode(' j '));
+  e.stopImmediatePropagation();
+});
+$('div').addListener('click', function(e) {
+  this.appendChild(document.createTextNode(' L '));
+//  return false;
+//  e.stopImmediatePropagation();
+}, function() {
+  return this.tagName === 'DIV';
+});
+$('div').addListener('click', function(e) {
+  this.appendChild(document.createTextNode(' l '));
+  e.stopImmediatePropagation();
+}, function() {
+  return this.tagName === 'DIV';
+});
+
+</script>
+
+<hr>
+<iframe name="iframe"></iframe>
+<form id="form" target="iframe" action="http://www.baidu.com/">
+  <button id="sm" type="submit">submit</button>
+</form>
+<a id="a" href="http://www.lianzhong.com/">lianzhong</a>
+<script>
+jQuery('#form').on('submit', function(e) {
+  console.log('==submit==');
+  return false;
+});
+</script>
+
+<hr>
+<div id="id0">
+  <ul onclick='alert(event.srcElement.innerHTML);'>
+    <li id='id1' onclick='alert(1);'>i am one;</li>
+    <li id='id2'>i am two;</li>
+    <li id='id3'>i am three;</li>
+  </ul>
+  <button id="id4" onclick='document.getElementById("id1").onclick();'>click me!</button>
+  <button onclick='document.getElementById("id1").fireEvent("onclick")'>fireEvent !</button>
+</div>
+<script>
+/**
+ * 通过此例可见，能够触发任何事件并不是好事。
+ * 首先是应用场景很罕见，其次可能出现正常使用时不会出现的问题。
+ */
+jQuery('#id0').on('focusin', function(e) {
+  console.log('focusin:', e.target.tagName);
+});
+jQuery('#id4').on('click', function(e) {
+  console.log('click:', e.target.tagName);
+});
+jQuery('#id4').on('focus', function(e) {
+  console.log('focus:', e.target.tagName);
+});
+</script>
+</body>
+</html>

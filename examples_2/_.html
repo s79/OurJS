@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Animation Test</title>
+<script src="/framework/import.js"></script>
+<style>
+body { margin: 10px; padding: 0; font: 12px Verdana; }
+span { float: left; width: 20px; height: 20px; border: 1px solid black; }
+div { position: absolute; width: 50px; height: 50px; border: 1px solid black; background: white; overflow: hidden; }
+</style>
+</head>
+<body>
+<script>
+for (var i = 0; i < 500; i++) {
+  document.body.insertBefore(document.createElement('span'), document.body.firstChild);
+  document.body.appendChild(document.createElement('div'));
+}
+</script>
+<button id="test_all" style="position: absolute; right: 20px; bottom: 50px;">test_all</button>
+
+<script>
+var spanElements = document.getElementsByTagName('span');
+var divElements = document.getElementsByTagName('div');
+//--------------------------------------------------[TEST 1]
+var aniAllFrams;
+var aniAll = new Animation(function(x, y) {
+  Array.from(spanElements).forEach(function(span) {
+    span.style.width = 20 + 10 * y + 'px';
+    span.style.height = 20 + 5 * y + 'px';
+  });
+  Array.from(divElements).forEach(function(div, index) {
+    div.style.width = 50 + 20 * y + 'px';
+    div.style.height = 50 + 20 * y + 'px';
+    var offset = Math.floor(index / 50);
+    index = index % 50;
+    div.style.left = index * 10 * y + 'px';
+    div.style.top = offset * 80 + index * 5 * y + 'px';
+  });
+  aniAllFrams++;
+}, {
+  duration: 1000,
+  fps: 1000,
+  callback: function() {
+    alert('frames: ' + aniAllFrams);
+  }
+});
+
+$('test_all').on('click', function() {
+  aniAllFrams = 0;
+  aniAll.play();
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>ImageCropper</title>
+<script type="text/javascript" src="../../common.js"></script>
+<style type="text/css">
+html,body
+{
+	margin: 0px;
+	padding: 10px;
+	font: 12px Verdana;
+}
+p
+{
+	margin: 0px;
+	padding: 0px;
+	font: 12px/14px Verdana;
+	text-indent: 20px;
+}
+h1
+{
+	height: 40px;
+	font: 35px/40px Verdana;
+}
+#image
+{
+	position: relative;
+	width: 640px;
+	height: 480px;
+	margin: 10px auto;
+	background: #f5f5f5;
+	overflow: hidden;
+}
+#mask
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 640px;
+	height: 480px;
+	background: url("mask.gif");
+	cursor: default;
+	filter: alpha(opacity=50);
+	opacity: 0.50;
+}
+#img
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	visibility: hidden;
+}
+#track
+{
+	position: relative;
+	width: 640px;
+	height: 16px;
+	margin: 10px auto;
+	background: url("track.gif") no-repeat center center;
+	overflow: hidden;
+}
+#bar
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 10px;
+	height: 16px;
+	background: url("bar.gif") no-repeat center center;
+	overflow: hidden;
+}
+#mask span,
+#bar span
+{
+	position: relative;
+	top: -100px;
+}
+.control
+{
+	text-align: center;
+}
+.control p
+{
+	width: 400px;
+	margin: 5px auto;
+	text-align: left;
+}
+.control button
+{
+	width: 100px;
+	height: 30px;
+	margin: 0px auto 5px auto;
+}
+</style>
+<script type="text/javascript">
+//--------------------------------------------------[createImageCropper]
+function createImageCropper($img,$mask,$track,$bar)
+{
+	//图片拖动（拖动$mask时调用）
+	function dragImage(event,x,y)
+	{
+		var left=Math.max(Math.min(dragImage.currentX+x,$mask.offsetWidth-420),420-$img.offsetWidth);
+		var top=Math.max(Math.min(dragImage.currentY+y,$mask.offsetHeight-315),315-$img.offsetHeight);
+		$img.style.left=left+"px";
+		$img.style.top=top+"px";
+debug();
+	}
+	dragImage.before=function(event)
+	{
+		dragImage.currentX=$img.offsetLeft;
+		dragImage.currentY=$img.offsetTop;
+	};
+	dragImage.after=function(event)
+	{
+		delete dragImage.currentX;
+		delete dragImage.currentY;
+		positionRate=[(640/2-$img.offsetLeft)/$img.offsetWidth,(480/2-$img.offsetTop)/$img.offsetHeight];
+	};
+	//调整图片尺寸（从事件绑定角度看，将被三种方式调用，分别是拖拽、点击、滚轮）
+	function resizeImage(step)
+	{
+		var left=0;
+		var top=0;
+		var width=200;
+		var height=150;
+		width=sizeRate<width/height?width+step:Math.round(height*sizeRate)+step;
+		height=Math.round(width/sizeRate);
+		left=Math.max(Math.min(Math.round(640/2-width*positionRate[0]),220),420-width);
+		top=Math.max(Math.min(Math.round(480/2-height*positionRate[1]),165),315-height);
+		$img.style.left=left+"px";
+		$img.style.top=top+"px";
+		$img.style.width=width+"px";
+		$img.style.height=height+"px";
+	}
+	//调整图片尺寸-拖动。
+	function resizeByDrag(event,x,y)
+	{
+		var left=Math.max(Math.min(resizeByDrag.currentX+x,630),0);
+		$bar.style.left=left+"px";
+		resizeImage(left*2);
+debug();
+	}
+	resizeByDrag.before=function(event)
+	{
+		resizeByDrag.currentX=$bar.offsetLeft;
+	};
+	resizeByDrag.after=function(event)
+	{
+		delete resizeByDrag.currentX;
+	};
+	function resizeByClick(event)
+	{
+		if(!EventManager.getMouseButton(event).left)return;
+		animation.stop();
+		nn=EventManager.getMousePosition(event).clientX-$track.offsetLeft-$bar.offsetLeft-5;
+		animation.play();
+	}
+	function resizeByScroll(event)
+	{
+		var n=10;
+		n=EventManager.getMouseWheel(event)==1?n:-n;
+		resizeByDrag.before();
+		resizeByDrag(event,n,0);
+		EventManager.preventDefault(event);
+	}
+	//初始化图片大小（图片载入时调用）
+	function loadImage(event)
+	{
+		sizeRate=$img.offsetWidth/$img.offsetHeight;
+		resizeImage(0);
+		$img.style.visibility="visible";
+debug();
+	}
+	var nn=null;
+	var animation=FX.createAnimation
+	({
+		before:function()
+		{
+			resizeByDrag.before();
+		},
+		tween:function(x)
+		{
+			resizeByDrag(null,nn*x,0);
+		},
+		mode:"easeIn",
+		duration:250
+	});
+	var sizeRate=1;
+	var positionRate=[0.5,0.5];
+	EventManager.bind($mask,"DOMDrag",dragImage);
+	EventManager.bind($bar,"DOMDrag",resizeByDrag);
+	EventManager.bind($track,"mousedown",resizeByClick);
+	EventManager.bind($mask,"DOMMouseScroll",resizeByScroll);
+	EventManager.bind($img,"load",loadImage);
+	EventManager.bind(window,"load",loadImage);
+}
+//--------------------------------------------------[onDOMReady]
+function onDOMReady()
+{
+	createImageCropper(document.getElementById("img"),document.getElementById("mask"),document.getElementById("track"),document.getElementById("bar"));
+}
+//--------------------------------------------------[debug]
+function debug()
+{
+	var $img=document.getElementById("img");
+	document.getElementById("debug").innerHTML=(220-$img.offsetLeft)+":"+(165-$img.offsetTop)+"|"+$img.offsetWidth+"x"+$img.offsetHeight;
+};
+//--------------------------------------------------[getImage]
+function getImage()
+{
+	var argument=location.search.substring(1);
+	var src=
+	{
+		"1":"1.jpg",
+		"2":"2.jpg",
+		"3":"3.jpg",
+		"4":"4.jpg"
+	};
+	var target=src[argument];
+	if(!target)target=src["1"];
+	return target;
+}
+</script>
+</head>
+<body>
+
+<h1 id="debug"></h1>
+<div id="image">
+	<script type="text/javascript">
+	document.write("<img id='img' src='"+getImage()+"' alt='image'/>");
+	</script>
+	<div id="mask"><span>&#160;</span></div>
+</div>
+<div id="track">
+	<span>&#160;</span><div id="bar"></div>
+</div>
+<div class="control">
+	<button onclick="alert(document.getElementById('debug').innerHTML);">确定</button>
+	<p>缩放图像：拖动滚动条滑块/单击滚动条轨道/在遮罩区域使用鼠标滚轮</p>
+	<p>定位图像：在遮罩区域内拖动</p>
+	<a href="index.html?1">图一（450x678）</a>
+	<a href="index.html?2">图二（550x750）</a>
+	<a href="index.html?3">图三（800x600）</a>
+	<a href="index.html?4">图四（791x361）</a><br/>
+</div>
+
+</body>
+</html>

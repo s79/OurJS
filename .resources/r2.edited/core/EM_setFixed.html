@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>ElementManager.setFixed</title>
+<script type="text/javascript" src="EventManager.js"></script>
+<script type="text/javascript" src="ElementManager.js"></script>
+<script type="text/javascript" src="FX.js"></script>
+<script type="text/javascript" src="EM_setFixed.js"></script>
+<style type="text/css">
+body
+{
+	width: 2000px;
+	margin: 10px;
+	padding: 0px;
+	font: 12px Verdana;
+}
+h1
+{
+	height: 30px;
+	margin: 0px;
+	padding: 0px;
+	font: 24px/30px Verdana;
+}
+.track
+{
+	width: 50px;
+	height: 1000px;
+	margin-left: 300px;
+	background: #f5f5f5;
+	text-align: left;
+}
+#test1,
+#test2
+{
+	position: absolute;
+	width: 50px;
+	height: 20px;
+	background: #000000;
+	color: #ffffff;
+	font: bold 10px/20px Verdana;
+	text-align: center;
+	cursor: pointer;
+}
+#test3
+{
+	position: absolute;
+	width: 400px;
+	height: 300px;
+/*
+	margin: 100px;
+	padding: 50px;
+	border: 15px dotted red;
+*/
+	background: #396686;
+	color: #ffffff;
+	font: bold 50px/300px Verdana;
+	text-align: center;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+//--------------------------------------------------[window.onload]
+function onDOMReady()
+{
+	ElementManager.setFixed(
+		document.getElementById("test1"),
+		{
+			right:0,
+			bottom:0
+		}
+	);
+	ElementManager.setFixed(
+		document.getElementById("test2"),
+		{
+			bottom:100
+		}
+	);
+	ElementManager.setFixed(
+		document.getElementById("test3"),
+		{
+			left:20,
+			right:50,
+			top:50,
+			bottom:50
+		}
+	);
+	ElementManager.setFixed(
+		document.getElementById("test3"),
+		{
+			right:"50%",
+			bottom:"50%"
+		}
+	);
+}
+</script>
+</head>
+<body>
+<h1>ElementManager.setFixed</h1>
+<div class="track">
+	<div id="test1" onclick="ElementManager.setFixed(this);this.innerHTML='stop';">float</div>
+	<div id="test2" onclick="ElementManager.setFixed(this);this.innerHTML='stop';">track</div>
+	<div id="test3" onclick="ElementManager.setFixed(this);this.innerHTML='stop';">center</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+﻿/**
+ * @name getSubMenu
+ * @author sundongguo
+ * @version 20081113[重载版]
+ *
+ * 需要：$
+ *
+ * 创建并激活子菜单。重载版只能创建并激活一次，在页面载入时执行。
+ * 匹配关键字是menuId=0.00.00这类的字符串。
+ * 使用getSubMenu(id)将目标元素包装为子菜单对象subMenu。
+ * 该函数将自动匹配地址栏的menuId值与菜单内的目标地址，激活某菜单项。
+ *
+ * 规则：
+ * 有a就是菜单项。
+ * 以下“打开”指展开某菜单项的子菜单，“选定”为选定某菜单项。
+ * 样式类为lists为一级菜单，有子菜单并打开为lists_o，无子菜单并选定为lists_s。
+ * 无样式类的为二级菜单，如选定其样式为s。
+ * <ul id="submenu">
+ *	<li><img src="..." alt="..."></li>
+ *	<li class="lists_o">
+ *		<a href="...">菜单1</a>
+ *		<ul>
+ *			<li><a href="...">菜单1-1</a></li>
+ *			<li class="s"><a href="...">菜单1-2</a></li>
+ *		</ul>
+ *	</li>
+ *	<li><a href="...">菜单2</a></li>
+ * </ul>
+ */
+//--------------------------------------------------[getSubMenu]
+function getSubMenu(id)
+{
+	function focus(event)
+	{
+		this.blur();
+	}
+	var $current1=null;
+	var $current2=null;
+	var key=/.*menuId=(\d+\.\d+\.\d+).*/;
+	try
+	{
+		var menuIdL=location.href.match(key)[1];
+		//如果没有指定二级菜单，默认选定第一个。
+		menuIdL=menuIdL.replace(/\.0\.0/,".1.0");
+	}
+	catch(e)
+	{
+		return;
+	}
+	var menuItems=$(id).getElementsByTagName("a");
+	//去除焦点虚线框。
+	for(var i=0;i<menuItems.length;i++)EventManager.bind(menuItems[i],"focus",focus);
+	//激活菜单。
+	if($current1)$current1.className="lists";
+	if($current2)$current2.className="";
+	for(var i=menuItems.length-1;i>-1;i--)
+	{
+		var menuIdH=menuItems[i].href.match(key)[1];
+		//匹配成功。
+		if(menuIdL==menuIdH)
+		{
+			var $li=menuItems[i].parentNode;
+			//是二级菜单。
+			if($li.className=="")
+			{
+				$current1=$li.parentNode.parentNode;
+				$current2=$li;
+				$current1.className="lists_o";
+				$current2.className="s";
+			}
+			//是一级菜单。
+			else
+			{
+				var $li0=($li.getElementsByTagName("li")[0]);
+				//有子菜单。
+				if($li0)
+				{
+					$current1=$li;
+					$current2=$li0;
+					$current1.className="lists_o";
+					$current2.className="s";
+				}
+				//无子菜单
+				else
+				{
+					$current1=$li;
+					$current2=null;
+					$current1.className="lists_s";
+				}
+			}
+			break;
+		}
+	}
+}
