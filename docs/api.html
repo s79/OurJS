@@ -117,7 +117,7 @@ function buildSheet(side, name) {
   manifest[name].forEach(function(item) {
     if (item.startsWith('<')) {
       var match = item.match(RE_COMMENT);
-      $fieldset.append($('<h2><strong>&lt;' + match[1] + '&gt;</strong>' + match[2] + '</h2>'));
+      $fieldset.append($('<h2>&lt;' + match[1] + '&gt;' + match[2] + '</h2>'));
     } else {
       $fieldset.append($('<dl><dt>' + getSyntax(item) + '</dt><dd>' + getShortDescription(item) + '</dd></dl>'));
     }
