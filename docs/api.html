@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>OurJS API Reference</title>
+<link rel="stylesheet" href="stylesheets/common.css">
+<script src="../our.min.js"></script>
+<script src="scripts/data.js"></script>
+<script src="scripts/manifest.js"></script>
+<style>
+#content { width: 760px; margin: auto; overflow: hidden; }
+#content h1 { margin: 30px 0; }
+</style>
+</head>
+<body>
+<!-- include { -->
+<style>
+#content .column { float: left; width: 370px; padding: 5px; }
+#content fieldset { display: block; margin-bottom: 5px; padding: 5px; border: 1px solid #d5dfe5; }
+#content legend { height: 16px; padding: 0 5px; color: steelblue; font-weight: bold; font-size: 16px; line-height: 16px; }
+#content h2 { margin: 5px 0 0; padding: 0 5px; border-bottom: 1px solid #d5dfe5; color: seagreen; font-weight: normal; font-size: 12px; }
+#content h2 strong { margin-right: 5px; color: seagreen; font-weight: normal; }
+#content dl { margin: 2px 0; font-size: 12px; color: #333; }
+#content dt { font-weight: normal; font-size: 14px; font-family: Consolas, "Lucida Console", Courier, "Microsoft YaHei", SimSun, monospace; }
+#content dd { display: block; padding-left: 0; color: #666; }
+#content samp { font-style: italic; color: purple; }
+#content kbd { color: sienna; }
+#content dfn { font-weight: bold; color: steelblue; }
+#content var { font-style: italic; color: goldenrod; }
+</style>
+<div id="content">
+  <!-- API { -->
+  <h1>OurJS API Reference</h1>
+  <div id="left_column" class="column"></div>
+  <div id="right_column" class="column">
+    <!-- DOMWindow { -->
+    <fieldset id="window">
+      <legend>window</legend>
+      <h2><strong>&lt;static&gt;</strong> 全局作用域 - DOMWindow</h2>
+      <dl>
+        <dt><dfn>$</dfn>(<var>e</var>)</dt>
+        <dd>document.$ 的别名，根据指定的参数获取/创建一个元素。</dd>
+      </dl>
+      <dl>
+        <dt><samp>window</samp>.<dfn>getClientSize</dfn>()</dt>
+        <dd>获取视口可视区域的尺寸。</dd>
+      </dl>
+      <dl>
+        <dt><samp>window</samp>.<dfn>getScrollSize</dfn>()</dt>
+        <dd>获取视口滚动区域的尺寸。</dd>
+      </dl>
+      <dl>
+        <dt><samp>window</samp>.<dfn>getPageOffset</dfn>()</dt>
+        <dd>获取视口的滚动偏移量。</dd>
+      </dl>
+      <dl>
+        <dt><samp>window</samp>.<dfn>on</dfn>(<var>name</var>, <var>listener</var>[, <var>filter</var>])</dt>
+        <dd>为 window 添加监听器。</dd>
+      </dl>
+      <dl>
+        <dt><samp>window</samp>.<dfn>off</dfn>(<var>name</var>)</dt>
+        <dd>根据名称删除 window 上已添加的监听器。</dd>
+      </dl>
+      <dl>
+        <dt><samp>window</samp>.<dfn>fire</dfn>(<var>type</var>[, <var>data</var>])</dt>
+        <dd>触发 window 的某类事件，运行相关的监听器。</dd>
+      </dl>
+    </fieldset>
+    <!-- } DOMWindow -->
+    <!-- document { -->
+    <fieldset id="document">
+      <legend>document</legend>
+      <h2><strong>&lt;static&gt;</strong></h2>
+      <dl>
+        <dt><samp>document</samp>.<dfn>$</dfn>(<var>e</var>)</dt>
+        <dd>根据指定的参数获取/创建一个元素。</dd>
+      </dl>
+      <dl>
+        <dt><samp>document</samp>.<dfn>preloadImages</dfn>(<var>urlArray</var>)</dt>
+        <dd>预加载图片。</dd>
+      </dl>
+      <dl>
+        <dt><samp>document</samp>.<dfn>on</dfn>(<var>name</var>, <var>listener</var>[, <var>filter</var>])</dt>
+        <dd>为 document 添加监听器。</dd>
+      </dl>
+      <dl>
+        <dt><samp>document</samp>.<dfn>off</dfn>(<var>name</var>)</dt>
+        <dd>根据名称删除 document 上已添加的监听器。</dd>
+      </dl>
+      <dl>
+        <dt><samp>document</samp>.<dfn>fire</dfn>(<var>type</var>[, <var>data</var>])</dt>
+        <dd>触发 document 的某类事件，运行相关的监听器。</dd>
+      </dl>
+    </fieldset>
+    <!-- } document -->
+  </div>
+  <!-- } API -->
+</div>
+<script>
+// 获取语法。
+function getSyntax(name) {
+  var syntax = '<em>' + name + '</em> 缺少文档';
+  var symbol = apiData[name];
+  if (symbol) {
+    syntax = '';
+    var isStatic = true;
+    if (name.contains('.prototype.')) {
+      isStatic = false;
+      name = name.replace('.prototype.', '.');
+    }
+    var parents = name.split('.');
+    var symbolName = parents.pop();
+    // Global 对象不在语法中显示。
+    if (parents[0] === 'Global') {
+      parents.shift();
+    }
+    // 列出其他的 namespace 或 instance。
+    var lastIndex = parents.length - 1;
+    parents.forEach(function(member, index, members) {
+      if (index === lastIndex && !isStatic) {
+        syntax += '<samp>' + member.toLowerCase() + '</samp>.';
+      } else {
+        syntax += '<kbd>' + member + '</kbd>.';
+      }
+    });
+    // 本对象的名称。
+    syntax += '<dfn>' + symbolName + '</dfn>';
+    // 生成函数对象的参数部分。
+    if (symbol.category !== 'OBJECT') {
+      var parameters = symbol.parameters;
+      syntax += '(' + parameters.filter(
+          function(parameter) {
+            // 忽略选项中的参数。
+            return !parameter.name.contains('.');
+          }
+      ).map(
+          function(parameter, index) {
+            var separator = index ? ', ' : '';
+            return parameter.isOptional ? ('[' + separator + '<var>' + parameter.name + '</var>]') : (separator + '<var>' + parameter.name + '</var>');
+          }
+      ).join('') + ')';
+    }
+  }
+  return syntax;
+}
+
+// 获取短描述（取第一行）。
+var RE_BREAK = /.*(?=&#10;)|.*/;
+function getShortDescription(name) {
+  var symbol = apiData[name];
+  var shortDescription = '-';
+  if (symbol) {
+    shortDescription = RE_BREAK.exec(symbol.description);
+  }
+  return shortDescription;
+}
+
+// 生成参考列表。
+var RE_COMMENT = /<(\w+)>\s*(.*)/;
+var columns = {
+  left: $('#left_column'),
+  right: $('#right_column')
+};
+function buildSheet(side, name) {
+  var $fieldset = $('<fieldset id="' + name.toLowerCase() + '"><legend>' + name + '</legend></fieldset>');
+  if (!manifest[name]) {
+    alert(name);
+    return;
+  }
+  manifest[name].forEach(function(item) {
+    if (item.startsWith('<')) {
+      var match = item.match(RE_COMMENT);
+      $fieldset.append($('<h2><strong>&lt;' + match[1] + '&gt;</strong>' + match[2] + '</h2>'));
+    } else {
+      $fieldset.append($('<dl><dt>' + getSyntax(item) + '</dt><dd>' + getShortDescription(item) + '</dd></dl>'));
+    }
+  });
+  columns[side].append($fieldset);
+}
+
+// 开始生成。
+document.on('domready', function() {
+  Object.forEach(manifest, function(value, key) {
+    buildSheet('left', key);
+  });
+});
+</script>
+<!-- } include -->
+</body>
+</html>

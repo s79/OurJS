@@ -1,0 +1,81 @@
+/* --------------------------------------------------[Reset] */
+body, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, p, blockquote, pre, form, fieldset, legend, button, input, textarea, th, td { margin: 0; padding: 0; }
+ul, ol { list-style: outside none; }
+fieldset, img { border: 0; }
+table { border-collapse: collapse; border-spacing: 0; }
+body, small, sup, sub, button, input, textarea, select { font: 12px/1 Arial, Helvetica, Verdana, SimSun, serif; }
+body { line-height: 1.5; }
+h1, h2, h3, h4, h5, h6 { font-size: 100%; }
+address, cite, dfn, em, var { font-style: normal; }
+code, kbd, pre, samp { font-family: Consolas, "Lucida Console", Courier, SimSun, monospace; }
+sup, sub { position: relative; vertical-align: baseline; }
+sup { top: -3px; }
+sub { bottom: -3px; }
+
+/* --------------------------------------------------[Article] */
+/* 字体 */
+#content { padding-bottom: 100px; color: #333; font-size: 14px; }
+#content,
+#content small,
+#content sup,
+#content sub,
+#content button,
+#content input,
+#content textarea,
+#content select { font-family: Arial, Helvetica, Verdana, "Microsoft YaHei", SimSun, serif; }
+#content code,
+#content kbd,
+#content pre,
+#content samp { font-family: Consolas, "Lucida Console", Courier, "Microsoft YaHei", SimSun, monospace; }
+
+/* 链接 */
+#content a { text-decoration: none; }
+#content a:link { color: #102197; }
+#content a:visited { color: #396686; }
+#content a:hover { text-decoration: underline; }
+#content a:active { }
+#content a.link { padding-left: 16px; }
+
+/* 代码 */
+#content pre { padding: 5px; border: 1px solid #f0fff0; border-left-width: 5px; background: #f8fff8; color: #333; white-space: pre-wrap; word-wrap: break-word; }
+#content pre.badcode { border-color: #fff0f0; background-color: #fff8f8; }
+#content pre dfn,
+#content code dfn { color: #333388; font-weight: bold; }
+#content pre var,
+#content code var { color: #5555aa; font-weight: normal; }
+#content pre kbd,
+#content code kbd { color: #bb4433; font-weight: normal; }
+#content pre samp,
+#content code samp { color: #998877; font-weight: normal; font-style: italic; }
+#content pre span,
+#content code span { border: 1px solid #9acd32; background: #f8fff8; }
+#content pre.badcode span,
+#content code.badcode span { border: 1px solid #dc143c; }
+#content p.referral { margin: 10px 0 0; }
+#content p.comment { margin: 0 0 10px; color: #666; font-size: 12px; }
+
+/* 标题 */
+#content h1 { margin-bottom: 30px; font-size: 28px; text-align: center; }
+#content h1 span { position: absolute; margin: 20px 0 0 10px; color: #888; font-weight: normal; font-size: 12px; }
+#content h2 { margin: 30px 0 20px; font-size: 18px; }
+#content h3 { margin: 20px 0 10px; font-size: 16px; }
+
+/* 段落 */
+#content dl { margin: 10px 0; }
+#content dt { position: relative; font-weight: bold; cursor: default; }
+#content dd { padding-left: 2em; }
+#content p { margin: 10px 0; }
+#content ul,
+#content ol { padding-left: 2em; }
+#content ul { list-style-type: square; }
+#content ol { list-style-type: decimal; }
+#content ul ul,
+#content ol ul { list-style-type: circle; }
+#content ul ol,
+#content ol ol { list-style-type: decimal; }
+#content ol.alpha { list-style-type: lower-alpha; }
+#content em { color: #333; font-style: italic; }
+#content blockquote { margin: 10px 0; padding: 0 10px; border: 1px dotted #888; color: #333; font-size: 12px; }
+#content dd ul { padding: 5px 5px 5px 2em; border: 1px solid #dcdcdc; border-radius: 5px; background: #f5f5f5; }
+#content dd ul li { margin: 15px 0; }
+#content dd ul p { margin: 5px 0; }
