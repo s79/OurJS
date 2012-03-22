@@ -70,8 +70,6 @@ components.mask.html:591331403483764 "HIDE"
 >(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)-参考。
 >colgroup？
 
->TODO: IE6 用 iFrame 遮盖 SELECT 元素。
-
 >TODO: 表单序列化
 
 dom-event 普通版 冒泡版

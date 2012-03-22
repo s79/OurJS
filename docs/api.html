@@ -46,6 +46,9 @@ function getSyntax(name) {
     if (name.contains('.prototype.')) {
       isStatic = false;
       name = name.replace('.prototype.', '.');
+      if (name.startsWith('components.')) {
+        name = name.slice(11);
+      }
     }
     var parents = name.split('.');
     var symbolName = parents.pop();
@@ -65,7 +68,7 @@ function getSyntax(name) {
     // 本对象的名称。
     syntax += '<dfn>' + symbolName + '</dfn>';
     // 生成函数对象的参数部分。
-    if (symbol.category !== 'OBJECT') {
+    if (symbol.isFunction) {
       var parameters = symbol.parameters;
       var optionalCount = 0;
       syntax += '(' + parameters.filter(

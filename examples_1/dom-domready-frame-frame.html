@@ -3,10 +3,9 @@
 <head>
 <meta charset="utf-8">
 <title>test-domready</title>
-<script src="../.references/jquery-1.7.1.js"></script>
 <script src="../import.js"></script>
 <style>
-body { margin: 0; padding:5px; background: gainsboro; }
+body { margin: 0; padding: 5px; background: gainsboro; }
 iframe { display: block; width: 200px; height: 150px; border: 1px solid black; }
 img { display: none; }
 </style>
@@ -26,10 +25,13 @@ window.on('load', function() {
 </script>
 </head>
 <body>
-<iframe src="http://www.lianzhong.com/" frameborder="0"></iframe>
+<iframe id="frame" src="http://www.lianzhong.com/" frameborder="0"></iframe>
 <img src="http://www.abc.com" alt="null">
 <div id="log"></div>
 <input id="domready" type="hidden" value="frame_frame - DOM Ready">
 <input id="load" type="hidden" value="frame_frame - Loaded">
+<script>
+$('#frame').setStyle('opacity', .1);
+</script>
 </body>
 </html>

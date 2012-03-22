@@ -15,6 +15,7 @@
   /*
    * 限定不可聚焦的区域，仅供此组件使用。
    */
+
 //--------------------------------------------------[freezeFocusArea]
   var $before;
   var $after;
@@ -131,60 +132,43 @@
     if (!this.isShown) {
       var mask = this;
       var $container = mask.target;
-      // 创建遮掩层。
+      // 创建遮掩层元素，需要为 IE6 做特殊处理。
       var attributes = '';
       Object.forEach(mask.attributes, function(attributeValue, attributeName) {
         attributes += ' ' + attributeName + '="' + attributeValue + '"';
       });
-      var $mask = mask.element = $('<div' + attributes + '></div>').setStyles(mask.styles).setStyle('display', 'none');
-      // 需要为 IE6 做特殊处理。
+      mask.styles.display = 'none';
+      var $mask;
       if (navigator.isIE6) {
-        // IE6 全部使用 absolute 定位。
-        $mask.setStyle('position', 'absolute');
-        // IE6 的 SELECT 元素无法被遮掩。
-        var selectElements = Array.from($container.getElementsByTagName('select')).filter(function(selectElement) {
-          return selectElement.style.visibility != 'hidden';
-        });
-        // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸（假设 body 元素的 margin 样式在载入后不会改变）。
+        // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
+        $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>');
+        // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
         if ($container === document.body) {
-          var bodyStyles = $container.getStyles('marginTop', 'marginRight', 'marginBottom', 'marginLeft');
           var resizeMaskElementForIE6 = function() {
-            var pageOffset = window.getPageOffset();
             var clientSize = window.getClientSize();
-            $mask.setStyles({left: pageOffset.x, top: pageOffset.y, width: clientSize.width, height: clientSize.height});
-            setTimeout(function() {
-              $mask.setStyles({left: 0, top: 0, width: $container.offsetWidth + parseInt(bodyStyles.marginLeft, 10) + parseInt(bodyStyles.marginRight, 10), height: $container.offsetHeight + parseInt(bodyStyles.marginTop, 10) + parseInt(bodyStyles.marginBottom, 10)});
-              mask.resize();
-            }, 0);
+            $mask.setStyles({width: clientSize.width, height: clientSize.height});
+          };
+          var onShow = mask.onShow;
+          mask.onShow = function() {
+            window.attachEvent('onresize', resizeMaskElementForIE6);
+            onShow();
+            mask.onShow = onShow;
+          };
+          var onHide = mask.onHide;
+          mask.onHide = function() {
+            window.detachEvent('onresize', resizeMaskElementForIE6);
+            onHide();
+            mask.onHide = onHide;
           };
         }
-        // 覆盖选项中的回调函数。
-        var onShow = mask.onShow;
-        mask.onShow = function() {
-          selectElements.forEach(function(selectElement) {
-            selectElement.style.visibility = 'hidden';
-          });
-          resizeMaskElementForIE6 && window.attachEvent('onresize', resizeMaskElementForIE6);
-          onShow();
-          mask.onShow = onShow;
-        };
-        var onHide = mask.onHide;
-        mask.onHide = function() {
-          selectElements.forEach(function(selectElement) {
-            selectElement.style.visibility = 'visible';
-          });
-          resizeMaskElementForIE6 && window.detachEvent('onresize', resizeMaskElementForIE6);
-          onHide();
-          mask.onHide = onHide;
-        };
       } else {
-        // 非 IE6 body 元素的遮掩层使用 fixed 定位。
-        $mask.setStyle('position', $container === document.body ? 'fixed' : 'absolute');
+        $mask = $('<div' + attributes + '></div>');
       }
       // 显示遮掩层。
-      $container.append($mask);
+      $container.append($mask.setStyles(mask.styles).setStyle('position', $container === document.body ? 'fixed' : 'absolute'));
 //      $mask.stopAnimate().fadeIn({transition: 'easeOut', duration: 150});  // TODO: Animation 终止无回调，待改进。
       $mask.fadeIn({transition: 'easeOut', duration: 150});
+      mask.element = $mask;
       mask.isShown = true;
       mask.resize();
       mask.onShow();
@@ -227,10 +211,10 @@
       var $mask = this.element;
       var $target = this.target;
       if ($target === document.body) {
-        // 遮掩 body 的情况，IE6 要特殊处理。
+        // 遮掩 body 的情况。
         if (navigator.isIE6) {
-          var scrollSize = window.getScrollSize();
-          $mask.setStyles({left: 0, top: 0, width: scrollSize.width, height: scrollSize.height});
+          var clientSize = window.getClientSize();
+          $mask.setStyles({left: 0, top: 0, width: clientSize.width, height: clientSize.height});
         } else {
           $mask.setStyles({left: 0, right: 0, top: 0, bottom: 0});
         }
@@ -364,13 +348,14 @@
       dialog.onOpen();
       // 根据选项决定是否及如何创建并显示遮掩层。
       var mask = dialog.group.mask;
-      mask.setZIndex($dialog.getStyle('zIndex') - 1);
       mask.isShown || mask.show();
+      mask.setZIndex($dialog.getStyle('zIndex') - 1);
       // 启用遮掩区域聚焦锁定。
       freezeFocusArea({enable: $dialog, disable: $container});
-      // 仅父元素为 body 的对话框需要在改变窗口尺寸时重新调整位置（设其他对话框的父元素的尺寸为固定）。
+      // 仅父元素为 body 的对话框需要在改变窗口尺寸时重新调整位置（假设其他对话框的父元素的尺寸为固定）。
       if ($container === document.body) {
         window.on('resize.dialog' + $dialog.uid, navigator.isIE6 ? function() {
+          // 避免 IE6 的固定定位计算错误。
           setTimeout(function() {
             dialog.adjust();
           }, 0);
@@ -400,19 +385,21 @@
       stack.pop();
       // 检查本组对话框中是否还有对话框在打开状态。
       if (stack.length) {
+        // 如果不是最底层对话框，则锁定上一个对话框的焦点区域。
         var previousDialog = stack[stack.length - 1];
-        // 如果有遮掩层，进行调整。
-        mask && mask.setZIndex(previousDialog.element.getStyle('zIndex') - 1);
-        // 锁定上一个对话框的焦点区域。
         freezeFocusArea({enable: previousDialog.element, disable: previousDialog.element.getParent()});
       } else {
-        // 如果有遮掩层，隐藏遮掩层。
+        // 如果是最底层对话框，且有遮掩层，则隐藏遮掩层。
         mask && mask.hide();
         // 解除焦点区域锁定。
         freezeFocusArea(null);
       }
       // 关闭对话框。
       dialog.element.fadeOut({transition: 'easeIn', duration: 150, onFinish: function() {
+        if (stack.length) {
+          // 如果不是最底层对话框，且有遮掩层，则在对话框消失后再进行调整。
+          mask && mask.setZIndex(previousDialog.element.getStyle('zIndex') - 1);
+        }
         dialog.isOpen = false;
         dialog.onClose();
       }});

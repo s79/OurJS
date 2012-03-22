@@ -9,8 +9,7 @@ var JSON = {};
 
 (function() {
 //--------------------------------------------------[JSON.stringify]
-  var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-      escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+  var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
       gap,
       indent,
       meta = {
@@ -149,14 +148,11 @@ function encode(value) {
 
 /** Get a symbol's raw data. */
 function filterSymbol(source) {
-  symbols[source.alias.replace('#', (source.isStatic ? '.' : '.prototype.'))] = {
+  symbols[source.alias.replace('#', (source.isNamespace ? '.' : '.prototype.'))] = {
     author: encode(source.author),
     name: source.name,
     memberOf: source.memberOf,
-    category: source.isa,
-    isConstant: source.isConstant,
-    isNamespace: source.isNamespace,
-    isStatic: source.isStatic,
+    isFunction: (source.isa === 'CONSTRUCTOR' || source.isa === 'FUNCTION'),
     type: source.type,
     parameters: source.params.map(function(item) {
       var newItem = {};

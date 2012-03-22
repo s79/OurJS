@@ -373,8 +373,8 @@
   DD_belatedPNG.createVmlStyleSheet();
 
   window.DD_belatedPNG = DD_belatedPNG;
-  window.on('load', function() {
+//  window.attachEvent('onload', function() {
     DD_belatedPNG.fix('.alpha');
-  });
+//  });
 
 })();
