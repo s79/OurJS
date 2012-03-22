@@ -95,6 +95,12 @@
    *   遮掩层用来配合模态对话框使用。
    *   要在页面上实现 D 元素覆盖 M 元素，即要求 D 元素的 stacking context 与 M 元素的 stacking context 相同，或为其祖先级元素。
    *
+   * 已知问题：
+   *   IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
+   *   这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲覆盖区域不是 BODY，但其中有 SELECT 元素时出现。
+   *   上述情况很少见，因此未处理此问题。
+   *   如果需要处理，去掉 IE6 fixed positioned 相关代码中的“启用/禁用表达式”部分即可。
+   *
    * 参考：
    *   http://w3help.org/zh-cn/causes/RM8015
    */

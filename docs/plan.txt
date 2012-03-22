@@ -1,32 +1,28 @@
-﻿#The Global Object
-#Object Objects
-#Function Objects
-#Array Objects
-#String Objects
-#Boolean Objects
-#Number Objects
-#The Math Object
-#Date Objects
-#RegExp (Regular Expression) Objects
-#Error Objects
-#The JSON Object
+﻿#Global
+#Object
+#Function
+#Array
+#String
+#Boolean
+#Number
+#Math
+#Date
+#RegExp
+#Error
+#JSON
 
-@name
-category = @constructor/namespace/function/property
-attribute = ....
-~~@private
-  @param [{type: type, name: name, description: desc, isOptional: boolean}, ...]
-  @exceptions[{type: type, name: name, description: desc}, ...]
-  @returns[{type: type, description: desc}, ...]
-@description
-@example [...]
-  @requires [...]
-@deprecated
-@since
-@see[...]
-------------------------------------
-总结：以上 constructor === function，property 没有他们的以下四个属性：
-@param @exceptions @returns @requires
+ELEMENT_NODE       = 1;
+ATTRIBUTE_NODE     = 2;
+TEXT_NODE          = 3;
+CDATA_SECTION_NODE = 4;
+ENTITY_REFERENCE_NODE = 5;
+ENTITY_NODE        = 6;
+PROCESSING_INSTRUCTION_NODE = 7;
+COMMENT_NODE       = 8;
+DOCUMENT_NODE      = 9;
+DOCUMENT_TYPE_NODE = 10;
+DOCUMENT_FRAGMENT_NODE = 11;
+NOTATION_NODE      = 12;
 
 function parseColor(color) {
   var value = parseInt(color.substring(1), 16);
@@ -37,16 +33,12 @@ function parseColor(color) {
   };
 }
 
-超级挑战：Utilities Cookie placeholder 各种组件 (common.js)
-
 --------------------------------------------------[TODO]
->TODO: Object.update 是否仍有存在必要？
+超级挑战：Utilities Cookie placeholder 各种组件 (common.js)
+页码 Include CSS插入 省略号
+location.replace()
 
->TODO: 事件部分横向比较。（够用就好）+input
-
->TODO: Animation 继续参考 CSS3 Transition，增加 delay 参数，并对外暴露 timingFunction。
->      队列移入 Animation，并参考 MooTools 增加 link 参数。
-另：以下命令不符合预期，应考虑加入 deffered 类型。
+以下命令不符合预期，应考虑加入 deffered 类型。
 【或者加入在调用 stopAnimation 也会触发的 onComplete 回调，这样就可以在 onComplete 里加入状态处理的代码，而在 onFinish 中加入其他（如动画队列）代码。】
 bodyMask.show().hide().show().hide().show().hide().show();
 mask.js:52show
@@ -64,66 +56,42 @@ mask.js:52show
 Mask
 components.mask.html:591331403483764 "HIDE"
 
+>TODO: Object.update 是否仍有存在必要？
 
+>TODO: 事件部分 + input。
+
+>TODO: Animation 继续参考 CSS3 Transition，增加 delay 参数，并对外暴露 timingFunction。
+
+>TODO: 添加白名单。
 && !(/^(?:object|embed)$/i).test(el.tagName)
->添加白名单。
->(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)-参考。
->colgroup？
+(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)-参考。
+colgroup？
 
->TODO: 表单序列化
+>TODO: 表单序列化。
 
-dom-event 普通版 冒泡版
+>TODO: History
+
+>TODO: SWFObject
+
+>TODO: Date.prototype.format & Number.prototype.format
 
 --------------------------------------------------[NOTE]
->本框架的【基础版】的适用项目为要求支持 IE6 IE7 IE8 IE9 Firefox Chrome Safari Opera 的 WEB 项目，因此仅支持 HTML 文档的标准模式！不支持 XML 文档。
->对于一些先进浏览器中提供的 API，在旧浏览器中可以通过其他手段实现的均予以补全，无法通过其他手段实现的部分均做忽略处理。
->思路 = 补缺 + 扩展
->补缺：
->    新规范提供的特性或已成为事实规范的特性，在尚未支持的浏览器上可以通过技术手段实现的，使用补缺的方式，以降低学习成本。
->扩展：
->    上述特性无法通过技术手段实现的，则使用一个新的 API 方法封装，以屏蔽各浏览器之间的差异。（如操作元素的样式、处理自定义数据、获取相关元素、处理事件、CSS3 动画、离线存储等。）
->    为方便使用而提供的 API 方法，也以扩展的方式提供。（如操作元素的类、修改文档树、Cookie 管理、事件总线等。）
+Application 即页面应用。
+Modules 即可分离的业务逻辑，各自独立，不会互相依赖，也不能互相访问。它们使用消息机制与 Application 通信。
+Components 不提供事件监听机制，它们是为 Modules 服务的，绝大多数情况只需要一个回调。
+当一个 Component 仅使用回调无法满足需求时，应将其升级为 Module。
+Components 不能直接与 Application 通信，只有 Modules 可以。
+Application 可以与全部 Modules 通信，因此这部分逻辑主要是将各 Modules 关联起来。
 
->基本架构 - Element.prototype，browser.features，eventBus，Application - Modules - Components……
-#Element.prototype 中添加的新特性要在最初进行，否则 IE8- 在添加这些新特性之前获取的 DOM 元素将不具备这些特性。
-#Application 即页面应用。
-#Modules 各自独立，不会互相依赖，或互相直接调用。它们都应该使用事件监听/触发机制与 eventBus 通信。
-#Components 不提供事件监听机制，它们是为 Modules 服务的，绝大多数情况只需要一个回调。
-#当一个 Component 仅使用回调无法满足需求时，应将其升级为 Module。
-组件不必提供监听机制，模块有。
-一个组件只能属于一个模块，模块内代码封闭，代码不应过多，因此只提供回调函数，在回调函数里进行类似监听器增加/删除的机制。
-组件不能直接与应用打交道，只有模块可以。
-应用有全部的事件总线监听信息，而模块只有输入输出，通过应用将模块串联起来。
-一个页面只有一个应用，有多个模块。
-模块内：this.listen(xxx, function(data) {})~~~this.fire(xxx, data)~~~
-应用内：this.module1.fire(xxx, data)~~~this.module2.listen(xxx, function(data) {})~~~
-考虑模块1->模块2的嵌套？这样模块1只能在模块2中可见，而应用中仅可见模块2。
-
-#File = Module > Part > Function
-
-ELEMENT_NODE       = 1;
-ATTRIBUTE_NODE     = 2;
-TEXT_NODE          = 3;
-CDATA_SECTION_NODE = 4;
-ENTITY_REFERENCE_NODE = 5;
-ENTITY_NODE        = 6;
-PROCESSING_INSTRUCTION_NODE = 7;
-COMMENT_NODE       = 8;
-DOCUMENT_NODE      = 9;
-DOCUMENT_TYPE_NODE = 10;
-DOCUMENT_FRAGMENT_NODE = 11;
-NOTATION_NODE      = 12;
+>API 风格：
+>  选项超过 1 个时以对象的形式提供，确保函数不会出现一个以上的可选参数。
+>  回调函数尽量在异步操作时使用。同步操作如果需要返回中间值也可以使用。
 
 #http://www.slideshare.net/Dmitry.Baranovskiy/your-javascript-library
 Everything should be made as simple as possible, but no simpler.
 
 #http://blog.sina.com.cn/s/blog_523491650100eivg.html
-* 好学好记，不容易用错。
-* 容易扩展升级。
-* 完整，简洁，一致。
-有俩特点这里没写，“简洁”和“一致”，因为这俩是废话。一套不一致的API不可能易学易用，也不可能很容易扩展。简洁当然应该是我们追求的目标，但是简洁的最终目的也是为了强化以上几个特点。
-但是设计API的时候，一定要注意一致性。在系统设计中，一致性是非常重要的，尤其是复杂的系统。所有的想法都要围绕一个原则，采用一套方法。如果你手头已经有了一套很好的库，你想扩展它的时候一定要尽量学着原来的风格，这是成功的捷径。
-
+* 简单、自然、完整、一致、易扩展。
 
 API必须要提供充分的功能，以供调用者完成自己的任务。
 API应该是最精简的，不要为调用者带来多余的不便。
@@ -133,42 +101,3 @@ API应该从调用者的角度来进行设计。
 好的API绝不推卸责任，把自己该做的事情留给别人。
 在实现API之前，就应该把API文档化。
 好的API应当符合工效学（Ergonomic）。
-
-
-_ (not undefined)
-@不要重写函数名
-
->API 风格：
->  选项超过 1 个时以对象的形式提供，确保函数不会出现一个以上的可选参数。
->  回调函数尽量在异步操作时使用。同步操作如果需要返回中间值也可以使用。
---------------------------------------------------[LIST]
-UA			|x
-ES5 Shims		|o
-DOM(+Event)		|.
-Animation		|
-Ajax			|
-Utilities		|?
-Compunents - Base	|
-Compunents - UI		|
-
-Modules			|
-Application		|
-
-Cookie
-
-Storage
-
-History
-
-SWFObject
-
-Date.prototype.format
-Number.prototype.format
-IE6 PNG fix (背景 + IMG标记)
-页码 Include CSS插入 省略号
-runtimeStyle
-location.replace()
-
-电影 24 帧，但每幅图都是 1/24 秒曝光得来，并非静止画面。动画要 60，16.66 ms 播放一帧。
-
-JS 框架 旧资源合并

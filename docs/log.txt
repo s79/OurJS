@@ -9,9 +9,27 @@
 
 >2012-03-20
 将 JS 文件内的注释使用 jsdoc-tookit 转换为 JSON 格式的数据。
+@name <string>
+@memberOf <string>
+__@private__
+  @param [<Object>{type: <string>, name: <string>, description: <string>, isOptional: <boolean>}]
+  @exceptions [<Object>{type: <string>, description: <string>}]
+  @returns [<Object>{type: <string>, description: <string>}]
+@description <string>
+@example [<string>]
+  @requires [<string>]
+@deprecated <string>
+@since <string>
+@see [<string>]
+------------------------------------
+以上 constructor 和 function 的 isFunction 为 true，其他的 property 没有以下四个属性：
+@param @exceptions @returns @requires
 
 >2012-03-15
 编写 api 文档。
+
+>2012-03-12
+取消 runApplication 的一次调用的限制，以利扩展旧代码。
 
 >2012-03-11
 修改 Dialog 的设计，省略三个参数，将 maskTarget 和 pinnedTarget 合并为对话框元素的父元素，这样处理便于理解和使用。
