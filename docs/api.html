@@ -4,11 +4,12 @@
 <meta charset="utf-8">
 <title>OurJS API Reference</title>
 <link rel="stylesheet" href="stylesheets/common.css">
-<script src="../our.min.js"></script>
+<script src="../import.js"></script>
+<script src="../src/components/dialog.js"></script>
 <script src="scripts/data.js"></script>
 <script src="scripts/manifest.js"></script>
 <style>
-#content { width: 760px; margin: auto; overflow: hidden; }
+#content { width: 760px; margin-left: 240px; padding: 40px 20px; overflow: hidden; }
 #content h1 { margin: 30px 0; }
 </style>
 </head>
@@ -16,17 +17,22 @@
 <!-- include { -->
 <style>
 #content .column { float: left; width: 370px; padding: 5px; }
-#content fieldset { display: block; margin-bottom: 5px; padding: 5px; border: 1px solid #d5dfe5; }
-#content legend { height: 16px; padding: 0 5px; color: steelblue; font-weight: bold; font-size: 16px; line-height: 16px; }
-#content h2 { margin: 5px 0 0; padding: 0 5px; border-bottom: 1px solid #d5dfe5; color: seagreen; font-weight: normal; font-size: 12px; }
+#content fieldset { display: block; margin-bottom: 5px; padding: 5px; border: 1px solid #d5dfe5; border-radius: 5px; }
+#content legend { padding: 2px 5px; font-weight: bold; font-size: 14px; line-height: 14px; }
+#content legend dfn { color: purple; }
+#content h2 { margin: 5px 0 0; border-bottom: 1px solid #d5dfe5; color: seagreen; font-weight: normal; font-size: 12px; }
 #content h2 strong { margin-right: 5px; color: seagreen; font-weight: normal; }
 #content dl { margin: 2px 0; font-size: 12px; color: #666; }
-#content dt { font-weight: normal; font-size: 14px; font-family: Consolas, "Lucida Console", Courier, "Microsoft YaHei", SimSun, monospace; }
-#content dd { display: block; padding-left: 0; color: #666; }
-#content samp { font-style: italic; color: purple; }
-#content kbd { color: sienna; }
-#content dfn { font-weight: bold; color: steelblue; }
-#content var { font-style: italic; color: goldenrod; }
+#content dt,
+#content dt samp,
+#content dt kbd { font-family: Verdana, Helvetica, Arial, sans-serif; }
+#content dt { font-weight: normal; font-size: 12px; }
+#content dd { display: none; padding-left: 0; }
+#content samp { font-style: italic; color: gray; }
+#content kbd { color: #333; }
+#content dfn { color: steelblue; cursor: help; }
+#content var { font-style: italic; color: sienna; }
+#details { display: none; position: fixed; z-index: 20; background: white; border-left: 1px solid dimgray; box-shadow: 0 0 20px black; overflow: auto; }
 </style>
 <div id="content">
   <!-- API { -->
@@ -35,130 +41,195 @@
   <div id="right_column" class="column"></div>
   <!-- } API -->
 </div>
+<div id="details" style="display: none;">
+  <div style="width: 300px; height: 1500px; border: 3px dotted #1e90ff;"></div>
+</div>
 <script>
-// 获取语法。
-function getSyntax(name) {
-  var syntax = '<em>' + name + '</em> 缺少文档';
-  var symbol = apiData[name];
-  if (symbol) {
-    syntax = '';
-    var isStatic = true;
-    if (name.contains('.prototype.')) {
-      isStatic = false;
-      name = name.replace('.prototype.', '.');
-      if (name.startsWith('components.')) {
-        name = name.slice(11);
+document.on('domready', function() {
+  var $html = $(document.documentElement);
+  var $content = $('#content');
+
+//==================================================[作弊条]
+  declareModule('cheatSheet', function(listen, notify) {
+//--------------------------------------------------[获取语法]
+    var getSyntax = function(name) {
+      var syntax = '<em>' + name + '</em> *';
+      var symbol = apiData[name];
+      if (symbol) {
+        syntax = '';
+        var isStatic = true;
+        if (name.contains('.prototype.')) {
+          isStatic = false;
+          name = name.replace('.prototype.', '.');
+          if (name.startsWith('components.')) {
+            name = name.slice(11);
+          }
+        }
+        var parents = name.split('.');
+        var symbolName = parents.pop();
+        // Global 对象不在语法中显示。
+        if (parents[0] === 'Global') {
+          parents.shift();
+        }
+        // 列出其他的 namespace 或 instance。
+        var lastIndex = parents.length - 1;
+        parents.forEach(function(member, index, members) {
+          if (index === lastIndex && !isStatic) {
+            syntax += '<samp>' + member.toLowerCase() + '</samp>.';
+          } else {
+            syntax += '<kbd>' + member + '</kbd>.';
+          }
+        });
+        // 本对象的名称。
+        syntax += '<dfn>' + symbolName + '</dfn>';
+        // 生成函数对象的参数部分。
+        if (symbol.isFunction) {
+          var parameters = symbol.parameters;
+          var optionalCount = 0;
+          syntax += '(' + parameters.filter(
+              function(parameter) {
+                // 忽略选项中的参数。
+                return !parameter.name.contains('.');
+              }
+          ).map(
+              function(parameter, index) {
+                var name = '<var>' + parameter.name + '</var>';
+                var separator = index ? ', ' : '';
+                if (parameter.isOptional) {
+                  name = '[' + separator + name;
+                  optionalCount++;
+                } else {
+                  name = separator + name;
+                }
+                return name;
+              }
+          ).join('') + ']'.repeat(optionalCount) + ')';
+        }
       }
-    }
-    var parents = name.split('.');
-    var symbolName = parents.pop();
-    // Global 对象不在语法中显示。
-    if (parents[0] === 'Global') {
-      parents.shift();
-    }
-    // 列出其他的 namespace 或 instance。
-    var lastIndex = parents.length - 1;
-    parents.forEach(function(member, index, members) {
-      if (index === lastIndex && !isStatic) {
-        syntax += '<samp>' + member.toLowerCase() + '</samp>.';
-      } else {
-        syntax += '<kbd>' + member + '</kbd>.';
+      return syntax;
+    };
+
+//--------------------------------------------------[获取短描述（取第一行）]
+    var RE_BREAK = /.*(?=&#10;)|.*/;
+    var getShortDescription = function(name) {
+      var symbol = apiData[name];
+      var shortDescription = '-';
+      if (symbol) {
+        shortDescription = RE_BREAK.exec(symbol.description);
+      }
+      return shortDescription;
+    };
+
+//--------------------------------------------------[生成一个列表]
+    var RE_COMMENT = /<(\w+)>\s*(.*)/;
+    var columns = {
+      left: $('#left_column'),
+      right: $('#right_column')
+    };
+    var buildSheet = function(side, name) {
+      var $fieldset = $('<fieldset id="' + name.toLowerCase() + '"><legend><dfn>' + name + '</dfn></legend></fieldset>');
+      if (!manifest[name]) {
+        alert(name);
+        return;
+      }
+      manifest[name].forEach(function(item) {
+        if (item.startsWith('<')) {
+          var match = item.match(RE_COMMENT);
+          $fieldset.append($('<h2><strong>&lt;' + match[1] + '&gt;</strong>' + match[2] + '</h2>'));
+        } else {
+          $fieldset.append($('<dl><dt>' + getSyntax(item) + '</dt><dd>' + getShortDescription(item) + '</dd></dl>'));
+        }
+      });
+      columns[side].append($fieldset);
+    };
+
+//--------------------------------------------------[生成作弊条]
+    listen('build', function() {
+      [
+        'Global',
+        'Object',
+        'Array',
+        'String',
+        'Boolean',
+        'Number',
+        'Math',
+        'Date',
+        'RegExp',
+        'JSON',
+        'navigator',
+        'location',
+        'cookie',
+        'localStorage'
+      ].forEach(function(key) {
+        buildSheet('left', key);
+      });
+      [
+        'window',
+        'document',
+        'HTMLElement',
+        'Element',
+        'Request',
+        'Animation',
+        'components.Switcher',
+        'components.Dialog'
+      ].forEach(function(key) {
+        buildSheet('right', key);
+      });
+    });
+
+  });
+
+//==================================================[API 细节]
+  declareModule('details', function(listen, notify) {
+    var $deatils = $('#details');
+    var pinnedOffsetX = $content.getClientRect().left + 50;
+    // 使用对话框实现。
+    var deatilsPanel = new components.Dialog($deatils, {
+      maskStyles: {background: 'black', opacity: .05},
+      pinnedOffsetX: pinnedOffsetX,
+      pinnedOffsetY: 0,
+      onOpen: function() {
+        // 点击细节层外边即隐藏细节层。
+        $html.on('mousedown.deatilsPanel', function(e) {
+          if (!$deatils.contains(e.target)) {
+            deatilsPanel.close();
+          }
+        });
+        // 调整窗口尺寸的同时调整细节层的尺寸。
+        window.on('resize.deatilsPanel', adjustDeatilsPanel);
+      },
+      onClose: function() {
+        $html.setStyle('overflowY', '');
+        $html.off('mousedown.deatilsPanel');
+        window.off('resize.deatilsPanel');
       }
     });
-    // 本对象的名称。
-    syntax += '<dfn>' + symbolName + '</dfn>';
-    // 生成函数对象的参数部分。
-    if (symbol.isFunction) {
-      var parameters = symbol.parameters;
-      var optionalCount = 0;
-      syntax += '(' + parameters.filter(
-          function(parameter) {
-            // 忽略选项中的参数。
-            return !parameter.name.contains('.');
-          }
-      ).map(
-          function(parameter, index) {
-            var name = '<var>' + parameter.name + '</var>';
-            var separator = index ? ', ' : '';
-            if (parameter.isOptional) {
-              name = '[' + separator + name;
-              optionalCount++;
-            } else {
-              name = separator + name;
-            }
-            return name;
-          }
-      ).join('') + ']'.repeat(optionalCount) + ')';
-    }
-  }
-  return syntax;
-}
+    // 调整位置。
+    var adjustDeatilsPanel = function() {
+      var clientSize = window.getClientSize();
+      $deatils.setStyles({
+        width: clientSize.width - pinnedOffsetX,
+        height: clientSize.height
+      });
+    };
 
-// 获取短描述（取第一行）。
-var RE_BREAK = /.*(?=&#10;)|.*/;
-function getShortDescription(name) {
-  var symbol = apiData[name];
-  var shortDescription = '-';
-  if (symbol) {
-    shortDescription = RE_BREAK.exec(symbol.description);
-  }
-  return shortDescription;
-}
-
-// 生成参考列表。
-var RE_COMMENT = /<(\w+)>\s*(.*)/;
-var columns = {
-  left: $('#left_column'),
-  right: $('#right_column')
-};
-function buildSheet(side, name) {
-  var $fieldset = $('<fieldset id="' + name.toLowerCase() + '"><legend>' + name + '</legend></fieldset>');
-  if (!manifest[name]) {
-    alert(name);
-    return;
-  }
-  manifest[name].forEach(function(item) {
-    if (item.startsWith('<')) {
-      var match = item.match(RE_COMMENT);
-      $fieldset.append($('<h2>&lt;' + match[1] + '&gt;' + match[2] + '</h2>'));
-    } else {
-      $fieldset.append($('<dl><dt>' + getSyntax(item) + '</dt><dd>' + getShortDescription(item) + '</dd></dl>'));
-    }
+    listen('show', function() {
+      $html.setStyle('overflowY', 'hidden');
+      adjustDeatilsPanel();
+      deatilsPanel.open();
+    });
   });
-  columns[side].append($fieldset);
-}
 
-// 开始生成。
-document.on('domready', function() {
-  [
-    'Global',
-    'Object',
-    'Array',
-    'String',
-    'Boolean',
-    'Number',
-    'Math',
-    'Date',
-    'RegExp',
-    'JSON',
-    'navigator',
-    'location',
-    'cookie',
-    'localStorage'
-  ].forEach(function(key) {
-    buildSheet('left', key);
-  });
-  [
-    'window',
-    'document',
-    'HTMLElement',
-    'Element',
-    'Request',
-    'Animation',
-    'components.Switcher',
-    'components.Dialog'
-  ].forEach(function(key) {
-    buildSheet('right', key);
+//==================================================[本页应用]
+  runApplication(function(listen, notify) {
+    notify('cheatSheet.build');
+
+    $content.on('click', function(e) {
+      notify('details.show', this.innerText);
+      return false;
+    }, function() {
+      return this.nodeName === 'DFN';
+    })
   });
 });
 </script>

@@ -376,7 +376,7 @@
     };
     // 过滤和转换样式。
     var transitiveProperties = {  // TODO: 可优化，合二为一。
-      before: parsedStyles($element.getStyles.apply($element, Object.keys(styles))),
+      before: parsedStyles($element.getStyles(Object.keys(styles))),
       after: parsedStyles(styles)
     };
     // 开始播放动画。

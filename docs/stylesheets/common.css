@@ -22,11 +22,9 @@ sub { bottom: -3px; }
 #content button,
 #content input,
 #content textarea,
-#content select { font-family: Arial, Helvetica, Verdana, "Microsoft YaHei", SimSun, serif; }
+#content select { font-family: Verdana, Helvetica, "Microsoft YaHei", SimSun, serif; }
 #content code,
-#content kbd,
-#content pre,
-#content samp { font-family: Consolas, "Lucida Console", Courier, "Microsoft YaHei", SimSun, monospace; }
+#content pre { font-family: Consolas, "Lucida Console", "Microsoft YaHei", SimSun, monospace; }
 
 /* 链接 */
 #content a { text-decoration: none; }

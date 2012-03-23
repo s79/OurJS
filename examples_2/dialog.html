@@ -7,46 +7,72 @@
 <script src="../import.js"></script>
 <script src="../src/components/dialog.js"></script>
 <style>
-body { width: 1500px; height: 1500px; }
-#dialog_1 { display: none; position: absolute; left: 10px; top: 10px; z-index: 10; width: 400px; height: 300px; background: #8fbc8b; text-align: center; }
-#dialog_2 { display: none; position: fixed; left: 20px; top: 20px; z-index: 20; width: 300px; height: 200px; background: navy; text-align: center; }
+body { height: 1500px; }
+button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
+#dialog_1 { display: none; position: absolute; z-index: 10; width: 600px; height: 400px; background: steelblue; }
+#dialog_2 { display: none; position: fixed; left: 20%; top: 20%; z-index: 20; width: 300px; height: 200px; background: mediumorchid; }
 </style>
 </head>
 <body>
 <h1>Dialog</h1>
 <fieldset>
-  <legend>对话框出现时遮罩下边的元素不可用 tab 键聚焦</legend>
+  <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
   <input type="button" value="button">
   <input type="text" value="text">
-  <a href="#">a</a>
-  <button onclick="dialogOne.open();">打开对话框1</button>
-  <select style=""></select>
+  <a href="#">link</a>
 </fieldset>
-<div id="pin" style="position: relative; top: 100px; width: 50%; height: 400px; background: whitesmoke;">
-  <input type="button" value="button">
-  <input type="text" value="text">
-  <a href="javascript:void('test');">a</a>
-  <div id="dialog_1">
-    <button onclick="dialogTwo.open();">打开对话框2</button>
-    <button onclick="dialogOne.close();">关闭1</button>
-    <select></select>
-  </div>
-  <div id="dialog_2">
-    <button onclick="dialogTwo.close();">关闭2</button>
-    <button onclick="runAnimation(true);">变长</button>
-    <button onclick="runAnimation(false);">变短</button>
-    <select></select>
-  </div>
+<fieldset>
+  <legend>测试 IE6 中 SELECT 元素的遮盖情况</legend>
+  <select>
+    <option>SELECT</option>
+  </select>
+</fieldset>
+<p style="clear: both; text-align: center;">
+  <button class="action" onclick="dialogOne.open();">dialogOne.open()</button>
+</p>
+<div id="pin" style="position: relative; top: 100px; width: 800px; height: 500px; background: whitesmoke;">
+  <fieldset>
+    <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
+    <input type="button" value="button">
+    <input type="text" value="text">
+    <a href="#">link</a>
+  </fieldset>
+  <fieldset>
+    <legend>测试 IE6 中 SELECT 元素的遮盖情况</legend>
+    <select>
+      <option>SELECT</option>
+    </select>
+  </fieldset>
 </div>
-
+<!-- dialog { -->
+<div id="dialog_1">
+  <fieldset>
+    <legend>测试 IE6 中 SELECT 元素的遮盖情况</legend>
+    <select>
+      <option>SELECT</option>
+    </select>
+  </fieldset>
+  <p style="clear: both; text-align: center;">
+    <button class="action" onclick="dialogOne.close();">dialogOne.close()</button>
+    <button class="action" onclick="dialogTwo.open();">dialogTwo.open()</button>
+  </p>
+</div>
+<div id="dialog_2">
+  <p style="clear: both; text-align: center;">
+    <button class="action" onclick="dialogTwo.close();">dialogTwo.close()</button>
+  </p>
+  <p style="clear: both; text-align: center;">
+    <button class="action" onclick="runAnimation(true);">变长</button>
+    <button class="action" onclick="runAnimation(false);">变短</button>
+  </p>
+</div>
+<!-- } dialog -->
 <script>
 //==================================================[test]
 //$('#pin').setStyle('position', 'fixed');
 
-var dialogOne = new components.Dialog($('#dialog_1'), {pinnedOffsetY: 300});
-var dialogTwo = new components.Dialog($('#dialog_2'), {onClose: function() {
-  console.log('CLOSE');
-}});
+var dialogOne = new components.Dialog($('#dialog_1'), {pinnedOffsetX: 200, pinnedOffsetY: 200});
+var dialogTwo = new components.Dialog($('#dialog_2'), {});
 
 function runAnimation(flag) {
   var timer;

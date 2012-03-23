@@ -67,7 +67,7 @@
       if ($enable !== $enabled) {
         $disabled && $disabled.off('focusin.freezeFocusArea');
         $disable.on('focusin.freezeFocusArea', function(e) {
-          if (!$enable.isAncestorOf(e.target)) {
+          if (!$enable.contains(e.target)) {
             $after.focus();
           }
         });
@@ -147,7 +147,7 @@
       var $mask;
       if (navigator.isIE6) {
         // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
-        $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>');
+        $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: green; "></div></div>');
         // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
         if ($container === document.body) {
           var resizeMaskElementForIE6 = function() {
@@ -287,9 +287,11 @@
    * @memberOf components
    * @constructor
    * @param {Element} element 要作为对话框显示的元素。
-   *   该元素的 position 将在创建后视情况而被修改为 absolute 或 fixed，另外建议为该元素设置像素单位的 left、top 和明确的 zIndex。
+   *   该元素的 position 将在创建后视情况而被修改为 absolute 或 fixed，另外建议为该元素设置明确的 zIndex。
    *   对话框的默认状态为关闭。因此 element 的 display 将被设置为 none。
    *   对话框元素将以其父元素（父元素应创建 stacking context）为“参考元素”进行定位，将对话框的中心点固定在该元素的中心点，遮掩层也作为其父元素的子元素被创建。
+   *   如果 options.pinnedOffsetX 或 options.pinnedOffsetY 被指定，则对话框的中心点在横向或纵向将不再与其父元素的中心点重合。
+   *   如果以上两个参数被同时指定，则即便 element 是 body 的子元素，在窗口改变尺寸时也不会自动调用 adjust 方法。
    *   避免让对话框元素的父元素出现滚动条，以免对话框和遮掩层能随其内容滚动。
    *   如果话框元素的父元素未创建 stacking context，将修改其 position 特性为 relative 以使其创建 stacking context。
    *   如果话框元素的父元素为 body 元素时，遮掩层将遮掩整个视口。此时如果 element 的 position 为 fixed，对话框将始终保持显示在视口内。
@@ -306,10 +308,9 @@
     Object.append(this, Object.clone(Dialog.options, true), options);
     // 对话框的默认状态为关闭。
     this.isOpen = false;
-    var $dialog = this.element = $(element).setStyle('display', 'none');
-    // 调节对话框的位置是通过 element 的 left 和 top 进行的，需要以像素为单位，因此如果这两个特性值为非像素单位，则为其指定一个像素单位的值。
-    $dialog.getStyle('left').endsWith('px') || $dialog.setStyle('left', $dialog.offsetLeft);
-    $dialog.getStyle('top').endsWith('px') || $dialog.setStyle('top', $dialog.offsetLeft);
+    // 对话框的初始状态是隐藏的。
+    // 调节对话框的位置是通过 element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
+    var $dialog = this.element = $(element).setStyles({display: 'none', left: 0, top: 0});
     // 根据 element 的父元素 $container 确定对话框使用的定位方式。
     var $container = $dialog.getParent();
     if ($container === document.body && $dialog.getStyle('position') === 'fixed') {
@@ -359,7 +360,8 @@
       // 启用遮掩区域聚焦锁定。
       freezeFocusArea({enable: $dialog, disable: $container});
       // 仅父元素为 body 的对话框需要在改变窗口尺寸时重新调整位置（假设其他对话框的父元素的尺寸为固定）。
-      if ($container === document.body) {
+      // 如果 pinnedOffsetX 和 pinnedOffsetY 同时被指定，则不调整位置（没有必要）。
+      if ($container === document.body && (isNaN(this.pinnedOffsetX) || isNaN(this.pinnedOffsetX))) {
         window.on('resize.dialog' + $dialog.uid, navigator.isIE6 ? function() {
           // 避免 IE6 的固定定位计算错误。
           setTimeout(function() {
@@ -410,7 +412,7 @@
         dialog.onClose();
       }});
       // 删除事件监听器。
-      if ($container === document.body) {
+      if ($container === document.body && (isNaN(this.pinnedOffsetX) || isNaN(this.pinnedOffsetX))) {
         window.off('resize.dialog' + $dialog.uid);
       }
     }

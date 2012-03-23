@@ -572,13 +572,13 @@
    * 获取元素的“计算后的样式”中一组特性的值。
    * @name Element.prototype.getStyles
    * @function
-   * @param {...string} propertyNames 指定要获取的特性名，可以为任意个。
+   * @param {Array} propertyNames 指定要获取的特性名，可以为任意个。
    * @returns {Object} 包含一组特性值的，格式为 {propertyName: propertyValue...} 的对象。
    */
-  Element.prototype.getStyles = function() {
+  Element.prototype.getStyles = function(propertyNames) {
     var styles = {};
     var computedStyle = getComputedStyle(this);
-    Array.from(arguments).forEach(function(propertyName) {
+    propertyNames.forEach(function(propertyName) {
       styles[propertyName] = computedStyle.getPropertyValue(camelCaseToHyphenate(propertyName));
     });
     return styles;
@@ -770,14 +770,15 @@
    *
    * 扩展方法：
    *   Element.prototype.comparePosition
-   *   Element.prototype.isAncestorOf
+   *   Element.prototype.contains
    */
 
 //--------------------------------------------------[Element.prototype.comparePosition]
   /**
-   * 与另一个元素比较在文档树中的位置关系。
+   * 与另一个元素比较在文档树中的位置关系。  // TODO: 极少使用，考虑删除。先标记为 private。
    * @name Element.prototype.comparePosition
    * @function
+   * @private
    * @param {Element} element 目标元素。
    * @returns {number} 比较结果。
    * @description
@@ -806,19 +807,21 @@
         0;
   };
 
-//--------------------------------------------------[Element.prototype.isAncestorOf]
+//--------------------------------------------------[Element.prototype.contains]
   /**
-   * 判断是否是另一个元素的祖先级元素。
-   * @name Element.prototype.isAncestorOf
+   * 判断元素是否包含另一个元素。
+   * @name Element.prototype.contains
    * @function
    * @param {Element} element 目标元素。
    * @returns {boolean} 判断结果。
+   * @description
+   *   <br>注意，如果本元素和目标元素一致，本方法也将返回 true。
    */
-  Element.prototype.isAncestorOf = 'contains' in html ? function(element) {
-    return this !== element && this.contains(element);
-  } : function(element) {
-    return !!(this.compareDocumentPosition(element) & 16);
-  };
+  if (!('contains' in html)) {
+    Element.prototype.contains = function(element) {
+      return (this === element || !!(this.compareDocumentPosition(element) & 16));
+    };
+  }
 
 //==================================================[Element 扩展 - 获取相关元素]
   /*
@@ -1383,7 +1386,7 @@
           dispatcher = function(e) {
             dispatchEvent($element, handlers, new Event(e || window.event, type), function(event) {
               var $relatedTarget = event.relatedTarget;
-              return $relatedTarget === null || $relatedTarget !== this && !this.isAncestorOf($relatedTarget);
+              return !$relatedTarget || !this.contains($relatedTarget);
             });
           };
           dispatcher.type = type === 'mouseenter' ? 'mouseover' : 'mouseout';

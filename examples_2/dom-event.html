@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>dom-event</title>
-<link rel="stylesheet" href="demo/common.css">
-<script src=".references/jquery-1.7.1.js"></script>
-<script src="/framework/import.js"></script>
+<link rel="stylesheet" href="../examples/common.css">
+<script src="../import.js"></script>
 <style>
 fieldset { width: 500px; height: 200px; }
 button { padding: 0 5px; }
@@ -250,13 +249,13 @@ $scroll.on('mousewheel', wheel);
 $scroll.on('mousewheel', wheel2);
 
 var mousePositions = 'clientX clientY screenX screenY pageX pageY'.split(' ');
- document.on('mousemove mousedown', function(event) {
- var text = '<strong>鼠标坐标</strong><br>';
- mousePositions.forEach(function(item) {
- text += item + ':' + event[item] + '<br>';
- });
- $d21.innerHTML = text;
- });
+document.on('mousemove mousedown', function(event) {
+  var text = '<strong>鼠标坐标</strong><br>';
+  mousePositions.forEach(function(item) {
+    text += item + ':' + event[item] + '<br>';
+  });
+  $d21.innerHTML = text;
+});
 
 function t(e) {
   e = e || window.event;
@@ -331,18 +330,18 @@ function leave(event) {
   console.log(event.type);
 }
 
-//$mouse.on('mouseover', over);
-//$mouse.on('mouseout', out);
-//$mouse.on('mouseenter', enter);
-//$mouse.on('mouseleave', leave);
-//$inner.on('mouseenter', enter);
-//$inner.on('mouseleave', leave);
-jQuery($mouse).on('mouseover', over);
-jQuery($mouse).on('mouseout', out);
-jQuery($mouse).on('mouseenter', enter);
-jQuery($mouse).on('mouseleave', leave);
-jQuery($inner).on('mouseenter', enter);
-jQuery($inner).on('mouseleave', leave);
+$mouse.on('mouseover', over);
+$mouse.on('mouseout', out);
+$mouse.on('mouseenter', enter);
+$mouse.on('mouseleave', leave);
+$inner.on('mouseenter', enter);
+$inner.on('mouseleave', leave);
+//jQuery($mouse).on('mouseover', over);
+//jQuery($mouse).on('mouseout', out);
+//jQuery($mouse).on('mouseenter', enter);
+//jQuery($mouse).on('mouseleave', leave);
+//jQuery($inner).on('mouseenter', enter);
+//jQuery($inner).on('mouseleave', leave);
 
 function F() {
   return this.getStyle('float') === 'left';
@@ -391,13 +390,13 @@ $(document.body).on('foo.bar', function(e) {
  window.on('beforeunload', function() {
  return 'NONONO!';
  });
-*/
+ */
 
 /*
-window.on('click keydown mouseover', function() {
-  console.log(this);
-});
-*/
+ window.on('click keydown mouseover', function() {
+ console.log(this);
+ });
+ */
 </script>
 </body>
 </html>
