@@ -34,7 +34,8 @@
     if (config) {
       var $enable = $(config.enable);
       var $disable = $(config.disable);
-      $before = $before || $('<input type="text" readonly style="position: absolute; left: -10000px;">')
+      // 将两个辅助文本框固定定位，以免在切换焦点时发生滚动。
+      $before = $before || $('<input type="text" readonly style="position: fixed; top: 0; left: -10000px; -position: absolute;">')
           .on('focus', function() {
             if (focusedByUser) {
               focusedByUser = false;
@@ -49,7 +50,7 @@
               return false;
             }
           });
-      $after = $after || $('<input type="text" readonly style="position: absolute; left: -10000px;">')
+      $after = $after || $('<input type="text" readonly style="position: fixed; top: 0; left: -10000px; -position: absolute;">')
           .on('focus', function() {
             if (focusedByUser) {
               focusedByUser = false;
@@ -124,7 +125,7 @@
     this.isShown = false;
   }
 
-//  components.Mask = Mask;
+  components.Mask = Mask;
 
 //--------------------------------------------------[Mask.prototype.show]
   /**

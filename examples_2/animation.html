@@ -77,7 +77,7 @@ function chainTest() {
     onBeforeStart: function() {
     },
     onStart: function() {
-      $aniCount1.innerText = queuePool[uid].length;
+      $aniCount1.innerText = this.getAnimationQueue().length;
       $aniInfo1.innerText = '1';
     },
     onFinish: function() {
@@ -88,7 +88,7 @@ function chainTest() {
         duration: 500,
         transition: 'easeOutIn',
         onStart: function() {
-          $aniCount1.innerText = queuePool[uid].length;
+          $aniCount1.innerText = this.getAnimationQueue().length;
           $aniInfo1.innerText = 'WAIT';
         },
         onFinish: function() {
@@ -102,7 +102,7 @@ function chainTest() {
         duration: 500,
         transition: 'cubicBezier(.4,-0.35,.4,1)',
         onStart: function() {
-          $aniCount1.innerText = queuePool[uid].length;
+          $aniCount1.innerText = this.getAnimationQueue().length;
           $aniInfo1.innerText = '2';
         },
         onFinish: function() {
@@ -122,7 +122,7 @@ function chainTest() {
         duration: 600,
         transition: 'linear',
         onStart: function() {
-          $aniCount2.innerText = queuePool[uid + ':2'].length;
+          $aniCount2.innerText = this.getAnimationQueue('2').length;
           $aniInfo2.innerText = '1';
         },
         onFinish: function() {
@@ -151,7 +151,7 @@ function chainTest() {
       .animate(null, {
         duration: 500,
         onStart: function() {
-          $aniCount2.innerText = queuePool[uid + ':2'].length;
+          $aniCount2.innerText = this.getAnimationQueue('2').length;
           $aniInfo2.innerText = 'WAIT';
         },
         onFinish: function() {
@@ -171,7 +171,7 @@ function chainTest() {
         duration: 300,
         transition: 'easeIn',
         onStart: function() {
-          $aniCount2.innerText = queuePool[uid + ':2'].length;
+          $aniCount2.innerText = this.getAnimationQueue('2').length;
           $aniInfo2.innerText = '2';
         },
         onFinish: function() {
@@ -182,9 +182,12 @@ function chainTest() {
       });
 }
 $ani.on('mouseover', function() {
-  this.stopAnimate('2');
-  $aniInfo2.innerText = '=STOP=';
-  $aniCount2.innerText = queuePool['1:2'] && queuePool[uid + ':2'].length || 0;
+  var queue = this.getAnimationQueue('2');
+  if (queue) {
+    this.stopAnimate('2');
+    $aniInfo2.innerText = '=STOP=';
+    $aniCount2.innerText = queue.length || 0;
+  }
 });
 $('#layer').on('click', function() {
   chainTest();
@@ -205,9 +208,17 @@ $('#highlight').on('click', function() {
       });
 });
 $('#fade_in').on('click', function() {
-  $layer.fadeIn(/*{onBeforeStart: function() {
-   //    return false;
-   }}*/);
+  $layer.fadeIn({
+    onBeforeStart: function() {
+      return true;
+    },
+    onProcess: function() {
+      console.log(this.getStyle('opacity'));
+    }
+  });
+  setTimeout(function() {
+    console.log(JSON.stringify($layer.getAnimationQueue()));
+  }, 150);
 });
 $('#fade_out').on('click', function() {
   $layer.fadeOut(/*{onBeforeStart: function() {

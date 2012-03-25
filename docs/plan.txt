@@ -38,8 +38,8 @@ function parseColor(color) {
 页码 Include CSS插入 省略号
 location.replace()
 
-以下命令不符合预期，应考虑加入 deffered 类型。
-【或者加入在调用 stopAnimation 也会触发的 onComplete 回调，这样就可以在 onComplete 里加入状态处理的代码，而在 onFinish 中加入其他（如动画队列）代码。】
+[可行]以下命令不符合预期，应考虑加入 deffered 类型。
+[不可行]或者加入在调用 stopAnimation 也会触发的 onComplete 回调，这样就可以在 onComplete 里加入状态处理的代码，而在 onFinish 中加入其他（如动画队列）代码。
 bodyMask.show().hide().show().hide().show().hide().show();
 mask.js:52show
 mask.js:54    -> ok
@@ -61,6 +61,7 @@ components.mask.html:591331403483764 "HIDE"
 >TODO: 事件部分 + input。
 
 >TODO: Animation 继续参考 CSS3 Transition，增加 delay 参数，并对外暴露 timingFunction。
+>      [low] +反向动画支持
 
 >TODO: 添加白名单。
 && !(/^(?:object|embed)$/i).test(el.tagName)

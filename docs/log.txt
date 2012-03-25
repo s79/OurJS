@@ -1,4 +1,10 @@
-﻿>2012-03-22
+﻿>2012-03-25
+getAnimationQueue
+
+>2012-03-23
+生成细节页。
+
+>2012-03-22
 生成索引页。
 修改 IE6 Mask 遮掩 SELECT 的方式。
   当页面 HTML 元素设置了非正常背景图片时（找不到图片或 about:blank），IFRAME 无法遮盖 SELECT 元素（滚动窗口 SELECT 即再次在最前端显示），但若此时页面内有 fixed 定位的元素即无此问题。
@@ -10,16 +16,16 @@
 >2012-03-20
 将 JS 文件内的注释使用 jsdoc-tookit 转换为 JSON 格式的数据。
 @name <string>
-@memberOf <string>
+@author <string>
+@type <string>
 __@private__
   @param [<Object>{type: <string>, name: <string>, description: <string>, isOptional: <boolean>}]
-  @exceptions [<Object>{type: <string>, description: <string>}]
   @returns [<Object>{type: <string>, description: <string>}]
 @description <string>
 @example [<string>]
   @requires [<string>]
-@deprecated <string>
 @since <string>
+@deprecated <string>
 @see [<string>]
 ------------------------------------
 以上 constructor 和 function 的 isFunction 为 true，其他的 property 没有以下四个属性：

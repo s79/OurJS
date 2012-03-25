@@ -130,56 +130,38 @@ var JSON = {};
 
 })();
 
-/** Encode string for HTML code. */
-var toString = Object.prototype.toString;
-function encode(value) {
-  if (typeof value === 'string') {
-    return value.replace(/[&<>`'"\\\n]/g, function(charactor) {
-      return '&#' + charactor.charCodeAt(0) + ';';
-    });
-  } else if (toString.call(value) === '[object Array]') {
-    return value.map(function(item) {
-      return encode(item);
-    });
-  } else {
-    return toString.call(value);
-  }
-}
-
 /** Get a symbol's raw data. */
 function filterSymbol(source) {
-  symbols[source.alias.replace('#', (source.isNamespace ? '.' : '.prototype.'))] = {
-    author: encode(source.author),
-    name: source.name,
-    memberOf: source.memberOf,
-    isFunction: (source.isa === 'CONSTRUCTOR' || source.isa === 'FUNCTION'),
+  var name = source.alias.replace('#', (source.isNamespace ? '.' : '.prototype.'));
+  symbols[name] = {
+//    author: source.author,
+    name: name,
     type: source.type,
+    isStatic: name.indexOf('.prototype.') === -1,
+    isFunction: (source.isa === 'CONSTRUCTOR' || source.isa === 'FUNCTION'),
+    isConstructor: source.isa === 'CONSTRUCTOR',
     parameters: source.params.map(function(item) {
       var newItem = {};
       newItem.type = item.type;
       newItem.name = item.name;
-      newItem.description = encode(item.desc);
+      newItem.description = item.desc;
       newItem.isOptional = item.isOptional;
-      return newItem;
-    }),
-    exceptions: source.exceptions.map(function(item) {
-      var newItem = {};
-      newItem.type = item.type;
-      newItem.description = encode(item.desc);
       return newItem;
     }),
     returns: source.returns.map(function(item) {
       var newItem = {};
       newItem.type = item.type;
-      newItem.description = encode(item.desc);
+      newItem.description = item.desc;
       return newItem;
     }),
-    description: encode(source.desc),
-    examples: encode(source.example),
-    requires: encode(source.requires),
-    deprecated: encode(source.deprecated),
-    since: encode(source.since),
-    see: encode(source.see)
+    description: source.desc,
+    examples: source.example.map(function(item) {
+      return item.desc;
+    }),
+    requires: source.requires,
+    since: source.since,
+    deprecated: source.deprecated,
+    see: source.see
   };
 
   if (source.properties.length) {

@@ -1,23 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>OurJS Overview</title>
+<link rel="stylesheet" href="stylesheets/common.css">
+<style>
+#content { width: 760px; margin-left: 240px; padding: 40px 20px; overflow: hidden; }
+#content h1 { margin: 30px 0; }
+</style>
+</head>
+<body>
+<!-- include { -->
 <div id="content">
   <!-- OurJS 概述 { -->
   <h1>OurJS 概述</h1>
-  <p>OurJS 是一个 JavaScript 类库，使用 OurJS 的开发者只需要有 JavaScript 和 DOM 的一些基础知识，即可编写出兼容各主流浏览器的脚本。</p>
-  <p>OurJS 适用于需要支持 <em>IE6 IE7 IE8 IE9 Firefox Chrome Safari Opera 以及其他使用 Trident 和 WebKit 内核的浏览器</em>的 WEB 项目。</p>
-  <p>OurJS 仅支持 HTML 文档的“标准模式”，这是为了强制开发者使用“标准模式”来设计页面，以获得更好的兼容性。当浏览器工作在非标准模式下时，开发者将收到一条警告信息。</p>
+  <p>OurJS 是一个适用于 WEB 应用开发的 JavaScript 框架，使用 OurJS 的开发者只需要有 JavaScript 和 DOM 的一些基础知识，即可编写出兼容各主流浏览器<sup>1</sup>的脚本。</p>
+  <p>OurJS 要求浏览器运行在“标准模式”下<sup>2</sup>，当浏览器工作在非标准模式下时，开发者将收到一条警告信息。</p>
+  <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此大部分情况都可以处理。<br>当必须引入其他的类库时，要注意一点：OurJS 为了确保 API 的简洁和一致，使用了侵入式设计，因此只能和其他非侵入式设计的类库<sup>3</sup>共存。</p>
+  <p class="comment">
+    1. 指 IE6 IE7 IE8 IE9 Firefox Chrome Safari Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。<br>
+    2. 这是为了强制开发者编写符合标准规范的代码，以获得更好的兼容性，并发挥浏览器的最大功效。<br>
+    3. 可以和 jQuery 共存。
+  </p>
+
+  <p>与其他 JavaScript 框架（类库）相比，OurJS 有以下两个特点：</p>
 
   <h2>简单</h2>
   <p>OurJS 有非常自然的、语义明确的 API，因此编写的代码本身即具备良好的自注释特性，易于学习和理解。</p>
   <p>面对复杂的需求，OurJS 提供了“模块 - 应用”机制来化繁为简：将可分离的业务逻辑拆分为多个模块，再通过应用将各模块连接起来。其中每个模块都是完全独立的，有利于协同开发和单元测试。</p>
-  <p class="comment">
-    "Everything should be made as simple as possible, but no simpler." -- Albert Einstein<br>
-    “任何事情都应该尽可能的做到简单，简单到极致。”—— 爱因斯坦<br>
-    “简单”是相对于“复杂”来讲的，对于大多数人来说，在一个清晰明确的知识体系上，使用可以预期的手段自由的编程是更简单的。而一旦某个 API 让人感到意外或被束缚，就会令人困惑和厌烦，这样的事情如果一再发生，原本简单的事情也会觉得复杂。
-  </p>
-
-
-  <h2>完善</h2>
-  <p>OurJS 具备完善的功能，因此大部分情况都可以处理，而不需要再引入其他的类库。</p>
-  <p>OurJS 也提供了一些常见的、可以相互配合的组件，以利于快速开发。</p>
+  <blockquote>
+    <p>"Everything should be made as simple as possible, but no simpler." -- Albert Einstein<br>
+      “任何事情都应该尽可能的做到简单，简单到极致。”—— 爱因斯坦
+    </p>
+    <p>
+      “简单”是相对于“复杂”而言的。<br>
+      一般来讲，使用可以预期的手段<strong>自由的编程</strong>是更简单的。而一旦某个 API 让人感到意外或被束缚，就会令人困惑和厌烦，这样的事情如果一再发生，原本简单的事情也会觉得复杂。<br>
+      进一步来讲，如果熟悉 JS 的开发者，使用与 JS 本身提供的 API 全无二致的手段来编程，是更简单的，而被迫使用和其他语言类似的特性是相对复杂的（常见的是用 JS 的原型链特性来模拟 JAVA 的类的继承）。
+    </p>
+    <p>
+      把事情做到简单并不容易，把事情做的复杂却很简单。
+    </p>
+  </blockquote>
 
   <h2>保护投资</h2>
   <p>
@@ -26,76 +49,72 @@
   </p>
   <dl>
     <dt>补缺：</dt>
-    <dd>当前已有的规范或即将称为规范的草案（如 ECMAScript 5、HTML5）中提供的特性，或已成为事实规范的特性，在尚未支持的浏览器上通过技术手段予以补缺。</dd>
     <dd>
-      <ul>
+      <p>当前已有的规范或即将称为规范的草案（如 ECMAScript 5、HTML5）中提供的特性，或已成为事实规范的特性，在尚未支持的浏览器上通过技术手段予以补缺。举例如下：</p>
+      <ul class="example">
         <li>
           <p><code>[0, 1, 2, 3, 4].<span>forEach</span>(function(item) {...});</code></p>
-          <p>Array 对象的 forEach 方法是 ECMAScript 5 引入的，本来只有在较新版本的浏览器中才能使用，但现在可以放心使用了。</p>
+          <p class="comment">Array 对象的 forEach 方法是 ECMAScript 5 引入的，本来只有在较新版本的浏览器中才能使用，但现在可以放心使用了。</p>
         </li>
         <li>
           <p><code>var outerHTML = element.<span>outerHTML</span>;</code></p>
-          <p>元素的 outerHTML 特性是 IE 最先引入的，目前只有 Firefox 不支持，但现在可以放心使用了。</p>
+          <p class="comment">元素的 outerHTML 特性是 IE 最先引入的，目前只有 Firefox 不支持，但现在可以放心使用了。</p>
         </li>
         <li>
           <p><code><span>localStorage.setItem</span>('data', JSON.stringify(userData));</code></p>
-          <p>HTML5 的 localStorage 原本在 IE6 IE7 中是不支持的，但现在可以放心使用了。</p>
+          <p class="comment">HTML5 的 localStorage 原本在 IE6 IE7 中是不支持的，但现在可以放心使用了。</p>
         </li>
         <li>
           <p><code>element.on('click', function(e) {... e.<span>stopImmediatePropagation</span>();});</code></p>
-          <p>在事件对象上使用 DOM 3 Event 中引进的方法，本来只有在较新版本的浏览器中才可行，但现在可以放心使用了。</p>
+          <p class="comment">在事件对象上使用 DOM 3 Event 中引入的方法，本来只有在较新版本的浏览器中才可行，但现在可以放心使用了。</p>
         </li>
         <li>
           <p><code><span>Element.prototype</span>.newMethod = function() {...};</code></p>
-          <p>IE6 IE7 本来没有 Element 构造函数，但现在可以通过扩充 Element.prototype 来为页面上的 DOM 元素添加新方法或属性了。</p>
+          <p class="comment">IE6 IE7 本来没有 Element 构造函数，但现在可以通过扩充 Element.prototype 来为页面上的 DOM 元素添加新方法或属性了。</p>
         </li>
       </ul>
     </dd>
-  </dl>
-  <dl>
     <dt>扩展：</dt>
-    <dd>有规范支持，但无法通过技术手段实现补缺的，则提供新的方法，在这个方法中进行差异屏蔽的处理。</dd>
     <dd>
-      <ul>
+      <p>有规范支持，但无法通过技术手段实现补缺的，则提供新的方法，在这个方法中进行差异屏蔽的处理。如：</p>
+      <ul class="example">
         <li>
           <p><code>element.<span>setStyles({position: 'fixed', right: 0, bottom: 0})</span>;</code></p>
-          <p>IE6 并不支持 CSS2 引入的固定定位，但现在通过使用 element.setStyle/setStyles 方法，可以实现在各浏览器中的一致的表现，而使用 element.getStyle/getStyles，也将获得预期的返回值 'fixed'。</p>
+          <p class="comment">IE6 并不支持 CSS2 引入的固定定位，但现在通过使用 element.setStyle/setStyles 方法，可以实现在各浏览器中的一致的表现，而使用 element.getStyle/getStyles，也将获得预期的返回值 'fixed'。</p>
         </li>
         <li>
           <p><code>element.<span>on</span>('click', function(e) {...});</code></p>
-          <p>IE6 IE7 IE8 的事件模型与其他浏览器的不同，但现在可以通过 element.on/off/fire 方法实在各浏览器通用的事件处理函数的绑定/解除绑定/触发了。</p>
+          <p class="comment">IE6 IE7 IE8 的事件模型与其他浏览器的不同，但现在可以通过 element.on/off/fire 方法实在各浏览器通用的事件处理函数的绑定/解除绑定/触发了。</p>
         </li>
         <li>
           <p><code>var nextElement = element.<span>getNext</span>();</code></p>
-          <p>要获取一个元素的下一个相邻元素，在 Element Traversal Specification 中推荐的、指定获取元素类型节点的 nextElementSibling 属性仅在较新的浏览器中才支持，在 IE6 IE7 IE8 中只能通过该元素的 nextSibling 属性获取，不过这需要进一步判断，因为得到的可能是一个文本节点，但现在可以在所有浏览器上通过调用元素的 getNext 方法而达到相同的目的了。</p>
+          <p class="comment">要获取一个元素的下一个相邻元素，在 Element Traversal Specification 中推荐的、指定获取元素类型节点的 nextElementSibling 属性仅在较新的浏览器中才支持，在 IE6 IE7 IE8 中只能通过该元素的 nextSibling 属性获取，不过这需要进一步判断，因为得到的可能是一个文本节点，但现在可以在所有浏览器上通过调用元素的 getNext 方法而达到相同的目的了。</p>
         </li>
       </ul>
-    </dd>
-    <dd>尚无规范支持或支持情况尚未明确（如 ECMAScript Harmony），或仅为方便使用而提供的功能，也以新方法的方式提供。</dd>
-    <dd>
-      <ul>
+      <p>尚无规范支持或支持情况尚未明确（如 ECMAScript Harmony），或仅为方便使用而提供的功能，也以新方法的方式提供。如：</p>
+      <ul class="example">
         <li>
           <p><code>Array.<span>from</span>(element.getElementsByTagName('select')).forEach(function(item){...});</code></p>
-          <p>将一个 NodeList 对象（或其他任意数据类型）转化为数组，以便使用数组的方法进行操作。Array.from 目前尚无规范支持，是仅为方便使用而添加的属性。</p>
+          <p class="comment">将一个 NodeList 对象（或其他任意数据类型）转化为数组，以便使用数组的方法进行操作。Array.from 目前尚无规范支持，是仅为方便使用而添加的属性。</p>
         </li>
         <li>
           <p><code>if (testString.<span>startsWith</span>('ex-') {...}</code></p>
-          <p>ES6 (Harmony) 中的提案：检查字符串是否以指定的子串开始，这个方法很实用，有助于提高代码的可读性，因此扩展了这个方法。</p>
+          <p class="comment">ES6 (Harmony) 中的提案：检查字符串是否以指定的子串开始，这个方法很实用，有助于提高代码的可读性，因此扩展了这个方法。</p>
         </li>
         <li>
           <p><code>element.<span>addClass</span>('active').<span>putBefore</span>(anotherElement);</code></p>
-          <p>给元素添加一个类名，然后插入到另一个元素的前边。这个需求也可以使用其他无兼容性问题的途径来实现，扩展这两个方法仅是为了方便使用。</p>
+          <p class="comment">给元素添加一个类名，然后插入到另一个元素的前边。这个需求也可以使用其他无兼容性问题的途径来实现，扩展这两个方法仅是为了方便使用。</p>
         </li>
       </ul>
     </dd>
   </dl>
-  <p>另外，OurJS 的 API 也具备高度的一致性，因此在未来可能添加的功能看起来也会有似曾相识的感觉。</p>
   <p>根据以上特点，以下好处显而易见：</p>
   <dl>
     <dt>一次学习终身受益：</dt>
     <dd>
       开发者现在即可放心学习和使用最新的规范提供的、OurJS 支持的 API，在掌握了这些 API 之后，即便转移到其他非浏览器宿主的环境中做 JavaScript 开发（如 NodeJS），也不必再重新学习这些 API 了。<br>
-      由于 OurJS 提供的所有以“补缺”形式提供的 API 都是现行标准，或即将成为标准的建议，因此开发者学习的内容的过期时间会最大限度的延长。
+      由于 OurJS 提供的所有以“补缺”形式提供的 API 都是现行标准，或即将成为标准的建议，因此开发者学习的内容的过期时间会最大限度的延长。<br>
+      另外，OurJS 的 API 也具备高度的一致性，因此在未来可能添加的功能看起来也会有似曾相识的感觉。
     </dd>
   </dl>
   <dl>
@@ -104,10 +123,8 @@
       所有以“扩展”形式提供的 API 均经过严谨的分析和测试，即便 OurJS 在后续版本中提供更多的功能，也不会修改现有的 API，因此开发者使用 OurJS 编写的代码也不必进行修改，可以直接在最新版本的 OurJS 上运行。<br>
     </dd>
   </dl>
-
-
-  <h1>其他其他其他</h1>
-  <p>其他内容</p>
-
   <!-- } OurJS 概述 -->
 </div>
+<!-- } include -->
+</body>
+</html>

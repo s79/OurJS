@@ -15,7 +15,7 @@
    *   animation.play() -> animation.onBeforeStart() 返回 false
    *
    * 说明：
-   *   上述步骤到达 proceed(x, y) 时，该函数会以每秒最多 66.66 次的频率被调用（每 15 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的贴近设定时间。
+   *   上述步骤到达 proceed(x, y) 时，该函数会以每秒最多 66.66 次的频率被调用（每 15 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
    *   传入 proceed 函数的参数 x 为时间轴，从 0 趋向于 1；y 为偏移量，通常在 0 和 1 之间。
    *   在动画在进行中时，执行动画对象的 stop 方法即可停止 proceed 的继续调用，但也会阻止回调函数 onFinish 的执行。
    *   如果调用 play 方法时触发的 onBeforeStart 回调函数的返回值为 false，则该动画不会被播放。
@@ -258,7 +258,6 @@
    */
   // 保存队列。
   var queuePool = {};
-  window.queuePool = queuePool;
 
 //--------------------------------------------------[Element.prototype.animate]
   // 可变的 CSS properties 类型。
@@ -363,7 +362,9 @@
         return onStart.call($element);
       };
     }
-    // 覆盖 onFinish，并将已有的 onStart 传递到 Animation 的选项中。
+    // 选项 onPlay 在每一次处理时都会调用。
+    var onPlay = options.onPlay || null;
+    // 覆盖 onFinish，并将已有的 onFinish 传递到 Animation 的选项中。
     var onFinish = options.onFinish;
     options.onFinish = function() {
       var onFinishResult;
@@ -400,11 +401,12 @@
         }
         $element.setStyle(name, currentValue);
       });
+      onPlay && onPlay.call($element);
     }, options).play();
   };
 
   /**
-   * 为元素添加动画。
+   * 在元素的动画队列中添加一个动画效果。
    * @name Element.prototype.animate
    * @function
    * @param {Object} styles 目标样式，元素将向指定的目标样式过渡。目标样式包含一条或多条要设置的样式声明，具体如下：
@@ -413,8 +415,10 @@
    *   3. propertyValue 若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
    *   4. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
    * @param {Object} [options] 动画选项，与 Animation 的 options 参数基本一致，区别是：
-   *   1. onBeforeStart、onStart、onFinish 的 this 均为调用本方法的元素。
-   *   2. 提供了一个 queueName 属性用来更方便的控制队列。
+   *   1. 增加 onPlay 回调选项。
+   *   2. onBeforeStart、onStart、onPlay、(TODO: onStop、)onFinish 的 this 均为调用本方法的元素。
+   *   3. 提供了一个 queueName 属性用来更方便的控制队列。
+   * @param {Object} options.onPlay 每播放完一帧动画后的回调函数。
    * @returns {Element} 调用本方法的元素。
    * @description
    *   <br>队列是指将需要较长时间完成的多个指令排序，以先进先出的形式逐个执行这些指令。
@@ -422,7 +426,7 @@
    *   <br>  - 若该元素并未播放动画，新添加的动画会直接开始播放。
    *   <br>  - 若该元素正在播放动画，新添加的动画将被添加到队列末端，在前一个动画播放完毕后自动播放。
    *   <br>给不同元素添加的动画永远有不同的队列，给相同元素添加的动画默认有相同的队列，但可以通过 options.queueName 来指定新队列的名称。
-   *   <br>若需要将不同元素的动画放入一个队列，请配合动画参数 options.onFinish 来实现。
+   *   <br>若需要连接不同元素的动画队列，请配合动画参数 options.onFinish 来实现。
    *   <br>允许使用的“可过渡样式”仅限于值为长度单位或颜色单位的样式。
    */
   Element.prototype.animate = function(styles, options) {
@@ -443,7 +447,7 @@
 
 //--------------------------------------------------[Element.prototype.stopAnimate]
   /**
-   * 停止元素播放中的动画队列。
+   * 停止播放指定的动画队列。
    * @name Element.prototype.stopAnimate
    * @function
    * @param {string} [queueName] 队列名。
@@ -461,6 +465,23 @@
       delete queuePool[queueId];
     }
     return this;
+  };
+
+//--------------------------------------------------[Element.prototype.getAnimationQueue]
+  /**
+   * 获取指定的动画队列，队里中仅包含尚未播放的动画效果。如果队列为空，将返回 null。
+   * @name Element.prototype.getAnimationQueue
+   * @function
+   * @param {string} [queueName] 队列名。
+   * @returns {Array} 指定的动画队列。
+   * @description
+   *   <br>可以通过此方法判断指定的动画队列是否正在播放。返回数组即正在播放，数组的 currentAnimation 属性为播放中的动画，数组中的内容为排队的动画。
+   *   <br>可以通过操作这个队列改变动画的播放行为。
+   *   <br>队列格式：[Element element, Object styles, Object options]
+   */
+  Element.prototype.getAnimationQueue = function(queueName) {
+    var queueId = this.uid + (queueName ? ':' + queueName : '');
+    return queuePool[queueId] || null;
   };
 
 //--------------------------------------------------[Element.prototype.fadeIn]

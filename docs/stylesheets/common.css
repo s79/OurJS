@@ -12,56 +12,37 @@ sup, sub { position: relative; vertical-align: baseline; }
 sup { top: -3px; }
 sub { bottom: -3px; }
 
-/* --------------------------------------------------[Article] */
+/* --------------------------------------------------[Theme] */
 /* 字体 */
-#content { padding-bottom: 100px; color: #333; font-size: 14px; }
-#content,
-#content small,
-#content sup,
-#content sub,
-#content button,
-#content input,
-#content textarea,
-#content select { font-family: Verdana, Helvetica, "Microsoft YaHei", SimSun, serif; }
-#content code,
-#content pre { font-family: Consolas, "Lucida Console", "Microsoft YaHei", SimSun, monospace; }
+body,
+small,
+sup,
+sub,
+button,
+input,
+textarea,
+select,
+kbd,
+samp { font-family: Verdana, Helvetica, "Microsoft YaHei", SimSun, serif; }
 
 /* 链接 */
-#content a { text-decoration: none; }
-#content a:link { color: #102197; }
-#content a:visited { color: #396686; }
-#content a:hover { text-decoration: underline; }
-#content a:active { }
-#content a.link { padding-left: 16px; }
+a { text-decoration: none; }
+a:link { color: #102197; }
+a:visited { color: #396686; }
+a:hover { text-decoration: underline; }
+a:active { }
 
-/* 代码 */
-#content pre { padding: 5px; border: 1px solid #f0fff0; border-left-width: 5px; background: #f8fff8; color: #333; white-space: pre-wrap; word-wrap: break-word; }
-#content pre.badcode { border-color: #fff0f0; background-color: #fff8f8; }
-#content pre dfn,
-#content code dfn { color: #333388; font-weight: bold; }
-#content pre var,
-#content code var { color: #5555aa; font-weight: normal; }
-#content pre kbd,
-#content code kbd { color: #bb4433; font-weight: normal; }
-#content pre samp,
-#content code samp { color: #998877; font-weight: normal; font-style: italic; }
-#content pre span,
-#content code span { border: 1px solid #9acd32; background: #f8fff8; }
-#content pre.badcode span,
-#content code.badcode span { border: 1px solid #dc143c; }
-#content p.referral { margin: 10px 0 0; }
-#content p.comment { margin: 0 0 10px; color: #666; font-size: 12px; }
+/* 整体内容 */
+#content { padding-bottom: 100px; color: #333; font-size: 14px; }
 
 /* 标题 */
 #content h1 { margin-bottom: 30px; font-size: 28px; text-align: center; }
-#content h1 span { position: absolute; margin: 20px 0 0 10px; color: #888; font-weight: normal; font-size: 12px; }
 #content h2 { margin: 30px 0 20px; font-size: 18px; }
-#content h3 { margin: 20px 0 10px; font-size: 16px; }
+#content h3 { margin: 10px 0; font-size: 16px; }
 
 /* 段落 */
-#content dl { margin: 10px 0; }
-#content dt { position: relative; font-weight: bold; cursor: default; }
-#content dd { padding-left: 2em; }
+#content dt { margin: 10px 0; font-weight: bold; }
+#content dd { margin: 10px 0; padding-left: 2em; }
 #content p { margin: 10px 0; }
 #content ul,
 #content ol { padding-left: 2em; }
@@ -71,9 +52,24 @@ sub { bottom: -3px; }
 #content ol ul { list-style-type: circle; }
 #content ul ol,
 #content ol ol { list-style-type: decimal; }
-#content ol.alpha { list-style-type: lower-alpha; }
+#content blockquote { margin: 10px 0; padding: 0 10px; border: 1px dotted #888; background-image: url(../images/bg_comment.png); color: #333; font-size: 12px; }
 #content em { color: #333; font-style: italic; }
-#content blockquote { margin: 10px 0; padding: 0 10px; border: 1px dotted #888; color: #333; font-size: 12px; }
-#content dd ul { padding: 5px 5px 5px 2em; border: 1px solid #dcdcdc; border-radius: 5px; background: #f5f5f5; }
-#content dd ul li { margin: 15px 0; }
-#content dd ul p { margin: 5px 0; }
+#content sup { display: inline-block; top: 0; padding: 0 3px 3px; border-radius: 8px; background: #333; color: white; font-size: 9px; line-height: 1; vertical-align: top; -webkit-text-size-adjust: none; }
+#content p.comment { margin: 0 0 10px; color: #666; font-size: 12px; }
+#content ul.example { list-style-type: circle; padding: 5px 5px 5px 2em; border: 1px solid #dcdcdc; border-radius: 5px; background: #f5f5f5; }
+#content ul.example li { margin: 15px 0; }
+#content ul.example p { margin: 5px 0; }
+#content ul.example code { color: sienna; }
+
+/* 代码 */
+#content pre { padding: 5px; border: 1px solid #f0fff0; border-left-width: 5px; background: #f8fff8; color: #333; white-space: pre-wrap; word-wrap: break-word; }
+#content pre dfn,
+#content code dfn { color: #338; font-weight: bold; }
+#content pre var,
+#content code var { color: #55a; font-weight: normal; }
+#content pre kbd,
+#content code kbd { color: #b43; font-weight: normal; }
+#content pre samp,
+#content code samp { color: #987; font-weight: normal; font-style: italic; }
+#content pre span,
+#content code span { border: 1px solid #9acd32; background: #f8fff8; }

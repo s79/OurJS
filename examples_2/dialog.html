@@ -10,7 +10,7 @@
 body { height: 1500px; }
 button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
 #dialog_1 { display: none; position: absolute; z-index: 10; width: 600px; height: 400px; background: steelblue; }
-#dialog_2 { display: none; position: fixed; left: 20%; top: 20%; z-index: 20; width: 300px; height: 200px; background: mediumorchid; }
+#dialog_2 { display: none; position: fixed; left: 20%; top: 20%; z-index: 20; width: 400px; height: 200px; background: mediumorchid; }
 </style>
 </head>
 <body>
@@ -75,15 +75,9 @@ var dialogOne = new components.Dialog($('#dialog_1'), {pinnedOffsetX: 200, pinne
 var dialogTwo = new components.Dialog($('#dialog_2'), {});
 
 function runAnimation(flag) {
-  var timer;
   dialogTwo.element.animate({height: flag ? 400 : 200}, {
-    onStart: function() {
-      timer = setInterval(function() {
-        dialogTwo.adjust();
-      }, 15);
-    },
-    onFinish: function() {
-      clearInterval(timer);
+    onPlay: function() {
+      dialogTwo.adjust();
     }
   });
 }
