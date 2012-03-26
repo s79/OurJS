@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ui.tabPanel</title>
+<link rel="stylesheet" href="common.css">
+<script src="../our.min.js"></script>
+<script src="../src/components/switcher.js"></script>
+<script src="../src/components/tabpanel.js"></script>
+<style>
+#tab_panel { position: relative; width: 400px; height: 300px; padding: 0; cursor: default; }
+#tab_panel span { float: left; width: 50px; height: 20px; margin-right: 2px; background: gray; font: 14px/20px Verdana; text-align: center; }
+#tab_panel span:hover { color: white; }
+#tab_panel div { display: none; position: absolute; left: 0; top: 20px; width: 400px; height: 280px; background: silver; line-height: 280px; text-align: center; }
+#tab_panel span.active { background: silver; }
+#tab_panel div.active { display: block; }
+</style>
+</head>
+<body>
+<h1>ui.tabPanel</h1>
+<div id="tab_panel">
+  <span>1</span>
+  <div>内容一</div>
+
+  <span>2</span>
+  <div>内容二</div>
+
+  <span>3</span>
+  <div>内容三</div>
+
+  <span>4</span>
+  <div>内容四</div>
+
+  <span>5</span>
+  <div>内容五</div>
+</div>
+
+<script id="code">
+//--------------------------------------------------[TEST]
+(function() {
+  var $container = $('#tab_panel');
+  var tabs = $container.find('span');
+  var panels = $container.find('div');
+//  components.TabPanel($container, tabs, panels);
+  window.x = new components.TabPanel($container, tabs, panels, {
+    activeIndex: tabs.length - 1,
+    activeClassName: 'active',
+    hoverDelay: 200,
+    onActive: function(index) {
+      console.log(this.tabs[index])
+    },
+    onInactive: function(index) {
+      console.log(this.panels[index])
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

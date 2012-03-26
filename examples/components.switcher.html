@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>components.Switcher</title>
-<link rel="stylesheet" href="demo/common.css">
-<script src="../import.js"></script>
+<link rel="stylesheet" href="common.css">
+<script src="../our.min.js"></script>
 <script src="../src/components/switcher.js"></script>
 <style>
 span { float: left; width: 100px; height: 100px; margin: 10px; background: yellowgreen; font: 14px/100px Verdana; text-align: center; }
@@ -20,12 +20,18 @@ span { float: left; width: 100px; height: 100px; margin: 10px; background: yello
 <span>5</span>
 <script>
 //--------------------------------------------------[x]
-var x = new components.Switcher([undefined, null, 0, false, '', []], {
-  activeItem: 1,
-  onActive: function(item) {
-    console.log('active: ' + item);
-  }, onInactive: function(item) {
-    console.log('inactive: ' + item);
+var x = new components.Switcher([
+  [1],
+  [2],
+  [3],
+  [4],
+  [5]
+], {
+//  activeItem: 1,
+  onActive: function(item, index) {
+    console.log('active: ' + JSON.stringify(item) + ':' + index);
+  }, onInactive: function(item, index) {
+    console.log('inactive: ' + JSON.stringify(item) + ':' + index);
   }
 });
 
@@ -34,17 +40,17 @@ var $body = $(document.body);
 var spans = $body.find('span');
 var timer;
 var o = new components.Switcher(spans, {
-  activeItem: spans[1],
+  activeItem: 2,
   onActive: function(item) {
     item.addClass('active');
-    console.group();
-    console.log('active:', item);
-    setTimeout(function() {
-      console.groupEnd();
-    }, 0);
+//    console.group();
+//    console.log('active:', item);
+//    setTimeout(function() {
+//      console.groupEnd();
+//    }, 0);
   }, onInactive: function(item) {
     item.removeClass('active');
-    console.log('inactive:', item);
+//    console.log('inactive:', item);
   }
 });
 $body.on('mouseover', function(e) {

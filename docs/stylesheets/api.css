@@ -6,6 +6,9 @@
 #cutline li.static,
 #cutline li.instance { list-style: none; padding-left: 2px; }
 #cutline li.option { list-style: none; padding-left: 100px; }
+#cutline li.option input { vertical-align: text-bottom; }
+#cutline li.option label { margin-left: 2px; }
+#cutline li.option label:hover { color: #102197; }
 #content a:link,
 #content a:visited { color: #666; }
 #content .column { float: left; width: 370px; padding: 5px; cursor: default; }
@@ -20,7 +23,8 @@
 #content .constructor { border-left: 2px solid red; }
 #content .static { border-left: 2px solid limegreen; }
 #content .instance { border-left: 2px solid mediumorchid; }
-#content dd { display: no-ne; margin: 0; padding-left: 0; }
+#content dd { display: none; margin: 0; padding-left: 0; }
+#content.show_short_description dd { display: block; }
 #content kbd { font-style: italic; }
 #content cite { color: #333; }
 #content samp { color: gray; font-style: italic; }

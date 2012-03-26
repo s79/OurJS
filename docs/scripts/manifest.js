@@ -30,7 +30,8 @@ var manifest = {
 //    'Array.prototype.reduce',
 //    'Array.prototype.reduceRight',
     '<#>自定义扩展',
-    'Array.from'
+    'Array.from',
+    'Array.prototype.contains'
   ],
   'String': [
     '<#>ES5',
@@ -213,6 +214,12 @@ var manifest = {
     'components.Switcher',
     'components.Switcher.options',
     'components.Switcher.prototype.active'
+  ],
+  'components.TabPanel': [
+    'components.TabPanel',
+    'components.TabPanel.options',
+    'components.TabPanel.prototype.activeIndex',
+    'components.TabPanel.prototype.active'
   ],
   'components.Dialog': [
     'components.Dialog',

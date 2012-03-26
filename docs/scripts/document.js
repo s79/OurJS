@@ -228,6 +228,7 @@ document.on('domready', function() {
         'Request',
         'Animation',
         'components.Switcher',
+        'components.TabPanel',
         'components.Dialog'
       ].forEach(function(name) {
         buildDocument(name, 'right');
@@ -319,6 +320,22 @@ document.on('domready', function() {
     }, function() {
       return this.nodeName === 'A' || this.getParent().nodeName === 'A';
     });
+
+    // 是否在索引页显示短描述。
+    function showShortDescription(show) {
+      $content[show ? 'addClass' : 'removeClass']('show_short_description');
+    }
+
+    var $shortDescription = $('#short_description').on('change', function() {
+      console.log(this.checked);
+      showShortDescription(this.checked);
+      localStorage.setItem('showShortDescription', this.checked);
+    });
+
+    if (localStorage.getItem('showShortDescription') === 'true') {
+      showShortDescription(true);
+      $shortDescription.checked = true;
+    }
 
   });
 });

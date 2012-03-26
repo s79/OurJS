@@ -5,7 +5,7 @@
 <title>OurJS API Reference</title>
 <link rel="stylesheet" href="stylesheets/common.css">
 <link rel="stylesheet" href="stylesheets/api.css">
-<script src="../import.js"></script>
+<script src="../our.min.js"></script>
 <script src="../src/components/dialog.js"></script>
 <script src="scripts/data.js"></script>
 <script src="scripts/manifest.js"></script>
@@ -27,9 +27,9 @@
       <li class="instance">实例属性/方法</li>
     </ul>
     <ul>
-      <li>点击以下每个分类的名称，或其方法/属性所在行即可显示详细信息。</li>
-      <li>在详细信息界面中，点击信息面板外的区域，或按下 ESC 即可返回本界面。</li>
-      <li class="option"><label><input type="checkbox"> 显示简短描述 (todo)</label></li>
+      <li>点击以下每个分类的名称，或其方法/属性即可显示<em>详细信息</em>。</li>
+      <li>在<em>详细信息</em>界面中，点击信息面板外的区域，或按下 ESC 即可返回本界面。</li>
+      <li class="option"><input id="short_description" type="checkbox"><label for="short_description">显示简短描述</label></li>
     </ul>
   </div>
   <div id="left_column" class="column"></div>
@@ -38,7 +38,7 @@
 </div>
 <div id="details_container" style="display: none;">
   <div id="details"></div>
-  <a id="details_close" href="javascript:void('close');"></a>
+  <a id="details_close" href="javascript:void('close');" class="button"></a>
 </div>
 <!-- } include -->
 </body>

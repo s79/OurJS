@@ -4,18 +4,16 @@
 <meta charset="utf-8">
 <title>navigator</title>
 <link rel="stylesheet" href="common.css">
-<script src="../src/lang.js"></script>
-<script src="../src/base.js"></script>
-<script src="../src/dom.js"></script>
-<script src="../src/plugins/json2.js"></script>
+<script src="../our.min.js"></script>
 <style>
+fieldset { clear: both; }
 col { width: 100px; }
 col.name { width: 200px; }
 pre { clear: both; }
 </style>
 </head>
 <body>
-<h1>base</h1>
+<h1>navigator</h1>
 <fieldset>
   <legend>navigator.*</legend>
   <table>
@@ -35,7 +33,10 @@ pre { clear: both; }
     </tbody>
   </table>
 </fieldset>
-<pre id="ua_info"></pre>
+<fieldset>
+  <legend>navigator.userAgent & navigator.userAgentInfo</legend>
+  <pre id="ua_info"></pre>
+</fieldset>
 <fieldset>
   <legend>location.parameters</legend>
   <p id="parameters"></p>
@@ -46,8 +47,7 @@ pre { clear: both; }
   var $table = document.getElementById('list');
   var $tr;
   var $td;
-  var extendedProperties = ['inStandardsMode', 'isIE', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'];
-  extendedProperties.forEach(function(key) {
+  ['inStandardsMode', 'isIE', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'].forEach(function(key) {
     var value = navigator[key];
     $tr = $table.insertRow(-1);
     $td = $tr.insertCell(-1);
@@ -62,10 +62,11 @@ pre { clear: both; }
   });
 
   // navigator.userAgent 和 navigator.userAgentInfo 预览。
-  $('#ua_info').innerHTML = navigator.userAgent + '\n' + JSON.stringify(navigator.userAgentInfo);
+  $('#ua_info').innerHTML = navigator.userAgent + '<br>' + JSON.stringify(navigator.userAgentInfo);
 
   // location.parameters 预览。
   $('#parameters').innerHTML = JSON.stringify(location.parameters);
+
 })();
 </script>
 </body>

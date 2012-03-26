@@ -484,6 +484,7 @@
    *   Object.update
    *   Object.forEach
    *   Array.from
+   *   Array.prototype.contains
    *   String.prototype.clean
    *   Number.prototype.toRegular
    *   Math.limit
@@ -651,6 +652,21 @@
       }
     }
     return result;
+  };
+
+//--------------------------------------------------[Array.prototype.contains]
+  /**
+   * 检查数组中是否包含指定的元素。
+   * @name Array.prototype.contains
+   * @function
+   * @param {*} element 指定的元素。
+   * @returns {boolean} 检查结果。
+   * @example
+   *   [0, 1, 2, 3, 4].contains(2);
+   *   // true
+   */
+  Array.prototype.contains = function(element) {
+    return this.indexOf(element) !== -1;
   };
 
 //--------------------------------------------------[String.prototype.clean]
