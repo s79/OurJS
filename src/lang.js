@@ -1,8 +1,3 @@
-/*!
- * OurJS v20120313
- * Released under the terms of MIT license
- * Copyright (c) 2011 - 2012
- */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
  * @version 20111101

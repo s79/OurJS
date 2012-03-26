@@ -1,0 +1,28 @@
+OurJS - A JavaScript Framework
+==============================
+
+ * Source: <https://github.com/s79/OurJS>
+ * Overview: <https://github.com/s79/OurJS/blob/master/docs/overview.html>
+ * API: <https://github.com/s79/OurJS/blob/master/docs/api.html>
+ * License: <https://github.com/s79/OurJS/blob/master/LICENSE>
+
+
+ Structure
+--------------------
+ - build
+ - src
+ - docs
+ - examples
+ - .utilities
+
+
+ Code dependence
+--------------------
+ lang - base - dom - plugins/sizzle
+                   - animation
+                   - request
+      - storage
+      - modularization
+ plugins/json2
+ plugins/DD_belatedPNG
+                   - plugins/console

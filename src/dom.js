@@ -1131,8 +1131,7 @@
    *   http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
    */
 
-  // TODO: 细化分组。
-  var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 9, 'mouseenter': 9, 'mouseleave': 9, 'mousedragstart': 17, 'mousedrag': 17, 'mousedragend': 17, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 8, 'focusout': 8, 'select': 0, 'input': 12, 'change': 12, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4};
+  var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 4, 'change': 4, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
   var returnTrue = function() {
     return true;
   };
@@ -1140,7 +1139,168 @@
     return false;
   };
 
-  // 事件包装对象。
+  /**
+   * 事件包装对象
+   * @name Event
+   * @class
+   */
+
+  /**
+   * 原始事件对象。
+   * @name Event.prototype.originalEvent
+   * @type Object
+   */
+
+  /**
+   * 事件类型。
+   * @name Event.prototype.type
+   * @type string
+   */
+
+  /**
+   * 是否为鼠标事件。
+   * @name Event.prototype.isMouseEvent
+   * @type boolean
+   */
+
+  /**
+   * 是否为键盘事件。
+   * @name Event.prototype.isKeyboardEvent
+   * @type boolean
+   */
+
+  /**
+   * 是否可以冒泡，不冒泡的事件不能使用事件代理。
+   * @name Event.prototype.bubbles
+   * @type boolean
+   */
+
+  /**
+   * 触发事件的对象。
+   * @name Event.prototype.target
+   * @type Element
+   */
+
+  /**
+   * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
+   * @name Event.prototype.relatedTarget
+   * @type Element
+   */
+
+  /**
+   * 事件发生的时间。
+   * @name Event.prototype.timeStamp
+   * @type number
+   */
+
+  /**
+   * 事件发生时，ctrl 键是否被按下。
+   * @name Event.prototype.ctrlKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，alt 键是否被按下。
+   * @name Event.prototype.altKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，shift 键是否被按下。
+   * @name Event.prototype.shiftKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，meta 键是否被按下。
+   * @name Event.prototype.metaKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时鼠标在视口中的 X 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.clientX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在视口中的 Y 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.clientY
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在屏幕上的 X 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.screenX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在屏幕上的 Y 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.screenY
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在页面中的 X 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.pageX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在页面中的 Y 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.pageY
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在横向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
+   * @name Event.prototype.offsetX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在纵向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
+   * @name Event.prototype.offsetY
+   * @type number
+   */
+
+  /**
+   * 事件发生时，鼠标左键是否被按下，仅在鼠标事件对象上有效。
+   * @name Event.prototype.leftButton
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，鼠标中键是否被按下，仅在鼠标事件对象上有效。
+   * @name Event.prototype.middleButton
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，鼠标右键是否被按下，仅在鼠标事件对象上有效。
+   * @name Event.prototype.rightButton
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时鼠标滚轮是否正在向上滚动，仅在 mousewheel 类型的事件对象上有效。
+   * @name Event.prototype.wheelUp
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时鼠标滚轮是否正在向下滚动，仅在 mousewheel 类型的事件对象上有效。
+   * @name Event.prototype.wheelDown
+   * @type boolean
+   */
+
+  /**
+   * 当一个设备触发事件时的相关代码。在键盘事件中为按下的键的代码。
+   * @name Event.prototype.which
+   * @type number
+   */
+
   function Event(e, type) {
     // 保存原始 event 对象。
     this.originalEvent = e;
@@ -1204,22 +1364,52 @@
   }
 
   Object.append(Event.prototype, {
+    /**
+     * 阻止事件的传递，被阻止传递的事件将不会向其他元素传递。
+     * @name Event.prototype.stopPropagation
+     * @function
+     */
     stopPropagation: function() {
       var e = this.originalEvent;
       e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
       this.isPropagationStopped = returnTrue;
     },
+    /**
+     * 事件的传递是否已被阻止。
+     * @name Event.prototype.isPropagationStopped
+     * @type boolean
+     */
     isPropagationStopped: returnFalse,
+    /**
+     * 阻止事件的默认行为。
+     * @name Event.prototype.preventDefault
+     * @function
+     */
     preventDefault: function() {
       var e = this.originalEvent;
       e.preventDefault ? e.preventDefault() : e.returnValue = false;
       this.isDefaultPrevented = returnTrue;
     },
+    /**
+     * 事件的默认行为是否已被阻止。
+     * @name Event.prototype.isDefaultPrevented
+     * @type boolean
+     */
     isDefaultPrevented: returnFalse,
+    /**
+     * 立即阻止事件的传递，被立即阻止传递的事件不仅不会向其他元素传递，也不会在当前元素上触发其他事件监听器。
+     * @name Event.prototype.stopImmediatePropagation
+     * @function
+     */
     stopImmediatePropagation: function() {
       this.stopPropagation();
       this.isImmediatePropagationStopped = returnTrue;
     },
+    /**
+     * 事件的传递是否已被立即阻止。
+     * @name Event.prototype.isImmediatePropagationStopped
+     * @type boolean
+     */
     isImmediatePropagationStopped: returnFalse
   });
 

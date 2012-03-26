@@ -135,7 +135,6 @@
    * @param {Function} options.onBeforeRequest 发送请求前触发，传入请求数据，需要返回处理后的字符串数据，当返回 false 时则取消本次请求。
    * @param {Function} options.onBeforeResponse 收到响应前触发，传入响应数据，需要返回处理后的响应数据。
    * @param {Function} options.onResponse 收到响应时触发，参数为包含响应信息的一个对象。
-   * @returns {Object} request 对象。
    */
   function Request(url, options) {
     this.xhr = getXHRObject();
