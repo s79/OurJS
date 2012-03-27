@@ -41,18 +41,18 @@
   var $container = $('#tab_panel');
   var tabs = $container.find('span');
   var panels = $container.find('div');
-//  components.TabPanel($container, tabs, panels);
-  window.x = new components.TabPanel($container, tabs, panels, {
-    activeIndex: tabs.length - 1,
-    activeClassName: 'active',
-    hoverDelay: 200,
-    onActive: function(index) {
-      console.log(this.tabs[index])
-    },
-    onInactive: function(index) {
-      console.log(this.panels[index])
-    }
-  });
+  components.TabPanel($container, tabs, panels);
+//  window.x = new components.TabPanel($container, tabs, panels, {
+//    activeIndex: tabs.length - 1,
+//    activeClassName: 'active',
+//    hoverDelay: 200,
+//    onActive: function(index) {
+//      console.log(this.tabs[index])
+//    },
+//    onInactive: function(index) {
+//      console.log(this.panels[index])
+//    }
+//  });
 })();
 
 </script>
