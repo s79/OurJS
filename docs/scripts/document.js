@@ -328,7 +328,6 @@ document.on('domready', function() {
     }
 
     var $shortDescription = $('#short_description').on('change', function() {
-      console.log(this.checked);
       showShortDescription(this.checked);
       localStorage.setItem('showShortDescription', this.checked);
     });
@@ -339,4 +338,5 @@ document.on('domready', function() {
     }
 
   });
+
 });

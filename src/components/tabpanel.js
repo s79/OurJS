@@ -31,9 +31,9 @@
    * @require
    *   components.Switcher
    * @description
-   *   <br>注意：
-   *   <br>tabs 和 panels 必须有相同数目的元素。
-   *   <br>选定的 tab 和 panel 元素将被添加类名 options.activeClassName。
+   *   注意：
+   *   tabs 和 panels 必须有相同数目的元素。
+   *   选定的 tab 和 panel 元素将被添加类名 options.activeClassName。
    */
   var TabPanel = function($container, tabs, panels, options) {
     var tabPanel = this;

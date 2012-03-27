@@ -527,7 +527,7 @@
    * @param {...Object} extended 扩展对象，使用这些对象进行追加，可以为任意个。
    * @returns {Object} 追加后的对象。
    * @description
-   *   <br>extended2 和 extended1 中的属性会覆盖 original 中的同名属性。
+   *   extended2 和 extended1 中的属性会覆盖 original 中的同名属性。
    *   <table>
    *     <tr><th>original</th><th>extended1</th><th>extended2</th><th>result</th></tr>
    *     <tr><td>a: 'a.0'</td><td></td><td></td><td>a: 'a.0'</td></tr>
@@ -566,7 +566,7 @@
    * @param {...Object} extended 扩展对象，使用这些对象进行更新，可以为任意个。
    * @returns {Object} 更新后的对象。
    * @description
-   *   <br>extended2 和 extended1 中的属性会覆盖 original 中已存在的同名属性。
+   *   extended2 和 extended1 中的属性会覆盖 original 中已存在的同名属性。
    *   <table>
    *     <tr><th>original</th><th>extended1</th><th>extended2</th><th>result</th></tr>
    *     <tr><td>a: 'a.0'</td><td></td><td></td><td>a: 'a.0'</td></tr>

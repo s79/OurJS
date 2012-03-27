@@ -485,6 +485,16 @@
    * 默认选项。
    * @name Dialog.options
    * @memberOf components
+   * @description
+   *   可选参数对象，包含的属性及其默认值为：
+   *   <table>
+   *     <tr><th>maskAttributes</th><td>{}</td></tr>
+   *     <tr><th>maskStyles</th><td>{backgroundColor: '#000', opacity: 0.2}</td></tr>
+   *     <tr><th>pinnedOffsetX</th><td>NaN</td></tr>
+   *     <tr><th>pinnedOffsetY</th><td>NaN</td></tr>
+   *     <tr><th>onOpen</th><td>empty</td></tr>
+   *     <tr><th>onClose</th><td>empty</td></tr>
+   *   </table>
    */
   Dialog.options = {
     maskAttributes: {},

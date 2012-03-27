@@ -130,6 +130,23 @@ var JSON = {};
 
 })();
 
+/** Encode string for HTML code. */
+String.prototype.endsWith = function(subString) {
+  var lastIndex = this.lastIndexOf(subString);
+  return lastIndex >= 0 && lastIndex === this.length - subString.length;
+};
+function parseDescription(string) {
+  return string.split(/\r/).map(
+      function(line, index, lines) {
+        var newLine = line.trim();
+        if (index !== lines.length - 1 && !newLine.endsWith('>')) {
+          newLine += '<br>';
+        }
+        return newLine;
+      }
+  ).join('');
+}
+
 /** Get a symbol's raw data. */
 function filterSymbol(source) {
   var name = source.alias.replace('#', (source.isNamespace ? '.' : '.prototype.'));
@@ -144,17 +161,17 @@ function filterSymbol(source) {
       var newItem = {};
       newItem.type = item.type;
       newItem.name = item.name;
-      newItem.description = item.desc;
+      newItem.description = parseDescription(item.desc);
       newItem.isOptional = item.isOptional;
       return newItem;
     }),
     returns: source.returns.map(function(item) {
       var newItem = {};
       newItem.type = item.type;
-      newItem.description = item.desc;
+      newItem.description = parseDescription(item.desc);
       return newItem;
     }),
-    description: source.desc,
+    description: parseDescription(source.desc),
     examples: source.example.map(function(item) {
       return item.desc;
     }),

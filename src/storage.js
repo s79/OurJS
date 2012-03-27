@@ -145,9 +145,9 @@
    * @param {string} key 要保存的数据名，不能为空字符串。
    * @param {string} value 要保存的数据值。
    * @description
-   *   <br>注意：
-   *   <br>与源生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
-   *   <br>可以使用中文 key。
+   *   注意：
+   *   与源生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
+   *   可以使用中文 key。
    */
   localStorage.setItem = function(key, value) {
     userDataElement.load(USER_DATA_FILE_NAME);

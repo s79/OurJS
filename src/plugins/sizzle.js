@@ -1464,7 +1464,7 @@
    * @param {string} selector 选择符。
    * @returns {Array} 包含查找到的元素的数组。
    * @description
-   *   <br>本功能使用 Sizzle 实现，关于可以使用的 selector 信息，请参考 Sizzle 的相关说明。
+   *   本功能使用 Sizzle 实现，关于可以使用的 selector 信息，请参考 Sizzle 的相关说明。
    * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
    */
   if ('Element' in window) {

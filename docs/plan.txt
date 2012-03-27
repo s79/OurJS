@@ -82,7 +82,7 @@ Modules 即可分离的业务逻辑，各自独立，不会互相依赖，也不
 Components 不提供事件监听机制，它们是为 Modules 服务的，绝大多数情况只需要一个回调。
 当一个 Component 仅使用回调无法满足需求时，应将其升级为 Module。
 Components 不能直接与 Application 通信，只有 Modules 可以。
-Application 可以与全部 Modules 通信，因此这部分逻辑主要是将各 Modules 关联起来。
+Application 可以与全部 Modules 通信，因此 Application 的代码主要用于关联 Modules。
 
 >API 风格：
 >  选项超过 1 个时以对象的形式提供，确保函数不会出现一个以上的可选参数。

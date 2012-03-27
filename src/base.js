@@ -30,8 +30,8 @@
    * @memberOf navigator
    * @type Object
    * @description
-   *   <br>注意：
-   *   <br>navigator.userAgentInfo 下的三个属性是根据 navigator.userAgent 得到的，仅供参考使用，不建议用在代码逻辑判断中。
+   *   注意：
+   *   navigator.userAgentInfo 下的三个属性是根据 navigator.userAgent 得到的，仅供参考使用，不建议用在代码逻辑判断中。
    */
 
   /**
@@ -239,8 +239,8 @@
    * @memberOf location
    * @type Object
    * @description
-   *   <br>注意：
-   *   <br>当地址栏的字符有非 ASCII 字符，或有非法的查询字符串时，会有兼容性问题。
+   *   注意：
+   *   当地址栏的字符有非 ASCII 字符，或有非法的查询字符串时，会有兼容性问题。
    * @example
    *   // 设页面地址为 test.html?a=ok&b=100&b=128
    *   location.parameters
@@ -298,30 +298,30 @@
    * @function
    * @param {*} value 要判断的值。
    * @returns {string} 值的类型，可能为以下几种情况之一：
-   *   <br>undefined
-   *   <br>boolean
-   *   <br>number
-   *   <br>string
-   *   <br>function
-   *   <br>null
-   *   <br>object.Boolean
-   *   <br>object.Number
-   *   <br>object.String
-   *   <br>object.Array
-   *   <br>object.Date
-   *   <br>object.RegExp
-   *   <br>object.Error
-   *   <br>object.Math
-   *   <br>object.JSON
-   *   <br>object.Arguments
-   *   <br>object.Global
-   *   <br>object.Node
-   *   <br>object.Collection
-   *   <br>object.Object
+   *   undefined
+   *   boolean
+   *   number
+   *   string
+   *   function
+   *   null
+   *   object.Boolean
+   *   object.Number
+   *   object.String
+   *   object.Array
+   *   object.Date
+   *   object.RegExp
+   *   object.Error
+   *   object.Math
+   *   object.JSON
+   *   object.Arguments
+   *   object.Global
+   *   object.Node
+   *   object.Collection
+   *   object.Object
    * @description
-   *   <br>注意：
-   *   <br>一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
-   *   <br>IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
+   *   注意：
+   *   一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
+   *   IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
 
    * @example
    *   typeOf(document);

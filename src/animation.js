@@ -421,13 +421,13 @@
    * @param {Object} options.onPlay 每播放完一帧动画后的回调函数。
    * @returns {Element} 调用本方法的元素。
    * @description
-   *   <br>队列是指将需要较长时间完成的多个指令排序，以先进先出的形式逐个执行这些指令。
-   *   <br>在元素上调用本方法添加动画时：
-   *   <br>  - 若该元素并未播放动画，新添加的动画会直接开始播放。
-   *   <br>  - 若该元素正在播放动画，新添加的动画将被添加到队列末端，在前一个动画播放完毕后自动播放。
-   *   <br>给不同元素添加的动画永远有不同的队列，给相同元素添加的动画默认有相同的队列，但可以通过 options.queueName 来指定新队列的名称。
-   *   <br>若需要连接不同元素的动画队列，请配合动画参数 options.onFinish 来实现。
-   *   <br>允许使用的“可过渡样式”仅限于值为长度单位或颜色单位的样式。
+   *   队列是指将需要较长时间完成的多个指令排序，以先进先出的形式逐个执行这些指令。
+   *   在元素上调用本方法添加动画时：
+   *     - 若该元素并未播放动画，新添加的动画会直接开始播放。
+   *     - 若该元素正在播放动画，新添加的动画将被添加到队列末端，在前一个动画播放完毕后自动播放。
+   *   给不同元素添加的动画永远有不同的队列，给相同元素添加的动画默认有相同的队列，但可以通过 options.queueName 来指定新队列的名称。
+   *   若需要连接不同元素的动画队列，请配合动画参数 options.onFinish 来实现。
+   *   允许使用的“可过渡样式”仅限于值为长度单位或颜色单位的样式。
    */
   Element.prototype.animate = function(styles, options) {
     options = options || {};
@@ -475,9 +475,9 @@
    * @param {string} [queueName] 队列名。
    * @returns {Array} 指定的动画队列。
    * @description
-   *   <br>可以通过此方法判断指定的动画队列是否正在播放。返回数组即正在播放，数组的 currentAnimation 属性为播放中的动画，数组中的内容为排队的动画。
-   *   <br>可以通过操作这个队列改变动画的播放行为。
-   *   <br>队列格式：[Element element, Object styles, Object options]
+   *   可以通过此方法判断指定的动画队列是否正在播放。返回数组即正在播放，数组的 currentAnimation 属性为播放中的动画，数组中的内容为排队的动画。
+   *   可以通过操作这个队列改变动画的播放行为。
+   *   队列格式：[Element element, Object styles, Object options]
    */
   Element.prototype.getAnimationQueue = function(queueName) {
     var queueId = this.uid + (queueName ? ':' + queueName : '');

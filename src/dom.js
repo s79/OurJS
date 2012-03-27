@@ -163,8 +163,8 @@
    * @memberOf Element
    * @type Object
    * @description
-   *   <br>注意：
-   *   <br>受 IE6 IE7 实现方式的限制，扩展新特性应在获取元素之前进行，否则已获取的元素可能无法访问新扩展的特性。
+   *   注意：
+   *   受 IE6 IE7 实现方式的限制，扩展新特性应在获取元素之前进行，否则已获取的元素可能无法访问新扩展的特性。
    * @example
    *   Element.prototype.getNodeName = function() {
    *     return this.nodeName;
@@ -192,8 +192,8 @@
    * @param {Element} element 要扩展的元素，只能传入 Element、document（事件对象的 target 属性）或 null。
    * @returns {Element} 扩展后的元素。
    * @description
-   *   <br>注意：
-   *   <br>不能获取并扩展其他页面的 DOM 元素！
+   *   注意：
+   *   不能获取并扩展其他页面的 DOM 元素！
    */
   var $ = elementPrototype ? function(element) {
     if (element && !element.uid) {
@@ -559,9 +559,9 @@
    * @param {string} propertyName 特性名，支持 camel case 和 hyphenate 格式。
    * @returns {string} 对应的特性值，如果获取的是长度值，其单位未必是 px，可能是其定义时的单位。
    * @description
-   *   <br>注意：
-   *   <br>不要尝试获取复合属性的值，它们存在兼容性问题。
-   *   <br>不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
+   *   注意：
+   *   不要尝试获取复合属性的值，它们存在兼容性问题。
+   *   不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
    */
   Element.prototype.getStyle = function(propertyName) {
     return getComputedStyle(this).getPropertyValue(camelCaseToHyphenate(propertyName));
@@ -593,9 +593,9 @@
    * @param {number|string} propertyValue 特性值，若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
    * @returns {Element} 调用本方法的元素。
    * @description
-   *   <br>注意：
-   *   <br>如果设置的是长度值，若长度单位不是 'px' 则不能省略长度单位。
-   *   <br>可以设置复合属性的值。
+   *   注意：
+   *   如果设置的是长度值，若长度单位不是 'px' 则不能省略长度单位。
+   *   可以设置复合属性的值。
    */
   Element.prototype.setStyle = function(propertyName, propertyValue) {
     propertyName = hyphenateToCamelCase(propertyName);
@@ -659,9 +659,9 @@
    * @function
    * @returns {Object} 包含位置（left、right、top、bottom）及尺寸（width、height）的对象，所有属性值均为 number 类型，单位为像素。
    * @description
-   *   <br>注意：
-   *   <br>不考虑非标准模式。
-   *   <br>标准模式下 IE7(IE9 模拟) 的 body 的计算样式 direction: rtl 时，如果 html 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
+   *   注意：
+   *   不考虑非标准模式。
+   *   标准模式下 IE7(IE9 模拟) 的 body 的计算样式 direction: rtl 时，如果 html 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
    */
   Element.prototype.getClientRect = navigator.isIElt8 ? function() {
     var clientRect = this.getBoundingClientRect();
@@ -716,8 +716,8 @@
    * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
    * @returns {string} 数据的值。
    * @description
-   *   <br>注意：
-   *   <br>Chrome 在 dataset 中不存在名称为 name 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
+   *   注意：
+   *   Chrome 在 dataset 中不存在名称为 name 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
    * @see http://www.w3.org/TR/2011/WD-html5-20110525/elements.html#embedding-custom-non-visible-data-with-the-data-attributes
    */
   Element.prototype.getData = 'dataset' in html ? function(name) {
@@ -753,8 +753,8 @@
    * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
    * @returns {Element} 调用本方法的元素。
    * @description
-   *   <br>注意：
-   *   <br>IE6 IE7 在 removeAttribute 时，name 参数是大小写敏感的。
+   *   注意：
+   *   IE6 IE7 在 removeAttribute 时，name 参数是大小写敏感的。
    */
   Element.prototype.removeData = function(name) {
     name = parseName(name);
@@ -782,7 +782,7 @@
    * @param {Element} element 目标元素。
    * @returns {number} 比较结果。
    * @description
-   *   <br>调用本方法后返回的 number 值的含义：
+   *   调用本方法后返回的 number 值的含义：
    *   <table>
    *     <tr><th>Bits</th><th>Number</th><th>Meaning</th></tr>
    *     <tr><td>000000</td><td>0</td><td>节点 A 与节点 B 相等</td></tr>
@@ -815,7 +815,7 @@
    * @param {Element} element 目标元素。
    * @returns {boolean} 判断结果。
    * @description
-   *   <br>注意，如果本元素和目标元素一致，本方法也将返回 true。
+   *   注意，如果本元素和目标元素一致，本方法也将返回 true。
    */
   if (!('contains' in html)) {
     Element.prototype.contains = function(element) {
@@ -1872,17 +1872,18 @@
    * @param {string|Element} e 不同类型的元素表示。
    * @returns {Element} 扩展后的元素。
    * @description
-   *   <br>当参数为一个元素的序列化之后的字符串（它可以包含子元素）时，会返回扩展后的、根据这个字符串反序列化的元素。
-   *   <p>这里与其他实现相比有以下几点差异：</p>
+   *   当参数为一个元素的序列化之后的字符串（它可以包含子元素）时，会返回扩展后的、根据这个字符串反序列化的元素。
+   *   这里与其他实现相比有以下几点差异：
    *   <ul>
    *     <li>忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。</li>
    *     <li>修改“IE 添加多余的 tbody 元素”的问题的解决方案，在 wrappers 里预置一个 tbody 即可。</li>
    *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 appendChild 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
    *   </ul>
-   *   <p>  在创建元素时，如果包含 table，建议写上 tbody 以确保结构严谨。举例如下：<br>  $('&lt;div&gt;&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;');</p>
-   *   <br>当参数为一个元素的 id 时，会返回扩展后的、与指定 id 相匹配的元素。
-   *   <br>当参数本身即为一个元素时，会返回扩展后的该元素。
-   *   <br>当参数为其他情况时（包括 document 和 window）均返回 null。
+   *   在创建元素时，如果包含 table，建议写上 tbody 以确保结构严谨。举例如下：
+   *   $('&lt;div&gt;&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;');
+   *   当参数为一个元素的 id 时，会返回扩展后的、与指定 id 相匹配的元素。
+   *   当参数本身即为一个元素时，会返回扩展后的该元素。
+   *   当参数为其他情况时（包括 document 和 window）均返回 null。
    * @see http://jquery.com/
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
@@ -1990,9 +1991,9 @@
    * @param {Function} [filter] 为符合条件的子元素代理事件。
    * @returns {Object} document 对象。
    * @description
-   *   <br>特殊事件：domready
-   *   <br>在文档可用时触发，只能添加监听器，不能删除监听器。
-   *   <br>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。
+   *   特殊事件：domready
+   *   在文档可用时触发，只能添加监听器，不能删除监听器。
+   *   如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。
    */
   document.on = function(name, listener, filter) {
     var filteredName = name.split(' ')
@@ -2061,8 +2062,8 @@
    * @function
    * @returns {Object} 尺寸，包含 width 和 height 两个数字类型的属性，单位为像素。
    * @description
-   *   <br>IE9 Firefox Chrome Safari Opera 有 window.innerWidth 和 window.innerHeight 属性，但这个值是包含了滚动条宽度的值。
-   *   <br>为保持一致性，不使用这两个属性来获取文档可视区域尺寸。
+   *   IE9 Firefox Chrome Safari Opera 有 window.innerWidth 和 window.innerHeight 属性，但这个值是包含了滚动条宽度的值。
+   *   为保持一致性，不使用这两个属性来获取文档可视区域尺寸。
    * @see http://www.w3.org/TR/cssom-view/#dom-window-innerwidth
    * @see http://www.w3.org/TR/cssom-view/#dom-window-innerheight
    */
@@ -2095,8 +2096,8 @@
    * @function
    * @returns {Object} 坐标，包含 x 和 y 两个数字类型的属性，单位为像素。
    * @description
-   *   <br>一些浏览器支持 window.scrollX/window.scrollY 或 window.pageXOffset/window.pageYOffset 直接获取视口的滚动偏移量。
-   *   <br>这里使用通用性更强的方法实现。
+   *   一些浏览器支持 window.scrollX/window.scrollY 或 window.pageXOffset/window.pageYOffset 直接获取视口的滚动偏移量。
+   *   这里使用通用性更强的方法实现。
    * @see http://w3help.org/zh-cn/causes/BX9008
    */
   window.getPageOffset = function() {
@@ -2125,8 +2126,8 @@
    * @param {Function} [filter] 为符合条件的子元素代理事件。
    * @returns {Object} window 对象。
    * @description
-   *   <br>特殊事件：beforeunload
-   *   <br>该事件只能存在一个监听器，如果添加了多个，则只有最后添加的生效。可以删除当前生效的监听器。
+   *   特殊事件：beforeunload
+   *   该事件只能存在一个监听器，如果添加了多个，则只有最后添加的生效。可以删除当前生效的监听器。
    */
   window.on = function(name, listener, filter) {
     var filteredName = name.split(' ')
