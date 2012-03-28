@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>components.Switcher</title>
 <link rel="stylesheet" href="common.css">
-<script src="../our.min.js"></script>
+<script src="../import.js"></script>
 <script src="../src/components/switcher.js"></script>
 <style>
 span { float: left; width: 100px; height: 100px; margin: 10px; background: yellowgreen; font: 14px/100px Verdana; text-align: center; }
@@ -20,18 +20,20 @@ span { float: left; width: 100px; height: 100px; margin: 10px; background: yello
 <span>5</span>
 <script>
 //--------------------------------------------------[x]
-var x = new components.Switcher([
+var array = [
+  [0],
   [1],
   [2],
   [3],
-  [4],
-  [5]
-], {
-//  activeItem: 1,
-  onActive: function(item, index) {
-    console.log('active: ' + JSON.stringify(item) + ':' + index);
-  }, onInactive: function(item, index) {
-    console.log('inactive: ' + JSON.stringify(item) + ':' + index);
+  [4]
+];
+var x = new components.Switcher(array, {
+  defaultActiveIndex: -1,
+  onActive: function(index) {
+    console.log('active: ' + JSON.stringify(array[index]) + ':' + index);
+  },
+  onInactive: function(index) {
+    console.log('inactive: ' + JSON.stringify(array[index]) + ':' + index);
   }
 });
 
@@ -40,31 +42,22 @@ var $body = $(document.body);
 var spans = $body.find('span');
 var timer;
 var o = new components.Switcher(spans, {
-  activeItem: 2,
-  onActive: function(item) {
-    item.addClass('active');
-//    console.group();
-//    console.log('active:', item);
-//    setTimeout(function() {
-//      console.groupEnd();
-//    }, 0);
-  }, onInactive: function(item) {
-    item.removeClass('active');
-//    console.log('inactive:', item);
+  defaultActiveIndex: 2,
+  onActive: function(index) {
+    spans[index].addClass('active');
+    console.group();
+    console.log('active:', index);
+    setTimeout(function() {
+      console.groupEnd();
+    }, 0);
+  },
+  onInactive: function(index) {
+    spans[index].removeClass('active');
+    console.log('inactive:', index);
   }
 });
-$body.on('mouseover', function(e) {
-  var $span = this;
-  timer = setTimeout(function() {
-    o.active($span);
-  }, 200);
-}, function() {
-  return this.nodeName === 'SPAN';
-});
-$body.on('mouseout', function(e) {
-  clearTimeout(timer);
-}, function() {
-  return this.nodeName === 'SPAN';
+document.on('click', function(e) {
+  o.active(spans.indexOf(e.target));
 });
 
 </script>

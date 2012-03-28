@@ -15,6 +15,10 @@
    * 为使用了 alpha 透明的 PNG 图片的元素（包括背景或 img 元素的 src）添加一个 名为 'alpha' 的 class，即可在 IE6 中修复 PNG 的 alpha 透明问题。
    * 修复了在 iframe 中使用导致内容无法正常显示的问题。
    *
+   * 局限性：
+   *   不能用于修复会改变透明度的元素上，如可能调用 fadeIn/fadeOut 方法的元素。
+   *   要修复的元素必须有明确定义的、绝对长度的尺寸，否则可能会出现图片覆盖不全的问题。
+   *
    * 提供对象：
    *   DD_belatedPNG
    */
@@ -373,8 +377,6 @@
   DD_belatedPNG.createVmlStyleSheet();
 
   window.DD_belatedPNG = DD_belatedPNG;
-//  window.attachEvent('onload', function() {
-    DD_belatedPNG.fix('.alpha');
-//  });
+  DD_belatedPNG.fix('.alpha');
 
 })();

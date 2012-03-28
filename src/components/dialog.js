@@ -118,6 +118,8 @@
    * @param {Object} options.styles 为遮掩层元素设置的样式。
    * @param {Function} options.onShow 调用 show 方法时触发。
    * @param {Function} options.onHide 调用 hide 方法时触发。
+   * @description
+   *   在 IE6 下禁用 show/hide 时的渐变效果，以避免和 PNG 透明修复脚本冲突。
    */
   function Mask(target, options) {
     Object.append(this, Object.clone(Mask.options, true), options);
@@ -144,16 +146,16 @@
       Object.forEach(mask.attributes, function(attributeValue, attributeName) {
         attributes += ' ' + attributeName + '="' + attributeValue + '"';
       });
-      mask.styles.display = 'none';
       var $mask;
       if (navigator.isIE6) {
         // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
-        $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: green; "></div></div>');
+        $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').append($('<div></div>').setStyles(mask.styles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
         // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
         if ($container === document.body) {
           var resizeMaskElementForIE6 = function() {
             var clientSize = window.getClientSize();
-            $mask.setStyles({width: clientSize.width, height: clientSize.height});
+            // 刷新 display 以避免 IE6 的 $mask 元素内的两个 height 为 100% 的子元素在纵向改变窗口大小时高度不随 $mask 的变化而更新。
+            $mask.setStyles({width: clientSize.width, height: clientSize.height, display: 'none'}).setStyle('display', 'block');
           };
           var onShow = mask.onShow;
           mask.onShow = function() {
@@ -169,12 +171,12 @@
           };
         }
       } else {
-        $mask = $('<div' + attributes + '></div>');
+        $mask = $('<div' + attributes + '></div>').setStyles(mask.styles);
       }
       // 显示遮掩层。
-      $container.append($mask.setStyles(mask.styles).setStyle('position', $container === document.body ? 'fixed' : 'absolute'));
+      $container.append($mask.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
 //      $mask.stopAnimate().fadeIn({transition: 'easeOut', duration: 150});  // TODO: Animation 终止无回调，待改进。
-      $mask.fadeIn({transition: 'easeOut', duration: 150});
+      navigator.isIE6 ? $mask.setStyle('display', 'block') : $mask.fadeIn({transition: 'easeOut', duration: 150});
       mask.element = $mask;
       mask.isShown = true;
       mask.resize();
@@ -194,13 +196,20 @@
   Mask.prototype.hide = function() {
     if (this.isShown) {
       var mask = this;
+      var $mask = mask.element;
 //      mask.element.stopAnimate().fadeOut({transition: 'easeIn', duration: 150, onFinish: function() {  // TODO: Animation 终止无回调，待改进。
-      mask.element.fadeOut({transition: 'easeIn', duration: 150, onFinish: function() {
+      var onFadeOut = function() {
         delete mask.element;
-        this.remove();
+        $mask.remove();
         mask.isShown = false;
         mask.onHide();
-      }});
+      };
+      if (navigator.isIE6) {
+        $mask.setStyle('display', 'none');
+        onFadeOut();
+      } else {
+        $mask.fadeOut({transition: 'easeIn', duration: 150, onFinish: onFadeOut});
+      }
     }
     return this;
   };
@@ -297,6 +306,7 @@
    *   如果话框元素的父元素未创建 stacking context，将修改其 position 特性为 relative 以使其创建 stacking context。
    *   如果话框元素的父元素为 body 元素时，遮掩层将遮掩整个视口。此时如果 element 的 position 为 fixed，对话框将始终保持显示在视口内。
    *   当多个对话框有相同的父元素时，则视这些对话框为一组，将对话框分组有助于重叠显示这些对话框。
+   *   在 IE6 下禁用 open/close 时的渐变效果，以避免和 PNG 透明修复脚本冲突。
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Dialog.options 中。
    * @param {Object} options.maskAttributes 为遮掩层元素附加的属性。
    * @param {Object} options.maskStyles 为遮掩层元素设置的样式。
@@ -350,7 +360,7 @@
       var $container = $dialog.getParent();
       dialog.group.stack.push(dialog);
       // 打开对话框。
-      $dialog.fadeIn({transition: 'easeOut', duration: 150});
+      navigator.isIE6 ? $dialog.setStyle('display', 'block') : $dialog.fadeIn({transition: 'easeOut', duration: 150});
       dialog.isOpen = true;
       dialog.adjust();
       dialog.onOpen();
@@ -404,14 +414,20 @@
         freezeFocusArea(null);
       }
       // 关闭对话框。
-      dialog.element.fadeOut({transition: 'easeIn', duration: 150, onFinish: function() {
+      var onFadeOut = function() {
         if (stack.length) {
           // 如果不是最底层对话框，且有遮掩层，则在对话框消失后再进行调整。
           mask && mask.setZIndex(previousDialog.element.getStyle('zIndex') - 1);
         }
         dialog.isOpen = false;
         dialog.onClose();
-      }});
+      };
+      if (navigator.isIE6) {
+        $dialog.setStyle('display', 'none');
+        onFadeOut();
+      } else {
+        $dialog.fadeOut({transition: 'easeIn', duration: 150, onFinish: onFadeOut});
+      }
       // 删除事件监听器。
       if ($container === document.body && (isNaN(this.pinnedOffsetX) || isNaN(this.pinnedOffsetX))) {
         window.off('resize.dialog' + $dialog.uid);

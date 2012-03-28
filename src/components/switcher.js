@@ -19,20 +19,18 @@
    * @name Switcher
    * @memberOf components
    * @constructor
-   * @param {Array} items 指定在本数组的各元素间切换，本数组包含的元素必须是引用类型的值。
+   * @param {Array} items 指定在本数组中的各元素间切换，本数组包含的元素必须是引用类型的值，且不能有重复。
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Switcher.options 中。
-   * @param {*} options.activeItem 默认的活动元素，不设置此项即无默认活动元素。
-   *   可以传入指定的元素或该元素在 item 中的索引。
-   * @param {Function} options.onActive 当一个元素被标记为“活动”时触发，传入这个元素和该元素在 items 中的索引。
-   * @param {Function} options.onInactive 当一个元素被标记为“活动”时触发，传入之前的活动元素和该元素在 items 中的索引。
+   * @param {number} options.defaultActiveIndex 默认的活动元素在 items 中的索引值，如果指定的索引值不在有效范围内，则无默认活动元素。
+   * @param {Function} options.onActive 在一个元素被标记为“活动”时触发，传入当前的活动元素在 items 中的索引。
+   * @param {Function} options.onInactive 在一个元素被标记为“活动”时触发，传入上一个活动元素在 items 中的索引，在 Switcher 初始化时没有上一个活动元素，因此不会触发。
    */
   function Switcher(items, options) {
     Object.append(this, Object.clone(Switcher.options, true), options);
     this.items = items;
-    var activeItem = this.activeItem;
-    delete this.activeItem;
-    typeof activeItem === 'number' && (activeItem = items[activeItem]);
-    activeItem && this.active(activeItem);
+    var defaultActiveIndex = this.defaultActiveIndex;
+    delete this.defaultActiveIndex;
+    this.active(defaultActiveIndex);
   }
 
   components.Switcher = Switcher;
@@ -43,24 +41,36 @@
    * @name Switcher.prototype.active
    * @memberOf components
    * @function
-   * @param {*} item 要标记为“活动”的元素，必须是 items 的一员，且不能是当前的活动元素。
+   * @param {number} index 要标记为“活动”的元素在 items 中的索引值，要标记为“活动”的元素不能是当前的活动元素。
+   *   如果指定的索引值不在有效范围内，则取消活动元素。
    * @returns {Object} Switcher 对象。
    */
-  Switcher.prototype.active = function(item) {
-    if (typeof item === 'number') {
-      item = this.items[item];
-    }
-    var activeIndex = this.items.indexOf(item);
-    if (activeIndex > -1) {
-      var inactiveItem = this.activeItem;
-      if (item !== inactiveItem) {
-        this.activeItem = item;
-        this.onActive(item, activeIndex);
-        inactiveItem && this.onInactive(inactiveItem, this.items.indexOf(inactiveItem));
+  Switcher.prototype.active = function(index) {
+    index = index >>> 0;
+    var currentActiveIndex = isNaN(this.activeIndex) ? NaN : this.activeIndex;
+    if (index !== currentActiveIndex) {
+      var item = this.items[index];
+      if (item) {
+        this.activeIndex = index;
+        this.onActive(index);
+      } else {
+        this.activeIndex = NaN;
+      }
+      if (Number.isInteger(currentActiveIndex)) {
+        this.onInactive(currentActiveIndex);
       }
     }
     return this;
   };
+
+//--------------------------------------------------[Switcher.prototype.activeIndex]
+  /**
+   * 获取当前标记为“活动”的元素的索引，如果为 NaN，则当前无活动元素。
+   * @name Switcher.prototype.activeIndex
+   * @memberOf components
+   * @type number
+   */
+  /* 本属性将在创建实例后提供。 */
 
 //--------------------------------------------------[Switcher.options]
   /**
@@ -69,7 +79,7 @@
    * @memberOf components
    */
   Switcher.options = {
-    // 可选项 activeItem 不在此设置，它代表一个真实存在于 items 中的元素。这样处理便于随时通过 switcher.activeItem 获取当前活动的元素。
+    defaultActiveIndex: 0,
     onActive: empty,
     onInactive: empty
   };

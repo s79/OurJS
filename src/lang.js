@@ -306,10 +306,10 @@
    *   String.prototype.endsWith
    *   String.prototype.contains
    *   String.prototype.toArray
-   *   Number.prototype.isFinite
-   *   Number.prototype.isNaN
-   *   Number.prototype.isInteger
-   *   Number.prototype.toInteger
+   *   Number.isFinite
+   *   Number.isNaN
+   *   Number.isInteger
+   *   Number.toInteger
    *
    * 参考：
    *   http://wiki.ecmascript.org/doku.php?id=harmony:harmony
@@ -409,9 +409,9 @@
    * @param {*} value 要检查的值。
    * @returns {boolean} 检查结果。
    * @example
-   *   isFinite('1');
+   *   isFinite(null);
    *   // true
-   *   Number.isFinite('1');
+   *   Number.isFinite(null);
    *   // false
    * @see http://wiki.ecmascript.org/doku.php?id=harmony:number.isfinite
    */
@@ -427,9 +427,9 @@
    * @param {*} value 要检查的值。
    * @returns {boolean} 检查结果。
    * @example
-   *   isNaN('string');
+   *   isNaN(undefined);
    *   // true
-   *   Number.isNaN('string');
+   *   Number.isNaN(undefined);
    *   // false
    * @see http://wiki.ecmascript.org/doku.php?id=harmony:number.isnan
    */
@@ -461,7 +461,7 @@
    * @param {*} value 要转化的值。
    * @returns {number} 转化结果。
    * @example
-   *   Number.toInteger('10.5');
+   *   Number.toInteger([10.75]);
    *   // 10
    *   Number.toInteger('10px');
    *   // 0
@@ -506,11 +506,9 @@
         break;
       case 'object.Object':
         cloning = {};
-        for (var key in source) {
-          if (source.hasOwnProperty(key)) {
-            cloning[key] = recursive ? Object.clone(source[key], true) : source[key];
-          }
-        }
+        Object.forEach(source, function(value, key) {
+          cloning[key] = recursive ? Object.clone(value, true) : value;
+        });
         break;
       default:
         cloning = source;
@@ -673,7 +671,7 @@
    * @function
    * @returns {string} 清理后的字符串。
    * @example
-   *   ' a b  c   d    e     f      g'.clean();
+   *   ' a b  c   d    e     f      g       '.clean();
    *   // 'a b c d e f g'
    */
   String.prototype.clean = function() {

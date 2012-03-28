@@ -6,8 +6,11 @@
 (function() {
 //==================================================[TabPanel]
   /*
-   * 根据已有的一系列 DOM 元素创建多页标签面板。
+   * 创建多页标签面板。
    */
+
+  // 避免 $ 被覆盖。
+  var $ = document.$;
 
   // 空函数。
   var empty = function() {
@@ -15,73 +18,78 @@
 
 //--------------------------------------------------[TabPanel Constructor]
   /**
-   * 创建多页标签面板。
+   * 根据已有的一系列 DOM 元素创建多页标签面板。
    * @name TabPanel
    * @memberOf components
    * @constructor
-   * @param {Element} $container 标签的父元素，用来绑定代理事件监听器。
-   * @param {Array} tabs 包含所有标签的数组。
-   * @param {Array} panels 包含所有面板的数组，确保和 tabs 的数量一致。
+   * @param {Array} tabs 包含所有“标签”的数组。
+   * @param {Array} panels 包含所有“面板”的数组，应确保 panels 的数量和 tabs 的数量一致。
    * @param {Object} [options] 可选参数。
-   * @param {number} options.activeIndex 默认激活第几个选项卡，第一个为 0，默认为第一个。
-   * @param {string} options.activeClassName 激活的选项卡标签和面板将要添加的类名，默认为 'active'。
-   * @param {number} options.hoverDelay 以毫秒为单位的鼠标悬停激活延时，如果为 0，则由鼠标点击事件激活选项卡。
-   * @param {Function} options.onActive 当一个选项卡被标记为“活动”时触发，传入该选项卡的索引。
-   * @param {Function} options.onInactive 当一个选项卡被标记为“活动”时触发，传入之前的活动选项卡的索引。
-   * @require
-   *   components.Switcher
+   * @param {number} options.defaultActiveIndex 从 tabs 和 panels 中计算的，默认激活的某组“标签面板”的索引值。第一组为 0，默认为第一组。如果指定的索引值不在有效范围内，则无默认激活的“标签面板”。
+   * @param {string} options.activeClassName 为激活的“标签”和“面板”添加的类名，默认为 'active'。同一时刻最多只有一组“标签面板”被激活。
+   * @param {Element} options.tabsContainer 用来绑定各“标签”的代理事件监听器的元素。当所有的“标签”有一个共同的父元素时，可以设置为 undefined，此时使用第一个“标签”的父元素。
+   * @param {number} options.hoverDelay 以毫秒为单位的鼠标悬停激活延时，如果为 0，则由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
+   * @param {Function} options.onActive 当一组“标签面板”被激活时触发，传入当前被激活的“标签面板”的“标签”元素和该组“标签面板”的索引。
+   * @param {Function} options.onInactive 当一组“标签面板”被激活时触发，传入上一个被激活的“标签面板”的“标签”元素和该组“标签面板”的索引，在 TabPanel 初始化时没有上一个被激活的“标签面板”，因此不会触发。
+   * @requires components.Switcher
    * @description
    *   注意：
-   *   tabs 和 panels 必须有相同数目的元素。
-   *   选定的 tab 和 panel 元素将被添加类名 options.activeClassName。
+   *   “标签”和“面板”必须是按顺序一一对应，保存在参数 tabs 和 panels 中。
+   *   一个“标签”和一个“面板”组成一组“标签面板”。
+   *   在创建一个实例后，可以动态修改 tabPanel.tabs 和 tabPanel.panels，动态添加/删除“标签面板”组，但要确保新增加的“标签”与原有“标签”的在 DOM 树的位置层次是相同的。
    */
-  var TabPanel = function($container, tabs, panels, options) {
+  var TabPanel = function(tabs, panels, options) {
     var tabPanel = this;
-    Object.append(tabPanel, Object.clone(TabPanel.options, true), options);
+    options = Object.append(Object.clone(TabPanel.options, true), options);
     // 保存属性。
     tabPanel.tabs = tabs;
     tabPanel.panels = panels;
+    tabPanel.onActive = options.onActive;
+    tabPanel.onInactive = options.onInactive;
     // 使用 Switcher 实现选项卡切换。
-    var className = tabPanel.activeClassName;
+    var className = options.activeClassName;
     var switcher = new components.Switcher(tabs, {
-      activeItem: tabPanel.activeIndex,
-      onActive: function(item, index) {
-        item.addClass(className);
-        panels[index].addClass(className);
-        tabPanel.onActive(tabPanel.activeIndex = index);
+      defaultActiveIndex: options.defaultActiveIndex,
+      onActive: function(index) {
+        tabPanel.tabs[index].addClass(className);
+        tabPanel.panels[index].addClass(className);
+        tabPanel.onActive(index);
       },
-      onInactive: function(item, index) {
-        item.removeClass(className);
-        panels[index].removeClass(className);
+      onInactive: function(index) {
+        tabPanel.tabs[index].removeClass(className);
+        tabPanel.panels[index].removeClass(className);
         tabPanel.onInactive(index);
       }
     });
-    // 包装 switcher 对象的 active 方法。
-    tabPanel.active = function(item) {
-      switcher.active(item);
+    tabPanel.activeIndex = switcher.activeIndex;
+    // 提供 active 方法。
+    tabPanel.active = function(index) {
+      switcher.active(index);
+      this.activeIndex = switcher.activeIndex;
       return this;
     };
     // 绑定激活标签页的事件。
-    if (tabPanel.hoverDelay) {
+    var $container = options.tabsContainer || tabs[0].getParent();
+    if (options.hoverDelay) {
       var timer;
-      $container.on('mouseenter', function(e) {
+      $container.on('mouseenter.tabPanel', function(e) {
         var $item = this;
         timer = setTimeout(function() {
-          switcher.active($item);
-        }, tabPanel.hoverDelay);
+          switcher.active(tabPanel.tabs.indexOf($item));
+        }, options.hoverDelay);
       }, function() {
-        return tabs.contains(this);
+        return tabPanel.tabs.contains(this);
       })
-          .on('mouseleave', function(e) {
+          .on('mouseleave.tabPanel', function(e) {
             clearTimeout(timer);
           }, function() {
-            return tabs.contains(this);
+            return tabPanel.tabs.contains(this);
           });
     } else {
-      $container.on('click', function(e) {
-        switcher.active(this);
+      $container.on('click.tabPanel', function(e) {
+        switcher.active(tabPanel.tabs.indexOf(this));
       }, function() {
-        return tabs.contains(this);
+        return tabPanel.tabs.contains(this);
       });
     }
   };
@@ -90,18 +98,19 @@
 
 //--------------------------------------------------[TabPanel.prototype.active]
   /**
-   * 将一个标签页标记为“活动”。
+   * 激活一组“标签面板”。
    * @name TabPanel.prototype.active
    * @memberOf components
    * @function
-   * @param {Element|number} tab 要标记为“活动”的标签页 tab 元素，或者该标签页的索引。
+   * @param {number} index 要激活的“标签面板”的索引。
+   *   如果指定的索引值不在有效范围内，则取消激活的“标签面板”。
    * @returns {Object} TabPanel 对象。
    */
-  /* 本方法为 switcher.active 方法的包装。 */
+  /* 本方法将在创建实例后提供。 */
 
 //--------------------------------------------------[TabPanel.prototype.activeIndex]
   /**
-   * 获取当前标记为“活动”的标签页的索引。
+   * 获取当前被激活的“标签面板”的索引，如果为 NaN，则当前无激活的“标签面板”。
    * @name TabPanel.prototype.activeIndex
    * @memberOf components
    * @type number
@@ -113,10 +122,21 @@
    * 默认选项。
    * @name TabPanel.options
    * @memberOf components
+   * @description
+   *   可选参数对象，包含的属性及其默认值为：
+   *   <table>
+   *     <tr><th>defaultActiveIndex</th><td>0</td></tr>
+   *     <tr><th>activeClassName</th><td>'active'</td></tr>
+   *     <tr><th>tabsContainer</th><td>undefined</td></tr>
+   *     <tr><th>hoverDelay</th><td>0</td></tr>
+   *     <tr><th>onActive</th><td>empty</td></tr>
+   *     <tr><th>onInactive</th><td>empty</td></tr>
+   *   </table>
    */
   TabPanel.options = {
-    activeIndex: 0,
+    defaultActiveIndex: 0,
     activeClassName: 'active',
+    tabsContainer: undefined,
     hoverDelay: 0,
     onActive: empty,
     onInactive: empty

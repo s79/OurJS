@@ -56,6 +56,8 @@ mask.js:52show
 Mask
 components.mask.html:591331403483764 "HIDE"
 
+>TODO: components 的 options 参数，应区分为“可改写”和“不可改写”两种，“不可改写”的不要附加在实例上。
+
 >TODO: Object.update 是否仍有存在必要？
 
 >TODO: 事件部分 + input。

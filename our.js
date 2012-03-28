@@ -1,8 +1,3 @@
-/*!
- * OurJS v20120313
- * Released under the terms of MIT license
- * Copyright (c) 2011 - 2012
- */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
  * @version 20111101
@@ -311,10 +306,10 @@
    *   String.prototype.endsWith
    *   String.prototype.contains
    *   String.prototype.toArray
-   *   Number.prototype.isFinite
-   *   Number.prototype.isNaN
-   *   Number.prototype.isInteger
-   *   Number.prototype.toInteger
+   *   Number.isFinite
+   *   Number.isNaN
+   *   Number.isInteger
+   *   Number.toInteger
    *
    * 参考：
    *   http://wiki.ecmascript.org/doku.php?id=harmony:harmony
@@ -414,9 +409,9 @@
    * @param {*} value 要检查的值。
    * @returns {boolean} 检查结果。
    * @example
-   *   isFinite('1');
+   *   isFinite(null);
    *   // true
-   *   Number.isFinite('1');
+   *   Number.isFinite(null);
    *   // false
    * @see http://wiki.ecmascript.org/doku.php?id=harmony:number.isfinite
    */
@@ -432,9 +427,9 @@
    * @param {*} value 要检查的值。
    * @returns {boolean} 检查结果。
    * @example
-   *   isNaN('string');
+   *   isNaN(undefined);
    *   // true
-   *   Number.isNaN('string');
+   *   Number.isNaN(undefined);
    *   // false
    * @see http://wiki.ecmascript.org/doku.php?id=harmony:number.isnan
    */
@@ -466,7 +461,7 @@
    * @param {*} value 要转化的值。
    * @returns {number} 转化结果。
    * @example
-   *   Number.toInteger('10.5');
+   *   Number.toInteger([10.75]);
    *   // 10
    *   Number.toInteger('10px');
    *   // 0
@@ -511,11 +506,9 @@
         break;
       case 'object.Object':
         cloning = {};
-        for (var key in source) {
-          if (source.hasOwnProperty(key)) {
-            cloning[key] = recursive ? Object.clone(source[key], true) : source[key];
-          }
-        }
+        Object.forEach(source, function(value, key) {
+          cloning[key] = recursive ? Object.clone(value, true) : value;
+        });
         break;
       default:
         cloning = source;
@@ -532,7 +525,7 @@
    * @param {...Object} extended 扩展对象，使用这些对象进行追加，可以为任意个。
    * @returns {Object} 追加后的对象。
    * @description
-   *   <br>extended2 和 extended1 中的属性会覆盖 original 中的同名属性。
+   *   extended2 和 extended1 中的属性会覆盖 original 中的同名属性。
    *   <table>
    *     <tr><th>original</th><th>extended1</th><th>extended2</th><th>result</th></tr>
    *     <tr><td>a: 'a.0'</td><td></td><td></td><td>a: 'a.0'</td></tr>
@@ -571,7 +564,7 @@
    * @param {...Object} extended 扩展对象，使用这些对象进行更新，可以为任意个。
    * @returns {Object} 更新后的对象。
    * @description
-   *   <br>extended2 和 extended1 中的属性会覆盖 original 中已存在的同名属性。
+   *   extended2 和 extended1 中的属性会覆盖 original 中已存在的同名属性。
    *   <table>
    *     <tr><th>original</th><th>extended1</th><th>extended2</th><th>result</th></tr>
    *     <tr><td>a: 'a.0'</td><td></td><td></td><td>a: 'a.0'</td></tr>
@@ -678,7 +671,7 @@
    * @function
    * @returns {string} 清理后的字符串。
    * @example
-   *   ' a b  c   d    e     f      g'.clean();
+   *   ' a b  c   d    e     f      g       '.clean();
    *   // 'a b c d e f g'
    */
   String.prototype.clean = function() {
@@ -785,8 +778,8 @@
    * @memberOf navigator
    * @type Object
    * @description
-   *   <br>注意：
-   *   <br>navigator.userAgentInfo 下的三个属性是根据 navigator.userAgent 得到的，仅供参考使用，不建议用在代码逻辑判断中。
+   *   注意：
+   *   navigator.userAgentInfo 下的三个属性是根据 navigator.userAgent 得到的，仅供参考使用，不建议用在代码逻辑判断中。
    */
 
   /**
@@ -994,8 +987,8 @@
    * @memberOf location
    * @type Object
    * @description
-   *   <br>注意：
-   *   <br>当地址栏的字符有非 ASCII 字符，或有非法的查询字符串时，会有兼容性问题。
+   *   注意：
+   *   当地址栏的字符有非 ASCII 字符，或有非法的查询字符串时，会有兼容性问题。
    * @example
    *   // 设页面地址为 test.html?a=ok&b=100&b=128
    *   location.parameters
@@ -1053,30 +1046,30 @@
    * @function
    * @param {*} value 要判断的值。
    * @returns {string} 值的类型，可能为以下几种情况之一：
-   *   <br>undefined
-   *   <br>boolean
-   *   <br>number
-   *   <br>string
-   *   <br>function
-   *   <br>null
-   *   <br>object.Boolean
-   *   <br>object.Number
-   *   <br>object.String
-   *   <br>object.Array
-   *   <br>object.Date
-   *   <br>object.RegExp
-   *   <br>object.Error
-   *   <br>object.Math
-   *   <br>object.JSON
-   *   <br>object.Arguments
-   *   <br>object.Global
-   *   <br>object.Node
-   *   <br>object.Collection
-   *   <br>object.Object
+   *   undefined
+   *   boolean
+   *   number
+   *   string
+   *   function
+   *   null
+   *   object.Boolean
+   *   object.Number
+   *   object.String
+   *   object.Array
+   *   object.Date
+   *   object.RegExp
+   *   object.Error
+   *   object.Math
+   *   object.JSON
+   *   object.Arguments
+   *   object.Global
+   *   object.Node
+   *   object.Collection
+   *   object.Object
    * @description
-   *   <br>注意：
-   *   <br>一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
-   *   <br>IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
+   *   注意：
+   *   一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
+   *   IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
 
    * @example
    *   typeOf(document);
@@ -1347,8 +1340,8 @@
    * @memberOf Element
    * @type Object
    * @description
-   *   <br>注意：
-   *   <br>受 IE6 IE7 实现方式的限制，扩展新特性应在获取元素之前进行，否则已获取的元素可能无法访问新扩展的特性。
+   *   注意：
+   *   受 IE6 IE7 实现方式的限制，扩展新特性应在获取元素之前进行，否则已获取的元素可能无法访问新扩展的特性。
    * @example
    *   Element.prototype.getNodeName = function() {
    *     return this.nodeName;
@@ -1376,8 +1369,8 @@
    * @param {Element} element 要扩展的元素，只能传入 Element、document（事件对象的 target 属性）或 null。
    * @returns {Element} 扩展后的元素。
    * @description
-   *   <br>注意：
-   *   <br>不能获取并扩展其他页面的 DOM 元素！
+   *   注意：
+   *   不能获取并扩展其他页面的 DOM 元素！
    */
   var $ = elementPrototype ? function(element) {
     if (element && !element.uid) {
@@ -1743,9 +1736,9 @@
    * @param {string} propertyName 特性名，支持 camel case 和 hyphenate 格式。
    * @returns {string} 对应的特性值，如果获取的是长度值，其单位未必是 px，可能是其定义时的单位。
    * @description
-   *   <br>注意：
-   *   <br>不要尝试获取复合属性的值，它们存在兼容性问题。
-   *   <br>不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
+   *   注意：
+   *   不要尝试获取复合属性的值，它们存在兼容性问题。
+   *   不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
    */
   Element.prototype.getStyle = function(propertyName) {
     return getComputedStyle(this).getPropertyValue(camelCaseToHyphenate(propertyName));
@@ -1777,9 +1770,9 @@
    * @param {number|string} propertyValue 特性值，若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
    * @returns {Element} 调用本方法的元素。
    * @description
-   *   <br>注意：
-   *   <br>如果设置的是长度值，若长度单位不是 'px' 则不能省略长度单位。
-   *   <br>可以设置复合属性的值。
+   *   注意：
+   *   如果设置的是长度值，若长度单位不是 'px' 则不能省略长度单位。
+   *   可以设置复合属性的值。
    */
   Element.prototype.setStyle = function(propertyName, propertyValue) {
     propertyName = hyphenateToCamelCase(propertyName);
@@ -1843,9 +1836,9 @@
    * @function
    * @returns {Object} 包含位置（left、right、top、bottom）及尺寸（width、height）的对象，所有属性值均为 number 类型，单位为像素。
    * @description
-   *   <br>注意：
-   *   <br>不考虑非标准模式。
-   *   <br>标准模式下 IE7(IE9 模拟) 的 body 的计算样式 direction: rtl 时，如果 html 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
+   *   注意：
+   *   不考虑非标准模式。
+   *   标准模式下 IE7(IE9 模拟) 的 body 的计算样式 direction: rtl 时，如果 html 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
    */
   Element.prototype.getClientRect = navigator.isIElt8 ? function() {
     var clientRect = this.getBoundingClientRect();
@@ -1900,8 +1893,8 @@
    * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
    * @returns {string} 数据的值。
    * @description
-   *   <br>注意：
-   *   <br>Chrome 在 dataset 中不存在名称为 name 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
+   *   注意：
+   *   Chrome 在 dataset 中不存在名称为 name 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
    * @see http://www.w3.org/TR/2011/WD-html5-20110525/elements.html#embedding-custom-non-visible-data-with-the-data-attributes
    */
   Element.prototype.getData = 'dataset' in html ? function(name) {
@@ -1937,8 +1930,8 @@
    * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
    * @returns {Element} 调用本方法的元素。
    * @description
-   *   <br>注意：
-   *   <br>IE6 IE7 在 removeAttribute 时，name 参数是大小写敏感的。
+   *   注意：
+   *   IE6 IE7 在 removeAttribute 时，name 参数是大小写敏感的。
    */
   Element.prototype.removeData = function(name) {
     name = parseName(name);
@@ -1966,7 +1959,7 @@
    * @param {Element} element 目标元素。
    * @returns {number} 比较结果。
    * @description
-   *   <br>调用本方法后返回的 number 值的含义：
+   *   调用本方法后返回的 number 值的含义：
    *   <table>
    *     <tr><th>Bits</th><th>Number</th><th>Meaning</th></tr>
    *     <tr><td>000000</td><td>0</td><td>节点 A 与节点 B 相等</td></tr>
@@ -1999,7 +1992,7 @@
    * @param {Element} element 目标元素。
    * @returns {boolean} 判断结果。
    * @description
-   *   <br>注意，如果本元素和目标元素一致，本方法也将返回 true。
+   *   注意，如果本元素和目标元素一致，本方法也将返回 true。
    */
   if (!('contains' in html)) {
     Element.prototype.contains = function(element) {
@@ -2315,8 +2308,7 @@
    *   http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
    */
 
-  // TODO: 细化分组。
-  var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 9, 'mouseenter': 9, 'mouseleave': 9, 'mousedragstart': 17, 'mousedrag': 17, 'mousedragend': 17, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 8, 'focusout': 8, 'select': 0, 'input': 12, 'change': 12, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4};
+  var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 4, 'change': 4, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
   var returnTrue = function() {
     return true;
   };
@@ -2324,7 +2316,168 @@
     return false;
   };
 
-  // 事件包装对象。
+  /**
+   * 事件包装对象
+   * @name Event
+   * @class
+   */
+
+  /**
+   * 原始事件对象。
+   * @name Event.prototype.originalEvent
+   * @type Object
+   */
+
+  /**
+   * 事件类型。
+   * @name Event.prototype.type
+   * @type string
+   */
+
+  /**
+   * 是否为鼠标事件。
+   * @name Event.prototype.isMouseEvent
+   * @type boolean
+   */
+
+  /**
+   * 是否为键盘事件。
+   * @name Event.prototype.isKeyboardEvent
+   * @type boolean
+   */
+
+  /**
+   * 是否可以冒泡，不冒泡的事件不能使用事件代理。
+   * @name Event.prototype.bubbles
+   * @type boolean
+   */
+
+  /**
+   * 触发事件的对象。
+   * @name Event.prototype.target
+   * @type Element
+   */
+
+  /**
+   * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
+   * @name Event.prototype.relatedTarget
+   * @type Element
+   */
+
+  /**
+   * 事件发生的时间。
+   * @name Event.prototype.timeStamp
+   * @type number
+   */
+
+  /**
+   * 事件发生时，ctrl 键是否被按下。
+   * @name Event.prototype.ctrlKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，alt 键是否被按下。
+   * @name Event.prototype.altKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，shift 键是否被按下。
+   * @name Event.prototype.shiftKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，meta 键是否被按下。
+   * @name Event.prototype.metaKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时鼠标在视口中的 X 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.clientX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在视口中的 Y 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.clientY
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在屏幕上的 X 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.screenX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在屏幕上的 Y 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.screenY
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在页面中的 X 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.pageX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在页面中的 Y 坐标，仅在鼠标事件对象上有效。
+   * @name Event.prototype.pageY
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在横向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
+   * @name Event.prototype.offsetX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在纵向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
+   * @name Event.prototype.offsetY
+   * @type number
+   */
+
+  /**
+   * 事件发生时，鼠标左键是否被按下，仅在鼠标事件对象上有效。
+   * @name Event.prototype.leftButton
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，鼠标中键是否被按下，仅在鼠标事件对象上有效。
+   * @name Event.prototype.middleButton
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，鼠标右键是否被按下，仅在鼠标事件对象上有效。
+   * @name Event.prototype.rightButton
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时鼠标滚轮是否正在向上滚动，仅在 mousewheel 类型的事件对象上有效。
+   * @name Event.prototype.wheelUp
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时鼠标滚轮是否正在向下滚动，仅在 mousewheel 类型的事件对象上有效。
+   * @name Event.prototype.wheelDown
+   * @type boolean
+   */
+
+  /**
+   * 当一个设备触发事件时的相关代码。在键盘事件中为按下的键的代码。
+   * @name Event.prototype.which
+   * @type number
+   */
+
   function Event(e, type) {
     // 保存原始 event 对象。
     this.originalEvent = e;
@@ -2388,22 +2541,52 @@
   }
 
   Object.append(Event.prototype, {
+    /**
+     * 阻止事件的传递，被阻止传递的事件将不会向其他元素传递。
+     * @name Event.prototype.stopPropagation
+     * @function
+     */
     stopPropagation: function() {
       var e = this.originalEvent;
       e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
       this.isPropagationStopped = returnTrue;
     },
+    /**
+     * 事件的传递是否已被阻止。
+     * @name Event.prototype.isPropagationStopped
+     * @type boolean
+     */
     isPropagationStopped: returnFalse,
+    /**
+     * 阻止事件的默认行为。
+     * @name Event.prototype.preventDefault
+     * @function
+     */
     preventDefault: function() {
       var e = this.originalEvent;
       e.preventDefault ? e.preventDefault() : e.returnValue = false;
       this.isDefaultPrevented = returnTrue;
     },
+    /**
+     * 事件的默认行为是否已被阻止。
+     * @name Event.prototype.isDefaultPrevented
+     * @type boolean
+     */
     isDefaultPrevented: returnFalse,
+    /**
+     * 立即阻止事件的传递，被立即阻止传递的事件不仅不会向其他元素传递，也不会在当前元素上触发其他事件监听器。
+     * @name Event.prototype.stopImmediatePropagation
+     * @function
+     */
     stopImmediatePropagation: function() {
       this.stopPropagation();
       this.isImmediatePropagationStopped = returnTrue;
     },
+    /**
+     * 事件的传递是否已被立即阻止。
+     * @name Event.prototype.isImmediatePropagationStopped
+     * @type boolean
+     */
     isImmediatePropagationStopped: returnFalse
   });
 
@@ -2866,17 +3049,18 @@
    * @param {string|Element} e 不同类型的元素表示。
    * @returns {Element} 扩展后的元素。
    * @description
-   *   <br>当参数为一个元素的序列化之后的字符串（它可以包含子元素）时，会返回扩展后的、根据这个字符串反序列化的元素。
-   *   <p>这里与其他实现相比有以下几点差异：</p>
+   *   当参数为一个元素的序列化之后的字符串（它可以包含子元素）时，会返回扩展后的、根据这个字符串反序列化的元素。
+   *   这里与其他实现相比有以下几点差异：
    *   <ul>
    *     <li>忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。</li>
    *     <li>修改“IE 添加多余的 tbody 元素”的问题的解决方案，在 wrappers 里预置一个 tbody 即可。</li>
    *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 appendChild 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
    *   </ul>
-   *   <p>  在创建元素时，如果包含 table，建议写上 tbody 以确保结构严谨。举例如下：<br>  $('&lt;div&gt;&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;');</p>
-   *   <br>当参数为一个元素的 id 时，会返回扩展后的、与指定 id 相匹配的元素。
-   *   <br>当参数本身即为一个元素时，会返回扩展后的该元素。
-   *   <br>当参数为其他情况时（包括 document 和 window）均返回 null。
+   *   在创建元素时，如果包含 table，建议写上 tbody 以确保结构严谨。举例如下：
+   *   $('&lt;div&gt;&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;');
+   *   当参数为一个元素的 id 时，会返回扩展后的、与指定 id 相匹配的元素。
+   *   当参数本身即为一个元素时，会返回扩展后的该元素。
+   *   当参数为其他情况时（包括 document 和 window）均返回 null。
    * @see http://jquery.com/
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
@@ -2984,9 +3168,9 @@
    * @param {Function} [filter] 为符合条件的子元素代理事件。
    * @returns {Object} document 对象。
    * @description
-   *   <br>特殊事件：domready
-   *   <br>在文档可用时触发，只能添加监听器，不能删除监听器。
-   *   <br>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。
+   *   特殊事件：domready
+   *   在文档可用时触发，只能添加监听器，不能删除监听器。
+   *   如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。
    */
   document.on = function(name, listener, filter) {
     var filteredName = name.split(' ')
@@ -3055,8 +3239,8 @@
    * @function
    * @returns {Object} 尺寸，包含 width 和 height 两个数字类型的属性，单位为像素。
    * @description
-   *   <br>IE9 Firefox Chrome Safari Opera 有 window.innerWidth 和 window.innerHeight 属性，但这个值是包含了滚动条宽度的值。
-   *   <br>为保持一致性，不使用这两个属性来获取文档可视区域尺寸。
+   *   IE9 Firefox Chrome Safari Opera 有 window.innerWidth 和 window.innerHeight 属性，但这个值是包含了滚动条宽度的值。
+   *   为保持一致性，不使用这两个属性来获取文档可视区域尺寸。
    * @see http://www.w3.org/TR/cssom-view/#dom-window-innerwidth
    * @see http://www.w3.org/TR/cssom-view/#dom-window-innerheight
    */
@@ -3089,8 +3273,8 @@
    * @function
    * @returns {Object} 坐标，包含 x 和 y 两个数字类型的属性，单位为像素。
    * @description
-   *   <br>一些浏览器支持 window.scrollX/window.scrollY 或 window.pageXOffset/window.pageYOffset 直接获取视口的滚动偏移量。
-   *   <br>这里使用通用性更强的方法实现。
+   *   一些浏览器支持 window.scrollX/window.scrollY 或 window.pageXOffset/window.pageYOffset 直接获取视口的滚动偏移量。
+   *   这里使用通用性更强的方法实现。
    * @see http://w3help.org/zh-cn/causes/BX9008
    */
   window.getPageOffset = function() {
@@ -3119,8 +3303,8 @@
    * @param {Function} [filter] 为符合条件的子元素代理事件。
    * @returns {Object} window 对象。
    * @description
-   *   <br>特殊事件：beforeunload
-   *   <br>该事件只能存在一个监听器，如果添加了多个，则只有最后添加的生效。可以删除当前生效的监听器。
+   *   特殊事件：beforeunload
+   *   该事件只能存在一个监听器，如果添加了多个，则只有最后添加的生效。可以删除当前生效的监听器。
    */
   window.on = function(name, listener, filter) {
     var filteredName = name.split(' ')
@@ -3563,7 +3747,7 @@
         var currentValue;
         switch (acceptableProperties[name]) {
           case TYPE_NUMBER:
-            currentValue = beforeValue + (afterValue - beforeValue) * y;
+            currentValue = (beforeValue + (afterValue - beforeValue) * y).toFixed(2);
             break;
           case TYPE_LENGTH:
             currentValue = Math.floor(beforeValue + (afterValue - beforeValue) * y) + 'px';  // TODO: 支持多种长度单位
@@ -3597,13 +3781,13 @@
    * @param {Object} options.onPlay 每播放完一帧动画后的回调函数。
    * @returns {Element} 调用本方法的元素。
    * @description
-   *   <br>队列是指将需要较长时间完成的多个指令排序，以先进先出的形式逐个执行这些指令。
-   *   <br>在元素上调用本方法添加动画时：
-   *   <br>  - 若该元素并未播放动画，新添加的动画会直接开始播放。
-   *   <br>  - 若该元素正在播放动画，新添加的动画将被添加到队列末端，在前一个动画播放完毕后自动播放。
-   *   <br>给不同元素添加的动画永远有不同的队列，给相同元素添加的动画默认有相同的队列，但可以通过 options.queueName 来指定新队列的名称。
-   *   <br>若需要连接不同元素的动画队列，请配合动画参数 options.onFinish 来实现。
-   *   <br>允许使用的“可过渡样式”仅限于值为长度单位或颜色单位的样式。
+   *   队列是指将需要较长时间完成的多个指令排序，以先进先出的形式逐个执行这些指令。
+   *   在元素上调用本方法添加动画时：
+   *     - 若该元素并未播放动画，新添加的动画会直接开始播放。
+   *     - 若该元素正在播放动画，新添加的动画将被添加到队列末端，在前一个动画播放完毕后自动播放。
+   *   给不同元素添加的动画永远有不同的队列，给相同元素添加的动画默认有相同的队列，但可以通过 options.queueName 来指定新队列的名称。
+   *   若需要连接不同元素的动画队列，请配合动画参数 options.onFinish 来实现。
+   *   允许使用的“可过渡样式”仅限于值为长度单位或颜色单位的样式。
    */
   Element.prototype.animate = function(styles, options) {
     options = options || {};
@@ -3651,9 +3835,9 @@
    * @param {string} [queueName] 队列名。
    * @returns {Array} 指定的动画队列。
    * @description
-   *   <br>可以通过此方法判断指定的动画队列是否正在播放。返回数组即正在播放，数组的 currentAnimation 属性为播放中的动画，数组中的内容为排队的动画。
-   *   <br>可以通过操作这个队列改变动画的播放行为。
-   *   <br>队列格式：[Element element, Object styles, Object options]
+   *   可以通过此方法判断指定的动画队列是否正在播放。返回数组即正在播放，数组的 currentAnimation 属性为播放中的动画，数组中的内容为排队的动画。
+   *   可以通过操作这个队列改变动画的播放行为。
+   *   队列格式：[Element element, Object styles, Object options]
    */
   Element.prototype.getAnimationQueue = function(queueName) {
     var queueId = this.uid + (queueName ? ':' + queueName : '');
@@ -3862,7 +4046,6 @@
    * @param {Function} options.onBeforeRequest 发送请求前触发，传入请求数据，需要返回处理后的字符串数据，当返回 false 时则取消本次请求。
    * @param {Function} options.onBeforeResponse 收到响应前触发，传入响应数据，需要返回处理后的响应数据。
    * @param {Function} options.onResponse 收到响应时触发，参数为包含响应信息的一个对象。
-   * @returns {Object} request 对象。
    */
   function Request(url, options) {
     this.xhr = getXHRObject();
@@ -4128,9 +4311,9 @@
    * @param {string} key 要保存的数据名，不能为空字符串。
    * @param {string} value 要保存的数据值。
    * @description
-   *   <br>注意：
-   *   <br>与源生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
-   *   <br>可以使用中文 key。
+   *   注意：
+   *   与源生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
+   *   可以使用中文 key。
    */
   localStorage.setItem = function(key, value) {
     userDataElement.load(USER_DATA_FILE_NAME);
@@ -5861,7 +6044,7 @@
    * @param {string} selector 选择符。
    * @returns {Array} 包含查找到的元素的数组。
    * @description
-   *   <br>本功能使用 Sizzle 实现，关于可以使用的 selector 信息，请参考 Sizzle 的相关说明。
+   *   本功能使用 Sizzle 实现，关于可以使用的 selector 信息，请参考 Sizzle 的相关说明。
    * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
    */
   if ('Element' in window) {
@@ -6459,6 +6642,10 @@
    * 为使用了 alpha 透明的 PNG 图片的元素（包括背景或 img 元素的 src）添加一个 名为 'alpha' 的 class，即可在 IE6 中修复 PNG 的 alpha 透明问题。
    * 修复了在 iframe 中使用导致内容无法正常显示的问题。
    *
+   * 局限性：
+   *   不能用于修复会改变透明度的元素上，如可能调用 fadeIn/fadeOut 方法的元素。
+   *   要修复的元素必须有明确定义的、绝对长度的尺寸，否则可能会出现图片覆盖不全的问题。
+   *
    * 提供对象：
    *   DD_belatedPNG
    */
@@ -6817,8 +7004,6 @@
   DD_belatedPNG.createVmlStyleSheet();
 
   window.DD_belatedPNG = DD_belatedPNG;
-//  window.attachEvent('onload', function() {
-    DD_belatedPNG.fix('.alpha');
-//  });
+  DD_belatedPNG.fix('.alpha');
 
 })();

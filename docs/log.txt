@@ -1,4 +1,11 @@
-﻿>2012-03-25
+﻿>2012-03-28
+components.TabPanel 修改，将“容器”的必选参数改为可选参数。在通过清晰的约定可以减少必选参数时，组件更容易使用。
+examples +
+
+>2012-03-26
+components.TabPanel
+
+>2012-03-25
 getAnimationQueue
 
 >2012-03-23

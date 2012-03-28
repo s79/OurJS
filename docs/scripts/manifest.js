@@ -54,10 +54,10 @@ var manifest = {
     '<#>ES5',
     'Number.prototype.toJSON',
     '<#>ES6',
-    'Number.prototype.isFinite',
-    'Number.prototype.isNaN',
-    'Number.prototype.isInteger',
-    'Number.prototype.toInteger',
+    'Number.isFinite',
+    'Number.isNaN',
+    'Number.isInteger',
+    'Number.toInteger',
     '<#>自定义扩展',
     'Number.prototype.format'
   ],
@@ -246,6 +246,7 @@ var manifest = {
   'components.Switcher': [
     'components.Switcher',
     'components.Switcher.options',
+    'components.Switcher.prototype.activeIndex',
     'components.Switcher.prototype.active'
   ],
   'components.TabPanel': [

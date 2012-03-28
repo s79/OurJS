@@ -387,7 +387,7 @@
         var currentValue;
         switch (acceptableProperties[name]) {
           case TYPE_NUMBER:
-            currentValue = beforeValue + (afterValue - beforeValue) * y;
+            currentValue = (beforeValue + (afterValue - beforeValue) * y).toFixed(2);
             break;
           case TYPE_LENGTH:
             currentValue = Math.floor(beforeValue + (afterValue - beforeValue) * y) + 'px';  // TODO: 支持多种长度单位
