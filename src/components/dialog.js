@@ -153,9 +153,7 @@
         // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
         if ($container === document.body) {
           var resizeMaskElementForIE6 = function() {
-            var clientSize = window.getClientSize();
-            // 刷新 display 以避免 IE6 的 $mask 元素内的两个 height 为 100% 的子元素在纵向改变窗口大小时高度不随 $mask 的变化而更新。
-            $mask.setStyles({width: clientSize.width, height: clientSize.height, display: 'none'}).setStyle('display', 'block');
+            mask.resize();
           };
           var onShow = mask.onShow;
           mask.onShow = function() {
@@ -230,7 +228,8 @@
         // 遮掩 body 的情况。
         if (navigator.isIE6) {
           var clientSize = window.getClientSize();
-          $mask.setStyles({left: 0, top: 0, width: clientSize.width, height: clientSize.height});
+          // 刷新 display 以避免 IE6 的 $mask 元素内的两个 height 为 100% 的子元素在纵向改变窗口大小时高度不随 $mask 的变化而更新。
+          $mask.setStyles({left: 0, top: 0, width: clientSize.width, height: clientSize.height, display: 'none'}).setStyle('display', 'block');
         } else {
           $mask.setStyles({left: 0, right: 0, top: 0, bottom: 0});
         }

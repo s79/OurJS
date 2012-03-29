@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>components.Calendar</title>
+<link rel="stylesheet" href="../examples/common.css">
+<link rel="stylesheet" href="calendar.css">
+<script src="../import.js"></script>
+<script src="calendar.js"></script>
+<script src="datepicker.js"></script>
+<style>
+.coop_time { position: relative; }
+.date_box { width: 143px; height: 25px; text-indent: 20px; line-height: 25px; cursor: pointer; }
+.date_box_show { background: url('bg_time_list.gif') left top; }
+.date_box_hide { background: url('bg_time_list.gif') left bottom; }
+td { padding: 0; }
+</style>
+<script type="text/javascript">
+function setValue(sDate) {
+  $('#i_date').value = sDate;
+}
+window.onload = function() {
+  createDatePicker('date');
+};
+</script>
+</head>
+<body>
+<h1>components.Dialog</h1>
+<fieldset>
+  <legend>月历</legend>
+  <li id="date" class="date_box date_box_hide">2000-05-20</li>
+  <input id="i_date" type="hidden">
+</fieldset>
+</body>
+</html>

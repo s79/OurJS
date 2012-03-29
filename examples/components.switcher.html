@@ -45,15 +45,15 @@ var o = new components.Switcher(spans, {
   defaultActiveIndex: 2,
   onActive: function(index) {
     spans[index].addClass('active');
-    console.group();
-    console.log('active:', index);
-    setTimeout(function() {
-      console.groupEnd();
-    }, 0);
+//    console.group();
+//    console.log('active:', index);
+//    setTimeout(function() {
+//      console.groupEnd();
+//    }, 0);
   },
   onInactive: function(index) {
     spans[index].removeClass('active');
-    console.log('inactive:', index);
+//    console.log('inactive:', index);
   }
 });
 document.on('click', function(e) {

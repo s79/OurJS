@@ -136,7 +136,7 @@ String.prototype.endsWith = function(subString) {
   return lastIndex >= 0 && lastIndex === this.length - subString.length;
 };
 function parseDescription(string) {
-  return string.split(/\r/).map(
+  return string.split(/[\r\n]+/).map(
       function(line, index, lines) {
         var newLine = line.trim();
         if (index !== lines.length - 1 && !newLine.endsWith('>')) {

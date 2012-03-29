@@ -1468,12 +1468,16 @@
    * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
    */
   if ('Element' in window) {
+    // 避免 $ 被覆盖。
+    var $ = document.$;
+    // 包装为 Element.prototype.find 方法。
     Element.prototype.find = function(selector) {
       return Sizzle(selector, this).map(function(element) {
         return $(element);
       });
     };
   } else {
+    // 仍使用 Sizzle 这个名称。
     window.Sizzle = Sizzle;
   }
 

@@ -80,9 +80,13 @@ document.on('domready', function() {
     };
 
 //--------------------------------------------------[getShortDescription]
-    var RE_BREAK = /.*(?=&#10;)|.*/;
     var getShortDescription = function(symbol) {
-      return symbol ? RE_BREAK.exec(symbol.description) : '-';
+      var shortDescription = '-';
+      if (symbol) {
+        var index = symbol.description.indexOf('<br>');
+        shortDescription = symbol.description.slice(0, index === -1 ? undefined : index);
+      }
+      return shortDescription;
     };
 
 //--------------------------------------------------[getDescription]
@@ -314,13 +318,23 @@ document.on('domready', function() {
 
 //==================================================[本页应用]
   runApplication(function(listen, notify) {
+    // 输出文档。
     notify('reference.build');
 
+    // 点击 API 条目，进入细节页的对应位置。
     $content.on('click', function(e) {
       notify('details.show');
     }, function() {
       return this.nodeName === 'A' || this.getParent().nodeName === 'A';
     });
+
+    // 如果指定了 hash，则直达细节页的对应位置。
+    if (location.hash) {
+      notify('details.show');
+      setTimeout(function() {
+        location.hash = location.hash;
+      }, 0);
+    }
 
     // 是否在索引页显示短描述。
     function showShortDescription(show) {

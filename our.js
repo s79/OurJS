@@ -3926,12 +3926,10 @@
    *
    * 说明：
    *   上述 data/response 均为不可预期的数据，因此可以通过修改选项 onBeforeRequest 和 onBeforeResponse 这两个函数，来对他们进行进一步操作。
-   *   上述 options 接受预设选项外的选项，与上面提到的函数灵活配合运用可实现不同的需求。
-   *   Request.options 是全局选项选项，在它被修改之后创建的 request 对象的默认选项会受影响，而之前的不会。
    *
    * 注意：
    *   IE6 IE7 IE8 IE9 均不支持 overrideMimeType，因此本组件不提供此功能。
-   *   同样的原因，其他不支持的 W3C 的 XMLHttpRequest 草案中提及的相关内容也不提供。
+   *   同样的原因，W3C 的 XMLHttpRequest 草案中提及的，其他不能被上述浏览器支持的相关内容也不提供。
    */
 
   // 请求状态。
@@ -3994,13 +3992,13 @@
             status = 204;
           }
           statusText = xhr.statusText;
+          headers = getHeaders(xhr.getAllResponseHeaders());
+          text = xhr.responseText;
+          // http://bugs.jquery.com/ticket/4958
+          if (xhr.responseXML && xhr.responseXML.documentElement) {
+            xml = xhr.responseXML;
+          }
         } catch (e) {
-        }
-        headers = getHeaders(xhr.getAllResponseHeaders());
-        text = xhr.responseText;
-        // http://bugs.jquery.com/ticket/4958
-        if (xhr.responseXML && xhr.responseXML.documentElement) {
-          xml = xhr.responseXML;
         }
         break;
       case ABORT:
@@ -4024,7 +4022,7 @@
         xml: xml
       }));
     };
-    request.async ? setTimeout(sendResponse, Math.max(0, request.minTime - (Date.now() - request.timestamp))) : sendResponse();
+    request.async ? setTimeout(sendResponse, Math.max(0, Number.toInteger(request.minTime - (Date.now() - request.timestamp)))) : sendResponse();
   };
 
 //--------------------------------------------------[Request Constructor]
@@ -4039,10 +4037,10 @@
    * @param {string} options.method 请求方法，默认为 'post'。
    * @param {Object} options.headers 要设置的 request headers，格式为 {key: value, ...} 的对象。
    * @param {string} options.contentType 发送数据的内容类型，默认为 'application/x-www-form-urlencoded'，method 为 'post' 时有效。
-   * @param {boolean} options.cache 是否允许浏览器的缓存生效，默认为 true。
+   * @param {boolean} options.useCache 是否允许浏览器的缓存生效，默认为 true。
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
-   * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 0，即无最短时间限制，async 为 true 时有效。
-   * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 0，即无超时时间限制，async 为 true 时有效。
+   * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
+   * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
    * @param {Function} options.onBeforeRequest 发送请求前触发，传入请求数据，需要返回处理后的字符串数据，当返回 false 时则取消本次请求。
    * @param {Function} options.onBeforeResponse 收到响应前触发，传入响应数据，需要返回处理后的响应数据。
    * @param {Function} options.onResponse 收到响应时触发，参数为包含响应信息的一个对象。
@@ -4082,7 +4080,7 @@
       url += (url.contains('?') ? '&' : '?') + data;
       data = null;
     }
-    if (!request.cache) {
+    if (!request.useCache) {
       url += (url.contains('?') ? '&' : '?') + ++uid;
     }
     // http://bugs.jquery.com/ticket/2865
@@ -4102,7 +4100,7 @@
     // 发送请求。
     xhr.send(data || null);
     request.timestamp = Date.now();
-    if (request.async && request.maxTime) {
+    if (request.async && request.maxTime > 0) {
       request.timer = setTimeout(function() {
         getResponse(request, TIMEOUT);
       }, request.maxTime);
@@ -4123,7 +4121,7 @@
 
 //--------------------------------------------------[Request.prototype.abort]
   /**
-   * 取消请求，仅在 Request 对象为异步模式时可用。
+   * 取消请求，仅在 Request 设置为异步模式时可用。
    * @name Request.prototype.abort
    * @function
    * @returns {Object} request 对象。
@@ -4150,7 +4148,7 @@
       'Accept': '*/*'
     },
     contentType: 'application/x-www-form-urlencoded',
-    cache: true,
+    useCache: true,
     async: true,
     minTime: 0,
     maxTime: 0,
@@ -4276,31 +4274,37 @@
    * 为不支持 localStorage 的浏览器提供类似的功能。
    * @name localStorage
    * @namespace
+   * @description
+   *   注意：
+   *   在不支持 localStorage 的浏览器中，会使用路径 '/favicon.ico' 来创建启用 userData 的元素。
+   *   在当前站点的上述路径不存在时 (404)，应避免返回包含脚本的页面，以免出现预料外的异常。
    */
   var localStorage = {};
   window.localStorage = localStorage;
 
+  // 用来保存 userData 的元素。
+  var userDataElement;
+  // 指定存储路径。
+  var USER_DATA_PATH = '/favicon.ico';
   // 指定一个固定的 userData 存储文件名。
   var USER_DATA_FILE_NAME = 'localStorage';
-  // 确定要创建 userData 元素的文档。
-  var userDataOwnerDocument;
-  var userDataContainer;
+  // 尝试使用跨路径的 userData 访问。
   try {
-    // 使用同步方式在当前域的根路径创建一个文档，以确保对 userData 操作的代码能够同步执行，并实现跨路径的 userData 访问。
+    // 使用同步方式在当前域的指定存储路径创建一个文档，以确保对 userData 操作的代码能够同步执行。
     var hiddenDocument = new ActiveXObject('htmlfile');
     hiddenDocument.open();
-    hiddenDocument.write('<iframe id="root_path" src="/favicon.ico"></frame>');
+    hiddenDocument.write('<iframe id="root_path" src="' + USER_DATA_PATH + '"></frame>');
     hiddenDocument.close();
     // 关键：IE6 IE7 IE8 允许在 document 上插入元素。
-    userDataContainer = userDataOwnerDocument = hiddenDocument.getElementById('root_path').contentWindow.document;
+    var userDataOwnerDocument = hiddenDocument.getElementById('root_path').contentWindow.document;
+    // 创建绑定了 userData 行为的元素。
+    userDataElement = userDataOwnerDocument.createElement('var');
+    userDataOwnerDocument.appendChild(userDataElement);
   } catch (e) {
     // 若创建失败，则仅实现不能跨路径的 userData 访问。
-    userDataOwnerDocument = document;
-    userDataContainer = document.body;
+    userDataElement = document.documentElement;
   }
-  // 创建绑定了 userData 行为的元素。
-  var userDataElement = userDataOwnerDocument.createElement('var');
-  userDataContainer.appendChild(userDataElement);
+  // 添加行为。
   userDataElement.addBehavior('#default#userData');
 
 //--------------------------------------------------[localStorage.setItem]
@@ -6048,12 +6052,16 @@
    * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
    */
   if ('Element' in window) {
+    // 避免 $ 被覆盖。
+    var $ = document.$;
+    // 包装为 Element.prototype.find 方法。
     Element.prototype.find = function(selector) {
       return Sizzle(selector, this).map(function(element) {
         return $(element);
       });
     };
   } else {
+    // 仍使用 Sizzle 这个名称。
     window.Sizzle = Sizzle;
   }
 
