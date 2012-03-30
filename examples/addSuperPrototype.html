@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>addSuperPrototype</title>
+</head>
+<body>
+<script>
+Function.prototype.addSuperPrototype = function(superPrototype) {
+  var Super = function() {
+  };
+  Super.prototype = superPrototype;
+  this.prototype = new Super();
+  this.prototype.constructor = this;
+  this.prototype.superPrototype = superPrototype;
+};
+
+var A = function(a) {
+  this.a = a;
+};
+A.prototype.getA = function() {
+  return this.a;
+};
+
+var B = function(b) {
+  this.b = b;
+};
+B.addSuperPrototype(A.prototype);
+B.prototype.getB = function() {
+  return this.b;
+};
+
+var C = function(c) {
+  this.a = 'a: ' + c;
+  this.b = 'b: ' + c;
+  this.c = c;
+};
+C.addSuperPrototype(B.prototype);
+C.prototype.getC = function() {
+  return this.c;
+};
+
+c = new C(100);
+console.log(c.getA());
+console.log(c.getB());
+console.log(c.getC());
+</script>
+</body>
+</html>

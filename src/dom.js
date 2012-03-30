@@ -1140,12 +1140,6 @@
   };
 
   /**
-   * 事件包装对象
-   * @name Event
-   * @class
-   */
-
-  /**
    * 原始事件对象。
    * @name Event.prototype.originalEvent
    * @type Object
@@ -1301,6 +1295,14 @@
    * @type number
    */
 
+  /**
+   * 事件包装对象
+   * @name Event
+   * @constructor
+   * @private
+   * @param {Object} e 原始事件对象。
+   * @param {string} type 事件类型。
+   */
   function Event(e, type) {
     // 保存原始 event 对象。
     this.originalEvent = e;
@@ -1681,7 +1683,7 @@
       // 普通类型的监听器。
       handlers.push({name: name, listener: listener});
     }
-    return this;
+    return $element;
   };
 
 //--------------------------------------------------[Element.prototype.off]
@@ -1712,11 +1714,11 @@
     // 尝试获取对应的项，及其管理器和处理器组，以便从处理器组中删除监听器（和过滤器）。
     var item = eventPool[uid];
     if (!item) {
-      return this;
+      return $element;
     }
     var manager = item[type];
     if (!manager) {
-      return this;
+      return $element;
     }
     var handlers = manager.handlers;
     // 删除监听器（和过滤器）。
@@ -1752,7 +1754,7 @@
             listenersCount += item[type].handlers.length;
           });
           if (listenersCount) {
-            return this;
+            return $element;
           }
           removeEventListener($element, dispatcher.type, dispatcher);
           // HACK：分别删除另外两个关联事件的触发器及项。
@@ -1778,7 +1780,7 @@
     if (Object.keys(item).length === 0) {
       delete eventPool[uid];
     }
-    return this;
+    return $element;
   };
 
 //--------------------------------------------------[Element.prototype.fire]
@@ -1788,28 +1790,30 @@
    * @function
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
+   *   data 的属性会被追加到事件对象中，因此 data 不能包含原始 event 对象中的属性。  // TODO
    * @returns {Element} 调用本方法的元素。
    */
   Element.prototype.fire = function(type, data) {
-    var $target = this;
+    var $element = this;
     var handlers;
     var event = new Event({
-      target: this,
+      target: $element,
       // 添加这两个方法以统一 API。
       stopPropagation: returnTrue,
       preventDefault: returnTrue
     }, type);
-    event.data = data || {};
-    while ($target) {
-      if (handlers = (handlers = eventPool[$target.uid]) && (handlers = handlers[type]) && handlers.handlers) {
-        event = dispatchEvent($target, handlers, event);
+    event.data = data || {};  // TODO: 使用 Object.append 追加 data 的属性到 event 中，但要过滤掉原始 event 对象的属性并抛出异常，以避免歧义。
+    // TODO: 这样做是为了和 Components 的 fire 一致，且更便于使用。
+    while ($element) {
+      if (handlers = (handlers = eventPool[$element.uid]) && (handlers = handlers[type]) && handlers.handlers) {
+        event = dispatchEvent($element, handlers, event);
       }
-      if (!event.bubbles || event.isPropagationStopped() || $target === window) {
+      if (!event.bubbles || event.isPropagationStopped() || $element === window) {
         break;
       }
-      $target = $target === document ? window : $target.getParent() || $target === html && document || null;
+      $element = $element === document ? window : $element.getParent() || $element === html && document || null;
     }
-    return this;
+    return $element;
   };
 
 //==================================================[document 扩展]

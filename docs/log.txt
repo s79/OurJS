@@ -1,4 +1,37 @@
-﻿>2012-03-28
+﻿>2012-03-30 (计划 3 天完成)
+增加 Components 类，提供与 Element/document/window 相同的操作事件的方法 on/off/fire。
+这样处理之后，创建组件时“选项”和“事件监听”就可以在代码中更明显的区分开。
+修改前：
+1. 组件的事件处理仅提供一个回调函数，必须处理多种情况时，只能使用新的函数来包装原有的函数。
+2. 创建组件时的语法将选项和事件处理函数混在一起，最初的考虑是他们都是可选的。如下：
+var componentA = new ComponentA(param1, param2, {
+  option1: value1,
+  option2: value2,
+  onEventName1: function(e) {
+    // ...
+  },
+  onEventName2: function(e) {
+    // ...
+  }
+});
+
+修改后：
+1. 组件在每个事件上可以处理多个监听器了。
+2. 因为组件是被设计为可以重用的，现在使用以下语法，表达得更清晰：
+var componentA = new ComponentA(param1, param2, {
+  option1: value1,
+  option2: value2
+}
+    .on('eventName1', function(e) {
+      // ...
+    })
+    .on('eventName2', function(e) {
+      // ...
+    });
+
+3. 对于非组件，有回调的时候仍使用参数形式，传入对应的 onEventType 来完成，因为非组件是一次性运行的，不能重用，这样处理便于理解。
+
+>2012-03-28
 components.TabPanel 修改，将“容器”的必选参数改为可选参数。在通过清晰的约定可以减少必选参数时，组件更容易使用。
 examples +
 
