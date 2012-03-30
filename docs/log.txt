@@ -1,4 +1,6 @@
 ﻿>2012-03-30 (计划 3 天完成)
+Object.merge
+
 增加 Components 类，提供与 Element/document/window 相同的操作事件的方法 on/off/fire。
 这样处理之后，创建组件时“选项”和“事件监听”就可以在代码中更明显的区分开。
 修改前：
@@ -14,7 +16,6 @@ var componentA = new ComponentA(param1, param2, {
     // ...
   }
 });
-
 修改后：
 1. 组件在每个事件上可以处理多个监听器了。
 2. 因为组件是被设计为可以重用的，现在使用以下语法，表达得更清晰：

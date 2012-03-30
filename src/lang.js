@@ -488,12 +488,14 @@
    */
 //--------------------------------------------------[Object.clone]
   /**
-   * 克隆一个对象。
+   * 克隆一个对象，返回克隆后的新对象。
    * @name Object.clone
    * @function
    * @param {Object} source 原始对象。
    * @param {boolean} [recursive] 是否进行深克隆。
-   * @returns {Object} 克隆后的对象。
+   * @returns {Object} 克隆后的新对象。
+   * @description
+   *   原型链中的 properties 不会被克隆。
    */
   Object.clone = function(source, recursive) {
     var cloning;
@@ -516,7 +518,63 @@
     return cloning;
   };
 
-//--------------------------------------------------[Object.append]
+//--------------------------------------------------[Object.merge]
+  /**
+   * 将两个对象的 properties 合并，返回包含所有合并后的 properties 的新对象。
+   * @name Object.merge
+   * @function
+   * @param {Object} original 原始对象，其所有 properties 必然存在于合并后的新对象中。
+   * @param {Object} appending 追加对象，其 properties 会被复制到 original 中。
+   * @param {Object} [filter] 过滤要复制的 appending 的 properties 的名单。
+   * @param {Array} filter.whiteList 仅在 appending 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 original 中。
+   * @param {Array} filter.blackList 如果 appending 中的 key 包含于 blackList，则对应的 property 不会被复制到 original 中。
+   *   如果 blackList 与 whiteList 有重复元素，则 whiteList 中的该元素将被忽略。
+   * @returns {Object} 合并后的新对象。
+   * @description
+   *   原型链中的 properties 不会被合并。
+   *   appending 中的 property 会覆盖 original 中的同名 property。
+   *   <table>
+   *     <tr><th>original</th><th>appending</th><th>result</th></tr>
+   *     <tr><td>a: 'a.0'</td><td></td><td>a: 'a.0'</td></tr>
+   *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td>b: 'b.1'</td></tr>
+   *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.1'</td></tr>
+   *   </table>
+   * @example
+   *   var original = {a: 'a.0'};
+   *   var appending = {b: 'b.1'};
+   *   JSON.stringify(Object.merge(original, appending));
+   *   // {"a":"a.0","b":"b.1"}
+   * @example
+   *   var original = {a: 'a.0', b: 'b.0', c: 'c.0'};
+   *   var appending = {a: 'a.1', b: 'b.1', c: 'c.1'};
+   *   JSON.stringify(Object.merge(original, appending, {whiteList: ['a', 'b']}));
+   *   // {"a":"a.1","b":"b.1","c":"c.0"}
+   *   JSON.stringify(Object.merge(original, appending, {whiteList: ['a', 'b'], blackList: ['b', 'c']}));
+   *   // {"a":"a.1","b":"b.0","c":"c.0"}
+   * */
+  Object.merge = function(original, appending, filter) {
+    var result = Object.clone(original);
+    var keys = Object.keys(appending);
+    if (filter) {
+      if (filter.whiteList) {
+        keys = filter.whiteList.filter(function(item) {
+          return keys.contains(item);
+        });
+      }
+      if (filter.blackList) {
+        var blackList = filter.blackList;
+        keys = keys.filter(function(item) {
+          return !blackList.contains(item);
+        });
+      }
+    }
+    keys.forEach(function(item) {
+      result[item] = appending[item];
+    });
+    return result;
+  };
+
+//--------------------------------------------------[Object.append]  // TODO: 删除。
   /**
    * 为一个对象追加其他对象自身的属性（而不包括这些对象的原型链中的属性）。
    * @name Object.append
@@ -555,7 +613,7 @@
     return original;
   };
 
-//--------------------------------------------------[Object.update]
+//--------------------------------------------------[Object.update]  // TODO: 删除。
   /**
    * 将一个对象自身的属性更新为其他对象自身的同名属性（而不包括这些对象的原型链中的属性）。
    * @name Object.update

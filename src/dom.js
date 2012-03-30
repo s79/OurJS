@@ -573,7 +573,7 @@
    * @name Element.prototype.getStyles
    * @function
    * @param {Array} propertyNames 指定要获取的特性名，可以为任意个。
-   * @returns {Object} 包含一组特性值的，格式为 {propertyName: propertyValue...} 的对象。
+   * @returns {Object} 包含一组特性值的，格式为 {propertyName: propertyValue, ...} 的对象。
    */
   Element.prototype.getStyles = function(propertyNames) {
     var styles = {};
@@ -618,7 +618,7 @@
    * 设置一组元素的行内样式声明。
    * @name Element.prototype.setStyles
    * @function
-   * @param {Object} declarations 包含一条或多条要设置的样式声明，格式为 {propertyName: propertyValue...} 的对象。
+   * @param {Object} declarations 包含一条或多条要设置的样式声明，格式为 {propertyName: propertyValue, ...} 的对象。
    * @returns {Element} 调用本方法的元素。
    */
   Element.prototype.setStyles = function(declarations) {
@@ -1140,6 +1140,77 @@
   };
 
   /**
+   * 事件包装对象。
+   * @name Event
+   * @constructor
+   * @param {Object} e 原始事件对象。
+   * @param {string} type 事件类型。
+   * @description
+   *   当事件对象通过调用 Element/document/window 的 fire 方法传递到监听器时，其属性可能会被重写。
+   *   在一些需要获取浏览器提供的真实事件属性时，可以通过事件对象的 originalEvent.type 属性来辨别事件的真实类型，由上述 fire 方法生成的事件对象的对应属性为空字符串。
+   */
+  function Event(e, type) {
+    // 保存原始 event 对象。
+    this.originalEvent = e;
+    // 事件类型，这时候的 type 就是调用 on 时使用的事件类型。
+    this.type = type;
+    // 事件代码，用于分组处理事件及确定是否可冒泡。
+    var code = EVENT_CODES[type] || 0;
+    this.isMouseEvent = !!(code & 1);
+    this.isKeyboardEvent = !!(code & 2);
+    this.bubbles = !(code & 4);
+    // 目标元素。
+    var target = 'target' in e ? e.target : e.srcElement || document;
+    if (target.nodeType === 3) {
+      target = target.parentNode;
+    }
+    this.target = $(target);
+    // 相关元素。
+    var relatedTarget = 'relatedTarget' in e ? e.relatedTarget : ('fromElement' in e ? (e.fromElement === target ? e.toElement : e.fromElement) : null);
+    if (relatedTarget) {
+      this.relatedTarget = $(relatedTarget);
+    }
+    // 发生时间。
+    this.timeStamp = Date.now();
+    // 鼠标和键盘事件，由 fire 方法传递过来的模拟事件对象没有以下信息。
+    if (this.isMouseEvent || this.isKeyboardEvent) {
+      this.ctrlKey = !!e.ctrlKey;
+      this.altKey = !!e.altKey;
+      this.shiftKey = !!e.shiftKey;
+      this.metaKey = !!e.metaKey;
+      if (this.isMouseEvent) {
+        // 坐标。
+        this.clientX = e.clientX || 0;
+        this.clientY = e.clientY || 0;
+        this.screenX = e.screenX || 0;
+        this.screenY = e.screenY || 0;
+        if ('pageX' in e) {
+          this.pageX = e.pageX;
+          this.pageY = e.pageY;
+        } else {
+          var pageOffset = window.getPageOffset();
+          this.pageX = this.clientX + pageOffset.x;
+          this.pageY = this.clientY + pageOffset.y;
+        }
+        // 按键。
+        if ('which' in e) {  // TODO: mousemove 时 which 总为 1。
+          var which = e.which;
+          this.leftButton = which === 1;
+          this.middleButton = which === 2;
+          this.rightButton = which === 3;
+        } else {
+          var button = e.button;
+          this.leftButton = !!(button & 1);
+          this.middleButton = !!(button & 4);
+          this.rightButton = !!(button & 2);
+        }
+      } else {
+        this.which = e.which || e.charCode || e.keyCode || 0;
+      }
+    }
+  }
+
+  /**
    * 原始事件对象。
    * @name Event.prototype.originalEvent
    * @type Object
@@ -1294,76 +1365,6 @@
    * @name Event.prototype.which
    * @type number
    */
-
-  /**
-   * 事件包装对象
-   * @name Event
-   * @constructor
-   * @private
-   * @param {Object} e 原始事件对象。
-   * @param {string} type 事件类型。
-   */
-  function Event(e, type) {
-    // 保存原始 event 对象。
-    this.originalEvent = e;
-    // 事件类型，这时候的 type 就是调用 on 时使用的事件类型。
-    this.type = type;
-    // 事件代码，用于分组处理事件及确定是否可冒泡。
-    var code = EVENT_CODES[type] || 0;
-    this.isMouseEvent = !!(code & 1);
-    this.isKeyboardEvent = !!(code & 2);
-    this.bubbles = !(code & 4);
-    // 目标元素。
-    var target = 'target' in e ? e.target : e.srcElement || document;
-    if (target.nodeType === 3) {
-      target = target.parentNode;
-    }
-    this.target = $(target);
-    // 相关元素。
-    var relatedTarget = 'relatedTarget' in e ? e.relatedTarget : ('fromElement' in e ? (e.fromElement === target ? e.toElement : e.fromElement) : null);
-    if (relatedTarget) {
-      this.relatedTarget = $(relatedTarget);
-    }
-    // 发生时间。
-    this.timeStamp = Date.now();
-    // 由 fire 方法传递过来的模拟事件对象没有以下信息，将返回 0 或 false。
-    // 鼠标和键盘事件。
-    if (this.isMouseEvent || this.isKeyboardEvent) {
-      this.ctrlKey = !!e.ctrlKey;
-      this.altKey = !!e.altKey;
-      this.shiftKey = !!e.shiftKey;
-      this.metaKey = !!e.metaKey;
-      if (this.isMouseEvent) {
-        // 坐标。
-        this.clientX = e.clientX || 0;
-        this.clientY = e.clientY || 0;
-        this.screenX = e.screenX || 0;
-        this.screenY = e.screenY || 0;
-        if ('pageX' in e) {
-          this.pageX = e.pageX;
-          this.pageY = e.pageY;
-        } else {
-          var pageOffset = window.getPageOffset();
-          this.pageX = this.clientX + pageOffset.x;
-          this.pageY = this.clientY + pageOffset.y;
-        }
-        // 按键。
-        if ('which' in e) {  // TODO: mousemove 时 which 总为 1。
-          var which = e.which;
-          this.leftButton = which === 1;
-          this.middleButton = which === 2;
-          this.rightButton = which === 3;
-        } else {
-          var button = e.button;
-          this.leftButton = !!(button & 1);
-          this.middleButton = !!(button & 4);
-          this.rightButton = !!(button & 2);
-        }
-      } else {
-        this.which = e.which || e.charCode || e.keyCode || 0;
-      }
-    }
-  }
 
   Object.append(Event.prototype, {
     /**
@@ -1531,14 +1532,14 @@
     if (!uid) {
       return this;
     }
-    var $element = this;
+    var $self = this;
     // 同时为多个事件类型添加监听器。
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
         // 允许 window/document.on 的多次调用。
-        Element.prototype.on.call($element, name, listener, filter);
+        Element.prototype.on.call($self, name, listener, filter);
       });
-      return $element;
+      return $self;
     }
     // 从事件名称中取出事件类型。
     var dotIndex = name.indexOf('.');
@@ -1554,7 +1555,7 @@
       handlers.delegateCount = 0;
       // 新派发器（默认）。
       var dispatcher = function(e) {
-        dispatchEvent($element, handlers, new Event(e || window.event, type));
+        dispatchEvent($self, handlers, new Event(e || window.event, type));
       };
       dispatcher.type = type;
       dispatcher.useCapture = false;
@@ -1568,7 +1569,7 @@
             var wheel = 'wheelDelta' in e ? -e.wheelDelta : e.detail || 0;
             event.wheelUp = wheel < 0;
             event.wheelDown = wheel > 0;
-            dispatchEvent($element, handlers, event);
+            dispatchEvent($self, handlers, event);
           };
           dispatcher.type = navigator.isFirefox ? 'DOMMouseScroll' : 'mousewheel';
           break;
@@ -1576,7 +1577,7 @@
         case 'mouseleave':
           // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
           dispatcher = function(e) {
-            dispatchEvent($element, handlers, new Event(e || window.event, type), function(event) {
+            dispatchEvent($self, handlers, new Event(e || window.event, type), function(event) {
               var $relatedTarget = event.relatedTarget;
               return !$relatedTarget || !this.contains($relatedTarget);
             });
@@ -1595,7 +1596,7 @@
           var dragstart = function(e) {
             var event = new Event(e || window.event, 'mousedragstart');
             event.offsetX = event.offsetY = 0;
-            if (!event.leftButton || dispatchEvent($element, dragHandlers.mousedragstart, event).isDefaultPrevented()) {
+            if (!event.leftButton || dispatchEvent($self, dragHandlers.mousedragstart, event).isDefaultPrevented()) {
               return;
             }
             var $target = event.target;
@@ -1613,7 +1614,7 @@
             event.target = dragState.target;
             event.offsetX = event.pageX - dragState.startX;
             event.offsetY = event.pageY - dragState.startY;
-            dispatchEvent($element, dragHandlers.mousedrag, event);
+            dispatchEvent($self, dragHandlers.mousedrag, event);
             dragState.lastEvent = event;
           };
           var dragend = function(e) {
@@ -1625,7 +1626,7 @@
             $target.releaseCapture && $target.releaseCapture();
             event = dragState.lastEvent;
             event.type = 'mousedragend';
-            dispatchEvent($element, dragHandlers.mousedragend, event);
+            dispatchEvent($self, dragHandlers.mousedragend, event);
             dragState = null;
             removeEventListener(document, 'mousemove', drag);
             removeEventListener(document, 'mousedown', dragend);
@@ -1655,13 +1656,13 @@
         case 'change':
           // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
           // 需要添加辅助派发器。
-          if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
-            addEventListener($element, 'propertychange', commonEventDispatcher.propertychange);
+          if (navigator.isIElt9 && $self.nodeName.toLowerCase() === 'input' && ($self.type === 'checkbox' || $self.type === 'radio')) {
+            addEventListener($self, 'propertychange', commonEventDispatcher.propertychange);
             dispatcher = function(e) {
               var target = e.srcElement;
               if (target.changed) {
                 target.changed = false;
-                dispatchEvent($element, handlers, new Event(e || window.event, type));
+                dispatchEvent($self, handlers, new Event(e || window.event, type));
               }
             };
             dispatcher.type = 'click';
@@ -1669,7 +1670,7 @@
           break;
       }
       // 绑定派发器。
-      addEventListener($element, dispatcher.type, dispatcher, dispatcher.useCapture);
+      addEventListener($self, dispatcher.type, dispatcher, dispatcher.useCapture);
       // 存储处理器组和派发器。
       manager.handlers = handlers;
       manager.dispatcher = dispatcher;
@@ -1683,7 +1684,7 @@
       // 普通类型的监听器。
       handlers.push({name: name, listener: listener});
     }
-    return $element;
+    return $self;
   };
 
 //--------------------------------------------------[Element.prototype.off]
@@ -1700,13 +1701,13 @@
     if (!uid) {
       return this;
     }
-    var $element = this;
+    var $self = this;
     // 同时删除该元素上的多个监听器。
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        Element.prototype.off.call($element, name);
+        Element.prototype.off.call($self, name);
       });
-      return $element;
+      return $self;
     }
     // 从事件名称中取出事件类型。
     var dotIndex = name.indexOf('.');
@@ -1714,11 +1715,11 @@
     // 尝试获取对应的项，及其管理器和处理器组，以便从处理器组中删除监听器（和过滤器）。
     var item = eventPool[uid];
     if (!item) {
-      return $element;
+      return $self;
     }
     var manager = item[type];
     if (!manager) {
-      return $element;
+      return $self;
     }
     var handlers = manager.handlers;
     // 删除监听器（和过滤器）。
@@ -1754,25 +1755,25 @@
             listenersCount += item[type].handlers.length;
           });
           if (listenersCount) {
-            return $element;
+            return $self;
           }
-          removeEventListener($element, dispatcher.type, dispatcher);
+          removeEventListener($self, dispatcher.type, dispatcher);
           // HACK：分别删除另外两个关联事件的触发器及项。
           DRAG_MAPPING[type].forEach(function(type) {
             var dispatcher = item[type].dispatcher;
-            removeEventListener($element, dispatcher.type, dispatcher);
+            removeEventListener($self, dispatcher.type, dispatcher);
             delete item[type];
           });
           break;
         case 'change':
           // 需要删除辅助派发器。
-          if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
-            removeEventListener($element, 'propertychange', commonEventDispatcher.propertychange);
+          if (navigator.isIElt9 && $self.nodeName.toLowerCase() === 'input' && ($self.type === 'checkbox' || $self.type === 'radio')) {
+            removeEventListener($self, 'propertychange', commonEventDispatcher.propertychange);
           }
-          removeEventListener($element, dispatcher.type, dispatcher);
+          removeEventListener($self, dispatcher.type, dispatcher);
           break;
         default:
-          removeEventListener($element, dispatcher.type, dispatcher, dispatcher.useCapture);
+          removeEventListener($self, dispatcher.type, dispatcher, dispatcher.useCapture);
       }
       delete item[type];
     }
@@ -1780,7 +1781,7 @@
     if (Object.keys(item).length === 0) {
       delete eventPool[uid];
     }
-    return $element;
+    return $self;
   };
 
 //--------------------------------------------------[Element.prototype.fire]
@@ -1794,16 +1795,19 @@
    * @returns {Element} 调用本方法的元素。
    */
   Element.prototype.fire = function(type, data) {
-    var $element = this;
     var handlers;
-    var event = new Event({
-      target: $element,
-      // 添加这两个方法以统一 API。
+    var dummyEvent = {
+      // 使用空字符串作为虚拟事件的标识符。
+      type: '',
+      target: this,
+      // 添加这两个属性以确保可以和真实事件一样支持 stopPropagation，preventDefault 和 stopImmediatePropagation 方法。
       stopPropagation: returnTrue,
       preventDefault: returnTrue
-    }, type);
-    event.data = data || {};  // TODO: 使用 Object.append 追加 data 的属性到 event 中，但要过滤掉原始 event 对象的属性并抛出异常，以避免歧义。
-    // TODO: 这样做是为了和 Components 的 fire 一致，且更便于使用。
+    };
+    var event = Object.append(new Event(dummyEvent, type), data || {});
+    // 避免事件对象的 originalEvent 属性被参数 data 的同名属性覆盖。
+    event.originalEvent = dummyEvent;
+    var $element = this;
     while ($element) {
       if (handlers = (handlers = eventPool[$element.uid]) && (handlers = handlers[type]) && handlers.handlers) {
         event = dispatchEvent($element, handlers, event);
@@ -1813,7 +1817,7 @@
       }
       $element = $element === document ? window : $element.getParent() || $element === html && document || null;
     }
-    return $element;
+    return this;
   };
 
 //==================================================[document 扩展]

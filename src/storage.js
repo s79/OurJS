@@ -113,7 +113,7 @@
    * @description
    *   注意：
    *   在不支持 localStorage 的浏览器中，会使用路径 '/favicon.ico' 来创建启用 userData 的元素。
-   *   在当前站点的上述路径不存在时 (404)，应避免返回包含脚本的页面，以免出现预料外的异常。
+   *   当上述路径不存在时 (404)，服务端应避免返回包含脚本的页面，以免出现预料外的异常。
    */
   var localStorage = {};
   window.localStorage = localStorage;

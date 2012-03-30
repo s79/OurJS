@@ -410,7 +410,7 @@
    * @name Element.prototype.animate
    * @function
    * @param {Object} styles 目标样式，元素将向指定的目标样式过渡。目标样式包含一条或多条要设置的样式声明，具体如下：
-   *   1. 格式与 setStyles 的参数一致，为 {propertyName: propertyValue...}。
+   *   1. 与 setStyles 的参数一致，格式为 {propertyName: propertyValue, ...} 的对象。
    *   2. propertyName 只支持 camel case，并且不能使用复合属性。
    *   3. propertyValue 若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
    *   4. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。

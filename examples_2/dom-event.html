@@ -189,8 +189,7 @@ $('#clear').on('click', function() {
   <div id="mouse">
     <div id="d51"></div>
     <div id="d52"></div>
-    <div id="d53"></div>
-    <code>code</code><samp>samp</samp><kbd>kbd</kbd><var id="var">var</var><span>span</span><p id="inner">p</p></div>
+    <div id="d53"></div><code>code</code><samp>samp</samp><kbd>kbd</kbd><var id="var">var</var><span>span</span><p id="inner">p</p></div>
 </fieldset>
 
 <script>
@@ -286,6 +285,22 @@ function keyChange(event) {
 //document.on('keyup', keyChange);
 //document.on('keydown', keyChange);
 document.on('keydown', keyChange);
+
+//--------------------------------------------------[on/off/fire 测试]
+$('#d22')
+    .on('mouseover', function() {
+      this.fire('mousedown', {leftButton: '此时的属性值是由 fire 方法传递过来的。', middleButton: '系统事件并未触发。', rightButton: '区别方式见 API 文档。'});
+    })
+    .on('mousedown.one', function(e) {
+      e.preventDefault();
+    })
+    .on('mousedown.two', function(e) {
+      e.stopPropagation();
+    })
+    .on('mousedown.three', function(e) {
+      e.stopImmediatePropagation();
+    })
+    .off('mousedown.two mousedown.three');
 
 //--------------------------------------------------[事件传播]
 $('#div').on('click', function(event) {

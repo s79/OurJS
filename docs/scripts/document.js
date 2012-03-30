@@ -94,17 +94,6 @@ document.on('domready', function() {
       return '<blockquote>' + (symbol ? symbol.description : '-') + '</blockquote>';
     };
 
-//--------------------------------------------------[getExample]
-    var getExample = function(symbol) {
-      return symbol && symbol.examples.length ?
-          symbol.examples.map(
-              function(example) {
-                return '<pre>' + example + '</pre>';
-              }
-          ).join('') :
-          '';
-    };
-
 //--------------------------------------------------[getParameters]
     var getParameters = function(symbol) {
       return symbol && symbol.parameters.length ?
@@ -146,6 +135,17 @@ document.on('domready', function() {
 //--------------------------------------------------[getDeprecated]
     var getDeprecated = function(symbol) {
       return symbol && symbol.deprecated ? '<dl><dt>已过期：</dt><dd>' + symbol.deprecated + '</dd></dl>' : '';
+    };
+
+//--------------------------------------------------[getExample]
+    var getExample = function(symbol) {
+      return symbol && symbol.examples.length ?
+          '<dl><dt>示例：</dt><dd>' + symbol.examples.map(
+              function(example) {
+                return '<pre>' + example + '</pre>';
+              }
+          ).join('') + '</dd></dl>' :
+          '';
     };
 
 //--------------------------------------------------[getSee]
@@ -197,7 +197,7 @@ document.on('domready', function() {
             $detailsDiv.append($(written[title]));
             delete written[title];
           }
-          $detailsDiv.append($('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getExample(symbol) + getParameters(symbol) + getReturns(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getSee(symbol) + '</div>'));
+          $detailsDiv.append($('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>'));
         }
       });
       $details.append($detailsDiv);

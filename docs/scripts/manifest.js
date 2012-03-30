@@ -13,8 +13,7 @@ var manifest = {
     'Object.keys',
     '<#>自定义扩展',
     'Object.clone',
-    'Object.append',
-    'Object.update',
+    'Object.merge',
     'Object.forEach'
   ],
   'Array': [
