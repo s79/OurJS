@@ -198,7 +198,11 @@
   var $ = elementPrototype ? function(element) {
     if (element && !element.uid) {
       element.uid = ++uid;
-      Object.append(element, elementPrototype);
+      // Object.append(element, elementPrototype);
+      // 使用以下方式附加新属性以降低开销。此处不必判断 hasOwnProperty，也无需考虑 hasDontEnumBug 的问题。
+      for (var key in elementPrototype) {
+        element[key] = elementPrototype[key];
+      }
     }
     return element;
   } : function(element) {
@@ -1791,7 +1795,7 @@
    * @function
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
-   *   data 的属性会被追加到事件对象中，因此 data 不能包含原始 event 对象中的属性。  // TODO
+   *   data 的属性会被追加到事件对象中，但名称为 originalEvent 的属性除外。
    * @returns {Element} 调用本方法的元素。
    */
   Element.prototype.fire = function(type, data) {
@@ -1804,9 +1808,8 @@
       stopPropagation: returnTrue,
       preventDefault: returnTrue
     };
-    var event = Object.append(new Event(dummyEvent, type), data || {});
     // 避免事件对象的 originalEvent 属性被参数 data 的同名属性覆盖。
-    event.originalEvent = dummyEvent;
+    var event = Object.append(new Event(dummyEvent, type), data || {}, {blackList: ['originalEvent']});
     var $element = this;
     while ($element) {
       if (handlers = (handlers = eventPool[$element.uid]) && (handlers = handlers[type]) && handlers.handlers) {

@@ -474,10 +474,9 @@
    * 其他自定义的扩展方法。
    *
    * 扩展方法：
+   *   Object.forEach
    *   Object.clone
    *   Object.append
-   *   Object.update
-   *   Object.forEach
    *   Array.from
    *   Array.prototype.contains
    *   String.prototype.clean
@@ -486,6 +485,33 @@
    *   Math.randomRange
    *   RegExp.escape
    */
+//--------------------------------------------------[Object.forEach]
+  /**
+   * 遍历一个对象。
+   * @name Object.forEach
+   * @function
+   * @param {Object} object 要遍历的对象。
+   * @param {Function} callback 用来遍历的函数，参数为 value，key，object。
+   * @param {Object} [thisObj] 遍历函数的 this 值。
+   */
+  Object.forEach = function(object, callback, thisObj) {
+    for (var key in object) {
+      if (HAS_OWN_PROPERTY.call(object, key)) {
+        callback.call(thisObj, object[key], key, object);
+      }
+    }
+    if (hasDontEnumBug) {
+      var i = 0;
+      while (i < DONT_ENUM_PROPERTIES_LENGTH) {
+        var dontEnumProperty = DONT_ENUM_PROPERTIES[i];
+        if (HAS_OWN_PROPERTY.call(object, dontEnumProperty)) {
+          callback.call(thisObj, object[dontEnumProperty], dontEnumProperty, object);
+        }
+        i++;
+      }
+    }
+  };
+
 //--------------------------------------------------[Object.clone]
   /**
    * 克隆一个对象，返回克隆后的新对象。
@@ -518,20 +544,19 @@
     return cloning;
   };
 
-//--------------------------------------------------[Object.merge]
+//--------------------------------------------------[Object.append]
   /**
-   * 将两个对象的 properties 合并，返回包含所有合并后的 properties 的新对象。
-   * @name Object.merge
+   * 为一个对象追加另一个对象自身（不包含原型链）的 properties。
+   * @name Object.append
    * @function
-   * @param {Object} original 原始对象，其所有 properties 必然存在于合并后的新对象中。
+   * @param {Object} original 原始对象。
    * @param {Object} appending 追加对象，其 properties 会被复制到 original 中。
    * @param {Object} [filter] 过滤要复制的 appending 的 properties 的名单。
    * @param {Array} filter.whiteList 仅在 appending 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 original 中。
    * @param {Array} filter.blackList 如果 appending 中的 key 包含于 blackList，则对应的 property 不会被复制到 original 中。
    *   如果 blackList 与 whiteList 有重复元素，则 whiteList 中的该元素将被忽略。
-   * @returns {Object} 合并后的新对象。
+   * @returns {Object} 追加后的 original 对象。
    * @description
-   *   原型链中的 properties 不会被合并。
    *   appending 中的 property 会覆盖 original 中的同名 property。
    *   <table>
    *     <tr><th>original</th><th>appending</th><th>result</th></tr>
@@ -542,141 +567,36 @@
    * @example
    *   var original = {a: 'a.0'};
    *   var appending = {b: 'b.1'};
-   *   JSON.stringify(Object.merge(original, appending));
+   *   JSON.stringify(Object.append(original, appending));
    *   // {"a":"a.0","b":"b.1"}
    * @example
    *   var original = {a: 'a.0', b: 'b.0', c: 'c.0'};
    *   var appending = {a: 'a.1', b: 'b.1', c: 'c.1'};
-   *   JSON.stringify(Object.merge(original, appending, {whiteList: ['a', 'b']}));
+   *   JSON.stringify(Object.append(original, appending, {whiteList: ['a', 'b']}));
    *   // {"a":"a.1","b":"b.1","c":"c.0"}
-   *   JSON.stringify(Object.merge(original, appending, {whiteList: ['a', 'b'], blackList: ['b', 'c']}));
+   *   JSON.stringify(Object.append(original, appending, {whiteList: ['a', 'b'], blackList: ['b', 'c']}));
    *   // {"a":"a.1","b":"b.0","c":"c.0"}
    * */
-  Object.merge = function(original, appending, filter) {
-    var result = Object.clone(original);
+  Object.append = function(original, appending, filter) {
     var keys = Object.keys(appending);
     if (filter) {
-      if (filter.whiteList) {
-        keys = filter.whiteList.filter(function(item) {
+      var whiteList = filter.whiteList;
+      var blackList = filter.blackList;
+      if (whiteList) {
+        keys = whiteList.filter(function(item) {
           return keys.contains(item);
         });
       }
-      if (filter.blackList) {
-        var blackList = filter.blackList;
+      if (blackList) {
         keys = keys.filter(function(item) {
           return !blackList.contains(item);
         });
       }
     }
     keys.forEach(function(item) {
-      result[item] = appending[item];
+      original[item] = appending[item];
     });
-    return result;
-  };
-
-//--------------------------------------------------[Object.append]  // TODO: 删除。
-  /**
-   * 为一个对象追加其他对象自身的属性（而不包括这些对象的原型链中的属性）。
-   * @name Object.append
-   * @function
-   * @param {Object} original 原始对象。
-   * @param {...Object} extended 扩展对象，使用这些对象进行追加，可以为任意个。
-   * @returns {Object} 追加后的对象。
-   * @description
-   *   extended2 和 extended1 中的属性会覆盖 original 中的同名属性。
-   *   <table>
-   *     <tr><th>original</th><th>extended1</th><th>extended2</th><th>result</th></tr>
-   *     <tr><td>a: 'a.0'</td><td></td><td></td><td>a: 'a.0'</td></tr>
-   *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td></td><td>b: 'b.1'</td></tr>
-   *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.2'</td><td>c: 'c.2'</td></tr>
-   *     <tr><td></td><td></td><td>d: 'd.2'</td><td>d: 'd.2'</td></tr>
-   *   </table>
-   * @example
-   *   var o = Object.append({a: 0}, {a: 1, b: 1}, {a: 2, b: 2});
-   *   o.a;
-   *   // 2
-   *   o.b;
-   *   // 2
-   */
-  Object.append = function(original) {
-    var i = 1;
-    var length = arguments.length;
-    while (i < length) {
-      var extended = arguments[i] || {};
-      for (var key in extended) {
-        if (extended.hasOwnProperty(key)) {
-          original[key] = extended[key];
-        }
-      }
-      i++;
-    }
     return original;
-  };
-
-//--------------------------------------------------[Object.update]  // TODO: 删除。
-  /**
-   * 将一个对象自身的属性更新为其他对象自身的同名属性（而不包括这些对象的原型链中的属性）。
-   * @name Object.update
-   * @function
-   * @param {Object} original 原始对象。
-   * @param {...Object} extended 扩展对象，使用这些对象进行更新，可以为任意个。
-   * @returns {Object} 更新后的对象。
-   * @description
-   *   extended2 和 extended1 中的属性会覆盖 original 中已存在的同名属性。
-   *   <table>
-   *     <tr><th>original</th><th>extended1</th><th>extended2</th><th>result</th></tr>
-   *     <tr><td>a: 'a.0'</td><td></td><td></td><td>a: 'a.0'</td></tr>
-   *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td></td><td>b: 'b.1'</td></tr>
-   *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.2'</td><td></td></tr>
-   *     <tr><td></td><td></td><td>d: 'd.2'</td><td></td></tr>
-   *   </table>
-   * @example
-   *   var o = Object.update({a: 0}, {a: 1, b: 1}, {a: 2, b: 2});
-   *   o.a;
-   *   // 2
-   *   o.b;
-   *   // undefined
-   */
-  Object.update = function(original) {
-    var i = 1;
-    var length = arguments.length;
-    while (i < length) {
-      var extended = arguments[i] || {};
-      for (var key in extended) {
-        if (original.hasOwnProperty(key) && extended.hasOwnProperty(key)) {
-          original[key] = extended[key];
-        }
-      }
-      i++;
-    }
-    return original;
-  };
-
-//--------------------------------------------------[Object.forEach]
-  /**
-   * 遍历一个对象。
-   * @name Object.forEach
-   * @function
-   * @param {Object} object 要遍历的对象。
-   * @param {Function} callback 用来遍历的函数，参数为 value，key，object。
-   * @param {Object} [thisObj] 遍历函数的 this 值。
-   */
-  Object.forEach = function(object, callback, thisObj) {
-    for (var key in object) {
-      if (HAS_OWN_PROPERTY.call(object, key)) {
-        callback.call(thisObj, object[key], key, object);
-      }
-    }
-    if (hasDontEnumBug) {
-      var i = 0;
-      while (i < DONT_ENUM_PROPERTIES_LENGTH) {
-        var dontEnumProperty = DONT_ENUM_PROPERTIES[i];
-        if (HAS_OWN_PROPERTY.call(object, dontEnumProperty)) {
-          callback.call(thisObj, object[dontEnumProperty], dontEnumProperty, object);
-        }
-        i++;
-      }
-    }
   };
 
 //--------------------------------------------------[Array.from]

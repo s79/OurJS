@@ -12,9 +12,9 @@ var manifest = {
     '<#>ES5',
     'Object.keys',
     '<#>自定义扩展',
+    'Object.forEach',
     'Object.clone',
-    'Object.merge',
-    'Object.forEach'
+    'Object.append'
   ],
   'Array': [
     '<#>ES5',
