@@ -1216,157 +1216,157 @@
 
   /**
    * 原始事件对象。
-   * @name Event.prototype.originalEvent
+   * @name Event#originalEvent
    * @type Object
    */
 
   /**
    * 事件类型。
-   * @name Event.prototype.type
+   * @name Event#type
    * @type string
    */
 
   /**
    * 是否为鼠标事件。
-   * @name Event.prototype.isMouseEvent
+   * @name Event#isMouseEvent
    * @type boolean
    */
 
   /**
    * 是否为键盘事件。
-   * @name Event.prototype.isKeyboardEvent
+   * @name Event#isKeyboardEvent
    * @type boolean
    */
 
   /**
    * 是否可以冒泡，不冒泡的事件不能使用事件代理。
-   * @name Event.prototype.bubbles
+   * @name Event#bubbles
    * @type boolean
    */
 
   /**
    * 触发事件的对象。
-   * @name Event.prototype.target
+   * @name Event#target
    * @type Element
    */
 
   /**
    * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
-   * @name Event.prototype.relatedTarget
+   * @name Event#relatedTarget
    * @type Element
    */
 
   /**
    * 事件发生的时间。
-   * @name Event.prototype.timeStamp
+   * @name Event#timeStamp
    * @type number
    */
 
   /**
    * 事件发生时，ctrl 键是否被按下。
-   * @name Event.prototype.ctrlKey
+   * @name Event#ctrlKey
    * @type boolean
    */
 
   /**
    * 事件发生时，alt 键是否被按下。
-   * @name Event.prototype.altKey
+   * @name Event#altKey
    * @type boolean
    */
 
   /**
    * 事件发生时，shift 键是否被按下。
-   * @name Event.prototype.shiftKey
+   * @name Event#shiftKey
    * @type boolean
    */
 
   /**
    * 事件发生时，meta 键是否被按下。
-   * @name Event.prototype.metaKey
+   * @name Event#metaKey
    * @type boolean
    */
 
   /**
    * 事件发生时鼠标在视口中的 X 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.clientX
+   * @name Event#clientX
    * @type number
    */
 
   /**
    * 事件发生时鼠标在视口中的 Y 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.clientY
+   * @name Event#clientY
    * @type number
    */
 
   /**
    * 事件发生时鼠标在屏幕上的 X 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.screenX
+   * @name Event#screenX
    * @type number
    */
 
   /**
    * 事件发生时鼠标在屏幕上的 Y 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.screenY
+   * @name Event#screenY
    * @type number
    */
 
   /**
    * 事件发生时鼠标在页面中的 X 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.pageX
+   * @name Event#pageX
    * @type number
    */
 
   /**
    * 事件发生时鼠标在页面中的 Y 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.pageY
+   * @name Event#pageY
    * @type number
    */
 
   /**
    * 事件发生时鼠标在横向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
-   * @name Event.prototype.offsetX
+   * @name Event#offsetX
    * @type number
    */
 
   /**
    * 事件发生时鼠标在纵向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
-   * @name Event.prototype.offsetY
+   * @name Event#offsetY
    * @type number
    */
 
   /**
    * 事件发生时，鼠标左键是否被按下，仅在鼠标事件对象上有效。
-   * @name Event.prototype.leftButton
+   * @name Event#leftButton
    * @type boolean
    */
 
   /**
    * 事件发生时，鼠标中键是否被按下，仅在鼠标事件对象上有效。
-   * @name Event.prototype.middleButton
+   * @name Event#middleButton
    * @type boolean
    */
 
   /**
    * 事件发生时，鼠标右键是否被按下，仅在鼠标事件对象上有效。
-   * @name Event.prototype.rightButton
+   * @name Event#rightButton
    * @type boolean
    */
 
   /**
    * 事件发生时鼠标滚轮是否正在向上滚动，仅在 mousewheel 类型的事件对象上有效。
-   * @name Event.prototype.wheelUp
+   * @name Event#wheelUp
    * @type boolean
    */
 
   /**
    * 事件发生时鼠标滚轮是否正在向下滚动，仅在 mousewheel 类型的事件对象上有效。
-   * @name Event.prototype.wheelDown
+   * @name Event#wheelDown
    * @type boolean
    */
 
   /**
    * 当一个设备触发事件时的相关代码。在键盘事件中为按下的键的代码。
-   * @name Event.prototype.which
+   * @name Event#which
    * @type number
    */
 

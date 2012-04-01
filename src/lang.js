@@ -559,7 +559,7 @@
    * @description
    *   appending 中的 property 会覆盖 original 中的同名 property。
    *   <table>
-   *     <tr><th>original</th><th>appending</th><th>result</th></tr>
+   *     <tr><th>original (before)</th><th>appending</th><th>original (after)</th></tr>
    *     <tr><td>a: 'a.0'</td><td></td><td>a: 'a.0'</td></tr>
    *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td>b: 'b.1'</td></tr>
    *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.1'</td></tr>

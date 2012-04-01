@@ -66,7 +66,7 @@
 //--------------------------------------------------[Switcher.prototype.activeIndex]
   /**
    * 获取当前标记为“活动”的元素的索引，如果为 NaN，则当前无活动元素。
-   * @name Switcher.prototype.activeIndex
+   * @name Switcher#activeIndex
    * @memberOf components
    * @type number
    */

@@ -6,7 +6,7 @@
 (function() {
 //==================================================[Calendar]
   /*
-   * 使用一个数组创建切换器，在每次切换时会触发相应的事件。
+   * 日历选择组件。
    */
 
   // 空函数。
@@ -39,108 +39,105 @@
    */
 //--------------------------------------------------[Calendar]
   function Calendar() {
-    function createDOM() {
-      function createButton() {
-        function changeClassName(sState) {
-          if (elButton.className.indexOf("-disabled") != -1) {
-            return;
-          }
-          elButton.className = elButton.className.substring(0, elButton.className.indexOf("-")) + sState;
-        }
-
-        var elButton = document.createElement("button");
-        elButton.onmouseover = elButton.onmouseup = function() {
-          changeClassName("-over");
-        };
-        elButton.onmouseout = function() {
-          changeClassName("-out");
-        };
-        elButton.onmousedown = function() {
-          changeClassName("-down");
-        };
-        elButton.onclick = function() {
-          if (this.className.indexOf("-disabled") > -1) {
-            return;
-          }
-          var nY = parseInt(elY.innerHTML, 10);
-          var nM = parseInt(elM.innerHTML, 10);
-          switch (this.className.substring(0, 3)) {
-            case "p_y":
-              _this.list((nY - 1) + "-" + nM);
-              break;
-            case "p_m":
-              if (nM == 1) {
-                nM = 12;
-                nY--;
-              } else {
-                nM--;
-              }
-              _this.list(nY + "-" + nM);
-              break;
-            case "n_m":
-              if (nM == 12) {
-                nM = 1;
-                nY++;
-              } else {
-                nM++;
-              }
-              _this.list(nY + "-" + nM);
-              break;
-            case "n_y":
-              _this.list((nY + 1) + "-" + nM);
-              break;
-          }
-        };
-        return elButton;
-      }
-
-      //建立主元素elBody。
-      var elBody = document.createElement("div");
-      //建立控制按钮。
-      var elDiv = document.createElement("div");
-      elDiv.appendChild(createButton());
-      elDiv.appendChild(createButton());
-      var elY = document.createElement("span");
-      elDiv.appendChild(elY);
-      var elDot = document.createElement("em");
-      elDot.innerHTML = ".";
-      elDiv.appendChild(elDot);
-      var elM = document.createElement("span");
-      elDiv.appendChild(elM);
-      elDiv.appendChild(createButton());
-      elDiv.appendChild(createButton());
-      //建立日历列表。
-      var elTable = document.createElement("table");
-      elTable.cellPadding = 0;
-      elTable.cellSpacing = 1;
-      var elThead = document.createElement("thead");
-      elTable.appendChild(elThead);
-      var elTbody = document.createElement("tbody");
-      elTable.appendChild(elTbody);
-      var elTr = document.createElement("tr");
-      elThead.appendChild(elTr);
-      for (var i = 0; i < 7; i++) {
-        var elTd = document.createElement("td");
-        elTr.appendChild(elTd);
-      }
-      for (var i = 0; i < 6; i++) {
-        elTbody.appendChild(elTr.cloneNode(true));
-      }
-      //绑定单击事件。
-      elTable.onclick = function(event) {
-        var elTarget = event ? event.target : window.event.srcElement;
-        if (elTarget.className.indexOf("enabled") == -1) {
+    function createButton() {
+      function changeClassName(sState) {
+        if (elButton.className.indexOf("-disabled") != -1) {
           return;
         }
-        _this.selectedDate = elTarget.title;
-        _this._options.onSelect();
+        elButton.className = elButton.className.substring(0, elButton.className.indexOf("-")) + sState;
+      }
+
+      var elButton = document.createElement("button");
+      elButton.onmouseover = elButton.onmouseup = function() {
+        changeClassName("-over");
       };
-      //控制按钮->elBody
-      elBody.appendChild(elDiv);
-      //日历列表->elBody
-      elBody.appendChild(elTable);
-      return elBody;
+      elButton.onmouseout = function() {
+        changeClassName("-out");
+      };
+      elButton.onmousedown = function() {
+        changeClassName("-down");
+      };
+      elButton.onclick = function() {
+        if (this.className.indexOf("-disabled") > -1) {
+          return;
+        }
+        var nY = parseInt(elY.innerHTML, 10);
+        var nM = parseInt(elM.innerHTML, 10);
+        switch (this.className.substring(0, 3)) {
+          case "p_y":
+            _this.list((nY - 1) + "-" + nM);
+            break;
+          case "p_m":
+            if (nM == 1) {
+              nM = 12;
+              nY--;
+            } else {
+              nM--;
+            }
+            _this.list(nY + "-" + nM);
+            break;
+          case "n_m":
+            if (nM == 12) {
+              nM = 1;
+              nY++;
+            } else {
+              nM++;
+            }
+            _this.list(nY + "-" + nM);
+            break;
+          case "n_y":
+            _this.list((nY + 1) + "-" + nM);
+            break;
+        }
+      };
+      return elButton;
     }
+
+    //建立主元素elBody。
+    var elBody = document.createElement("div");
+    //建立控制按钮。
+    var elDiv = document.createElement("div");
+    elDiv.appendChild(createButton());
+    elDiv.appendChild(createButton());
+    var elY = document.createElement("span");
+    elDiv.appendChild(elY);
+    var elDot = document.createElement("em");
+    elDot.innerHTML = ".";
+    elDiv.appendChild(elDot);
+    var elM = document.createElement("span");
+    elDiv.appendChild(elM);
+    elDiv.appendChild(createButton());
+    elDiv.appendChild(createButton());
+    //建立日历列表。
+    var elTable = document.createElement("table");
+    elTable.cellPadding = 0;
+    elTable.cellSpacing = 1;
+    var elThead = document.createElement("thead");
+    elTable.appendChild(elThead);
+    var elTbody = document.createElement("tbody");
+    elTable.appendChild(elTbody);
+    var elTr = document.createElement("tr");
+    elThead.appendChild(elTr);
+    for (var i = 0; i < 7; i++) {
+      var elTd = document.createElement("td");
+      elTr.appendChild(elTd);
+    }
+    for (var i = 0; i < 6; i++) {
+      elTbody.appendChild(elTr.cloneNode(true));
+    }
+    //绑定单击事件。
+    elTable.onclick = function(event) {
+      var elTarget = event ? event.target : window.event.srcElement;
+      if (elTarget.className.indexOf("enabled") == -1) {
+        return;
+      }
+      _this.selectedDate = elTarget.title;
+      _this._options.onSelect();
+    };
+    //控制按钮->elBody
+    elBody.appendChild(elDiv);
+    //日历列表->elBody
+    elBody.appendChild(elTable);
 
     var _this = this;
     _this._options =
@@ -153,7 +150,7 @@
       standardSequence: true,
       baseClass: "calendar"
     };
-    _this._elDOM = createDOM();
+    _this._elDOM = elBody;
   }
 
   Calendar.prototype = {
@@ -320,7 +317,7 @@
     }
   };
 
-window.Calendar = Calendar;
+  window.Calendar = Calendar;
 
 //--------------------------------------------------[Calendar.options]
   /**

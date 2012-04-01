@@ -96,10 +96,19 @@
 
   components.TabPanel = TabPanel;
 
+//--------------------------------------------------[TabPanel.prototype.activeIndex]
+  /**
+   * 获取当前被激活的“标签面板”的索引，如果为 NaN，则当前无激活的“标签面板”。
+   * @name TabPanel#activeIndex
+   * @memberOf components
+   * @type number
+   */
+  /* 本属性将在创建实例后提供。 */
+
 //--------------------------------------------------[TabPanel.prototype.active]
   /**
    * 激活一组“标签面板”。
-   * @name TabPanel.prototype.active
+   * @name TabPanel#active
    * @memberOf components
    * @function
    * @param {number} index 要激活的“标签面板”的索引。
@@ -107,15 +116,6 @@
    * @returns {Object} TabPanel 对象。
    */
   /* 本方法将在创建实例后提供。 */
-
-//--------------------------------------------------[TabPanel.prototype.activeIndex]
-  /**
-   * 获取当前被激活的“标签面板”的索引，如果为 NaN，则当前无激活的“标签面板”。
-   * @name TabPanel.prototype.activeIndex
-   * @memberOf components
-   * @type number
-   */
-  /* 本属性将在创建实例后提供。 */
 
 //--------------------------------------------------[TabPanel.options]
   /**
