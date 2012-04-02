@@ -2,8 +2,9 @@ document.on('domready', function() {
   var $html = $(document.documentElement);
   var $content = $('#content');
   var indexColumns = {
-    left: $('#left_column'),
-    right: $('#right_column')
+    a: $('#column_a'),
+    b: $('#column_b'),
+    c: $('#column_c')
   };
   var $deatilsPanel = $('#details_container');
   var $details = $('#details');
@@ -119,7 +120,7 @@ document.on('domready', function() {
 //--------------------------------------------------[getFires]
     var getFires = function(symbol) {
       return symbol && symbol.fires.length ?
-          '<dl><dt>触发事件：</dt><dd><table>' + symbol.fires.map(
+          '<dl class="event"><dt>触发事件：</dt><dd><table>' + symbol.fires.map(
               function(event) {
                 return '<tr><td><dfn>' + event.name + '</dfn></td><td>' + event.description + '</td></tr>';
               }
@@ -233,21 +234,26 @@ document.on('domready', function() {
         'cookie',
         'localStorage'
       ].forEach(function(name) {
-        buildDocument(name, 'left');
+        buildDocument(name, 'a');
       });
       [
         'window',
         'document',
         'HTMLElement',
         'Element',
-        'Event',
+        'Event'
+      ].forEach(function(name) {
+        buildDocument(name, 'b');
+      });
+      [
+        'Component',
         'Request',
         'Animation',
         'components.Switcher',
         'components.TabPanel',
         'components.Dialog'
       ].forEach(function(name) {
-        buildDocument(name, 'right');
+        buildDocument(name, 'c');
       });
     });
 

@@ -1,5 +1,7 @@
 ﻿>2012-04-02
 Component
+Switcher 更新。
+TabPanel: tabchange
 
 >2012-03-31
 -Object.append
@@ -37,8 +39,8 @@ var componentA = new ComponentA(param1, param2, {
     .on('eventName2', function(e) {
       // ...
     });
-
-3. 对于非组件，有回调的时候仍使用参数形式，传入对应的 onEventType 来完成，因为非组件是一次性运行的，不能重用，这样处理便于理解。
+3. 修改后，创建组件时由于尚未绑定任何事件，因此不要在组建构造器中设计有触发事件的行为，事件的触发点应该为调用某方法后。
+4. 对于非组件，有回调的时候仍使用参数形式，传入对应的 onEventType 来完成，因为非组件是一次性运行的，不能重用，这样处理便于理解。
 
 >2012-03-28
 components.TabPanel 修改，将“容器”的必选参数改为可选参数。在通过清晰的约定可以减少必选参数时，组件更容易使用。

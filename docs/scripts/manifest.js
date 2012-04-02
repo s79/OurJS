@@ -230,6 +230,12 @@ var manifest = {
     'Event.prototype.preventDefault',
     'Event.prototype.stopImmediatePropagation'
   ],
+  'Component': [
+    'Component',
+    'Component.prototype.on',
+    'Component.prototype.off',
+    'Component.prototype.fire'
+  ],
   'Request': [
     'Request',
     'Request.options',
@@ -244,9 +250,9 @@ var manifest = {
   ],
   'components.Switcher': [
     'components.Switcher',
-    'components.Switcher.options',
-    'components.Switcher.prototype.activeIndex',
-    'components.Switcher.prototype.active'
+    'components.Switcher.prototype.active',
+    'components.Switcher.prototype.getActiveItem',
+    'components.Switcher.prototype.getActiveIndex'
   ],
   'components.TabPanel': [
     'components.TabPanel',

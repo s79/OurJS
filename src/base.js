@@ -459,16 +459,17 @@
    * 创建一个组件。
    * @name Component
    * @constructor
-   * @param {string} name 组件名称。
    * @param {Function} constructor 组件构造函数。
    *   <ul>
-   *     <li>声明组件的构造函数时，其最后一个参数必须是一个可选参数 options。即便一个组件不需要 options，也应将其写入形参内。</li>
-   *     <li>构造函数应有其指定的 options 属性以代表默认选项。即便一个组件不需要 options，也应将 constructor.options 设置为空对象。</li>
+   *     <li>声明 constructor 时，其最后一个形参必须是一个可选参数 options。即便一个组件不需要 options，也应将其写入形参内。</li>
+   *     <li>不要在 constructor 中访问 options 形参，因为此形参并不会被传入 constructor。要访问 options 形参的属性，直接访问实例的同名属性即可。</li>
+   *     <li>必须指定 constructor.options，以代表默认选项。即便一个组件不需要默认选项，也应将 constructor.options 设置为空对象。</li>
+   *     <li>constructor、constructor.options、constructor.prototype 内均不能设置实例的 events/on/off/fire 属性。</li>
    *   </ul>
    * @description
    *   本方法本质是包装 constructor，以加入对事件的支持，并能自动处理默认选项和指定选项。
    */
-  function Component(name, constructor) {
+  function Component(constructor) {
     // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
     var ComponentConstructor = function() {
       // 追加默认 options 到实例对象。
@@ -480,20 +481,20 @@
       if (formalParameterLength !== actualParameterLength) {
         parameters.length = formalParameterLength;
       }
+      // 移除实参中的 options。
       Object.append(this, parameters.pop() || {});
-      // 实例的 events 必须为以下指定的空对象，禁止在 constructor 中设置或改写 events 属性！
+      // 实例的 events 必须为以下指定的空对象。
       this.events = {};
-      // 不要在 constructor 中访问 options 对象，因为此对象已被劫持，不会被传入 constructor。
       constructor.apply(this, parameters);
     };
-    // 将 Component.prototype 附加到 Component 的原型链。
+    // 将 Component.prototype 添加到 ComponentConstructor 的原型链。
     var ComponentPrototype = function() {
     };
     ComponentPrototype.prototype = Component.prototype;
     ComponentConstructor.prototype = new ComponentPrototype();
     ComponentConstructor.prototype.constructor = ComponentConstructor;
     ComponentConstructor.prototype.superPrototype = ComponentPrototype.prototype;
-    // 将 constructor 的原型内的属性全部附加到 Component 的原型中，constructor 的原型中不应出现 on/off/fire 属性。
+    // 将 constructor 的原型内的属性追加到 Component 的原型中。
     Object.append(ComponentConstructor.prototype, constructor.prototype, {blackList: ['on', 'off', 'fire']});
     // 返回组件。
     return ComponentConstructor;
@@ -506,7 +507,6 @@
    * 为组件添加监听器。
    * @name Component.prototype.on
    * @function
-   * @private
    * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
    *   使用空格分割要多个事件名称，即可同时为多个事件注册同一个监听器。
    * @param {Function} listener 要添加的事件监听器，传入调用此方法的组件提供的事件对象。
@@ -533,7 +533,6 @@
    * 根据名称删除组件上已添加的监听器。
    * @name Component.prototype.off
    * @function
-   * @private
    * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
    * @returns {Object} 调用本方法的组件。
    */
@@ -577,7 +576,6 @@
    * 触发一个组件的某类事件，运行相关的监听器。
    * @name Component.prototype.fire
    * @function
-   * @private
    * @param {String} type 事件类型。
    * @param {Object} [event] 事件对象。
    * @returns {Object} 调用本方法的组件。
@@ -589,7 +587,6 @@
     if (!handlers) {
       return self;
     }
-    console.log('>> Component#fire: ', type, event);  // TODO
     handlers.forEach(function(handler) {
       handler.listener.call(self, event);
     });

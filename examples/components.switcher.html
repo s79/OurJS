@@ -13,52 +13,29 @@ span { float: left; width: 100px; height: 100px; margin: 10px; background: yello
 </head>
 <body>
 <h1>components.Switcher</h1>
-<span>1</span>
-<span>2</span>
-<span>3</span>
-<span>4</span>
-<span>5</span>
+<fieldset>
+  <legend>点击一个绿色方块将之设置为“活动”状态，点击空白处取消活动元素。</legend>
+  <span>〇</span>
+  <span>一</span>
+  <span>二</span>
+  <span>三</span>
+  <span>四</span>
+  <p id="message" style="clear: both;"></p>
+</fieldset>
 <script>
-//--------------------------------------------------[x]
-var array = [
-  [0],
-  [1],
-  [2],
-  [3],
-  [4]
-];
-var x = new components.Switcher(array, {activeIndex: 2})
-    .on('active',
-    function(index) {
-      console.log('active: ' + JSON.stringify(array[index]) + ':' + index);
-    })
-    .on('inactive',
-    function(index) {
-      console.log('inactive: ' + JSON.stringify(array[index]) + ':' + index);
-    });
-
-//--------------------------------------------------[o]
-var $body = $(document.body);
-var spans = $body.find('span');
-var timer;
-var o = new components.Switcher(spans, {activeIndex: 2})
-    .on('active',
+//--------------------------------------------------[switcher]
+var $message = $('#message');
+var switcher = new components.Switcher($(document.body).find('span'))
+    .on('activeitemchange',
     function(e) {
-      e.item.addClass('active');
-      //    console.group();
-      //    console.log('active:', index);
-      //    setTimeout(function() {
-      //      console.groupEnd();
-      //    }, 0);
+      e.activeItem && e.activeItem.addClass('active');
+      e.inactiveItem && e.inactiveItem.removeClass('active');
+      $message.innerText = e.inactiveIndex + ' -> ' + e.activeIndex;
     })
-    .on('inactive',
-    function(e) {
-      e.item.removeClass('active');
-      //    console.log('inactive:', index);
-    });
+    .active(2);
 
 document.on('click', function(e) {
-  o.active(spans.indexOf(e.target));
+  switcher.active(e.target);
 });
 
 </script>
