@@ -1,9 +1,12 @@
-﻿>2012-03-31
+﻿>2012-04-02
+Component
+
+>2012-03-31
 -Object.append
 -Object.update
 Object.merge -> Object.append
 
->2012-03-30 (计划 3 天完成)
+>2012-03-30
 Object.merge
 
 增加 Components 类，提供与 Element/document/window 相同的操作事件的方法 on/off/fire。

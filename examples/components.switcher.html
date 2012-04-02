@@ -27,35 +27,36 @@ var array = [
   [3],
   [4]
 ];
-var x = new components.Switcher(array, {
-  defaultActiveIndex: -1,
-  onActive: function(index) {
-    console.log('active: ' + JSON.stringify(array[index]) + ':' + index);
-  },
-  onInactive: function(index) {
-    console.log('inactive: ' + JSON.stringify(array[index]) + ':' + index);
-  }
-});
+var x = new components.Switcher(array, {activeIndex: 2})
+    .on('active',
+    function(index) {
+      console.log('active: ' + JSON.stringify(array[index]) + ':' + index);
+    })
+    .on('inactive',
+    function(index) {
+      console.log('inactive: ' + JSON.stringify(array[index]) + ':' + index);
+    });
 
 //--------------------------------------------------[o]
 var $body = $(document.body);
 var spans = $body.find('span');
 var timer;
-var o = new components.Switcher(spans, {
-  defaultActiveIndex: 2,
-  onActive: function(index) {
-    spans[index].addClass('active');
-//    console.group();
-//    console.log('active:', index);
-//    setTimeout(function() {
-//      console.groupEnd();
-//    }, 0);
-  },
-  onInactive: function(index) {
-    spans[index].removeClass('active');
-//    console.log('inactive:', index);
-  }
-});
+var o = new components.Switcher(spans, {activeIndex: 2})
+    .on('active',
+    function(e) {
+      e.item.addClass('active');
+      //    console.group();
+      //    console.log('active:', index);
+      //    setTimeout(function() {
+      //      console.groupEnd();
+      //    }, 0);
+    })
+    .on('inactive',
+    function(e) {
+      e.item.removeClass('active');
+      //    console.log('inactive:', index);
+    });
+
 document.on('click', function(e) {
   o.active(spans.indexOf(e.target));
 });

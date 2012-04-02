@@ -171,6 +171,16 @@ function filterSymbol(source) {
       newItem.description = parseDescription(item.desc);
       return newItem;
     }),
+    fires: source.fires.map(function(item) {
+      // 使用 jsdoc-toolkit 获取的文档数据中，fires 仅为字符串，因此在写注释文档时约定：第一行为事件名，其后为描述。
+      var match = parseDescription(item).match(/(\w*)(?:<br>)(.*)/);
+      var mame = match && match[1] || '';
+      var description = match && match[2] || '';
+      return {
+        name: mame,
+        description: description
+      };
+    }),
     description: parseDescription(source.desc),
     examples: source.example.map(function(item) {
       return item.desc;

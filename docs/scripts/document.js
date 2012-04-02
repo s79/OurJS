@@ -116,6 +116,17 @@ document.on('domready', function() {
           '';
     };
 
+//--------------------------------------------------[getFires]
+    var getFires = function(symbol) {
+      return symbol && symbol.fires.length ?
+          '<dl><dt>触发事件：</dt><dd><table>' + symbol.fires.map(
+              function(event) {
+                return '<tr><td><dfn>' + event.name + '</dfn></td><td>' + event.description + '</td></tr>';
+              }
+          ).join('') + '</table></dd></dl>' :
+          '';
+    };
+
 //--------------------------------------------------[getRequires]
     var getRequires = function(symbol) {
       return symbol && symbol.requires.length ?
@@ -197,7 +208,7 @@ document.on('domready', function() {
             $detailsDiv.append($(written[title]));
             delete written[title];
           }
-          $detailsDiv.append($('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>'));
+          $detailsDiv.append($('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>'));
         }
       });
       $details.append($detailsDiv);

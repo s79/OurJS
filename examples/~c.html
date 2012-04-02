@@ -7,127 +7,33 @@
 </head>
 <body>
 <script>
-Function.prototype.addSuperPrototype = function(superPrototype) {
-  var Super = function() {
-  };
-  Super.prototype = superPrototype;
-  this.prototype = new Super();
-  this.prototype.constructor = this;
-  this.prototype.superPrototype = superPrototype;
-};
 
-/*
- * 依赖调用本方法的组件自身的 event 属性。
- * <Object event> {
- *   <string type>: <Array handlers> [
- *     <Object handler>: {
- *       name: <string>
- *       listener: <Function>
- *     }
- *   ]
- * };
- *
- */
-var ComponentsEventMethods = {
-  /**
-   * 为组件添加监听器。
-   * @name Components.prototype.on
-   * @function
-   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
-   *   使用空格分割要多个事件名称，即可同时为多个事件注册同一个监听器。
-   * @param {Function} listener 要添加的事件监听器，传入调用此方法的组件提供的事件对象。
-   * @returns {Object} 调用本方法的组件。
-   */
-  on: function(name, listener) {
-    var self = this;
-    if (name.contains(' ')) {
-      name.split(' ').forEach(function(name) {
-        ComponentsEventMethods.on.call(self, name, listener);
-      });
-      return self;
-    }
-    var events = self.events;
-    var dotIndex = name.indexOf('.');
-    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
-    var handlers = events[type] || (events[type] = []);
-    handlers.push({name: name, listener: listener});
-    return self;
-  },
-  /**
-   * 根据名称删除组件上已添加的监听器。
-   * @name Components.prototype.off
-   * @function
-   * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
-   * @returns {Object} 调用本方法的组件。
-   */
-  off: function(name) {
-    var self = this;
-    if (name.contains(' ')) {
-      name.split(' ').forEach(function(name) {
-        ComponentsEventMethods.off.call(self, name);
-      });
-      return self;
-    }
-    var events = self.events;
-    var dotIndex = name.indexOf('.');
-    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
-    var handlers = events[type];
-    if (!handlers) {
-      return self;
-    }
-    var i = 0;
-    var handler;
-    if (name === type) {
-      handlers.length = 0;
-    } else {
-      while (i < handlers.length) {
-        handler = handlers[i];
-        if (handler.name === name) {
-          handlers.splice(i, 1);
-        } else {
-          i++;
-        }
-      }
-    }
-    if (handlers.length === 0) {
-      delete events[type];
-    }
-    return self;
-  },
-  /**
-   * 触发一个组件的某类事件，运行相关的监听器。
-   * @name Components.prototype.fire
-   * @function
-   * @param {String} type 事件类型。
-   * @param {Object} [event] 事件对象。
-   * @returns {Object} 调用本方法的组件。
-   */
-  fire: function(type, event) {
-    var self = this;
-    var events = self.events;
-    var handlers = events[type];
-    if (!handlers) {
-      return self;
-    }
-    console.log('>>', type, event);
-    handlers.forEach(function(handler) {
-      handler.listener.call(self, event);
-    });
-    return self;
-  }
-};
-
-var C = function(c) {
-  this.events = {};
+var C = function(c, options) {
   this.c = c;
-};
-C.addSuperPrototype(ComponentsEventMethods);
-C.prototype.getC = function() {
-  return this.c;
+  console.log('形参最后的 options 被外包装函数劫持：', arguments);
+  this.events = 'string event';
+  console.log('this.events 被外包装函数过滤：', this.events);
 };
 
-c = new C(100);
+C.prototype.getC = function() {
+  return this.text + this.c;
+};
+
+C.options = {
+  text: '$$$$$'
+};
+
+components.C = new Component('C', C);
+
+c = new components.C(100, {optionTest: 12345});
 console.log(c.getC());
+c.on('aa', function() {
+  console.log('~~~' + this.getC())
+});
+c.on('aa.test', function(e) {
+  console.log(JSON.stringify(e) + '***' + this.c)
+});
+c.fire('aa', {property1: 1, property2: [12, 23, 34]});
 </script>
 </body>
 </html>
