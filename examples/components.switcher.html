@@ -26,7 +26,7 @@ span { float: left; width: 100px; height: 100px; margin: 10px; background: yello
 //--------------------------------------------------[switcher]
 var $message = $('#message');
 var switcher = new components.Switcher($(document.body).find('span'))
-    .on('activeitemchange',
+    .on('change',
     function(e) {
       e.activeItem && e.activeItem.addClass('active');
       e.inactiveItem && e.inactiveItem.removeClass('active');

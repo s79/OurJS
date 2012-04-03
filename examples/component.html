@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Component</title>
+<script src="../import.js"></script>
+</head>
+<body>
+<script>
+//--------------------------------------------------[Component C]
+function C(c, options) {
+  this.c = c;
+  console.warn('形参最后的 options 被外包装函数劫持：', arguments);
+//  this.events = '如果此处设置 events 属性为非对象，Component 的事件处理将失效。';
+//  this.on = function() {
+//    console.log('如果此处设置 on/off/fire，Component 的事件处理也将失效。', arguments);
+//  };
+}
+
+C.options = {
+  text: '$'
+};
+
+C.prototype.getC = function() {
+  return this.text + this.c;
+};
+
+components.C = new Component(C);
+
+//--------------------------------------------------[TEST]
+var c = new components.C(100, {optionTest: 12345});
+c.on('test.1st', function() {
+  console.log('[test]' + this.getC());
+});
+c.on('test.2nd', function(e) {
+  console.log('[test.2nd]' + JSON.stringify(e) + ' | ' + this.getC());
+});
+c.fire('test', {name: 'test', data: [0]});
+c.off('test.2nd');
+c.fire('test', {name: 'test', data: [1]})
+</script>
+</body>
+</html>

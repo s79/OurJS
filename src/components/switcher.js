@@ -16,7 +16,7 @@
    * @memberOf components
    * @constructor
    * @param {Array} items 指定在本数组中的各元素间切换，本数组包含的元素必须是引用类型的值，且不能有重复。
-   * @fires activeitemchange
+   * @fires change
    *   在当前的活动元素改变时触发。
    *   <table>
    *     <tr><th>事件对象的属性</th><th>描述</th></tr>
@@ -45,7 +45,7 @@
 
 //--------------------------------------------------[Switcher.prototype.active]
   /**
-   * 将一个元素标记为“活动”。如果之前有活动元素，则同时取消该元素的“活动”状态。
+   * 将一个元素标记为“活动”，并将当前的活动元素（如果有）标记为“非活动”。
    * @name Switcher.prototype.active
    * @memberOf components
    * @function
@@ -95,7 +95,7 @@
         event.inactiveItem = this.items[lastActiveIndex];
         event.inactiveIndex = lastActiveIndex;
       }
-      eventTriggered && this.fire('activeitemchange', event);
+      eventTriggered && this.fire('change', event);
     }
     return this;
   };

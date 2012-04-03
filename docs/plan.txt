@@ -58,8 +58,7 @@ components.mask.html:591331403483764 "HIDE"
 
 >TODO: 检查 Request 的 minTime 选项。
 
->TODO: components 的 options 参数，应区分为“可改写”和“不可改写”两种，“不可改写”的不要附加在实例上。
-以上取消，使用 prototype 实现，天然选项。
+>TODO: 事件部分 fire 参数由 type 改为 name。
 
 >TODO: 事件部分 + input。
 
@@ -78,6 +77,9 @@ colgroup？
 >TODO: SWFObject
 
 >TODO: Date.prototype.format & Number.prototype.format
+
+>components 的 options 参数，应区分为“可改写”和“不可改写”两种，“不可改写”的不要附加在实例上。
+>以上取消，使用 prototype 实现，天然选项。
 
 --------------------------------------------------[NOTE]
 Application 即页面应用。

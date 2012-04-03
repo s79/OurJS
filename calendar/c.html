@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>components.Calendar</title>
+<link rel="stylesheet" href="../examples/common.css">
+<link rel="stylesheet" href="calendar.css">
+<script src="../import.js"></script>
+<style>
+.coop_time { position: relative; }
+.date_box { width: 143px; height: 25px; text-indent: 20px; line-height: 25px; cursor: pointer; }
+.date_box_show { background: url('bg_time_list.gif') left top; }
+.date_box_hide { background: url('bg_time_list.gif') left bottom; }
+td { padding: 0; }
+</style>
+</head>
+<body>
+<h1>components.Calendar</h1>
+<fieldset>
+  <legend>月历</legend>
+  <div id="target"></div>
+</fieldset>
+<script>
+/**
+ * @fileOverview 组件 - 日历。
+ * @author sundongguo@gmail.com
+ * @version 20120329 (update from 20080528)
+ */
+(function() {
+// 避免 $ 被覆盖。
+  var $ = document.$;
+
+//==================================================[Calendar]
+  /*
+   * 日历组件。
+   */
+
+//--------------------------------------------------[Calendar Constructor]
+  /**
+   * 日历选择组件。
+   * @name Calendar
+   * @memberOf components
+   * @constructor
+   * @param {Object} [options] 可选参数，这些参数的默认值保存在 Calendar.options 中。
+   * @param {boolean} options.useStandardSequence 是否按照标准顺序排列日期。设置为 true 按照“周日 - 周六”的顺序排列，否则按照“周一 - 周日”的顺序排列。
+   * @param {string} options.theme 主题样式，即创建的最外层 DOM 元素的 className。
+   * @param {string} options.minDate 最小日期，格式为 yyyy-mm-dd，默认为 1900-01-01。
+   * @param {string} options.maxDate 最大日期，格式为 yyyy-mm-dd，默认为 2100-12-31。
+   * @fires show
+   * @fires hide
+   * @fires change
+   * @fires select
+   *   选定日期后触发。
+   *   <table>
+   *     <tr><th>事件对象的属性</th><th>描述</th></tr>
+   *     <tr><td>date</td><td>选定的日期，格式为 yyyy-mm-dd 的字符串。</td></tr>
+   *   </table>
+   */
+  function Calendar(options) {
+    // 创建 DOM 基本结构。
+    var $calendar = $('<div class="' + this.theme + '"><div><button class="prev_year"></button><button class="prev_month"></button><span class="year">0000</span><span>.</span><span class="month">00</span><button class="next_month"></button><button class="next_year"></button></div><table><thead></thead><tbody></tbody></table></div>');
+    var $controlPanel = $calendar.getFirstChild();
+    var controls = $controlPanel.find('*');
+    var $thead = $controlPanel.getNext().getFirstChild();
+    var $tbody = $thead.getNext();
+    // 创建日历头。
+    var tr = $thead.insertRow(-1);
+    for (var i = 0; i < 7; i++) {
+      tr.insertCell(-1);
+    }
+    // 创建日历体。
+    for (var row = 0; row < 6; row++) {
+      $tbody.appendChild(tr.cloneNode(true));
+    }
+    // 保存 DOM 元素。
+    this.elements = {
+      calendar: $calendar,
+      prevYear: controls[0],
+      prevMonth: controls[1],
+      year: controls[2],
+      month: controls[4],
+      nextMonth: controls[5],
+      nextYear: controls[6],
+      headCells: $thead.find('td'),
+      bodyCells: $tbody.find('td')
+    };
+    // TODO
+    this.render();
+  }
+
+//--------------------------------------------------[Calendar.options]
+  /**
+   * 默认选项。
+   * @name Calendar.options
+   * @memberOf components
+   */
+  Calendar.options = {
+    useStandardSequence: true,
+    theme: 'calendar',
+    date: undefined,
+    value: undefined,
+    minDate: '1900-01-01',
+    maxDate: '2100-12-31'
+  };
+
+//--------------------------------------------------[Calendar.prototype.render]
+  function format(n) {
+    return n < 10 ? '0' + n : n;
+  }
+
+  /**
+   * 将字符串型日期 yyyy-MM-dd 转化为日期对象，如果 dd 被省略，则以 1 代替。
+   * @function
+   * @private
+   * @param {string} dateString
+   * @return {Object} 日期对象。
+   */
+  function parseDate(dateString) {
+    var ymd = dateString.split('-').map(function(item) {
+      return Number.toInteger(item);
+    });
+    return new Date(ymd[0], ymd[1] - 1, ymd[2] || 1);
+  }
+
+  Calendar.prototype.render = function(dateString) {
+    // 获取最大、最小、要显示的时间。
+    var minDate = parseDate(this.minDate);
+    var maxDate = parseDate(this.maxDate);
+    var showDate = new Date(Math.limit(dateString ? parseDate(dateString) : new Date(), minDate, maxDate));
+    var minY = minDate.getFullYear();
+    var maxY = maxDate.getFullYear();
+    var showY = showDate.getFullYear();
+    var minM = minDate.getMonth();
+    var maxM = maxDate.getMonth();
+    var showM = showDate.getMonth();
+    // 设置控制按钮。
+    this.elements.prevYear[showY == minY ? 'addClass' : 'removeClass']('disabled');
+    this.elements.prevMonth[showY == minY && showM == minM ? 'addClass' : 'removeClass']('disabled');
+    this.elements.nextMonth[showY == maxY && showM == maxM ? 'addClass' : 'removeClass']('disabled');
+    this.elements.nextYear[showY == maxY ? 'addClass' : 'removeClass']('disabled');
+    // 显示年份和月份。
+    this.elements.year.innerHTML = showY;
+    this.elements.month.innerHTML = format(showM + 1);
+    // 保存当前显示的年份和月份。
+    this.date = showY + '-' + format(showM + 1);
+    console.log('SHOW DATE = ' + this.date);  // TODO
+    // 星期类名（数组下标与星期数字相等）。
+    var dayNames = ['sun', 'mon', 'tues', 'wed', 'thurs', 'fri', 'sat'];
+    var dayTexts = ['日', '一', '二', '三', '四', '五', '六'];
+    // 每周从周几开始。
+    var startDay = this.useStandardSequence ? 0 : 1;
+    // 输出日历头（头尾均可能出现星期日）。
+    this.elements.headCells.forEach(function($cell, index) {
+      $cell.className = dayNames[(index + startDay) % 7];
+      $cell.innerHTML = dayTexts[(index + startDay) % 7];
+    });
+    // 计算本月第一天和最后一天应该在日历的第几个单元格显示。
+    var date = new Date(showY, showM, 1);
+    var y;
+    var m;
+    var d;
+    var startIndex = date.getDay();
+    startIndex = startDay ? (startIndex < 2 ? startIndex + 6 : startIndex - 1) : (startIndex == 0 ? 7 : startIndex);
+    var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
+    // 当前日期。
+    var currentDate = new Date();
+    // 已选定的日期。
+    var selectedDate = this.value ? parseDate(this.value) : null;
+    // 一天毫秒数。
+    var millisecondsInOneDay = 24 * 60 * 60 * 1000;
+    // 毫秒数差值。
+    var millisecondsDValue;
+    // 输出日历体。
+    this.elements.bodyCells.forEach(function($cell, index) {
+      date = new Date(showY, showM, index - startIndex + 1);
+      y = date.getFullYear();
+      m = date.getMonth();
+      d = date.getDate();
+      console.log(index - startIndex, date.toJSON());
+      $cell.className = dayNames[date.getDay()];
+      if (index < startIndex) {
+        // 上个月的日期。
+        $cell.addClass('previous_month');
+      } else if (index < endIndex) {
+        // 这个月的日期。
+        millisecondsDValue = currentDate - date;
+        if (millisecondsDValue > 0 && millisecondsDValue < millisecondsInOneDay) {
+          $cell.addClass('current_date');
+        }
+      } else {
+        // 下个月的日期。
+        $cell.addClass('next_month');
+      }
+      if (selectedDate) {
+        millisecondsDValue = selectedDate - date;
+        if (millisecondsDValue > 0 && millisecondsDValue < millisecondsInOneDay) {
+          $cell.addClass('selected_date');
+        }
+      }
+      $cell.title = y + '-' + format(m + 1) + '-' + format(d);
+      if (date < minDate || index > maxDate) {
+        $cell.title += '(超出范围)';
+        $cell.addClass('disabled');
+      }
+      $cell.innerHTML = date.getDate();
+    });
+    return this;
+  };
+
+//--------------------------------------------------[Calendar.prototype.getElement]
+  Calendar.prototype.getElements = function() {
+    return this.elements;
+  };
+
+//--------------------------------------------------[components.Calendar]
+  components.Calendar = new Component(Calendar);
+
+})();
+
+var calendar = new components.Calendar();
+$('#target').append(calendar.getElements().calendar);
+</script>
+</body>
+</html>
