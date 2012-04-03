@@ -1,139 +1,28 @@
-﻿.calendar
-{
-	width: 175px;
-	height: 160px;
-	cursor: default;
-}
-.calendar div
-{
-	width: 175px;
-	height: 20px;
-	text-align: center;
-	background: #ffd711;
-}
-.calendar div button
-{
-	margin: 5px 2px;
-	padding: 0px;
-	width: 11px;
-	height: 11px;
-	border: 0px none;
-	cursor: pointer;
-}
-.calendar div span
-{
-	margin: 2px;
-}
-.calendar div button.p_y-out
-{
-	background: url("button.gif") 0px 0px;
-}
-.calendar div button.p_y-over
-{
-	background: url("button.gif") 0px -11px;
-}
-.calendar div button.p_y-down
-{
-	background: url("button.gif") 0px -22px;
-}
-.calendar div button.p_y-disabled
-{
-	background: url("button.gif") 0px -33px;
-}
-.calendar div button.p_m-out
-{
-	background: url("button.gif") -11px 0px;
-}
-.calendar div button.p_m-over
-{
-	background: url("button.gif") -11px -11px;
-}
-.calendar div button.p_m-down
-{
-	background: url("button.gif") -11px -22px;
-}
-.calendar div button.p_m-disabled
-{
-	background: url("button.gif") -11px -33px;
-}
-.calendar div button.n_m-out
-{
-	background: url("button.gif") -22px 0px;
-}
-.calendar div button.n_m-over
-{
-	background: url("button.gif") -22px -11px;
-}
-.calendar div button.n_m-down
-{
-	background: url("button.gif") -22px -22px;
-}
-.calendar div button.n_m-disabled
-{
-	background: url("button.gif") -22px -33px;
-}
-.calendar div button.n_y-out
-{
-	background: url("button.gif") -33px 0px;
-}
-.calendar div button.n_y-over
-{
-	background: url("button.gif") -33px -11px;
-}
-.calendar div button.n_y-down
-{
-	background: url("button.gif") -33px -22px;
-}
-.calendar div button.n_y-disabled
-{
-	background: url("button.gif") -33px -33px;
-}
-.calendar table td
-{
-	width: 25px;
-	height: 20px;
-	text-align: center;
-	line-height: 20px;
-}
-.calendar table thead
-{
-	background: #396686;
-}
-.calendar table thead td
-{
-	color: white;
-}
-.calendar table tbody
-{
-	background: #f5f5f5;
-}
-.calendar table tbody td
-{
-	font-size: 11px;
-}
-.calendar table tbody td.enabled
-{
-	cursor: pointer;
-}
-.calendar table tbody td.disabled
-{
-	background: #dcdcdc;
-}
-.calendar table tbody td.previous_month,
-.calendar table tbody td.next_month
-{
-	color: #c0c0c0;
-}
-.calendar table tbody td.this_month
-{
-	color: #000000;
-}
-.calendar table tbody td.current_day
-{
-	font-weight: bold;
-	text-decoration: underline;
-}
-.calendar table tbody td.hover
-{
-	background: #ffffff;
-}
+﻿.calendar { position: absolute; padding: 6px; border: 1px solid silver; border-radius: 3px; background: #EEE; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
+/* 控制区 */
+.calendar div { width: 218px; height: 20px; text-align: center; }
+.calendar div span.btn { position: absolute; top: 6px; width: 28px; height: 20px; border: 1px solid silver; border-radius: 2px; background: whitesmoke; color: #333; }
+.calendar div span.btn:hover { background: white; }
+.calendar div span.disabled,
+.calendar div span.disabled:hover { background: gainsboro; color: gray; }
+.calendar div span.prev_year { left: 7px; }
+.calendar div span.prev_month { left: 38px; }
+.calendar div span.next_year { right: 7px; }
+.calendar div span.next_month { right: 38px; }
+/* 日期列表 */
+.calendar table { table-layout: fixed; border-collapse: separate; border-spacing: 1px; width: 218px; }
+.calendar table td { padding: 0; border: 1px solid silver; border-radius: 2px; text-align: center; }
+.calendar thead td { border-color: #EEE; font-weight: bold; }
+.calendar tbody td { background: whitesmoke; color: #333; }
+.calendar tbody td.prev_month.enabled:hover,
+.calendar tbody td.next_month.enabled:hover { background: transparent; border-color: yellowgreen; }
+.calendar tbody td.enabled:hover { background: greenyellow; border-color: yellowgreen; }
+.calendar tbody td.disabled { background: gainsboro; color: gray; }
+.calendar tbody td.prev_month,
+.calendar tbody td.next_month { border-color: #EEE; background: transparent; }
+.calendar tbody td.prev_month.selected_date,
+.calendar tbody td.next_month.selected_date,
+.calendar tbody td.prev_month.selected_date:hover,
+.calendar tbody td.next_month.selected_date:hover { background: transparent; border-color: maroon; }
+.calendar tbody td.selected_date,
+.calendar tbody td.selected_date:hover { background: #FF7B3A; border-color: maroon; font-weight: bold; text-decoration: underline; }
