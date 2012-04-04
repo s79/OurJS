@@ -474,10 +474,9 @@
    * 其他自定义的扩展方法。
    *
    * 扩展方法：
+   *   Object.forEach
    *   Object.clone
    *   Object.append
-   *   Object.update
-   *   Object.forEach
    *   Array.from
    *   Array.prototype.contains
    *   String.prototype.clean
@@ -486,114 +485,6 @@
    *   Math.randomRange
    *   RegExp.escape
    */
-//--------------------------------------------------[Object.clone]
-  /**
-   * 克隆一个对象。
-   * @name Object.clone
-   * @function
-   * @param {Object} source 原始对象。
-   * @param {boolean} [recursive] 是否进行深克隆。
-   * @returns {Object} 克隆后的对象。
-   */
-  Object.clone = function(source, recursive) {
-    var cloning;
-    switch (typeOf(source)) {
-      case 'object.Array':
-        cloning = [];
-        source.forEach(function(item, i) {
-          cloning[i] = recursive ? Object.clone(item, true) : item;
-        });
-        break;
-      case 'object.Object':
-        cloning = {};
-        Object.forEach(source, function(value, key) {
-          cloning[key] = recursive ? Object.clone(value, true) : value;
-        });
-        break;
-      default:
-        cloning = source;
-    }
-    return cloning;
-  };
-
-//--------------------------------------------------[Object.append]
-  /**
-   * 为一个对象追加其他对象自身的属性（而不包括这些对象的原型链中的属性）。
-   * @name Object.append
-   * @function
-   * @param {Object} original 原始对象。
-   * @param {...Object} extended 扩展对象，使用这些对象进行追加，可以为任意个。
-   * @returns {Object} 追加后的对象。
-   * @description
-   *   extended2 和 extended1 中的属性会覆盖 original 中的同名属性。
-   *   <table>
-   *     <tr><th>original</th><th>extended1</th><th>extended2</th><th>result</th></tr>
-   *     <tr><td>a: 'a.0'</td><td></td><td></td><td>a: 'a.0'</td></tr>
-   *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td></td><td>b: 'b.1'</td></tr>
-   *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.2'</td><td>c: 'c.2'</td></tr>
-   *     <tr><td></td><td></td><td>d: 'd.2'</td><td>d: 'd.2'</td></tr>
-   *   </table>
-   * @example
-   *   var o = Object.append({a: 0}, {a: 1, b: 1}, {a: 2, b: 2});
-   *   o.a;
-   *   // 2
-   *   o.b;
-   *   // 2
-   */
-  Object.append = function(original) {
-    var i = 1;
-    var length = arguments.length;
-    while (i < length) {
-      var extended = arguments[i] || {};
-      for (var key in extended) {
-        if (extended.hasOwnProperty(key)) {
-          original[key] = extended[key];
-        }
-      }
-      i++;
-    }
-    return original;
-  };
-
-//--------------------------------------------------[Object.update]
-  /**
-   * 将一个对象自身的属性更新为其他对象自身的同名属性（而不包括这些对象的原型链中的属性）。
-   * @name Object.update
-   * @function
-   * @param {Object} original 原始对象。
-   * @param {...Object} extended 扩展对象，使用这些对象进行更新，可以为任意个。
-   * @returns {Object} 更新后的对象。
-   * @description
-   *   extended2 和 extended1 中的属性会覆盖 original 中已存在的同名属性。
-   *   <table>
-   *     <tr><th>original</th><th>extended1</th><th>extended2</th><th>result</th></tr>
-   *     <tr><td>a: 'a.0'</td><td></td><td></td><td>a: 'a.0'</td></tr>
-   *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td></td><td>b: 'b.1'</td></tr>
-   *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.2'</td><td></td></tr>
-   *     <tr><td></td><td></td><td>d: 'd.2'</td><td></td></tr>
-   *   </table>
-   * @example
-   *   var o = Object.update({a: 0}, {a: 1, b: 1}, {a: 2, b: 2});
-   *   o.a;
-   *   // 2
-   *   o.b;
-   *   // undefined
-   */
-  Object.update = function(original) {
-    var i = 1;
-    var length = arguments.length;
-    while (i < length) {
-      var extended = arguments[i] || {};
-      for (var key in extended) {
-        if (original.hasOwnProperty(key) && extended.hasOwnProperty(key)) {
-          original[key] = extended[key];
-        }
-      }
-      i++;
-    }
-    return original;
-  };
-
 //--------------------------------------------------[Object.forEach]
   /**
    * 遍历一个对象。
@@ -619,6 +510,93 @@
         i++;
       }
     }
+  };
+
+//--------------------------------------------------[Object.clone]
+  /**
+   * 克隆一个对象，返回克隆后的新对象。
+   * @name Object.clone
+   * @function
+   * @param {Object} source 原始对象。
+   * @param {boolean} [recursive] 是否进行深克隆。
+   * @returns {Object} 克隆后的新对象。
+   * @description
+   *   原型链中的 properties 不会被克隆。
+   */
+  Object.clone = function(source, recursive) {
+    var cloning;
+    switch (typeOf(source)) {
+      case 'object.Array':
+        cloning = [];
+        source.forEach(function(item, i) {
+          cloning[i] = recursive ? Object.clone(item, true) : item;
+        });
+        break;
+      case 'object.Object':
+        cloning = {};
+        Object.forEach(source, function(value, key) {
+          cloning[key] = recursive ? Object.clone(value, true) : value;
+        });
+        break;
+      default:
+        cloning = source;
+    }
+    return cloning;
+  };
+
+//--------------------------------------------------[Object.append]
+  /**
+   * 为一个对象追加另一个对象自身（不包含原型链）的 properties。
+   * @name Object.append
+   * @function
+   * @param {Object} original 原始对象。
+   * @param {Object} appending 追加对象，其 properties 会被复制到 original 中。
+   * @param {Object} [filter] 过滤要复制的 appending 的 properties 的名单。
+   * @param {Array} filter.whiteList 仅在 appending 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 original 中。
+   * @param {Array} filter.blackList 如果 appending 中的 key 包含于 blackList，则对应的 property 不会被复制到 original 中。
+   *   如果 blackList 与 whiteList 有重复元素，则 whiteList 中的该元素将被忽略。
+   * @returns {Object} 追加后的 original 对象。
+   * @description
+   *   appending 中的 property 会覆盖 original 中的同名 property。
+   *   <table>
+   *     <tr><th>original (before)</th><th>appending</th><th>original (after)</th></tr>
+   *     <tr><td>a: 'a.0'</td><td></td><td>a: 'a.0'</td></tr>
+   *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td>b: 'b.1'</td></tr>
+   *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.1'</td></tr>
+   *   </table>
+   * @example
+   *   var original = {a: 'a.0'};
+   *   var appending = {b: 'b.1'};
+   *   JSON.stringify(Object.append(original, appending));
+   *   // {"a":"a.0","b":"b.1"}
+   * @example
+   *   var original = {a: 'a.0', b: 'b.0', c: 'c.0'};
+   *   var appending = {a: 'a.1', b: 'b.1', c: 'c.1'};
+   *   JSON.stringify(Object.append(original, appending, {whiteList: ['a', 'b']}));
+   *   // {"a":"a.1","b":"b.1","c":"c.0"}
+   *   JSON.stringify(Object.append(original, appending, {whiteList: ['a', 'b'], blackList: ['b', 'c']}));
+   *   // {"a":"a.1","b":"b.0","c":"c.0"}
+   * */
+  Object.append = function(original, appending, filter) {
+    var keys = Object.keys(appending);
+    if (filter) {
+      var whiteList = filter.whiteList;
+      var blackList = filter.blackList;
+      if (whiteList) {
+        keys = whiteList.filter(function(item) {
+          return keys.contains(item);
+        });
+      }
+      if (blackList) {
+        keys = keys.filter(function(item) {
+          return !blackList.contains(item);
+        });
+      }
+    }
+    keys.forEach(function(item) {
+      original[item] = appending[item];
+    });
+    return original;
   };
 
 //--------------------------------------------------[Array.from]
@@ -763,6 +741,24 @@
    * Chrome2  Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1
    * Safari5  Mozilla/5.0 (Windows NT 6.1) AppleWebKit/534.51.22 (KHTML, like Gecko) Version/5.1.1 Safari/534.51.22
    * Opera11  Opera/9.80 (Windows NT 6.1; U; en) Presto/2.9.168 Version/11.52
+   *
+   * 扩展属性：
+   *   navigator.userAgentInfo
+   *   navigator.userAgentInfo.engine
+   *   navigator.userAgentInfo.name
+   *   navigator.userAgentInfo.version
+   *   navigator.inStandardsMode
+   *   navigator.isIE
+   *   navigator.isIE9
+   *   navigator.isIElt9
+   *   navigator.isIE8
+   *   navigator.isIElt8
+   *   navigator.isIE7
+   *   navigator.isIE6
+   *   navigator.isFirefox
+   *   navigator.isChrome
+   *   navigator.isSafari
+   *   navigator.isOpera
    */
 
   /**
@@ -974,6 +970,13 @@
   }());
 
 //==================================================[页面地址信息扩展]
+  /*
+   * 页面地址信息扩展。
+   *
+   * 扩展属性：
+   *   location.parameters
+   */
+
   /**
    * 扩展 location 对象。
    * @name location
@@ -1019,7 +1022,7 @@
   /*
    * 提供全局方法。
    *
-   * 添加方法：
+   * 扩展方法：
    *   typeOf
    *   execScript
    *   getNamespace
@@ -1156,6 +1159,164 @@
       o = item in o ? o[item] : o[item] = {};
     });
     return o;
+  };
+
+//==================================================[组件]
+  /*
+   * 提供组件的构造器。
+   * 为组件的实例提供 on/off/fire 方法，这些方法依赖组件实例自身的 event 属性。
+   * <Object event> {
+   *   <string type>: <Array handlers> [
+   *     <Object handler>: {
+   *       name: <string>
+   *       listener: <Function>
+   *     }
+   *   ]
+   * };
+   *
+   * 扩展方法：
+   *   createComponent
+   * 命名空间：
+   *   components
+   */
+
+//--------------------------------------------------[Component Constructor]
+  /**
+   * 创建一个组件。
+   * @name Component
+   * @constructor
+   * @param {Function} constructor 组件构造函数。
+   *   <ul>
+   *     <li>声明 constructor 时，其最后一个形参必须是一个可选参数 options。即便一个组件不需要 options，也应将其写入形参内。</li>
+   *     <li>不要在 constructor 中访问 options 形参，因为此形参并不会被传入 constructor。要访问 options 形参的属性，直接访问实例的同名属性即可。</li>
+   *     <li>必须指定 constructor.options，以代表默认选项。即便一个组件不需要默认选项，也应将 constructor.options 设置为空对象。</li>
+   *     <li>constructor、constructor.options、constructor.prototype 内均不能设置实例的 events/on/off/fire 属性。</li>
+   *   </ul>
+   * @description
+   *   本方法本质是包装 constructor，以加入对事件的支持，并能自动处理默认选项和指定选项。
+   */
+  function Component(constructor) {
+    // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
+    var ComponentConstructor = function() {
+      // 追加默认 options 到实例对象。
+      Object.append(this, constructor.options);
+      // 追加指定的 options 到实例对象。
+      var parameters = Array.from(arguments);
+      var formalParameterLength = constructor.length;
+      var actualParameterLength = arguments.length;
+      if (formalParameterLength !== actualParameterLength) {
+        parameters.length = formalParameterLength;
+      }
+      // 移除实参中的 options。
+      Object.append(this, parameters.pop() || {});
+      // 实例的 events 必须为以下指定的空对象。
+      this.events = {};
+      constructor.apply(this, parameters);
+    };
+    // 将 Component.prototype 添加到 ComponentConstructor 的原型链。
+    var ComponentPrototype = function() {
+    };
+    ComponentPrototype.prototype = Component.prototype;
+    ComponentConstructor.prototype = new ComponentPrototype();
+    ComponentConstructor.prototype.constructor = ComponentConstructor;
+    ComponentConstructor.prototype.superPrototype = ComponentPrototype.prototype;
+    // 将 constructor 的原型内的属性追加到 Component 的原型中。
+    Object.append(ComponentConstructor.prototype, constructor.prototype, {blackList: ['on', 'off', 'fire']});
+    // 返回组件。
+    return ComponentConstructor;
+  }
+
+  window.Component = Component;
+
+//--------------------------------------------------[Component.prototype.on]
+  /**
+   * 为组件添加监听器。
+   * @name Component.prototype.on
+   * @function
+   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
+   *   使用空格分割要多个事件名称，即可同时为多个事件注册同一个监听器。
+   * @param {Function} listener 要添加的事件监听器，传入调用此方法的组件提供的事件对象。
+   * @returns {Object} 调用本方法的组件。
+   */
+  Component.prototype.on = function(name, listener) {
+    var self = this;
+    if (name.contains(' ')) {
+      name.split(' ').forEach(function(name) {
+        Component.prototype.on.call(self, name, listener);
+      });
+      return self;
+    }
+    var events = self.events;
+    var dotIndex = name.indexOf('.');
+    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
+    var handlers = events[type] || (events[type] = []);
+    handlers.push({name: name, listener: listener});
+    return self;
+  };
+
+//--------------------------------------------------[Component.prototype.off]
+  /**
+   * 根据名称删除组件上已添加的监听器。
+   * @name Component.prototype.off
+   * @function
+   * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
+   * @returns {Object} 调用本方法的组件。
+   */
+  Component.prototype.off = function(name) {
+    var self = this;
+    if (name.contains(' ')) {
+      name.split(' ').forEach(function(name) {
+        Component.prototype.off.call(self, name);
+      });
+      return self;
+    }
+    var events = self.events;
+    var dotIndex = name.indexOf('.');
+    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
+    var handlers = events[type];
+    if (!handlers) {
+      return self;
+    }
+    var i = 0;
+    var handler;
+    if (name === type) {
+      handlers.length = 0;
+    } else {
+      while (i < handlers.length) {
+        handler = handlers[i];
+        if (handler.name === name) {
+          handlers.splice(i, 1);
+        } else {
+          i++;
+        }
+      }
+    }
+    if (handlers.length === 0) {
+      delete events[type];
+    }
+    return self;
+  };
+
+//--------------------------------------------------[Component.prototype.fire]
+  /**
+   * 触发一个组件的某类事件，运行相关的监听器。
+   * @name Component.prototype.fire
+   * @function
+   * @param {String} type 事件类型。
+   * @param {Object} [event] 事件对象。
+   * @returns {Object} 调用本方法的组件。
+   */
+  Component.prototype.fire = function(type, event) {
+    var self = this;
+    var events = self.events;
+    var handlers = events[type];
+    if (!handlers) {
+      return self;
+    }
+    handlers.forEach(function(handler) {
+      handler.listener.call(self, event);
+    });
+    return self;
   };
 
 //==================================================[命名空间]
@@ -1375,7 +1536,11 @@
   var $ = elementPrototype ? function(element) {
     if (element && !element.uid) {
       element.uid = ++uid;
-      Object.append(element, elementPrototype);
+      // Object.append(element, elementPrototype);
+      // 使用以下方式附加新属性以降低开销。此处不必判断 hasOwnProperty，也无需考虑 hasDontEnumBug 的问题。
+      for (var key in elementPrototype) {
+        element[key] = elementPrototype[key];
+      }
     }
     return element;
   } : function(element) {
@@ -1750,7 +1915,7 @@
    * @name Element.prototype.getStyles
    * @function
    * @param {Array} propertyNames 指定要获取的特性名，可以为任意个。
-   * @returns {Object} 包含一组特性值的，格式为 {propertyName: propertyValue...} 的对象。
+   * @returns {Object} 包含一组特性值的，格式为 {propertyName: propertyValue, ...} 的对象。
    */
   Element.prototype.getStyles = function(propertyNames) {
     var styles = {};
@@ -1795,7 +1960,7 @@
    * 设置一组元素的行内样式声明。
    * @name Element.prototype.setStyles
    * @function
-   * @param {Object} declarations 包含一条或多条要设置的样式声明，格式为 {propertyName: propertyValue...} 的对象。
+   * @param {Object} declarations 包含一条或多条要设置的样式声明，格式为 {propertyName: propertyValue, ...} 的对象。
    * @returns {Element} 调用本方法的元素。
    */
   Element.prototype.setStyles = function(declarations) {
@@ -2317,167 +2482,15 @@
   };
 
   /**
-   * 事件包装对象
+   * 事件包装对象。
    * @name Event
-   * @class
+   * @constructor
+   * @param {Object} e 原始事件对象。
+   * @param {string} type 事件类型。
+   * @description
+   *   当事件对象通过调用 Element/document/window 的 fire 方法传递到监听器时，其属性可能会被重写。
+   *   在一些需要获取浏览器提供的真实事件属性时，可以通过事件对象的 originalEvent.type 属性来辨别事件的真实类型，由上述 fire 方法生成的事件对象的对应属性为空字符串。
    */
-
-  /**
-   * 原始事件对象。
-   * @name Event.prototype.originalEvent
-   * @type Object
-   */
-
-  /**
-   * 事件类型。
-   * @name Event.prototype.type
-   * @type string
-   */
-
-  /**
-   * 是否为鼠标事件。
-   * @name Event.prototype.isMouseEvent
-   * @type boolean
-   */
-
-  /**
-   * 是否为键盘事件。
-   * @name Event.prototype.isKeyboardEvent
-   * @type boolean
-   */
-
-  /**
-   * 是否可以冒泡，不冒泡的事件不能使用事件代理。
-   * @name Event.prototype.bubbles
-   * @type boolean
-   */
-
-  /**
-   * 触发事件的对象。
-   * @name Event.prototype.target
-   * @type Element
-   */
-
-  /**
-   * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
-   * @name Event.prototype.relatedTarget
-   * @type Element
-   */
-
-  /**
-   * 事件发生的时间。
-   * @name Event.prototype.timeStamp
-   * @type number
-   */
-
-  /**
-   * 事件发生时，ctrl 键是否被按下。
-   * @name Event.prototype.ctrlKey
-   * @type boolean
-   */
-
-  /**
-   * 事件发生时，alt 键是否被按下。
-   * @name Event.prototype.altKey
-   * @type boolean
-   */
-
-  /**
-   * 事件发生时，shift 键是否被按下。
-   * @name Event.prototype.shiftKey
-   * @type boolean
-   */
-
-  /**
-   * 事件发生时，meta 键是否被按下。
-   * @name Event.prototype.metaKey
-   * @type boolean
-   */
-
-  /**
-   * 事件发生时鼠标在视口中的 X 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.clientX
-   * @type number
-   */
-
-  /**
-   * 事件发生时鼠标在视口中的 Y 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.clientY
-   * @type number
-   */
-
-  /**
-   * 事件发生时鼠标在屏幕上的 X 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.screenX
-   * @type number
-   */
-
-  /**
-   * 事件发生时鼠标在屏幕上的 Y 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.screenY
-   * @type number
-   */
-
-  /**
-   * 事件发生时鼠标在页面中的 X 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.pageX
-   * @type number
-   */
-
-  /**
-   * 事件发生时鼠标在页面中的 Y 坐标，仅在鼠标事件对象上有效。
-   * @name Event.prototype.pageY
-   * @type number
-   */
-
-  /**
-   * 事件发生时鼠标在横向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
-   * @name Event.prototype.offsetX
-   * @type number
-   */
-
-  /**
-   * 事件发生时鼠标在纵向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
-   * @name Event.prototype.offsetY
-   * @type number
-   */
-
-  /**
-   * 事件发生时，鼠标左键是否被按下，仅在鼠标事件对象上有效。
-   * @name Event.prototype.leftButton
-   * @type boolean
-   */
-
-  /**
-   * 事件发生时，鼠标中键是否被按下，仅在鼠标事件对象上有效。
-   * @name Event.prototype.middleButton
-   * @type boolean
-   */
-
-  /**
-   * 事件发生时，鼠标右键是否被按下，仅在鼠标事件对象上有效。
-   * @name Event.prototype.rightButton
-   * @type boolean
-   */
-
-  /**
-   * 事件发生时鼠标滚轮是否正在向上滚动，仅在 mousewheel 类型的事件对象上有效。
-   * @name Event.prototype.wheelUp
-   * @type boolean
-   */
-
-  /**
-   * 事件发生时鼠标滚轮是否正在向下滚动，仅在 mousewheel 类型的事件对象上有效。
-   * @name Event.prototype.wheelDown
-   * @type boolean
-   */
-
-  /**
-   * 当一个设备触发事件时的相关代码。在键盘事件中为按下的键的代码。
-   * @name Event.prototype.which
-   * @type number
-   */
-
   function Event(e, type) {
     // 保存原始 event 对象。
     this.originalEvent = e;
@@ -2501,8 +2514,7 @@
     }
     // 发生时间。
     this.timeStamp = Date.now();
-    // 由 fire 方法传递过来的模拟事件对象没有以下信息，将返回 0 或 false。
-    // 鼠标和键盘事件。
+    // 鼠标和键盘事件，由 fire 方法传递过来的模拟事件对象没有以下信息。
     if (this.isMouseEvent || this.isKeyboardEvent) {
       this.ctrlKey = !!e.ctrlKey;
       this.altKey = !!e.altKey;
@@ -2539,6 +2551,162 @@
       }
     }
   }
+
+  /**
+   * 原始事件对象。
+   * @name Event#originalEvent
+   * @type Object
+   */
+
+  /**
+   * 事件类型。
+   * @name Event#type
+   * @type string
+   */
+
+  /**
+   * 是否为鼠标事件。
+   * @name Event#isMouseEvent
+   * @type boolean
+   */
+
+  /**
+   * 是否为键盘事件。
+   * @name Event#isKeyboardEvent
+   * @type boolean
+   */
+
+  /**
+   * 是否可以冒泡，不冒泡的事件不能使用事件代理。
+   * @name Event#bubbles
+   * @type boolean
+   */
+
+  /**
+   * 触发事件的对象。
+   * @name Event#target
+   * @type Element
+   */
+
+  /**
+   * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
+   * @name Event#relatedTarget
+   * @type Element
+   */
+
+  /**
+   * 事件发生的时间。
+   * @name Event#timeStamp
+   * @type number
+   */
+
+  /**
+   * 事件发生时，ctrl 键是否被按下。
+   * @name Event#ctrlKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，alt 键是否被按下。
+   * @name Event#altKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，shift 键是否被按下。
+   * @name Event#shiftKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，meta 键是否被按下。
+   * @name Event#metaKey
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时鼠标在视口中的 X 坐标，仅在鼠标事件对象上有效。
+   * @name Event#clientX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在视口中的 Y 坐标，仅在鼠标事件对象上有效。
+   * @name Event#clientY
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在屏幕上的 X 坐标，仅在鼠标事件对象上有效。
+   * @name Event#screenX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在屏幕上的 Y 坐标，仅在鼠标事件对象上有效。
+   * @name Event#screenY
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在页面中的 X 坐标，仅在鼠标事件对象上有效。
+   * @name Event#pageX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在页面中的 Y 坐标，仅在鼠标事件对象上有效。
+   * @name Event#pageY
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在横向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
+   * @name Event#offsetX
+   * @type number
+   */
+
+  /**
+   * 事件发生时鼠标在纵向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
+   * @name Event#offsetY
+   * @type number
+   */
+
+  /**
+   * 事件发生时，鼠标左键是否被按下，仅在鼠标事件对象上有效。
+   * @name Event#leftButton
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，鼠标中键是否被按下，仅在鼠标事件对象上有效。
+   * @name Event#middleButton
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时，鼠标右键是否被按下，仅在鼠标事件对象上有效。
+   * @name Event#rightButton
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时鼠标滚轮是否正在向上滚动，仅在 mousewheel 类型的事件对象上有效。
+   * @name Event#wheelUp
+   * @type boolean
+   */
+
+  /**
+   * 事件发生时鼠标滚轮是否正在向下滚动，仅在 mousewheel 类型的事件对象上有效。
+   * @name Event#wheelDown
+   * @type boolean
+   */
+
+  /**
+   * 当一个设备触发事件时的相关代码。在键盘事件中为按下的键的代码。
+   * @name Event#which
+   * @type number
+   */
 
   Object.append(Event.prototype, {
     /**
@@ -2706,14 +2874,14 @@
     if (!uid) {
       return this;
     }
-    var $element = this;
+    var $self = this;
     // 同时为多个事件类型添加监听器。
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
         // 允许 window/document.on 的多次调用。
-        Element.prototype.on.call($element, name, listener, filter);
+        Element.prototype.on.call($self, name, listener, filter);
       });
-      return $element;
+      return $self;
     }
     // 从事件名称中取出事件类型。
     var dotIndex = name.indexOf('.');
@@ -2729,7 +2897,7 @@
       handlers.delegateCount = 0;
       // 新派发器（默认）。
       var dispatcher = function(e) {
-        dispatchEvent($element, handlers, new Event(e || window.event, type));
+        dispatchEvent($self, handlers, new Event(e || window.event, type));
       };
       dispatcher.type = type;
       dispatcher.useCapture = false;
@@ -2743,7 +2911,7 @@
             var wheel = 'wheelDelta' in e ? -e.wheelDelta : e.detail || 0;
             event.wheelUp = wheel < 0;
             event.wheelDown = wheel > 0;
-            dispatchEvent($element, handlers, event);
+            dispatchEvent($self, handlers, event);
           };
           dispatcher.type = navigator.isFirefox ? 'DOMMouseScroll' : 'mousewheel';
           break;
@@ -2751,7 +2919,7 @@
         case 'mouseleave':
           // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
           dispatcher = function(e) {
-            dispatchEvent($element, handlers, new Event(e || window.event, type), function(event) {
+            dispatchEvent($self, handlers, new Event(e || window.event, type), function(event) {
               var $relatedTarget = event.relatedTarget;
               return !$relatedTarget || !this.contains($relatedTarget);
             });
@@ -2770,7 +2938,7 @@
           var dragstart = function(e) {
             var event = new Event(e || window.event, 'mousedragstart');
             event.offsetX = event.offsetY = 0;
-            if (!event.leftButton || dispatchEvent($element, dragHandlers.mousedragstart, event).isDefaultPrevented()) {
+            if (!event.leftButton || dispatchEvent($self, dragHandlers.mousedragstart, event).isDefaultPrevented()) {
               return;
             }
             var $target = event.target;
@@ -2788,7 +2956,7 @@
             event.target = dragState.target;
             event.offsetX = event.pageX - dragState.startX;
             event.offsetY = event.pageY - dragState.startY;
-            dispatchEvent($element, dragHandlers.mousedrag, event);
+            dispatchEvent($self, dragHandlers.mousedrag, event);
             dragState.lastEvent = event;
           };
           var dragend = function(e) {
@@ -2800,7 +2968,7 @@
             $target.releaseCapture && $target.releaseCapture();
             event = dragState.lastEvent;
             event.type = 'mousedragend';
-            dispatchEvent($element, dragHandlers.mousedragend, event);
+            dispatchEvent($self, dragHandlers.mousedragend, event);
             dragState = null;
             removeEventListener(document, 'mousemove', drag);
             removeEventListener(document, 'mousedown', dragend);
@@ -2830,13 +2998,13 @@
         case 'change':
           // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
           // 需要添加辅助派发器。
-          if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
-            addEventListener($element, 'propertychange', commonEventDispatcher.propertychange);
+          if (navigator.isIElt9 && $self.nodeName.toLowerCase() === 'input' && ($self.type === 'checkbox' || $self.type === 'radio')) {
+            addEventListener($self, 'propertychange', commonEventDispatcher.propertychange);
             dispatcher = function(e) {
               var target = e.srcElement;
               if (target.changed) {
                 target.changed = false;
-                dispatchEvent($element, handlers, new Event(e || window.event, type));
+                dispatchEvent($self, handlers, new Event(e || window.event, type));
               }
             };
             dispatcher.type = 'click';
@@ -2844,7 +3012,7 @@
           break;
       }
       // 绑定派发器。
-      addEventListener($element, dispatcher.type, dispatcher, dispatcher.useCapture);
+      addEventListener($self, dispatcher.type, dispatcher, dispatcher.useCapture);
       // 存储处理器组和派发器。
       manager.handlers = handlers;
       manager.dispatcher = dispatcher;
@@ -2858,7 +3026,7 @@
       // 普通类型的监听器。
       handlers.push({name: name, listener: listener});
     }
-    return this;
+    return $self;
   };
 
 //--------------------------------------------------[Element.prototype.off]
@@ -2875,13 +3043,13 @@
     if (!uid) {
       return this;
     }
-    var $element = this;
+    var $self = this;
     // 同时删除该元素上的多个监听器。
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        Element.prototype.off.call($element, name);
+        Element.prototype.off.call($self, name);
       });
-      return $element;
+      return $self;
     }
     // 从事件名称中取出事件类型。
     var dotIndex = name.indexOf('.');
@@ -2889,11 +3057,11 @@
     // 尝试获取对应的项，及其管理器和处理器组，以便从处理器组中删除监听器（和过滤器）。
     var item = eventPool[uid];
     if (!item) {
-      return this;
+      return $self;
     }
     var manager = item[type];
     if (!manager) {
-      return this;
+      return $self;
     }
     var handlers = manager.handlers;
     // 删除监听器（和过滤器）。
@@ -2929,25 +3097,25 @@
             listenersCount += item[type].handlers.length;
           });
           if (listenersCount) {
-            return this;
+            return $self;
           }
-          removeEventListener($element, dispatcher.type, dispatcher);
+          removeEventListener($self, dispatcher.type, dispatcher);
           // HACK：分别删除另外两个关联事件的触发器及项。
           DRAG_MAPPING[type].forEach(function(type) {
             var dispatcher = item[type].dispatcher;
-            removeEventListener($element, dispatcher.type, dispatcher);
+            removeEventListener($self, dispatcher.type, dispatcher);
             delete item[type];
           });
           break;
         case 'change':
           // 需要删除辅助派发器。
-          if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
-            removeEventListener($element, 'propertychange', commonEventDispatcher.propertychange);
+          if (navigator.isIElt9 && $self.nodeName.toLowerCase() === 'input' && ($self.type === 'checkbox' || $self.type === 'radio')) {
+            removeEventListener($self, 'propertychange', commonEventDispatcher.propertychange);
           }
-          removeEventListener($element, dispatcher.type, dispatcher);
+          removeEventListener($self, dispatcher.type, dispatcher);
           break;
         default:
-          removeEventListener($element, dispatcher.type, dispatcher, dispatcher.useCapture);
+          removeEventListener($self, dispatcher.type, dispatcher, dispatcher.useCapture);
       }
       delete item[type];
     }
@@ -2955,7 +3123,7 @@
     if (Object.keys(item).length === 0) {
       delete eventPool[uid];
     }
-    return this;
+    return $self;
   };
 
 //--------------------------------------------------[Element.prototype.fire]
@@ -2965,26 +3133,30 @@
    * @function
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
+   *   data 的属性会被追加到事件对象中，但名称为 originalEvent 的属性除外。
    * @returns {Element} 调用本方法的元素。
    */
   Element.prototype.fire = function(type, data) {
-    var $target = this;
     var handlers;
-    var event = new Event({
+    var dummyEvent = {
+      // 使用空字符串作为虚拟事件的标识符。
+      type: '',
       target: this,
-      // 添加这两个方法以统一 API。
+      // 添加这两个属性以确保可以和真实事件一样支持 stopPropagation，preventDefault 和 stopImmediatePropagation 方法。
       stopPropagation: returnTrue,
       preventDefault: returnTrue
-    }, type);
-    event.data = data || {};
-    while ($target) {
-      if (handlers = (handlers = eventPool[$target.uid]) && (handlers = handlers[type]) && handlers.handlers) {
-        event = dispatchEvent($target, handlers, event);
+    };
+    // 避免事件对象的 originalEvent 属性被参数 data 的同名属性覆盖。
+    var event = Object.append(new Event(dummyEvent, type), data || {}, {blackList: ['originalEvent']});
+    var $element = this;
+    while ($element) {
+      if (handlers = (handlers = eventPool[$element.uid]) && (handlers = handlers[type]) && handlers.handlers) {
+        event = dispatchEvent($element, handlers, event);
       }
-      if (!event.bubbles || event.isPropagationStopped() || $target === window) {
+      if (!event.bubbles || event.isPropagationStopped() || $element === window) {
         break;
       }
-      $target = $target === document ? window : $target.getParent() || $target === html && document || null;
+      $element = $element === document ? window : $element.getParent() || $element === html && document || null;
     }
     return this;
   };
@@ -3546,7 +3718,7 @@
   function Animation(proceed, options) {
     this.uid = ++uid;
     this.proceed = proceed;
-    Object.append(this, Object.clone(Animation.options, true), options);
+    Object.append(this, Object.append(Object.clone(Animation.options, true), options));
     var timingFunction = timingFunctions[this.transition];
     if (!timingFunction) {
       if (this.transition.startsWith('cubicBezier')) {
@@ -3770,7 +3942,7 @@
    * @name Element.prototype.animate
    * @function
    * @param {Object} styles 目标样式，元素将向指定的目标样式过渡。目标样式包含一条或多条要设置的样式声明，具体如下：
-   *   1. 格式与 setStyles 的参数一致，为 {propertyName: propertyValue...}。
+   *   1. 与 setStyles 的参数一致，格式为 {propertyName: propertyValue, ...} 的对象。
    *   2. propertyName 只支持 camel case，并且不能使用复合属性。
    *   3. propertyValue 若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
    *   4. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
@@ -4048,7 +4220,7 @@
   function Request(url, options) {
     this.xhr = getXHRObject();
     this.url = url;
-    Object.append(this, Object.clone(Request.options, true), options);
+    Object.append(this, Object.append(Object.clone(Request.options, true), options));
   }
 
   window.Request = Request;
@@ -4277,7 +4449,7 @@
    * @description
    *   注意：
    *   在不支持 localStorage 的浏览器中，会使用路径 '/favicon.ico' 来创建启用 userData 的元素。
-   *   在当前站点的上述路径不存在时 (404)，应避免返回包含脚本的页面，以免出现预料外的异常。
+   *   当上述路径不存在时 (404)，服务端应避免返回包含脚本的页面，以免出现预料外的异常。
    */
   var localStorage = {};
   window.localStorage = localStorage;

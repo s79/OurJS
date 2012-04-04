@@ -216,6 +216,8 @@ var manifest = {
     'Event.prototype.screenY',
     'Event.prototype.pageX',
     'Event.prototype.pageY',
+    'Event.prototype.offsetX',
+    'Event.prototype.offsetY',
     'Event.prototype.leftButton',
     'Event.prototype.middleButton',
     'Event.prototype.rightButton',
@@ -266,5 +268,11 @@ var manifest = {
     'components.Dialog.prototype.open',
     'components.Dialog.prototype.close',
     'components.Dialog.prototype.adjust'
+  ],
+  'components.Calendar': [
+    'components.Calendar',
+    'components.Calendar.options',
+    'components.Calendar.prototype.getElement',
+    'components.Calendar.prototype.render'
   ]
 };

@@ -122,7 +122,7 @@
    *   在 IE6 下禁用 show/hide 时的渐变效果，以避免和 PNG 透明修复脚本冲突。
    */
   function Mask(target, options) {
-    Object.append(this, Object.clone(Mask.options, true), options);
+    Object.append(this, Object.append(Object.clone(Mask.options, true), options));
     this.target = $(target);
     this.isShown = false;
   }
@@ -315,7 +315,7 @@
    * @param {Function} options.onClose 调用 close 方法时触发。
    */
   function Dialog(element, options) {
-    Object.append(this, Object.clone(Dialog.options, true), options);
+    Object.append(this, Object.append(Object.clone(Dialog.options, true), options));
     // 对话框的默认状态为关闭。
     this.isOpen = false;
     // 对话框的初始状态是隐藏的。

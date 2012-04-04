@@ -137,7 +137,7 @@
   function Request(url, options) {
     this.xhr = getXHRObject();
     this.url = url;
-    Object.append(this, Object.clone(Request.options, true), options);
+    Object.append(this, Object.append(Object.clone(Request.options, true), options));
   }
 
   window.Request = Request;

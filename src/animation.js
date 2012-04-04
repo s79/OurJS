@@ -186,7 +186,7 @@
   function Animation(proceed, options) {
     this.uid = ++uid;
     this.proceed = proceed;
-    Object.append(this, Object.clone(Animation.options, true), options);
+    Object.append(this, Object.append(Object.clone(Animation.options, true), options));
     var timingFunction = timingFunctions[this.transition];
     if (!timingFunction) {
       if (this.transition.startsWith('cubicBezier')) {

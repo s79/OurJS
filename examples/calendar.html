@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>components.Calendar</title>
+<link rel="stylesheet" href="../examples/common.css">
+<link rel="stylesheet" href="calendar.css">
+<script src="../import.js"></script>
+<script src="../src/components/calendar.js"></script>
+<style>
+input { width: 100px; height: 20px; padding: 0 2px; border: 1px solid gainsboro; background: url(calendar.png) no-repeat right center; line-height: 20px; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>components.Calendar</h1>
+<fieldset>
+  <legend>月历</legend>
+  <form id="test">
+    <input id="from" type="text" value="2012-04-01" readonly data-type="date" data-min-date="2012-01-01" data-max-date="2012-04-04" data-rel-id="to" data-rel-type="minDate"> ~ <input id="to" type="text" value="2012-04-04" readonly data-type="date" data-min-date="2012-01-01" data-max-date="2012-04-04" data-rel-id="from" data-rel-type="maxDate">
+  </form>
+</fieldset>
+<script>
+/**
+ * @name createDatePicker
+ * @author sundongguo
+ * @version 20080528
+ *
+ * 使用createDatePicker(sId)创建一个日历输入控件。
+ * sId是目标元素。
+ */
+//--------------------------------------------------[calendar]
+function format(n) {
+  return n < 10 ? '0' + n : n;
+}
+var calendar;
+var $calendar;
+var $pinnedElement;
+// 默认日期为昨天。
+var minDate = '2012-04-01';
+var date = new Date();
+date.setDate(date.getDate() - 1);
+var maxDate = date.getFullYear() + '-' + format(date.getMonth() + 1) + '-' + format(date.getDate());
+$('#from').setData('minDate', minDate);
+$('#from').setData('maxDate', maxDate).value = maxDate;
+$('#to').setData('minDate', maxDate);
+$('#to').setData('maxDate', maxDate).value = maxDate;
+
+document.on('click', function(e) {
+  var $target = e.target;
+  if ($target != $pinnedElement && $target.nodeName === 'INPUT' && $target.type === 'text') {
+    var type = $target.getData('type');
+    if (type === 'date') {
+      var minDate = $target.getData('minDate');
+      var maxDate = $target.getData('maxDate');
+      if (!calendar) {
+        calendar = new components.Calendar({minDate: '2012-03-15', maxDate: '2012-04-04'})
+            .on('select',
+            function(e) {
+              var $rel = $('#' + $pinnedElement.getData('relId'));
+              $rel.setData($pinnedElement.getData('relType'), e.date);
+              $pinnedElement.value = e.date;
+              calendar.fire('hide');
+            })
+            .on('hide',
+            function(e) {
+              this.getElement().setStyle('display', 'none');
+              $pinnedElement = null;
+            });
+        $calendar = calendar.getElement();
+      }
+      $pinnedElement = $target;
+      calendar.minDate = minDate;
+      calendar.maxDate = maxDate;
+      if ($target.value) {
+        calendar.date = $target.value;
+      }
+      calendar.render($pinnedElement.value);
+      $calendar.putAfter($target).setStyle('display', 'block');
+      var targetPosition = $pinnedElement.getClientRect();
+      var calendarPosition = $calendar.getClientRect();
+      var offsetX = calendarPosition.left - targetPosition.left;
+      var offsetY = calendarPosition.top - targetPosition.bottom;
+      $calendar.setStyles({left: $calendar.offsetLeft - offsetX, top: $calendar.offsetTop - offsetY});
+    }
+    return false;
+  } else {
+    calendar.fire('hide');
+  }
+});
+</script>
+</body>
+</html>

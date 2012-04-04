@@ -1,23 +1,4 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>components.Calendar</title>
-<link rel="stylesheet" href="../examples/common.css">
-<link rel="stylesheet" href="calendar.css">
-<script src="../import.js"></script>
-<style>
-
-</style>
-</head>
-<body>
-<h1>components.Calendar</h1>
-<fieldset>
-  <legend>月历</legend>
-  <div id="target"></div>
-</fieldset>
-<script>
-/**
+﻿/**
  * @fileOverview 组件 - 日历。
  * @author sundongguo@gmail.com
  * @version 20120329 (update from 20080528)
@@ -28,7 +9,7 @@
 
 //==================================================[Calendar]
   /*
-   * 日历组件。
+   * 日历选择组件。
    */
 
 //--------------------------------------------------[Calendar Constructor]
@@ -42,9 +23,7 @@
    * @param {string} options.theme 主题样式，即创建的最外层 DOM 元素的 className。
    * @param {string} options.minDate 最小日期，格式为 yyyy-mm-dd，默认为 1900-01-01。
    * @param {string} options.maxDate 最大日期，格式为 yyyy-mm-dd，默认为 2100-12-31。
-   * @fires show
-   * @fires hide
-   * @fires change
+   * @param {string} options.date 选定日期，格式为 yyyy-mm-dd。
    * @fires select
    *   选定日期后触发。
    *   <table>
@@ -55,7 +34,7 @@
   function Calendar(options) {
     var calendar = this;
     // 创建 DOM 基本结构。
-    var $calendar = $('<div class="' + calendar.theme + '"><div><span class="btn prev_year" data-action="prev_year">‹‹</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>.</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">››</span></div><table><thead></thead><tbody></tbody></table></div>');
+    var $calendar = $('<div class="' + calendar.theme + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>.</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
     var $controlPanel = $calendar.getFirstChild();
     var controls = $controlPanel.find('*');
     var $thead = $controlPanel.getNext().getFirstChild();
@@ -82,7 +61,7 @@
       bodyCells: $tbody.find('td')
     };
     // 绑定事件。
-    $calendar.on('mousedown', function(e) {
+    $calendar.on('mousedown', function() {
       return false;
     });
     $calendar.on('click', function(e) {
@@ -116,11 +95,11 @@
             ++year;
             break;
         }
-        calendar.render(year, month - 1);
+        calendar.render(year + '-' + month + '-01');
       } else if ($target.hasClass('enabled') && !$target.hasClass('selected_date')) {
         // 选中一个日期。
         calendar.date = $target.title;
-        calendar.render(Number.toInteger(calendar.date.slice(0, 4)), Number.toInteger(calendar.date.slice(5, 7)) - 1);
+//        calendar.render(calendar.date);
         // 触发 select 事件。
         calendar.fire('select', {date: calendar.date});
       }
@@ -143,6 +122,13 @@
   };
 
 //--------------------------------------------------[Calendar.prototype.render]
+  /**
+   * 为一位数字前补零，返回补零后的字符串。
+   * @function
+   * @private
+   * @param {number} n 要补零的数字。
+   * @return {string} 补零后的字符串。
+   */
   function format(n) {
     return n < 10 ? '0' + n : n;
   }
@@ -152,7 +138,7 @@
    * @function
    * @private
    * @param {string} dateString
-   * @return {Object} 日期对象。
+   * @return {Date} 日期对象。
    */
   function parseDate(dateString) {
     var ymd = dateString.split('-').map(function(item) {
@@ -161,11 +147,19 @@
     return new Date(ymd[0], ymd[1] - 1, ymd[2]);
   }
 
-  Calendar.prototype.render = function(year, month) {
+  /**
+   * 渲染指定年/月份的日历。
+   * @name Calendar.prototype.render
+   * @memberOf components
+   * @function
+   * @param {number} dataString 字符串表示的日期，格式为 yyyy-MM-dd。
+   * @returns {Calendar} Calendar 对象。
+   */
+  Calendar.prototype.render = function(dataString) {
     // 获取最大、最小、要显示的时间。
     var minDate = parseDate(this.minDate);
     var maxDate = parseDate(this.maxDate);
-    var showDate = new Date(Math.limit(year && month ? parseDate(year + '-' + (month + 1) + '-01') : new Date(), minDate, maxDate));
+    var showDate = new Date(Math.limit(dataString ? parseDate(dataString) : new Date(), minDate, maxDate));
     var minY = minDate.getFullYear();
     var maxY = maxDate.getFullYear();
     var showY = showDate.getFullYear();
@@ -180,8 +174,8 @@
     // 显示年份和月份。
     this.elements.year.innerText = showY;
     this.elements.month.innerText = format(showM + 1);
-    // 触发 render 事件。
-    this.fire('render', {year: showY, month: showM + 1});
+//    // 触发 render 事件。
+//    this.fire('render', {year: showY, month: showM + 1});
     // 星期类名（数组下标与星期数字相等）。
     var dayNames = ['sun', 'mon', 'tues', 'wed', 'thurs', 'fri', 'sat'];
     var dayTexts = ['日', '一', '二', '三', '四', '五', '六'];
@@ -205,14 +199,16 @@
     // 毫秒数差值。
     var millisecondsDValue;
     // 选定的日期。
-    var selectedDate = new Date(Math.limit(this.date ? parseDate(this.date) : new Date(), minDate, maxDate));
+    var selectedDate = this.date ? new Date(Math.limit(parseDate(this.date), minDate, maxDate)) : null;
     // 输出日历体。
     this.elements.bodyCells.forEach(function($cell, index) {
       date = new Date(showY, showM, index - startIndex + 1);
       y = date.getFullYear();
       m = date.getMonth();
       d = date.getDate();
+      // 星期几。
       $cell.className = dayNames[date.getDay()];
+      // 日期区间。
       if (index < startIndex) {
         // 上个月的日期。
         $cell.addClass('prev_month');
@@ -223,43 +219,40 @@
         $cell.addClass('next_month');
       }
       // 当前选定的日期。
-      millisecondsDValue = selectedDate - date;
-      if (millisecondsDValue >= 0 && millisecondsDValue < millisecondsInOneDay) {
-        $cell.addClass('selected_date');
+      if (selectedDate) {
+        millisecondsDValue = selectedDate - date;
+        if (millisecondsDValue >= 0 && millisecondsDValue < millisecondsInOneDay) {
+          $cell.addClass('selected_date');
+        }
       }
+      // 输出日期。
+      $cell.innerText = date.getDate();
       $cell.title = y + '-' + format(m + 1) + '-' + format(d);
+      // 是否超出范围。
       if (date < minDate || date > maxDate) {
         $cell.title += '(超出范围)';
         $cell.addClass('disabled');
       } else {
         $cell.addClass('enabled');
       }
-      $cell.innerText = date.getDate();
     });
+    // 返回 Calendar 对象。
     return this;
   };
 
 //--------------------------------------------------[Calendar.prototype.getElement]
-  Calendar.prototype.getElements = function() {
-    return this.elements;
+  /**
+   * 获取日历的容器元素，以便选择插入 DOM 树的位置。
+   * @name Calendar.prototype.getElement
+   * @memberOf components
+   * @function
+   * @returns {Element} 日历的容器元素。
+   */
+  Calendar.prototype.getElement = function() {
+    return this.elements.calendar;
   };
 
 //--------------------------------------------------[components.Calendar]
   components.Calendar = new Component(Calendar);
 
 })();
-
-var calendar = new components.Calendar({minDate: '2012-03-15', maxDate: '2012-04-04'})
-    .on('render',
-    function(e) {
-      console.log(JSON.stringify(e));
-    })
-    .on('select',
-    function(e) {
-      console.log(JSON.stringify(e));
-    })
-    .render();
-$('#target').append(calendar.getElements().calendar);
-</script>
-</body>
-</html>

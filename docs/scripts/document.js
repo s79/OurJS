@@ -251,7 +251,8 @@ document.on('domready', function() {
         'Animation',
         'components.Switcher',
         'components.TabPanel',
-        'components.Dialog'
+        'components.Dialog',
+        'components.Calendar'
       ].forEach(function(name) {
         buildDocument(name, 'c');
       });
