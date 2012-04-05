@@ -10,7 +10,6 @@ OurJS - A JavaScript Framework
  目录结构
 ------------------------------
  - .utilities
- - build
  - src
  - docs
  - examples
@@ -19,23 +18,23 @@ OurJS - A JavaScript Framework
  内容预览
 ------------------------------
 +--------------------------+-------------------------------+
-| Code Block Management    | execute.js                    |
+| Code Block Management    | src/execute.js                |
 +--------------------------+-------------------------------+
-| Modularization           | modularization.js             |
+| Modularization           | src/modularization.js         |
 +--------------------------+-------------------------------+
-| Components               | request.js                    |
-|                          | animation.js                  |
-|                          | component.js                  |
+| Components               | src/request.js                |
+|                          | src/animation.js              |
+|                          | src/component.js              |
 +--------------------------+-------------------------------+
-| Browser API Enhancements | plugins/DD_belatedPNG.js      |
-|                          | plugins/sizzle.js             |
-|                          | dom.js                        |
-|                          | browser.js                    |
+| Browser API Enhancements | src/plugins/DD_belatedPNG.js  |
+|                          | src/plugins/sizzle.js         |
+|                          | src/dom.js                    |
+|                          | src/browser.js                |
 +--------------------------+-------------------------------+
-| JS API Enhancements      | plugins/json2.js              |
-|                          | lang.js                       |
+| JS API Enhancements      | src/plugins/json2.js          |
+|                          | src/lang.js                   |
 +--------------------------+-------------------------------+
 
 注意：
-  1. 只有 animation.js 和 request.js 是内置组件，其他的组件在 src/components 目录下。
-  2. plugins/console.js 和 components/*.js 均为可选项，因此没有被打包到 our.js 中。
+  1. 只有 src/animation.js 和 src/request.js 是内置组件，其他的组件被保存为 src/components/*.js。
+  2. src/plugins/console.js 和 src/components/*.js 均为可选项，因此没有被打包到 our.js 中。
