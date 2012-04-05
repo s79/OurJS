@@ -6,7 +6,9 @@ var manifest = {
     'Global.getNamespace',
     '<#>模块化',
     'Global.declareModule',
-    'Global.runApplication'
+    'Global.runApplication',
+    '<#>执行代码块',
+    'Global.execute'
   ],
   'Object': [
     '<#>ES5',
@@ -116,8 +118,6 @@ var manifest = {
     'localStorage.clear'
   ],
   'window': [
-    '<#>获取元素',
-    'window.$',
     '<#>获取视口信息',
     'window.getClientSize',
     'window.getScrollSize',

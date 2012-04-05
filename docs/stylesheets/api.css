@@ -61,7 +61,7 @@
 #details var { color: sienna; font-style: italic; }
 #details ul { list-style: circle; padding-left: 2em; }
 /* example */
-#details pre { margin: 10px; padding: 5px; border: 1px solid #f0fff0; border-left-width: 5px; background: #f8fff8; color: #333; white-space: pre-wrap; word-wrap: break-word; }
+#details pre { margin-bottom: 10px; padding: 5px; border: 1px solid #eed; border-radius: 2px; background: #fffff5; color: #333; white-space: pre-wrap; word-wrap: break-word; }
 /* params deprecated since exceptions returns requires see*/
 #details dl { margin: 10px; }
 #details dt { font-weight: bold; }

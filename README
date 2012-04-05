@@ -7,8 +7,8 @@ OurJS - A JavaScript Framework
  * License: <https://github.com/s79/OurJS/blob/master/LICENSE>
 
 
- Structure
---------------------
+ 目录结构
+------------------------------
  - build
  - src
  - docs
@@ -16,13 +16,25 @@ OurJS - A JavaScript Framework
  - .utilities
 
 
- Code dependence
---------------------
- lang - base - dom - plugins/sizzle
-                   - animation
-                   - request
-      - storage
-      - modularization
- plugins/json2
- plugins/DD_belatedPNG
-                   - plugins/console
+ 内容预览（依赖关系为自下向上）
+------------------------------
++--------------------------+-------------------------------+
+| Code Block Management    | [execute.js]                  |
++--------------------------+-------------------------------+
+| Modularization           | [modularization.js]           |
++--------------------------+-------------------------------+
+| Components               | [animation.js, request.js]    |
+|                          | [component.js]                |
++--------------------------+-------------------------------+
+| Browser API Enhancements | [plugins/DD_belatedPNG.js]    |
+|                          | [plugins/sizzle.js]           |
+|                          | [dom.js]                      |
+|                          | [browser.js]                  |
++--------------------------+-------------------------------+
+| JS API Enhancements      | [plugins/json2.js]            |
+|                          | [lang.js]                     |
++--------------------------+-------------------------------+
+
+注意：
+  1. 只有 [animation.js] 和 [request.js] 是内置组件，其他的组件在 component 目录下。
+  2. [plugins/console.js] 和 [components/*.js] 均为可选项，因此没有被打包到 our.js 中。

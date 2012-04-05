@@ -1,4 +1,11 @@
-﻿>2012-04-02
+﻿>2012-04-05
+execute(codeBlock[, waitingForDomReady])
+
+>2012-04-04
+TabPanel 更新
+Calendar
+
+>2012-04-02
 Component
 Switcher 更新。
 TabPanel: tabchange

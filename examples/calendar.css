@@ -1,4 +1,4 @@
-﻿.calendar { position: absolute; padding: 6px; border: 1px solid silver; border-radius: 3px; background: #EEE; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
+﻿.calendar { position: absolute; padding: 6px; border: 1px solid silver; border-radius: 3px; background: #EEE; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, sans-serif; cursor: default; }
 /* 控制区 */
 .calendar div { width: 218px; height: 20px; text-align: center; }
 .calendar div span.btn { position: absolute; top: 6px; width: 28px; height: 20px; border: 1px solid silver; border-radius: 2px; background: whitesmoke; color: #333; }

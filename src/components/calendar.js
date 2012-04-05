@@ -194,10 +194,6 @@
     var startIndex = date.getDay();
     startIndex = startDay ? (startIndex < 2 ? startIndex + 6 : startIndex - 1) : (startIndex === 0 ? 7 : startIndex);
     var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
-    // 一天毫秒数。
-    var millisecondsInOneDay = 24 * 60 * 60 * 1000;
-    // 毫秒数差值。
-    var millisecondsDValue;
     // 选定的日期。
     var selectedDate = this.date ? new Date(Math.limit(parseDate(this.date), minDate, maxDate)) : null;
     // 输出日历体。
@@ -219,11 +215,8 @@
         $cell.addClass('next_month');
       }
       // 当前选定的日期。
-      if (selectedDate) {
-        millisecondsDValue = selectedDate - date;
-        if (millisecondsDValue >= 0 && millisecondsDValue < millisecondsInOneDay) {
-          $cell.addClass('selected_date');
-        }
+      if (selectedDate && selectedDate.getTime() === date.getTime()) {
+        $cell.addClass('selected_date');
       }
       // 输出日期。
       $cell.innerText = date.getDate();

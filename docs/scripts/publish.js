@@ -130,21 +130,31 @@ var JSON = {};
 
 })();
 
-/** Encode string for HTML code. */
+/** Parse string for Descriptions and Examples. */
+String.prototype.startsWith = function(subString) {
+  return this.indexOf(subString) === 0;
+};
 String.prototype.endsWith = function(subString) {
   var lastIndex = this.lastIndexOf(subString);
   return lastIndex >= 0 && lastIndex === this.length - subString.length;
 };
 function parseDescription(string) {
-  return string.split(/[\r\n]+/).map(
-      function(line, index, lines) {
+  return string.split(/[\r\n]+/)
+      .map(function(line, index, lines) {
         var newLine = line.trim();
         if (index !== lines.length - 1 && !newLine.endsWith('>')) {
           newLine += '<br>';
         }
         return newLine;
-      }
-  ).join('');
+      })
+      .join('');
+}
+function parseExample(string) {
+  return string.split(/[\r\n]+/)
+      .map(function(line) {
+        return line.startsWith('  ') ? line.slice(2) : line;
+      })
+      .join('\r');
 }
 
 /** Get a symbol's raw data. */
@@ -183,7 +193,7 @@ function filterSymbol(source) {
     }),
     description: parseDescription(source.desc),
     examples: source.example.map(function(item) {
-      return item.desc;
+      return parseExample(item.desc);
     }),
     requires: source.requires,
     since: source.since,

@@ -154,7 +154,7 @@ document.on('domready', function() {
       return symbol && symbol.examples.length ?
           '<dl><dt>示例：</dt><dd>' + symbol.examples.map(
               function(example) {
-                return '<pre>' + example + '</pre>';
+                return '<pre class="prettyprint">' + example + '</pre>';
               }
           ).join('') + '</dd></dl>' :
           '';
@@ -369,6 +369,8 @@ document.on('domready', function() {
       $shortDescription.checked = true;
     }
 
+    // 代码高亮。
+    prettyPrint();
   });
 
 });
