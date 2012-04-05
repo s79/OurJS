@@ -19,7 +19,7 @@
    * @memberOf Global
    * @function
    * @param {Function} codeBlock 包含要执行的代码块的匿名函数。
-   * @param {boolean} [waitingForDomReady] 是否在 DOM 树加载完成后执行。
+   * @param {boolean} [waitingForDomReady] 设置为 true 则在 DOM 树加载完成后再执行代码块，否则立即执行。
    * @description
    *   通常，为了减少全局变量的数量和避免不同代码块之间的变量名有冲突，会使用一个匿名函数来执行一个相对独立的代码块：
    *   <pre>(function() {...})();</pre>

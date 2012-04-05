@@ -725,12 +725,155 @@
 
 })();
 /**
- * @fileOverview 常用扩展。
+ * @fileOverview 浏览器 API 扩展。
  * @author sundongguo@gmail.com
  * @version 20111201
  */
 (function() {
-//==================================================[浏览器信息扩展]
+//==================================================[全局方法]
+  /*
+   * 提供全局方法。
+   *
+   * 扩展方法：
+   *   typeOf
+   *   execScript
+   *   getNamespace
+   */
+
+  /**
+   * 全局对象。
+   * @name Global
+   * @namespace
+   */
+
+//--------------------------------------------------[typeOf]
+  var types = {};
+  ['Boolean', 'Number', 'String', 'Array', 'Date', 'RegExp', 'Error', 'Math', 'JSON', 'Arguments'].forEach(function(type) {
+    types['[object ' + type + ']'] = 'object.' + type;
+  });
+  var TO_STRING = Object.prototype.toString;
+  var RE_FUNCTION = /^\s+function .+\s+\[native code\]\s+\}\s+$/;
+
+  /**
+   * 判断提供的值的数据类型，比 typeof 运算符返回的结果更明确（将对结果为 'object' 的情况进行更细致的区分）。
+   * @name typeOf
+   * @memberOf Global
+   * @function
+   * @param {*} value 要判断的值。
+   * @returns {string} 值的类型，可能为以下几种情况之一：
+   *   undefined
+   *   boolean
+   *   number
+   *   string
+   *   function
+   *   null
+   *   object.Boolean
+   *   object.Number
+   *   object.String
+   *   object.Array
+   *   object.Date
+   *   object.RegExp
+   *   object.Error
+   *   object.Math
+   *   object.JSON
+   *   object.Arguments
+   *   object.Global
+   *   object.Node
+   *   object.Collection
+   *   object.Object
+   * @description
+   *   注意：
+   *   一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
+   *   IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
+
+   * @example
+   *   typeOf(document);
+   *   // 'object.Node'
+   * @see http://mootools.net/
+   * @see http://jquery.com/
+   */
+  window.typeOf = function(value) {
+    var type = typeof value;
+    // Safari 中类型为 HTMLCollection 的值 type === 'function'。
+    if (type === 'function' && typeof value.item === 'function') {
+      type = 'object.Collection';
+    }
+    // 进一步判断 type === 'object' 的情况。
+    if (type === 'object') {
+      if (value === null) {
+        type = 'null';
+      } else {
+        // 使用 Object.prototype.toString 判断。
+        type = types[TO_STRING.call(value)] || 'object.Object';
+        if (type === 'object.Object') {
+          // 转化为字符串判断。
+          var string = value + '';
+          if (string === '[object Window]' || string === '[object DOMWindow]') {
+            type = 'object.Global';
+          } else if (string === '[object JSON]') {
+            type = 'object.JSON';
+          } else {
+            // 使用特性判断。
+            if (typeof value.length == 'number') {
+              if ('navigator' in value) {
+                type = 'object.Global';
+              } else if ('callee' in value) {
+                type = 'object.Arguments';
+              } else if ('item' in value) {
+                type = 'object.Collection';
+              }
+            } else if ('nodeName' in value) {
+              type = 'object.Node';
+            } else if (RE_FUNCTION.test(string)) {
+              type = 'function';
+            }
+          }
+        }
+      }
+    }
+    return type;
+  };
+
+//--------------------------------------------------[execScript]
+  /**
+   * 将字符串作为脚本执行，执行时的作用域为全局作用域。
+   * @name execScript
+   * @memberOf Global
+   * @function
+   * @param {string} code 要执行的代码。
+   * @example
+   *   var a;
+   *   execScript('a = 128 * 2 + 256;');
+   *   a;
+   *   // 512
+   */
+  if (!window.execScript) {
+    window.execScript = function(code) {
+      window.eval(code);
+    };
+  }
+
+//--------------------------------------------------[getNamespace]
+  /**
+   * 获取一个命名空间，如果该命名空间不存在，将创建并返回这个命名空间。
+   * @name getNamespace
+   * @memberOf Global
+   * @function
+   * @param {string} namespace 命名空间的字符串形式。
+   * @returns {Object} 命名空间对象。
+   * @example
+   *   var finale = getNamespace('data.championship.finale');
+   *   finale.getRankingList = function() {...};
+   */
+  window.getNamespace = function(namespace) {
+    var o = window;
+    namespace.split('.').forEach(function(item) {
+      o = item in o ? o[item] : o[item] = {};
+    });
+    return o;
+  };
+
+//==================================================[navigator 扩展]
   /*
    * 常见浏览器的 navigator.userAgent：
    * IE6      Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)
@@ -969,7 +1112,7 @@
     };
   }());
 
-//==================================================[页面地址信息扩展]
+//==================================================[location 扩展]
   /*
    * 页面地址信息扩展。
    *
@@ -1018,322 +1161,205 @@
     return {parameters: parameters};
   }());
 
-//==================================================[全局方法]
+//==================================================[cookie 扩展]
   /*
-   * 提供全局方法。
+   * 将 document.cookie 扩展为 cookie 对象。
    *
-   * 扩展方法：
-   *   typeOf
-   *   execScript
-   *   getNamespace
+   * 提供方法：
+   *   cookie.set
+   *   cookie.get
+   *   cookie.remove
    */
 
   /**
-   * 全局对象。
-   * @name Global
+   * 提供操作 cookie 的常用方法。
+   * @name cookie
    * @namespace
    */
+  var cookie = {};
+  window.cookie = cookie;
 
-//--------------------------------------------------[typeOf]
-  var types = {};
-  ['Boolean', 'Number', 'String', 'Array', 'Date', 'RegExp', 'Error', 'Math', 'JSON', 'Arguments'].forEach(function(type) {
-    types['[object ' + type + ']'] = 'object.' + type;
-  });
-  var TO_STRING = Object.prototype.toString;
-  var RE_FUNCTION = /^\s+function .+\s+\[native code\]\s+\}\s+$/;
+//--------------------------------------------------[cookie.set]
+  /**
+   * 设置 cookie。
+   * @name cookie.set
+   * @function
+   * @param {string} name 要设置的 cookie 名称。
+   * @param {string} value 要设置的 cookie 名称对应的值。
+   * @param {Object} [options] 可选参数。
+   * @param {string} options.path 限定生效的路径，默认为当前路径。
+   * @param {string} options.domain 限定生效的域名，默认为当前域名。
+   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输 cookie，默认为否。
+   * @param {Date} options.expires 过期时间。
+   */
+  cookie.set = function(name, value, options) {
+    options = options || {};
+    var cookie = name + '=' + encodeURIComponent(value);
+    if (options.path) {
+      cookie += '; path=' + options.path;
+    }
+    if (options.domain) {
+      cookie += '; domain=' + options.domain;
+    }
+    if (options.secure) {
+      cookie += '; secure';
+    }
+    if (options.expires) {
+      cookie += '; expires=' + options.expires.toUTCString();
+    }
+    document.cookie = cookie;
+  };
+
+//--------------------------------------------------[cookie.get]
+  /**
+   * 读取 cookie。
+   * @name cookie.get
+   * @function
+   * @param {string} name 要读取的 cookie 名称。
+   * @returns {string} 对应的值。
+   */
+  cookie.get = function(name) {
+    var matchs = document.cookie.match('(?:^|;)\\s*' + RegExp.escape(name) + '=([^;]*)');
+    return matchs ? decodeURIComponent(matchs[1]) : null;
+  };
+
+//--------------------------------------------------[cookie.remove]
+  /**
+   * 删除 cookie。
+   * @name cookie.remove
+   * @function
+   * @param {string} name 要删除的 cookie 名称。
+   * @param {Object} [options] 可选参数。
+   * @param {string} options.path 限定生效的路径，默认为当前路径。
+   * @param {string} options.domain 限定生效的域名，默认为当前域名。
+   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输 cookie，默认为否。
+   */
+  cookie.remove = function(name, options) {
+    options = options || {};
+    options.expires = new Date(0);
+    this.set(name, '', options);
+  };
+
+//==================================================[localStorage 补缺]
+  /*
+   * 为不支持 localStorage 的浏览器（IE6 IE7）模拟此特性。
+   *
+   * 补缺属性：
+   *   localStorage.setItem
+   *   localStorage.getItem
+   *   localStorage.removeItem
+   *   localStorage.clear
+   *
+   * 注意：
+   *   本实现并未模拟 localStorage.length 和 localStorage.key，因为它们并不常用。
+   *   若要进行模拟，需要在每次操作更新一个列表，为严格保证列表的数据不被覆盖，还需要将数据存入另一个 xml 文档。
+   *
+   * 参考：
+   *   https://github.com/marcuswestin/store.js
+   *   http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
+   */
+
+  if (window.localStorage || !document.documentElement.addBehavior) {
+    return;
+  }
 
   /**
-   * 判断提供的值的数据类型，比 typeof 运算符返回的结果更明确（将对结果为 'object' 的情况进行更细致的区分）。
-   * @name typeOf
-   * @memberOf Global
-   * @function
-   * @param {*} value 要判断的值。
-   * @returns {string} 值的类型，可能为以下几种情况之一：
-   *   undefined
-   *   boolean
-   *   number
-   *   string
-   *   function
-   *   null
-   *   object.Boolean
-   *   object.Number
-   *   object.String
-   *   object.Array
-   *   object.Date
-   *   object.RegExp
-   *   object.Error
-   *   object.Math
-   *   object.JSON
-   *   object.Arguments
-   *   object.Global
-   *   object.Node
-   *   object.Collection
-   *   object.Object
+   * 为不支持 localStorage 的浏览器提供类似的功能。
+   * @name localStorage
+   * @namespace
    * @description
    *   注意：
-   *   一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
-   *   IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
-
-   * @example
-   *   typeOf(document);
-   *   // 'object.Node'
-   * @see http://mootools.net/
-   * @see http://jquery.com/
+   *   在不支持 localStorage 的浏览器中，会使用路径 '/favicon.ico' 来创建启用 userData 的元素。
+   *   当上述路径不存在时 (404)，服务端应避免返回包含脚本的页面，以免出现预料外的异常。
    */
-  window.typeOf = function(value) {
-    var type = typeof value;
-    // Safari 中类型为 HTMLCollection 的值 type === 'function'。
-    if (type === 'function' && typeof value.item === 'function') {
-      type = 'object.Collection';
-    }
-    // 进一步判断 type === 'object' 的情况。
-    if (type === 'object') {
-      if (value === null) {
-        type = 'null';
-      } else {
-        // 使用 Object.prototype.toString 判断。
-        type = types[TO_STRING.call(value)] || 'object.Object';
-        if (type === 'object.Object') {
-          // 转化为字符串判断。
-          var string = value + '';
-          if (string === '[object Window]' || string === '[object DOMWindow]') {
-            type = 'object.Global';
-          } else if (string === '[object JSON]') {
-            type = 'object.JSON';
-          } else {
-            // 使用特性判断。
-            if (typeof value.length == 'number') {
-              if ('navigator' in value) {
-                type = 'object.Global';
-              } else if ('callee' in value) {
-                type = 'object.Arguments';
-              } else if ('item' in value) {
-                type = 'object.Collection';
-              }
-            } else if ('nodeName' in value) {
-              type = 'object.Node';
-            } else if (RE_FUNCTION.test(string)) {
-              type = 'function';
-            }
-          }
-        }
-      }
-    }
-    return type;
-  };
+  var localStorage = {};
+  window.localStorage = localStorage;
 
-//--------------------------------------------------[execScript]
-  /**
-   * 将字符串作为脚本执行，执行时的作用域为全局作用域。
-   * @name execScript
-   * @memberOf Global
-   * @function
-   * @param {string} code 要执行的代码。
-   * @example
-   *   var a;
-   *   execScript('a = 128 * 2 + 256;');
-   *   a;
-   *   // 512
-   */
-  if (!window.execScript) {
-    window.execScript = function(code) {
-      window.eval(code);
-    };
+  // 用来保存 userData 的元素。
+  var userDataElement;
+  // 指定存储路径。
+  var USER_DATA_PATH = '/favicon.ico';
+  // 指定一个固定的 userData 存储文件名。
+  var USER_DATA_FILE_NAME = 'localStorage';
+  // 尝试使用跨路径的 userData 访问。
+  try {
+    // 使用同步方式在当前域的指定存储路径创建一个文档，以确保对 userData 操作的代码能够同步执行。
+    var hiddenDocument = new ActiveXObject('htmlfile');
+    hiddenDocument.open();
+    hiddenDocument.write('<iframe id="root_path" src="' + USER_DATA_PATH + '"></frame>');
+    hiddenDocument.close();
+    // 关键：IE6 IE7 IE8 允许在 document 上插入元素。
+    var userDataOwnerDocument = hiddenDocument.getElementById('root_path').contentWindow.document;
+    // 创建绑定了 userData 行为的元素。
+    userDataElement = userDataOwnerDocument.createElement('var');
+    userDataOwnerDocument.appendChild(userDataElement);
+  } catch (e) {
+    // 若创建失败，则仅实现不能跨路径的 userData 访问。
+    userDataElement = document.documentElement;
   }
+  // 添加行为。
+  userDataElement.addBehavior('#default#userData');
 
-//--------------------------------------------------[getNamespace]
+//--------------------------------------------------[localStorage.setItem]
   /**
-   * 获取一个命名空间，如果该命名空间不存在，将创建并返回这个命名空间。
-   * @name getNamespace
-   * @memberOf Global
+   * 保存数据。
+   * @name localStorage.setItem
    * @function
-   * @param {string} namespace 命名空间的字符串形式。
-   * @returns {Object} 命名空间对象。
-   * @example
-   *   var finale = getNamespace('data.championship.finale');
-   *   finale.getRankingList = function() {...};
-   */
-  window.getNamespace = function(namespace) {
-    var o = window;
-    namespace.split('.').forEach(function(item) {
-      o = item in o ? o[item] : o[item] = {};
-    });
-    return o;
-  };
-
-//==================================================[组件]
-  /*
-   * 提供组件的构造器。
-   * 为组件的实例提供 on/off/fire 方法，这些方法依赖组件实例自身的 event 属性。
-   * <Object event> {
-   *   <string type>: <Array handlers> [
-   *     <Object handler>: {
-   *       name: <string>
-   *       listener: <Function>
-   *     }
-   *   ]
-   * };
-   *
-   * 扩展方法：
-   *   createComponent
-   * 命名空间：
-   *   components
-   */
-
-//--------------------------------------------------[Component Constructor]
-  /**
-   * 创建一个组件。
-   * @name Component
-   * @constructor
-   * @param {Function} constructor 组件构造函数。
-   *   <ul>
-   *     <li>声明 constructor 时，其最后一个形参必须是一个可选参数 options。即便一个组件不需要 options，也应将其写入形参内。</li>
-   *     <li>不要在 constructor 中访问 options 形参，因为此形参并不会被传入 constructor。要访问 options 形参的属性，直接访问实例的同名属性即可。</li>
-   *     <li>必须指定 constructor.options，以代表默认选项。即便一个组件不需要默认选项，也应将 constructor.options 设置为空对象。</li>
-   *     <li>constructor、constructor.options、constructor.prototype 内均不能设置实例的 events/on/off/fire 属性。</li>
-   *   </ul>
+   * @param {string} key 要保存的数据名，不能为空字符串。
+   * @param {string} value 要保存的数据值。
    * @description
-   *   本方法本质是包装 constructor，以加入对事件的支持，并能自动处理默认选项和指定选项。
+   *   注意：
+   *   与源生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
+   *   可以使用中文 key。
    */
-  function Component(constructor) {
-    // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
-    var ComponentConstructor = function() {
-      // 追加默认 options 到实例对象。
-      Object.append(this, constructor.options);
-      // 追加指定的 options 到实例对象。
-      var parameters = Array.from(arguments);
-      var formalParameterLength = constructor.length;
-      var actualParameterLength = arguments.length;
-      if (formalParameterLength !== actualParameterLength) {
-        parameters.length = formalParameterLength;
-      }
-      // 移除实参中的 options。
-      Object.append(this, parameters.pop() || {});
-      // 实例的 events 必须为以下指定的空对象。
-      this.events = {};
-      constructor.apply(this, parameters);
-    };
-    // 将 Component.prototype 添加到 ComponentConstructor 的原型链。
-    var ComponentPrototype = function() {
-    };
-    ComponentPrototype.prototype = Component.prototype;
-    ComponentConstructor.prototype = new ComponentPrototype();
-    ComponentConstructor.prototype.constructor = ComponentConstructor;
-    ComponentConstructor.prototype.superPrototype = ComponentPrototype.prototype;
-    // 将 constructor 的原型内的属性追加到 Component 的原型中。
-    Object.append(ComponentConstructor.prototype, constructor.prototype, {blackList: ['on', 'off', 'fire']});
-    // 返回组件。
-    return ComponentConstructor;
-  }
-
-  window.Component = Component;
-
-//--------------------------------------------------[Component.prototype.on]
-  /**
-   * 为组件添加监听器。
-   * @name Component.prototype.on
-   * @function
-   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
-   *   使用空格分割要多个事件名称，即可同时为多个事件注册同一个监听器。
-   * @param {Function} listener 要添加的事件监听器，传入调用此方法的组件提供的事件对象。
-   * @returns {Object} 调用本方法的组件。
-   */
-  Component.prototype.on = function(name, listener) {
-    var self = this;
-    if (name.contains(' ')) {
-      name.split(' ').forEach(function(name) {
-        Component.prototype.on.call(self, name, listener);
-      });
-      return self;
-    }
-    var events = self.events;
-    var dotIndex = name.indexOf('.');
-    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
-    var handlers = events[type] || (events[type] = []);
-    handlers.push({name: name, listener: listener});
-    return self;
+  localStorage.setItem = function(key, value) {
+    userDataElement.load(USER_DATA_FILE_NAME);
+    userDataElement.setAttribute(key, value);
+    userDataElement.save(USER_DATA_FILE_NAME);
   };
 
-//--------------------------------------------------[Component.prototype.off]
+//--------------------------------------------------[localStorage.getItem]
   /**
-   * 根据名称删除组件上已添加的监听器。
-   * @name Component.prototype.off
+   * 读取数据。
+   * @name localStorage.getItem
    * @function
-   * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
-   * @returns {Object} 调用本方法的组件。
+   * @param {string} key 要读取的数据名，不能为空字符串。
+   * @returns {string} 对应的值。
    */
-  Component.prototype.off = function(name) {
-    var self = this;
-    if (name.contains(' ')) {
-      name.split(' ').forEach(function(name) {
-        Component.prototype.off.call(self, name);
-      });
-      return self;
-    }
-    var events = self.events;
-    var dotIndex = name.indexOf('.');
-    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
-    var handlers = events[type];
-    if (!handlers) {
-      return self;
-    }
-    var i = 0;
-    var handler;
-    if (name === type) {
-      handlers.length = 0;
-    } else {
-      while (i < handlers.length) {
-        handler = handlers[i];
-        if (handler.name === name) {
-          handlers.splice(i, 1);
-        } else {
-          i++;
-        }
-      }
-    }
-    if (handlers.length === 0) {
-      delete events[type];
-    }
-    return self;
+  localStorage.getItem = function(key) {
+    userDataElement.load(USER_DATA_FILE_NAME);
+    return userDataElement.getAttribute(key);
   };
 
-//--------------------------------------------------[Component.prototype.fire]
+//--------------------------------------------------[localStorage.removeItem]
   /**
-   * 触发一个组件的某类事件，运行相关的监听器。
-   * @name Component.prototype.fire
+   * 删除数据。
+   * @name localStorage.removeItem
    * @function
-   * @param {String} type 事件类型。
-   * @param {Object} [event] 事件对象。
-   * @returns {Object} 调用本方法的组件。
+   * @param {string} key 要删除的数据名，不能为空字符串。
    */
-  Component.prototype.fire = function(type, event) {
-    var self = this;
-    var events = self.events;
-    var handlers = events[type];
-    if (!handlers) {
-      return self;
-    }
-    handlers.forEach(function(handler) {
-      handler.listener.call(self, event);
-    });
-    return self;
+  localStorage.removeItem = function(key) {
+    userDataElement.load(USER_DATA_FILE_NAME);
+    userDataElement.removeAttribute(key);
+    userDataElement.save(USER_DATA_FILE_NAME);
   };
 
-//==================================================[命名空间]
-  /*
-   * 提供命名空间。
-   *
-   * 添加对象：
-   *   components
-   */
-
-//--------------------------------------------------[components]
+//--------------------------------------------------[localStorage.clear]
   /**
-   * 为组件提供的命名空间。
-   * @name components
-   * @namespace
+   * 清空所有数据。
+   * @name localStorage.clear
+   * @function
    */
-  window.components = {};
+  localStorage.clear = function() {
+    var attributes = userDataElement.XMLDocument.documentElement.attributes;
+    userDataElement.load(USER_DATA_FILE_NAME);
+    var index = 0;
+    var attribute;
+    while (attribute = attributes[index++]) {
+      userDataElement.removeAttribute(attribute.name);
+    }
+    userDataElement.save(USER_DATA_FILE_NAME);
+  };
 
 })();
 /**
@@ -3458,12 +3484,13 @@
   };
 
 //--------------------------------------------------[window.$]
-  /**
+  /*
    * 将全局作用域的 $ 作为 document.$ 的别名，以便于书写代码。
    * @name window.$
    * @function
    */
-  window.$ = document.$;
+  // 移除 window.$，推荐使用 execute 方法封装代码块，并使用其参数中的 $ 来代替 window.$ 的便利性。
+  // window.$ = document.$;
 
 //--------------------------------------------------[window.on]
   /**
@@ -3528,6 +3555,181 @@
    * @returns {Object} window 对象。
    */
   window.fire = Element.prototype.fire;
+
+})();
+/**
+ * @fileOverview 组件。
+ * @author sundongguo@gmail.com
+ * @version 20120402
+ */
+(function() {
+//==================================================[组件]
+  /*
+   * 提供组件的构造器。
+   * 为组件的实例提供 on/off/fire 方法，这些方法依赖组件实例自身的 event 属性。
+   * <Object event> {
+   *   <string type>: <Array handlers> [
+   *     <Object handler>: {
+   *       name: <string>
+   *       listener: <Function>
+   *     }
+   *   ]
+   * };
+   *
+   * 构造函数：
+   *   Component
+   * 命名空间：
+   *   components
+   */
+
+  var componentInstanceMethods = {};
+
+//--------------------------------------------------[Component Constructor]
+  /**
+   * 创建一个组件。
+   * @name Component
+   * @constructor
+   * @param {Function} constructor 组件构造函数。
+   *   <ul>
+   *     <li>声明 constructor 时，其最后一个形参必须是一个可选参数 options。即便一个组件不需要 options，也应将其写入形参内。</li>
+   *     <li>不要在 constructor 中访问 options 形参，因为此形参并不会被传入 constructor。要访问 options 形参的属性，直接访问实例的同名属性即可。</li>
+   *     <li>必须指定 constructor.options，以代表默认选项。即便一个组件不需要默认选项，也应将 constructor.options 设置为空对象。</li>
+   *     <li>constructor、constructor.options、constructor.prototype 内均不能设置实例的 events/on/off/fire 属性。</li>
+   *   </ul>
+   * @description
+   *   本方法本质是包装 constructor，以加入对事件的支持，并能自动处理默认选项和指定选项。
+   */
+  function Component(constructor) {
+    // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
+    var ComponentConstructor = function() {
+      // 追加默认 options 到实例对象。
+      Object.append(this, constructor.options);
+      // 追加指定的 options 到实例对象。
+      var parameters = Array.from(arguments);
+      var formalParameterLength = constructor.length;
+      var actualParameterLength = arguments.length;
+      if (formalParameterLength !== actualParameterLength) {
+        parameters.length = formalParameterLength;
+      }
+      // 移除实参中的 options。
+      Object.append(this, parameters.pop() || {});
+      // 实例的 events 必须为以下指定的空对象。
+      this.events = {};
+      constructor.apply(this, parameters);
+    };
+    // 将 componentInstanceMethods 添加到 ComponentConstructor 的原型链。
+    var ComponentPrototype = function() {
+    };
+    ComponentPrototype.prototype = componentInstanceMethods;
+    ComponentConstructor.prototype = new ComponentPrototype();
+    ComponentConstructor.prototype.constructor = ComponentConstructor;
+    ComponentConstructor.prototype.superPrototype = ComponentPrototype.prototype;
+    // 将 constructor 的原型内的属性追加到 Component 的原型中。
+    Object.append(ComponentConstructor.prototype, constructor.prototype, {blackList: ['on', 'off', 'fire']});
+    // 返回组件。
+    return ComponentConstructor;
+  }
+
+  window.Component = Component;
+
+//--------------------------------------------------[componentInstanceMethods.on]
+  /**
+   * 为组件添加监听器。
+   * @name Component#on
+   * @function
+   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
+   *   使用空格分割要多个事件名称，即可同时为多个事件注册同一个监听器。
+   * @param {Function} listener 要添加的事件监听器，传入调用此方法的组件提供的事件对象。
+   * @returns {Object} 调用本方法的组件。
+   */
+  componentInstanceMethods.on = function(name, listener) {
+    var self = this;
+    if (name.contains(' ')) {
+      name.split(' ').forEach(function(name) {
+        componentInstanceMethods.on.call(self, name, listener);
+      });
+      return self;
+    }
+    var events = self.events;
+    var dotIndex = name.indexOf('.');
+    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
+    var handlers = events[type] || (events[type] = []);
+    handlers.push({name: name, listener: listener});
+    return self;
+  };
+
+//--------------------------------------------------[componentInstanceMethods.off]
+  /**
+   * 根据名称删除组件上已添加的监听器。
+   * @name Component#off
+   * @function
+   * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
+   * @returns {Object} 调用本方法的组件。
+   */
+  componentInstanceMethods.off = function(name) {
+    var self = this;
+    if (name.contains(' ')) {
+      name.split(' ').forEach(function(name) {
+        componentInstanceMethods.off.call(self, name);
+      });
+      return self;
+    }
+    var events = self.events;
+    var dotIndex = name.indexOf('.');
+    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
+    var handlers = events[type];
+    if (!handlers) {
+      return self;
+    }
+    var i = 0;
+    var handler;
+    if (name === type) {
+      handlers.length = 0;
+    } else {
+      while (i < handlers.length) {
+        handler = handlers[i];
+        if (handler.name === name) {
+          handlers.splice(i, 1);
+        } else {
+          i++;
+        }
+      }
+    }
+    if (handlers.length === 0) {
+      delete events[type];
+    }
+    return self;
+  };
+
+//--------------------------------------------------[componentInstanceMethods.fire]
+  /**
+   * 触发一个组件的某类事件，运行相关的监听器。
+   * @name Component#fire
+   * @function
+   * @param {String} type 事件类型。
+   * @param {Object} [event] 事件对象。
+   * @returns {Object} 调用本方法的组件。
+   */
+  componentInstanceMethods.fire = function(type, event) {
+    var self = this;
+    var events = self.events;
+    var handlers = events[type];
+    if (!handlers) {
+      return self;
+    }
+    handlers.forEach(function(handler) {
+      handler.listener.call(self, event);
+    });
+    return self;
+  };
+
+//--------------------------------------------------[components]
+  /**
+   * 为组件提供的命名空间。
+   * @name components
+   * @namespace
+   */
+  window.components = {};
 
 })();
 /**
@@ -4335,213 +4537,6 @@
 
 })();
 /**
- * @fileOverview 多种数据存储方式。
- * @author sundongguo@gmail.com
- * @version 20120228
- */
-(function() {
-//==================================================[cookie]
-  /*
-   * 使用 cookie 存储数据。
-   *
-   * 提供方法：
-   *   cookie.set
-   *   cookie.get
-   *   cookie.remove
-   */
-
-  /**
-   * 提供操作 cookie 的常用方法。
-   * @name cookie
-   * @namespace
-   */
-  var cookie = {};
-  window.cookie = cookie;
-
-//--------------------------------------------------[cookie.set]
-  /**
-   * 设置 cookie。
-   * @name cookie.set
-   * @function
-   * @param {string} name 要设置的 cookie 名称。
-   * @param {string} value 要设置的 cookie 名称对应的值。
-   * @param {Object} [options] 可选参数。
-   * @param {string} options.path 限定生效的路径，默认为当前路径。
-   * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输 cookie，默认为否。
-   * @param {Date} options.expires 过期时间。
-   */
-  cookie.set = function(name, value, options) {
-    options = options || {};
-    var cookie = name + '=' + encodeURIComponent(value);
-    if (options.path) {
-      cookie += '; path=' + options.path;
-    }
-    if (options.domain) {
-      cookie += '; domain=' + options.domain;
-    }
-    if (options.secure) {
-      cookie += '; secure';
-    }
-    if (options.expires) {
-      cookie += '; expires=' + options.expires.toUTCString();
-    }
-    document.cookie = cookie;
-  };
-
-//--------------------------------------------------[cookie.get]
-  /**
-   * 读取 cookie。
-   * @name cookie.get
-   * @function
-   * @param {string} name 要读取的 cookie 名称。
-   * @returns {string} 对应的值。
-   */
-  cookie.get = function(name) {
-    var matchs = document.cookie.match('(?:^|;)\\s*' + RegExp.escape(name) + '=([^;]*)');
-    return matchs ? decodeURIComponent(matchs[1]) : null;
-  };
-
-//--------------------------------------------------[cookie.remove]
-  /**
-   * 删除 cookie。
-   * @name cookie.remove
-   * @function
-   * @param {string} name 要删除的 cookie 名称。
-   * @param {Object} [options] 可选参数。
-   * @param {string} options.path 限定生效的路径，默认为当前路径。
-   * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输 cookie，默认为否。
-   */
-  cookie.remove = function(name, options) {
-    options = options || {};
-    options.expires = new Date(0);
-    this.set(name, '', options);
-  };
-
-//==================================================[localStorage 补缺]
-  /*
-   * 为不支持 localStorage 的浏览器（IE6 IE7）模拟此特性。
-   *
-   * 补缺属性：
-   *   localStorage.setItem
-   *   localStorage.getItem
-   *   localStorage.removeItem
-   *   localStorage.clear
-   *
-   * 注意：
-   *   本实现并未模拟 localStorage.length 和 localStorage.key，因为它们并不常用。
-   *   若要进行模拟，需要在每次操作更新一个列表，为严格保证列表的数据不被覆盖，还需要将数据存入另一个 xml 文档。
-   *
-   * 参考：
-   *   https://github.com/marcuswestin/store.js
-   *   http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
-   */
-
-  if (window.localStorage || !document.documentElement.addBehavior) {
-    return;
-  }
-
-  /**
-   * 为不支持 localStorage 的浏览器提供类似的功能。
-   * @name localStorage
-   * @namespace
-   * @description
-   *   注意：
-   *   在不支持 localStorage 的浏览器中，会使用路径 '/favicon.ico' 来创建启用 userData 的元素。
-   *   当上述路径不存在时 (404)，服务端应避免返回包含脚本的页面，以免出现预料外的异常。
-   */
-  var localStorage = {};
-  window.localStorage = localStorage;
-
-  // 用来保存 userData 的元素。
-  var userDataElement;
-  // 指定存储路径。
-  var USER_DATA_PATH = '/favicon.ico';
-  // 指定一个固定的 userData 存储文件名。
-  var USER_DATA_FILE_NAME = 'localStorage';
-  // 尝试使用跨路径的 userData 访问。
-  try {
-    // 使用同步方式在当前域的指定存储路径创建一个文档，以确保对 userData 操作的代码能够同步执行。
-    var hiddenDocument = new ActiveXObject('htmlfile');
-    hiddenDocument.open();
-    hiddenDocument.write('<iframe id="root_path" src="' + USER_DATA_PATH + '"></frame>');
-    hiddenDocument.close();
-    // 关键：IE6 IE7 IE8 允许在 document 上插入元素。
-    var userDataOwnerDocument = hiddenDocument.getElementById('root_path').contentWindow.document;
-    // 创建绑定了 userData 行为的元素。
-    userDataElement = userDataOwnerDocument.createElement('var');
-    userDataOwnerDocument.appendChild(userDataElement);
-  } catch (e) {
-    // 若创建失败，则仅实现不能跨路径的 userData 访问。
-    userDataElement = document.documentElement;
-  }
-  // 添加行为。
-  userDataElement.addBehavior('#default#userData');
-
-//--------------------------------------------------[localStorage.setItem]
-  /**
-   * 保存数据。
-   * @name localStorage.setItem
-   * @function
-   * @param {string} key 要保存的数据名，不能为空字符串。
-   * @param {string} value 要保存的数据值。
-   * @description
-   *   注意：
-   *   与源生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
-   *   可以使用中文 key。
-   */
-  localStorage.setItem = function(key, value) {
-    userDataElement.load(USER_DATA_FILE_NAME);
-    userDataElement.setAttribute(key, value);
-    userDataElement.save(USER_DATA_FILE_NAME);
-  };
-
-//--------------------------------------------------[localStorage.getItem]
-  /**
-   * 读取数据。
-   * @name localStorage.getItem
-   * @function
-   * @param {string} key 要读取的数据名，不能为空字符串。
-   * @returns {string} 对应的值。
-   */
-  localStorage.getItem = function(key) {
-    userDataElement.load(USER_DATA_FILE_NAME);
-    return userDataElement.getAttribute(key);
-  };
-
-//--------------------------------------------------[localStorage.removeItem]
-  /**
-   * 删除数据。
-   * @name localStorage.removeItem
-   * @function
-   * @param {string} key 要删除的数据名，不能为空字符串。
-   */
-  localStorage.removeItem = function(key) {
-    userDataElement.load(USER_DATA_FILE_NAME);
-    userDataElement.removeAttribute(key);
-    userDataElement.save(USER_DATA_FILE_NAME);
-  };
-
-//--------------------------------------------------[localStorage.clear]
-  /**
-   * 清空所有数据。
-   * @name localStorage.clear
-   * @function
-   */
-  localStorage.clear = function() {
-    var attributes = userDataElement.XMLDocument.documentElement.attributes;
-    userDataElement.load(USER_DATA_FILE_NAME);
-    var index = 0;
-    var attribute;
-    while (attribute = attributes[index++]) {
-      userDataElement.removeAttribute(attribute.name);
-    }
-    userDataElement.save(USER_DATA_FILE_NAME);
-  };
-
-})();
-/**
  * @fileOverview 代码模块化处理。
  * @author sundongguo@gmail.com
  * @version 20120223
@@ -4595,6 +4590,8 @@
    *   如果模块在应用未运行之前即发送了消息，这些消息将在第一次调用 runApplication 之后传递给应用处理（未处理的将丢弃，即此后调用的 runApplication 不会再收到这些消息）。
    */
 
+  var $ = document.$;
+
   // 保存各模块接收到的消息的处理器。
   /*
    * <Object moduleMessageHandlerPool> {
@@ -4628,8 +4625,9 @@
    * @function
    * @param {string} id 模块 id。
    * @param {Function} moduleFunction 模块函数。
+   * @param {boolean} [waitingForDomReady] 设置为 true 则在 DOM 树加载完成后再执行模块函数，否则立即执行。
    */
-  window.declareModule = function(id, moduleFunction) {
+  window.declareModule = function(id, moduleFunction, waitingForDomReady) {
     if (!VALID_MODULE_ID.test(id)) {
       throw new Error('[declareModule] 非法 id: ' + id);
     }
@@ -4675,8 +4673,11 @@
       }
     };
 
-    // 运行模块函数。
-    moduleFunction(listen, notify);
+    // 执行模块函数。
+    waitingForDomReady ? document.on('domready', function() {
+      moduleFunction(listen, notify, $);
+    }) : moduleFunction(listen, notify, $);
+
   };
 
 //--------------------------------------------------[runApplication]
@@ -4688,8 +4689,9 @@
    * @memberOf Global
    * @function
    * @param {Function} applicationFunction 应用函数。
+   * @param {boolean} [waitingForDomReady] 设置为 true 则在 DOM 树加载完成后再执行应用函数，否则立即执行。
    */
-  window.runApplication = function(applicationFunction) {
+  window.runApplication = function(applicationFunction, waitingForDomReady) {
     /**
      * 监听模块发送的消息。
      * @name listen
@@ -4745,12 +4747,58 @@
       }
     };
 
-    // 运行应用函数。
-    applicationFunction(listen, notify);
+    // 执行应用函数。
+    waitingForDomReady ? document.on('domready', function() {
+      applicationFunction(listen, notify, $);
+    }) : applicationFunction(listen, notify, $);
 
     // 清除应用尚未启动时收到的消息缓存（丢弃未处理的消息）。
     delete applicationMessageHandlerPool.cache;
 
+  };
+
+})();
+/**
+ * @fileOverview 执行代码块的便捷方法。
+ * @author sundongguo@gmail.com
+ * @version 20120405
+ */
+(function() {
+//==================================================[执行代码块]
+  /*
+   * 设计思路：
+   *   本方案主要为解决标识符 $ 与其他类库冲突的问题，顺便加入“在 DOM 树加载完成后执行”的功能。
+   */
+
+  var $ = document.$;
+
+//--------------------------------------------------[execute]
+  /**
+   * 执行代码块。
+   * @name execute
+   * @memberOf Global
+   * @function
+   * @param {Function} codeBlock 包含要执行的代码块的匿名函数。
+   * @param {boolean} [waitingForDomReady] 设置为 true 则在 DOM 树加载完成后再执行代码块，否则立即执行。
+   * @description
+   *   通常，为了减少全局变量的数量和避免不同代码块之间的变量名有冲突，会使用一个匿名函数来执行一个相对独立的代码块：
+   *   <pre>(function() {...})();</pre>
+   *   使用本方法可以达到相同目的，除此之外还有以下好处：
+   *   <ul>
+   *     <li>原匿名函数的第一个参数将被传入 document.$，因此可以通过在该匿名函数的形参中写上一个 $，以便在函数内直接使用 $ 而不必担心与其他脚本库的 $ 冲突。</li>
+   *     <li>的可选参数 waitingForDomReady 可以控制这个匿名函数的执行时机（如何设置这个参数取决于代码块内是否有依赖 DOM 元素的操作）。</li>
+   *   </ul>
+   * @example
+   *   execute(function($){...});
+   *   // 在匿名函数中可以使用 $ 代替 document.$。
+   * @example
+   *   execute(function($){...}, true);
+   *   // 匿名函数将在 DOM 树加载完成后执行。
+   */
+  window.execute = function(codeBlock, waitingForDomReady) {
+    waitingForDomReady ? document.on('domready', function() {
+      codeBlock($);
+    }) : codeBlock($);
   };
 
 })();

@@ -52,6 +52,8 @@
    *   如果模块在应用未运行之前即发送了消息，这些消息将在第一次调用 runApplication 之后传递给应用处理（未处理的将丢弃，即此后调用的 runApplication 不会再收到这些消息）。
    */
 
+  var $ = document.$;
+
   // 保存各模块接收到的消息的处理器。
   /*
    * <Object moduleMessageHandlerPool> {
@@ -85,8 +87,9 @@
    * @function
    * @param {string} id 模块 id。
    * @param {Function} moduleFunction 模块函数。
+   * @param {boolean} [waitingForDomReady] 设置为 true 则在 DOM 树加载完成后再执行模块函数，否则立即执行。
    */
-  window.declareModule = function(id, moduleFunction) {
+  window.declareModule = function(id, moduleFunction, waitingForDomReady) {
     if (!VALID_MODULE_ID.test(id)) {
       throw new Error('[declareModule] 非法 id: ' + id);
     }
@@ -132,8 +135,11 @@
       }
     };
 
-    // 运行模块函数。
-    moduleFunction(listen, notify);
+    // 执行模块函数。
+    waitingForDomReady ? document.on('domready', function() {
+      moduleFunction(listen, notify, $);
+    }) : moduleFunction(listen, notify, $);
+
   };
 
 //--------------------------------------------------[runApplication]
@@ -145,8 +151,9 @@
    * @memberOf Global
    * @function
    * @param {Function} applicationFunction 应用函数。
+   * @param {boolean} [waitingForDomReady] 设置为 true 则在 DOM 树加载完成后再执行应用函数，否则立即执行。
    */
-  window.runApplication = function(applicationFunction) {
+  window.runApplication = function(applicationFunction, waitingForDomReady) {
     /**
      * 监听模块发送的消息。
      * @name listen
@@ -202,8 +209,10 @@
       }
     };
 
-    // 运行应用函数。
-    applicationFunction(listen, notify);
+    // 执行应用函数。
+    waitingForDomReady ? document.on('domready', function() {
+      applicationFunction(listen, notify, $);
+    }) : applicationFunction(listen, notify, $);
 
     // 清除应用尚未启动时收到的消息缓存（丢弃未处理的消息）。
     delete applicationMessageHandlerPool.cache;

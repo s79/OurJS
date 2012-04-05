@@ -1,4 +1,4 @@
-document.on('domready', function() {
+execute(function($) {
   var $html = $(document.documentElement);
   var $content = $('#content');
   var indexColumns = {
@@ -373,4 +373,4 @@ document.on('domready', function() {
     prettyPrint();
   });
 
-});
+}, true);
