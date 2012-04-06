@@ -12,12 +12,12 @@
 #content a:link,
 #content a:visited { color: #666; }
 #content .column { float: left; width: 310px; padding: 5px; cursor: default; }
-#content fieldset { display: block; margin-bottom: 5px; padding: 5px; border: 1px solid #a6aeb3; border-radius: 5px; }
+#content fieldset { display: block; margin-bottom: 5px; padding: 5px; border: 1px solid #A6AEB3; border-radius: 5px; }
 #content fieldset:hover { border-color: gray; }
 #content fieldset:hover legend dfn { color: orangered; }
 #content legend { padding: 2px 5px; font-weight: bold; font-size: 14px; line-height: 14px; }
 #content legend dfn { color: steelblue; }
-#content h2 { margin: 0; border-bottom: 1px solid #d5dfe5; color: seagreen; font-weight: normal; font-size: 12px; }
+#content h2 { margin: 0; border-bottom: 1px solid #D5DFE5; color: seagreen; font-weight: normal; font-size: 12px; }
 #content dl { margin: 5px 0; padding-left: 2px; border-left: 2px solid white; font-size: 12px; color: #666; }
 #content dt { margin: 0; font-weight: normal; font-size: 12px; }
 #content .constructor { border-left: 2px solid red; }
@@ -61,7 +61,8 @@
 #details var { color: sienna; font-style: italic; }
 #details ul { list-style: circle; padding-left: 2em; }
 /* example */
-#details pre { margin-bottom: 10px; padding: 5px; border: 1px solid #eed; border-radius: 2px; background: #fffff5; color: #333; white-space: pre-wrap; word-wrap: break-word; }
+#details pre { margin-bottom: 10px; padding: 5px; border: 1px solid #EEE8AA; border-radius: 2px; background: #FFFFE1; color: #333; white-space: pre-wrap; word-wrap: break-word; }
+#details blockquote pre { margin-left: 2em; border-color: #F0FFF0; border-radius: 0; background-color: #F8FFF8; }
 /* params deprecated since exceptions returns requires see*/
 #details dl { margin: 10px; }
 #details dt { font-weight: bold; }

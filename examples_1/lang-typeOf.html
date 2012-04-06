@@ -32,6 +32,7 @@ pre { margin: 0; padding: 10px; font: 12px Consolas, "Lucida Console", Courier; 
 var XHR = window.XMLHttpRequest ? XMLHttpRequest : ActiveXObject;
 var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
 </pre>
+<form></form>
 <script>
 (function() {
   var $tbody = document.getElementById('list');
@@ -83,6 +84,7 @@ var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Micr
   ['(function() {return arguments;})()', (function() {return arguments;})(), 'object.Arguments'],
 
   ['window', window, 'object.Global'],
+  ['document.getElementsByTagName(\'form\')[0]', document.getElementsByTagName('form')[0], 'object.Node'],
   ['document.head', document.head, 'object.Node'],
   ['document.head.children', document.head.children, 'object.Collection'],
   ['{}', {}, 'object.Object']
@@ -101,12 +103,6 @@ var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Micr
       item[2],
       typeOf(item[1])
   );
-});
-
-
-
-Object.forEach({key: 'key', toString: 'toString'}, function(value) {
-  console.log(value);
 });
 </script>
 </body>

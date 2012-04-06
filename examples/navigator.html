@@ -42,7 +42,7 @@ pre { clear: both; }
   <p id="parameters"></p>
 </fieldset>
 <script>
-(function() {
+execute(function($) {
   // navigator.* 预览。
   var $table = document.getElementById('list');
   var $tr;
@@ -67,7 +67,7 @@ pre { clear: both; }
   // location.parameters 预览。
   $('#parameters').innerHTML = JSON.stringify(location.parameters);
 
-})();
+});
 </script>
 </body>
 </html>

@@ -1901,7 +1901,7 @@
    */
   document.$ = function(e) {
     var element = null;
-    switch (typeOf(e)) {
+    switch (typeof e) {
       case 'string':
         if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
           var wrapper = wrappers[(RE_TAG_NAME.exec(e) || ['', ''])[1].toLowerCase()] || [0, '', ''];
@@ -1917,7 +1917,7 @@
           element = document.getElementById(e.slice(1));
         }
         break;
-      case 'object.Node':
+      case 'object':
         if (e.nodeType === 1) {
           element = e;
         }

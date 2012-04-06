@@ -1,2 +1,10 @@
-@copy/y/b "..\src\lang.js" + "..\src\browser.js" + "..\src\dom.js" + "..\src\component.js" + "..\src\animation.js" + "..\src\request.js" + "..\src\modularization.js" + "..\src\execute.js" + "..\src\plugins\sizzle.js" + "..\src\plugins\json2.js" + "..\src\plugins\DD_belatedPNG.js" ..\our.js
-@pause
+@echo off
+set ourjs=..\our.js
+cd ..\src
+echo /*!>%ourjs%
+echo. * OurJS>>%ourjs%
+echo. * Released under the MIT License.>>%ourjs%
+echo. * Version: %date%>>%ourjs%
+echo. */>>%ourjs%
+copy/y/b %ourjs% + lang.js + browser.js + dom.js + component.js + animation.js + request.js + modularization.js + execute.js + plugins\json2.js + plugins\sizzle.js + plugins\DD_belatedPNG.js %ourjs%
+pause

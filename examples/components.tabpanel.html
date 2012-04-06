@@ -40,11 +40,12 @@
 </fieldset>
 <script id="code">
 //--------------------------------------------------[tabPanel]
-var $container = $('#container');
-var tabs = $container.find('span');
-var panels = $container.find('div');
-var tabPanel = new components.TabPanel(tabs, panels).active(0);
-
+execute(function($) {
+  var $container = $('#container');
+  var tabs = $container.find('span');
+  var panels = $container.find('div');
+  var tabPanel = new components.TabPanel(tabs, panels).active(0);
+});
 </script>
 </body>
 </html>

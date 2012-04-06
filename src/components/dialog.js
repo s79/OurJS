@@ -3,10 +3,7 @@
  * @author sundongguo@gmail.com
  * @version 20120310
  */
-(function() {
-// 避免 $ 被覆盖。
-  var $ = document.$;
-
+execute(function($) {
 // 空函数。
   var empty = function() {
   };
@@ -520,4 +517,4 @@
     onClose: empty
   };
 
-})();
+});

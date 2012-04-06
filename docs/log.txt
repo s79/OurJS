@@ -8,7 +8,7 @@ Calendar
 >2012-04-02
 Component
 Switcher 更新。
-TabPanel: tabchange
+TabPanel: change
 
 >2012-03-31
 -Object.append

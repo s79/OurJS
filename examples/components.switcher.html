@@ -24,20 +24,22 @@ span { float: left; width: 100px; height: 100px; margin: 10px; background: yello
 </fieldset>
 <script>
 //--------------------------------------------------[switcher]
-var $message = $('#message');
-var switcher = new components.Switcher($(document.body).find('span'))
-    .on('change',
-    function(e) {
-      e.activeItem && e.activeItem.addClass('active');
-      e.inactiveItem && e.inactiveItem.removeClass('active');
-      $message.innerText = e.inactiveIndex + ' -> ' + e.activeIndex;
-    })
-    .active(2);
+execute(function($) {
+  var $message = $('#message');
+  var switcher = new components.Switcher($(document.body).find('span'))
+      .on('change',
+      function(e) {
+        e.activeItem && e.activeItem.addClass('active');
+        e.inactiveItem && e.inactiveItem.removeClass('active');
+        $message.innerText = e.inactiveIndex + ' -> ' + e.activeIndex;
+      })
+      .active(2);
 
-document.on('click', function(e) {
-  switcher.active(e.target);
+  document.on('click', function(e) {
+    switcher.active(e.target);
+  });
+
 });
-
 </script>
 </body>
 </html>

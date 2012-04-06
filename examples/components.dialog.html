@@ -68,19 +68,21 @@ button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
 </div>
 <!-- } dialog -->
 <script>
+execute(function($) {
 //--------------------------------------------------[TEST]
 //$('#pin').setStyle('position', 'fixed');
 
-var dialogOne = new components.Dialog($('#dialog_1'), {pinnedOffsetX: 200, pinnedOffsetY: 200});
-var dialogTwo = new components.Dialog($('#dialog_2'), {});
+  window.dialogOne = new components.Dialog($('#dialog_1'), {pinnedOffsetX: 200, pinnedOffsetY: 200});
+  window.dialogTwo = new components.Dialog($('#dialog_2'), {});
 
-function runAnimation(flag) {
-  dialogTwo.element.animate({height: flag ? 400 : 200}, {
-    onPlay: function() {
-      dialogTwo.adjust();
-    }
-  });
-}
+  window.runAnimation = function(flag) {
+    dialogTwo.element.animate({height: flag ? 400 : 200}, {
+      onPlay: function() {
+        dialogTwo.adjust();
+      }
+    });
+  };
+});
 
 </script>
 </body>

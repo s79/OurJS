@@ -11,10 +11,10 @@
   /*
    * 调用流程：
    *   var request = new Request(url, options);
-   *   request.send(data) -> request.onBeforeRequest(data) -> [request.abort()] -> request.onBeforeResponse(response) -> request.onResponse(response)
+   *   request.send(data) -> request.requestParser(data) -> fire:request(parsedRequestData) -> [request.abort()] -> request.responseParser(response) -> fire:response(parsedResponseData)
    *
    * 说明：
-   *   上述 data/response 均为不可预期的数据，因此可以通过修改选项 onBeforeRequest 和 onBeforeResponse 这两个函数，来对他们进行进一步操作。
+   *   上述 data/response 均为不可预期的数据，因此可以通过修改选项 requestParser 和 responseParser 这两个函数，来对他们进行处理。
    *
    * 注意：
    *   IE6 IE7 IE8 IE9 均不支持 overrideMimeType，因此本组件不提供此功能。
@@ -56,10 +56,28 @@
 
   // 获取响应信息，state 可能是 DONE、ABORT 或 TIMEOUT。
   var getResponse = function(request, state) {
-    if (request.timer) {
-      clearTimeout(request.timer);
-      delete request.timer;
+    // 处理请求的最短和最长时间。
+    if (request.async) {
+      // 由于 getResponse(request, DONE) 在 send 方法中有两个入口，因此在此处对 minTime 进行延时处理。
+      if (request.minTime) {
+        if (request.minTimeTimer) {
+          // 已经限定过请求的最短时间。此时 ABORT 或 TIMEOUT 状态可能比设置的延迟 DONE 状态来的早。
+          clearTimeout(request.minTimeTimer);
+          delete request.minTimeTimer;
+        } else if (state === DONE) {
+          // 这种情况需要限定请求的最短时间。
+          request.minTimeTimer = setTimeout(function() {
+            getResponse(request, DONE);
+          }, Math.max(0, Number.toInteger(request.minTime - (Date.now() - request.timestamp))));
+          return;
+        }
+      }
+      if (request.maxTimeTimer) {
+        clearTimeout(request.maxTimeTimer);
+        delete request.maxTimeTimer;
+      }
     }
+    // 获取 xhr 对象。
     var xhr = request.xhr;
     // 取消 xhr 对象的事件监听。
     xhr.onreadystatechange = empty;
@@ -102,16 +120,13 @@
         break;
     }
     // 发送响应信息。
-    var sendResponse = function() {
-      request.onResponse(request.onBeforeResponse({
-        status: status,
-        statusText: statusText,
-        headers: headers,
-        text: text,
-        xml: xml
-      }));
-    };
-    request.async ? setTimeout(sendResponse, Math.max(0, Number.toInteger(request.minTime - (Date.now() - request.timestamp)))) : sendResponse();
+    request.onResponse(request.responseParser({
+      status: status,
+      statusText: statusText,
+      headers: headers,
+      text: text,
+      xml: xml
+    }));
   };
 
 //--------------------------------------------------[Request Constructor]
@@ -130,8 +145,8 @@
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
    * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} options.onBeforeRequest 发送请求前触发，传入请求数据，需要返回处理后的字符串数据，当返回 false 时则取消本次请求。
-   * @param {Function} options.onBeforeResponse 收到响应前触发，传入响应数据，需要返回处理后的响应数据。
+   * @param {Function} options.requestParser 发送请求前触发，传入请求数据，需要返回处理后的字符串数据。
+   * @param {Function} options.responseParser 收到响应前触发，传入响应数据，需要返回处理后的响应数据。
    * @param {Function} options.onResponse 收到响应时触发，参数为包含响应信息的一个对象。
    */
   function Request(url, options) {
@@ -153,15 +168,12 @@
   Request.prototype.send = function(data) {
     var request = this;
     var xhr = request.xhr;
-    // 只有进行中的请求有 timestamp 属性，需等待此次交互结束才能再次发起请求。若无 xhr 对象，则无法发起请求。
+    // 只有进行中的请求有 timestamp 属性，需等待此次交互结束（若设置了 minTime 则交互结束的时间可能被延长）才能再次发起请求。若无 xhr 对象，则无法发起请求。
     if (request.timestamp || !xhr) {
       return request;
     }
-    // 如果 onBeforeRequest 返回 false，则停止发送请求。
-    data = request.onBeforeRequest(data);
-    if (data === false) {
-      return request;
-    }
+    // 处理请求数据。
+    data = request.requestParser(data);
     // 创建请求。
     var url = request.url;
     var method = request.method.toLowerCase();
@@ -190,7 +202,7 @@
     xhr.send(data || null);
     request.timestamp = Date.now();
     if (request.async && request.maxTime > 0) {
-      request.timer = setTimeout(function() {
+      request.maxTimeTimer = setTimeout(function() {
         getResponse(request, TIMEOUT);
       }, request.maxTime);
     }
@@ -241,10 +253,10 @@
     async: true,
     minTime: 0,
     maxTime: 0,
-    onBeforeRequest: function(data) {
+    requestParser: function(data) {
       return data ? data + '' : null;
     },
-    onBeforeResponse: function(response) {
+    responseParser: function(response) {
       return response;
     },
     onResponse: empty

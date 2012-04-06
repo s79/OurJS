@@ -1,7 +1,7 @@
 <%@language="javascript"%>
 <%
   var timestamp = new Date().getTime();
-  while (new Date() - timestamp < 1000) {
+  while (new Date() - timestamp < 200) {
   }
   Response.AddHeader('Content-Type', 'application/json');
   Response.AddHeader('Cache-Control', 'no-cache; must-revalidate');

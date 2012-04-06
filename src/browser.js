@@ -68,12 +68,11 @@
    */
   window.typeOf = function(value) {
     var type = typeof value;
-    // Safari 中类型为 HTMLCollection 的值 type === 'function'。
     if (type === 'function' && typeof value.item === 'function') {
+      // Safari 中类型为 HTMLCollection 的值 type === 'function'。
       type = 'object.Collection';
-    }
-    // 进一步判断 type === 'object' 的情况。
-    if (type === 'object') {
+    } else if (type === 'object') {
+      // 进一步判断 type === 'object' 的情况。
       if (value === null) {
         type = 'null';
       } else {
@@ -86,20 +85,20 @@
             type = 'object.Global';
           } else if (string === '[object JSON]') {
             type = 'object.JSON';
+          } else if (RE_FUNCTION.test(string)) {
+            type = 'function';
           } else {
             // 使用特性判断。
-            if (typeof value.length == 'number') {
+            if ('nodeType' in value && 'nodeName' in value) {
+              type = 'object.Node';
+            } else if (typeof value.length == 'number') {
               if ('navigator' in value) {
                 type = 'object.Global';
-              } else if ('callee' in value) {
-                type = 'object.Arguments';
               } else if ('item' in value) {
                 type = 'object.Collection';
+              } else if ('callee' in value) {
+                type = 'object.Arguments';
               }
-            } else if ('nodeName' in value) {
-              type = 'object.Node';
-            } else if (RE_FUNCTION.test(string)) {
-              type = 'function';
             }
           }
         }

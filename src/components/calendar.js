@@ -3,10 +3,7 @@
  * @author sundongguo@gmail.com
  * @version 20120329 (update from 20080528)
  */
-(function() {
-// 避免 $ 被覆盖。
-  var $ = document.$;
-
+execute(function($) {
 //==================================================[Calendar]
   /*
    * 日历选择组件。
@@ -152,7 +149,7 @@
    * @name Calendar.prototype.render
    * @memberOf components
    * @function
-   * @param {number} dataString 字符串表示的日期，格式为 yyyy-MM-dd。
+   * @param {string} dataString 字符串表示的日期，格式为 yyyy-MM-dd。
    * @returns {Calendar} Calendar 对象。
    */
   Calendar.prototype.render = function(dataString) {
@@ -248,4 +245,4 @@
 //--------------------------------------------------[components.Calendar]
   components.Calendar = new Component(Calendar);
 
-})();
+});

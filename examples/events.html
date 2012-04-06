@@ -72,37 +72,41 @@ var events = [
   ['load', 0, 0, 1],
   ['unload', 0, 0, 1],
   ['error', 0, 0, 1],
-  ['domready', 0, 0, 1],     // document 上的特殊事件。
-  ['beforeunload', 0, 0, 1]  // window 上的特殊事件。
+  // document 上的特殊事件。
+  ['domready', 0, 0, 1],
+  // window 上的特殊事件。
+  ['beforeunload', 0, 0, 1]
 ];
 
 //--------------------------------------------------[List]
-var $tbody = $('#list');
-var $tr;
-var $td;
-var operators = [0, 1, 2, 4];
+execute(function($) {
+  var $tbody = $('#list');
+  var $tr;
+  var $td;
+  var operators = [0, 1, 2, 4];
 
-function showResult(name, mask) {
-  $tr = $tbody.insertRow(-1);
-  for (var i = 0; i < 4; i++) {
-    var result = i === 0 ? name : mask & operators[i];
-    $td = $tr.insertCell(-1);
-    if (result > 0) {
-      $td.className = 'true';
+  function showResult(name, mask) {
+    $tr = $tbody.insertRow(-1);
+    for (var i = 0; i < 4; i++) {
+      var result = i === 0 ? name : mask & operators[i];
+      $td = $tr.insertCell(-1);
+      if (result > 0) {
+        $td.className = 'true';
+      }
+      $td.innerHTML = result;
     }
-    $td.innerHTML = result;
   }
-}
 
-var eventsObject = {};
-events.forEach(function(item) {
-  var mask = parseInt(('' + item[3] + item[2] + item[1]), 2);
-  showResult(item[0], mask);
-  eventsObject[item[0]] = mask;
+  var eventsObject = {};
+  events.forEach(function(item) {
+    var mask = parseInt(('' + item[3] + item[2] + item[1]), 2);
+    showResult(item[0], mask);
+    eventsObject[item[0]] = mask;
+  });
+
+  console.log(JSON.stringify(eventsObject));
+
 });
-
-console.log(JSON.stringify(eventsObject));
-
 </script>
 </body>
 </html>

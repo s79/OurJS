@@ -14,33 +14,35 @@ div { position: absolute; width: 20px; height: 20px; border: 1px solid black; ba
 <button id="test_fps" style="position: absolute; right: 20px; top: 20px; width: 200px; height: 30px;">FPS: ??</button>
 
 <script>
+execute(function($) {
 //--------------------------------------------------[Elements x 500]
-for (var i = 0; i < 500; i++) {
-  document.body.appendChild(document.createElement('div'));
-}
-var divElements = Array.from(document.getElementsByTagName('div'));
+  for (var i = 0; i < 500; i++) {
+    document.body.appendChild(document.createElement('div'));
+  }
+  var divElements = Array.from(document.getElementsByTagName('div'));
 
 //--------------------------------------------------[TEST]
-$('#test_fps').on('click', function() {
-  var $testFps = this;
-  var aniFrams = 0;
-  divElements.forEach(function(div, index) {
-    var options = {duration: 1000};
-    if (index === divElements.length - 1) {
-      options.onStart = function() {
-        $testFps.innerText = 'FPS: ??'
-      };
-      options.onFinish = function() {
-        $testFps.innerText = 'FPS: ' + (aniFrams / divElements.length);
+  $('#test_fps').on('click', function() {
+    var $testFps = this;
+    var aniFrams = 0;
+    divElements.forEach(function(div, index) {
+      var options = {duration: 1000};
+      if (index === divElements.length - 1) {
+        options.onStart = function() {
+          $testFps.innerText = 'FPS: ??'
+        };
+        options.onFinish = function() {
+          $testFps.innerText = 'FPS: ' + (aniFrams / divElements.length);
+        }
       }
-    }
-    new Animation(function(x, y) {
-      div.style.width = 20 + 30 * y + 'px';
-      div.style.height = 20 + 30 * y + 'px';
-      div.style.left = index % 50 * 10 * y + 'px';
-      div.style.top = Math.floor(index / 50) * 60 + index % 50 * 5 * (y < .5 ? y : 1 - y) + 'px';
-      aniFrams++;
-    }, options).play();
+      new Animation(function(x, y) {
+        div.style.width = 20 + 30 * y + 'px';
+        div.style.height = 20 + 30 * y + 'px';
+        div.style.left = index % 50 * 10 * y + 'px';
+        div.style.top = Math.floor(index / 50) * 60 + index % 50 * 5 * (y < .5 ? y : 1 - y) + 'px';
+        aniFrams++;
+      }, options).play();
+    });
   });
 });
 </script>
