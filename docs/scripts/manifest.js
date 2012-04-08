@@ -259,7 +259,6 @@ var manifest = {
   'components.TabPanel': [
     'components.TabPanel',
     'components.TabPanel.options',
-    'components.TabPanel.prototype.activeIndex',
     'components.TabPanel.prototype.active'
   ],
   'components.Dialog': [

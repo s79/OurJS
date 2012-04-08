@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Request</title>
-<script src="../../import.js"></script>
+<script src="../../dev.js"></script>
 </head>
 <body>
 <textarea id="output" style="display: block; width: 800px; height:300px; background: whitesmoke;"></textarea>
@@ -24,34 +24,42 @@ execute(function($) {
     contentType: 'application/json',
     useCache: true,
     async: true,
-    minTime: NaN,
-    maxTime: 3200,
+    minTime: 400,
+    maxTime: 510,
     requestParser: function(data) {
       return typeof data === 'string' ? data : JSON.stringify(data);
-    },
-    onResponse: function(response) {
-//      var message = 'request1: ' + JSON.stringify(response);
-      var message = response.status + ':' + response.text;
-      $output.value += message + '\n';
-      if (times++ < 5) {
-        this.send('{"times": ' + times + '}');
-        if (times === 1 || times === 3) {
-          request1.abort();
-        }
-      }
     }
-  });
+  })
+      .on('request',
+      function() {
+        $output.value += 'REQUEST\n';
+      })
+      .on('response',
+      function(e) {
+//        var message = 'request1: ' + JSON.stringify(e);
+        var message = e.status + ':' + e.statusText + ' ' + e.text;
+        $output.value += message + '\n';
+      })
+      .on('response', function(e) {
+        if (times++ < 5) {
+          this.send('{"times": ' + times + '}');
+          if (times === 1 || times === 3) {
+            this.abort();
+          }
+        }
+      });
   window.request2 = new Request('data.xml', {
     method: 'get',
     useCache: true,
-    minTime: 200,
-    maxTime: 500,
-    onResponse: function(response) {
-//      var message = 'request2: ' + response.status + ' ' + response.statusText + ' ' + response.xml.documentElement.nodeName;
-      var message = response.status + ':' + response.text;
-      $output.value += message + '\n';
-    }
-  });
+    minTime: 500,
+    maxTime: 600
+  })
+      .on('response',
+      function(e) {
+//        var message = 'request2: ' + e.status + ' ' + e.statusText + ' ' + e.xml.documentElement.nodeName;
+        var message = e.status + ':' + e.statusText;
+        $output.value += message + '\n';
+      });
 
   var $send1 = $('#send1');
   var $abort1 = $('#abort1');

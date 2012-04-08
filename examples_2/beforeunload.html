@@ -2,22 +2,29 @@
 <html>
 <head>
 <meta charset="utf-8">
-<script src="/framework/import.js"></script>
+<script src="../dev.js"></script>
 </head>
 <body>
+<button id="add">添加</button>
+<button id="remove">删除</button>
 <script>
-var showMessage = true;
-var isMozilla = Object.prototype.toString.call(window['Components']) === '[object nsXPCComponents]';
-window.on('beforeunload', function(e) {
-
-console.log(window.event);
-  if (showMessage) {
-    var message = '您正在应战中，请勿离开此页；否则将做失败处理！';
-    if (isMozilla) {
-      alert(message + '\n请在稍后的对话框点击“留在页面”以继续游戏。');
-    }
-    return message;
-  }
+execute(function($) {
+  var showMessage = true;
+  $('#add').on('click', function() {
+    window.on('beforeunload', function(e) {
+      console.log('测试 this 指向及事件对象是否为 undefined:', typeOf(this), e);
+      if (showMessage) {
+        var message = '您正在应战中，请勿离开此页，否则将做失败处理！';
+        if (navigator.isFirefox) {
+          alert(message + '\n如果要继续游戏，请在稍后的对话框中点击“留在页面”。\n如果确定要离开，请在稍后的对话框中点击“离开页面”按钮。');
+        }
+        return message;
+      }
+    });
+  });
+  $('#remove').on('click', function() {
+    window.off('beforeunload');
+  });
 });
 </script>
 </body>

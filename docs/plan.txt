@@ -56,8 +56,6 @@ mask.js:52show
 Mask
 components.mask.html:591331403483764 "HIDE"
 
->TODO: 检查 Request 的 minTime 选项。
-
 >TODO: 事件部分 fire 参数由 type 改为 name。
 
 >TODO: 事件部分 + input。

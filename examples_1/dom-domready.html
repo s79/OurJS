@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>test-domready</title>
-<script src="../.references/jquery-1.7.1.js"></script>
-<script src="../import.js"></script>
+<!--<script src="../.references/jquery-1.7.1.js"></script>-->
+<script src="../dev.js"></script>
 <style>
 body { margin: 0; padding: 0; background: white; }
 iframe { display: block; width: 400px; height: 300px; border: 1px solid black; }
@@ -19,28 +19,37 @@ var { color: tomato; }
 #log { position: absolute; left: 500px; top: 0; }
 </style>
 <script>
+execute(function($) {
 //--------------------------------------------------[log]
-var startTime = Date.now();
-function log(message) {
-  $('#log').append($('<p>' + message + ' (' + ((Date.now() - startTime) / 1000).toFixed(2) + ' : ' + document.readyState + ')</p>'));
-}
+  var startTime = Date.now();
+
+  window.log = function(message) {
+    $('#log').append($('<p>' + message + ' (' + ((Date.now() - startTime) / 1000).toFixed(2) + ' : ' + document.readyState + ')</p>'));
+  };
 
 //--------------------------------------------------[domready]
-document.on('domready', function() {
-  top.log('<span class="top domready">' + $('#domready').value + '</span>');
-});
-jQuery(function() {
-  top.log('<span class="top domready">' + $('#domready').value + ' <var>jQuery</var></span>');
-});
+  document.on('domready', function() {
+    top.log('<span class="top domready">' + $('#domready').value + '</span>');
+    $(document.body).append($('<button id="add_again">domready 事件发生之后再为 domready 事件添加一个监听器的测试</button>').on('click', function() {
+      document.on('domready', function(e) {
+        console.log('DOMREADY 事件发生之后添加的 DOMREADY 监听器', e);
+      });
+    }));
+  });
+//jQuery(function() {
+//  top.log('<span class="top domready">' + $('#domready').value + ' <var>jQuery</var></span>');
+//});
 
 //--------------------------------------------------[load]
-window.on('load', function() {
-  document.on('domready', function() {
-    top.log('= 在 window.load 中添加的 document.domready (index) =');
+  window.on('load', function(e) {
+    console.log('LOAD', e);
+    document.on('domready', function(e) {
+      console.log('DOMREADY', e);
+      top.log('= 在 window.load 中添加的 document.domready (index) =');
+    });
+    top.log('<span class="top load">' + $('#load').value + '</span>');
   });
-  top.log('<span class="top load">' + $('#load').value + '</span>');
 });
-
 </script>
 </head>
 <body>

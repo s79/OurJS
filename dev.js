@@ -1,21 +1,9 @@
 /**
- * @fileOverview 引入开发中的脚本文件。
+ * @fileOverview OurJS 开发版。
  * @author sundongguo@gmail.com
  * @version 20120213
  */
-//==================================================[引入文件]
-/*
- * 依赖关系：
- *   lang - base - dom - plugins/sizzle
- *                     - animation
- *        - request  // TODO 完成后依赖 dom。
- *        - storage
- *        - modularization
- *   plugins/json2
- *   plugins/DD_belatedPNG
- *                     - plugins/console
- */
-
+//==================================================[引入开发中的脚本文件]
 //--------------------------------------------------[import]
 (function() {
   var scripts = [

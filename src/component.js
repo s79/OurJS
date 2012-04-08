@@ -24,6 +24,7 @@
    */
 
   var componentInstanceMethods = {};
+  var blackList = {blackList: ['on', 'off', 'fire']};
 
 //--------------------------------------------------[Component Constructor]
   /**
@@ -44,16 +45,16 @@
     // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
     var ComponentConstructor = function() {
       // 追加默认 options 到实例对象。
-      Object.append(this, constructor.options);
-      // 追加指定的 options 到实例对象。
+      Object.append(this, constructor.options, blackList);
+      // 分析形参和实参的差别。
       var parameters = Array.from(arguments);
       var formalParameterLength = constructor.length;
       var actualParameterLength = arguments.length;
       if (formalParameterLength !== actualParameterLength) {
         parameters.length = formalParameterLength;
       }
-      // 移除实参中的 options。
-      Object.append(this, parameters.pop() || {});
+      // 移除实参中的 options 对象，并追加这个指定的 options 对象到实例对象。
+      Object.append(this, parameters.pop() || {}, blackList);
       // 实例的 events 必须为以下指定的空对象。
       this.events = {};
       constructor.apply(this, parameters);
@@ -66,7 +67,7 @@
     ComponentConstructor.prototype.constructor = ComponentConstructor;
     ComponentConstructor.prototype.superPrototype = ComponentPrototype.prototype;
     // 将 constructor 的原型内的属性追加到 Component 的原型中。
-    Object.append(ComponentConstructor.prototype, constructor.prototype, {blackList: ['on', 'off', 'fire']});
+    Object.append(ComponentConstructor.prototype, constructor.prototype, blackList);
     // 返回组件。
     return ComponentConstructor;
   }

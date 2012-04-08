@@ -1928,6 +1928,30 @@
 
 //--------------------------------------------------[document.on]
   var domready = function() {
+    // 保存 domready 事件的监听器。
+    var listeners = [];
+
+    // 派发 domready 事件，监听器在运行后会被删除。
+    var callListener = function(listener) {
+      // 将 listener 的 this 设置为 document。
+      // 不会传入事件对象。
+      listener.call(document);
+    };
+
+    // 派发 domready 事件，监听器在运行后会被删除。
+    var dispatchEvent = function() {
+      // IE6 IE7 IE8 可能调用两次。
+      if (listeners) {
+        // 参考：http://bugs.jquery.com/ticket/5443
+        if (document.body) {
+          listeners.forEach(callListener);
+          listeners = null;
+        } else {
+          setTimeout(dispatchEvent, 10);
+        }
+      }
+    };
+
     // 视情况绑定及清理派发器。
     var dispatcher;
     if ('addEventListener' in document) {
@@ -1958,35 +1982,15 @@
             setTimeout(doScrollCheck, 10);
             return;
           }
-          dispatcher(null, true);
+          dispatcher(undefined, true);
         })();
       }
     }
 
-    // 保存 domready 事件的监听器。
-    var listeners = [];
-
-    // 派发 domready 事件，监听器在运行后会被删除。
-    var dispatchEvent = function() {
-      // IE6 IE7 IE8 可能调用两次。
-      if (listeners) {
-        // 参考：http://bugs.jquery.com/ticket/5443
-        if (document.body) {
-          listeners.forEach(function(listener) {
-            // 将 listener 的 this 设置为 document 以保证 API 的一致性。
-            listener.call(document);
-          });
-          listeners = null;
-        } else {
-          setTimeout(dispatchEvent, 10);
-        }
-      }
-    };
-
     return {
       addListener: function(listener) {
         listeners ? listeners.push(listener) : setTimeout(function() {
-          listener.call(document)
+          callListener(listener);
         }, 0);
       }
     };
@@ -2003,8 +2007,11 @@
    * @returns {Object} document 对象。
    * @description
    *   特殊事件：domready
-   *   在文档可用时触发，只能添加监听器，不能删除监听器。
-   *   如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。
+   *   <ul>
+   *     <li>在文档可用时触发，只能添加监听器，不能删除监听器，因此不能使用别名。</li>
+   *     <li>不会有事件对象作为参数传入监听器。</li>
+   *     <li>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。</li>
+   *   </ul>
    */
   document.on = function(name, listener, filter) {
     var filteredName = name.split(' ')
@@ -2139,13 +2146,22 @@
    * @returns {Object} window 对象。
    * @description
    *   特殊事件：beforeunload
-   *   该事件只能存在一个监听器，如果添加了多个，则只有最后添加的生效。可以删除当前生效的监听器。
+   *   <ul>
+   *     <li>该事件只能存在一个监听器，因此不能使用别名。</li>
+   *     <li>不会有事件对象作为参数传入监听器。</li>
+   *     <li>如果添加了多个监听器，则只有最后添加的生效。</li>
+   *     <li>可以删除当前生效的监听器。</li>
+   *   </ul>
    */
   window.on = function(name, listener, filter) {
     var filteredName = name.split(' ')
         .filter(function(name) {
           if (name === 'beforeunload') {
-            window.onbeforeunload = listener;
+            window.onbeforeunload = function() {
+              // 将 listener 的 this 设置为 window。不使用 call this 也是 window，此处使用以强调意图。
+              // 不会传入事件对象。
+              return listener.call(window);
+            };
             return false;
           }
           return true;

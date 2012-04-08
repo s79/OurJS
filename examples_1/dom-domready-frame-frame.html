@@ -3,23 +3,22 @@
 <head>
 <meta charset="utf-8">
 <title>test-domready</title>
-<script src="../import.js"></script>
+<script src="../dev.js"></script>
 <style>
 body { margin: 0; padding: 5px; background: gainsboro; }
 iframe { display: block; width: 200px; height: 150px; border: 1px solid black; }
 img { display: none; }
 </style>
 <script>
+execute(function($) {
 //--------------------------------------------------[domready]
-document.on('domready', function() {
-  top.log('<span class="frame domready">' + $('#domready').value + '</span>');
-});
-jQuery(function() {
-  top.log('<span class="frame domready">' + $('#domready').value + ' <var>jQuery</var></span>');
-});
+  document.on('domready', function() {
+    top.log('<span class="frame domready">' + $('#domready').value + '</span>');
+  });
 //--------------------------------------------------[load]
-window.on('load', function() {
-  top.log('<span class="frame load">' + $('#load').value + '</span>');
+  window.on('load', function() {
+    top.log('<span class="frame load">' + $('#load').value + '</span>');
+  });
 });
 
 </script>
@@ -31,7 +30,9 @@ window.on('load', function() {
 <input id="domready" type="hidden" value="frame_frame - DOM Ready">
 <input id="load" type="hidden" value="frame_frame - Loaded">
 <script>
-$('#frame').setStyle('opacity', .1);
+execute(function($) {
+  $('#frame').setStyle('opacity', .1);
+});
 </script>
 </body>
 </html>

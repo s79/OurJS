@@ -3,24 +3,22 @@
 <head>
 <meta charset="utf-8">
 <title>test-domready</title>
-<script src="../.references/jquery-1.7.1.js"></script>
-<script src="../import.js"></script>
+<script src="../dev.js"></script>
 <style>
-body { margin: 0; padding:5px; background: gainsboro; }
+body { margin: 0; padding: 5px; background: gainsboro; }
 iframe { display: block; width: 300px; height: 200px; border: 1px solid black; }
 img { display: none; }
 </style>
 <script>
+execute(function($) {
 //--------------------------------------------------[domready]
-document.on('domready', function() {
-  top.log('<span class="frame domready">' + $('#domready').value + '</span>');
-});
-jQuery(function() {
-  top.log('<span class="frame domready">' + $('#domready').value + ' <var>jQuery</var></span>');
-});
+  document.on('domready', function() {
+    top.log('<span class="frame domready">' + $('#domready').value + '</span>');
+  });
 //--------------------------------------------------[load]
-window.on('load', function() {
-  top.log('<span class="frame load">' + $('#load').value + '</span>');
+  window.on('load', function() {
+    top.log('<span class="frame load">' + $('#load').value + '</span>');
+  });
 });
 
 </script>

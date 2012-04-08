@@ -15,7 +15,7 @@
    *   animation.play() -> animation.onBeforeStart() 返回 false
    *
    * 说明：
-   *   上述步骤到达 proceed(x, y) 时，该函数会以每秒最多 66.66 次的频率被调用（每 15 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
+   *   上述步骤到达 proceed(x, y) 时，该函数会以每秒最多 62.5 次的频率被调用（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
    *   传入 proceed 函数的参数 x 为时间轴，从 0 趋向于 1；y 为偏移量，通常在 0 和 1 之间。
    *   在动画在进行中时，执行动画对象的 stop 方法即可停止 proceed 的继续调用，但也会阻止回调函数 onFinish 的执行。
    *   如果调用 play 方法时触发的 onBeforeStart 回调函数的返回值为 false，则该动画不会被播放。
@@ -75,7 +75,7 @@
             clearInterval(engine.timer);
             delete engine.timer;
           }
-        }, 15);
+        }, 16);
 //        console.warn('>ENGING START', engine.timer);
       }
 //      console.log('[engine.mountAnimation] mountedCount:', engine.mountedCount, JSON.stringify(Object.keys(engine.mountedAnimations)));

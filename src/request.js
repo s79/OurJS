@@ -23,8 +23,8 @@
 
   // 请求状态。
   var DONE = 0;
-  var ABORT = -1;
-  var TIMEOUT = -2;
+  var ABORT = -498;
+  var TIMEOUT = -408;
 
   // 唯一识别码。
   var uid = Date.now();
@@ -59,9 +59,11 @@
     // 处理请求的最短和最长时间。
     if (request.async) {
       // 由于 getResponse(request, DONE) 在 send 方法中有两个入口，因此在此处对 minTime 进行延时处理。
-      if (request.minTime) {
+      if (request.minTime > 0) {
         if (request.minTimeTimer) {
-          // 已经限定过请求的最短时间。此时 ABORT 或 TIMEOUT 状态可能比设置的延迟 DONE 状态来的早。
+          // 已经限定过请求的最短时间。此时 ABORT 或 TIMEOUT 状态在有意如此操作或设置的情况下，可能比延迟的 DONE 状态来的早。
+          // 但因为此时请求已经完成，所以要把本次调用的 state 重置为 DONE。
+          state = DONE;
           clearTimeout(request.minTimeTimer);
           delete request.minTimeTimer;
         } else if (state === DONE) {
@@ -119,8 +121,8 @@
         xhr.abort();
         break;
     }
-    // 发送响应信息。
-    request.onResponse(request.responseParser({
+    // 触发响应事件。
+    request.fire('response', request.responseParser({
       status: status,
       statusText: statusText,
       headers: headers,
@@ -131,7 +133,7 @@
 
 //--------------------------------------------------[Request Constructor]
   /**
-   * 创建一个请求对象，用来对一个指定的资源发起请求，并在获取响应后进行处理。
+   * 创建一个请求对象，用来对一个指定的资源发起请求，并获取响应数据。
    * @name Request
    * @constructor
    * @param {string} url 请求地址。
@@ -145,17 +147,54 @@
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
    * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} options.requestParser 发送请求前触发，传入请求数据，需要返回处理后的字符串数据。
-   * @param {Function} options.responseParser 收到响应前触发，传入响应数据，需要返回处理后的响应数据。
-   * @param {Function} options.onResponse 收到响应时触发，参数为包含响应信息的一个对象。
+   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，应返回处理后的字符串数据。
+   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，应返回处理后的响应数据。
+   * @fires request
+   *   在发送请求时触发，无事件对象传入。
+   * @fires response
+   *   在收到响应时触发。
+   *   在调用 abort 方法取消请求，或请求超时的情况下，也会收到响应数据。此时的状态码分别为 -498 和 -408。
+   *   换句话说，只要调用了 send 方法发起了请求，就必然会收到响应，虽然上述两种情况的响应并非是真实的来自于服务端的响应数据。
+   *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
+   *   <table>
+   *     <tr><th>事件对象的属性类型</th><th>事件对象的属性名称</th><th>描述</th></tr>
+   *     <tr><td>number</td><td>status</td><td>状态码。</td></tr>
+   *     <tr><td>string</td><td>statusText</td><td>状态描述。</td></tr>
+   *     <tr><td>Object</td><td>headers</td><td>响应头。</td></tr>
+   *     <tr><td>string</td><td>text</td><td>响应文本。</td></tr>
+   *     <tr><td>XMLDocument</td><td>xml</td><td>响应 XML 文档。</td></tr>
+   *   </table>
    */
   function Request(url, options) {
     this.xhr = getXHRObject();
     this.url = url;
-    Object.append(this, Object.append(Object.clone(Request.options, true), options));
   }
 
-  window.Request = Request;
+//--------------------------------------------------[Request.options]
+  /**
+   * 默认选项。
+   * @name Request.options
+   */
+  Request.options = {
+    username: '',
+    password: '',
+    method: 'get',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': '*/*'
+    },
+    contentType: 'application/x-www-form-urlencoded',
+    useCache: true,
+    async: true,
+    minTime: NaN,
+    maxTime: NaN,
+    requestParser: function(data) {
+      return data ? data + '' : null;
+    },
+    responseParser: function(response) {
+      return response;
+    }
+  };
 
 //--------------------------------------------------[Request.prototype.send]
   /**
@@ -217,6 +256,9 @@
         }
       };
     }
+    // 触发请求事件。
+    request.fire('request');
+    // 返回实例。
     return request;
   };
 
@@ -235,31 +277,7 @@
     return this;
   };
 
-//--------------------------------------------------[Request.options]
-  /**
-   * 默认选项。
-   * @name Request.options
-   */
-  Request.options = {
-    username: '',
-    password: '',
-    method: 'get',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest',
-      'Accept': '*/*'
-    },
-    contentType: 'application/x-www-form-urlencoded',
-    useCache: true,
-    async: true,
-    minTime: 0,
-    maxTime: 0,
-    requestParser: function(data) {
-      return data ? data + '' : null;
-    },
-    responseParser: function(response) {
-      return response;
-    },
-    onResponse: empty
-  };
+//--------------------------------------------------[Request]
+  window.Request = new Component(Request);
 
 })();

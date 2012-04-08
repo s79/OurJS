@@ -1,7 +1,7 @@
 /*!
  * OurJS
- * Released under the MIT License.
- * Version: 2012-04-06
+ *  Released under the MIT License.
+ *  Version: 2012-04-08
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -799,12 +799,11 @@
    */
   window.typeOf = function(value) {
     var type = typeof value;
-    // Safari 中类型为 HTMLCollection 的值 type === 'function'。
     if (type === 'function' && typeof value.item === 'function') {
+      // Safari 中类型为 HTMLCollection 的值 type === 'function'。
       type = 'object.Collection';
-    }
-    // 进一步判断 type === 'object' 的情况。
-    if (type === 'object') {
+    } else if (type === 'object') {
+      // 进一步判断 type === 'object' 的情况。
       if (value === null) {
         type = 'null';
       } else {
@@ -817,20 +816,20 @@
             type = 'object.Global';
           } else if (string === '[object JSON]') {
             type = 'object.JSON';
+          } else if (RE_FUNCTION.test(string)) {
+            type = 'function';
           } else {
             // 使用特性判断。
-            if (typeof value.length == 'number') {
+            if ('nodeType' in value && 'nodeName' in value) {
+              type = 'object.Node';
+            } else if (typeof value.length == 'number') {
               if ('navigator' in value) {
                 type = 'object.Global';
-              } else if ('callee' in value) {
-                type = 'object.Arguments';
               } else if ('item' in value) {
                 type = 'object.Collection';
+              } else if ('callee' in value) {
+                type = 'object.Arguments';
               }
-            } else if ('nodeName' in value) {
-              type = 'object.Node';
-            } else if (RE_FUNCTION.test(string)) {
-              type = 'function';
             }
           }
         }
@@ -3270,7 +3269,7 @@
    */
   document.$ = function(e) {
     var element = null;
-    switch (typeOf(e)) {
+    switch (typeof e) {
       case 'string':
         if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
           var wrapper = wrappers[(RE_TAG_NAME.exec(e) || ['', ''])[1].toLowerCase()] || [0, '', ''];
@@ -3286,7 +3285,7 @@
           element = document.getElementById(e.slice(1));
         }
         break;
-      case 'object.Node':
+      case 'object':
         if (e.nodeType === 1) {
           element = e;
         }
@@ -3297,6 +3296,30 @@
 
 //--------------------------------------------------[document.on]
   var domready = function() {
+    // 保存 domready 事件的监听器。
+    var listeners = [];
+
+    // 派发 domready 事件，监听器在运行后会被删除。
+    var callListener = function(listener) {
+      // 将 listener 的 this 设置为 document。
+      // 不会传入事件对象。
+      listener.call(document);
+    };
+
+    // 派发 domready 事件，监听器在运行后会被删除。
+    var dispatchEvent = function() {
+      // IE6 IE7 IE8 可能调用两次。
+      if (listeners) {
+        // 参考：http://bugs.jquery.com/ticket/5443
+        if (document.body) {
+          listeners.forEach(callListener);
+          listeners = null;
+        } else {
+          setTimeout(dispatchEvent, 10);
+        }
+      }
+    };
+
     // 视情况绑定及清理派发器。
     var dispatcher;
     if ('addEventListener' in document) {
@@ -3327,35 +3350,15 @@
             setTimeout(doScrollCheck, 10);
             return;
           }
-          dispatcher(null, true);
+          dispatcher(undefined, true);
         })();
       }
     }
 
-    // 保存 domready 事件的监听器。
-    var listeners = [];
-
-    // 派发 domready 事件，监听器在运行后会被删除。
-    var dispatchEvent = function() {
-      // IE6 IE7 IE8 可能调用两次。
-      if (listeners) {
-        // 参考：http://bugs.jquery.com/ticket/5443
-        if (document.body) {
-          listeners.forEach(function(listener) {
-            // 将 listener 的 this 设置为 document 以保证 API 的一致性。
-            listener.call(document);
-          });
-          listeners = null;
-        } else {
-          setTimeout(dispatchEvent, 10);
-        }
-      }
-    };
-
     return {
       addListener: function(listener) {
         listeners ? listeners.push(listener) : setTimeout(function() {
-          listener.call(document)
+          callListener(listener);
         }, 0);
       }
     };
@@ -3372,8 +3375,11 @@
    * @returns {Object} document 对象。
    * @description
    *   特殊事件：domready
-   *   在文档可用时触发，只能添加监听器，不能删除监听器。
-   *   如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。
+   *   <ul>
+   *     <li>在文档可用时触发，只能添加监听器，不能删除监听器，因此不能使用别名。</li>
+   *     <li>不会有事件对象作为参数传入监听器。</li>
+   *     <li>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。</li>
+   *   </ul>
    */
   document.on = function(name, listener, filter) {
     var filteredName = name.split(' ')
@@ -3508,13 +3514,22 @@
    * @returns {Object} window 对象。
    * @description
    *   特殊事件：beforeunload
-   *   该事件只能存在一个监听器，如果添加了多个，则只有最后添加的生效。可以删除当前生效的监听器。
+   *   <ul>
+   *     <li>该事件只能存在一个监听器，因此不能使用别名。</li>
+   *     <li>不会有事件对象作为参数传入监听器。</li>
+   *     <li>如果添加了多个监听器，则只有最后添加的生效。</li>
+   *     <li>可以删除当前生效的监听器。</li>
+   *   </ul>
    */
   window.on = function(name, listener, filter) {
     var filteredName = name.split(' ')
         .filter(function(name) {
           if (name === 'beforeunload') {
-            window.onbeforeunload = listener;
+            window.onbeforeunload = function() {
+              // 将 listener 的 this 设置为 window。不使用 call this 也是 window，此处使用以强调意图。
+              // 不会传入事件对象。
+              return listener.call(window);
+            };
             return false;
           }
           return true;
@@ -3588,6 +3603,7 @@
    */
 
   var componentInstanceMethods = {};
+  var blackList = {blackList: ['on', 'off', 'fire']};
 
 //--------------------------------------------------[Component Constructor]
   /**
@@ -3608,7 +3624,7 @@
     // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
     var ComponentConstructor = function() {
       // 追加默认 options 到实例对象。
-      Object.append(this, constructor.options);
+      Object.append(this, constructor.options, blackList);
       // 追加指定的 options 到实例对象。
       var parameters = Array.from(arguments);
       var formalParameterLength = constructor.length;
@@ -3617,7 +3633,7 @@
         parameters.length = formalParameterLength;
       }
       // 移除实参中的 options。
-      Object.append(this, parameters.pop() || {});
+      Object.append(this, parameters.pop() || {}, blackList);
       // 实例的 events 必须为以下指定的空对象。
       this.events = {};
       constructor.apply(this, parameters);
@@ -3630,7 +3646,7 @@
     ComponentConstructor.prototype.constructor = ComponentConstructor;
     ComponentConstructor.prototype.superPrototype = ComponentPrototype.prototype;
     // 将 constructor 的原型内的属性追加到 Component 的原型中。
-    Object.append(ComponentConstructor.prototype, constructor.prototype, {blackList: ['on', 'off', 'fire']});
+    Object.append(ComponentConstructor.prototype, constructor.prototype, blackList);
     // 返回组件。
     return ComponentConstructor;
   }
@@ -4301,10 +4317,10 @@
   /*
    * 调用流程：
    *   var request = new Request(url, options);
-   *   request.send(data) -> request.onBeforeRequest(data) -> [request.abort()] -> request.onBeforeResponse(response) -> request.onResponse(response)
+   *   request.send(data) -> request.requestParser(data) -> fire:request(parsedRequestData) -> [request.abort()] -> request.responseParser(response) -> fire:response(parsedResponseData)
    *
    * 说明：
-   *   上述 data/response 均为不可预期的数据，因此可以通过修改选项 onBeforeRequest 和 onBeforeResponse 这两个函数，来对他们进行进一步操作。
+   *   上述 data/response 均为不可预期的数据，因此可以通过修改选项 requestParser 和 responseParser 这两个函数，来对他们进行处理。
    *
    * 注意：
    *   IE6 IE7 IE8 IE9 均不支持 overrideMimeType，因此本组件不提供此功能。
@@ -4313,8 +4329,8 @@
 
   // 请求状态。
   var DONE = 0;
-  var ABORT = -1;
-  var TIMEOUT = -2;
+  var ABORT = -498;
+  var TIMEOUT = -408;
 
   // 唯一识别码。
   var uid = Date.now();
@@ -4346,10 +4362,30 @@
 
   // 获取响应信息，state 可能是 DONE、ABORT 或 TIMEOUT。
   var getResponse = function(request, state) {
-    if (request.timer) {
-      clearTimeout(request.timer);
-      delete request.timer;
+    // 处理请求的最短和最长时间。
+    if (request.async) {
+      // 由于 getResponse(request, DONE) 在 send 方法中有两个入口，因此在此处对 minTime 进行延时处理。
+      if (request.minTime > 0) {
+        if (request.minTimeTimer) {
+          // 已经限定过请求的最短时间。此时 ABORT 或 TIMEOUT 状态在有意如此操作或设置的情况下，可能比延迟的 DONE 状态来的早。
+          // 但因为此时请求已经完成，所以要把本次调用的 state 重置为 DONE。
+          state = DONE;
+          clearTimeout(request.minTimeTimer);
+          delete request.minTimeTimer;
+        } else if (state === DONE) {
+          // 这种情况需要限定请求的最短时间。
+          request.minTimeTimer = setTimeout(function() {
+            getResponse(request, DONE);
+          }, Math.max(0, Number.toInteger(request.minTime - (Date.now() - request.timestamp))));
+          return;
+        }
+      }
+      if (request.maxTimeTimer) {
+        clearTimeout(request.maxTimeTimer);
+        delete request.maxTimeTimer;
+      }
     }
+    // 获取 xhr 对象。
     var xhr = request.xhr;
     // 取消 xhr 对象的事件监听。
     xhr.onreadystatechange = empty;
@@ -4391,22 +4427,19 @@
         xhr.abort();
         break;
     }
-    // 发送响应信息。
-    var sendResponse = function() {
-      request.onResponse(request.onBeforeResponse({
-        status: status,
-        statusText: statusText,
-        headers: headers,
-        text: text,
-        xml: xml
-      }));
-    };
-    request.async ? setTimeout(sendResponse, Math.max(0, Number.toInteger(request.minTime - (Date.now() - request.timestamp)))) : sendResponse();
+    // 触发响应事件。
+    request.fire('response', request.responseParser({
+      status: status,
+      statusText: statusText,
+      headers: headers,
+      text: text,
+      xml: xml
+    }));
   };
 
 //--------------------------------------------------[Request Constructor]
   /**
-   * 创建一个请求对象，用来对一个指定的资源发起请求，并在获取响应后进行处理。
+   * 创建一个请求对象，用来对一个指定的资源发起请求，并获取响应数据。
    * @name Request
    * @constructor
    * @param {string} url 请求地址。
@@ -4420,17 +4453,54 @@
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
    * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} options.onBeforeRequest 发送请求前触发，传入请求数据，需要返回处理后的字符串数据，当返回 false 时则取消本次请求。
-   * @param {Function} options.onBeforeResponse 收到响应前触发，传入响应数据，需要返回处理后的响应数据。
-   * @param {Function} options.onResponse 收到响应时触发，参数为包含响应信息的一个对象。
+   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，应返回处理后的字符串数据。
+   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，应返回处理后的响应数据。
+   * @fires request
+   *   在发送请求时触发，无事件对象传入。
+   * @fires response
+   *   在收到响应时触发。
+   *   在调用 abort 方法取消请求，或请求超时的情况下，也会收到响应数据。此时的状态码分别为 -498 和 -408。
+   *   换句话说，只要调用了 send 方法发起了请求，就必然会收到响应，虽然上述两种情况的响应并非是真实的来自于服务端的响应数据。
+   *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
+   *   <table>
+   *     <tr><th>事件对象的属性类型</th><th>事件对象的属性名称</th><th>描述</th></tr>
+   *     <tr><td>number</td><td>status</td><td>状态码。</td></tr>
+   *     <tr><td>string</td><td>statusText</td><td>状态描述。</td></tr>
+   *     <tr><td>Object</td><td>headers</td><td>响应头。</td></tr>
+   *     <tr><td>string</td><td>text</td><td>响应文本。</td></tr>
+   *     <tr><td>XMLDocument</td><td>xml</td><td>响应 XML 文档。</td></tr>
+   *   </table>
    */
   function Request(url, options) {
     this.xhr = getXHRObject();
     this.url = url;
-    Object.append(this, Object.append(Object.clone(Request.options, true), options));
   }
 
-  window.Request = Request;
+//--------------------------------------------------[Request.options]
+  /**
+   * 默认选项。
+   * @name Request.options
+   */
+  Request.options = {
+    username: '',
+    password: '',
+    method: 'get',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': '*/*'
+    },
+    contentType: 'application/x-www-form-urlencoded',
+    useCache: true,
+    async: true,
+    minTime: NaN,
+    maxTime: NaN,
+    requestParser: function(data) {
+      return data ? data + '' : null;
+    },
+    responseParser: function(response) {
+      return response;
+    }
+  };
 
 //--------------------------------------------------[Request.prototype.send]
   /**
@@ -4443,15 +4513,12 @@
   Request.prototype.send = function(data) {
     var request = this;
     var xhr = request.xhr;
-    // 只有进行中的请求有 timestamp 属性，需等待此次交互结束才能再次发起请求。若无 xhr 对象，则无法发起请求。
+    // 只有进行中的请求有 timestamp 属性，需等待此次交互结束（若设置了 minTime 则交互结束的时间可能被延长）才能再次发起请求。若无 xhr 对象，则无法发起请求。
     if (request.timestamp || !xhr) {
       return request;
     }
-    // 如果 onBeforeRequest 返回 false，则停止发送请求。
-    data = request.onBeforeRequest(data);
-    if (data === false) {
-      return request;
-    }
+    // 处理请求数据。
+    data = request.requestParser(data);
     // 创建请求。
     var url = request.url;
     var method = request.method.toLowerCase();
@@ -4480,7 +4547,7 @@
     xhr.send(data || null);
     request.timestamp = Date.now();
     if (request.async && request.maxTime > 0) {
-      request.timer = setTimeout(function() {
+      request.maxTimeTimer = setTimeout(function() {
         getResponse(request, TIMEOUT);
       }, request.maxTime);
     }
@@ -4495,6 +4562,9 @@
         }
       };
     }
+    // 触发请求事件。
+    request.fire('request');
+    // 返回实例。
     return request;
   };
 
@@ -4513,32 +4583,8 @@
     return this;
   };
 
-//--------------------------------------------------[Request.options]
-  /**
-   * 默认选项。
-   * @name Request.options
-   */
-  Request.options = {
-    username: '',
-    password: '',
-    method: 'get',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest',
-      'Accept': '*/*'
-    },
-    contentType: 'application/x-www-form-urlencoded',
-    useCache: true,
-    async: true,
-    minTime: 0,
-    maxTime: 0,
-    onBeforeRequest: function(data) {
-      return data ? data + '' : null;
-    },
-    onBeforeResponse: function(response) {
-      return response;
-    },
-    onResponse: empty
-  };
+//--------------------------------------------------[Request]
+  window.Request = new Component(Request);
 
 })();
 /**
@@ -6860,11 +6906,11 @@
 })();
 /*!
  * DD_belatedPNG: Adds IE6 support: PNG images for CSS background-image and HTML <IMG/>.
- * Author: Drew Diller
- * Email: drew.diller@gmail.com
- * URL: http://www.dillerdesign.com/experiment/DD_belatedPNG/
- * Version: 0.0.8a
- * Licensed under the MIT License: http://dillerdesign.com/experiment/DD_belatedPNG/#license
+ *  Author: Drew Diller
+ *  Email: drew.diller@gmail.com
+ *  URL: http://www.dillerdesign.com/experiment/DD_belatedPNG/
+ *  Version: 0.0.8a
+ *  Licensed under the MIT License: http://dillerdesign.com/experiment/DD_belatedPNG/#license
  */
 /**
  * @fileOverview 插件 - IE6 PNG alpha 透明修复 & 启用背景图片缓存 - DD_belatedPNG
