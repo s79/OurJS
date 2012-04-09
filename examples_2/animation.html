@@ -18,7 +18,7 @@ button { font: 12px Verdana; }
 #ani p { margin: 0; }
 #layer { z-index: 2; }
 #canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
-#canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
+#canvas div { position: absolute; width: 1px; height: 1px; background: white; overflow: hidden; }
 </style>
 </head>
 <body>
@@ -231,48 +231,76 @@ execute(function($) {
   });
 //--------------------------------------------------[TEST 2]
   var frames = 0;
+  var backwards = false;
   var $layer = $('#layer').setStyle('opacity', 1);
-/*
   var animation = new Animation(function(x, y) {
-    var heightAndLineHeight = (20 + 280 * y) + 'px';
+    var heightAndLineHeight = Math.floor((20 + 280 * y)) + 'px';
     $layer.setStyles({
-      left: 700 - 225 * y,
-      top: 600 - 500 * y,
-      width: 50 + 450 * y,
+      left: Math.floor(700 - 225 * y),
+      top: Math.floor(600 - 500 * y),
+      width: Math.floor(50 + 450 * y),
       height: heightAndLineHeight,
       lineHeight: heightAndLineHeight,
-      opacity: (y > 0.6 ? 0.6 : y)
+      opacity: (y > 0.6 ? 0.6 : y).toFixed(2)
     });
-    frames++;
-    console.log(this.timeline);
   }, {
     duration: 1000,
 //    transition: 'bounce',
-    onBeforeStart: function() {
-      //    return false;
-    },
     onStart: function() {
       frames = 0;
       $layer.innerHTML = 'Moving...';
     },
+    onStep: function() {
+      frames++;
+//      console.log(this.timeline);
+    },
+    onPause: function() {
+      console.log('PAUSE');
+    },
     onFinish: function() {
-      $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').animate(null, {duration: 1000}).fadeOut({onFinish: function() {
-        this.remove();
-      }}));
-
-      //    animation.play();
+//      $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').animate(null, {duration: 1000}).fadeOut({onFinish: function() {
+//        this.remove();
+//      }}));
+      animation.play(backwards = !backwards);
+    },
+    onStop: function() {
+      console.log('STOP');
     }
   });
-*/
-  var color;
-  var animation = new Animation(function(x, y) {
-    x = Math.floor(x * 299);
-    y = Math.floor(y * 299);
-    $canvas.appendChild($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
-  }, {
-    transition: 'cubicBezier(.5,.29,.23,-0.58)',
-    duration: 2500
+
+  $layer.on('mouseenter', function() {
+    animation.pause();
+    animation.play(backwards = !backwards);
   });
+  $layer.on('mouseleave', function() {
+  });
+
+  var color;
+  /*
+   var animation = new Animation(function(x, y) {
+   x = Math.floor(x * 299);
+   y = Math.floor(y * 299);
+   $canvas.appendChild($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
+   }, {
+   transition: 'cubicBezier(.5,.29,.23,-0.58)',
+   duration: 2500,
+   onStart: function() {
+   console.log('START');
+   },
+   onStep: function() {
+   console.log(this.timeline);
+   },
+   onPause: function() {
+   console.log('PAUSE');
+   },
+   onFinish: function() {
+   console.log('FINISH');
+   },
+   onStop: function() {
+   console.log('STOP');
+   }
+   });
+   */
 
   $('#play2').on('click', function() {
     color = 'red';

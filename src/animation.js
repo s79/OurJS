@@ -10,15 +10,13 @@
   /*
    * 调用流程：
    *   var animation = new Animation(proceed, options);
-   *   animation.play() -> animation.onBeforeStart() -> animation.onStart() -> proceed(x, y) -> animation.onFinish()
-   *   animation.play() -> animation.onBeforeStart() -> animation.onStart() -> proceed(x, y) [动画执行过程中调用 animation.stop()]
-   *   animation.play() -> animation.onBeforeStart() 返回 false
+   *   animation.play() -> animation.onStart() -> proceed(x, y) -> animation.onFinish()
+   *   animation.play() -> animation.onStart() -> proceed(x, y) [动画执行过程中调用 animation.stop()]
    *
    * 说明：
    *   上述步骤到达 proceed(x, y) 时，该函数会以每秒最多 62.5 次的频率被调用（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
    *   传入 proceed 函数的参数 x 为时间轴，从 0 趋向于 1；y 为偏移量，通常在 0 和 1 之间。
    *   在动画在进行中时，执行动画对象的 stop 方法即可停止 proceed 的继续调用，但也会阻止回调函数 onFinish 的执行。
-   *   如果调用 play 方法时触发的 onBeforeStart 回调函数的返回值为 false，则该动画不会被播放。  // TODO: 删掉，降低复杂度。
    *   play 可以反向播放，但要注意，若要支持反向播放，需要对 proceed 的 x 的值为 0 和 1 时做的事情（如果有）或者 start/finish 也做反向处理，如添加事件 backwardsstart/backwardsfinish。  // TODO
    */
   // 唯一识别码。
@@ -43,30 +41,32 @@
 //          console.log('>ENGING RUNNING mountedCount:', engine.mountedCount);
           var timestamp = Date.now();
           Object.forEach(engine.mountedAnimations, function(animation) {
-            // 本动画为第一帧。
-            if (!animation.timestamp) {
-              animation.timestamp = timestamp;
-              // 若此时有新的动画插入，将直接开始播放。
+            var backwards = animation.backwards;
+            var timeline = animation.timeline;
+            var lastTimestamp = animation.timestamp || timestamp;
+            var duration = animation.duration;
+            // 计算步长。
+            var step = (duration > 0 ? (timestamp - lastTimestamp) / duration : 1) * (backwards ? -1 : 1);
+            // 动画的时间轴。
+            var x = animation.timeline = Math.limit(timeline + step, 0, 1);
+            animation.timestamp = timestamp;
+            // 本帧为第一帧。
+            if (x == backwards) {
               animation.onStart();
             }
-            // 计算 timeline 的值。
-            var duration = animation.duration;
-            var timeline = duration > 0 ? Math.min(1, (timestamp - animation.timestamp) / duration) : 1;
-            // 动画播放的时间轴。
-            var x = animation.backwards ? 1 - timeline : timeline;
-            // animation.timeline 用于支持 pause 和反向播放。
-            animation.timeline = x;
+            // 播放当前帧。
             var y = x === 0 ? 0 : (x === 1 ? 1 : animation.timingFunction(x));
-            // 播放本动画的当前帧。
-            animation.proceed.call(animation, x, y);
-            // 本动画已播放完毕。
-            if (timeline === 1) {
+            animation.proceed(x, y);
+            animation.onStep();
+            // 本帧为最后一帧。
+            if (x == !backwards) {
               animation.stop();
+              animation.onFinish();
             }
           });
           // 停止引擎。
           if (engine.mountedCount === 0) {
-            console.warn('>ENGING STOP', engine.timer, Date.now());
+            console.warn('>ENGING STOP', engine.timer);
             clearInterval(engine.timer);
             delete engine.timer;
           }
@@ -173,7 +173,6 @@
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Animation.options 中。
    * @param {string} options.transition 控速方式，默认为 'ease'。
    * @param {number} options.duration 动画持续时间，单位为毫秒，默认为 400。
-   * @param {Function} options.onBeforeStart 动画开始之前执行的回调函数，若返回 false 则跳过该动画的执行。
    * @param {Function} options.onStart 动画开始时（绘制第一帧之前）执行的回调函数。
    * @param {Function} options.onFinish 动画结束时（绘制最后一帧之后）执行的回调函数。
    */
@@ -206,14 +205,9 @@
    * @returns {Object} animation 对象。
    */
   Animation.prototype.play = function(backwards) {
-    if (this.onBeforeStart() === false) {
-      return this;
-    }
     if (!this.mounted) {
-      this.backwards = !!backwards;
-      if (this.timeline) {
-        this.timestamp = Date.now() - (this.backwards ? 1 - this.timeline : this.timeline) * this.duration;
-      }
+      this.backwards = backwards = !!backwards;
+      this.timeline = this.timeline || (backwards ? 1 : 0);
       engine.mountAnimation(this);
     }
     return this;
@@ -227,7 +221,12 @@
    * @returns {Object} animation 对象。
    */
   Animation.prototype.pause = function() {
-    this.mounted && engine.unmountAnimation(this);
+    if (this.mounted) {
+      delete this.backwards;
+      delete this.timestamp;
+      engine.unmountAnimation(this);
+      this.onPause();
+    }
     return this;
   };
 
@@ -241,13 +240,15 @@
   Animation.prototype.stop = function() {
     if (this.mounted) {
       // 先卸载动画，以免一个动画的 onFinish 回调中无法重新播放自身。
-      var isFinish = this.backwards == this.timeline;
       delete this.backwards;
       delete this.timeline;
       delete this.timestamp;
       engine.unmountAnimation(this);
       // 若此时有新的动画插入，将直接开始播放。
-      isFinish ? this.onFinish() : this.onStop();
+      this.onStop();
+    } else if (this.timeline) {  // TODO: 优化合并。
+      delete this.timeline;
+      this.onStop();
     }
     return this;
   };
@@ -260,10 +261,10 @@
   Animation.options = {
     transition: 'ease',
     duration: 400,
-    onBeforeStart: empty,
     onStart: empty,
+    onStep: empty,
+    onPause: empty,
     onFinish: empty,
-    onPlay: empty,
     onStop: empty
   };
 
@@ -370,15 +371,6 @@
     var $element = item[0];
     var styles = item[1] || {};
     var options = item[2] || {};
-    // 在队列执行到当前动画时再执行 onBeforeStart，仅在此处执行一次，然后删除，避免传递到 Animation 的选项中。
-    if (options.onBeforeStart) {
-      if (options.onBeforeStart.call($element) === false) {
-        // 返回 false，播放队列中的下一项。
-        playAnimationQueue(queueId);
-        return;
-      }
-      delete options.onBeforeStart;
-    }
     // 将 onStart 传递到 Animation 的选项中。
     var onStart = options.onStart;
     if (onStart) {
@@ -440,7 +432,7 @@
    *   4. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
    * @param {Object} [options] 动画选项，与 Animation 的 options 参数基本一致，区别是：
    *   1. 增加 onPlay 回调选项。
-   *   2. onBeforeStart、onStart、onPlay、(TODO: onStop、)onFinish 的 this 均为调用本方法的元素。
+   *   2. onStart、onPlay、(TODO: onStop、)onFinish 的 this 均为调用本方法的元素。
    *   3. 提供了一个 queueName 属性用来更方便的控制队列。
    * @param {Object} options.onPlay 每播放完一帧动画后的回调函数。
    * @returns {Element} 调用本方法的元素。
