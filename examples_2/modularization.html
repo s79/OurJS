@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>modularization</title>
-<link rel="stylesheet" href="demo/common.css">
-<script src="/framework/dev.js"></script>
+<link rel="stylesheet" href="../examples/common.css">
+<script src="../dev.js"></script>
 <style>
 fieldset { width: 500px; height: 200px; }
 button { padding: 10px 15px; font-size: 14px; }
@@ -26,104 +26,106 @@ pre { height: 50px; line-height: 50px; }
   <pre id="m2_output"></pre>
 </fieldset>
 <script>
-declareModule('m1', function(listen, notify) {
-  var $output = $('#m1_output');
-  $('#m1_b1').on('click', function(e) {
-    $output.innerHTML = e.target.innerText + ' clicked.';
-    notify('click_1', e.target.innerText);
+execute(function($) {
+  declareModule('m1', function(listen, notify) {
+    var $output = $('#m1_output');
+    $('#m1_b1').on('click', function(e) {
+      $output.innerHTML = e.target.innerText + ' clicked.';
+      notify('click_1', e.target.innerText);
+    });
+    $('#m1_b2').on('click', function(e) {
+      $output.innerHTML = e.target.innerText + ' clicked.';
+      notify('click_2', e.target.innerText);
+    });
+    $('#m1_b3').on('click', function(e) {
+      $output.innerHTML = e.target.innerText + ' clicked.';
+      notify('click_3', e.target.innerText);
+    });
+    listen('say', function(data) {
+      $output.innerHTML = data;
+    });
+    notify('click_1', '[auto]-万');
   });
-  $('#m1_b2').on('click', function(e) {
-    $output.innerHTML = e.target.innerText + ' clicked.';
-    notify('click_2', e.target.innerText);
+
+  declareModule('m2', function(listen, notify) {
+    var $output = $('#m2_output');
+    $('#m2_b1').on('click', function(e) {
+      $output.innerHTML = e.target.innerText + ' clicked.';
+      notify('click_1', e.target.innerText);
+    });
+    $('#m2_b2').on('click', function(e) {
+      $output.innerHTML = e.target.innerText + ' clicked.';
+      notify('click_2', e.target.innerText);
+    });
+    $('#m2_b3').on('click', function(e) {
+      $output.innerHTML = e.target.innerText + ' clicked.';
+      notify('click_3', e.target.innerText);
+    });
+    listen('say', function(data) {
+      $output.innerHTML = data;
+    });
   });
-  $('#m1_b3').on('click', function(e) {
-    $output.innerHTML = e.target.innerText + ' clicked.';
-    notify('click_3', e.target.innerText);
+
+  runApplication(function(listen, notify) {
+    listen('m1.click_1', function(data) {
+      notify('m2.say', '*' + data);
+    });
+    listen('m1.click_2', function(data) {
+      notify('m2.say', '*' + data);
+    });
+    listen('m1.click_3', function(data) {
+      notify('m2.say', '*' + data);
+    });
+
+    listen('m2.click_1', function(data) {
+      notify('m1.say', '*' + data);
+    });
+    listen('m2.click_2', function(data) {
+      notify('m1.say', '*' + data);
+    });
+    listen('m2.click_3', function(data) {
+      notify('m1.say', '*' + data);
+    });
+
+    listen('m1.click_1, m1.click_2, m1.click_3', function(a, b, c) {
+      notify('m1.say', [a, b, c].join('-'));
+      $('#m1_output').setStyles({borderColor: '#FFD700', backgroundColor: '#FFFF00'})
+          .stopAnimate()
+          .animate({
+            borderTopColor: '#F0FFF0',
+            borderRightColor: '#F0FFF0',
+            borderBottomColor: '#F0FFF0',
+            borderLeftColor: '#F0FFF0',
+            backgroundColor: '#F8FFF8'
+          })
+    });
   });
-  listen('say', function(data) {
-    $output.innerHTML = data;
+
+  declareModule('m3', function(listen, notify) {
+    $('#m1_output').on('click', function(e) {
+      notify('click_1', e.target);
+    });
+    $('#m2_output').on('click', function(e) {
+      notify('click_2', e.target);
+    });
   });
-  notify('click_1', '[auto]-万');
+
+  runApplication(function(listen, notify) {
+    listen('m1.click_1, m1.click_2, m1.click_3, m3.click_1, m3.click_2', function(a, b, c, d, e) {
+      notify('m2.say', [a, b, c, d.id, e.id].join('-'));
+      $('#m2_output').setStyles({borderColor: '#BA55D3', backgroundColor: '#DA70D6'})
+          .stopAnimate()
+          .animate({
+            borderTopColor: '#F0FFF0',
+            borderRightColor: '#F0FFF0',
+            borderBottomColor: '#F0FFF0',
+            borderLeftColor: '#F0FFF0',
+            backgroundColor: '#F8FFF8'
+          })
+    });
+  });
+
 });
-
-declareModule('m2', function(listen, notify) {
-  var $output = $('#m2_output');
-  $('#m2_b1').on('click', function(e) {
-    $output.innerHTML = e.target.innerText + ' clicked.';
-    notify('click_1', e.target.innerText);
-  });
-  $('#m2_b2').on('click', function(e) {
-    $output.innerHTML = e.target.innerText + ' clicked.';
-    notify('click_2', e.target.innerText);
-  });
-  $('#m2_b3').on('click', function(e) {
-    $output.innerHTML = e.target.innerText + ' clicked.';
-    notify('click_3', e.target.innerText);
-  });
-  listen('say', function(data) {
-    $output.innerHTML = data;
-  });
-});
-
-runApplication(function(listen, notify) {
-  listen('m1.click_1', function(data) {
-    notify('m2.say', '*' + data);
-  });
-  listen('m1.click_2', function(data) {
-    notify('m2.say', '*' + data);
-  });
-  listen('m1.click_3', function(data) {
-    notify('m2.say', '*' + data);
-  });
-
-  listen('m2.click_1', function(data) {
-    notify('m1.say', '*' + data);
-  });
-  listen('m2.click_2', function(data) {
-    notify('m1.say', '*' + data);
-  });
-  listen('m2.click_3', function(data) {
-    notify('m1.say', '*' + data);
-  });
-
-  listen('m1.click_1, m1.click_2, m1.click_3', function(a, b, c) {
-    notify('m1.say', [a, b, c].join('-'));
-    $('#m1_output').setStyles({borderColor: '#FFD700', backgroundColor: '#FFFF00'})
-        .stopAnimate()
-        .animate({
-          borderTopColor: '#F0FFF0',
-          borderRightColor: '#F0FFF0',
-          borderBottomColor: '#F0FFF0',
-          borderLeftColor: '#F0FFF0',
-          backgroundColor: '#F8FFF8'
-        })
-  });
-});
-
-declareModule('m3', function(listen, notify) {
-  $('#m1_output').on('click', function(e) {
-    notify('click_1', e.target);
-  });
-  $('#m2_output').on('click', function(e) {
-    notify('click_2', e.target);
-  });
-});
-
-runApplication(function(listen, notify) {
-  listen('m1.click_1, m1.click_2, m1.click_3, m3.click_1, m3.click_2', function(a, b, c, d, e) {
-    notify('m2.say', [a, b, c, d.id, e.id].join('-'));
-    $('#m2_output').setStyles({borderColor: '#BA55D3', backgroundColor: '#DA70D6'})
-        .stopAnimate()
-        .animate({
-          borderTopColor: '#F0FFF0',
-          borderRightColor: '#F0FFF0',
-          borderBottomColor: '#F0FFF0',
-          borderLeftColor: '#F0FFF0',
-          backgroundColor: '#F8FFF8'
-        })
-  });
-});
-
 </script>
 </body>
 </html>

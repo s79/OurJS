@@ -18,7 +18,8 @@
    *   上述步骤到达 proceed(x, y) 时，该函数会以每秒最多 62.5 次的频率被调用（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
    *   传入 proceed 函数的参数 x 为时间轴，从 0 趋向于 1；y 为偏移量，通常在 0 和 1 之间。
    *   在动画在进行中时，执行动画对象的 stop 方法即可停止 proceed 的继续调用，但也会阻止回调函数 onFinish 的执行。
-   *   如果调用 play 方法时触发的 onBeforeStart 回调函数的返回值为 false，则该动画不会被播放。
+   *   如果调用 play 方法时触发的 onBeforeStart 回调函数的返回值为 false，则该动画不会被播放。  // TODO: 删掉，降低复杂度。
+   *   play 可以反向播放，但要注意，若要支持反向播放，需要对 proceed 的 x 的值为 0 和 1 时做的事情（如果有）或者 start/finish 也做反向处理，如添加事件 backwardsstart/backwardsfinish。  // TODO
    */
   // 唯一识别码。
   var uid = 0;
@@ -42,46 +43,39 @@
 //          console.log('>ENGING RUNNING mountedCount:', engine.mountedCount);
           var timestamp = Date.now();
           Object.forEach(engine.mountedAnimations, function(animation) {
-            var x = 1;
-            var y = 1;
             // 本动画为第一帧。
             if (!animation.timestamp) {
               animation.timestamp = timestamp;
               // 若此时有新的动画插入，将直接开始播放。
               animation.onStart();
             }
-            // 计算 x 和 y 的值。
+            // 计算 timeline 的值。
             var duration = animation.duration;
-            if (duration > 0) {
-              var elapsedTime = timestamp - animation.timestamp;
-              if (elapsedTime < duration) {
-                x = elapsedTime / duration;
-                y = x ? animation.timingFunction(x) : 0;
-              }
-            }
+            var timeline = duration > 0 ? Math.min(1, (timestamp - animation.timestamp) / duration) : 1;
+            // 动画播放的时间轴。
+            var x = animation.backwards ? 1 - timeline : timeline;
+            // animation.timeline 用于支持 pause 和反向播放。
+            animation.timeline = x;
+            var y = x === 0 ? 0 : (x === 1 ? 1 : animation.timingFunction(x));
             // 播放本动画的当前帧。
             animation.proceed.call(animation, x, y);
             // 本动画已播放完毕。
-            if (x === 1) {
-              // 先卸载动画，以免一个动画的 onFinish 回调中无法重新播放自身。
-              engine.unmountAnimation(animation);
-              // 若此时有新的动画插入，将直接开始播放。
-              animation.onFinish();
+            if (timeline === 1) {
+              animation.stop();
             }
           });
           // 停止引擎。
           if (engine.mountedCount === 0) {
-//            console.warn('>ENGING STOP', engine.timer, Date.now());
+            console.warn('>ENGING STOP', engine.timer, Date.now());
             clearInterval(engine.timer);
             delete engine.timer;
           }
         }, 16);
-//        console.warn('>ENGING START', engine.timer);
+        console.warn('>ENGING START', engine.timer);
       }
 //      console.log('[engine.mountAnimation] mountedCount:', engine.mountedCount, JSON.stringify(Object.keys(engine.mountedAnimations)));
     },
     unmountAnimation: function(animation) {
-      delete animation.timestamp;
       delete animation.mounted;
       delete this.mountedAnimations[animation.uid];
       this.mountedCount--;
@@ -208,13 +202,32 @@
    * 播放动画。
    * @name Animation.prototype.play
    * @function
+   * @param {boolean} [backwards] 是否倒放。
    * @returns {Object} animation 对象。
    */
-  Animation.prototype.play = function() {
+  Animation.prototype.play = function(backwards) {
     if (this.onBeforeStart() === false) {
       return this;
     }
-    this.mounted || engine.mountAnimation(this);
+    if (!this.mounted) {
+      this.backwards = !!backwards;
+      if (this.timeline) {
+        this.timestamp = Date.now() - (this.backwards ? 1 - this.timeline : this.timeline) * this.duration;
+      }
+      engine.mountAnimation(this);
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Animation.prototype.pause]
+  /**
+   * 暂停动画。
+   * @name Animation.prototype.pause
+   * @function
+   * @returns {Object} animation 对象。
+   */
+  Animation.prototype.pause = function() {
+    this.mounted && engine.unmountAnimation(this);
     return this;
   };
 
@@ -226,7 +239,16 @@
    * @returns {Object} animation 对象。
    */
   Animation.prototype.stop = function() {
-    this.mounted && engine.unmountAnimation(this);
+    if (this.mounted) {
+      // 先卸载动画，以免一个动画的 onFinish 回调中无法重新播放自身。
+      var isFinish = this.backwards == this.timeline;
+      delete this.backwards;
+      delete this.timeline;
+      delete this.timestamp;
+      engine.unmountAnimation(this);
+      // 若此时有新的动画插入，将直接开始播放。
+      isFinish ? this.onFinish() : this.onStop();
+    }
     return this;
   };
 
@@ -240,7 +262,9 @@
     duration: 400,
     onBeforeStart: empty,
     onStart: empty,
-    onFinish: empty
+    onFinish: empty,
+    onPlay: empty,
+    onStop: empty
   };
 
 })();

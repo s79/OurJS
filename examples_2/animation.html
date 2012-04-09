@@ -32,6 +32,8 @@ button { font: 12px Verdana; }
 <div id="test2">
   <div id="layer"></div>
   <button id="play2">play</button>
+  <button id="backwards2">play(backwards)</button>
+  <button id="pause2">pause</button>
   <button id="stop2">stop</button>
 </div>
 <div id="test3">
@@ -230,20 +232,22 @@ execute(function($) {
 //--------------------------------------------------[TEST 2]
   var frames = 0;
   var $layer = $('#layer').setStyle('opacity', 1);
+/*
   var animation = new Animation(function(x, y) {
     var heightAndLineHeight = (20 + 280 * y) + 'px';
     $layer.setStyles({
-      left: (700 - 225 * y) + 'px',
-      top: (600 - 500 * y) + 'px',
-      width: (50 + 450 * y) + 'px',
+      left: 700 - 225 * y,
+      top: 600 - 500 * y,
+      width: 50 + 450 * y,
       height: heightAndLineHeight,
       lineHeight: heightAndLineHeight,
       opacity: (y > 0.6 ? 0.6 : y)
     });
     frames++;
+    console.log(this.timeline);
   }, {
     duration: 1000,
-    transition: 'bounce',
+//    transition: 'bounce',
     onBeforeStart: function() {
       //    return false;
     },
@@ -259,8 +263,27 @@ execute(function($) {
       //    animation.play();
     }
   });
+*/
+  var color;
+  var animation = new Animation(function(x, y) {
+    x = Math.floor(x * 299);
+    y = Math.floor(y * 299);
+    $canvas.appendChild($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
+  }, {
+    transition: 'cubicBezier(.5,.29,.23,-0.58)',
+    duration: 2500
+  });
+
   $('#play2').on('click', function() {
+    color = 'red';
     animation.play();
+  });
+  $('#backwards2').on('click', function() {
+    color = 'white';
+    animation.play(true);
+  });
+  $('#pause2').on('click', function() {
+    animation.pause();
   });
   $('#stop2').on('click', function() {
     animation.stop();
