@@ -4,27 +4,27 @@
  * @version 20120214
  */
 // TODO: scroll 方法。
-// TODO: stop 后一个动画的耗时（用于反向动画）。
 (function() {
 //==================================================[Animation]
   /*
-   * 调用流程：
+   * 调用流程：  // TODO: 流程图待完善。
    *   var animation = new Animation(proceed, options);
-   *   animation.play() -> animation.onStart() -> proceed(x, y) -> animation.onFinish()
-   *   animation.play() -> animation.onStart() -> proceed(x, y) [动画执行过程中调用 animation.stop()]
+   *   animation.play() + fire:start() + fire:statuschange() -> proceed(x, y) + fire:step() -> fire:end()
+   *   animation.reverse() + fire:start() + fire:statuschange() -> proceed(x, y) + fire:step() -> fire:end()
+   *                                                                                           -> animation.pause() + fire:pause() + fire:statuschange()
+   *                                                                                           -> animation.end() + fire:end() + fire:statuschange()
    *
    * 说明：
    *   上述步骤到达 proceed(x, y) 时，该函数会以每秒最多 62.5 次的频率被调用（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
    *   传入 proceed 函数的参数 x 为时间轴，从 0 趋向于 1；y 为偏移量，通常在 0 和 1 之间。
-   *   在动画在进行中时，执行动画对象的 stop 方法即可停止 proceed 的继续调用，但也会阻止回调函数 onFinish 的执行。
-   *   play 可以反向播放，但要注意，若要支持反向播放，需要对 proceed 的 x 的值为 0 和 1 时做的事情（如果有）或者 start/finish 也做反向处理，如添加事件 backwardsstart/backwardsfinish。  // TODO
+   *   在动画在进行中时，执行动画对象的 stop 方法即可停止 proceed 的继续调用，但也会阻止事件 end 的触发。
+   *   调用 reverse 可以反向播放，但要注意，反向播放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
    */
   // 唯一识别码。
   var uid = 0;
 
-  // 空函数。
-  var empty = function() {
-  };
+  // 供内部调用的 reverse 参数的值。
+  var REVERSE = {};
 
   // 动画引擎，用于挂载各播放中的动画，并同频同步播放他们的每一帧。
   var engine = {
@@ -41,27 +41,27 @@
 //          console.log('>ENGING RUNNING mountedCount:', engine.mountedCount);
           var timestamp = Date.now();
           Object.forEach(engine.mountedAnimations, function(animation) {
-            var backwards = animation.backwards;
+            var direction = animation.direction;
             var timeline = animation.timeline;
             var lastTimestamp = animation.timestamp || timestamp;
             var duration = animation.duration;
             // 计算步长。
-            var step = (duration > 0 ? (timestamp - lastTimestamp) / duration : 1) * (backwards ? -1 : 1);
+            var step = (duration > 0 ? (timestamp - lastTimestamp) / duration : 1) * (direction ? 1 : -1);
             // 动画的时间轴。
             var x = animation.timeline = Math.limit(timeline + step, 0, 1);
             animation.timestamp = timestamp;
             // 本帧为第一帧。
-            if (x == backwards) {
-              animation.onStart();
+            if (x === (direction ^ 1)) {
+              animation.fire('start');
             }
             // 播放当前帧。
-            var y = x === 0 ? 0 : (x === 1 ? 1 : animation.timingFunction(x));
-            animation.proceed(x, y);
-            animation.onStep();
+            animation.proceed(x);
+            animation.fire('step');
             // 本帧为最后一帧。
-            if (x == !backwards) {
-              animation.stop();
-              animation.onFinish();
+            if (x === direction) {  // TODO: 考虑使用内置参数特殊调用 stop。stop 有两种状态：开始和结束，是否分开（start/end/playing/reversing/pausing）？
+              engine.unmountAnimation(animation);
+              animation.status = 'stop';
+              animation.fire('end');
             }
           });
           // 停止引擎。
@@ -76,11 +76,80 @@
 //      console.log('[engine.mountAnimation] mountedCount:', engine.mountedCount, JSON.stringify(Object.keys(engine.mountedAnimations)));
     },
     unmountAnimation: function(animation) {
+      delete animation.timestamp;
       delete animation.mounted;
       delete this.mountedAnimations[animation.uid];
       this.mountedCount--;
 //      console.log('[engine.unmountAnimation] mountedCount:', this.mountedCount, Date.now());
     }
+  };
+
+  /*
+   * <Array clips> [
+   *   content: <Function>,
+   *   timingFunction: <Function>,
+   *   delay: <number>,
+   *   duration: <number>,
+   *   status: <number>,
+   *   start: <number>,
+   *   end: <number>
+   * ];
+   */
+
+  // 动画剪辑的状态。
+  var BEFORE_START_POINT = -1;
+  var PLAYING = 0;
+  var AFTER_END_POINT = 1;
+
+  // 播放动画剪辑。
+  var playClips = function(x) {
+    var animation = this;
+    animation.clips.forEach(function(clip) {
+      var playClip = false;
+      var clipX = (x - clip.start) / (clip.end - clip.start);
+      var clipY;
+      if (animation.direction === 1) {
+        if (clip.status === AFTER_END_POINT) {
+          // return;
+        }
+        if (clip.status === BEFORE_START_POINT) {
+          if (clipX >= 0) {
+            clipX = clip.duration ? 0 : 1;
+            clip.status = PLAYING;
+          }
+        }
+        if (clip.status === PLAYING) {
+          playClip = true;
+          if (clipX >= 1) {
+            clipX = 1;
+            clip.status = AFTER_END_POINT;
+          }
+        }
+        //        console.log(index, clipX);
+      } else {
+        if (clip.status === BEFORE_START_POINT) {
+          // return;
+        }
+        if (clip.status === AFTER_END_POINT) {
+          if (clipX <= 1) {
+            clipX = clip.duration ? 1 : 0;
+            clip.status = PLAYING;
+          }
+        }
+        if (clip.status === PLAYING) {
+          playClip = true;
+          if (clipX <= 0) {
+            clipX = 0;
+            clip.status = BEFORE_START_POINT;
+          }
+        }
+        //        console.log(index, clipX);
+      }
+      if (playClip) {
+        clipY = clipX === 0 ? 0 : (clipX === 1 ? 1 : clip.timingFunction(clipX));
+        clip.content(clipX, clipY);
+      }
+    });
   };
 
   // 根据指定的 X 坐标（时间点）获取一个 cubic bezier 函数的 Y 坐标（偏移量）。
@@ -169,48 +238,120 @@
    * 创建动画效果。
    * @name Animation
    * @constructor
-   * @param {Function} proceed 执行函数。
-   * @param {Object} [options] 可选参数，这些参数的默认值保存在 Animation.options 中。
-   * @param {string} options.transition 控速方式，默认为 'ease'。
-   * @param {number} options.duration 动画持续时间，单位为毫秒，默认为 400。
-   * @param {Function} options.onStart 动画开始时（绘制第一帧之前）执行的回调函数。
-   * @param {Function} options.onFinish 动画结束时（绘制最后一帧之后）执行的回调函数。
+   * @fires xxxx
+   *   在 xxx 时触发。
+   *   <table>
+   *     <tr><th>事件对象的属性</th><th>描述</th></tr>
+   *     <tr><td>xxx</td><td>xxx。</td></tr>
+   *     <tr><td>xxx</td><td>xxx。</td></tr>
+   *   </table>
+   * start  动画开始时（绘制第一帧之前）触发。
+   * step   播放每一帧时触发。
+   * pause  暂停播放时触发。
+   * end    动画结束时（绘制最后一帧之后）触发。
+   * stop   停止播放时触发。
+   * statuschange  状态改变时（play/reverse/pause/stop）触发。
+   * @description
+   *   高级应用：向一个动画中添加多个剪辑，以实现复杂的动画效果。
    */
-  function Animation(proceed, options) {
+  function Animation(options) {
     this.uid = ++uid;
-    this.proceed = proceed;
-    Object.append(this, Object.append(Object.clone(Animation.options, true), options));
-    var timingFunction = timingFunctions[this.transition];
+    this.clips = [];
+    this.proceed = playClips;
+    this.direction = 1;
+    this.timeline = 0;
+    this.duration = 0;
+    this.status = 'stop';
+  }
+
+//--------------------------------------------------[Animation.options]
+  /**
+   * 默认选项。
+   * @name Animation.options
+   */
+  Animation.options = {};
+
+//--------------------------------------------------[Animation.prototype.addClip]
+  function calculateClipTimeline(clip, animationDuration) {
+    clip.start = clip.delay / animationDuration;
+    clip.end = (clip.delay + clip.duration) / animationDuration;
+  }
+
+  /**
+   * 添加动画剪辑。
+   * @name Animation.prototype.addClip
+   * @function
+   * @param {Function} content 动画剪辑播放函数。
+   * @param {Object} options 动画剪辑对象。
+   * @returns {Object} animation 对象。
+   */
+  Animation.prototype.addClip = function(content, options) {
+    if (this.status !== 'stop') {
+      throw new Error('[Animation.prototype.addClip] 只能在动画停止时添加剪辑');
+    }
+    var animation = this;
+    var timingFunction = timingFunctions[options.transition];
     if (!timingFunction) {
-      if (this.transition.startsWith('cubicBezier')) {
+      if (options.transition.startsWith('cubicBezier')) {
 //        'cubicBezier(0.42, 1.0, 0.75, 1.0)'.match(/^cubicBezier\((0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1)/)
-        timingFunction = cubicBezier.apply(null, this.transition.slice(12, -1).split(',').map(function(item) {
+        timingFunction = cubicBezier.apply(null, options.transition.slice(12, -1).split(',').map(function(item) {
           return parseFloat(item);
         }));
       } else {
         timingFunction = timingFunctions.ease;
       }
     }
-    this.timingFunction = timingFunction;
-  }
-
-  window.Animation = Animation;
+    // 重新计算整个动画持续的时间。
+    var oldDuration = animation.duration;
+    var newDuration = animation.duration = Math.max(oldDuration, options.delay + options.duration);
+    var clip = {
+      delay: options.hasOwnProperty('delay') ? options.delay : 0,
+      duration: options.hasOwnProperty('duration') ? options.duration : 400,
+      timingFunction: timingFunction,
+      content: content,
+      status: BEFORE_START_POINT
+    };
+    animation.clips.push(clip);
+    if (newDuration > oldDuration) {
+      // 若整个动画持续的时间被延长，则重新计算各剪辑的起始/结束点。
+      animation.clips.forEach(function(clip) {
+        calculateClipTimeline(clip, newDuration);
+      });
+    } else {
+      // 否则仅需计算新增剪辑的起始/结束点。
+      calculateClipTimeline(clip, newDuration);
+    }
+    return animation;
+  };
 
 //--------------------------------------------------[Animation.prototype.play]
   /**
    * 播放动画。
    * @name Animation.prototype.play
    * @function
-   * @param {boolean} [backwards] 是否倒放。
    * @returns {Object} animation 对象。
    */
-  Animation.prototype.play = function(backwards) {
-    if (!this.mounted) {
-      this.backwards = backwards = !!backwards;
-      this.timeline = this.timeline || (backwards ? 1 : 0);
+  Animation.prototype.play = function(reverse) {
+    var direction = reverse === REVERSE ? 0 : 1;
+    if (!this.mounted && this.timeline !== direction) {
+      this.direction = direction;
       engine.mountAnimation(this);
+      var status = this.status;
+      this.status = direction ? 'play' : 'reverse';
+      this.fire('statuschange', {from: status, to: this.status});
     }
     return this;
+  };
+
+//--------------------------------------------------[Animation.prototype.reverse]
+  /**
+   * 反向播放动画。
+   * @name Animation.prototype.reverse
+   * @function
+   * @returns {Object} animation 对象。
+   */
+  Animation.prototype.reverse = function() {
+    return this.play(REVERSE);
   };
 
 //--------------------------------------------------[Animation.prototype.pause]
@@ -222,10 +363,11 @@
    */
   Animation.prototype.pause = function() {
     if (this.mounted) {
-      delete this.backwards;
-      delete this.timestamp;
       engine.unmountAnimation(this);
-      this.onPause();
+      var status = this.status;
+      this.status = 'pause';
+      this.fire('statuschange', {from: status, to: this.status});
+      this.fire('pause');
     }
     return this;
   };
@@ -239,34 +381,24 @@
    */
   Animation.prototype.stop = function() {
     if (this.mounted) {
-      // 先卸载动画，以免一个动画的 onFinish 回调中无法重新播放自身。
-      delete this.backwards;
-      delete this.timeline;
-      delete this.timestamp;
       engine.unmountAnimation(this);
-      // 若此时有新的动画插入，将直接开始播放。
-      this.onStop();
-    } else if (this.timeline) {  // TODO: 优化合并。
-      delete this.timeline;
-      this.onStop();
     }
+    this.direction = 1;
+    this.timeline = 0;
+    this.clips.forEach(function(clip) {
+      clip.status = BEFORE_START_POINT;
+    });
+    var status = this.status;
+    if (status !== 'stop') {
+      this.status = 'stop';
+      this.fire('statuschange', {from: status, to: this.status});
+    }
+    this.fire('stop');
     return this;
   };
 
-//--------------------------------------------------[Animation.options]
-  /**
-   * 默认选项。
-   * @name Animation.options
-   */
-  Animation.options = {
-    transition: 'ease',
-    duration: 400,
-    onStart: empty,
-    onStep: empty,
-    onPause: empty,
-    onFinish: empty,
-    onStop: empty
-  };
+//--------------------------------------------------[Animation]
+  window.Animation = new Component(Animation);
 
 })();
 

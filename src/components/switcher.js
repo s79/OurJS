@@ -40,8 +40,7 @@
    * @name Switcher.options
    * @memberOf components
    */
-  Switcher.options = {
-  };
+  Switcher.options = {};
 
 //--------------------------------------------------[Switcher.prototype.active]
   /**
