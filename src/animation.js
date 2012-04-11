@@ -7,24 +7,30 @@
 (function() {
 //==================================================[Animation]
   /*
-   * 调用流程：  // TODO: 流程图待完善。
-   *   var animation = new Animation(proceed, options);
-   *   animation.play() + fire:start() + fire:statuschange() -> proceed(x, y) + fire:step() -> fire:end()
-   *   animation.reverse() + fire:start() + fire:statuschange() -> proceed(x, y) + fire:step() -> fire:end()
+   * // TODO: 说明待完善。
+   * 调用流程：
+   *   var animation = new Animation(options);
+   *   animation.play() + fire:start() + fire:statuschange() -> (x, y) + fire:step() -> fire:end()
+   *   animation.reverse() + fire:start() + fire:statuschange() -> (x, y) + fire:step() -> fire:end()
    *                                                                                           -> animation.pause() + fire:pause() + fire:statuschange()
    *                                                                                           -> animation.end() + fire:end() + fire:statuschange()
    *
    * 说明：
-   *   上述步骤到达 proceed(x, y) 时，该函数会以每秒最多 62.5 次的频率被调用（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
-   *   传入 proceed 函数的参数 x 为时间轴，从 0 趋向于 1；y 为偏移量，通常在 0 和 1 之间。
-   *   在动画在进行中时，执行动画对象的 stop 方法即可停止 proceed 的继续调用，但也会阻止事件 end 的触发。
+   *   上述步骤到达 (x, y) 时，该函数会以每秒最多 62.5 次的频率被调用（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
+   *   传入  函数的参数 x 为时间轴，从 0 趋向于 1；y 为偏移量，通常在 0 和 1 之间。
+   *   在动画在进行中时，执行动画对象的 stop 方法即可停止  的继续调用，但也会阻止事件 end 的触发。
    *   调用 reverse 可以反向播放，但要注意，反向播放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
    */
   // 唯一识别码。
   var uid = 0;
 
-  // 供内部调用的 reverse 参数的值。
-  var REVERSE = {};
+  // 供内部调用的标记值。
+  var INTERNAL_IDENTIFIER_REVERSE = {};
+
+  // 动画剪辑的状态。
+  var BEFORE_START_POINT = -1;
+  var PLAYING = 0;
+  var AFTER_END_POINT = 1;
 
   // 动画引擎，用于挂载各播放中的动画，并同频同步播放他们的每一帧。
   var engine = {
@@ -37,31 +43,80 @@
       // 启动引擎。
       if (!engine.timer) {
         engine.timer = setInterval(function() {
-          // 播放全部挂载的动画。
+          // 播放挂载的动画。
 //          console.log('>ENGING RUNNING mountedCount:', engine.mountedCount);
           var timestamp = Date.now();
           Object.forEach(engine.mountedAnimations, function(animation) {
             var direction = animation.direction;
-            var timeline = animation.timeline;
-            var lastTimestamp = animation.timestamp || timestamp;
             var duration = animation.duration;
-            // 计算步长。
-            var step = (duration > 0 ? (timestamp - lastTimestamp) / duration : 1) * (direction ? 1 : -1);
             // 动画的时间轴。
-            var x = animation.timeline = Math.limit(timeline + step, 0, 1);
+            var timeline = animation.timeline = Math.limit(animation.timeline + (timestamp - (animation.timestamp || timestamp)) * direction, 0, duration);
             animation.timestamp = timestamp;
+            // 是否为第一帧/最后一帧。
+            var isFirstFrame = false;
+            var isLastFrame = false;
+            if (timeline === 0) {
+              direction > 0 ? isFirstFrame = true : isLastFrame = true;
+            }
+            if (timeline === duration) {
+              direction < 0 ? isFirstFrame = true : isLastFrame = true;
+            }
             // 本帧为第一帧。
-            if (x === (direction ^ 1)) {
-              animation.fire('start');
+            if (isFirstFrame) {
+              animation.fire('begin');
             }
             // 播放当前帧。
-            animation.proceed(x);
+            animation.clips.forEach(function(clip) {
+              var active = false;
+              var x = (timeline - clip.delay) / clip.duration;
+              if (animation.direction > 0) {
+                if (clip.status === AFTER_END_POINT) {
+                  return;
+                }
+                if (clip.status === BEFORE_START_POINT) {
+                  if (x >= 0) {
+                    x = clip.duration ? 0 : 1;
+                    clip.status = PLAYING;
+                  }
+                }
+                if (clip.status === PLAYING) {
+                  active = true;
+                  if (x >= 1) {
+                    x = 1;
+                    clip.status = AFTER_END_POINT;
+                  }
+                }
+              } else {
+                if (clip.status === BEFORE_START_POINT) {
+                  return;
+                }
+                if (clip.status === AFTER_END_POINT) {
+                  if (x <= 1) {
+                    x = clip.duration ? 1 : 0;
+                    clip.status = PLAYING;
+                  }
+                }
+                if (clip.status === PLAYING) {
+                  active = true;
+                  if (x <= 0) {
+                    x = 0;
+                    clip.status = BEFORE_START_POINT;
+                  }
+                }
+              }
+              if (active) {
+                // 将 clip.handler 的 this 设置为 Animation 对象。
+                clip.handler.call(animation, x, x === 0 ? 0 : (x === 1 ? 1 : clip.timingFunction(x)));
+              }
+            });
             animation.fire('step');
             // 本帧为最后一帧。
-            if (x === direction) {  // TODO: 考虑使用内置参数特殊调用 stop。stop 有两种状态：开始和结束，是否分开（start/end/playing/reversing/pausing）？
+            if (isLastFrame) {
               engine.unmountAnimation(animation);
-              animation.status = 'stop';
-              animation.fire('end');
+              var status = animation.status;
+              animation.status = direction > 0 ? 'end' : 'start';
+              animation.fire('statuschange', {from: status, to: animation.status});
+              animation.fire('finish');
             }
           });
           // 停止引擎。
@@ -84,74 +139,159 @@
     }
   };
 
-  /*
-   * <Array clips> [
-   *   content: <Function>,
-   *   timingFunction: <Function>,
-   *   delay: <number>,
-   *   duration: <number>,
-   *   status: <number>,
-   *   start: <number>,
-   *   end: <number>
-   * ];
+//--------------------------------------------------[Animation Constructor]
+  /**
+   * 创建动画效果。
+   * @name Animation
+   * @constructor
+   * @param {number} [duration] 动画的持续时间。
+   *   通常不必设置该值，该值会随着动画剪辑的插入自动调整，以保证不小于任何一个剪辑的播放时间的总长。
+   *   这个参数的意义在于：设置一个足够长的 duration，可以实现在播放时间最长的剪辑的结束点之后的延时。
+   * @fires xxxx
+   *   在 xxx 时触发。
+   *   <table>
+   *     <tr><th>事件对象的属性</th><th>描述</th></tr>
+   *     <tr><td>xxx</td><td>xxx。</td></tr>
+   *     <tr><td>xxx</td><td>xxx。</td></tr>
+   *   </table>
+   * begin  动画开始时（绘制第一帧之前）触发。
+   * step   播放每一帧时触发。
+   * pause  暂停播放时触发。
+   * finish    动画结束时（绘制最后一帧之后）触发。
+   * stop   停止播放时触发。
+   * statuschange  状态改变时（play/reverse/pause/stop）触发。
+   * @description
+   *   高级应用：向一个动画中添加多个剪辑，以实现复杂的动画效果。
    */
+  function Animation(duration, options) {
+    this.uid = ++uid;
+    this.clips = [];
+    // 播放方向，1 为正向播放，-1 为反向播放。
+    this.direction = 1;
+    this.duration = duration || 0;
+    // 动画当前时间轴，为 0 - this.duration 之间的毫秒数。
+    this.timeline = 0;
+    this.status = 'start';
+  }
 
-  // 动画剪辑的状态。
-  var BEFORE_START_POINT = -1;
-  var PLAYING = 0;
-  var AFTER_END_POINT = 1;
+//--------------------------------------------------[Animation.options]
+  /**
+   * 默认选项。
+   * @name Animation.options
+   */
+  Animation.options = {};
 
-  // 播放动画剪辑。
-  var playClips = function(x) {
-    var animation = this;
-    animation.clips.forEach(function(clip) {
-      var playClip = false;
-      var clipX = (x - clip.start) / (clip.end - clip.start);
-      var clipY;
-      if (animation.direction === 1) {
-        if (clip.status === AFTER_END_POINT) {
-          // return;
-        }
-        if (clip.status === BEFORE_START_POINT) {
-          if (clipX >= 0) {
-            clipX = clip.duration ? 0 : 1;
-            clip.status = PLAYING;
-          }
-        }
-        if (clip.status === PLAYING) {
-          playClip = true;
-          if (clipX >= 1) {
-            clipX = 1;
-            clip.status = AFTER_END_POINT;
-          }
-        }
-        //        console.log(index, clipX);
-      } else {
-        if (clip.status === BEFORE_START_POINT) {
-          // return;
-        }
-        if (clip.status === AFTER_END_POINT) {
-          if (clipX <= 1) {
-            clipX = clip.duration ? 1 : 0;
-            clip.status = PLAYING;
-          }
-        }
-        if (clip.status === PLAYING) {
-          playClip = true;
-          if (clipX <= 0) {
-            clipX = 0;
-            clip.status = BEFORE_START_POINT;
-          }
-        }
-        //        console.log(index, clipX);
-      }
-      if (playClip) {
-        clipY = clipX === 0 ? 0 : (clipX === 1 ? 1 : clip.timingFunction(clipX));
-        clip.content(clipX, clipY);
-      }
-    });
+//--------------------------------------------------[Animation.prototype.addClip]
+  /**
+   * 添加动画剪辑。
+   * @name Animation.prototype.addClip
+   * @function
+   * @param {Object} clip 动画剪辑对象。
+   * @returns {Object} animation 对象。
+   */
+  Animation.prototype.addClip = function(clip) {
+    clip.status = BEFORE_START_POINT;
+    this.clips.push(clip);
+    // 重新计算整个动画持续的时间。
+    this.duration = Math.max(this.duration, clip.delay + clip.duration);
+    return this;
   };
 
+//--------------------------------------------------[Animation.prototype.addClips]
+  /**
+   * 添加一组动画剪辑。
+   * @name Animation.prototype.addClips
+   * @function
+   * @param {Array} clips 包含多个动画剪辑对象的数组。
+   * @returns {Object} animation 对象。
+   */
+  Animation.prototype.addClips = function(clips) {
+    var animation = this;
+    clips.forEach(function(clip) {
+      animation.addClip(clip);
+    });
+    return animation;
+  };
+
+//--------------------------------------------------[Animation.prototype.play]
+  /**
+   * 播放动画。
+   * @name Animation.prototype.play
+   * @function
+   * @returns {Object} animation 对象。
+   */
+  Animation.prototype.play = function(reverse) {
+    var direction = reverse === INTERNAL_IDENTIFIER_REVERSE ? -1 : 1;
+    var status = this.status;
+    if (direction > 0 && status !== 'end' || direction < 0 && status !== 'start') {
+      this.direction = direction;
+      this.status = direction > 0 ? 'playing' : 'reversing';
+      this.fire('statuschange', {from: status, to: this.status});
+      if (!this.mounted) {
+        engine.mountAnimation(this);
+      }
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Animation.prototype.reverse]
+  /**
+   * 反向播放动画。
+   * @name Animation.prototype.reverse
+   * @function
+   * @returns {Object} animation 对象。
+   */
+  Animation.prototype.reverse = function() {
+    return this.play(INTERNAL_IDENTIFIER_REVERSE);
+  };
+
+//--------------------------------------------------[Animation.prototype.pause]
+  /**
+   * 暂停动画。
+   * @name Animation.prototype.pause
+   * @function
+   * @returns {Object} animation 对象。
+   */
+  Animation.prototype.pause = function() {
+    if (this.mounted) {
+      engine.unmountAnimation(this);
+      var status = this.status;
+      this.status = 'pausing';
+      this.fire('statuschange', {from: status, to: this.status});
+      this.fire('pause');
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Animation.prototype.stop]
+  /**
+   * 停止动画。
+   * @name Animation.prototype.stop
+   * @function
+   * @returns {Object} animation 对象。
+   */
+  Animation.prototype.stop = function() {
+    var status = this.status;
+    if (status !== 'start') {
+      if (this.mounted) {
+        engine.unmountAnimation(this);
+      }
+      this.direction = 1;
+      this.timeline = 0;
+      this.clips.forEach(function(clip) {
+        clip.status = BEFORE_START_POINT;
+      });
+      this.status = 'start';
+      this.fire('statuschange', {from: status, to: this.status});
+      this.fire('stop');
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Animation]
+  window.Animation = new Component(Animation);
+
+//==================================================[Fx]
   // 根据指定的 X 坐标（时间点）获取一个 cubic bezier 函数的 Y 坐标（偏移量）。
   // http://www.netzgesta.de/dev/cubic-bezier-timing-function.html
   var cubicBezier = function(p1x, p1y, p2x, p2y) {
@@ -233,172 +373,240 @@
     easeOutIn: cubicBezier(0, 0.42, 1.0, 0.58)
   };
 
-//--------------------------------------------------[Animation Constructor]
-  /**
-   * 创建动画效果。
-   * @name Animation
-   * @constructor
-   * @fires xxxx
-   *   在 xxx 时触发。
-   *   <table>
-   *     <tr><th>事件对象的属性</th><th>描述</th></tr>
-   *     <tr><td>xxx</td><td>xxx。</td></tr>
-   *     <tr><td>xxx</td><td>xxx。</td></tr>
-   *   </table>
-   * start  动画开始时（绘制第一帧之前）触发。
-   * step   播放每一帧时触发。
-   * pause  暂停播放时触发。
-   * end    动画结束时（绘制最后一帧之后）触发。
-   * stop   停止播放时触发。
-   * statuschange  状态改变时（play/reverse/pause/stop）触发。
-   * @description
-   *   高级应用：向一个动画中添加多个剪辑，以实现复杂的动画效果。
-   */
-  function Animation(options) {
-    this.uid = ++uid;
-    this.clips = [];
-    this.proceed = playClips;
-    this.direction = 1;
-    this.timeline = 0;
-    this.duration = 0;
-    this.status = 'stop';
-  }
+  var getTimingFunction = function(name) {
+    name = name || '';
+//    'cubicBezier(0.42, 1.0, 0.75, 1.0)'.match(/^cubicBezier\((0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1)/)
+    return timingFunctions[name] || (name.startsWith('cubicBezier') ? cubicBezier.apply(null, name.slice(12, -1).split(',').map(function(item) {
+      return parseFloat(item);
+    })) : timingFunctions.ease);
+  };
 
-//--------------------------------------------------[Animation.options]
-  /**
-   * 默认选项。
-   * @name Animation.options
-   */
-  Animation.options = {};
+  window.Fx = {};
 
-//--------------------------------------------------[Animation.prototype.addClip]
-  function calculateClipTimeline(clip, animationDuration) {
-    clip.start = clip.delay / animationDuration;
-    clip.end = (clip.delay + clip.duration) / animationDuration;
-  }
-
+//--------------------------------------------------[Fx.Base]
   /**
-   * 添加动画剪辑。
-   * @name Animation.prototype.addClip
-   * @function
-   * @param {Function} content 动画剪辑播放函数。
-   * @param {Object} options 动画剪辑对象。
-   * @returns {Object} animation 对象。
+   * 基本动画效果。
+   * @param {Function} handler 动画处理函数，this 指向所属的 Animation 对象。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
    */
-  Animation.prototype.addClip = function(content, options) {
-    if (this.status !== 'stop') {
-      throw new Error('[Animation.prototype.addClip] 只能在动画停止时添加剪辑');
-    }
-    var animation = this;
-    var timingFunction = timingFunctions[options.transition];
-    if (!timingFunction) {
-      if (options.transition.startsWith('cubicBezier')) {
-//        'cubicBezier(0.42, 1.0, 0.75, 1.0)'.match(/^cubicBezier\((0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1)/)
-        timingFunction = cubicBezier.apply(null, options.transition.slice(12, -1).split(',').map(function(item) {
-          return parseFloat(item);
-        }));
-      } else {
-        timingFunction = timingFunctions.ease;
-      }
-    }
-    // 重新计算整个动画持续的时间。
-    var oldDuration = animation.duration;
-    var newDuration = animation.duration = Math.max(oldDuration, options.delay + options.duration);
-    var clip = {
-      delay: options.hasOwnProperty('delay') ? options.delay : 0,
-      duration: options.hasOwnProperty('duration') ? options.duration : 400,
-      timingFunction: timingFunction,
-      content: content,
-      status: BEFORE_START_POINT
-    };
-    animation.clips.push(clip);
-    if (newDuration > oldDuration) {
-      // 若整个动画持续的时间被延长，则重新计算各剪辑的起始/结束点。
-      animation.clips.forEach(function(clip) {
-        calculateClipTimeline(clip, newDuration);
+  Fx.Base = function(handler, delay, duration, timingFunction) {
+    this.handler = handler;
+    this.delay = delay;
+    this.duration = duration;
+    this.timingFunction = getTimingFunction(timingFunction);
+  };
+
+//--------------------------------------------------[Fx.Morph]
+  // 可变的 CSS properties 类型。
+  var TYPE_NUMBER = 1;
+  var TYPE_LENGTH = 2;
+  var TYPE_COLOR = 4;
+
+  // 可变的 CSS properties 列表。
+  //   - 'font-weight' 在 IE6 IE7 IE8 下不能设置数字值。
+  //   - 'zoom' 各浏览器支持情况差异较大。
+  // http://www.w3.org/TR/css3-transitions/#properties-from-css-
+  var acceptableProperties = {};
+  var typeIsNumber = ['opacity'];
+  var typeIsLength = ['top', 'right', 'bottom', 'left', 'width', 'height', 'outlineWidth', 'backgroundPositionX', 'backgroundPositionY', 'fontSize', 'lineHeight', 'letterSpacing', 'wordSpacing', 'textIndent'];
+  var typeIsColor = ['color', 'backgroundColor', 'outlineColor'];
+  ['Top', 'Right', 'Bottom', 'Left'].forEach(function(side) {
+    typeIsLength.push('margin' + side, 'padding' + side, 'border' + side + 'Width');
+    typeIsColor.push('border' + side + 'Color');
+  });
+  typeIsNumber.forEach(function(property) {
+    acceptableProperties[property] = TYPE_NUMBER;
+  });
+  typeIsLength.forEach(function(property) {
+    acceptableProperties[property] = TYPE_LENGTH;
+  });
+  typeIsColor.forEach(function(property) {
+    acceptableProperties[property] = TYPE_COLOR;
+  });
+
+  // 转换数字和长度值为整数。
+  var parseNumberAndLength = function(value) {
+    var parsedValue = parseFloat(value);
+    return isNaN(parsedValue) ? 0 : parsedValue;
+  };
+
+  // 转换颜色值为包含三个整数的数组。
+  var RE_HEX_COLOR = /^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
+  var RE_RGB_COLOR = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
+  var parseColor = function(value) {
+    // 将默认的颜色设置为白色。
+    var parsedValue = [255, 255, 255];
+    var match;
+    if (match = value.match(RE_HEX_COLOR)) {
+      parsedValue = Array.from(match).slice(1).map(function(hexadecimal) {
+        return parseInt(hexadecimal, 16);
       });
-    } else {
-      // 否则仅需计算新增剪辑的起始/结束点。
-      calculateClipTimeline(clip, newDuration);
+    } else if (match = value.match(RE_RGB_COLOR)) {
+      parsedValue = Array.from(match).slice(1).map(function(decimal) {
+        return +decimal;
+      });
     }
-    return animation;
+    return parsedValue;
   };
 
-//--------------------------------------------------[Animation.prototype.play]
-  /**
-   * 播放动画。
-   * @name Animation.prototype.play
-   * @function
-   * @returns {Object} animation 对象。
-   */
-  Animation.prototype.play = function(reverse) {
-    var direction = reverse === REVERSE ? 0 : 1;
-    if (!this.mounted && this.timeline !== direction) {
-      this.direction = direction;
-      engine.mountAnimation(this);
-      var status = this.status;
-      this.status = direction ? 'play' : 'reverse';
-      this.fire('statuschange', {from: status, to: this.status});
-    }
-    return this;
-  };
-
-//--------------------------------------------------[Animation.prototype.reverse]
-  /**
-   * 反向播放动画。
-   * @name Animation.prototype.reverse
-   * @function
-   * @returns {Object} animation 对象。
-   */
-  Animation.prototype.reverse = function() {
-    return this.play(REVERSE);
-  };
-
-//--------------------------------------------------[Animation.prototype.pause]
-  /**
-   * 暂停动画。
-   * @name Animation.prototype.pause
-   * @function
-   * @returns {Object} animation 对象。
-   */
-  Animation.prototype.pause = function() {
-    if (this.mounted) {
-      engine.unmountAnimation(this);
-      var status = this.status;
-      this.status = 'pause';
-      this.fire('statuschange', {from: status, to: this.status});
-      this.fire('pause');
-    }
-    return this;
-  };
-
-//--------------------------------------------------[Animation.prototype.stop]
-  /**
-   * 停止动画。
-   * @name Animation.prototype.stop
-   * @function
-   * @returns {Object} animation 对象。
-   */
-  Animation.prototype.stop = function() {
-    if (this.mounted) {
-      engine.unmountAnimation(this);
-    }
-    this.direction = 1;
-    this.timeline = 0;
-    this.clips.forEach(function(clip) {
-      clip.status = BEFORE_START_POINT;
+  // 过滤和转换动画需要改变的样式。
+  var parseStyles = function($element, afterStyles) {
+    var beforeStyles = $element.getStyles(Object.keys(afterStyles));
+    var parsedStyles = {before: {}, after: {}};
+    Object.forEach(beforeStyles, function(beforeValue, name) {
+      switch (acceptableProperties[name]) {
+        case TYPE_NUMBER:
+        case TYPE_LENGTH:
+          parsedStyles.before[name] = parseNumberAndLength(beforeValue);
+          parsedStyles.after[name] = parseNumberAndLength(afterStyles[name]);
+          break;
+        case TYPE_COLOR:
+          parsedStyles.before[name] = parseColor(beforeValue);
+          parsedStyles.after[name] = parseColor(afterStyles[name]);
+          break;
+      }
     });
-    var status = this.status;
-    if (status !== 'stop') {
-      this.status = 'stop';
-      this.fire('statuschange', {from: status, to: this.status});
-    }
-    this.fire('stop');
-    return this;
+    return parsedStyles;
   };
 
-//--------------------------------------------------[Animation]
-  window.Animation = new Component(Animation);
+  /**
+   * CSS 渐变效果。
+   * @name Fx.Morph
+   * @param {Element} $element 要实施渐变效果的元素。
+   * @param {Object} styles 要实施渐变的样式。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
+   */
+  Fx.Morph = function($element, styles, delay, duration, timingFunction) {
+    var transitiveStyles;
+    this.handler = function(x, y) {
+      if (transitiveStyles === undefined) {
+        transitiveStyles = parseStyles($element, styles);
+      }
+      Object.forEach(transitiveStyles.before, function(beforeValue, name) {
+        var afterValue = transitiveStyles.after[name];
+        var currentValue;
+        switch (acceptableProperties[name]) {
+          case TYPE_NUMBER:
+            currentValue = (beforeValue + (afterValue - beforeValue) * y).toFixed(2);
+            break;
+          case TYPE_LENGTH:
+            currentValue = Math.floor(beforeValue + (afterValue - beforeValue) * y) + 'px';  // TODO: 支持多种长度单位
+            break;
+          case TYPE_COLOR:
+            currentValue = 'rgb(' +
+                Math.floor(beforeValue[0] + (afterValue[0] - beforeValue[0]) * y) + ', ' +
+                Math.floor(beforeValue[1] + (afterValue[1] - beforeValue[1]) * y) + ', ' +
+                Math.floor(beforeValue[2] + (afterValue[2] - beforeValue[2]) * y) + ')';
+            break;
+        }
+        $element.setStyle(name, currentValue);
+      });
+    };
+    this.delay = delay;
+    this.duration = duration;
+    this.timingFunction = getTimingFunction(timingFunction);
+  };
+
+//--------------------------------------------------[Fx.Fade]
+  /**
+   * 渐隐效果。
+   * @name Fx.Fade
+   * @param {Element} $element 要实施渐隐效果的元素。
+   * @param {string} mode 渐隐模式，in 为渐入，out 为渐出。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
+   */
+  Fx.Fade = function($element, mode, delay, duration, timingFunction) {
+    var isFadeInMode = mode === 'in';
+    var originalOpacity;
+    this.handler = function(x, y) {
+      if (originalOpacity === undefined) {
+        originalOpacity = $element.getStyle('opacity');
+      }
+      var isPlayMethod = this.direction > 0;
+      // TODO: 八合三。
+      switch (x) {
+        case 0:
+          if (isPlayMethod) {
+            // 正向播放的起点。
+            $element.setStyles(isFadeInMode ? {'display': 'block', 'opacity': 0} : {'display': 'block', 'opacity': originalOpacity});
+          } else {
+            // 反向播放的终点。
+            $element.setStyles(isFadeInMode ? {'display': 'none', 'opacity': originalOpacity} : {'display': 'block', 'opacity': originalOpacity});
+          }
+          break;
+        case 1:
+          if (isPlayMethod) {
+            // 正向播放的终点。
+            $element.setStyles(isFadeInMode ? {'display': 'block', 'opacity': originalOpacity} : {'display': 'none', 'opacity': originalOpacity});
+          } else {
+            // 反向播放的起点。
+            $element.setStyles(isFadeInMode ? {'display': 'block', 'opacity': originalOpacity} : {'display': 'block', 'opacity': 0});
+          }
+          break;
+        default:
+          $element.setStyle('opacity', (originalOpacity * (isFadeInMode ? y : 1 - y)).toFixed(2));
+          break;
+      }
+      console.log($element.getStyle('opacity'));
+    };
+    this.delay = delay;
+    this.duration = duration;
+    this.timingFunction = getTimingFunction(timingFunction);
+  };
+
+//--------------------------------------------------[Fx.Slide]
+
+//--------------------------------------------------[Fx.Highlight]
+  var getColorString = function(colorArray) {
+    return 'rgb(' + colorArray[0] + ', ' + colorArray[1] + ', ' + colorArray[2] + ')';
+  };
+
+  /**
+   * 高亮效果。
+   * @name Fx.Highlight
+   * @param {Element} $element 要实施渐隐效果的元素。
+   * @param {string} color 高亮的颜色，#XXXXXX 格式的字符串。
+   * @param {number} times 高亮的次数。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
+   */
+  Fx.Highlight = function($element, color, times, delay, duration, timingFunction) {
+    // 内部分多次动画换算后，使用此控速函数。
+    var nativeTimingFunction = getTimingFunction(timingFunction);
+    var nativeSection = 1 / times;
+    var transitiveBackgroundColor;
+    this.handler = function(x) {
+      if (transitiveBackgroundColor === undefined) {
+        transitiveBackgroundColor = parseStyles($element, {backgroundColor: color});
+      }
+      var beforeValue = transitiveBackgroundColor.before.backgroundColor;
+      var afterValue = transitiveBackgroundColor.after.backgroundColor;
+      if (x === 0 || x === 1) {
+        $element.setStyle('backgroundColor', getColorString(beforeValue));
+      } else {
+        var nativeX = (x % nativeSection) / nativeSection;
+        var nativeY = nativeTimingFunction(nativeX);
+        console.log(nativeX, nativeY);
+        $element.setStyle('backgroundColor', getColorString([
+          Math.floor(afterValue[0] + (beforeValue[0] - afterValue[0]) * nativeY),
+          Math.floor(afterValue[1] + (beforeValue[1] - afterValue[1]) * nativeY),
+          Math.floor(afterValue[2] + (beforeValue[2] - afterValue[2]) * nativeY)
+        ]));
+      }
+    };
+    this.delay = delay;
+    this.duration = duration;
+    this.timingFunction = timingFunctions.linear;
+  };
+
+//--------------------------------------------------[Fx.Scroll]
 
 })();
 

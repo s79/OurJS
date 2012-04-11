@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <title>Animation</title>
 <script src="../dev.js"></script>
-<script src="ani_test.js"></script>
 <style>
 body { margin: 10px; padding: 0; font: 12px Verdana; }
 h1 { height: 30px; margin: 0; padding: 0; font: 24px/30px Verdana; }
@@ -14,13 +13,13 @@ button { font: 12px Verdana; }
 #test3 { width: 500px; margin: 5px; padding: 30px; background: #f5f5f5; font: 12px Verdana; text-align: center; }
 #msg { height: 15px; text-align: left; }
 #ani,
-#layer { position: absolute; left: 450px; top: 10px; width: 200px; height: 50px; background: #c0c0c0; font: 22px/22px Verdana; text-align: center; }
+#layer { position: absolute; left: 450px; top: 10px; width: 200px; height: 50px; background: #c0c0c0; font: 14px/50px Verdana; text-align: center; }
 #ani { left: 1200px; top: -150px; height: 150px; z-index: 1; background: #c0c0c0; line-height: 75px; }
 #ani p { margin: 0; }
 #layer { z-index: 2; }
 #canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
-#canvas div { position: absolute; width: 1px; height: 1px; background: white; overflow: hidden; }
-#layer.highlight { background: gold; }
+#canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
+#layer.highlight { box-shadow: 0 0 25px black; }
 </style>
 </head>
 <body>
@@ -201,17 +200,10 @@ execute(function($) {
   });
 
 //--------------------------------------------------[TEST 1]
-  $('#highlight').on('click', function() {
-    $layer.stopAnimate()
-        .animate({
-          backgroundColor: '#C0C0C0'
-        }, {
-          duration: '1500',
-          onBeforeStart: function() {
-            this.setStyle('backgroundColor', '#FF6347');
-//          return false;
-          }
-        });
+  var $highlight = $('#highlight');
+  var highlight = new Animation().addClip(new Fx.Highlight($('#layer'), '#FFFF00', 3, 0, 1000, 'easeIn'));
+  $highlight.on('click', function() {
+    highlight.stop().play();
   });
   $('#fade_in').on('click', function() {
     $layer.fadeIn({
@@ -233,180 +225,112 @@ execute(function($) {
   });
 
 //--------------------------------------------------[TEST 2]
-//  var PLAYING = 1;
-//  var BEFORE_START_POINT = 2;
-//  var AFTER_END_POINT = 3;
-//
-//  var clips = [];
-//  var clip1 = function(x, y) {
-//    var heightAndLineHeight = Math.floor((20 + 280 * y)) + 'px';
-//    $layer.setStyles({
-//      width: Math.floor(200 + 300 * y)
-//    });
-//  };
-//  clip1.timingFunction = timingFunctions.ease;
-//  clip1.delay = 500;
-//  clip1.duration = 1000;
-//  clip1.status = BEFORE_START_POINT;
-//  clips.push(clip1);
-//
-//  var clip2 = function(x, y) {
-////    console.log('>>>', x, y);
-//    var heightAndLineHeight = Math.floor((20 + 280 * y)) + 'px';
-//    $layer.setStyles({
-//      left: Math.floor(700 - 225 * y),
-//      top: Math.floor(600 - 500 * y),
-//      height: heightAndLineHeight,
-//      lineHeight: heightAndLineHeight,
-//      opacity: (y > 0.6 ? 0.6 : y).toFixed(2)
-//    });
-//  };
-//  clip2.timingFunction = timingFunctions.ease;
-//  clip2.delay = 0;
-//  clip2.duration = 1000;
-//  clip2.status = BEFORE_START_POINT; // -1 = 等待中， 0 = 播放中， 1 = 播放完毕。
-//  clips.push(clip2);
-//
-//  var frames = 0;
-//  var reverse = false;
-//  var $layer = $('#layer').setStyle('opacity', 1);
-//  window.animation = new Animation(function(x) {
-//    var animation = this;
-//    clips.forEach(function(clip, index) {
-////      console.log(clip.status, index);
-//      var startPosition = clip.delay / animation.duration;
-//      var endPosition = (clip.delay + clip.duration) / animation.duration;
-//      var clipX = (x - startPosition) / (endPosition - startPosition);
-//      var clipY;
-//      if (animation.direction === 1) {
-//        if (clip.status === AFTER_END_POINT) {
-////          return;
-//        }
-//        if (clip.status === BEFORE_START_POINT) {
-//          if (clipX >= 0) {
-//            clipX = 0;
-//            clip.status = PLAYING;
-//          }
-//        }
-//        if (clip.status === PLAYING) {
-//          if (clipX >= 1) {
-//            clipX = 1;
-//            clip.status = AFTER_END_POINT;
-//          }
-//          clipY = clipX === 0 ? 0 : (clipX === 1 ? 1 : clip.timingFunction(clipX));
-//          clip(clipX, clipY);
-//        }
-////        console.log(index, clipX);
-//      } else {
-//        if (clip.status === BEFORE_START_POINT) {
-////          return;
-//        }
-//        if (clip.status === AFTER_END_POINT) {
-//          if (clipX <= 1) {
-//            clipX = 1;
-//            clip.status = PLAYING;
-//          }
-//        }
-//        if (clip.status === PLAYING) {
-//          if (clipX <= 0) {
-//            clipX = 0;
-//            clip.status = BEFORE_START_POINT;
-//          }
-//          clipY = clipX === 0 ? 0 : (clipX === 1 ? 1 : clip.timingFunction(clipX));
-//          clip(clipX, clipY);
-//        }
-////        console.log(index, clipX);
-//      }
-//    });
-//  }, {
-//    duration: 1500,
-////    transition: 'bounce',
-//    onStart: function() {
-//      frames = 0;
-//      $layer.innerHTML = 'Moving...';
-//    },
-//    onStep: function() {
-//      frames++;
-////      console.log(this.timeline);
-//    },
-//    onPause: function() {
-//      console.log('PAUSE');
-//    },
-//    onFinish: function() {
-////      $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').animate(null, {duration: 1000}).fadeOut({onFinish: function() {
-////        this.remove();
-////      }}));
-//      animation.play(reverse = !reverse);
-//    },
-//    onStop: function() {
-//      clips.forEach(function(clip, index) {
-//        clip.status = BEFORE_START_POINT;
-//      });
-//      console.log('STOP');
-//    }
-//  });
-//
-//  $layer.on('mouseenter', function() {
-//    animation.pause();
-//    animation.play(reverse = !reverse);
-//  });
-//  $layer.on('mouseleave', function() {
-//  });
-//
-//  var color;
-//  /*
-//   var animation = new Animation(function(x, y) {
-//   x = Math.floor(x * 299);
-//   y = Math.floor(y * 299);
-//   $canvas.appendChild($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
-//   }, {
-//   transition: 'cubicBezier(.5,.29,.23,-0.58)',
-//   duration: 2500,
-//   onStart: function() {
-//   console.log('START');
-//   },
-//   onStep: function() {
-//   console.log(this.timeline);
-//   },
-//   onPause: function() {
-//   console.log('PAUSE');
-//   },
-//   onFinish: function() {
-//   console.log('FINISH');
-//   },
-//   onStop: function() {
-//   console.log('STOP');
-//   }
-//   });
-//   */
-//
-//  $('#play2').on('click', function() {
-//    color = 'red';
-//    animation.play();
-//  });
-//  $('#reverse').on('click', function() {
-//    color = 'white';
-//    animation.play(true);
-//  });
-//  $('#pause2').on('click', function() {
-//    animation.pause();
-//  });
-//  $('#stop2').on('click', function() {
-//    animation.stop();
-//  });
+  var frames = 0;
+  var reverse = true;
+  var $layer = $('#layer').setStyle('opacity', 0.75);
+
+//-------------------------[animation]
+  window.animation = new Animation()
+      .on(
+      'begin', function() {
+        frames = 0;
+        $layer.empty().innerHTML = 'Moving...';
+//        console.log('BEGIN', this.timestamp);
+      })
+      .on(
+      'step', function() {
+        frames++;
+//        console.log(this.timeline);
+//        console.log('STEP', this.timestamp);
+      })
+      .on(
+      'pause', function() {
+//        console.log('PAUSE', this.timestamp);
+      })
+      .on(
+      'finish', function() {
+        $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>'));
+//        $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').animate(null, {duration: 1000}).fadeOut({onEnd: function() {
+//          this.remove();
+//        }}));
+//        console.log('FINISH', this.timestamp);
+//        reverse ? animation.reverse() : animation.play();
+//        reverse = !reverse;
+      })
+      .on(
+      'stop', function() {
+        console.log('STOP', this.timestamp);
+      })
+      .on(
+      'statuschange', function(e) {
+        console.log('STATUS: ' + ' '.repeat(10), e.from, e.to, '[' + this.status + ']');
+      })
+//      .addClip(new Fx.Fade($layer, 'in', 0, 1000, 'linear'))
+//      .addClip(new Fx.Highlight($layer, '#FFFF00', 1, 0, 1000, 'easeIn'))
+//      .addClip(
+//      new Fx.Morph($layer, {
+//        backgroundColor: '#FFD700'
+//      }, 300, 500))
+      .addClip(
+      new Fx.Morph($layer, {
+        width: 500
+      }, 300, 400, 'cubicBezier(.6,0,.6,1.35)'))
+      .addClip(
+      new Fx.Base(function(x, y) {
+        $layer.toggleClass('highlight');
+      }, 700, 0, 'linear'))
+      .addClip(
+      new Fx.Morph($layer, {
+        left: 475,
+        top: 100,
+        height: 300,
+        color: '#C00000',
+        fontSize: 30,
+        lineHeight: 300
+      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'));
+
+//-------------------------[controls]
+  document.on('keydown', function(e) {
+    switch (e.which) {
+      case 37:
+        animation.reverse();
+        return false;
+      case 38:
+        animation.stop();
+        return false;
+      case 39:
+        animation.play();
+        return false;
+      case 40:
+        animation.pause();
+        return false;
+    }
+  });
+  $('#play2').on('click', function() {
+    animation.play();
+  });
+  $('#reverse2').on('click', function() {
+    animation.reverse();
+  });
+  $('#pause2').on('click', function() {
+    animation.pause();
+  });
+  $('#stop2').on('click', function() {
+    animation.stop();
+  });
 
 //--------------------------------------------------[TEST 3]
   var $canvas = $('#canvas');
   $('#test3').on('click', function(e) {
     var color = this.getStyle('backgroundColor');
-    new Animation(function(x, y) {
-      x = Math.floor(x * 299);
-      y = Math.floor(y * 299);
-      $canvas.appendChild($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
-    }, {
-      transition: this.innerText,
-      duration: 2500
-    }).play();
+    new Animation()
+        .addClip(
+        new Fx.Base(function(x, y) {
+          x = Math.floor(x * 299);
+          y = Math.floor(y * 299);
+          $canvas.appendChild($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
+        }, 0, 2500, this.innerText))
+        .play();
   }, function() {
     return this.nodeName === 'BUTTON';
   });
