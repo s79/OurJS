@@ -13,12 +13,7 @@ sup { top: -3px; }
 sub { bottom: -3px; }
 
 /* --------------------------------------------------[Theme] */
-/* 元素布局 */
-body { padding: 10px; }
-fieldset { float: left; margin-right: 10px; padding: 5px; border: 1px solid #d5dfe5; }
-legend { margin-left: 5px; color: #ff7300; *margin-left: 0; }
-
-/* 页面字体 */
+/* 字体 */
 body,
 small,
 sup,
@@ -27,11 +22,21 @@ button,
 input,
 textarea,
 select,
-code,
 kbd,
-pre,
-samp { font-family: Consolas, "Lucida Console", SimSun, monospace; }
+samp { font-family: Verdana, Helvetica, "Microsoft YaHei", SimSun, sans-serif; }
 body { font-size: 14px; }
+
+/* 链接 */
+a { text-decoration: none; }
+a:link { color: #102197; }
+a:visited { color: #396686; }
+a:hover { text-decoration: underline; }
+a:active { }
+
+/* 元素布局 */
+body { padding: 10px; }
+fieldset { float: left; margin-right: 10px; padding: 5px; border: 1px solid #d5dfe5; border-radius: 2px; }
+legend { margin-left: 5px; color: #ff7300; *margin-left: 0; }
 
 /* 大标题 */
 h1 { font-size: 22px; }
@@ -63,28 +68,9 @@ ol ol { list-style-type: decimal; }
 ol.alpha { list-style-type: lower-alpha; }
 em { color: #333; font-style: italic; }
 
-/* 链接 */
-a { text-decoration: none; }
-a:link { color: #102197; }
-a:visited { color: #396686; }
-a:hover { text-decoration: underline; }
-a:active { }
-
 /* 代码 */
-pre { padding: 5px; border: 1px solid #f0fff0; border-left-width: 5px; background: #f8fff8; color: #333; white-space: pre-wrap; word-wrap: break-word; }
-pre.badcode { border-color: #fff0f0; background-color: #fff8f8; }
-pre dfn,
-code dfn { color: #333388; font-weight: bold; }
-pre var,
-code var { color: #5555aa; font-weight: normal; }
-pre kbd,
-code kbd { color: #bb4433; font-weight: normal; }
-pre samp,
-code samp { color: #998877; font-weight: normal; font-style: italic; }
-pre span,
-code span { outline: 1px solid #9acd32; }
-pre.badcode span,
-code.badcode span { outline: 1px solid #dc143c; }
+pre { margin: 10px 0; padding: 5px; border: 1px solid #DCDCDC; border-radius: 2px; background: #F8F8F8; color: #333; white-space: pre-wrap; word-wrap: break-word; }
+
 p.referral { margin: 10px 0 0; }
 p.comment { margin: 0 0 10px; color: #666; font-size: 12px; }
 
