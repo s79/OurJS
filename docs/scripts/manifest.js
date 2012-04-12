@@ -246,9 +246,15 @@ var manifest = {
   ],
   'Animation': [
     'Animation',
-    'Animation.options',
+    'Animation.prototype.addClip',
     'Animation.prototype.play',
-    'Animation.prototype.stop'
+    'Animation.prototype.reverse',
+    'Animation.prototype.pause',
+    'Animation.prototype.stop',
+    'Fx.Base',
+    'Fx.Morph',
+    'Fx.Fade',
+    'Fx.Highlight'
   ],
   'components.Switcher': [
     'components.Switcher',

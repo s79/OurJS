@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Animation</title>
 <script src="../dev.js"></script>
+<link rel="stylesheet" href="../../coding_standards/reset.css">
 <style>
 body { margin: 10px; padding: 0; font: 12px Verdana; }
 h1 { height: 30px; margin: 0; padding: 0; font: 24px/30px Verdana; }
@@ -24,6 +25,70 @@ button { font: 12px Verdana; }
 </head>
 <body>
 <h1>Animation</h1>
+<!-- example_1 { -->
+<style>
+#ex_1 { width: 200px; height: 20px; margin: 2px 0; padding: 1px 2px; border: 1px solid gray; background: gold; font: 14px/20px Verdana; text-align: center; }
+</style>
+<div id="ex_1">TEST</div>
+<script>
+execute(function($) {
+  var $div = $('#ex_1')
+      .on(
+      'click', function() {
+        this.morph({
+          width: '+=100',
+          height: '50px',
+          padding: 20,
+          borderWidth: 10,
+          fontSize: 35,
+          lineHeight: 50,
+          backgroundColor: 'tomato',
+          color: 'white'
+        }, {
+          delay: 100,
+          duration: 1000,
+          timingFunction: 'bounceIn'
+        });
+      });
+});
+</script>
+<!-- } example_1 -->
+
+<!-- example_2 { -->
+<style>
+#menu li { width: 200px; height: 30px; margin: 2px; padding-left: 10px; border-left: 1px solid white; background: mediumorchid; font: 14px/30px Verdana; cursor: default; }
+</style>
+<ul id="menu">
+  <li>菜单一</li>
+  <li>菜单二</li>
+  <li>菜单三</li>
+  <li>菜单四</li>
+  <li>菜单五</li>
+</ul>
+<script>
+execute(function($) {
+  var menus = $('#menu').getChildren();
+  menus.forEach(function($menu) {
+    var animation = new Animation()
+        .addClip(
+        new Fx.Morph($menu, {
+          borderLeftWidth: 10,
+          backgroundColor: 'green',
+          color: 'white'
+        }, 0, 200, 'ease'));
+    $menu.on(
+        'mouseenter', function(e) {
+          animation.play();
+        })
+        .on('mouseleave', function(e) {
+          animation.reverse();
+        });
+  });
+});
+</script>
+<!-- } example_2 -->
+
+
 <div id="test1">
   <p id="msg"></p>
   <button id="highlight">highlight</button>
@@ -41,7 +106,8 @@ button { font: 12px Verdana; }
   <div id="canvas"></div>
   <p>点击 = 清除，Ctrl + 点击 = 一起跑，Shift + 点击 = 分别跑。</p>
   <button style="background-color: white;">linear</button>
-  <button style="background-color: gold;">bounce</button>
+  <button style="background-color: silver;">bounceIn</button>
+  <button style="background-color: gold;">bounceOut</button>
   <br>
   <button style="background-color: orangered;">ease</button>
   <button style="background-color: greenyellow;;">easeIn</button>
@@ -201,7 +267,7 @@ execute(function($) {
 
 //--------------------------------------------------[TEST 1]
   var $highlight = $('#highlight');
-  var highlight = new Animation().addClip(new Fx.Highlight($('#layer'), '#FFFF00', 3, 0, 1000, 'easeIn'));
+  var highlight = new Animation().addClip(new Fx.Highlight($('#layer'), '#FFFF00', 2, 0, 500, 'easeIn'));
   $highlight.on('click', function() {
     highlight.stop().play();
   });
@@ -231,41 +297,7 @@ execute(function($) {
 
 //-------------------------[animation]
   window.animation = new Animation()
-      .on(
-      'begin', function() {
-        frames = 0;
-        $layer.empty().innerHTML = 'Moving...';
-//        console.log('BEGIN', this.timestamp);
-      })
-      .on(
-      'step', function() {
-        frames++;
-//        console.log(this.timeline);
-//        console.log('STEP', this.timestamp);
-      })
-      .on(
-      'pause', function() {
-//        console.log('PAUSE', this.timestamp);
-      })
-      .on(
-      'finish', function() {
-        $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>'));
-//        $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').animate(null, {duration: 1000}).fadeOut({onEnd: function() {
-//          this.remove();
-//        }}));
-//        console.log('FINISH', this.timestamp);
-//        reverse ? animation.reverse() : animation.play();
-//        reverse = !reverse;
-      })
-      .on(
-      'stop', function() {
-        console.log('STOP', this.timestamp);
-      })
-      .on(
-      'statuschange', function(e) {
-        console.log('STATUS: ' + ' '.repeat(10), e.from, e.to, '[' + this.status + ']');
-      })
-//      .addClip(new Fx.Fade($layer, 'in', 0, 1000, 'linear'))
+      .addClip(new Fx.Fade($layer, 'in', 0, 1000, 'linear'))
 //      .addClip(new Fx.Highlight($layer, '#FFFF00', 1, 0, 1000, 'easeIn'))
 //      .addClip(
 //      new Fx.Morph($layer, {
@@ -287,7 +319,44 @@ execute(function($) {
         color: '#C00000',
         fontSize: 30,
         lineHeight: 300
-      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'));
+      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
+      .on(
+      'play', function() {
+        frames = 0;
+        $layer.empty().innerHTML = 'Moving...';
+        console.log('PLAY');
+      })
+      .on(
+      'reverse', function() {
+        console.log('REVERSE');
+      })
+      .on(
+      'step', function() {
+        frames++;
+//        console.log('STEP');
+      })
+      .on(
+      'playfinish', function() {
+        $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>'));
+//        $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').animate(null, {duration: 1000}).fadeOut({onEnd: function() {
+//          this.remove();
+//        }}));
+        console.log('PLAYFINISH');
+//        reverse ? animation.reverse() : animation.play();
+//        reverse = !reverse;
+      })
+      .on(
+      'reversefinish', function() {
+        console.log('REVERSEFINISH');
+      })
+      .on(
+      'pause', function() {
+        console.log('PAUSE');
+      })
+      .on(
+      'stop', function() {
+        console.log('STOP');
+      });
 
 //-------------------------[controls]
   document.on('keydown', function(e) {
