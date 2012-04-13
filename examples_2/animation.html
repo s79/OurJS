@@ -111,12 +111,11 @@ execute(function($) {
 button { padding: 2px 5px; }
 #test1,
 #test2,
-#test3 { position: relative; width: 500px; margin: 5px; padding: 30px; background: #F8F8F8; font: 12px Verdana; text-align: center; }
+#test3 { width: 500px; margin: 5px; padding: 30px; background: #F8F8F8; font: 12px Verdana; text-align: center; }
 #msg { height: 15px; text-align: left; }
 #ani,
 #ani { left: 1200px; top: -150px; height: 150px; z-index: 1; background: #c0c0c0; line-height: 75px; }
 #ani p { margin: 0; }
-#layer { z-index: 2; }
 #canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
 #canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
 #layer.highlight { box-shadow: 0 0 25px black; }
@@ -128,13 +127,14 @@ button { padding: 2px 5px; }
   <button id="fade_out">fadeOut</button>
 </div>
 <style>
-#layer { position: absolute; left: 450px; top: 10px; width: 200px; height: 50px; background: #c0c0c0; font: 14px/50px Verdana; text-align: center; }
+#test2 { position: relative; }
+#layer { position: absolute; z-index: 2; left: 500px; top: 0; width: 200px; height: 50px; background: #c0c0c0; font: 14px/50px Verdana; text-align: center; }
 #panel { position: relative; width: 500px; }
 #number,
 #type { position: absolute; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; }
 #number { left: 0; text-align: right; }
 #type { right: 0; text-align: left; }
-#timeline { position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; }
+#timeline { position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left; }
 </style>
 <div id="test2">
   <div id="layer"></div>
@@ -147,7 +147,8 @@ button { padding: 2px 5px; }
   <button id="pause2">pause</button>
   <button id="play2">play</button>
   <button id="stop2">stop</button>
-  <p>键盘左 = reverse，键盘下 = pause，键盘右 = play，键盘上 = stop，点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
+  <p>键盘左 = reverse，键盘下 = pause，键盘右 = play，键盘上 = stop。</p>
+  <p>点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
 </div>
 <script>
 execute(function($) {
@@ -172,11 +173,10 @@ execute(function($) {
       }, 1400, 0, 'linear'))
       .addClip(
       new Fx.Morph($layer, {
-        left: 475,
         top: 100,
         height: 300,
         color: '#C00000',
-        fontSize: 30,
+        fontSize: 50,
         lineHeight: 300
       }, 0, 2000, 'cubicBezier(.25,1.25,.75,-0.25)'))
       .on(
@@ -257,7 +257,9 @@ execute(function($) {
   });
   var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5);
   $timeline.append($time);
-  animation.addClip(new Fx.Morph($time, {left: length - 1}, 0, duration, 'linear'));
+  animation.addClip(new Fx.Morph($time, {left: length - 1}, 0, duration, 'linear')).on('stop', function() {
+    $time.setStyle('left', 0);
+  });
 
   //-------------------------[controls]
   document.on('keydown', function(e) {

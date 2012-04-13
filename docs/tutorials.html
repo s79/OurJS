@@ -21,6 +21,14 @@
   <ul>
     <li><em>如何扩展 DOM 元素？</em></li>
     <li><em>如何处理 Event 相关内容？</em></li>
+    <li>
+      <p>监听器的 this 为监听元素。</p>
+      <p>监听器均有唯一的参数——事件对象（特殊事件 —— window 的 beforeunload 事件和 document 的 domready 事件除外）。</p>
+      <p>统一事件对象，提供 DOM3 的方法。</p>
+      <p>监听器的调用顺序与绑定时一致。</p>
+      <p>可以使用 on 方法一次添加多个事件。</p>
+      <p>每个添加的监听器都可以有其自己的 name，使用 off 移除时指定 name 可以移除对应的监听器，若只指定 type 则移除该类型的所有监听器。</p>
+    </li>
     <li><em>Number 和 Math 对象的区别和联系？</em></li>
     <li><em>组件机制？</em></li>
     <li><em>代码模块化的手段？</em></li>
