@@ -45,7 +45,7 @@ execute(function($) {
 #ex_1 { width: 50px; height: 50px; padding: 2px; border: 0 solid gray; background: gold; line-height: 50px; text-align: center; }
 </style>
 <fieldset>
-  <legend>可以为数字值、长度值、颜色值设置渐变。</legend>
+  <legend>可以为数字值、长度值、颜色值设置渐变。支持队列。</legend>
   <div id="ex_1">A</div>
 </fieldset>
 <pre></pre>
@@ -64,7 +64,10 @@ execute(function($) {
     }, {
       delay: 0,
       duration: 1000,
-      timingFunction: 'bounceIn'
+      timingFunction: 'bounceIn',
+      callback: function() {
+        this.innerText += 'A';
+      }
     });
   });
 });
@@ -114,7 +117,7 @@ button { padding: 2px 5px; }
 #test3 { width: 500px; margin: 5px; padding: 30px; background: #F8F8F8; font: 12px Verdana; text-align: center; }
 #msg { height: 15px; text-align: left; }
 #ani,
-#ani { left: 1200px; top: -150px; height: 150px; z-index: 1; background: #c0c0c0; line-height: 75px; }
+#ani { position: absolute; left: 1200px; top: -150px; height: 150px; z-index: 1; background: #c0c0c0; line-height: 75px; }
 #ani p { margin: 0; }
 #canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
 #canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
@@ -138,6 +141,10 @@ button { padding: 2px 5px; }
 </style>
 <div id="test2">
   <div id="layer"></div>
+  <div id="ani">
+    <p><span id="ani_count_1"></span> <span id="ani_info_1"></span></p>
+    <p><span id="ani_count_2"></span> <span id="ani_info_2"></span></p>
+  </div>
   <div id="panel">
     <div id="number"></div>
     <div id="type"></div>
@@ -193,7 +200,7 @@ execute(function($) {
       })
       .on(
       'playfinish', function() {
-//        $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').animate(null, {duration: 1000}).fadeOut({onEnd: function() {
+//        $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').morph(null, {duration: 1000}).fadeOut({onEnd: function() {
 //          this.remove();
 //        }}));
         $layer.innerHTML = 'PLAYFINISH';
@@ -317,10 +324,6 @@ execute(function($) {
 #ani_count_1,
 #ani_count_2 { float: left; font-size: 12px; background: black; color: white; }
 </style>
-<div id="ani">
-  <p><span id="ani_count_1"></span> <span id="ani_info_1"></span></p>
-  <p><span id="ani_count_2"></span> <span id="ani_info_2"></span></p>
-</div>
 <script>
 execute(function($) {
   var $ani = $('#ani');
@@ -330,50 +333,45 @@ execute(function($) {
   var $aniInfo2 = $('#ani_info_2');
 
   function chainTest() {
+//    $aniCount1.innerText = $ani.getAnimationQueue().length;
+    $aniInfo1.innerText = '1';
     // 默认队列。
-    $ani.animate({
+    $ani.morph({
       left: 600,
       top: 30
     }, {
       duration: 500,
-      transition: 'easeInOut',
-      onBeforeStart: function() {
-      },
-      onStart: function() {
-        $aniCount1.innerText = this.getAnimationQueue().length;
-        $aniInfo1.innerText = '1';
-      },
-      onFinish: function() {
+      timingFunction: 'easeInOut',
+      callback: function() {
         $aniInfo1.innerText = '=1=';
+//        $aniCount1.innerText = this.getAnimationQueue().length;
+        $aniInfo1.innerText = 'WAIT';
       }
     })
-        .animate(null, {
-          duration: 500,
-          transition: 'easeOutIn',
-          onStart: function() {
-            $aniCount1.innerText = this.getAnimationQueue().length;
-            $aniInfo1.innerText = 'WAIT';
-          },
-          onFinish: function() {
+        .morph({}, {
+          delay: 500,
+          duration: 0,
+          timingFunction: 'easeOutIn',
+          callback: function() {
             $aniInfo1.innerText = '=WAIT=';
+//            $aniCount1.innerText = this.getAnimationQueue().length;
+            $aniInfo1.innerText = '2';
           }
         })
-        .animate({
+        .morph({
           left: 400,
           top: 100
         }, {
+          delay: 200,
           duration: 500,
-          transition: 'cubicBezier(.4,-0.35,.4,1)',
-          onStart: function() {
-            $aniCount1.innerText = this.getAnimationQueue().length;
-            $aniInfo1.innerText = '2';
-          },
-          onFinish: function() {
+          timingFunction: 'cubicBezier(.4,-0.35,.4,1)',
+          callback: function() {
             $aniInfo1.innerText = '=OVER=';
+//            $aniCount1.innerText = this.getAnimationQueue() ? this.getAnimationQueue().length : 0;
           }
         })
-      // 新队列。
-        .animate({
+//      // 新队列。
+        .morph({
           width: 350,
           height: 80,
           fontSize: 25,
@@ -383,14 +381,14 @@ execute(function($) {
           opacity: .3
         }, {
           duration: 600,
-          transition: 'linear',
-          onStart: function() {
-            $aniCount2.innerText = this.getAnimationQueue('2').length;
-            $aniInfo2.innerText = '1';
-          },
-          onFinish: function() {
+          timingFunction: 'linear',
+//          onStart: function() {
+//            $aniCount2.innerText = this.getAnimationQueue('2').length;
+//            $aniInfo2.innerText = '1';
+//          },
+          callback: function() {
             $aniInfo2.innerText = '=1= layer run';
-            $('#layer').animate({
+            $('#layer').morph({
               left: 400,
               top: 100,
               width: 200,
@@ -400,29 +398,29 @@ execute(function($) {
               opacity: .5
             }, {
               duration: 500,
-              transition: 'cubicBezier(.6,0,.6,1.35)',
-              onStart: function() {
+              timingFunction: 'cubicBezier(.6,0,.6,1.35)',
+//              onStart: function() {
 //              this.innerText = 'GO';
-              },
-              onFinish: function() {
-//              this.innerText = '';
+//              },
+              callback: function() {
+                this.innerText = '';
+                $aniInfo2.innerText = 'WAIT';
               }
             });
           },
           queueName: '2'
         })
-        .animate(null, {
-          duration: 500,
-          onStart: function() {
-            $aniCount2.innerText = this.getAnimationQueue('2').length;
-            $aniInfo2.innerText = 'WAIT';
-          },
-          onFinish: function() {
+        .morph({}, {
+          delay: 500,
+          duration: 0,
+          callback: function() {
             $aniInfo2.innerText = '=WAIT=';
+//            $aniCount2.innerText = this.getAnimationQueue('2').length;
+            $aniInfo2.innerText = '2';
           },
-          queueName: '2'
+          resetQueue: true
         })
-        .animate({
+        .morph({
           height: 150,
           width: 200,
           fontSize: 40,
@@ -432,12 +430,9 @@ execute(function($) {
           opacity: 1
         }, {
           duration: 300,
-          transition: 'easeIn',
-          onStart: function() {
-            $aniCount2.innerText = this.getAnimationQueue('2').length;
-            $aniInfo2.innerText = '2';
-          },
-          onFinish: function() {
+          timingFunction: 'easeIn',
+          callback: function() {
+//            $aniCount2.innerText = this.getAnimationQueue('2') ? this.getAnimationQueue('2').length : 0;
             $aniInfo2.innerText = '=OVER=';
 //          chainTest();
           },
@@ -459,28 +454,14 @@ execute(function($) {
   });
 
 //--------------------------------------------------[TEST 1]
-  var $highlight = $('#highlight');
-  var highlight = new Animation().addClip(new Fx.Highlight($('#layer'), '#FFFF00', 2, 0, 500, 'easeIn'));
-  $highlight.on('click', function() {
-    highlight.stop().play();
+  $('#highlight').on('click', function() {
+    $('#layer').highlight({color: 'aqua', times: 2, duration: 500});
   });
   $('#fade_in').on('click', function() {
-    $layer.fadeIn({
-      onBeforeStart: function() {
-        return true;
-      },
-      onProcess: function() {
-        console.log(this.getStyle('opacity'));
-      }
-    });
-    setTimeout(function() {
-      console.log(JSON.stringify($layer.getAnimationQueue()));
-    }, 150);
+    $('#layer').fadeIn();
   });
   $('#fade_out').on('click', function() {
-    $layer.fadeOut(/*{onBeforeStart: function() {
-     //    return false;
-     }}*/);
+    $('#layer').fadeOut();
   });
 
 //--------------------------------------------------[TEST 3]

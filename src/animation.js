@@ -645,121 +645,82 @@
    *   Element.prototype.morph
    *   Element.prototype.fade
    *   Element.prototype.highlight
-   *   Element.prototype.stopAnimate
    */
-  // 保存队列。
+  // 简单动画的队列。
   var queuePool = {};
 
-//--------------------------------------------------[Element.prototype.morph]
-  // 播放指定队列的动画。
-  // queue.currentAnimation 为当前正在播放的动画，queue 数组中的内容为排队的动画。
-  var playAnimationQueue = function(queueId) {
-    var queue = queuePool[queueId];
-    if (!queue) {
-      return;
+  // 播放指定的队列。
+  var playQueue = function(uid) {
+    var queue = queuePool[uid];
+    if (queue) {
+      // 要播放的动画的参数。
+      var item = queue[0];
+      // 开始播放动画。
+      queue.currentAnimation = new Animation().addClip(item[0])
+          .on(
+          'playfinish', function() {
+            queue.shift();
+            item[1]();
+            if (queue.length) {
+              playQueue(uid);
+            } else {
+              delete queue.currentAnimation;
+              delete queuePool[uid];
+            }
+          })
+          .play();
     }
-//    console.log('[playAnimationQueue] queue.length:', queue.length);
-    if (!queue.length) {
-      delete queuePool[queueId];
-      return;
-    }
-    // 要播放的动画的参数。
-    var item = queue.shift();
-    // 开始播放动画。
-    queue.currentAnimation = new Animation().addClip(item[0])
-        .on(
-        'playfinish', function() {
-          item[1]();
-          delete queue.currentAnimation;
-          playAnimationQueue(queueId);
-        })
-        .play();
   };
 
+  // 在指定的队列中添加一个动画。
+  var addToQueue = function(uid, clip, callback) {
+    var queue = queuePool[uid];
+    if (queue) {
+      queue.push([clip, callback]);
+    } else {
+      if (queue && queue.currentAnimation) {
+        queue.currentAnimation.stop();
+      }
+      queuePool[uid] = [
+        [clip, callback]
+      ];
+      playQueue(uid);
+    }
+  };
+
+//--------------------------------------------------[Element.prototype.morph]
   /**
-   * 在元素的动画队列中添加一个动画效果。
+   * 在当前元素的动画队列中添加一个渐变效果。
    * @name Element.prototype.morph
    * @function
-   * @param {Object} styles 目标样式，元素将向指定的目标样式过渡。目标样式包含一条或多条要设置的样式声明，具体如下：
-   *   1. 与 setStyles 的参数一致，格式为 {propertyName: propertyValue, ...} 的对象。
-   *   2. propertyName 只支持 camel case，并且不能使用复合属性。
-   *   3. propertyValue 若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
-   *   4. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
-   * @param {Object} [options] 动画选项，与 Animation 的 options 参数基本一致，区别是：
-   *   1. 增加 onPlay 回调选项。
-   *   2. onStart、onPlay、(TODO: onStop、)onFinish 的 this 均为调用本方法的元素。
-   *   3. 提供了一个 queueName 属性用来更方便的控制队列。
-   * @param {Object} options.callback 播放完成后的回调。
-   * @param {Object} options.delay 延时。
-   * @param {Object} options.duration 播放时间。
+   * @param {Object} styles 目标样式，元素将向指定的目标样式渐变。目标样式包含一条或多条要设置的样式声明，与 setStyles 的参数的差异如下：
+   *   1. 不能使用复合属性。  // TODO: 待支持。
+   *   2. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
+   * @param {Object} [options] 动画选项。
+   * @param {Object} options.delay 延时，默认为 0，即马上开始播放。
+   * @param {Object} options.duration 播放时间，单位是毫秒，默认为 400。
    * @param {Object} options.timingFunction 控速函数名称或表达式。
+   * @param {Object} options.callback 播放完成后的回调。
    * @returns {Element} 调用本方法的元素。
    * @description
    *   队列是指将需要较长时间完成的多个指令排序，以先进先出的形式逐个执行这些指令。
    *   在元素上调用本方法添加动画时：
    *     - 若该元素并未播放动画，新添加的动画会直接开始播放。
    *     - 若该元素正在播放动画，新添加的动画将被添加到队列末端，在前一个动画播放完毕后自动播放。
-   *   给不同元素添加的动画永远有不同的队列，给相同元素添加的动画默认有相同的队列，但可以通过 options.queueName 来指定新队列的名称。
-   *   若需要连接不同元素的动画队列，请配合动画参数 options.onFinish 来实现。
+   *   一个元素对应一个队列。即给不同元素添加的动画永远有不同的队列，给相同元素添加的动画永远有相同的队列。
+   *   所有 Element.prototype 上提供的动画相关的方法均为实现动画的简单方式，它们只是一个捷径，可以解决大部分需求。若需要更复杂的动画效果，请考虑使用 Animation 对象实现。
    */
   Element.prototype.morph = function(styles, options) {
     options = options || {};
     var $element = this;
-    var queueName = options.queueName;
-    var queueId = $element.uid + (queueName ? ':' + queueName : '');
-    var queue = queuePool[queueId];
-    var clip = new Fx.Morph($element, styles, options.delay || 0, options.duration || 400, options.timingFunction || 'ease');
-    var callback = function() {
-      options.callback && options.callback.call($element);
-    };
-    if (queue) {
-      queue.push([clip, callback]);
-    } else {
-      queuePool[queueId] = [
-        [clip, callback]
-      ];
-      playAnimationQueue(queueId);
-    }
+    addToQueue(
+        $element.uid,
+        new Fx.Morph($element, styles, options.delay || 0, options.duration || 400, options.timingFunction || 'ease'),
+        function() {
+          options.callback && options.callback.call($element);
+        }
+    );
     return $element;
-  };
-
-//--------------------------------------------------[Element.prototype.stopAnimate]
-  /**
-   * 停止播放指定的动画队列。
-   * @name Element.prototype.stopAnimate
-   * @function
-   * @param {string} [queueName] 队列名。
-   * @returns {Element} 调用本方法的元素。
-   */
-  Element.prototype.stopAnimate = function(queueName) {
-    var queueId = this.uid + (queueName ? ':' + queueName : '');
-    var queue = queuePool[queueId];
-    if (queue) {
-      if (queue.currentAnimation) {
-        queue.currentAnimation.stop();
-        delete queue.currentAnimation;
-      }
-      queue.length = 0;
-      delete queuePool[queueId];
-    }
-    return this;
-  };
-
-//--------------------------------------------------[Element.prototype.getAnimationQueue]
-  /**
-   * 获取指定的动画队列，队里中仅包含尚未播放的动画效果。如果队列为空，将返回 null。
-   * @name Element.prototype.getAnimationQueue
-   * @function
-   * @param {string} [queueName] 队列名。
-   * @returns {Array} 指定的动画队列。
-   * @description
-   *   可以通过此方法判断指定的动画队列是否正在播放。返回数组即正在播放，数组的 currentAnimation 属性为播放中的动画，数组中的内容为排队的动画。
-   *   可以通过操作这个队列改变动画的播放行为。
-   *   队列格式：[Element element, Object styles, Object options]
-   */
-  Element.prototype.getAnimationQueue = function(queueName) {
-    var queueId = this.uid + (queueName ? ':' + queueName : '');
-    return queuePool[queueId] || null;
   };
 
 //--------------------------------------------------[Element.prototype.fadeIn]
@@ -772,23 +733,15 @@
    */
   Element.prototype.fadeIn = function(options) {
     options = options || {};
-    var styles = {};
-    var onBeforeStart = options.onBeforeStart;
-    options.onBeforeStart = function() {
-      if (this.offsetWidth) {
-        return false;
-      }
-      var returnValue;
-      if (onBeforeStart) {
-        returnValue = onBeforeStart.call(this);
-      }
-      if (returnValue !== false) {
-        styles.opacity = this.getStyle('opacity');
-        this.setStyles({'display': 'block', 'opacity': 0});
-      }
-      return returnValue;
-    };
-    return this.animate(styles, options);
+    var $element = this;
+    addToQueue(
+        $element.uid,
+        new Fx.Fade($element, 'in', options.delay || 0, options.duration || 200, options.timingFunction || 'easeIn'),
+        function() {
+          options.callback && options.callback.call($element);
+        }
+    );
+    return $element;
   };
 
 //--------------------------------------------------[Element.prototype.fadeOut]
@@ -801,29 +754,43 @@
    */
   Element.prototype.fadeOut = function(options) {
     options = options || {};
-    var opacity;
-    var onBeforeStart = options.onBeforeStart;
-    options.onBeforeStart = function() {
-      if (!this.offsetWidth) {
-        return false;
-      }
-      var returnValue;
-      if (onBeforeStart) {
-        returnValue = onBeforeStart.call(this);
-      }
-      if (returnValue !== false) {
-        opacity = this.getStyle('opacity');
-      }
-      return returnValue;
-    };
-    var onFinish = options.onFinish;
-    options.onFinish = function() {
-      this.setStyles({'display': 'none', 'opacity': opacity});
-      if (onFinish) {
-        return onFinish.call(this);
-      }
-    };
-    return this.animate({opacity: 0}, options);
+    var $element = this;
+    addToQueue(
+        $element.uid,
+        new Fx.Fade($element, 'out', options.delay || 0, options.duration || 200, options.timingFunction || 'easeOut'),
+        function() {
+          options.callback && options.callback.call($element);
+        }
+    );
+    return $element;
+  };
+
+//--------------------------------------------------[Element.prototype.highlight]
+  /**
+   * 高亮元素。
+   * @name Element.prototype.highlight
+   * @function
+   * @param {Object} [options] 动画选项，请参考 Element.prototype.morph 的 options 参数。
+   * @returns {Element} 调用本方法的元素。
+   */
+  Element.prototype.highlight = function(options) {
+    var $element = this;
+    var queue;
+    var animation;
+    if ((queue = queuePool[$element.uid]) && (animation = queue.currentAnimation) && animation.clips[0] instanceof Fx.Highlight) {
+      // 特殊处理：如果当前元素正在播放一个高亮动画，则重复播放该动画而不是新建一个，以避免高亮后的背景色与预设值不符。
+      animation.stop().play();
+    } else {
+      options = options || {};
+      addToQueue(
+          $element.uid,
+          new Fx.Highlight($element, options.color || 'yellow', options.times || 2, options.delay || 0, options.duration || 400, options.timingFunction || 'easeIn'),
+          function() {
+            options.callback && options.callback.call($element);
+          }
+      );
+    }
+    return $element;
   };
 
 })();

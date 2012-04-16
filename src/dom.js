@@ -7,7 +7,7 @@
   // 文档根元素。
   var html = document.documentElement;
 
-  // 将字符串从 Hyphenate 转换为 CamelCase。
+  // 将字符串从 Hyphenate 转换为 CamelCase。  // TODO: 所有用到此转换的部分考虑仅支持 Camel Case。
   var HYPHENATE_FIRST_LETTER = /-([a-z])/g;
   var hyphenateToCamelCase = function(string) {
     return string.replace(HYPHENATE_FIRST_LETTER, function(_, letter) {
