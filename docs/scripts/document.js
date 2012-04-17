@@ -241,7 +241,6 @@ execute(function($) {
       [
         'window',
         'document',
-        'HTMLElement',
         'Element',
         'Event'
       ].forEach(function(name) {

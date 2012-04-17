@@ -21,13 +21,13 @@ var manifest = {
   'Array': [
     '<#>ES5',
     'Array.isArray',
+    'Array.prototype.indexOf',
+    'Array.prototype.lastIndexOf',
+    'Array.prototype.every',
+    'Array.prototype.some',
     'Array.prototype.forEach',
     'Array.prototype.map',
     'Array.prototype.filter',
-    'Array.prototype.every',
-    'Array.prototype.some',
-    'Array.prototype.indexOf',
-    'Array.prototype.lastIndexOf',
 //    'Array.prototype.reduce',
 //    'Array.prototype.reduceRight',
     '<#>自定义扩展',
@@ -139,15 +139,13 @@ var manifest = {
     'document.off',
     'document.fire'
   ],
-  'HTMLElement': [
-    '<#>HTML5',
-    'HTMLElement.prototype.innerText',
-    'HTMLElement.prototype.outerText',
-    'HTMLElement.prototype.outerHTML'
-  ],
   'Element': [
     '<#>扩展属性/方法',
     'Element.prototype',
+    '<#>HTML5',
+    'Element.prototype.innerText',
+    'Element.prototype.outerText',
+    'Element.prototype.outerHTML',
     '<#>查找元素',
     'Element.prototype.find',
     '<#>处理类',
@@ -191,11 +189,9 @@ var manifest = {
     'Element.prototype.off',
     'Element.prototype.fire',
     '<#>动画效果',
-    'Element.prototype.animate',
-    'Element.prototype.stopAnimate',
-    'Element.prototype.getAnimationQueue',
-    'Element.prototype.fadeIn',
-    'Element.prototype.fadeOut'
+    'Element.prototype.morph',
+    'Element.prototype.fade',
+    'Element.prototype.highlight'
   ],
   'Event': [
     'Event.prototype.originalEvent',

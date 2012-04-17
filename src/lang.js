@@ -70,9 +70,19 @@
    */
 
 //--------------------------------------------------[Object.keys]
-  // http://es5.github.com/#x15.2.3.14
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
-  // http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
+  /**
+   * 获取对象的键列表。
+   * @name Object.keys
+   * @function
+   * @param {Object} object 要获取键列表的对象。
+   * @returns {Array} 对象的键列表。
+   * @example
+   *   Object.keys({a: 97, b: 98, c: 99});
+   *   // ['a', 'b', 'c']
+   * @see http://es5.github.com/#x15.2.3.14
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
+   * @see http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
+   */
   if (!Object.keys) {
     Object.keys = function(object) {
       if (typeof object != 'object' && typeof object != 'function' || object === null) {
@@ -99,17 +109,46 @@
   }
 
 //--------------------------------------------------[Array.isArray]
-  // http://es5.github.com/#x15.4.3.2
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
+  /**
+   * 检查提供的值是否为数组。
+   * @name Array.isArray
+   * @function
+   * @param {*} value 提供的值。
+   * @returns {boolean} 检查结果。
+   * @example
+   *   Array.isArray([]);
+   *   // true
+   * @see http://es5.github.com/#x15.4.3.2
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
+   */
   if (!Array.isArray) {
-    Array.isArray = function(obj) {
-      return TO_STRING.call(obj) === '[object Array]';
+    Array.isArray = function(value) {
+      return TO_STRING.call(value) === '[object Array]';
     };
   }
 
 //--------------------------------------------------[Array.prototype.indexOf]
-  // http://es5.github.com/#x15.4.4.14
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/indexOf
+  /**
+   * 返回数组中第一次出现指定的值的索引。
+   * @name Array.prototype.indexOf
+   * @function
+   * @param {*} searchElement 指定的值。
+   * @param {number} [fromIndex] 在数组中的指定索引开始查找，默认为 0。
+   *   如果指定的值大于等于数组的长度，则仍使用数组的长度。
+   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 fromIndex + length（数组的长度）作为查找起始点，如果这个结果仍为负数，则使用 0 作为最终结果。
+   * @returns {number} 索引值，如果数组中不包含指定的值，则返回 -1。
+   * @example
+   *   [1, 2, 3, 2, 1].indexOf(2);
+   *   // 1
+   *   [1, 2, 3, 2, 1].indexOf(2, 2);
+   *   // 3
+   *   [1, 2, 3, 2, 1].indexOf(2, -3)
+   *   // 3
+   *   [1, 2, 3, 2, 1].indexOf(8)
+   *   // -1
+   * @see http://es5.github.com/#x15.4.4.14
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/indexOf
+   */
   if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function(searchElement) {
       var object = toObject(this);
@@ -135,8 +174,27 @@
   }
 
 //--------------------------------------------------[Array.prototype.lastIndexOf]
-  // http://es5.github.com/#x15.4.4.15
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/lastIndexOf
+  /**
+   * 返回数组中最后一次出现指定的值的索引。
+   * @name Array.prototype.lastIndexOf
+   * @function
+   * @param {*} searchElement 指定的值。
+   * @param {number} [fromIndex] 在数组中的指定索引开始查找，默认为数组的长度。
+   *   如果指定的值大于等于数组的长度，则仍使用数组的长度。
+   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 (fromIndex + 数组的长度) 作为查找起始点，如果这个结果仍为负数，则使用 0 作为最终结果。
+   * @returns {number} 索引值，如果数组中不包含指定的值，则返回 -1。
+   * @example
+   *   [1, 2, 3, 2, 1].lastIndexOf(2);
+   *   // 3
+   *   [1, 2, 3, 2, 1].lastIndexOf(2, 2);
+   *   // 1
+   *   [1, 2, 3, 2, 1].lastIndexOf(2, -3)
+   *   // 1
+   *   [1, 2, 3, 2, 1].lastIndexOf(8)
+   *   // -1
+   * @see http://es5.github.com/#x15.4.4.15
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/lastIndexOf
+   */
   if (!Array.prototype.lastIndexOf) {
     Array.prototype.lastIndexOf = function(searchElement) {
       var object = toObject(this);
@@ -162,8 +220,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.every]
-  // http://es5.github.com/#x15.4.4.16
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
+  /**
+   * 检查数组中的所有元素是否都符合某个条件。
+   * @name Array.prototype.every
+   * @function
+   * @param {Function} callback 用来检查的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @returns {boolean} 检查结果。
+   * @example
+   *   [1, 2, 3].every(function(item) {
+   *     return item < 5;
+   *   });
+   *   // true
+   * @see http://es5.github.com/#x15.4.4.16
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
+   */
   if (!Array.prototype.every) {
     Array.prototype.every = function(callback) {
       var object = toObject(this);
@@ -184,8 +257,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.some]
-  // http://es5.github.com/#x15.4.4.17
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/some
+  /**
+   * 检查数组中是否有任一元素符合某个条件。
+   * @name Array.prototype.some
+   * @function
+   * @param {Function} callback 用来检查的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @returns {boolean} 检查结果。
+   * @example
+   *   [1, 2, 3].some(function(item) {
+   *     return item === 2;
+   *   });
+   *   // true
+   * @see http://es5.github.com/#x15.4.4.17
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/some
+   */
   if (!Array.prototype.some) {
     Array.prototype.some = function(callback) {
       var object = toObject(this);
@@ -206,8 +294,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.forEach]
-  // http://es5.github.com/#x15.4.4.18
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/forEach
+  /**
+   * 遍历数组，对数组中的每一个元素都执行一次指定的函数。
+   * @name Array.prototype.forEach
+   * @function
+   * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @example
+   *   var s = '';
+   *   [1, 2, 3].forEach(function(item) {
+   *     s += item;
+   *   });
+   *   s;
+   *   // 123
+   * @see http://es5.github.com/#x15.4.4.18
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/forEach
+   */
   if (!Array.prototype.forEach) {
     Array.prototype.forEach = function(callback) {
       var object = toObject(this);
@@ -227,8 +330,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.map]
-  // http://es5.github.com/#x15.4.4.19
-  // https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/map
+  /**
+   * 对数组中的每一个元素都执行一次回调函数，并返回一个包含这个回调函数的每次执行后的返回值的新数组。
+   * @name Array.prototype.map
+   * @function
+   * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @returns {Array} 包含 callback 的每次执行后的返回值的新数组。
+   * @example
+   *   var a = [1, 2, 3].map(function(item) {
+   *     return item + 10;
+   *   });
+   *   a;
+   *   // [11, 12, 13]
+   * @see http://es5.github.com/#x15.4.4.19
+   * @see https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/map
+   */
   if (!Array.prototype.map) {
     Array.prototype.map = function(callback) {
       var object = toObject(this);
@@ -250,8 +368,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.filter]
-  // http://es5.github.com/#x15.4.4.20
-  // https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/filter
+  /**
+   * 对数组中的每一个元素都执行一次回调函数，并且创建一个新的数组，该数组包含所有回调函数执行后返回值为 true 时对应的原数组元素。
+   * @name Array.prototype.filter
+   * @function
+   * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @returns {Array} 包含所有回调函数执行后返回值为 true 时对应的原数组元素的新数组。
+   * @example
+   *   var a = [1, 2, 3].filter(function(item) {
+   *     return item % 2 === 1;
+   *   });
+   *   a;
+   *   // [1, 3]
+   * @see http://es5.github.com/#x15.4.4.20
+   * @see https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/filter
+   */
   if (!Array.prototype.filter) {
     Array.prototype.filter = function(callback) {
       var object = toObject(this);
@@ -277,8 +410,17 @@
   }
 
 //--------------------------------------------------[String.prototype.trim]
-  // ES5 15.5.4.20
-  // http://blog.stevenlevithan.com/archives/faster-trim-javascript
+  /**
+   * 删除字符串两端的空白符。
+   * @name String.prototype.trim
+   * @function
+   * @returns {string} 删除两端的空白符后的字符串。
+   * @example
+   *   '  hello '.trim();
+   *   // 'hello'
+   * @see http://blog.stevenlevithan.com/archives/faster-trim-javascript
+   * @see http://es5.github.com/#x15.5.4.20
+   */
   if (!String.prototype.trim || WHITESPACES.trim()) {
     var RE_START_WHITESPACES = new RegExp('^[' + WHITESPACES + ']+');
     var RE_END_WHITESPACES = new RegExp('[' + WHITESPACES + ']+$');
@@ -288,8 +430,16 @@
   }
 
 //--------------------------------------------------[Date.now]
-  // ES5 15.9.4.4
-  // http://es5.github.com/#x15.9.4.4
+  /**
+   * 获取系统当前的时间戳。
+   * @name Date.now
+   * @function
+   * @returns {number} 系统当前的时间戳。
+   * @example
+   *   Date.now() === new Date().getTime();
+   *   // true
+   * @see http://es5.github.com/#x15.9.4.4
+   */
   if (!Date.now) {
     Date.now = function() {
       return new Date().getTime();
@@ -406,7 +556,7 @@
    * 检查提供的值是否为有限的数字。
    * @name Number.isFinite
    * @function
-   * @param {*} value 要检查的值。
+   * @param {*} value 提供的值。
    * @returns {boolean} 检查结果。
    * @example
    *   isFinite(null);
@@ -424,7 +574,7 @@
    * 检查提供的值是否为非数字。
    * @name Number.isNaN
    * @function
-   * @param {*} value 要检查的值。
+   * @param {*} value 提供的值。
    * @returns {boolean} 检查结果。
    * @example
    *   isNaN(undefined);
@@ -442,7 +592,7 @@
    * 检查提供的值是否为整数。
    * @name Number.isInteger
    * @function
-   * @param {*} value 要检查的值。
+   * @param {*} value 提供的值。
    * @returns {boolean} 检查结果。
    * @example
    *   Number.isInteger(9007199254740992);
@@ -458,7 +608,7 @@
    * 将提供的值转化为整数。
    * @name Number.toInteger
    * @function
-   * @param {*} value 要转化的值。
+   * @param {*} value 提供的值。
    * @returns {number} 转化结果。
    * @example
    *   Number.toInteger([10.75]);

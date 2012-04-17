@@ -643,7 +643,8 @@
    *
    * 扩展方法：
    *   Element.prototype.morph
-   *   Element.prototype.fade
+   *   Element.prototype.fadeIn
+   *   Element.prototype.fadeOut
    *   Element.prototype.highlight
    */
   // 简单动画的队列。
@@ -655,35 +656,48 @@
     if (queue) {
       // 要播放的动画的参数。
       var item = queue[0];
+      var $element = item[0];
+      var type = item[1];
+      var clip = item[2];
+      var callback = item[3];
+      var onPlayFinish = function() {
+        queue.shift();
+        if (queue.length) {
+          playQueue(uid);
+        } else {
+          delete queuePool[uid];
+        }
+      };
+      // fadeIn/fadeOut 的特殊情况处理。
+      if (type === 'fadeIn' && $element.offsetWidth || type === 'fadeOut' && !$element.offsetWidth) {
+        onPlayFinish();
+        return;
+      }
       // 开始播放动画。
-      queue.currentAnimation = new Animation().addClip(item[0])
-          .on(
-          'playfinish', function() {
-            queue.shift();
-            item[1]();
-            if (queue.length) {
-              playQueue(uid);
-            } else {
-              delete queue.currentAnimation;
-              delete queuePool[uid];
-            }
-          })
-          .play();
+      queue.currentAnimation = new Animation().addClip(clip).on('playfinish', onPlayFinish).on('playfinish', callback).play();
     }
   };
 
   // 在指定的队列中添加一个动画。
-  var addToQueue = function(uid, clip, callback) {
+  var addToQueue = function($element, type, clip, callback) {
+    var uid = $element.uid;
     var queue = queuePool[uid];
     if (queue) {
-      queue.push([clip, callback]);
-    } else {
-      if (queue && queue.currentAnimation) {
-        queue.currentAnimation.stop();
+      // highlight 的特殊情况处理。
+      if (type === 'highlight') {
+        var currentAnimation = queue.currentAnimation;
+        if (queue[queue.length - 1] && queue[queue.length - 1][2] instanceof Fx.Highlight) {
+          if (currentAnimation && currentAnimation.clips[0] instanceof Fx.Highlight) {
+            currentAnimation.stop().play();
+          }
+          return;
+        }
       }
-      queuePool[uid] = [
-        [clip, callback]
-      ];
+    } else {
+      queue = queuePool[uid] = [];
+    }
+    queue.push([$element, type, clip, callback]);
+    if (!queue.currentAnimation) {
       playQueue(uid);
     }
   };
@@ -697,10 +711,10 @@
    *   1. 不能使用复合属性。  // TODO: 待支持。
    *   2. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
    * @param {Object} [options] 动画选项。
-   * @param {Object} options.delay 延时，默认为 0，即马上开始播放。
-   * @param {Object} options.duration 播放时间，单位是毫秒，默认为 400。
-   * @param {Object} options.timingFunction 控速函数名称或表达式。
-   * @param {Object} options.callback 播放完成后的回调。
+   * @param {number} options.delay 延时，默认为 0，即马上开始播放。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
+   * @param {string} options.timingFunction 控速函数名称或表达式。
+   * @param {Function} options.callback 播放完成后的回调。
    * @returns {Element} 调用本方法的元素。
    * @description
    *   队列是指将需要较长时间完成的多个指令排序，以先进先出的形式逐个执行这些指令。
@@ -711,10 +725,11 @@
    *   所有 Element.prototype 上提供的动画相关的方法均为实现动画的简单方式，它们只是一个捷径，可以解决大部分需求。若需要更复杂的动画效果，请考虑使用 Animation 对象实现。
    */
   Element.prototype.morph = function(styles, options) {
-    options = options || {};
     var $element = this;
+    options = options || {};
     addToQueue(
-        $element.uid,
+        $element,
+        'morph',
         new Fx.Morph($element, styles, options.delay || 0, options.duration || 400, options.timingFunction || 'ease'),
         function() {
           options.callback && options.callback.call($element);
@@ -725,18 +740,23 @@
 
 //--------------------------------------------------[Element.prototype.fadeIn]
   /**
-   * 让元素渐显。
+   * 在当前元素的动画队列中添加一个淡入效果。
    * @name Element.prototype.fadeIn
    * @function
-   * @param {Object} [options] 动画选项，请参考 Element.prototype.morph 的 options 参数。
+   * @param {Object} [options] 动画选项。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {Function} options.callback 播放完成后的回调。
    * @returns {Element} 调用本方法的元素。
+   * @description
+   *   当前已被渲染的元素不能执行淡入效果。
    */
   Element.prototype.fadeIn = function(options) {
-    options = options || {};
     var $element = this;
+    options = options || {};
     addToQueue(
-        $element.uid,
-        new Fx.Fade($element, 'in', options.delay || 0, options.duration || 200, options.timingFunction || 'easeIn'),
+        $element,
+        'fadeIn',
+        new Fx.Fade($element, 'in', 0, options.duration || 200, 'easeIn'),
         function() {
           options.callback && options.callback.call($element);
         }
@@ -746,18 +766,23 @@
 
 //--------------------------------------------------[Element.prototype.fadeOut]
   /**
-   * 让元素渐隐。
+   * 在当前元素的动画队列中添加一个淡出效果。
    * @name Element.prototype.fadeOut
    * @function
-   * @param {Object} [options] 动画选项，请参考 Element.prototype.morph 的 options 参数。
+   * @param {Object} [options] 动画选项。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {Function} options.callback 播放完成后的回调。
    * @returns {Element} 调用本方法的元素。
+   * @description
+   *   当前并未被渲染的元素不能执行淡出效果。
    */
   Element.prototype.fadeOut = function(options) {
-    options = options || {};
     var $element = this;
+    options = options || {};
     addToQueue(
-        $element.uid,
-        new Fx.Fade($element, 'out', options.delay || 0, options.duration || 200, options.timingFunction || 'easeOut'),
+        $element,
+        'fadeOut',
+        new Fx.Fade($element, 'out', 0, options.duration || 200, 'easeOut'),
         function() {
           options.callback && options.callback.call($element);
         }
@@ -767,29 +792,29 @@
 
 //--------------------------------------------------[Element.prototype.highlight]
   /**
-   * 高亮元素。
+   * 在当前元素的动画队列中添加一个高亮效果。
    * @name Element.prototype.highlight
    * @function
-   * @param {Object} [options] 动画选项，请参考 Element.prototype.morph 的 options 参数。
+   * @param {Object} [options] 动画选项。
+   * @param {string} options.color 高亮颜色，默认为 yellow。
+   * @param {number} options.times 高亮次数，默认为 2。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
+   * @param {Function} options.callback 播放完成后的回调。
    * @returns {Element} 调用本方法的元素。
+   * @description
+   *   调用本方法时，如果当前队列的前一个动画也是高亮动画，则丢弃当前的高亮动画。若此时当前元素正在播放一个高亮动画，则重新播放该动画。
    */
   Element.prototype.highlight = function(options) {
     var $element = this;
-    var queue;
-    var animation;
-    if ((queue = queuePool[$element.uid]) && (animation = queue.currentAnimation) && animation.clips[0] instanceof Fx.Highlight) {
-      // 特殊处理：如果当前元素正在播放一个高亮动画，则重复播放该动画而不是新建一个，以避免高亮后的背景色与预设值不符。
-      animation.stop().play();
-    } else {
-      options = options || {};
-      addToQueue(
-          $element.uid,
-          new Fx.Highlight($element, options.color || 'yellow', options.times || 2, options.delay || 0, options.duration || 400, options.timingFunction || 'easeIn'),
-          function() {
-            options.callback && options.callback.call($element);
-          }
-      );
-    }
+    options = options || {};
+    addToQueue(
+        $element,
+        'highlight',
+        new Fx.Highlight($element, options.color || 'yellow', options.times || 2, 0, options.duration || 500, 'easeIn'),
+        function() {
+          options.callback && options.callback.call($element);
+        }
+    );
     return $element;
   };
 

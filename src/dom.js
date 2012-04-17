@@ -36,14 +36,35 @@
 
 //--------------------------------------------------[document.head]
   // 为 IE6 IE7 IE8 的 document 增加 head 属性。
+  /**
+   * 获取文档的 head 元素。
+   * @name head
+   * @memberOf document
+   * @type Element
+   * @description
+   *   与 document.documentElement 和 document.body 的作用一样，document.head 是获取文档的 head 元素的快捷方式。
+   * @example
+   *   document.documentElement === document.getElementsByTagName('html')[0];
+   *   // true
+   *   document.head === document.getElementsByTagName('head')[0];
+   *   // true
+   *   document.body === document.getElementsByTagName('body')[0];
+   *   // true
+   */
   if (!document.head) {
     document.head = html.firstChild;
   }
 
 //--------------------------------------------------[HTMLElement.prototype.innerText]
   // 为 Firefox 添加 HTMLElement.prototype.innerText 属性。
-  // 注意：
-  //   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+  /**
+   * 设置/获取元素内的文本信息。
+   * @name Element.prototype.innerText
+   * @type string
+   * @description
+   *   注意：
+   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+   */
   if (!('innerText' in document.head)) {
     HTMLElement.prototype.__defineGetter__('innerText', function() {
       return this.textContent;
@@ -56,9 +77,16 @@
 
 //--------------------------------------------------[HTMLElement.prototype.outerText]
   // 为 Firefox 添加 HTMLElement.prototype.outerText 属性。
-  // 注意：
-  //   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
-  //   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
+  /**
+   * 设置/获取元素本身及该元素内的文本信息。
+   * @name Element.prototype.outerText
+   * @type string
+   * @description
+   *   注意：
+   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+   *   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
+   *   与 innerText 不同，如果设置一个元素的 outerText，那么设置的字符串将作为文本节点替换该元素在文档树中的位置。
+   */
   if (!('outerText' in document.head)) {
     HTMLElement.prototype.__defineGetter__('outerText', function() {
       return this.textContent;
@@ -72,8 +100,14 @@
 
 //--------------------------------------------------[HTMLElement.prototype.outerHTML]
   // 为 Firefox 添加 HTMLElement.prototype.outerHTML 属性。
-  // 注意：
-  //   getter 在处理标签及特殊字符时，各浏览器行为不一致。
+  /**
+   * 设置/获取元素节点及其后代节点的序列化字符串。
+   * @name Element.prototype.outerHTML
+   * @type string
+   * @description
+   *   注意：
+   *   getter 在处理空标签及特殊字符时，各浏览器行为不一致。
+   */
   if (!('outerHTML' in document.head)) {
     var RE_EMPTY_ELEMENT = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
     var isEmptyElement = function(nodeName) {
@@ -164,7 +198,7 @@
    * @type Object
    * @description
    *   注意：
-   *   受 IE6 IE7 实现方式的限制，扩展新特性应在获取元素之前进行，否则已获取的元素可能无法访问新扩展的特性。
+   *   受 IE6 IE7 实现方式的限制，扩展新特性应在获取元素之前进行，否则已获取的元素将无法访问新扩展的特性。
    * @example
    *   Element.prototype.getNodeName = function() {
    *     return this.nodeName;

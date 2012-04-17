@@ -8,7 +8,9 @@
 <script src="../docs/scripts/prettify.js"></script>
 <script src="../dev.js"></script>
 <style>
-fieldset { display: block; float: none; margin: 0; }
+h2 { margin: 50px 0 20px; }
+fieldset { display: block; float: none; margin: 20px 0 0; }
+button { padding: 2px 5px; }
 </style>
 <script>
 execute(function($) {
@@ -38,20 +40,19 @@ execute(function($) {
 </script>
 </head>
 <body>
+
 <h1>Animation</h1>
+
 <h2>element.morph</h2>
-<!-- example_1 { -->
-<style>
-#ex_1 { width: 50px; height: 50px; padding: 2px; border: 0 solid gray; background: gold; line-height: 50px; text-align: center; }
-</style>
+<!-- e_m_1 { -->
 <fieldset>
-  <legend>可以为数字值、长度值、颜色值设置渐变。支持队列。</legend>
-  <div id="ex_1">A</div>
+  <legend>可以为数字值、长度值、颜色值设置渐变。</legend>
+  <div id="e_m_1" style="width: 100px; height: 50px; padding: 2px; border: 0 solid gray; background: gold; line-height: 50px; text-align: center;">M</div>
 </fieldset>
 <pre></pre>
 <script>
 execute(function($) {
-  $('#ex_1').on('click', function() {
+  $('#e_m_1').on('click', function() {
     this.morph({
       width: '+=100', // 可以使用相对长度。
       borderLeftWidth: '10px', // 长度值目前仅支持像素单位。
@@ -66,23 +67,103 @@ execute(function($) {
       duration: 1000,
       timingFunction: 'bounceIn',
       callback: function() {
-        this.innerText += 'A';
+        this.innerText += 'M';
       }
     });
   });
 });
 </script>
-<!-- } example_1 -->
+<!-- } e_m_1 -->
+
+<h2>element.fadeIn/fadeOut</h2>
+<!-- e_f_1 { -->
+<fieldset>
+  <legend>渐隐效果。</legend>
+  <div id="e_f_1" style="width: 100px; height: 50px; padding: 2px; background: gold; line-height: 50px; text-align: center;">F</div>
+  <button id="e_f_1_in">fadeIn()</button>
+  <button id="e_f_1_out">fadeOut()</button>
+</fieldset>
+<pre></pre>
+<script>
+execute(function($) {
+  var $e = $('#e_f_1');
+  $('#e_f_1_in').on('click', function() {
+    $e.fadeIn();  // 当前已被渲染的元素不能执行淡入效果。
+  });
+  $('#e_f_1_out').on('click', function() {
+    $e.fadeOut();  // 当前并未被渲染的元素不能执行淡出效果。
+  });
+});
+</script>
+<!-- } e_f_1 -->
+
+<h2>element.highlight</h2>
+<!-- e_h_1 { -->
+<fieldset>
+  <legend>高亮效果，多次点击时将重播队列中正在播放的高亮效果，并且只有这个播放的效果会有回调。</legend>
+  <div id="e_h_1" style="width: 100px; height: 50px; padding: 2px; background: gold; line-height: 50px; text-align: center;">H</div>
+</fieldset>
+<pre></pre>
+<script>
+execute(function($) {
+  $('#e_h_1').on('click', function() {
+    this.highlight({
+      callback: function() {
+        this.innerText += 'H';
+      }
+    });
+  });
+});
+</script>
+<!-- } e_h_1 -->
+<!-- e_h_2 { -->
+<fieldset>
+  <legend>如果当前队列的前一个动画也是高亮动画，则丢弃当前的高亮动画。若此时当前元素正在播放一个高亮动画，则重新播放该动画。</legend>
+  <div id="e_h_2" style="width: 100px; height: 50px; padding: 2px; background: gold; line-height: 50px; text-align: center;">H</div>
+</fieldset>
+<pre></pre>
+<script>
+execute(function($) {
+  $('#e_h_2').on('click', function() {
+    this.highlight({
+      callback: function() {
+        this.innerText += '1';
+      }
+    })
+        .highlight({
+          callback: function() {
+            this.innerText += '2';
+          }
+        })
+        .morph({
+          width: '+=50'
+        }, {
+          duration: 500
+        })
+        .highlight({
+          callback: function() {
+            this.innerText += '3';
+          }
+        })
+        .highlight({
+          callback: function() {
+            this.innerText += '4';
+          }
+        });
+  });
+});
+</script>
+<!-- } e_h_2 -->
 
 <h2>Animation</h2>
-<!-- example_2 { -->
+<!-- a_1 { -->
 <style>
-#ex_2 { list-style: none; padding: 0; cursor: default; }
-#ex_2 li { width: 200px; height: 30px; margin: 2px 0; padding-left: 10px; border-left: 0 solid white; background: mediumseagreen; line-height: 30px; }
+#a_1 { list-style: none; padding: 0; cursor: default; }
+#a_1 li { width: 200px; height: 30px; margin: 2px 0; padding-left: 10px; border-left: 0 solid white; background: mediumseagreen; line-height: 30px; }
 </style>
 <fieldset>
-  <legend>动画可以正向播放，也可以反向播放。</legend>
-  <ul id="ex_2">
+  <legend>使用 Animation 创建的高级动画可以正向播放，也可以反向播放。</legend>
+  <ul id="a_1">
     <li>菜单一</li>
     <li>菜单二</li>
     <li>菜单三</li>
@@ -93,7 +174,7 @@ execute(function($) {
 <pre></pre>
 <script>
 execute(function($) {
-  $('#ex_2').getChildren().forEach(function($menu) {
+  $('#a_1').getChildren().forEach(function($menu) {
     var animation = new Animation().addClip(
         new Fx.Morph($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}, 0, 200, 'ease')
     );
@@ -108,42 +189,24 @@ execute(function($) {
   });
 });
 </script>
-<!-- } example_2 -->
+<!-- } a_1 -->
 
+<!-- a_2 { -->
 <style>
-button { padding: 2px 5px; }
-#test1,
-#test2,
-#test3 { width: 500px; margin: 5px; padding: 30px; background: #F8F8F8; font: 12px Verdana; text-align: center; }
-#msg { height: 15px; text-align: left; }
-#ani,
-#ani { position: absolute; left: 1200px; top: -150px; height: 150px; z-index: 1; background: #c0c0c0; line-height: 75px; }
-#ani p { margin: 0; }
-#canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
-#canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
-#layer.highlight { box-shadow: 0 0 25px black; }
+#container { position: relative; width: 200px; height: 50px; margin: auto; }
+#layer { display: none; position: absolute; z-index: 2; left: 0; top: 20px; width: 200px; height: 0; background: #c0c0c0; font: 0/0 Verdana; text-align: center; overflow: hidden; }
+#layer.italic { font-style: italic; }
+#panel { position: relative; width: 500px; margin: auto; }
+#panel #number,
+#panel #type { position: absolute; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; }
+#panel #number { left: 0; text-align: right; }
+#panel #type { right: 0; text-align: left; }
+#panel #timeline { position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left; }
 </style>
-<div id="test1">
-  <p id="msg"></p>
-  <button id="highlight">highlight</button>
-  <button id="fade_in">fadeIn</button>
-  <button id="fade_out">fadeOut</button>
-</div>
-<style>
-#test2 { position: relative; }
-#layer { position: absolute; z-index: 2; left: 500px; top: 0; width: 200px; height: 50px; background: #c0c0c0; font: 14px/50px Verdana; text-align: center; }
-#panel { position: relative; width: 500px; }
-#number,
-#type { position: absolute; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; }
-#number { left: 0; text-align: right; }
-#type { right: 0; text-align: left; }
-#timeline { position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left; }
-</style>
-<div id="test2">
-  <div id="layer"></div>
-  <div id="ani">
-    <p><span id="ani_count_1"></span> <span id="ani_info_1"></span></p>
-    <p><span id="ani_count_2"></span> <span id="ani_info_2"></span></p>
+<fieldset style="position: relative; text-align: center;">
+  <legend style="text-align: left;">高级动画支持多个影片剪辑、多种动作及事件。</legend>
+  <div id="container">
+    <div id="layer"></div>
   </div>
   <div id="panel">
     <div id="number"></div>
@@ -156,36 +219,35 @@ button { padding: 2px 5px; }
   <button id="stop2">stop</button>
   <p>键盘左 = reverse，键盘下 = pause，键盘右 = play，键盘上 = stop。</p>
   <p>点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
-</div>
+</fieldset>
 <script>
 execute(function($) {
-  //--------------------------------------------------[TEST 2]
+//--------------------------------------------------[animation]
   var $layer = $('#layer').setStyle('opacity', 0.75);
-
-  //-------------------------[animation]
   window.animation = new Animation()
-      .addClip(new Fx.Fade($layer, 'in', 0, 200, 'easeOut'))
-      .addClip(new Fx.Highlight($layer, '#FFFF00', 2, 200, 600, 'linear'))
+      .addClip(new Fx.Fade($layer, 'in', 0, 100, 'easeOut'))
+      .addClip(new Fx.Highlight($layer, 'aqua', 1, 100, 300, 'linear'))
       .addClip(
       new Fx.Morph($layer, {
         backgroundColor: 'steelblue'
-      }, 800, 1200))
+      }, 400, 600))
       .addClip(
       new Fx.Morph($layer, {
-        width: 500
-      }, 800, 400, 'cubicBezier(.6,0,.6,1.35)'))
+        left: '-=150',
+        width: '+=300'
+      }, 400, 200, 'cubicBezier(.6,0,.6,1.35)'))
       .addClip(
       new Fx.Base(function(x, y) {
-        $layer.toggleClass('highlight');
-      }, 1400, 0, 'linear'))
+        $layer.toggleClass('italic');
+      }, 700, 0, 'linear'))
       .addClip(
       new Fx.Morph($layer, {
-        top: 100,
-        height: 300,
+        top: '-=150',
+        height: '+=100',
         color: '#C00000',
         fontSize: 50,
-        lineHeight: 300
-      }, 0, 2000, 'cubicBezier(.25,1.25,.75,-0.25)'))
+        lineHeight: '+=100'
+      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
       .on(
       'play', function() {
         $layer.innerHTML = 'PLAY';
@@ -200,9 +262,6 @@ execute(function($) {
       })
       .on(
       'playfinish', function() {
-//        $layer.empty().append($('<span>Done! FPS: ' + frames + '</span>').morph(null, {duration: 1000}).fadeOut({onEnd: function() {
-//          this.remove();
-//        }}));
         $layer.innerHTML = 'PLAYFINISH';
 //        this.reverse();
       })
@@ -220,7 +279,7 @@ execute(function($) {
         $layer.innerHTML = 'STOP';
       });
 
-  //-------------------------[panel]
+//--------------------------------------------------[panel]
   function getRandomColor() {
     return 'rgb(' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ')';
   }
@@ -250,12 +309,6 @@ execute(function($) {
       $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
     }
     $clipPanlel.on('click', function() {
-//      new Animation()
-//          .addClip(
-//          new Fx.Base(function(x) {
-//            $('#canvas').appendChild($('<div style="left: ' + Math.floor(x * 299) + 'px; bottom: ' + Math.floor(clip.timingFunction(x) * 299) + 'px; background: ' + color + '"></div>'));
-//          }, 0, 2500, 'linear'))
-//          .play();
       for (var i = 0; i < 299; i++) {
         $('#canvas').appendChild($('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>'));
       }
@@ -268,7 +321,7 @@ execute(function($) {
     $time.setStyle('left', 0);
   });
 
-  //-------------------------[controls]
+//--------------------------------------------------[controls]
   document.on('keydown', function(e) {
     switch (e.which) {
       case 37:
@@ -300,173 +353,43 @@ execute(function($) {
 
 });
 </script>
+<!-- a_2 { -->
 
-
-<div id="test3">
-  <div id="canvas"></div>
-  <p>点击 = 清除，Ctrl + 点击 = 一起跑，Shift + 点击 = 分别跑。</p>
-  <button style="background-color: white;">linear</button>
-  <button style="background-color: silver;">bounceIn</button>
-  <button style="background-color: gold;">bounceOut</button>
-  <br>
-  <button style="background-color: orangered;">ease</button>
-  <button style="background-color: greenyellow;;">easeIn</button>
-  <button style="background-color: cornflowerblue;">easeOut</button>
-  <button style="background-color: springgreen;">easeInOut</button>
-  <button style="background-color: orchid;">easeOutIn</button>
-  <br>
-  <button style="background-color: tomato;">cubicBezier(.6,0,.6,1.35)</button>
-  <button style="background-color: yellowgreen;">cubicBezier(.4,-0.35,.4,1)</button>
-  <button style="background-color: steelblue;">cubicBezier(.5,.29,.23,-0.58)</button>
-  <button style="background-color: mediumseagreen;">cubicBezier(.25,1.25,.75,-0.25)</button>
-</div>
+<!-- a_3 { -->
 <style>
-#ani_count_1,
-#ani_count_2 { float: left; font-size: 12px; background: black; color: white; }
+#canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
+#canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
 </style>
+<fieldset id="timing_functions" style="text-align: center;">
+  <legend style="text-align: left;">100% 兼容 CSS3 的 transition-timing-function 特性的控速函数。</legend>
+  <div id="canvas"></div>
+  <p>点击 = 清除，Ctrl + 点击 = 一起画，Shift + 点击 = 分别画。</p>
+  <p>
+    <button style="background-color: white;">linear</button>
+    <button style="background-color: silver;">bounceIn</button>
+    <button style="background-color: gold;">bounceOut</button>
+    <br>
+    <button style="background-color: orangered;">ease</button>
+    <br>
+    <button style="background-color: greenyellow;;">easeIn</button>
+    <button style="background-color: cornflowerblue;">easeOut</button>
+    <br>
+    <button style="background-color: springgreen;">easeInOut</button>
+    <button style="background-color: orchid;">easeOutIn</button>
+    <br>
+    <button style="background-color: tomato;">cubicBezier(.6,0,.6,1.35)</button>
+    <button style="background-color: yellowgreen;">cubicBezier(.4,-0.35,.4,1)</button>
+    <br>
+    <button style="background-color: steelblue;">cubicBezier(.5,.29,.23,-0.58)</button>
+    <button style="background-color: mediumseagreen;">cubicBezier(.25,1.25,.75,-0.25)</button>
+  </p>
+</fieldset>
 <script>
 execute(function($) {
-  var $ani = $('#ani');
-  var $aniCount1 = $('#ani_count_1');
-  var $aniCount2 = $('#ani_count_2');
-  var $aniInfo1 = $('#ani_info_1');
-  var $aniInfo2 = $('#ani_info_2');
-
-  function chainTest() {
-//    $aniCount1.innerText = $ani.getAnimationQueue().length;
-    $aniInfo1.innerText = '1';
-    // 默认队列。
-    $ani.morph({
-      left: 600,
-      top: 30
-    }, {
-      duration: 500,
-      timingFunction: 'easeInOut',
-      callback: function() {
-        $aniInfo1.innerText = '=1=';
-//        $aniCount1.innerText = this.getAnimationQueue().length;
-        $aniInfo1.innerText = 'WAIT';
-      }
-    })
-        .morph({}, {
-          delay: 500,
-          duration: 0,
-          timingFunction: 'easeOutIn',
-          callback: function() {
-            $aniInfo1.innerText = '=WAIT=';
-//            $aniCount1.innerText = this.getAnimationQueue().length;
-            $aniInfo1.innerText = '2';
-          }
-        })
-        .morph({
-          left: 400,
-          top: 100
-        }, {
-          delay: 200,
-          duration: 500,
-          timingFunction: 'cubicBezier(.4,-0.35,.4,1)',
-          callback: function() {
-            $aniInfo1.innerText = '=OVER=';
-//            $aniCount1.innerText = this.getAnimationQueue() ? this.getAnimationQueue().length : 0;
-          }
-        })
-//      // 新队列。
-        .morph({
-          width: 350,
-          height: 80,
-          fontSize: 25,
-          lineHeight: '40px',
-          color: '#ffffff',
-          backgroundColor: '#dc143c',
-          opacity: .3
-        }, {
-          duration: 600,
-          timingFunction: 'linear',
-//          onStart: function() {
-//            $aniCount2.innerText = this.getAnimationQueue('2').length;
-//            $aniInfo2.innerText = '1';
-//          },
-          callback: function() {
-            $aniInfo2.innerText = '=1= layer run';
-            $('#layer').morph({
-              left: 400,
-              top: 100,
-              width: 200,
-              height: 150,
-              backgroundColor: '#adff2f',
-              lineHeight: '150px',
-              opacity: .5
-            }, {
-              duration: 500,
-              timingFunction: 'cubicBezier(.6,0,.6,1.35)',
-//              onStart: function() {
-//              this.innerText = 'GO';
-//              },
-              callback: function() {
-                this.innerText = '';
-                $aniInfo2.innerText = 'WAIT';
-              }
-            });
-          },
-          queueName: '2'
-        })
-        .morph({}, {
-          delay: 500,
-          duration: 0,
-          callback: function() {
-            $aniInfo2.innerText = '=WAIT=';
-//            $aniCount2.innerText = this.getAnimationQueue('2').length;
-            $aniInfo2.innerText = '2';
-          },
-          resetQueue: true
-        })
-        .morph({
-          height: 150,
-          width: 200,
-          fontSize: 40,
-          lineHeight: '75px',
-          color: '#000000',
-          backgroundColor: '#ffd711',
-          opacity: 1
-        }, {
-          duration: 300,
-          timingFunction: 'easeIn',
-          callback: function() {
-//            $aniCount2.innerText = this.getAnimationQueue('2') ? this.getAnimationQueue('2').length : 0;
-            $aniInfo2.innerText = '=OVER=';
-//          chainTest();
-          },
-          queueName: '2'
-        });
-  }
-
-  $ani.on('mouseover', function() {
-    var queue = this.getAnimationQueue('2');
-    if (queue) {
-      this.stopAnimate('2');
-      $aniInfo2.innerText = '=STOP=';
-      $aniCount2.innerText = queue.length || 0;
-    }
-  });
-  $('#layer').on('click', function() {
-    chainTest();
-    return false;
-  });
-
-//--------------------------------------------------[TEST 1]
-  $('#highlight').on('click', function() {
-    $('#layer').highlight({color: 'aqua', times: 2, duration: 500});
-  });
-  $('#fade_in').on('click', function() {
-    $('#layer').fadeIn();
-  });
-  $('#fade_out').on('click', function() {
-    $('#layer').fadeOut();
-  });
-
-//--------------------------------------------------[TEST 3]
+//--------------------------------------------------[timingFunctions]
+  var $timingFunctions = $('#timing_functions');
   var $canvas = $('#canvas');
-  $('#test3').on('click', function(e) {
+  $timingFunctions.on('click', function(e) {
     var color = this.getStyle('backgroundColor');
     new Animation()
         .addClip(
@@ -481,7 +404,7 @@ execute(function($) {
   });
   $canvas.on('click', function(e) {
     if (e.shiftKey) {
-      $('#test3').find('button').forEach(function($button, index) {
+      $timingFunctions.find('button').forEach(function($button, index) {
         setTimeout(function() {
           $button.fire('click');
         }, index * 100);
@@ -489,7 +412,7 @@ execute(function($) {
       return false;
     }
     if (e.ctrlKey) {
-      $('#test3').find('button').forEach(function($button) {
+      $timingFunctions.find('button').forEach(function($button) {
         $button.fire('click');
       });
       return false;
@@ -499,5 +422,7 @@ execute(function($) {
   });
 });
 </script>
+<!-- } a_3 -->
+
 </body>
 </html>
