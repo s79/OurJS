@@ -250,8 +250,8 @@ execute(function($) {
     return this;
   };
 
-//--------------------------------------------------[components.Switcher]
-  components.Mask = new Component(Mask);
+//--------------------------------------------------[MaskLayer]
+  var MaskLayer = new Component(Mask);
 
 //==================================================[Dialog]
   /*
@@ -322,7 +322,7 @@ execute(function($) {
     this.group = groups[groupId] || (groups[groupId] = {stack: [], mask: null});
     // 参照 element 的 zIndex 来调节遮掩层。
     $dialog.setStyle('zIndex', parseInt($dialog.getStyle('zIndex'), 10) || 1000);
-    this.group.mask || (this.group.mask = new components.Mask($container, {attributes: this.maskAttributes, styles: this.maskStyles}));
+    this.group.mask || (this.group.mask = new MaskLayer($container, {attributes: this.maskAttributes, styles: this.maskStyles}));
   }
 
   components.Dialog = Dialog;

@@ -122,7 +122,7 @@
     mountedAnimations[animation.uid] = animation;
     mountedCount++;
 //    console.log('[mountAnimation] mountedCount:', mountedCount, JSON.stringify(Object.keys(mountedAnimations)));
-    // 启动引擎，异步播放中间帧及末帧。
+    // 启动引擎。
     if (!engine) {
       engine = setInterval(function() {
         // 播放挂载的动画。
@@ -225,9 +225,10 @@
       this.fire(isPlayMethod ? 'play' : 'reverse');
       // 未挂载到引擎（执行此方法前为暂停/停止状态）。
       if (!this.timestamp) {
-        // 首帧同步播放（暂停后的播放/反向播放也属于首帧）。
+        // 每次播放/反向播放时的首帧同步播放。
         var duration = this.duration;
         playAnimation(this, isPlayMethod ? 0 : duration, isPlayMethod);
+        // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
         if (duration) {
           mountAnimation(this);
         }
