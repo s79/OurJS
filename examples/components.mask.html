@@ -13,7 +13,7 @@ select { width: 100px; background: orangered; }
 </head>
 <body>
 <h1>components.Mask</h1>
-<h2 id="x" style="position: absolute; left: 1500px; top: 1500px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
+<h2 id="x" style="position: absolute; left: 100px; top: 100px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
 <!--[if IE 6]>
 <div style="position: absolute; left: 0; top: 450px; width: 800px; padding: 20px;">
   <p>
@@ -49,51 +49,60 @@ select { width: 100px; background: orangered; }
 <button style="left: 175px; top: 500px;" onclick="$div.setStyle('display', 'none');">div.display=none</button>
 <button style="left: 175px; top: 550px;" onclick="$div.animate({left: 0, top: 0, backgroundColor: '#ff0000'}, {duration: 5000, onFinish: function(){console.log('finish');}}).fadeOut().fadeIn();">div.animate</button>
 <script>
+var bodyMask;
+var divMask;
+var pMask;
+var spanMask;
+var varMask;
+var $span;
+var $div;
+execute(function($) {
 //--------------------------------------------------[Mask]
-var bodyMask = new components.Mask(document.body, {
-  styles: {backgroundColor: 'black', opacity: 0.2, zIndex: 100},
-  onShow: function() {
-    console.log(Date.now(), 'SHOW');
-  },
-  onHide: function() {
-    console.log(Date.now(), 'HIDE');
-  }
-});
-var pMask = new components.Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 0.5, zIndex: 100}});
-var divMask = new components.Mask($('#div'), {styles: {backgroundColor: 'cornflowerblue', opacity: 0.75, zIndex: 100}});
-var spanMask = new components.Mask($('#span'), {styles: {backgroundColor: 'orchid', opacity: 0.5, zIndex: 100}});
-var varMask = new components.Mask($('#var'), {styles: {backgroundColor: 'springgreen', opacity: 0.35, zIndex: 100}});
+  bodyMask = new components.Mask(document.body, {effect: 1})
+      .on('show',
+      function() {
+        console.log(Date.now(), 'SHOW');
+      })
+      .on('hide',
+      function() {
+        console.log(Date.now(), 'HIDE');
+      });
+  pMask = new components.Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 0.5, zIndex: 100}});
+  divMask = new components.Mask($('#div'), {styles: {backgroundColor: 'cornflowerblue', opacity: 0.75, zIndex: 100}});
+  spanMask = new components.Mask($('#span'), {styles: {backgroundColor: 'orchid', opacity: 0.5, zIndex: 100}});
+  varMask = new components.Mask($('#var'), {styles: {backgroundColor: 'springgreen', opacity: 0.35, zIndex: 100}});
 
 //--------------------------------------------------[fix support]
-var $span = $('#span').setStyle('opacity', .75);
-var $div = $('#div');
+  $span = $('#span').setStyle('opacity', .75);
+  $div = $('#div');
 
-$(document.body).find('button').forEach(function($button) {
-  $button.setStyle('position', 'fixed');
-});
+  $(document.body).find('button').forEach(function($button) {
+    $button.setStyle('position', 'fixed');
+  });
 
-var length = window.getPageOffset().y + $span.getClientRect().top - parseInt($span.getStyle('marginTop'), 10);
-window.on('scroll', function() {
-  var position = $span.getStyle('position');
-  if (window.getPageOffset().y >= length) {
-    if (position !== 'fixed') {
-      $span.setStyles({position: 'fixed', top: 0});
-      if (spanMask.isShown) {
-        setTimeout(function() {
-          spanMask.hide().show();
-        }, 0);
+  var length = window.getPageOffset().y + $span.getClientRect().top - parseInt($span.getStyle('marginTop'), 10);
+  window.on('scroll', function() {
+    var position = $span.getStyle('position');
+    if (window.getPageOffset().y >= length) {
+      if (position !== 'fixed') {
+        $span.setStyles({position: 'fixed', top: 0});
+        if (spanMask.isShown) {
+          setTimeout(function() {
+            spanMask.hide().show();
+          }, 0);
+        }
+      }
+    } else {
+      if (position !== 'absolute') {
+        $span.setStyles({position: 'absolute', top: length});
+        if (spanMask.isShown) {
+          setTimeout(function() {
+            spanMask.hide().show();
+          }, 0);
+        }
       }
     }
-  } else {
-    if (position !== 'absolute') {
-      $span.setStyles({position: 'absolute', top: length});
-      if (spanMask.isShown) {
-        setTimeout(function() {
-          spanMask.hide().show();
-        }, 0);
-      }
-    }
-  }
+  });
 });
 </script>
 </body>

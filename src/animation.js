@@ -18,9 +18,11 @@
    *
    * 说明：
    *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
-   *   传入函数的参数 x 为时间轴，y 为偏移量，他们的值都将从 0 趋向于 1。
+   *   传入函数的参数 x 为时间点，y 为偏移量，他们的值都将从 0 趋向于 1。
    *   在动画在进行中时，执行动画对象的 stop 方法即可停止的继续调用，但也会阻止事件 end 的触发。
    *   调用 reverse 可以反向播放，但要注意，反向播放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
+   *   播放一个动画时，调用 play 或 reverse 方法后即同步播放对应方向的首帧，中间帧及末帧由引擎异步播放。
+   *   如果一个动画剪辑的持续时间为 0，则 play 时传入的 x 值为 1，reverse 时传入的 x 值为 0。
    *
    * 操作 Animation 对象和调用 Element 上的相关动画方法的差别：
    *   当需要定制一个可以预期的动画效果时，建议使用 Animation，因为 Animation 对象不仅可以正向播放，还可以随时回退到起点。
@@ -29,6 +31,7 @@
    *   在直接使用 Animation 的情况下，无论如何播放/反向播放，目标元素将始终在起点/终点之间渐变。
    *   在使用 Element.prototype.morph 方法时，传入同样的参数，多次播放时，目标元素将以上一次的终点作为起点，开始渐变。
    */
+
   // 唯一识别码。
   var uid = 0;
 
@@ -47,105 +50,106 @@
   var ACTIVE = 0;
   var AFTER_END_POINT = 1;
 
-  // 动画引擎，用于挂载各播放中的动画，并同频同步播放他们的每一帧。
-  var engine = {
-    mountedAnimations: {},
-    mountedCount: 0,
-    mountAnimation: function(animation) {
-      animation.mounted = true;
-      this.mountedAnimations[animation.uid] = animation;
-      this.mountedCount++;
-      // 启动引擎。
-      if (!engine.timer) {
-        engine.timer = setInterval(function() {
-          // 播放挂载的动画。
-//          console.log('>ENGING RUNNING mountedCount:', engine.mountedCount);
-          var timestamp = Date.now();
-          Object.forEach(engine.mountedAnimations, function(animation) {
-            var status = animation.status;
-            var duration = animation.duration;
-            var isPlayMethod = status === PLAYING;
-            // 动画的时间轴。
-            var timeline = animation.timeline = Math.limit(animation.timeline + (timestamp - (animation.timestamp || timestamp)) * (isPlayMethod ? 1 : -1), 0, duration);
-            // 播放当前帧。
-            animation.clips.forEach(function(clip) {
-              var active = false;
-              var x = (timeline - clip.delay) / clip.duration;
-              if (isPlayMethod) {
-                if (clip.status === AFTER_END_POINT) {
-                  return;
-                }
-                if (clip.status === BEFORE_STARTING_POINT) {
-                  if (x >= 0) {
-                    x = clip.duration ? 0 : 1;
-                    clip.status = ACTIVE;
-                  }
-                }
-                if (clip.status === ACTIVE) {
-                  active = true;
-                  if (x >= 1) {
-                    x = 1;
-                    clip.status = AFTER_END_POINT;
-                  }
-                }
-              } else {
-                if (clip.status === BEFORE_STARTING_POINT) {
-                  return;
-                }
-                if (clip.status === AFTER_END_POINT) {
-                  if (x <= 1) {
-                    x = clip.duration ? 1 : 0;
-                    clip.status = ACTIVE;
-                  }
-                }
-                if (clip.status === ACTIVE) {
-                  active = true;
-                  if (x <= 0) {
-                    x = 0;
-                    clip.status = BEFORE_STARTING_POINT;
-                  }
-                }
-              }
-              if (active) {
-                // 将 clip.handler 的 this 设置为 Animation 对象。
-                clip.handler.call(animation, x, x === 0 ? 0 : (x === 1 ? 1 : clip.timingFunction(x)));
-              }
-            });
-            animation.timestamp = timestamp;
-            animation.fire('step');
-            // 本帧为最后一帧。
-            if (isPlayMethod) {
-              if (timeline === duration) {
-                engine.unmountAnimation(animation);
-                animation.status = END_POINT;
-                animation.fire('playfinish');
-              }
-            } else {
-              if (timeline === 0) {
-                engine.unmountAnimation(animation);
-                animation.status = STARTING_POINT;
-                animation.fire('reversefinish');
-              }
-            }
-          });
-          // 停止引擎。
-          if (engine.mountedCount === 0) {
-            console.warn('>ENGING STOP', engine.timer);
-            clearInterval(engine.timer);
-            delete engine.timer;
+  // 播放动画对应某一时间点的某一帧。
+  var playAnimation = function(animation, timePoint, isPlayMethod) {
+    animation.clips.forEach(function(clip) {
+      var active = false;
+      var duration = clip.duration;
+      var x = (timePoint - clip.delay) / Math.max(1, duration);
+      if (isPlayMethod) {
+        if (clip.status === AFTER_END_POINT) {
+          return;
+        }
+        if (clip.status === BEFORE_STARTING_POINT) {
+          if (x >= 0) {
+            x = duration ? 0 : 1;
+            clip.status = ACTIVE;
           }
-        }, 16);
-        console.warn('>ENGING START', engine.timer);
+        }
+        if (clip.status === ACTIVE) {
+          active = true;
+          if (x >= 1) {
+            x = 1;
+            clip.status = AFTER_END_POINT;
+          }
+        }
+      } else {
+        if (clip.status === BEFORE_STARTING_POINT) {
+          return;
+        }
+        if (clip.status === AFTER_END_POINT) {
+          if (x <= 1) {
+            x = duration ? 1 : 0;
+            clip.status = ACTIVE;
+          }
+        }
+        if (clip.status === ACTIVE) {
+          active = true;
+          if (x <= 0) {
+            x = 0;
+            clip.status = BEFORE_STARTING_POINT;
+          }
+        }
       }
-//      console.log('[engine.mountAnimation] mountedCount:', engine.mountedCount, JSON.stringify(Object.keys(engine.mountedAnimations)));
-    },
-    unmountAnimation: function(animation) {
-      delete animation.timestamp;
-      delete animation.mounted;
-      delete this.mountedAnimations[animation.uid];
-      this.mountedCount--;
-//      console.log('[engine.unmountAnimation] mountedCount:', this.mountedCount, Date.now());
+      if (active) {
+        clip.handler.call(animation, x, x === 0 ? 0 : (x === 1 ? 1 : clip.timingFunction(x)));
+      }
+    });
+    // 本帧播放完毕。
+    animation.fire('step');
+    // 本帧为当前播放方向的最后一帧。
+    if (isPlayMethod) {
+      if (timePoint === animation.duration) {
+        unmountAnimation(animation);
+        animation.status = END_POINT;
+        animation.fire('playfinish');
+      }
+    } else {
+      if (timePoint === 0) {
+        unmountAnimation(animation);
+        animation.status = STARTING_POINT;
+        animation.fire('reversefinish');
+      }
     }
+  };
+
+  // 动画引擎，用于挂载各播放中的动画，并同频同步播放他们的每一帧。
+  var engine;
+  var mountedAnimations = {};
+  var mountedCount = 0;
+  var mountAnimation = function(animation) {
+    animation.timestamp = Date.now();
+    mountedAnimations[animation.uid] = animation;
+    mountedCount++;
+//    console.log('[mountAnimation] mountedCount:', mountedCount, JSON.stringify(Object.keys(mountedAnimations)));
+    // 启动引擎，异步播放中间帧及末帧。
+    if (!engine) {
+      engine = setInterval(function() {
+        // 播放挂载的动画。
+//        console.log('>ENGING RUNNING mountedCount:', mountedCount);
+        var timestamp = Date.now();
+        Object.forEach(mountedAnimations, function(animation) {
+          var isPlayMethod = animation.status === PLAYING;
+          var timePoint = Math.limit(animation.timePoint + (timestamp - animation.timestamp) * (isPlayMethod ? 1 : -1), 0, animation.duration);
+          animation.timestamp = timestamp;
+          animation.timePoint = timePoint;
+          playAnimation(animation, timePoint, isPlayMethod);
+        });
+        // 停止引擎。
+        if (mountedCount === 0) {
+//          console.warn('>ENGING STOP', engine);
+          clearInterval(engine);
+          engine = undefined;
+        }
+      }, 16);
+//      console.warn('>ENGING START', engine);
+    }
+  };
+  var unmountAnimation = function(animation) {
+    delete animation.timestamp;
+    delete mountedAnimations[animation.uid];
+    mountedCount--;
+//    console.log('[unmountAnimation] mountedCount:', mountedCount, JSON.stringify(Object.keys(mountedAnimations)));
   };
 
 //--------------------------------------------------[Animation Constructor]
@@ -176,7 +180,7 @@
   function Animation(duration, options) {
     this.uid = ++uid;
     this.clips = [];
-    this.timeline = 0;
+    this.timePoint = 0;
     this.status = STARTING_POINT;
     this.duration = duration || 0;
   }
@@ -211,17 +215,23 @@
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画的时间轴在终点，则调用此方法无效。
+   *   如果当前动画的时间点在终点，则调用此方法无效。
    */
   Animation.prototype.play = function(reverse) {
-    var expectedStatus = reverse === INTERNAL_IDENTIFIER_REVERSE ? REVERSING : PLAYING;
+    var isPlayMethod = reverse !== INTERNAL_IDENTIFIER_REVERSE;
     var status = this.status;
-    if (expectedStatus === PLAYING && status != PLAYING && status != END_POINT || expectedStatus === REVERSING && status != REVERSING && status != STARTING_POINT) {
-      this.status = expectedStatus;
-      if (!this.mounted) {
-        engine.mountAnimation(this);
+    if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != STARTING_POINT) {
+      this.status = isPlayMethod ? PLAYING : REVERSING;
+      this.fire(isPlayMethod ? 'play' : 'reverse');
+      // 未挂载到引擎（执行此方法前为暂停/停止状态）。
+      if (!this.timestamp) {
+        // 首帧同步播放（暂停后的播放/反向播放也属于首帧）。
+        var duration = this.duration;
+        playAnimation(this, isPlayMethod ? 0 : duration, isPlayMethod);
+        if (duration) {
+          mountAnimation(this);
+        }
       }
-      this.fire(expectedStatus === PLAYING ? 'play' : 'reverse');
     }
     return this;
   };
@@ -233,7 +243,7 @@
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画的时间轴在起点，则调用此方法无效。
+   *   如果当前动画的时间点在起点，则调用此方法无效。
    */
   Animation.prototype.reverse = function() {
     return this.play(INTERNAL_IDENTIFIER_REVERSE);
@@ -249,8 +259,8 @@
    *   仅在动画处于“播放”或“反向播放”状态时，调用此方法才有效。
    */
   Animation.prototype.pause = function() {
-    if (this.mounted) {
-      engine.unmountAnimation(this);
+    if (this.timestamp) {
+      unmountAnimation(this);
       this.status = PASUING;
       this.fire('pause');
     }
@@ -259,23 +269,23 @@
 
 //--------------------------------------------------[Animation.prototype.stop]
   /**
-   * 停止动画，并将动画的时间轴复位至起点。
+   * 停止动画，并将动画的时间点复位至起点。
    * @name Animation.prototype.stop
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画的时间轴在起点，则调用此方法无效。
+   *   如果当前动画的时间点在起点，则调用此方法无效。
    */
   Animation.prototype.stop = function() {
     if (this.status !== STARTING_POINT) {
-      if (this.mounted) {
-        engine.unmountAnimation(this);
+      if (this.timestamp) {
+        unmountAnimation(this);
       }
-      this.timeline = 0;
-      this.status = STARTING_POINT;
+      this.timePoint = 0;
       this.clips.forEach(function(clip) {
         clip.status = BEFORE_STARTING_POINT;
       });
+      this.status = STARTING_POINT;
       this.fire('stop');
     }
     return this;
@@ -647,6 +657,7 @@
    *   Element.prototype.fadeOut
    *   Element.prototype.highlight
    */
+
   // 简单动画的队列。
   var queuePool = {};
 
@@ -810,7 +821,7 @@
     addToQueue(
         $element,
         'highlight',
-        new Fx.Highlight($element, options.color || 'yellow', options.times || 2, 0, options.duration || 500, 'easeIn'),
+        new Fx.Highlight($element, options.color || 'yellow', options.times || 1, 0, options.duration || 500, 'easeIn'),
         function() {
           options.callback && options.callback.call($element);
         }

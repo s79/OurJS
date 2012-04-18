@@ -635,6 +635,7 @@
    *   Math.randomRange
    *   RegExp.escape
    */
+
 //--------------------------------------------------[Object.forEach]
   /**
    * 遍历一个对象。

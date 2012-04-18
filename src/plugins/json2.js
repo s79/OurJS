@@ -5,9 +5,11 @@
  *  2011-10-19
  *  Public Domain.
  */
+
 /**
  * @fileOverview 插件 - JSON 补缺 - json2
  */
+
 /*
   http://www.JSON.org/json2.js
   2011-10-19

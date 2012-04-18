@@ -3,7 +3,7 @@
  * @author sundongguo@gmail.com
  * @version 20111010
  */
-(function() {
+execute(function($) {
 //==================================================[Switcher]
   /*
    * 使用一个数组创建切换器，在每次切换活动元素时会触发相应的事件。
@@ -126,4 +126,4 @@
 //--------------------------------------------------[components.Switcher]
   components.Switcher = new Component(Switcher);
 
-})();
+});

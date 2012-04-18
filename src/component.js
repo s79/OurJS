@@ -23,7 +23,7 @@
    *   components
    */
 
-  var componentInstanceMethods = {};
+  var instanceMethods = {};
   var filter = {blackList: ['on', 'off', 'fire']};
 
 //--------------------------------------------------[Component Constructor]
@@ -43,7 +43,7 @@
    */
   function Component(constructor) {
     // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
-    var ComponentConstructor = function() {
+    var Component = function() {
       // 追加默认 options 到实例对象。
       Object.append(this, constructor.options, filter);
       // 分析形参和实参的差别。
@@ -59,22 +59,22 @@
       this.events = {};
       constructor.apply(this, parameters);
     };
-    // 将 componentInstanceMethods 添加到 ComponentConstructor 的原型链。
-    var ComponentPrototype = function() {
+    // 将 instanceMethods 添加到 Component 的原型链。
+    var Prototype = function() {
     };
-    ComponentPrototype.prototype = componentInstanceMethods;
-    ComponentConstructor.prototype = new ComponentPrototype();
-    ComponentConstructor.prototype.constructor = ComponentConstructor;
-    ComponentConstructor.prototype.superPrototype = ComponentPrototype.prototype;
-    // 将 constructor 的原型内的属性追加到 ComponentConstructor 的原型中。
-    Object.append(ComponentConstructor.prototype, constructor.prototype, filter);
+    Prototype.prototype = instanceMethods;
+    Component.prototype = new Prototype();
+    Component.prototype.constructor = Component;
+    Component.prototype.superPrototype = Prototype.prototype;
+    // 将 constructor 的原型内的属性追加到 Component 的原型中。
+    Object.append(Component.prototype, constructor.prototype, filter);
     // 返回组件。
-    return ComponentConstructor;
+    return Component;
   }
 
   window.Component = Component;
 
-//--------------------------------------------------[componentInstanceMethods.on]
+//--------------------------------------------------[instanceMethods.on]
   /**
    * 为组件添加监听器。
    * @name Component#on
@@ -84,11 +84,11 @@
    * @param {Function} listener 要添加的事件监听器，传入调用此方法的组件提供的事件对象。
    * @returns {Object} 调用本方法的组件。
    */
-  componentInstanceMethods.on = function(name, listener) {
+  instanceMethods.on = function(name, listener) {
     var self = this;
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        componentInstanceMethods.on.call(self, name, listener);
+        instanceMethods.on.call(self, name, listener);
       });
       return self;
     }
@@ -100,7 +100,7 @@
     return self;
   };
 
-//--------------------------------------------------[componentInstanceMethods.off]
+//--------------------------------------------------[instanceMethods.off]
   /**
    * 根据名称删除组件上已添加的监听器。
    * @name Component#off
@@ -108,11 +108,11 @@
    * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
    * @returns {Object} 调用本方法的组件。
    */
-  componentInstanceMethods.off = function(name) {
+  instanceMethods.off = function(name) {
     var self = this;
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        componentInstanceMethods.off.call(self, name);
+        instanceMethods.off.call(self, name);
       });
       return self;
     }
@@ -143,7 +143,7 @@
     return self;
   };
 
-//--------------------------------------------------[componentInstanceMethods.fire]
+//--------------------------------------------------[instanceMethods.fire]
   /**
    * 触发一个组件的某类事件，运行相关的监听器。
    * @name Component#fire
@@ -152,7 +152,7 @@
    * @param {Object} [event] 事件对象。
    * @returns {Object} 调用本方法的组件。
    */
-  componentInstanceMethods.fire = function(type, event) {
+  instanceMethods.fire = function(type, event) {
     var self = this;
     var events = self.events;
     var handlers = events[type];

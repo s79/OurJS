@@ -48,12 +48,13 @@ execute(function($) {
 <fieldset>
   <legend>可以为数字值、长度值、颜色值设置渐变。</legend>
   <div id="e_m_1" style="width: 100px; height: 50px; padding: 2px; border: 0 solid gray; background: gold; line-height: 50px; text-align: center;">M</div>
+  <button id="e_m_1_go">morph</button>
 </fieldset>
 <pre></pre>
 <script>
 execute(function($) {
-  $('#e_m_1').on('click', function() {
-    this.morph({
+  $('#e_m_1_go').on('click', function() {
+    $('#e_m_1').morph({
       width: '+=100', // 可以使用相对长度。
       borderLeftWidth: '10px', // 长度值目前仅支持像素单位。
       borderLeftColor: '#808080',
@@ -102,12 +103,13 @@ execute(function($) {
 <fieldset>
   <legend>高亮效果，多次点击时将重播队列中正在播放的高亮效果，并且只有这个播放的效果会有回调。</legend>
   <div id="e_h_1" style="width: 100px; height: 50px; padding: 2px; background: gold; line-height: 50px; text-align: center;">H</div>
+  <button id="e_h_1_go">highlight</button>
 </fieldset>
 <pre></pre>
 <script>
 execute(function($) {
-  $('#e_h_1').on('click', function() {
-    this.highlight({
+  $('#e_h_1_go').on('click', function() {
+    $('#e_h_1').highlight({
       callback: function() {
         this.innerText += 'H';
       }
@@ -120,12 +122,13 @@ execute(function($) {
 <fieldset>
   <legend>如果当前队列的前一个动画也是高亮动画，则丢弃当前的高亮动画。若此时当前元素正在播放一个高亮动画，则重新播放该动画。</legend>
   <div id="e_h_2" style="width: 100px; height: 50px; padding: 2px; background: gold; line-height: 50px; text-align: center;">H</div>
+  <button id="e_h_2_go">highlight</button>
 </fieldset>
 <pre></pre>
 <script>
 execute(function($) {
-  $('#e_h_2').on('click', function() {
-    this.highlight({
+  $('#e_h_2_go').on('click', function() {
+    $('#e_h_2').highlight({
       callback: function() {
         this.innerText += '1';
       }
@@ -194,7 +197,7 @@ execute(function($) {
 <!-- a_2 { -->
 <style>
 #container { position: relative; width: 200px; height: 50px; margin: auto; }
-#layer { display: none; position: absolute; z-index: 2; left: 0; top: 20px; width: 200px; height: 0; background: #c0c0c0; font: 0/0 Verdana; text-align: center; overflow: hidden; }
+#layer { display: none; position: absolute; z-index: 2; left: 0; top: 20px; width: 200px; height: 0; background: #c0c0c0; font: 1px/1px Verdana; text-align: center; overflow: hidden; }
 #layer.italic { font-style: italic; }
 #panel { position: relative; width: 500px; margin: auto; }
 #panel #number,
@@ -238,44 +241,38 @@ execute(function($) {
       }, 400, 200, 'cubicBezier(.6,0,.6,1.35)'))
       .addClip(
       new Fx.Base(function(x, y) {
+        console.log(x, y);
         $layer.toggleClass('italic');
-      }, 700, 0, 'linear'))
+      }, 600, 0, 'linear'))
       .addClip(
       new Fx.Morph($layer, {
         top: '-=150',
         height: '+=100',
         color: '#C00000',
         fontSize: 50,
-        lineHeight: '+=100'
+        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
       }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
-      .on(
-      'play', function() {
+      .on('play', function() {
         $layer.innerHTML = 'PLAY';
       })
-      .on(
-      'reverse', function() {
+      .on('reverse', function() {
         $layer.innerHTML = 'REVERSE';
       })
-      .on(
-      'step', function() {
+      .on('step', function() {
 //        console.log('STEP');
       })
-      .on(
-      'playfinish', function() {
+      .on('playfinish', function() {
         $layer.innerHTML = 'PLAYFINISH';
 //        this.reverse();
       })
-      .on(
-      'reversefinish', function() {
+      .on('reversefinish', function() {
         $layer.innerHTML = 'REVERSEFINISH';
 //        this.play();
       })
-      .on(
-      'pause', function() {
+      .on('pause', function() {
         $layer.innerHTML = 'PAUSE';
       })
-      .on(
-      'stop', function() {
+      .on('stop', function() {
         $layer.innerHTML = 'STOP';
       });
 
@@ -359,12 +356,13 @@ execute(function($) {
 <style>
 #canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
 #canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
+.triggers button { width: 100px; }
 </style>
 <fieldset id="timing_functions" style="text-align: center;">
   <legend style="text-align: left;">100% 兼容 CSS3 的 transition-timing-function 特性的控速函数。</legend>
   <div id="canvas"></div>
   <p>点击 = 清除，Ctrl + 点击 = 一起画，Shift + 点击 = 分别画。</p>
-  <p>
+  <p class="triggers">
     <button style="background-color: white;">linear</button>
     <button style="background-color: silver;">bounceIn</button>
     <button style="background-color: gold;">bounceOut</button>
@@ -377,11 +375,12 @@ execute(function($) {
     <button style="background-color: springgreen;">easeInOut</button>
     <button style="background-color: orchid;">easeOutIn</button>
     <br>
-    <button style="background-color: tomato;">cubicBezier(.6,0,.6,1.35)</button>
-    <button style="background-color: yellowgreen;">cubicBezier(.4,-0.35,.4,1)</button>
+    <button style="background-color: tomato; width: 200px;">cubicBezier(.6,0,.6,1.35)</button>
+    <button style="background-color: yellowgreen; width: 200px;">cubicBezier(.4,-0.35,.4,1)</button>
     <br>
-    <button style="background-color: steelblue;">cubicBezier(.5,.29,.23,-0.58)</button>
-    <button style="background-color: mediumseagreen;">cubicBezier(.25,1.25,.75,-0.25)</button>
+    <button style="background-color: steelblue; width: 250px;">cubicBezier(.5,.29,.23,-0.58)</button>
+    <button style="background-color: mediumseagreen; width: 250px;">cubicBezier(.25,1.25,.75,-0.25)</button>
+    <br>
   </p>
 </fieldset>
 <script>

@@ -1,4 +1,9 @@
-﻿>2012-04-16
+﻿>2012-04-18
+首末帧同步处理，中间帧挂载到引擎。
+bodyMask.show().hide().show().hide().show().hide().show().show().hide().hide().show().hide();
+使用升级后的 Animation 测试通过。
+
+>2012-04-16
 取消简化版动画的多队列支持。
 
 >2012-04-09

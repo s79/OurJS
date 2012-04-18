@@ -4,10 +4,6 @@
  * @version 20120310
  */
 execute(function($) {
-// 空函数。
-  var empty = function() {
-  };
-
 //==================================================[freezeFocusArea]
   /*
    * 限定不可聚焦的区域，仅供此组件使用。
@@ -87,7 +83,7 @@ execute(function($) {
 //==================================================[Mask]
   /*
    * 创建一个覆盖指定元素的内容的遮掩层，仅供此组件使用。
-   * 遮掩层除视觉遮掩效果外，仅能屏蔽鼠标对被遮掩区域的操作，若要同时限制键盘操作，请参考 freezeFocusArea。
+   * 遮掩层除视觉遮掩效果外，仅能屏蔽鼠标对被遮掩区域的操作，因此应配合 freezeFocusArea 限制键盘操作。
    *
    * 思路：
    *   遮掩层用来配合模态对话框使用。
@@ -119,12 +115,20 @@ execute(function($) {
    *   在 IE6 下禁用 show/hide 时的渐变效果，以避免和 PNG 透明修复脚本冲突。
    */
   function Mask(target, options) {
-    Object.append(this, Object.append(Object.clone(Mask.options, true), options));
     this.target = $(target);
-    this.isShown = false;
   }
 
-  components.Mask = Mask;
+//--------------------------------------------------[Mask.options]
+  /**
+   * 默认选项。
+   * @name Mask.options
+   * @private
+   */
+  Mask.options = {
+    attributes: {},
+    styles: {backgroundColor: 'black', opacity: 0.2},
+    effect: true
+  };
 
 //--------------------------------------------------[Mask.prototype.show]
   /**
@@ -135,10 +139,10 @@ execute(function($) {
    * @returns {Object} Mask 对象。
    */
   Mask.prototype.show = function() {
-    if (!this.isShown) {
+    if (!this.element) {
       var mask = this;
       var $container = mask.target;
-      // 创建遮掩层元素，需要为 IE6 做特殊处理。
+      // 创建遮掩层元素。
       var attributes = '';
       Object.forEach(mask.attributes, function(attributeValue, attributeName) {
         attributes += ' ' + attributeName + '="' + attributeValue + '"';
@@ -152,31 +156,37 @@ execute(function($) {
           var resizeMaskElementForIE6 = function() {
             mask.resize();
           };
-          var onShow = mask.onShow;
-          mask.onShow = function() {
+          mask.on('show.ie6', function() {
             window.attachEvent('onresize', resizeMaskElementForIE6);
-            onShow();
-            mask.onShow = onShow;
-          };
-          var onHide = mask.onHide;
-          mask.onHide = function() {
+          });
+          mask.on('hide.ie6', function() {
             window.detachEvent('onresize', resizeMaskElementForIE6);
-            onHide();
-            mask.onHide = onHide;
-          };
+            mask.off('show.ie6 hide.ie6');
+          });
         }
       } else {
         $mask = $('<div' + attributes + '></div>').setStyles(mask.styles);
       }
-      // 显示遮掩层。
+      // 确定遮掩层元素的样式并插入文档树。
       $container.append($mask.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
-//      $mask.stopAnimate().fadeIn({transition: 'easeOut', duration: 150});  // TODO: Animation 终止无回调，待改进。
-      navigator.isIE6 ? $mask.setStyle('display', 'block') : $mask.fadeIn({transition: 'easeOut', duration: 150});
+      // 动画效果。
+      mask.fadeAnimation = new Animation()
+          .addClip(new Fx.Fade($mask, 'in', 0, mask.effect ? 150 : 0, 'easeIn'))
+          .on('playfinish', function() {
+            $mask.setStyle('display', 'block');
+          })
+          .on('reversefinish', function() {
+            delete mask.fadeAnimation;
+            delete mask.element;
+            $mask.remove();
+            mask.fire('hide');
+          });
+      // 保存遮掩层元素（也供判断状态使用）。
       mask.element = $mask;
-      mask.isShown = true;
-      mask.resize();
-      mask.onShow();
     }
+    this.fadeAnimation.play();
+    this.resize();
+    this.fire('show');
     return this;
   };
 
@@ -189,22 +199,8 @@ execute(function($) {
    * @returns {Object} Mask 对象。
    */
   Mask.prototype.hide = function() {
-    if (this.isShown) {
-      var mask = this;
-      var $mask = mask.element;
-//      mask.element.stopAnimate().fadeOut({transition: 'easeIn', duration: 150, onFinish: function() {  // TODO: Animation 终止无回调，待改进。
-      var onFadeOut = function() {
-        delete mask.element;
-        $mask.remove();
-        mask.isShown = false;
-        mask.onHide();
-      };
-      if (navigator.isIE6) {
-        $mask.setStyle('display', 'none');
-        onFadeOut();
-      } else {
-        $mask.fadeOut({transition: 'easeIn', duration: 150, onFinish: onFadeOut});
-      }
+    if (this.element) {
+      this.fadeAnimation.reverse();
     }
     return this;
   };
@@ -218,7 +214,7 @@ execute(function($) {
    * @returns {Object} Mask 对象。
    */
   Mask.prototype.resize = function() {
-    if (this.isShown) {
+    if (this.element) {
       var $mask = this.element;
       var $target = this.target;
       if ($target === document.body) {
@@ -248,24 +244,14 @@ execute(function($) {
    * @returns {Object} Mask 对象。
    */
   Mask.prototype.setZIndex = function(zIndex) {
-    if (this.isShown) {
+    if (this.element) {
       this.element.setStyle('zIndex', zIndex);
     }
     return this;
   };
 
-//--------------------------------------------------[Mask.options]
-  /**
-   * 默认选项。
-   * @name Mask.options
-   * @private
-   */
-  Mask.options = {
-    attributes: {},
-    styles: {backgroundColor: '#000', opacity: 0.2},
-    onShow: empty,
-    onHide: empty
-  };
+//--------------------------------------------------[components.Switcher]
+  components.Mask = new Component(Mask);
 
 //==================================================[Dialog]
   /*
@@ -336,7 +322,7 @@ execute(function($) {
     this.group = groups[groupId] || (groups[groupId] = {stack: [], mask: null});
     // 参照 element 的 zIndex 来调节遮掩层。
     $dialog.setStyle('zIndex', parseInt($dialog.getStyle('zIndex'), 10) || 1000);
-    this.group.mask || (this.group.mask = new Mask($container, {attributes: this.maskAttributes, styles: this.maskStyles}));
+    this.group.mask || (this.group.mask = new components.Mask($container, {attributes: this.maskAttributes, styles: this.maskStyles}));
   }
 
   components.Dialog = Dialog;
@@ -362,7 +348,7 @@ execute(function($) {
       dialog.onOpen();
       // 根据选项决定是否及如何创建并显示遮掩层。
       var mask = dialog.group.mask;
-      mask.isShown || mask.show();
+      mask.element || mask.show();
       mask.setZIndex($dialog.getStyle('zIndex') - 1);
       // 启用遮掩区域聚焦锁定。
       freezeFocusArea({enable: $dialog, disable: $container});
@@ -504,17 +490,15 @@ execute(function($) {
    *     <tr><th>maskStyles</th><td>{backgroundColor: '#000', opacity: 0.2}</td></tr>
    *     <tr><th>pinnedOffsetX</th><td>NaN</td></tr>
    *     <tr><th>pinnedOffsetY</th><td>NaN</td></tr>
-   *     <tr><th>onOpen</th><td>empty</td></tr>
-   *     <tr><th>onClose</th><td>empty</td></tr>
    *   </table>
    */
   Dialog.options = {
     maskAttributes: {},
     maskStyles: {backgroundColor: '#000', opacity: 0.2},
     pinnedOffsetX: NaN,
-    pinnedOffsetY: NaN,
-    onOpen: empty,
-    onClose: empty
+    pinnedOffsetY: NaN/*,
+     onOpen: empty,
+     onClose: empty*/
   };
 
 });

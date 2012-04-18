@@ -691,6 +691,7 @@
    * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
    * html.clientLeft 在 IE6 中取决于 html 的 border 属性，而在 IE7 中的值则始终为 2px。
    */
+
   /**
    * 获取元素的 border-box 在视口中的坐标。
    * @name Element.prototype.getClientRect

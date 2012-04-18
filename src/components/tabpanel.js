@@ -3,7 +3,7 @@
  * @author sundongguo@gmail.com
  * @version 20120326
  */
-(function() {
+execute(function($) {
 //==================================================[TabPanel]
   /*
    * 创建多页标签面板。
@@ -137,4 +137,4 @@
 //--------------------------------------------------[components.TabPanel]
   components.TabPanel = new Component(TabPanel);
 
-})();
+});
