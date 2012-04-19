@@ -56,6 +56,8 @@ mask.js:52show
 Mask
 components.mask.html:591331403483764 "HIDE"
 
+>TODO: 检查代码，移除作为一条语句使用的短路操作，JS 编码规范也会添加此类内容。
+
 >TODO: include (from site.js)
 
 >TODO: Date.from/format

@@ -228,52 +228,66 @@ execute(function($) {
 //--------------------------------------------------[animation]
   var $layer = $('#layer').setStyle('opacity', 0.75);
   window.animation = new Animation()
-      .addClip(new Fx.Fade($layer, 'in', 0, 100, 'easeOut'))
-      .addClip(new Fx.Highlight($layer, 'aqua', 1, 100, 300, 'linear'))
-      .addClip(
-      new Fx.Morph($layer, {
-        backgroundColor: 'steelblue'
-      }, 400, 600))
-      .addClip(
-      new Fx.Morph($layer, {
-        left: '-=150',
-        width: '+=300'
-      }, 400, 200, 'cubicBezier(.6,0,.6,1.35)'))
+//      .addClip(new Fx.Fade($layer, 'in', 0, 100, 'easeOut'))
+//      .addClip(new Fx.Highlight($layer, 'aqua', 1, 100, 300, 'linear'))
+//      .addClip(
+//      new Fx.Morph($layer, {
+//        backgroundColor: 'steelblue'
+//      }, 400, 600))
+//      .addClip(
+//      new Fx.Morph($layer, {
+//        left: '-=150',
+//        width: '+=300'
+//      }, 400, 200, 'cubicBezier(.6,0,.6,1.35)'))
       .addClip(
       new Fx.Base(function(x, y) {
         console.log(x, y);
         $layer.toggleClass('italic');
-      }, 600, 0, 'linear'))
-      .addClip(
-      new Fx.Morph($layer, {
-        top: '-=150',
-        height: '+=100',
-        color: '#C00000',
-        fontSize: 50,
-        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
-      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
+      }, 0, 0, 'linear'))
+//      .addClip(
+//      new Fx.Morph($layer, {
+//        top: '-=150',
+//        height: '+=100',
+//        color: '#C00000',
+//        fontSize: 50,
+//        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
+//      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
+      .on('playstart', function() {
+        $layer.innerHTML = 'PLAYSTART';
+        console.log('PLAYSTART');
+      })
       .on('play', function() {
         $layer.innerHTML = 'PLAY';
-      })
-      .on('reverse', function() {
-        $layer.innerHTML = 'REVERSE';
-      })
-      .on('step', function() {
-//        console.log('STEP');
+        console.log('PLAY');
       })
       .on('playfinish', function() {
         $layer.innerHTML = 'PLAYFINISH';
+        console.log('PLAYFINISH');
 //        this.reverse();
+      })
+      .on('reversestart', function() {
+        $layer.innerHTML = 'REVERSESTART';
+        console.log('REVERSESTART');
+      })
+      .on('reverse', function() {
+        $layer.innerHTML = 'REVERSE';
+        console.log('REVERSE');
       })
       .on('reversefinish', function() {
         $layer.innerHTML = 'REVERSEFINISH';
+        console.log('REVERSEFINISH');
 //        this.play();
+      })
+      .on('step', function() {
+        console.log('STEP');
       })
       .on('pause', function() {
         $layer.innerHTML = 'PAUSE';
+        console.log('PAUSE');
       })
       .on('stop', function() {
         $layer.innerHTML = 'STOP';
+        console.log('STOP');
       });
 
 //--------------------------------------------------[panel]

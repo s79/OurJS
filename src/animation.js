@@ -9,12 +9,12 @@
   /*
    * 调用流程：
    *   var animation = new Animation(...).addClip(...);
-   *   animation.play()<play>       -> (x, y) <step> -> ... -> <playfinish>
-   *   animation.reverse()<reverse> -> (x, y) <step> -> ... -> <reversefinish>
-   *                                                     -> animation.pause<pause> -> animation.stop()<stop>
-   *                                                                               -> animation.play()<play>       ->>>
-   *                                                                               -> animation.reverse()<reverse> ->>>
-   *                                                     -> animation.stop<stop>
+   *   animation.play()<playstart>       -> (x, y) <step> -> ... -> <playfinish>
+   *   animation.reverse()<reversestart> -> (x, y) <step> -> ... -> <reversefinish>
+   *                                                      -> animation.pause<pause> -> animation.stop()<stop>
+   *                                                                                -> animation.play()<play>       -> (x, y) <step> ->>>
+   *                                                                                -> animation.reverse()<reverse> -> (x, y) <step> ->>>
+   *                                                      -> animation.stop<stop>
    *
    * 说明：
    *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
@@ -160,22 +160,28 @@
    * @param {number} [duration] 动画的持续时间。
    *   通常不必设置该值，该值会随着动画剪辑的插入自动调整，以保证不小于任何一个剪辑的播放时间的总长。
    *   这个参数的意义在于：设置一个足够长的 duration，可以实现在播放时间最长的剪辑的结束点之后的延时。
+   * @fires playstart
+   *   开始播放时（渲染整个动画的第一帧之前）触发。
    * @fires play
-   *   开始播放时（播放第一帧之前）触发。
-   * @fires reverse
-   *   开始反向播放时（播放第一帧之前）触发。
-   * @fires step
-   *   播放每一帧时触发。
+   *   开始播放时（渲染本次播放的第一帧之前）触发。
    * @fires playfinish
-   *   播放结束时（播放最后一帧之后）触发。
+   *   播放结束时（渲染整个动画的最后一帧之后）触发。
+   * @fires reversestart
+   *   开始反向播放时（渲染整个动画的第一帧之前）触发。
+   * @fires reverse
+   *   开始反向播放时（渲染本次播放的第一帧之前）触发。
    * @fires reversefinish
-   *   反向播放结束时（播放最后一帧之后）触发。
+   *   反向播放结束时（渲染整个动画的最后一帧之后）触发。
+   * @fires step
+   *   渲染每一帧之后触发。
    * @fires pause
    *   暂停播放时触发。
    * @fires stop
    *   停止播放时触发。
    * @description
-   *   高级应用：向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
+   *   高级应用：
+   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
+   *   仅应在动画初始化时添加影片剪辑，不要在动画开始播放后更改影片剪辑的状态。
    */
   function Animation(duration, options) {
     this.uid = ++uid;
@@ -220,13 +226,23 @@
   Animation.prototype.play = function(reverse) {
     var isPlayMethod = reverse !== INTERNAL_IDENTIFIER_REVERSE;
     var status = this.status;
+    var duration = this.duration;
     if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != STARTING_POINT) {
       this.status = isPlayMethod ? PLAYING : REVERSING;
-      this.fire(isPlayMethod ? 'play' : 'reverse');
+      if (isPlayMethod) {
+        this.fire('play');
+        if (this.timePoint === 0) {
+          this.fire('playstart');
+        }
+      } else {
+        this.fire('reverse');
+        if (this.timePoint === duration) {
+          this.fire('reversestart');
+        }
+      }
       // 未挂载到引擎（执行此方法前为暂停/停止状态）。
       if (!this.timestamp) {
         // 每次播放/反向播放时的首帧同步播放。
-        var duration = this.duration;
         playAnimation(this, isPlayMethod ? 0 : duration, isPlayMethod);
         // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
         if (duration) {

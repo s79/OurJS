@@ -1,61 +1,109 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+﻿<!DOCTYPE html>
+<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<script type="text/javascript" src="../common.js"></script>
-<script type="text/javascript" src="createFileBrowser.js"></script>
+<meta charset="utf-8">
+<script src="../common.js"></script>
+<script>
+/**
+ * @name createFileBrowser
+ * @author sundongguo
+ * @version 20080911
+ *
+ * 使用createFileBrowser($target)创建一个文件浏览组件。
+ * $target是默认的<input type="file" ...>的元素。
+ *
+ * 创建后的结构为：
+ * <div class="browser"><input type="text" class="text"><span><input type="file" ...></span></div>
+ * 请参考以上结构定义其css。
+ */
+
+//--------------------------------------------------[createFileBrowser]
+function createFileBrowser() {
+  function mouseover() {
+    this.className = "over";
+  }
+
+  function mouseout() {
+    this.className = "";
+  }
+
+  function change() {
+    this.parentNode.previousSibling.value = this.value;
+  }
+
+  return function($target) {
+    //建立DOM。
+    var $div = $("<div>");
+    $div.className = "browser";
+    var $text = $("<input>");
+    $text.type = "text";
+    $text.className = "text";
+    $text.readOnly = true;
+    var $span = $("<span>");
+    $div.appendChild($text);
+    $div.appendChild($span);
+    $target.parentNode.insertBefore($div, $target);
+    $span.appendChild($target);
+    //绑定事件。
+    EventManager.bind($target, "change", change);
+    EventManager.bind($span, "mouseover", mouseover);
+    EventManager.bind($span, "mouseout", mouseout);
+  };
+}();
+
+</script>
 <title>createFileBrowser</title>
 <style type="text/css">
-.browser input.text
-{
-	float: left;
-	width: 200px;
-	height: 17px;
-	margin-right: 10px;
-	padding: 0px;
-	border: 1px solid #c0c0c0;
-	font: 12px/17px Verdana;
+.browser input.text {
+  float: left;
+  width: 200px;
+  height: 17px;
+  margin-right: 10px;
+  padding: 0px;
+  border: 1px solid #c0c0c0;
+  font: 12px/17px Verdana;
 }
-.browser span
-{
-	display: block;
-	position: relative;
-	width: 46px;
-	height: 19px;
-	overflow: hidden;
-	background: url("btn_browse.gif") no-repeat 0px 0px;
+.browser span {
+  display: block;
+  position: relative;
+  width: 46px;
+  height: 19px;
+  overflow: hidden;
+  background: url("btn_browse.gif") no-repeat 0px 0px;
 }
-.browser span.over
-{
-	background: url("btn_browse.gif") no-repeat 0px -19px;
+.browser span.over {
+  background: url("btn_browse.gif") no-repeat 0px -19px;
 }
-.browser span input
-{
-	position: absolute;
-	right: 0px;
-	bottom: 0px;
-	width: 220px;
-	height: 50px;
-	opacity: 0;
-	filter: alpha(opacity=0);
+.browser span input {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 220px;
+  height: 50px;
+  opacity: 0;
+  filter: alpha(opacity = 0);
 }
 </style>
 <script type="text/javascript">
-EventManager.setOnDOMReady(function()
-{
-	createFileBrowser($("b1"));
-	createFileBrowser($("b2"));
-	createFileBrowser($("b3"));
+EventManager.setOnDOMReady(function() {
+  createFileBrowser($("b1"));
+  createFileBrowser($("b2"));
+  createFileBrowser($("b3"));
 });
 </script>
 </head>
 <body>
 <form>
-	<input id="b1" name="file1" type="file"/>
-	<br>
-	<input id="b2" name="file2" type="file"/>
-	<br>
-	<input id="b3" name="file3" type="file"/>
+  <input id="b1" name="file1" type="file">
+  <br>
+  <input id="b2" name="file2" type="file" style="display: none; visib`ility: hidden;">
+  <br>
+  <input id="b3" name="file3" type="file">
 </form>
+<button onclick="document.getElementById('b2').click();">UPLOAD</button>
+<script>
+// 在一些浏览器中，脚本直接调用 click 方法是不允许的，但若是用户触发的事件，处于向后兼容考虑，是允许的。
+document.getElementById('b2').click();
+</script>
 </body>
 </html>

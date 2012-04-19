@@ -11,37 +11,35 @@
  * 请参考以上结构定义其css。
  */
 //--------------------------------------------------[createFileBrowser]
-var createFileBrowser=function()
-{
-	function mouseover()
-	{
-		this.className="over";
-	}
-	function mouseout()
-	{
-		this.className="";
-	}
-	function change()
-	{
-		this.parentNode.previousSibling.value=this.value;
-	}
-	return function($target)
-	{
-		//建立DOM。
-		var $div=$("<div>");
-		$div.className="browser";
-		var $text=$("<input>");
-		$text.type="text";
-		$text.className="text";
-		$text.readOnly=true;
-		var $span=$("<span>");
-		$div.appendChild($text);
-		$div.appendChild($span);
-		$target.parentNode.insertBefore($div,$target);
-		$span.appendChild($target);
-		//绑定事件。
-		EventManager.bind($target,"change",change);
-		EventManager.bind($span,"mouseover",mouseover);
-		EventManager.bind($span,"mouseout",mouseout);
-	};
+var createFileBrowser = function() {
+  function mouseover() {
+    this.className = "over";
+  }
+
+  function mouseout() {
+    this.className = "";
+  }
+
+  function change() {
+    this.parentNode.previousSibling.value = this.value;
+  }
+
+  return function($target) {
+    //建立DOM。
+    var $div = $("<div>");
+    $div.className = "browser";
+    var $text = $("<input>");
+    $text.type = "text";
+    $text.className = "text";
+    $text.readOnly = true;
+    var $span = $("<span>");
+    $div.appendChild($text);
+    $div.appendChild($span);
+    $target.parentNode.insertBefore($div, $target);
+    $span.appendChild($target);
+    //绑定事件。
+    EventManager.bind($target, "change", change);
+    EventManager.bind($span, "mouseover", mouseover);
+    EventManager.bind($span, "mouseout", mouseout);
+  };
 }();

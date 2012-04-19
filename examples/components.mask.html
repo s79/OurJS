@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>components.Mask</title>
-<link rel="stylesheet" href="../examples/common.css">
+<link rel="stylesheet" href="common.css">
 <script src="../dev.js"></script>
 <script src="../src/components/dialog.js"></script>
 <style>
@@ -13,15 +13,7 @@ select { width: 100px; background: orangered; }
 </head>
 <body>
 <h1>components.Mask</h1>
-<h2 id="x" style="position: absolute; left: 100px; top: 100px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
-<!--[if IE 6]>
-<div style="position: absolute; left: 0; top: 450px; width: 800px; padding: 20px;">
-  <p>
-    IE6，bodyMask.show() - divMask.show() - bodyMask.hide() 这种乱序显示/隐藏遮掩层的操作会导致一些 select 元素被错误的显现，由于这种情况极其罕见，未作处理。<br>
-    只要按照后进先出的顺序显示/隐藏遮掩层，就不会出现这个问题。
-  </p>
-</div>
-<![endif]-->
+<h2 id="x" style="position: absolute; left: 150px; top: 150px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
 <select></select>
 <select></select>
 <span id="span" style="position: absolute; left: 575px; top: 350px; z-index: 50; width: 400px; height: 50px; margin: 25px; padding: 5px 15px; border: 7px solid mediumorchid; background: white">
@@ -58,7 +50,7 @@ var $span;
 var $div;
 execute(function($) {
 //--------------------------------------------------[Mask]
-  bodyMask = new components.Mask(document.body, {effect: 1})
+  bodyMask = new components.Mask(document.body, {effect: false})
       .on('show',
       function() {
         console.log(Date.now(), 'SHOW');
@@ -86,23 +78,14 @@ execute(function($) {
     if (window.getPageOffset().y >= length) {
       if (position !== 'fixed') {
         $span.setStyles({position: 'fixed', top: 0});
-        if (spanMask.isShown) {
-          setTimeout(function() {
-            spanMask.hide().show();
-          }, 0);
-        }
       }
     } else {
       if (position !== 'absolute') {
         $span.setStyles({position: 'absolute', top: length});
-        if (spanMask.isShown) {
-          setTimeout(function() {
-            spanMask.hide().show();
-          }, 0);
-        }
       }
     }
   });
+
 });
 </script>
 </body>
