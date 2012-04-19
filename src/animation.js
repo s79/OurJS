@@ -95,16 +95,22 @@
         clip.handler.call(animation, x, x === 0 ? 0 : (x === 1 ? 1 : clip.timingFunction(x)));
       }
     });
-    // 本帧播放完毕。
-    animation.fire('step');
-    // 本帧为当前播放方向的最后一帧。
+    // 触发事件。
     if (isPlayMethod) {
+      if (timePoint === 0) {
+        animation.fire('playstart');
+      }
+      animation.fire('step');
       if (timePoint === animation.duration) {
         unmountAnimation(animation);
         animation.status = END_POINT;
         animation.fire('playfinish');
       }
     } else {
+      if (timePoint === animation.duration) {
+        animation.fire('reversestart');
+      }
+      animation.fire('step');
       if (timePoint === 0) {
         unmountAnimation(animation);
         animation.status = STARTING_POINT;
@@ -160,18 +166,18 @@
    * @param {number} [duration] 动画的持续时间。
    *   通常不必设置该值，该值会随着动画剪辑的插入自动调整，以保证不小于任何一个剪辑的播放时间的总长。
    *   这个参数的意义在于：设置一个足够长的 duration，可以实现在播放时间最长的剪辑的结束点之后的延时。
-   * @fires playstart
-   *   开始播放时（渲染整个动画的第一帧之前）触发。
    * @fires play
-   *   开始播放时（渲染本次播放的第一帧之前）触发。
+   *   开始播放时，渲染本次播放的第一帧之前触发。
+   * @fires playstart
+   *   开始播放时，渲染整个动画的第一帧之后触发。
    * @fires playfinish
-   *   播放结束时（渲染整个动画的最后一帧之后）触发。
-   * @fires reversestart
-   *   开始反向播放时（渲染整个动画的第一帧之前）触发。
+   *   播放结束时，渲染整个动画的最后一帧之后触发。
    * @fires reverse
-   *   开始反向播放时（渲染本次播放的第一帧之前）触发。
+   *   开始反向播放时，渲染本次播放的第一帧之前触发。
+   * @fires reversestart
+   *   开始反向播放时，渲染整个动画的第一帧之后触发。
    * @fires reversefinish
-   *   反向播放结束时（渲染整个动画的最后一帧之后）触发。
+   *   反向播放结束时，渲染整个动画的最后一帧之后触发。
    * @fires step
    *   渲染每一帧之后触发。
    * @fires pause
@@ -229,17 +235,8 @@
     var duration = this.duration;
     if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != STARTING_POINT) {
       this.status = isPlayMethod ? PLAYING : REVERSING;
-      if (isPlayMethod) {
-        this.fire('play');
-        if (this.timePoint === 0) {
-          this.fire('playstart');
-        }
-      } else {
-        this.fire('reverse');
-        if (this.timePoint === duration) {
-          this.fire('reversestart');
-        }
-      }
+      // 触发事件。
+      this.fire(isPlayMethod ? 'play' : 'reverse');
       // 未挂载到引擎（执行此方法前为暂停/停止状态）。
       if (!this.timestamp) {
         // 每次播放/反向播放时的首帧同步播放。

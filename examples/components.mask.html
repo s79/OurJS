@@ -59,7 +59,15 @@ execute(function($) {
       function() {
         console.log(Date.now(), 'HIDE');
       });
-  pMask = new components.Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 0.5, zIndex: 100}});
+  pMask = new components.Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 1, zIndex: 100}})
+      .on('show',
+      function() {
+        console.log(Date.now(), 'SHOW');
+      })
+      .on('hide',
+      function() {
+        console.log(Date.now(), 'HIDE');
+      });
   divMask = new components.Mask($('#div'), {styles: {backgroundColor: 'cornflowerblue', opacity: 0.75, zIndex: 100}});
   spanMask = new components.Mask($('#span'), {styles: {backgroundColor: 'orchid', opacity: 0.5, zIndex: 100}});
   varMask = new components.Mask($('#var'), {styles: {backgroundColor: 'springgreen', opacity: 0.35, zIndex: 100}});

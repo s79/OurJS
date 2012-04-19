@@ -9,8 +9,6 @@
 <style>
 body { height: 1500px; }
 button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
-#dialog_1 { display: none; position: absolute; z-index: 10; width: 600px; height: 400px; background: steelblue url(../examples_1/png.png); }
-#dialog_2 { display: none; position: fixed; left: 20%; top: 20%; z-index: 20; width: 400px; height: 200px; background: mediumorchid; }
 </style>
 </head>
 <body>
@@ -45,7 +43,7 @@ button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
   </fieldset>
 </div>
 <!-- dialog { -->
-<div id="dialog_1" class="alpha">
+<div id="dialog_1" style="display: none; position: fixed; z-index: 10; width: 600px; height: 400px; background: steelblue url(../examples_1/png.png);" class="alpha">
   <fieldset style="background: url(../examples_1/png.png);" class="alpha">
     <legend>测试 IE6 中 SELECT 元素的遮盖情况</legend>
     <select>
@@ -57,33 +55,39 @@ button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
     <button class="action" onclick="dialogTwo.open();">dialogTwo.open()</button>
   </p>
 </div>
-<div id="dialog_2">
+<div id="dialog_2" style="display: none; position: fixed; left: 20%; top: 20%; z-index: 20; width: 400px; height: 200px; background: mediumorchid;">
   <p style="clear: both; text-align: center;">
     <button class="action" onclick="dialogTwo.close();">dialogTwo.close()</button>
   </p>
   <p style="clear: both; text-align: center;">
-    <button class="action" onclick="runAnimation(true);">变长</button>
-    <button class="action" onclick="runAnimation(false);">变短</button>
+    <button class="action" onclick="animation.play();">变长</button>
+    <button class="action" onclick="animation.reverse();">变短</button>
   </p>
 </div>
 <!-- } dialog -->
 <script>
 var dialogOne;
 var dialogTwo;
+var animation;
 execute(function($) {
 //--------------------------------------------------[TEST]
 //$('#pin').setStyle('position', 'fixed');
 
-  dialogOne = new components.Dialog($('#dialog_1'), {pinnedOffsetX: 200, pinnedOffsetY: 200, effect: false});
-  dialogTwo = new components.Dialog($('#dialog_2'), {});
+  dialogOne = new components.Dialog($('#dialog_1'), {offsetX: NaN, offsetY: 200, effect: false})
+      .on('open',
+      function() {
+        console.log('open');
+      })
+      .on('close',
+      function() {
+        console.log('close');
+      });
+  dialogTwo = new components.Dialog($('#dialog_2'), {effect: true});
 
-  window.runAnimation = function(flag) {
-    dialogTwo.element.animate({height: flag ? 400 : 200}, {
-      onPlay: function() {
+  animation = new Animation().addClip(new Fx.Morph(dialogTwo.element, {height: 400}, 0, 200, 'ease'))
+      .on('step', function() {
         dialogTwo.adjust();
-      }
-    });
-  };
+      });
 });
 
 </script>

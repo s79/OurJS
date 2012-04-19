@@ -117,7 +117,6 @@ execute(function($) {
    */
   function Mask(target, options) {
     this.target = $(target);
-    this.isShown = false;
   }
 
 //--------------------------------------------------[Mask.options]
@@ -129,7 +128,7 @@ execute(function($) {
   Mask.options = {
     attributes: {},
     styles: {backgroundColor: 'black', opacity: 0.2},
-    effect: true
+    effect: false
   };
 
 //--------------------------------------------------[Mask.prototype.show]
@@ -141,7 +140,8 @@ execute(function($) {
    * @returns {Object} Mask 对象。
    */
   Mask.prototype.show = function() {
-    if (!this.isShown) {
+    if (!this.animation) {
+      // 初始化。
       var mask = this;
       var $container = mask.target;
       // 创建遮掩层元素。
@@ -176,19 +176,17 @@ execute(function($) {
       mask.animation = new Animation()
           .addClip(new Fx.Fade($mask, 'in', 0, mask.effect ? 150 : 0, 'easeIn'))
           .on('playstart', function() {
-            mask.isShown = true;
             mask.resize();
             mask.fire('show');
           })
           .on('reversefinish', function() {
-            mask.isShown = false;
             delete mask.animation;
             delete mask.element;
             $mask.remove();
             mask.fire('hide');
           });
-      mask.animation.play();
     }
+    this.animation.play();
     return this;
   };
 
@@ -201,7 +199,7 @@ execute(function($) {
    * @returns {Object} Mask 对象。
    */
   Mask.prototype.hide = function() {
-    if (this.isShown) {
+    if (this.animation) {
       this.animation.reverse();
     }
     return this;
@@ -216,7 +214,7 @@ execute(function($) {
    * @returns {Object} Mask 对象。
    */
   Mask.prototype.resize = function() {
-    if (this.isShown) {
+    if (this.element) {
       var $mask = this.element;
       var $target = this.target;
       if ($target === document.body) {
@@ -246,7 +244,7 @@ execute(function($) {
    * @returns {Object} Mask 对象。
    */
   Mask.prototype.setZIndex = function(zIndex) {
-    if (this.isShown) {
+    if (this.element) {
       this.element.setStyle('zIndex', zIndex);
     }
     return this;
@@ -284,8 +282,8 @@ execute(function($) {
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Dialog.options 中。
    * @param {Object} options.maskAttributes 为遮掩层元素附加的属性。
    * @param {Object} options.maskStyles 为遮掩层元素设置的样式。
-   * @param {number} options.pinnedOffsetX 对话框的左边与其父元素的左边的横向差值。如果指定，对话框的中心点在横向将不再与其父元素的中心点重合。
-   * @param {number} options.pinnedOffsetY 对话框的顶边与其父元素的顶边的纵向差值。如果指定，对话框的中心点在纵向将不再与其父元素的中心点重合。
+   * @param {number} options.offsetX 对话框的左边与其父元素的左边的横向差值。默认为 NaN，此时对话框的中心点在横向将与其父元素的中心点重合。
+   * @param {number} options.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
    * @param {boolean} options.effect 是否启用动画效果。在 IE6 下将无视此选项，强行禁用动画效果，以避免和 PNG 透明修复脚本冲突。
    * @fires open
    *   在对话框打开时触发。如果启用了动画效果，则在对话框打开动画开始播放的时候触发。
@@ -296,10 +294,8 @@ execute(function($) {
    *   <ul>
    *     <li>对话框的默认状态为关闭。因此 element 的 display 将被设置为 none。</li>
    *     <li>该元素的 position 将在创建后视情况而被修改为 absolute 或 fixed，另外建议为该元素设置明确的 zIndex。</li>
-   *     <li>对话框元素将以其父元素（父元素应创建 stacking context）为“参考元素”进行定位，将对话框的中心点固定在该元素的中心点，遮掩层也作为其父元素的子元素被创建。</li>
-   *     <li>如果 options.pinnedOffsetX 或 options.pinnedOffsetY 被指定，则对话框的中心点在横向或纵向将不再与其父元素的中心点重合。</li>
-   *     <li>如果以上两个参数被同时指定，则即便 element 是 body 的子元素，在窗口改变尺寸时也不会自动调用 adjust 方法。</li>
-   *     <li>如果话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context，成为对话框元素的 offsetParent。</li>
+   *     <li>对话框元素将以其父元素（父元素应创建 stacking context）为“参考元素”进行定位，遮掩层也作为其父元素的子元素被创建。</li>
+   *     <li>如果话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
    *     <li>如果话框元素的父元素为 body 元素时，遮掩层将遮掩整个视口。此时如果 element 的 position 为 fixed，对话框将始终保持显示在视口内（仅在这种情况下 element 的 position: fixed 才会有效）。</li>
    *     <li>避免让对话框元素的父元素（除 body 外）出现滚动条，以免对话框和遮掩层能随其内容滚动。</li>
    *     <li>当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。</li>
@@ -309,6 +305,10 @@ execute(function($) {
     var dialog = this;
     // 对话框的默认状态为关闭。
     dialog.isOpen = false;
+    // 禁用 IE6 下的动画效果。
+    if (navigator.isIE6) {
+      dialog.effect = false;
+    }
     // 对话框的初始状态是隐藏的。调节对话框的位置是通过 element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
     var $dialog = dialog.element = $(element).setStyles({display: 'none', left: 0, top: 0});
     // 根据 element 的父元素 $container 确定对话框使用的定位方式。
@@ -329,29 +329,20 @@ execute(function($) {
       $dialog.setStyle('zIndex', 1000);
     }
     // 为对话框分组。
-    var groupId = $container.uid;
-    var group = groups[groupId] || (groups[groupId] = {stack: [], mask: new components.Mask($container, {attributes: dialog.maskAttributes, styles: dialog.maskStyles, effect: dialog.effect})});
+    var uid = $container.uid;
+    var group = groups[uid] || (groups[uid] = {stack: [], mask: new components.Mask($container, {attributes: dialog.maskAttributes, styles: dialog.maskStyles, effect: dialog.effect})});
     var stack = group.stack;
     var mask = group.mask;
     // 动画效果。
     dialog.animation = new Animation()
         .addClip(new Fx.Fade($dialog, 'in', 0, dialog.effect ? 200 : 0, 'easeIn'))
         .on('playstart', function() {
-          // 开始打开动作。
-          dialog.isOpen = true;
-          // 在对应分组的栈中追加当前对话框。
           stack.push(dialog);
-          dialog.adjust();
-          dialog.fire('open');
-          // 显示遮掩层。
+          // 显示遮掩层及遮掩区域焦点锁定。
           mask.setZIndex($dialog.getStyle('zIndex') - 1).show();
-          // 启用遮掩区域聚焦锁定。
-          setTimeout(function() {
-            freezeFocusArea({enable: $dialog, disable: $container});
-          }, 0);
+          freezeFocusArea({enable: $dialog, disable: $container});
           // 仅父元素为 body 的对话框需要在改变窗口尺寸时重新调整位置（假设其他对话框的父元素的尺寸为固定）。
-          // 如果 pinnedOffsetX 和 pinnedOffsetY 同时被指定，则不调整位置（没有必要）。
-          if ($container === document.body && (isNaN(dialog.pinnedOffsetX) || isNaN(dialog.pinnedOffsetX))) {
+          if ($container === document.body) {
             window.on('resize.dialog' + $dialog.uid, navigator.isIE6 ? function() {
               // 避免 IE6 的固定定位计算错误。
               setTimeout(function() {
@@ -361,35 +352,28 @@ execute(function($) {
               dialog.adjust();
             });
           }
+          // 对话框已打开。
+          dialog.isOpen = true;
+          dialog.adjust();
+          dialog.fire('open');
         })
-        .on('reversestart', function() {
-          // 开始关闭动作。
-          // 在对应分组的栈中弹出当前对话框。
+        .on('reversefinish', function() {
           stack.pop();
-          // 检查本组对话框中是否还有对话框在打开状态。
           if (stack.length) {
-            // 如果不是最底层对话框，则锁定上一个对话框的焦点区域。
             var previousDialog = stack[stack.length - 1];
-            setTimeout(function() {
-              freezeFocusArea({enable: previousDialog.element, disable: previousDialog.element.getParent()});
-            }, 0);
+            // 如果上一层还有对话框，则调整遮掩层及焦点区域锁定。
+            mask.setZIndex(previousDialog.element.getStyle('zIndex') - 1);
+            freezeFocusArea({enable: previousDialog.element, disable: $container});
           } else {
-            // 如果是最底层对话框，则隐藏遮掩层。
+            // 如果是最底层对话框，则隐藏遮掩层，并解除焦点区域锁定。
             mask.hide();
-            // 解除焦点区域锁定。
             freezeFocusArea(null);
           }
           // 删除事件监听器。
-          if ($container === document.body && (isNaN(this.pinnedOffsetX) || isNaN(this.pinnedOffsetX))) {
+          if ($container === document.body) {
             window.off('resize.dialog' + $dialog.uid);
           }
-        })
-        .on('reversefinish', function() {
           // 对话框已关闭。
-          if (stack.length) {
-            // 如果不是最底层对话框，且有遮掩层，则在对话框消失后再进行调整。
-            mask && mask.setZIndex(previousDialog.element.getStyle('zIndex') - 1);
-          }
           dialog.isOpen = false;
           dialog.fire('close');
         });
@@ -405,17 +389,17 @@ execute(function($) {
    *   <table>
    *     <tr><th>maskAttributes</th><td>{}</td></tr>
    *     <tr><th>maskStyles</th><td>{backgroundColor: '#000', opacity: 0.2}</td></tr>
-   *     <tr><th>pinnedOffsetX</th><td>NaN</td></tr>
-   *     <tr><th>pinnedOffsetY</th><td>NaN</td></tr>
-   *     <tr><th>effect</th><td>true</td></tr>
+   *     <tr><th>offsetX</th><td>NaN</td></tr>
+   *     <tr><th>offsetY</th><td>NaN</td></tr>
+   *     <tr><th>effect</th><td>false</td></tr>
    *   </table>
    */
   Dialog.options = {
     maskAttributes: {},
     maskStyles: {backgroundColor: 'black', opacity: 0.2},
-    pinnedOffsetX: NaN,
-    pinnedOffsetY: NaN,
-    effect: true
+    offsetX: NaN,
+    offsetY: NaN,
+    effect: false
   };
 
 //--------------------------------------------------[Dialog.prototype.open]
@@ -427,9 +411,7 @@ execute(function($) {
    * @returns {Object} Dialog 对象。
    */
   Dialog.prototype.open = function() {
-    if (!this.isOpen) {
-      this.animation.play();
-    }
+    this.animation.play();
     return this;
   };
 
@@ -442,9 +424,7 @@ execute(function($) {
    * @returns {Object} Dialog 对象。
    */
   Dialog.prototype.close = function() {
-    if (this.isOpen) {
-      this.animation.reverse();
-    }
+    this.animation.reverse();
     return this;
   };
 
@@ -480,8 +460,8 @@ execute(function($) {
       } else {
         containerClientRect = $container.getClientRect();
       }
-      expectedX = containerClientRect.left + (isNaN(this.pinnedOffsetX) ? (containerClientRect.width - currentWidth) / 2 : this.pinnedOffsetX);
-      expectedY = containerClientRect.top + (isNaN(this.pinnedOffsetY) ? (containerClientRect.height - currentHeight) / 2 : this.pinnedOffsetY);
+      expectedX = containerClientRect.left + (isNaN(this.offsetX) ? (containerClientRect.width - currentWidth) / 2 : this.offsetX);
+      expectedY = containerClientRect.top + (isNaN(this.offsetY) ? (containerClientRect.height - currentHeight) / 2 : this.offsetY);
       // 确保固定定位的对话框显示在视口内。
       if (isFixedPositioned) {
         var leftLimit = 0;
