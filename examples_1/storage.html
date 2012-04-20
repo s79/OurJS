@@ -114,31 +114,34 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
     </form>
   </fieldset>
   <script>
-  function showAllCookies() {
-    $('#cookie_value').value = document.cookie;
-  }
+  execute(function($) {
+    function showAllCookies() {
+      $('#cookie_value').value = document.cookie;
+    }
 
-  $('#cookie_set').on('click', function() {
-    var $form = $('#form_cookie_set');
-    var expires = $form.days.value ? new Date(Date.now() + Number.toInteger($form.days.value) * 1000 * 60 * 60 * 24) : null;
-    cookie.set($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: expires});
+    $('#cookie_set').on('click', function() {
+      var $form = $('#form_cookie_set');
+      var expires = $form.days.value ? new Date(Date.now() + Number.toInteger($form.days.value) * 1000 * 60 * 60 * 24) : null;
+      cookie.set($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: expires});
+      showAllCookies();
+    });
+
+    $('#cookie_get').on('click', function() {
+      var $form = $('#form_cookie_get');
+      var value = cookie.get($form.name.value);
+      $form.value.value = value || '';
+      showAllCookies();
+    });
+
+    $('#cookie_remove').on('click', function() {
+      var $form = $('#form_cookie_remove');
+      cookie.remove($form.name.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value});
+      showAllCookies();
+    });
+
     showAllCookies();
-  });
 
-  $('#cookie_get').on('click', function() {
-    var $form = $('#form_cookie_get');
-    var value = cookie.get($form.name.value);
-    $form.value.value = value || '';
-    showAllCookies();
   });
-
-  $('#cookie_remove').on('click', function() {
-    var $form = $('#form_cookie_remove');
-    cookie.remove($form.name.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value});
-    showAllCookies();
-  });
-
-  showAllCookies();
   </script>
 </div>
 <!-- } cookie -->
@@ -222,24 +225,27 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
     </form>
   </fieldset>
   <script>
-  $('#local_storage_set').on('click', function() {
-    var $form = $('#form_local_storage_set');
-    localStorage.setItem($form.key.value, $form.value.value);
-  });
+  execute(function($) {
+    $('#local_storage_set').on('click', function() {
+      var $form = $('#form_local_storage_set');
+      localStorage.setItem($form.key.value, $form.value.value);
+    });
 
-  $('#local_storage_get').on('click', function() {
-    var $form = $('#form_local_storage_get');
-    var value = localStorage.getItem($form.key.value);
-    $form.value.value = value || '';
-  });
+    $('#local_storage_get').on('click', function() {
+      var $form = $('#form_local_storage_get');
+      var value = localStorage.getItem($form.key.value);
+      $form.value.value = value || '';
+    });
 
-  $('#local_storage_remove').on('click', function() {
-    var $form = $('#form_local_storage_remove');
-    localStorage.removeItem($form.key.value);
-  });
+    $('#local_storage_remove').on('click', function() {
+      var $form = $('#form_local_storage_remove');
+      localStorage.removeItem($form.key.value);
+    });
 
-  $('#local_storage_clear').on('click', function() {
-    localStorage.clear();
+    $('#local_storage_clear').on('click', function() {
+      localStorage.clear();
+    });
+
   });
   </script>
   <iframe src="another_path/storage_frame.html" width="500" height="300" frameborder="0"></iframe>

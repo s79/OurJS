@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-04-08
+ *  Version: 2012-04-20
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -75,9 +75,19 @@
    */
 
 //--------------------------------------------------[Object.keys]
-  // http://es5.github.com/#x15.2.3.14
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
-  // http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
+  /**
+   * 获取对象的键列表。
+   * @name Object.keys
+   * @function
+   * @param {Object} object 要获取键列表的对象。
+   * @returns {Array} 对象的键列表。
+   * @example
+   *   Object.keys({a: 97, b: 98, c: 99});
+   *   // ['a', 'b', 'c']
+   * @see http://es5.github.com/#x15.2.3.14
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
+   * @see http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
+   */
   if (!Object.keys) {
     Object.keys = function(object) {
       if (typeof object != 'object' && typeof object != 'function' || object === null) {
@@ -104,17 +114,46 @@
   }
 
 //--------------------------------------------------[Array.isArray]
-  // http://es5.github.com/#x15.4.3.2
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
+  /**
+   * 检查提供的值是否为数组。
+   * @name Array.isArray
+   * @function
+   * @param {*} value 提供的值。
+   * @returns {boolean} 检查结果。
+   * @example
+   *   Array.isArray([]);
+   *   // true
+   * @see http://es5.github.com/#x15.4.3.2
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
+   */
   if (!Array.isArray) {
-    Array.isArray = function(obj) {
-      return TO_STRING.call(obj) === '[object Array]';
+    Array.isArray = function(value) {
+      return TO_STRING.call(value) === '[object Array]';
     };
   }
 
 //--------------------------------------------------[Array.prototype.indexOf]
-  // http://es5.github.com/#x15.4.4.14
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/indexOf
+  /**
+   * 返回数组中第一次出现指定的值的索引。
+   * @name Array.prototype.indexOf
+   * @function
+   * @param {*} searchElement 指定的值。
+   * @param {number} [fromIndex] 在数组中的指定索引开始查找，默认为 0。
+   *   如果指定的值大于等于数组的长度，则仍使用数组的长度。
+   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 fromIndex + length（数组的长度）作为查找起始点，如果这个结果仍为负数，则使用 0 作为最终结果。
+   * @returns {number} 索引值，如果数组中不包含指定的值，则返回 -1。
+   * @example
+   *   [1, 2, 3, 2, 1].indexOf(2);
+   *   // 1
+   *   [1, 2, 3, 2, 1].indexOf(2, 2);
+   *   // 3
+   *   [1, 2, 3, 2, 1].indexOf(2, -3)
+   *   // 3
+   *   [1, 2, 3, 2, 1].indexOf(8)
+   *   // -1
+   * @see http://es5.github.com/#x15.4.4.14
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/indexOf
+   */
   if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function(searchElement) {
       var object = toObject(this);
@@ -140,8 +179,27 @@
   }
 
 //--------------------------------------------------[Array.prototype.lastIndexOf]
-  // http://es5.github.com/#x15.4.4.15
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/lastIndexOf
+  /**
+   * 返回数组中最后一次出现指定的值的索引。
+   * @name Array.prototype.lastIndexOf
+   * @function
+   * @param {*} searchElement 指定的值。
+   * @param {number} [fromIndex] 在数组中的指定索引开始查找，默认为数组的长度。
+   *   如果指定的值大于等于数组的长度，则仍使用数组的长度。
+   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 (fromIndex + 数组的长度) 作为查找起始点，如果这个结果仍为负数，则使用 0 作为最终结果。
+   * @returns {number} 索引值，如果数组中不包含指定的值，则返回 -1。
+   * @example
+   *   [1, 2, 3, 2, 1].lastIndexOf(2);
+   *   // 3
+   *   [1, 2, 3, 2, 1].lastIndexOf(2, 2);
+   *   // 1
+   *   [1, 2, 3, 2, 1].lastIndexOf(2, -3)
+   *   // 1
+   *   [1, 2, 3, 2, 1].lastIndexOf(8)
+   *   // -1
+   * @see http://es5.github.com/#x15.4.4.15
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/lastIndexOf
+   */
   if (!Array.prototype.lastIndexOf) {
     Array.prototype.lastIndexOf = function(searchElement) {
       var object = toObject(this);
@@ -167,8 +225,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.every]
-  // http://es5.github.com/#x15.4.4.16
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
+  /**
+   * 检查数组中的所有元素是否都符合某个条件。
+   * @name Array.prototype.every
+   * @function
+   * @param {Function} callback 用来检查的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @returns {boolean} 检查结果。
+   * @example
+   *   [1, 2, 3].every(function(item) {
+   *     return item < 5;
+   *   });
+   *   // true
+   * @see http://es5.github.com/#x15.4.4.16
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
+   */
   if (!Array.prototype.every) {
     Array.prototype.every = function(callback) {
       var object = toObject(this);
@@ -189,8 +262,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.some]
-  // http://es5.github.com/#x15.4.4.17
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/some
+  /**
+   * 检查数组中是否有任一元素符合某个条件。
+   * @name Array.prototype.some
+   * @function
+   * @param {Function} callback 用来检查的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @returns {boolean} 检查结果。
+   * @example
+   *   [1, 2, 3].some(function(item) {
+   *     return item === 2;
+   *   });
+   *   // true
+   * @see http://es5.github.com/#x15.4.4.17
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/some
+   */
   if (!Array.prototype.some) {
     Array.prototype.some = function(callback) {
       var object = toObject(this);
@@ -211,8 +299,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.forEach]
-  // http://es5.github.com/#x15.4.4.18
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/forEach
+  /**
+   * 遍历数组，对数组中的每一个元素都执行一次指定的函数。
+   * @name Array.prototype.forEach
+   * @function
+   * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @example
+   *   var s = '';
+   *   [1, 2, 3].forEach(function(item) {
+   *     s += item;
+   *   });
+   *   s;
+   *   // 123
+   * @see http://es5.github.com/#x15.4.4.18
+   * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/forEach
+   */
   if (!Array.prototype.forEach) {
     Array.prototype.forEach = function(callback) {
       var object = toObject(this);
@@ -232,8 +335,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.map]
-  // http://es5.github.com/#x15.4.4.19
-  // https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/map
+  /**
+   * 对数组中的每一个元素都执行一次回调函数，并返回一个包含这个回调函数的每次执行后的返回值的新数组。
+   * @name Array.prototype.map
+   * @function
+   * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @returns {Array} 包含 callback 的每次执行后的返回值的新数组。
+   * @example
+   *   var a = [1, 2, 3].map(function(item) {
+   *     return item + 10;
+   *   });
+   *   a;
+   *   // [11, 12, 13]
+   * @see http://es5.github.com/#x15.4.4.19
+   * @see https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/map
+   */
   if (!Array.prototype.map) {
     Array.prototype.map = function(callback) {
       var object = toObject(this);
@@ -255,8 +373,23 @@
   }
 
 //--------------------------------------------------[Array.prototype.filter]
-  // http://es5.github.com/#x15.4.4.20
-  // https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/filter
+  /**
+   * 对数组中的每一个元素都执行一次回调函数，并且创建一个新的数组，该数组包含所有回调函数执行后返回值为 true 时对应的原数组元素。
+   * @name Array.prototype.filter
+   * @function
+   * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
+   *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
+   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @returns {Array} 包含所有回调函数执行后返回值为 true 时对应的原数组元素的新数组。
+   * @example
+   *   var a = [1, 2, 3].filter(function(item) {
+   *     return item % 2 === 1;
+   *   });
+   *   a;
+   *   // [1, 3]
+   * @see http://es5.github.com/#x15.4.4.20
+   * @see https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/filter
+   */
   if (!Array.prototype.filter) {
     Array.prototype.filter = function(callback) {
       var object = toObject(this);
@@ -282,8 +415,17 @@
   }
 
 //--------------------------------------------------[String.prototype.trim]
-  // ES5 15.5.4.20
-  // http://blog.stevenlevithan.com/archives/faster-trim-javascript
+  /**
+   * 删除字符串两端的空白符。
+   * @name String.prototype.trim
+   * @function
+   * @returns {string} 删除两端的空白符后的字符串。
+   * @example
+   *   '  hello '.trim();
+   *   // 'hello'
+   * @see http://blog.stevenlevithan.com/archives/faster-trim-javascript
+   * @see http://es5.github.com/#x15.5.4.20
+   */
   if (!String.prototype.trim || WHITESPACES.trim()) {
     var RE_START_WHITESPACES = new RegExp('^[' + WHITESPACES + ']+');
     var RE_END_WHITESPACES = new RegExp('[' + WHITESPACES + ']+$');
@@ -293,8 +435,16 @@
   }
 
 //--------------------------------------------------[Date.now]
-  // ES5 15.9.4.4
-  // http://es5.github.com/#x15.9.4.4
+  /**
+   * 获取系统当前的时间戳。
+   * @name Date.now
+   * @function
+   * @returns {number} 系统当前的时间戳。
+   * @example
+   *   Date.now() === new Date().getTime();
+   *   // true
+   * @see http://es5.github.com/#x15.9.4.4
+   */
   if (!Date.now) {
     Date.now = function() {
       return new Date().getTime();
@@ -411,7 +561,7 @@
    * 检查提供的值是否为有限的数字。
    * @name Number.isFinite
    * @function
-   * @param {*} value 要检查的值。
+   * @param {*} value 提供的值。
    * @returns {boolean} 检查结果。
    * @example
    *   isFinite(null);
@@ -429,7 +579,7 @@
    * 检查提供的值是否为非数字。
    * @name Number.isNaN
    * @function
-   * @param {*} value 要检查的值。
+   * @param {*} value 提供的值。
    * @returns {boolean} 检查结果。
    * @example
    *   isNaN(undefined);
@@ -447,7 +597,7 @@
    * 检查提供的值是否为整数。
    * @name Number.isInteger
    * @function
-   * @param {*} value 要检查的值。
+   * @param {*} value 提供的值。
    * @returns {boolean} 检查结果。
    * @example
    *   Number.isInteger(9007199254740992);
@@ -463,7 +613,7 @@
    * 将提供的值转化为整数。
    * @name Number.toInteger
    * @function
-   * @param {*} value 要转化的值。
+   * @param {*} value 提供的值。
    * @returns {number} 转化结果。
    * @example
    *   Number.toInteger([10.75]);
@@ -490,6 +640,7 @@
    *   Math.randomRange
    *   RegExp.escape
    */
+
 //--------------------------------------------------[Object.forEach]
   /**
    * 遍历一个对象。
@@ -1263,7 +1414,7 @@
    *   http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
    */
 
-  if (window.localStorage || !document.documentElement.addBehavior) {
+  if (window.localStorage || !document.documentElement.addBehavior || location.protocol === 'file:') {
     return;
   }
 
@@ -1375,7 +1526,7 @@
   // 文档根元素。
   var html = document.documentElement;
 
-  // 将字符串从 Hyphenate 转换为 CamelCase。
+  // 将字符串从 Hyphenate 转换为 CamelCase。  // TODO: 所有用到此转换的部分考虑仅支持 Camel Case。
   var HYPHENATE_FIRST_LETTER = /-([a-z])/g;
   var hyphenateToCamelCase = function(string) {
     return string.replace(HYPHENATE_FIRST_LETTER, function(_, letter) {
@@ -1404,14 +1555,35 @@
 
 //--------------------------------------------------[document.head]
   // 为 IE6 IE7 IE8 的 document 增加 head 属性。
+  /**
+   * 获取文档的 head 元素。
+   * @name head
+   * @memberOf document
+   * @type Element
+   * @description
+   *   与 document.documentElement 和 document.body 的作用一样，document.head 是获取文档的 head 元素的快捷方式。
+   * @example
+   *   document.documentElement === document.getElementsByTagName('html')[0];
+   *   // true
+   *   document.head === document.getElementsByTagName('head')[0];
+   *   // true
+   *   document.body === document.getElementsByTagName('body')[0];
+   *   // true
+   */
   if (!document.head) {
     document.head = html.firstChild;
   }
 
 //--------------------------------------------------[HTMLElement.prototype.innerText]
   // 为 Firefox 添加 HTMLElement.prototype.innerText 属性。
-  // 注意：
-  //   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+  /**
+   * 设置/获取元素内的文本信息。
+   * @name Element.prototype.innerText
+   * @type string
+   * @description
+   *   注意：
+   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+   */
   if (!('innerText' in document.head)) {
     HTMLElement.prototype.__defineGetter__('innerText', function() {
       return this.textContent;
@@ -1424,9 +1596,16 @@
 
 //--------------------------------------------------[HTMLElement.prototype.outerText]
   // 为 Firefox 添加 HTMLElement.prototype.outerText 属性。
-  // 注意：
-  //   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
-  //   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
+  /**
+   * 设置/获取元素本身及该元素内的文本信息。
+   * @name Element.prototype.outerText
+   * @type string
+   * @description
+   *   注意：
+   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+   *   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
+   *   与 innerText 不同，如果设置一个元素的 outerText，那么设置的字符串将作为文本节点替换该元素在文档树中的位置。
+   */
   if (!('outerText' in document.head)) {
     HTMLElement.prototype.__defineGetter__('outerText', function() {
       return this.textContent;
@@ -1440,8 +1619,14 @@
 
 //--------------------------------------------------[HTMLElement.prototype.outerHTML]
   // 为 Firefox 添加 HTMLElement.prototype.outerHTML 属性。
-  // 注意：
-  //   getter 在处理标签及特殊字符时，各浏览器行为不一致。
+  /**
+   * 设置/获取元素节点及其后代节点的序列化字符串。
+   * @name Element.prototype.outerHTML
+   * @type string
+   * @description
+   *   注意：
+   *   getter 在处理空标签及特殊字符时，各浏览器行为不一致。
+   */
   if (!('outerHTML' in document.head)) {
     var RE_EMPTY_ELEMENT = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
     var isEmptyElement = function(nodeName) {
@@ -1532,7 +1717,7 @@
    * @type Object
    * @description
    *   注意：
-   *   受 IE6 IE7 实现方式的限制，扩展新特性应在获取元素之前进行，否则已获取的元素可能无法访问新扩展的特性。
+   *   受 IE6 IE7 实现方式的限制，扩展新特性应在获取元素之前进行，否则已获取的元素将无法访问新扩展的特性。
    * @example
    *   Element.prototype.getNodeName = function() {
    *     return this.nodeName;
@@ -2025,6 +2210,7 @@
    * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
    * html.clientLeft 在 IE6 中取决于 html 的 border 属性，而在 IE7 中的值则始终为 2px。
    */
+
   /**
    * 获取元素的 border-box 在视口中的坐标。
    * @name Element.prototype.getClientRect
@@ -3602,8 +3788,8 @@
    *   components
    */
 
-  var componentInstanceMethods = {};
-  var blackList = {blackList: ['on', 'off', 'fire']};
+  var instanceMethods = {};
+  var filter = {blackList: ['on', 'off', 'fire']};
 
 //--------------------------------------------------[Component Constructor]
   /**
@@ -3622,38 +3808,38 @@
    */
   function Component(constructor) {
     // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
-    var ComponentConstructor = function() {
+    var Component = function() {
       // 追加默认 options 到实例对象。
-      Object.append(this, constructor.options, blackList);
-      // 追加指定的 options 到实例对象。
+      Object.append(this, constructor.options, filter);
+      // 分析形参和实参的差别。
       var parameters = Array.from(arguments);
       var formalParameterLength = constructor.length;
       var actualParameterLength = arguments.length;
       if (formalParameterLength !== actualParameterLength) {
         parameters.length = formalParameterLength;
       }
-      // 移除实参中的 options。
-      Object.append(this, parameters.pop() || {}, blackList);
+      // 移除实参中的 options 对象，并追加这个指定的 options 对象到实例对象。
+      Object.append(this, parameters.pop() || {}, filter);  // TODO: 是否添加白名单？
       // 实例的 events 必须为以下指定的空对象。
       this.events = {};
       constructor.apply(this, parameters);
     };
-    // 将 componentInstanceMethods 添加到 ComponentConstructor 的原型链。
-    var ComponentPrototype = function() {
+    // 将 instanceMethods 添加到 Component 的原型链。
+    var Prototype = function() {
     };
-    ComponentPrototype.prototype = componentInstanceMethods;
-    ComponentConstructor.prototype = new ComponentPrototype();
-    ComponentConstructor.prototype.constructor = ComponentConstructor;
-    ComponentConstructor.prototype.superPrototype = ComponentPrototype.prototype;
+    Prototype.prototype = instanceMethods;
+    Component.prototype = new Prototype();
+    Component.prototype.constructor = Component;
+    Component.prototype.superPrototype = Prototype.prototype;
     // 将 constructor 的原型内的属性追加到 Component 的原型中。
-    Object.append(ComponentConstructor.prototype, constructor.prototype, blackList);
+    Object.append(Component.prototype, constructor.prototype, filter);
     // 返回组件。
-    return ComponentConstructor;
+    return Component;
   }
 
   window.Component = Component;
 
-//--------------------------------------------------[componentInstanceMethods.on]
+//--------------------------------------------------[instanceMethods.on]
   /**
    * 为组件添加监听器。
    * @name Component#on
@@ -3663,11 +3849,11 @@
    * @param {Function} listener 要添加的事件监听器，传入调用此方法的组件提供的事件对象。
    * @returns {Object} 调用本方法的组件。
    */
-  componentInstanceMethods.on = function(name, listener) {
+  instanceMethods.on = function(name, listener) {
     var self = this;
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        componentInstanceMethods.on.call(self, name, listener);
+        instanceMethods.on.call(self, name, listener);
       });
       return self;
     }
@@ -3679,7 +3865,7 @@
     return self;
   };
 
-//--------------------------------------------------[componentInstanceMethods.off]
+//--------------------------------------------------[instanceMethods.off]
   /**
    * 根据名称删除组件上已添加的监听器。
    * @name Component#off
@@ -3687,11 +3873,11 @@
    * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
    * @returns {Object} 调用本方法的组件。
    */
-  componentInstanceMethods.off = function(name) {
+  instanceMethods.off = function(name) {
     var self = this;
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        componentInstanceMethods.off.call(self, name);
+        instanceMethods.off.call(self, name);
       });
       return self;
     }
@@ -3722,7 +3908,7 @@
     return self;
   };
 
-//--------------------------------------------------[componentInstanceMethods.fire]
+//--------------------------------------------------[instanceMethods.fire]
   /**
    * 触发一个组件的某类事件，运行相关的监听器。
    * @name Component#fire
@@ -3731,7 +3917,7 @@
    * @param {Object} [event] 事件对象。
    * @returns {Object} 调用本方法的组件。
    */
-  componentInstanceMethods.fire = function(type, event) {
+  instanceMethods.fire = function(type, event) {
     var self = this;
     var events = self.events;
     var handlers = events[type];
@@ -3754,97 +3940,408 @@
 
 })();
 /**
- * @fileOverview 动画效果控制。
+ * @fileOverview 动画。
  * @author sundongguo@gmail.com
- * @version 20120214
+ * @version 20120412
  */
-// TODO: scroll 方法。
-// TODO: stop 后一个动画的耗时（用于反向动画）。
+// TODO: Fx.Slide 和 Fx.Scroll 效果。
 (function() {
 //==================================================[Animation]
   /*
    * 调用流程：
-   *   var animation = new Animation(proceed, options);
-   *   animation.play() -> animation.onBeforeStart() -> animation.onStart() -> proceed(x, y) -> animation.onFinish()
-   *   animation.play() -> animation.onBeforeStart() -> animation.onStart() -> proceed(x, y) [动画执行过程中调用 animation.stop()]
-   *   animation.play() -> animation.onBeforeStart() 返回 false
+   *   var animation = new Animation(...).addClip(...);
+   *   animation.play()<playstart>       -> (x, y) <step> -> ... -> <playfinish>
+   *   animation.reverse()<reversestart> -> (x, y) <step> -> ... -> <reversefinish>
+   *                                                      -> animation.pause<pause> -> animation.stop()<stop>
+   *                                                                                -> animation.play()<play>       -> (x, y) <step> ->>>
+   *                                                                                -> animation.reverse()<reverse> -> (x, y) <step> ->>>
+   *                                                      -> animation.stop<stop>
    *
    * 说明：
-   *   上述步骤到达 proceed(x, y) 时，该函数会以每秒最多 66.66 次的频率被调用（每 15 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
-   *   传入 proceed 函数的参数 x 为时间轴，从 0 趋向于 1；y 为偏移量，通常在 0 和 1 之间。
-   *   在动画在进行中时，执行动画对象的 stop 方法即可停止 proceed 的继续调用，但也会阻止回调函数 onFinish 的执行。
-   *   如果调用 play 方法时触发的 onBeforeStart 回调函数的返回值为 false，则该动画不会被播放。
+   *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
+   *   传入函数的参数 x 为时间点，y 为偏移量，他们的值都将从 0 趋向于 1。
+   *   在动画在进行中时，执行动画对象的 stop 方法即可停止的继续调用，但也会阻止事件 end 的触发。
+   *   调用 reverse 可以反向播放，但要注意，反向播放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
+   *   播放一个动画时，调用 play 或 reverse 方法后即同步播放对应方向的首帧，中间帧及末帧由引擎异步播放。
+   *   如果一个动画剪辑的持续时间为 0，则 play 时传入的 x 值为 1，reverse 时传入的 x 值为 0。
+   *
+   * 操作 Animation 对象和调用 Element 上的相关动画方法的差别：
+   *   当需要定制一个可以预期的动画效果时，建议使用 Animation，因为 Animation 对象不仅可以正向播放，还可以随时回退到起点。
+   *   否则应使用 Element 实例上的对应简化动画方法，这些简化方法每次调用都会自动创建新的 Animation 对象，而不保留之前的状态，这样就可以随时以目标元素最新的状态作为起点来播放动画。
+   *   一个明显的差异是使用 Fx.Morph 时传入相对长度的样式值：
+   *   在直接使用 Animation 的情况下，无论如何播放/反向播放，目标元素将始终在起点/终点之间渐变。
+   *   在使用 Element.prototype.morph 方法时，传入同样的参数，多次播放时，目标元素将以上一次的终点作为起点，开始渐变。
    */
+
   // 唯一识别码。
   var uid = 0;
 
-  // 空函数。
-  var empty = function() {
-  };
+  // 供内部调用的标记值。
+  var INTERNAL_IDENTIFIER_REVERSE = {};
 
-  // 动画引擎，用于挂载各播放中的动画，并同频同步播放他们的每一帧。
-  var engine = {
-    mountedAnimations: {},
-    mountedCount: 0,
-    mountAnimation: function(animation) {
-      animation.mounted = true;
-      this.mountedAnimations[animation.uid] = animation;
-      this.mountedCount++;
-      // 启动引擎。
-      if (!engine.timer) {
-        engine.timer = setInterval(function() {
-          // 播放全部挂载的动画。
-//          console.log('>ENGING RUNNING mountedCount:', engine.mountedCount);
-          var timestamp = Date.now();
-          Object.forEach(engine.mountedAnimations, function(animation) {
-            var x = 1;
-            var y = 1;
-            // 本动画为第一帧。
-            if (!animation.timestamp) {
-              animation.timestamp = timestamp;
-              // 若此时有新的动画插入，将直接开始播放。
-              animation.onStart();
-            }
-            // 计算 x 和 y 的值。
-            var duration = animation.duration;
-            if (duration > 0) {
-              var elapsedTime = timestamp - animation.timestamp;
-              if (elapsedTime < duration) {
-                x = elapsedTime / duration;
-                y = x ? animation.timingFunction(x) : 0;
-              }
-            }
-            // 播放本动画的当前帧。
-            animation.proceed.call(animation, x, y);
-            // 本动画已播放完毕。
-            if (x === 1) {
-              // 先卸载动画，以免一个动画的 onFinish 回调中无法重新播放自身。
-              engine.unmountAnimation(animation);
-              // 若此时有新的动画插入，将直接开始播放。
-              animation.onFinish();
-            }
-          });
-          // 停止引擎。
-          if (engine.mountedCount === 0) {
-//            console.warn('>ENGING STOP', engine.timer, Date.now());
-            clearInterval(engine.timer);
-            delete engine.timer;
+  // 动画的状态。
+  var STARTING_POINT = -2;
+  var REVERSING = -1;
+  var PASUING = 0;
+  var PLAYING = 1;
+  var END_POINT = 2;
+
+  // 动画剪辑的状态。
+  var BEFORE_STARTING_POINT = -1;
+  var ACTIVE = 0;
+  var AFTER_END_POINT = 1;
+
+  // 播放动画对应某一时间点的某一帧。
+  var playAnimation = function(animation, timePoint, isPlayMethod) {
+    animation.clips.forEach(function(clip) {
+      var active = false;
+      var duration = clip.duration;
+      var x = (timePoint - clip.delay) / Math.max(1, duration);
+      if (isPlayMethod) {
+        if (clip.status === AFTER_END_POINT) {
+          return;
+        }
+        if (clip.status === BEFORE_STARTING_POINT) {
+          if (x >= 0) {
+            x = duration ? 0 : 1;
+            clip.status = ACTIVE;
           }
-        }, 15);
-//        console.warn('>ENGING START', engine.timer);
+        }
+        if (clip.status === ACTIVE) {
+          active = true;
+          if (x >= 1) {
+            x = 1;
+            clip.status = AFTER_END_POINT;
+          }
+        }
+      } else {
+        if (clip.status === BEFORE_STARTING_POINT) {
+          return;
+        }
+        if (clip.status === AFTER_END_POINT) {
+          if (x <= 1) {
+            x = duration ? 1 : 0;
+            clip.status = ACTIVE;
+          }
+        }
+        if (clip.status === ACTIVE) {
+          active = true;
+          if (x <= 0) {
+            x = 0;
+            clip.status = BEFORE_STARTING_POINT;
+          }
+        }
       }
-//      console.log('[engine.mountAnimation] mountedCount:', engine.mountedCount, JSON.stringify(Object.keys(engine.mountedAnimations)));
-    },
-    unmountAnimation: function(animation) {
-      delete animation.timestamp;
-      delete animation.mounted;
-      delete this.mountedAnimations[animation.uid];
-      this.mountedCount--;
-//      console.log('[engine.unmountAnimation] mountedCount:', this.mountedCount, Date.now());
+      if (active) {
+        clip.handler.call(animation, x, x === 0 ? 0 : (x === 1 ? 1 : clip.timingFunction(x)));
+      }
+    });
+    // 触发事件。
+    if (isPlayMethod) {
+      if (timePoint === 0) {
+        animation.fire('playstart');
+      }
+      animation.fire('step');
+      if (timePoint === animation.duration) {
+        unmountAnimation(animation);
+        animation.status = END_POINT;
+        animation.fire('playfinish');
+      }
+    } else {
+      if (timePoint === animation.duration) {
+        animation.fire('reversestart');
+      }
+      animation.fire('step');
+      if (timePoint === 0) {
+        unmountAnimation(animation);
+        animation.status = STARTING_POINT;
+        animation.fire('reversefinish');
+      }
     }
   };
 
-  // 根据指定的 X 坐标（时间点）获取一个 cubic bezier 函数的 Y 坐标（偏移量）。
+  // 动画引擎，用于挂载各播放中的动画，并同频同步播放他们的每一帧。
+  var engine;
+  var mountedAnimations = {};
+  var mountedCount = 0;
+  var mountAnimation = function(animation) {
+    animation.timestamp = Date.now();
+    mountedAnimations[animation.uid] = animation;
+    mountedCount++;
+//    console.log('[mountAnimation] mountedCount:', mountedCount, JSON.stringify(Object.keys(mountedAnimations)));
+    // 启动引擎。
+    if (!engine) {
+      engine = setInterval(function() {
+        // 播放挂载的动画。
+//        console.log('>ENGING RUNNING mountedCount:', mountedCount);
+        var timestamp = Date.now();
+        Object.forEach(mountedAnimations, function(animation) {
+          var isPlayMethod = animation.status === PLAYING;
+          var timePoint = Math.limit(animation.timePoint + (timestamp - animation.timestamp) * (isPlayMethod ? 1 : -1), 0, animation.duration);
+          animation.timestamp = timestamp;
+          animation.timePoint = timePoint;
+          playAnimation(animation, timePoint, isPlayMethod);
+        });
+        // 停止引擎。
+        if (mountedCount === 0) {
+//          console.warn('>ENGING STOP', engine);
+          clearInterval(engine);
+          engine = undefined;
+        }
+      }, 16);
+//      console.warn('>ENGING START', engine);
+    }
+  };
+  var unmountAnimation = function(animation) {
+    delete animation.timestamp;
+    delete mountedAnimations[animation.uid];
+    mountedCount--;
+//    console.log('[unmountAnimation] mountedCount:', mountedCount, JSON.stringify(Object.keys(mountedAnimations)));
+  };
+
+//--------------------------------------------------[Animation Constructor]
+  /**
+   * 创建动画效果。
+   * @name Animation
+   * @constructor
+   * @param {number} [duration] 动画的持续时间。
+   *   通常不必设置该值，该值会随着动画剪辑的插入自动调整，以保证不小于任何一个剪辑的播放时间的总长。
+   *   这个参数的意义在于：设置一个足够长的 duration，可以实现在播放时间最长的剪辑的结束点之后的延时。
+   * @fires play
+   *   开始播放时，渲染本次播放的第一帧之前触发。
+   * @fires playstart
+   *   开始播放时，渲染整个动画的第一帧之后触发。
+   * @fires playfinish
+   *   播放结束时，渲染整个动画的最后一帧之后触发。
+   * @fires reverse
+   *   开始反向播放时，渲染本次播放的第一帧之前触发。
+   * @fires reversestart
+   *   开始反向播放时，渲染整个动画的第一帧之后触发。
+   * @fires reversefinish
+   *   反向播放结束时，渲染整个动画的最后一帧之后触发。
+   * @fires step
+   *   渲染每一帧之后触发。
+   * @fires pause
+   *   暂停播放时触发。
+   * @fires stop
+   *   停止播放时触发。
+   * @description
+   *   高级应用：
+   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
+   *   仅应在动画初始化时添加影片剪辑，不要在动画开始播放后更改影片剪辑的状态。
+   */
+  function Animation(duration, options) {
+    this.uid = ++uid;
+    this.clips = [];
+    this.timePoint = 0;
+    this.status = STARTING_POINT;
+    this.duration = duration || 0;
+  }
+
+//--------------------------------------------------[Animation.options]
+  /**
+   * 默认选项。
+   * @name Animation.options
+   */
+  Animation.options = {};
+
+//--------------------------------------------------[Animation.prototype.addClip]
+  /**
+   * 添加动画剪辑。
+   * @name Animation.prototype.addClip
+   * @function
+   * @param {Object} clip 使用 Fx.* 创建的动画剪辑对象。
+   * @returns {Object} Animation 对象。
+   */
+  Animation.prototype.addClip = function(clip) {
+    clip.status = BEFORE_STARTING_POINT;
+    this.clips.push(clip);
+    // 重新计算整个动画持续的时间。
+    this.duration = Math.max(this.duration, clip.delay + clip.duration);
+    return this;
+  };
+
+//--------------------------------------------------[Animation.prototype.play]
+  /**
+   * 播放动画。
+   * @name Animation.prototype.play
+   * @function
+   * @returns {Object} Animation 对象。
+   * @description
+   *   如果当前动画的时间点在终点，则调用此方法无效。
+   */
+  Animation.prototype.play = function(reverse) {
+    var isPlayMethod = reverse !== INTERNAL_IDENTIFIER_REVERSE;
+    var status = this.status;
+    var duration = this.duration;
+    if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != STARTING_POINT) {
+      this.status = isPlayMethod ? PLAYING : REVERSING;
+      // 触发事件。
+      this.fire(isPlayMethod ? 'play' : 'reverse');
+      // 未挂载到引擎（执行此方法前为暂停/停止状态）。
+      if (!this.timestamp) {
+        // 每次播放/反向播放时的首帧同步播放。
+        playAnimation(this, isPlayMethod ? 0 : duration, isPlayMethod);
+        // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
+        if (duration) {
+          mountAnimation(this);
+        }
+      }
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Animation.prototype.reverse]
+  /**
+   * 反向播放动画。
+   * @name Animation.prototype.reverse
+   * @function
+   * @returns {Object} Animation 对象。
+   * @description
+   *   如果当前动画的时间点在起点，则调用此方法无效。
+   */
+  Animation.prototype.reverse = function() {
+    return this.play(INTERNAL_IDENTIFIER_REVERSE);
+  };
+
+//--------------------------------------------------[Animation.prototype.pause]
+  /**
+   * 暂停动画。
+   * @name Animation.prototype.pause
+   * @function
+   * @returns {Object} Animation 对象。
+   * @description
+   *   仅在动画处于“播放”或“反向播放”状态时，调用此方法才有效。
+   */
+  Animation.prototype.pause = function() {
+    if (this.timestamp) {
+      unmountAnimation(this);
+      this.status = PASUING;
+      this.fire('pause');
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Animation.prototype.stop]
+  /**
+   * 停止动画，并将动画的时间点复位至起点。
+   * @name Animation.prototype.stop
+   * @function
+   * @returns {Object} Animation 对象。
+   * @description
+   *   如果当前动画的时间点在起点，则调用此方法无效。
+   */
+  Animation.prototype.stop = function() {
+    if (this.status !== STARTING_POINT) {
+      if (this.timestamp) {
+        unmountAnimation(this);
+      }
+      this.timePoint = 0;
+      this.clips.forEach(function(clip) {
+        clip.status = BEFORE_STARTING_POINT;
+      });
+      this.status = STARTING_POINT;
+      this.fire('stop');
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Animation]
+  window.Animation = new Component(Animation);
+
+//==================================================[Fx]
+  // 可变的 CSS properties 类型。
+  var TYPE_NUMBER = 1;
+  var TYPE_LENGTH = 2;
+  var TYPE_COLOR = 4;
+
+  // 可变的 CSS properties 列表。
+  //   - 'font-weight' 在 IE6 IE7 IE8 下不能设置数字值。
+  //   - 'zoom' 各浏览器支持情况差异较大。
+  // http://www.w3.org/TR/css3-transitions/#properties-from-css-
+  var acceptableProperties = {};
+  var typeIsNumber = ['opacity'];
+  var typeIsLength = ['top', 'right', 'bottom', 'left', 'width', 'height', 'outlineWidth', 'backgroundPositionX', 'backgroundPositionY', 'fontSize', 'lineHeight', 'letterSpacing', 'wordSpacing', 'textIndent'];
+  typeIsLength.push('margin', 'padding', 'borderWidth', 'borderColor');  // TODO: 支持复合属性的解析。
+  var typeIsColor = ['color', 'backgroundColor', 'outlineColor'];
+  ['Top', 'Right', 'Bottom', 'Left'].forEach(function(side) {
+    typeIsLength.push('margin' + side, 'padding' + side, 'border' + side + 'Width');
+    typeIsColor.push('border' + side + 'Color');
+  });
+  typeIsNumber.forEach(function(property) {
+    acceptableProperties[property] = TYPE_NUMBER;
+  });
+  typeIsLength.forEach(function(property) {
+    acceptableProperties[property] = TYPE_LENGTH;
+  });
+  typeIsColor.forEach(function(property) {
+    acceptableProperties[property] = TYPE_COLOR;
+  });
+
+  // 转换数字值为浮点数。
+  var parseNumberValue = function(value) {
+    var parsedValue = parseFloat(value);
+    return isFinite(parsedValue) ? parsedValue : 0;
+  };
+
+  // 转换颜色值为一个包含 RGB 整数表示的数组。
+  var NAMED_COLORS = {aliceblue: '#F0F8FF', antiquewhite: '#FAEBD7', aqua: '#00FFFF', aquamarine: '#7FFFD4', azure: '#F0FFFF', beige: '#F5F5DC', bisque: '#FFE4C4', black: '#000000', blanchedalmond: '#FFEBCD', blue: '#0000FF', blueviolet: '#8A2BE2', brown: '#A52A2A', burlywood: '#DEB887', cadetblue: '#5F9EA0', chartreuse: '#7FFF00', chocolate: '#D2691E', coral: '#FF7F50', cornflowerblue: '#6495ED', cornsilk: '#FFF8DC', crimson: '#DC143C', cyan: '#00FFFF', darkblue: '#00008B', darkcyan: '#008B8B', darkgoldenrod: '#B8860B', darkgray: '#A9A9A9', darkgreen: '#006400', darkkhaki: '#BDB76B', darkmagenta: '#8B008B', darkolivegreen: '#556B2F', darkorange: '#FF8C00', darkorchid: '#9932CC', darkred: '#8B0000', darksalmon: '#E9967A', darkseagreen: '#8FBC8B', darkslateblue: '#483D8B', darkslategray: '#2F4F4F', darkturquoise: '#00CED1', darkviolet: '#9400D3', deeppink: '#FF1493', deepskyblue: '#00BFFF', dimgray: '#696969', dodgerblue: '#1E90FF', firebrick: '#B22222', floralwhite: '#FFFAF0', forestgreen: '#228B22', fuchsia: '#FF00FF', gainsboro: '#DCDCDC', ghostwhite: '#F8F8FF', gold: '#FFD700', goldenrod: '#DAA520', gray: '#808080', green: '#008000', greenyellow: '#ADFF2F', honeydew: '#F0FFF0', hotpink: '#FF69B4', indianred: '#CD5C5C', indigo: '#4B0082', ivory: '#FFFFF0', khaki: '#F0E68C', lavender: '#E6E6FA', lavenderblush: '#FFF0F5', lawngreen: '#7CFC00', lemonchiffon: '#FFFACD', lightblue: '#ADD8E6', lightcoral: '#F08080', lightcyan: '#E0FFFF', lightgoldenrodyellow: '#FAFAD2', lightgreen: '#90EE90', lightgrey: '#D3D3D3', lightpink: '#FFB6C1', lightsalmon: '#FFA07A', lightseagreen: '#20B2AA', lightskyblue: '#87CEFA', lightslategray: '#778899', lightsteelblue: '#B0C4DE', lightyellow: '#FFFFE0', lime: '#00FF00', limegreen: '#32CD32', linen: '#FAF0E6', magenta: '#FF00FF', maroon: '#800000', mediumaquamarine: '#66CDAA', mediumblue: '#0000CD', mediumorchid: '#BA55D3', mediumpurple: '#9370DB', mediumseagreen: '#3CB371', mediumslateblue: '#7B68EE', mediumspringgreen: '#00FA9A', mediumturquoise: '#48D1CC', mediumvioletred: '#C71585', midnightblue: '#191970', mintcream: '#F5FFFA', mistyrose: '#FFE4E1', moccasin: '#FFE4B5', navajowhite: '#FFDEAD', navy: '#000080', oldlace: '#FDF5E6', olive: '#808000', olivedrab: '#6B8E23', orange: '#FFA500', orangered: '#FF4500', orchid: '#DA70D6', palegoldenrod: '#EEE8AA', palegreen: '#98FB98', paleturquoise: '#AFEEEE', palevioletred: '#DB7093', papayawhip: '#FFEFD5', peachpuff: '#FFDAB9', peru: '#CD853F', pink: '#FFC0CB', plum: '#DDA0DD', powderblue: '#B0E0E6', purple: '#800080', red: '#FF0000', rosybrown: '#BC8F8F', royalblue: '#4169E1', saddlebrown: '#8B4513', salmon: '#FA8072', sandybrown: '#F4A460', seagreen: '#2E8B57', seashell: '#FFF5EE', sienna: '#A0522D', silver: '#C0C0C0', skyblue: '#87CEEB', slateblue: '#6A5ACD', slategray: '#708090', snow: '#FFFAFA', springgreen: '#00FF7F', steelblue: '#4682B4', tan: '#D2B48C', teal: '#008080', thistle: '#D8BFD8', tomato: '#FF6347', turquoise: '#40E0D0', violet: '#EE82EE', wheat: '#F5DEB3', white: '#FFFFFF', whitesmoke: '#F5F5F5', yellow: '#FFFF00', yellowgreen: '#9ACD32'};
+  var RE_HEX_COLOR = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i;
+  var RE_HEX_COLOR_SHORT = /^#([\da-f])([\da-f])([\da-f])$/i;
+  var RE_RGB_COLOR = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
+  var parseColorValue = function(value) {
+    // 将默认的颜色设置为白色。
+    var parsedValue = [255, 255, 255];
+    if (NAMED_COLORS.hasOwnProperty(value)) {
+      value = NAMED_COLORS[value];
+    }
+    var match;
+    if (match = value.match(RE_HEX_COLOR)) {
+      parsedValue = Array.from(match).slice(1).map(function(hexadecimal) {
+        return parseInt(hexadecimal, 16);
+      });
+    } else if (match = value.match(RE_HEX_COLOR_SHORT)) {
+      parsedValue = Array.from(match).slice(1).map(function(hexadecimal) {
+        return parseInt(hexadecimal + hexadecimal, 16);
+      });
+    } else if (match = value.match(RE_RGB_COLOR)) {
+      parsedValue = Array.from(match).slice(1).map(function(decimal) {
+        return +decimal;
+      });
+    }
+    return parsedValue;
+  };
+
+  // 过滤和转换动画需要改变的样式。
+  var RE_RELATIVE_LENGTH = /^[+\-]=\d+$/;
+  var parseStyles = function($element, afterStyles) {
+    var beforeStyles = $element.getStyles(Object.keys(afterStyles));
+    var parsedStyles = {before: {}, after: {}};
+    Object.forEach(beforeStyles, function(beforeValue, name) {
+      var afterValue = afterStyles[name];
+      switch (acceptableProperties[name]) {
+        case TYPE_NUMBER:
+          parsedStyles.before[name] = parseNumberValue(beforeValue);
+          parsedStyles.after[name] = parseNumberValue(afterValue);
+          break;
+        case TYPE_LENGTH:
+          parsedStyles.before[name] = beforeValue = parseNumberValue(beforeValue);
+          if (typeof afterValue === 'string' && RE_RELATIVE_LENGTH.test(afterValue)) {
+            parsedStyles.after[name] = beforeValue + (+(afterValue.slice(0, 1) + '1') * +afterValue.slice(2));
+          } else {
+            parsedStyles.after[name] = parseNumberValue(afterValue);
+          }
+          break;
+        case TYPE_COLOR:
+          parsedStyles.before[name] = parseColorValue(beforeValue);
+          parsedStyles.after[name] = parseColorValue(afterValue);
+          break;
+      }
+    });
+    return parsedStyles;
+  };
+
+  // 三次贝塞尔曲线生成函数，根据指定的 X 坐标（时间点）获取 Y 坐标（偏移量）。
   // http://www.netzgesta.de/dev/cubic-bezier-timing-function.html
   var cubicBezier = function(p1x, p1y, p2x, p2y) {
     var ax = 0, bx = 0, cx = 0, ay = 0, by = 0, cy = 0;
@@ -3902,13 +4399,24 @@
     };
   };
 
-  // 内置控速函数。  // TODO: 对外暴露并提供添加/删除的 API。
+  // 内置控速函数。
   // http://www.w3.org/TR/css3-transitions/
   var timingFunctions = {
     linear: function(x) {
       return x;
     },
-    bounce: function(x) {
+    bounceIn: function(x) {
+      x = 1 - x;
+      var y;
+      for (var a = 0, b = 1; 1; a += b, b /= 2) {
+        if (x >= (7 - 4 * a) / 11) {
+          y = b * b - Math.pow((11 - 6 * a - 11 * x) / 4, 2);
+          break;
+        }
+      }
+      return 1 - y;
+    },
+    bounceOut: function(x) {
       var y;
       for (var a = 0, b = 1; 1; a += b, b /= 2) {
         if (x >= (7 - 4 * a) / 11) {
@@ -3925,227 +4433,64 @@
     easeOutIn: cubicBezier(0, 0.42, 1.0, 0.58)
   };
 
-//--------------------------------------------------[Animation Constructor]
+  var getTimingFunction = function(name) {
+    name = name || '';
+//    'cubicBezier(0.42, 1.0, 0.75, 1.0)'.match(/^cubicBezier\((0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1)/)
+    return timingFunctions[name] || (name.startsWith('cubicBezier') ? cubicBezier.apply(null, name.slice(12, -1).split(',').map(function(item) {
+      return parseFloat(item);
+    })) : timingFunctions.ease);
+  };
+
   /**
-   * 创建动画效果。
-   * @name Animation
+   * 用于创建影片剪辑的一组特效。
+   * @name Fx
+   * @namespace
+   */
+  window.Fx = {};
+
+//--------------------------------------------------[Fx.Base]
+  /**
+   * 基础动画效果，其他动画效果都是从基础动画效果衍生出来的。
+   * @name Fx.Base
    * @constructor
-   * @param {Function} proceed 执行函数。
-   * @param {Object} [options] 可选参数，这些参数的默认值保存在 Animation.options 中。
-   * @param {string} options.transition 控速方式，默认为 'ease'。
-   * @param {number} options.duration 动画持续时间，单位为毫秒，默认为 400。
-   * @param {Function} options.onBeforeStart 动画开始之前执行的回调函数，若返回 false 则跳过该动画的执行。
-   * @param {Function} options.onStart 动画开始时（绘制第一帧之前）执行的回调函数。
-   * @param {Function} options.onFinish 动画结束时（绘制最后一帧之后）执行的回调函数。
+   * @param {Function} handler 动画处理函数，this 指向所属的 Animation 对象。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
    */
-  function Animation(proceed, options) {
-    this.uid = ++uid;
-    this.proceed = proceed;
-    Object.append(this, Object.append(Object.clone(Animation.options, true), options));
-    var timingFunction = timingFunctions[this.transition];
-    if (!timingFunction) {
-      if (this.transition.startsWith('cubicBezier')) {
-//        'cubicBezier(0.42, 1.0, 0.75, 1.0)'.match(/^cubicBezier\((0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1)/)
-        timingFunction = cubicBezier.apply(null, this.transition.slice(12, -1).split(',').map(function(item) {
-          return parseFloat(item);
-        }));
-      } else {
-        timingFunction = timingFunctions.ease;
-      }
-    }
-    this.timingFunction = timingFunction;
-  }
+  Fx.Base = function(handler, delay, duration, timingFunction) {
+    this.handler = handler;
+    this.delay = delay;
+    this.duration = duration;
+    this.timingFunction = getTimingFunction(timingFunction);
+  };
 
-  window.Animation = Animation;
-
-//--------------------------------------------------[Animation.prototype.play]
+//--------------------------------------------------[Fx.Morph]
   /**
-   * 播放动画。
-   * @name Animation.prototype.play
-   * @function
-   * @returns {Object} animation 对象。
+   * 渐变效果。
+   * @name Fx.Morph
+   * @constructor
+   * @param {Element} $element 要实施渐变效果的元素。
+   * @param {Object} styles 要实施渐变的样式。支持相对长度值、预命名颜色值和缩写的 #XXX 颜色值。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
    */
-  Animation.prototype.play = function() {
-    if (this.onBeforeStart() === false) {
-      return this;
-    }
-    this.mounted || engine.mountAnimation(this);
-    return this;
-  };
-
-//--------------------------------------------------[Animation.prototype.stop]
-  /**
-   * 停止动画。
-   * @name Animation.prototype.stop
-   * @function
-   * @returns {Object} animation 对象。
-   */
-  Animation.prototype.stop = function() {
-    this.mounted && engine.unmountAnimation(this);
-    return this;
-  };
-
-//--------------------------------------------------[Animation.options]
-  /**
-   * 默认选项。
-   * @name Animation.options
-   */
-  Animation.options = {
-    transition: 'ease',
-    duration: 400,
-    onBeforeStart: empty,
-    onStart: empty,
-    onFinish: empty
-  };
-
-})();
-
-(function() {
-//==================================================[Element 扩展 - 动画]
-  /*
-   * 为 Element 扩展动画方法。
-   *
-   * 扩展方法：
-   *   Element.prototype.animate
-   *   Element.prototype.stopAnimate
-   *   Element.prototype.fadeIn
-   *   Element.prototype.fadeOut
-   */
-  // 保存队列。
-  var queuePool = {};
-
-//--------------------------------------------------[Element.prototype.animate]
-  // 可变的 CSS properties 类型。
-  var TYPE_NUMBER = 1;
-  var TYPE_LENGTH = 2;
-  var TYPE_COLOR = 4;
-
-  // 可变的 CSS properties 列表。
-  //   - 'font-weight' 在 IE6 IE7 IE8 下不能设置数字值。
-  //   - 'zoom' 各浏览器支持情况差异较大。
-  // http://www.w3.org/TR/css3-transitions/#properties-from-css-
-  var acceptableProperties = {};
-  var typeIsNumber = ['opacity'];
-  var typeIsLength = ['top', 'right', 'bottom', 'left', 'width', 'height', 'outlineWidth', 'backgroundPositionX', 'backgroundPositionY', 'fontSize', 'lineHeight', 'letterSpacing', 'wordSpacing', 'textIndent'];
-  var typeIsColor = ['color', 'backgroundColor', 'outlineColor'];
-  ['Top', 'Right', 'Bottom', 'Left'].forEach(function(side) {
-    typeIsLength.push('margin' + side, 'padding' + side, 'border' + side + 'Width');
-    typeIsColor.push('border' + side + 'Color');
-  });
-  typeIsNumber.forEach(function(property) {
-    acceptableProperties[property] = TYPE_NUMBER;
-  });
-  typeIsLength.forEach(function(property) {
-    acceptableProperties[property] = TYPE_LENGTH;
-  });
-  typeIsColor.forEach(function(property) {
-    acceptableProperties[property] = TYPE_COLOR;
-  });
-
-  // 转换数字和长度值为整数。
-  var parseNumberAndLength = function(value) {
-    var parsedValue = parseFloat(value);
-    return isNaN(parsedValue) ? 0 : parsedValue;
-  };
-
-  // 转换颜色值为包含三个整数的数组。
-  var RE_HEX_COLOR = /^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
-  var RE_RGB_COLOR = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
-  var parseColor = function(value) {
-    // 将默认的颜色设置为白色。
-    var parsedValue = [255, 255, 255];
-    var match;
-    if (match = value.match(RE_HEX_COLOR)) {
-      parsedValue = Array.from(match).slice(1).map(function(hexadecimal) {
-        return parseInt(hexadecimal, 16);
-      });
-    } else if (match = value.match(RE_RGB_COLOR)) {
-      parsedValue = Array.from(match).slice(1).map(function(decimal) {
-        return +decimal;
-      });
-    }
-    return parsedValue;
-  };
-
-  // 过滤和转换动画需要改变的样式。
-  var parsedStyles = function(styles) {
-    var parsedStyles = {};
-    Object.forEach(styles, function(value, name) {
-      switch (acceptableProperties[name]) {
-        case TYPE_NUMBER:
-        case TYPE_LENGTH:
-          parsedStyles[name] = parseNumberAndLength(value);
-          break;
-        case TYPE_COLOR:
-          parsedStyles[name] = parseColor(value);
-          break;
+  Fx.Morph = function($element, styles, delay, duration, timingFunction) {
+    var transitiveStyles;
+    this.handler = function(x, y) {
+      if (transitiveStyles === undefined) {
+        transitiveStyles = parseStyles($element, styles);
       }
-    });
-    return parsedStyles;
-  };
-
-  // 播放指定队列的动画。
-  // queue.currentAnimation 为当前正在播放的动画，queue 数组中的内容为排队的动画。
-  var playAnimationQueue = function(queueId) {
-    var queue = queuePool[queueId];
-    if (!queue) {
-      return;
-    }
-//    console.log('[playAnimationQueue] queue.length:', queue.length);
-    if (!queue.length) {
-      delete queuePool[queueId];
-      return;
-    }
-    // 要播放的动画的参数。
-    var item = queue.shift();
-    var $element = item[0];
-    var styles = item[1] || {};
-    var options = item[2] || {};
-    // 在队列执行到当前动画时再执行 onBeforeStart，仅在此处执行一次，然后删除，避免传递到 Animation 的选项中。
-    if (options.onBeforeStart) {
-      if (options.onBeforeStart.call($element) === false) {
-        // 返回 false，播放队列中的下一项。
-        playAnimationQueue(queueId);
-        return;
-      }
-      delete options.onBeforeStart;
-    }
-    // 将 onStart 传递到 Animation 的选项中。
-    var onStart = options.onStart;
-    if (onStart) {
-      options.onStart = function() {
-        return onStart.call($element);
-      };
-    }
-    // 选项 onPlay 在每一次处理时都会调用。
-    var onPlay = options.onPlay || null;
-    // 覆盖 onFinish，并将已有的 onFinish 传递到 Animation 的选项中。
-    var onFinish = options.onFinish;
-    options.onFinish = function() {
-      var onFinishResult;
-      if (onFinish) {
-        onFinishResult = onFinish.call($element);
-      }
-      delete queue.currentAnimation;
-      playAnimationQueue(queueId);
-      return onFinishResult;
-    };
-    // 过滤和转换样式。
-    var transitiveProperties = {  // TODO: 可优化，合二为一。
-      before: parsedStyles($element.getStyles(Object.keys(styles))),
-      after: parsedStyles(styles)
-    };
-    // 开始播放动画。
-    queue.currentAnimation = new Animation(function(x, y) {
-      Object.forEach(transitiveProperties.before, function(beforeValue, name) {
-        var afterValue = transitiveProperties.after[name];
+      Object.forEach(transitiveStyles.before, function(beforeValue, name) {
+        var afterValue = transitiveStyles.after[name];
         var currentValue;
         switch (acceptableProperties[name]) {
           case TYPE_NUMBER:
             currentValue = (beforeValue + (afterValue - beforeValue) * y).toFixed(2);
             break;
           case TYPE_LENGTH:
-            currentValue = Math.floor(beforeValue + (afterValue - beforeValue) * y) + 'px';  // TODO: 支持多种长度单位
+            currentValue = Math.floor(beforeValue + (afterValue - beforeValue) * y) + 'px';  // TODO: 支持多种长度单位。
             break;
           case TYPE_COLOR:
             currentValue = 'rgb(' +
@@ -4156,151 +4501,287 @@
         }
         $element.setStyle(name, currentValue);
       });
-      onPlay && onPlay.call($element);
-    }, options).play();
+    };
+    this.delay = delay;
+    this.duration = duration;
+    this.timingFunction = getTimingFunction(timingFunction);
+  };
+
+//--------------------------------------------------[Fx.Fade]
+  /**
+   * 渐隐效果。
+   * @name Fx.Fade
+   * @constructor
+   * @param {Element} $element 要实施渐隐效果的元素。
+   * @param {string} mode 渐隐模式，in 为渐入，out 为渐出。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
+   */
+  Fx.Fade = function($element, mode, delay, duration, timingFunction) {
+    var isFadeInMode = mode === 'in';
+    var originalOpacity;
+    this.handler = function(x, y) {
+      if (originalOpacity === undefined) {
+        originalOpacity = $element.getStyle('opacity');
+      }
+      var isPlayMethod = this.status === PLAYING;
+      var styles = {
+        // 正常状态。
+        normal: {'display': 'block', 'opacity': originalOpacity},
+        // 全透明状态。
+        fullTransparency: {'display': 'block', 'opacity': 0},
+        // 隐藏状态。
+        noDisplay: {'display': 'none', 'opacity': originalOpacity}
+      };
+      switch (x) {
+        case 0:
+          $element.setStyles(styles[isFadeInMode ? (isPlayMethod ? 'fullTransparency' : 'noDisplay') : 'normal']);
+          break;
+        case 1:
+          $element.setStyles(styles[isFadeInMode ? 'normal' : (isPlayMethod ? 'noDisplay' : 'fullTransparency')]);
+          break;
+        default:
+          $element.setStyle('opacity', (originalOpacity * (isFadeInMode ? y : 1 - y)).toFixed(2));
+          break;
+      }
+    };
+    this.delay = delay;
+    this.duration = duration;
+    this.timingFunction = getTimingFunction(timingFunction);
+  };
+
+//--------------------------------------------------[Fx.Slide]
+
+//--------------------------------------------------[Fx.Highlight]
+  var getColorString = function(colorArray) {
+    return 'rgb(' + colorArray[0] + ', ' + colorArray[1] + ', ' + colorArray[2] + ')';
   };
 
   /**
-   * 在元素的动画队列中添加一个动画效果。
-   * @name Element.prototype.animate
+   * 高亮效果。
+   * @name Fx.Highlight
+   * @constructor
+   * @param {Element} $element 要实施渐隐效果的元素。
+   * @param {string} color 高亮的颜色，#XXXXXX 格式的字符串。
+   * @param {number} times 高亮的次数。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
+   */
+  Fx.Highlight = function($element, color, times, delay, duration, timingFunction) {
+    // 内部分多次动画换算后，使用此控速函数。
+    var nativeTimingFunction = getTimingFunction(timingFunction);
+    var nativeSection = 1 / times;
+    var transitiveBackgroundColor;
+    this.handler = function(x) {
+      if (transitiveBackgroundColor === undefined) {
+        transitiveBackgroundColor = parseStyles($element, {backgroundColor: color});
+      }
+      var beforeValue = transitiveBackgroundColor.before.backgroundColor;
+      var afterValue = transitiveBackgroundColor.after.backgroundColor;
+      if (x === 0 || x === 1) {
+        $element.setStyle('backgroundColor', getColorString(beforeValue));
+      } else {
+        var nativeX = (x % nativeSection) / nativeSection;
+        var nativeY = nativeTimingFunction(nativeX);
+        $element.setStyle('backgroundColor', getColorString([
+          Math.floor(afterValue[0] + (beforeValue[0] - afterValue[0]) * nativeY),
+          Math.floor(afterValue[1] + (beforeValue[1] - afterValue[1]) * nativeY),
+          Math.floor(afterValue[2] + (beforeValue[2] - afterValue[2]) * nativeY)
+        ]));
+      }
+    };
+    this.delay = delay;
+    this.duration = duration;
+    this.timingFunction = timingFunctions.linear;
+  };
+
+//--------------------------------------------------[Fx.Scroll]
+
+})();
+
+(function() {
+//==================================================[Element 扩展 - 动画]
+  /*
+   * 为 Element 扩展动画方法。
+   *
+   * 扩展方法：
+   *   Element.prototype.morph
+   *   Element.prototype.fadeIn
+   *   Element.prototype.fadeOut
+   *   Element.prototype.highlight
+   */
+
+  // 简单动画的队列。
+  var queuePool = {};
+
+  // 播放指定的队列。
+  var playQueue = function(uid) {
+    var queue = queuePool[uid];
+    if (queue) {
+      // 要播放的动画的参数。
+      var item = queue[0];
+      var $element = item[0];
+      var type = item[1];
+      var clip = item[2];
+      var callback = item[3];
+      var onPlayFinish = function() {
+        queue.shift();
+        if (queue.length) {
+          playQueue(uid);
+        } else {
+          delete queuePool[uid];
+        }
+      };
+      // fadeIn/fadeOut 的特殊情况处理。
+      if (type === 'fadeIn' && $element.offsetWidth || type === 'fadeOut' && !$element.offsetWidth) {
+        onPlayFinish();
+        return;
+      }
+      // 开始播放动画。
+      queue.currentAnimation = new Animation().addClip(clip).on('playfinish', onPlayFinish).on('playfinish', callback).play();
+    }
+  };
+
+  // 在指定的队列中添加一个动画。
+  var addToQueue = function($element, type, clip, callback) {
+    var uid = $element.uid;
+    var queue = queuePool[uid];
+    if (queue) {
+      // highlight 的特殊情况处理。
+      if (type === 'highlight') {
+        var currentAnimation = queue.currentAnimation;
+        if (queue[queue.length - 1] && queue[queue.length - 1][2] instanceof Fx.Highlight) {
+          if (currentAnimation && currentAnimation.clips[0] instanceof Fx.Highlight) {
+            currentAnimation.stop().play();
+          }
+          return;
+        }
+      }
+    } else {
+      queue = queuePool[uid] = [];
+    }
+    queue.push([$element, type, clip, callback]);
+    if (!queue.currentAnimation) {
+      playQueue(uid);
+    }
+  };
+
+//--------------------------------------------------[Element.prototype.morph]
+  /**
+   * 在当前元素的动画队列中添加一个渐变效果。
+   * @name Element.prototype.morph
    * @function
-   * @param {Object} styles 目标样式，元素将向指定的目标样式过渡。目标样式包含一条或多条要设置的样式声明，具体如下：
-   *   1. 与 setStyles 的参数一致，格式为 {propertyName: propertyValue, ...} 的对象。
-   *   2. propertyName 只支持 camel case，并且不能使用复合属性。
-   *   3. propertyValue 若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
-   *   4. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
-   * @param {Object} [options] 动画选项，与 Animation 的 options 参数基本一致，区别是：
-   *   1. 增加 onPlay 回调选项。
-   *   2. onBeforeStart、onStart、onPlay、(TODO: onStop、)onFinish 的 this 均为调用本方法的元素。
-   *   3. 提供了一个 queueName 属性用来更方便的控制队列。
-   * @param {Object} options.onPlay 每播放完一帧动画后的回调函数。
+   * @param {Object} styles 目标样式，元素将向指定的目标样式渐变。目标样式包含一条或多条要设置的样式声明，与 setStyles 的参数的差异如下：
+   *   1. 不能使用复合属性。  // TODO: 待支持。
+   *   2. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
+   * @param {Object} [options] 动画选项。
+   * @param {number} options.delay 延时，默认为 0，即马上开始播放。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
+   * @param {string} options.timingFunction 控速函数名称或表达式。
+   * @param {Function} options.callback 播放完成后的回调。
    * @returns {Element} 调用本方法的元素。
    * @description
    *   队列是指将需要较长时间完成的多个指令排序，以先进先出的形式逐个执行这些指令。
    *   在元素上调用本方法添加动画时：
    *     - 若该元素并未播放动画，新添加的动画会直接开始播放。
    *     - 若该元素正在播放动画，新添加的动画将被添加到队列末端，在前一个动画播放完毕后自动播放。
-   *   给不同元素添加的动画永远有不同的队列，给相同元素添加的动画默认有相同的队列，但可以通过 options.queueName 来指定新队列的名称。
-   *   若需要连接不同元素的动画队列，请配合动画参数 options.onFinish 来实现。
-   *   允许使用的“可过渡样式”仅限于值为长度单位或颜色单位的样式。
+   *   一个元素对应一个队列。即给不同元素添加的动画永远有不同的队列，给相同元素添加的动画永远有相同的队列。
+   *   所有 Element.prototype 上提供的动画相关的方法均为实现动画的简单方式，它们只是一个捷径，可以解决大部分需求。若需要更复杂的动画效果，请考虑使用 Animation 对象实现。
    */
-  Element.prototype.animate = function(styles, options) {
+  Element.prototype.morph = function(styles, options) {
+    var $element = this;
     options = options || {};
-    var queueName = options.queueName;
-    var queueId = this.uid + (queueName ? ':' + queueName : '');
-    var queue = queuePool[queueId];
-    if (queue) {
-      queue.push([this, styles, options]);
-    } else {
-      queuePool[queueId] = [
-        [this, styles, options]
-      ];
-      playAnimationQueue(queueId);
-    }
-    return this;
-  };
-
-//--------------------------------------------------[Element.prototype.stopAnimate]
-  /**
-   * 停止播放指定的动画队列。
-   * @name Element.prototype.stopAnimate
-   * @function
-   * @param {string} [queueName] 队列名。
-   * @returns {Element} 调用本方法的元素。
-   */
-  Element.prototype.stopAnimate = function(queueName) {
-    var queueId = this.uid + (queueName ? ':' + queueName : '');
-    var queue = queuePool[queueId];
-    if (queue) {
-      if (queue.currentAnimation) {
-        queue.currentAnimation.stop();
-        delete queue.currentAnimation;
-      }
-      queue.length = 0;
-      delete queuePool[queueId];
-    }
-    return this;
-  };
-
-//--------------------------------------------------[Element.prototype.getAnimationQueue]
-  /**
-   * 获取指定的动画队列，队里中仅包含尚未播放的动画效果。如果队列为空，将返回 null。
-   * @name Element.prototype.getAnimationQueue
-   * @function
-   * @param {string} [queueName] 队列名。
-   * @returns {Array} 指定的动画队列。
-   * @description
-   *   可以通过此方法判断指定的动画队列是否正在播放。返回数组即正在播放，数组的 currentAnimation 属性为播放中的动画，数组中的内容为排队的动画。
-   *   可以通过操作这个队列改变动画的播放行为。
-   *   队列格式：[Element element, Object styles, Object options]
-   */
-  Element.prototype.getAnimationQueue = function(queueName) {
-    var queueId = this.uid + (queueName ? ':' + queueName : '');
-    return queuePool[queueId] || null;
+    addToQueue(
+        $element,
+        'morph',
+        new Fx.Morph($element, styles, options.delay || 0, options.duration || 400, options.timingFunction || 'ease'),
+        function() {
+          options.callback && options.callback.call($element);
+        }
+    );
+    return $element;
   };
 
 //--------------------------------------------------[Element.prototype.fadeIn]
   /**
-   * 让元素渐显。
+   * 在当前元素的动画队列中添加一个淡入效果。
    * @name Element.prototype.fadeIn
    * @function
-   * @param {Object} [options] 动画选项，请参考 Element.prototype.animate 的 options 参数。
+   * @param {Object} [options] 动画选项。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {Function} options.callback 播放完成后的回调。
    * @returns {Element} 调用本方法的元素。
+   * @description
+   *   当前已被渲染的元素不能执行淡入效果。
    */
   Element.prototype.fadeIn = function(options) {
+    var $element = this;
     options = options || {};
-    var styles = {};
-    var onBeforeStart = options.onBeforeStart;
-    options.onBeforeStart = function() {
-      if (this.offsetWidth) {
-        return false;
-      }
-      var returnValue;
-      if (onBeforeStart) {
-        returnValue = onBeforeStart.call(this);
-      }
-      if (returnValue !== false) {
-        styles.opacity = this.getStyle('opacity');
-        this.setStyles({'display': 'block', 'opacity': 0});
-      }
-      return returnValue;
-    };
-    return this.animate(styles, options);
+    addToQueue(
+        $element,
+        'fadeIn',
+        new Fx.Fade($element, 'in', 0, options.duration || 200, 'easeIn'),
+        function() {
+          options.callback && options.callback.call($element);
+        }
+    );
+    return $element;
   };
 
 //--------------------------------------------------[Element.prototype.fadeOut]
   /**
-   * 让元素渐隐。
+   * 在当前元素的动画队列中添加一个淡出效果。
    * @name Element.prototype.fadeOut
    * @function
-   * @param {Object} [options] 动画选项，请参考 Element.prototype.animate 的 options 参数。
+   * @param {Object} [options] 动画选项。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {Function} options.callback 播放完成后的回调。
    * @returns {Element} 调用本方法的元素。
+   * @description
+   *   当前并未被渲染的元素不能执行淡出效果。
    */
   Element.prototype.fadeOut = function(options) {
+    var $element = this;
     options = options || {};
-    var opacity;
-    var onBeforeStart = options.onBeforeStart;
-    options.onBeforeStart = function() {
-      if (!this.offsetWidth) {
-        return false;
-      }
-      var returnValue;
-      if (onBeforeStart) {
-        returnValue = onBeforeStart.call(this);
-      }
-      if (returnValue !== false) {
-        opacity = this.getStyle('opacity');
-      }
-      return returnValue;
-    };
-    var onFinish = options.onFinish;
-    options.onFinish = function() {
-      this.setStyles({'display': 'none', 'opacity': opacity});
-      if (onFinish) {
-        return onFinish.call(this);
-      }
-    };
-    return this.animate({opacity: 0}, options);
+    addToQueue(
+        $element,
+        'fadeOut',
+        new Fx.Fade($element, 'out', 0, options.duration || 200, 'easeOut'),
+        function() {
+          options.callback && options.callback.call($element);
+        }
+    );
+    return $element;
+  };
+
+//--------------------------------------------------[Element.prototype.highlight]
+  /**
+   * 在当前元素的动画队列中添加一个高亮效果。
+   * @name Element.prototype.highlight
+   * @function
+   * @param {Object} [options] 动画选项。
+   * @param {string} options.color 高亮颜色，默认为 yellow。
+   * @param {number} options.times 高亮次数，默认为 2。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
+   * @param {Function} options.callback 播放完成后的回调。
+   * @returns {Element} 调用本方法的元素。
+   * @description
+   *   调用本方法时，如果当前队列的前一个动画也是高亮动画，则丢弃当前的高亮动画。若此时当前元素正在播放一个高亮动画，则重新播放该动画。
+   */
+  Element.prototype.highlight = function(options) {
+    var $element = this;
+    options = options || {};
+    addToQueue(
+        $element,
+        'highlight',
+        new Fx.Highlight($element, options.color || 'yellow', options.times || 1, 0, options.duration || 500, 'easeIn'),
+        function() {
+          options.callback && options.callback.call($element);
+        }
+    );
+    return $element;
   };
 
 })();
@@ -4860,9 +5341,11 @@
  *  2011-10-19
  *  Public Domain.
  */
+
 /**
  * @fileOverview 插件 - JSON 补缺 - json2
  */
+
 /*
   http://www.JSON.org/json2.js
   2011-10-19
@@ -5427,9 +5910,11 @@
  *  Version: jquery-sizzle-1.5.1-32-gfe2f618
  *  More information: http://sizzlejs.com/
  */
+
 /**
  * @fileOverview 插件 - CSS 选择器 - Sizzle
  */
+
 (function() {
 //==================================================[CSS 选择器]
   /*

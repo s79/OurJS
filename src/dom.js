@@ -1863,11 +1863,11 @@
    * 为 document 扩展新特性，提供与 Element 类似的事件机制。
    *
    * 扩展方法：
-   *   document.preloadImages
    *   document.$
    *   document.on
    *   document.off
    *   document.fire
+   *   document.preloadImages
    */
 
   /**
@@ -1877,19 +1877,6 @@
    */
 
   document.uid = 'document';
-
-//--------------------------------------------------[document.preloadImages]
-  /**
-   * 预加载图片。
-   * @name document.preloadImages
-   * @function
-   * @param {Array} urlArray 包含需预加载的图片路径的数组。
-   */
-  document.preloadImages = function(urlArray) {
-    urlArray.forEach(function(url) {
-      new Image().src = url;
-    });
-  };
 
 //--------------------------------------------------[document.$]
   var RE_TAG_NAME = /^<(\w+)/;
@@ -2084,6 +2071,19 @@
    * @returns {Object} document 对象。
    */
   document.fire = Element.prototype.fire;
+
+//--------------------------------------------------[document.preloadImages]
+  /**
+   * 预加载图片。
+   * @name document.preloadImages
+   * @function
+   * @param {Array} urlArray 包含需预加载的图片路径的数组。
+   */
+  document.preloadImages = function(urlArray) {
+    urlArray.forEach(function(url) {
+      new Image().src = url;
+    });
+  };
 
 //==================================================[window 扩展]
   /*

@@ -532,7 +532,7 @@
    *   http://msdn.microsoft.com/en-us/library/ms531424(v=vs.85).aspx
    */
 
-  if (window.localStorage || !document.documentElement.addBehavior) {
+  if (window.localStorage || !document.documentElement.addBehavior || location.protocol === 'file:') {
     return;
   }
 

@@ -102,10 +102,11 @@ var manifest = {
     'navigator.isOpera'
   ],
   'location': [
-    '<#>',
+    '<#>自定义扩展',
     'location.parameters'
   ],
   'cookie': [
+    '<#>自定义扩展',
     'cookie.set',
     'cookie.get',
     'cookie.remove'
@@ -132,12 +133,12 @@ var manifest = {
     'document.head',
     '<#>获取元素',
     'document.$',
-    '<#>常用方法',
-    'document.preloadImages',
     '<#>处理事件',
     'document.on',
     'document.off',
-    'document.fire'
+    'document.fire',
+    '<#>自定义扩展',
+    'document.preloadImages'
   ],
   'Element': [
     '<#>扩展属性/方法',
@@ -194,6 +195,7 @@ var manifest = {
     'Element.prototype.highlight'
   ],
   'Event': [
+    '<#>自定义扩展',
     'Event.prototype.originalEvent',
     'Event.prototype.type',
     'Event.prototype.isMouseEvent',

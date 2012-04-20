@@ -206,7 +206,6 @@ execute(function($) {
           $indexFieldset.append($('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>'));
           // 详细信息。
           var groupName = symbol ? (symbol.isFunction ? (symbol.isConstructor ? 'constructor' : 'methods') : 'properties') : '';
-          console.log(groupName, lastGroupName);
           if (groupName && groupName !== lastGroupName) {
             $detailsDiv.append($(group[groupName]));
           }
@@ -279,25 +278,27 @@ execute(function($) {
     // 使用对话框实现。
     var deatilsPanel = new components.Dialog($deatilsPanel, {
       maskStyles: {background: 'black', opacity: .05},
-      pinnedOffsetX: pinnedOffsetX,
-      pinnedOffsetY: 0,
-      onOpen: function() {
-        // 按下 ESC 键或点击细节层外即关闭细节层。
-        $html.on('keydown.deatilsPanel mousedown.deatilsPanel', function(e) {
-          if (e.isMouseEvent && !$deatilsPanel.contains(e.target) || e.which === 27) {
-            detailsLayer.close();
-          }
+      offsetX: pinnedOffsetX,
+      offsetY: 0
+    })
+        .on('open',
+        function() {
+          // 按下 ESC 键或点击细节层外即关闭细节层。
+          $html.on('keydown.deatilsPanel mousedown.deatilsPanel', function(e) {
+            if (e.isMouseEvent && !$deatilsPanel.contains(e.target) || e.which === 27) {
+              detailsLayer.close();
+            }
+          });
+          // 调整窗口尺寸的同时调整细节层的尺寸。
+          window.on('resize.deatilsPanel', adjustDeatilsPanel);
+        })
+        .on('close',
+        function() {
+          $html.setStyle('overflow', '');
+          // 取消事件绑定。
+          $html.off('keydown.deatilsPanel mousedown.deatilsPanel');
+          window.off('resize.deatilsPanel');
         });
-        // 调整窗口尺寸的同时调整细节层的尺寸。
-        window.on('resize.deatilsPanel', adjustDeatilsPanel);
-      },
-      onClose: function() {
-        $html.setStyle('overflow', '');
-        // 取消事件绑定。
-        $html.off('keydown.deatilsPanel mousedown.deatilsPanel');
-        window.off('resize.deatilsPanel');
-      }
-    });
     // 打开/关闭细节层，包裹对话框的方法。
     var detailsPanelLeft;
     var detailsLayer = {
@@ -309,7 +310,7 @@ execute(function($) {
           deatilsPanel.open();
           // 打开时的向左移动的效果。
           detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
-          $deatilsPanel.setStyles({left: detailsPanelLeft + 30}).animate({left: detailsPanelLeft}, {duration: 150, queueName: 'move'});
+          $deatilsPanel.setStyles({left: detailsPanelLeft + 30}).morph({left: detailsPanelLeft}, {duration: 150});
         }
       },
       close: function() {
@@ -317,7 +318,7 @@ execute(function($) {
           this.isOpen = false;
           deatilsPanel.close();
           // 关闭时的向右移动的效果。
-          $deatilsPanel.animate({left: detailsPanelLeft + 15}, {transition: 'easeIn', duration: 150, queueName: 'move'});
+          $deatilsPanel.morph({left: detailsPanelLeft + 15}, {transition: 'easeIn', duration: 150});
         }
       },
       isOpen: false
