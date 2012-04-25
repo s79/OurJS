@@ -305,9 +305,11 @@ execute(function($) {
       open: function() {
         if (!this.isOpen) {
           this.isOpen = true;
+          var offsetY = window.getPageOffset().y;
           $html.setStyle('overflow', 'hidden');
           adjustDeatilsPanel();
           deatilsPanel.open();
+          window.scrollTo(0, offsetY);
           // 打开时的向左移动的效果。
           detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
           $deatilsPanel.setStyles({left: detailsPanelLeft + 30}).morph({left: detailsPanelLeft}, {duration: 150});
@@ -316,7 +318,9 @@ execute(function($) {
       close: function() {
         if (this.isOpen) {
           this.isOpen = false;
+          var offsetY = window.getPageOffset().y;
           deatilsPanel.close();
+          window.scrollTo(0, offsetY);
           // 关闭时的向右移动的效果。
           $deatilsPanel.morph({left: detailsPanelLeft + 15}, {transition: 'easeIn', duration: 150});
         }

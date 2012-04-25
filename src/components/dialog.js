@@ -61,7 +61,8 @@ execute(function($) {
       if ($enable !== $enabled) {
         $disabled && $disabled.off('focusin.freezeFocusArea');
         $disable.on('focusin.freezeFocusArea', function(e) {
-          if (!$enable.contains(e.target)) {
+          // 要判断 $after 此时是否可见，在点击某元素导致对话框关闭时，对话框是先隐藏，然后才执行到这里。
+          if (!$enable.contains(e.target) && $after.offsetWidth) {
             $after.focus();
           }
         });
@@ -310,7 +311,8 @@ execute(function($) {
       dialog.effect = false;
     }
     // 对话框的初始状态是隐藏的。调节对话框的位置是通过 element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
-    var $dialog = dialog.element = $(element).setStyles({display: 'none', left: 0, top: 0});
+    // 设置 top 为 -5000 是为了避免在 IE6 中启用 png 修复时出现闪烁现象。
+    var $dialog = dialog.element = $(element).setStyles({display: 'none', left: 0, top: -5000});
     // 根据 element 的父元素 $container 确定对话框使用的定位方式。
     var $container = $dialog.getParent();
     if ($container === document.body && $dialog.getStyle('position') === 'fixed') {

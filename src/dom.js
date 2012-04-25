@@ -1957,7 +1957,9 @@
     var callListener = function(listener) {
       // 将 listener 的 this 设置为 document。
       // 不会传入事件对象。
-      listener.call(document);
+      setTimeout(function() {
+        listener.call(document);
+      }, 0);
     };
 
     // 派发 domready 事件，监听器在运行后会被删除。
@@ -2011,9 +2013,7 @@
 
     return {
       addListener: function(listener) {
-        listeners ? listeners.push(listener) : setTimeout(function() {
-          callListener(listener);
-        }, 0);
+        listeners ? listeners.push(listener) : callListener(listener);
       }
     };
 
