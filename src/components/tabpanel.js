@@ -22,16 +22,13 @@ execute(function($) {
    * @param {Element} options.tabsContainer 用来绑定各“标签”的代理事件监听器的元素。当所有的“标签”有一个共同的父元素时，可以设置为 undefined，此时使用第一个“标签”的父元素。
    * @param {number} options.hoverDelay 以毫秒为单位的鼠标悬停激活延时，如果为 0，则由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
    * @fires change
+   *   {Element} activeTab 当前的激活的“标签”。
+   *   {Element} activePanel 当前的激活的“面板”。
+   *   {number} activeIndex 当前的激活的“标签”和“面板”在 tabs 和 panels 中的索引。
+   *   {Element} inactiveTab 上一个激活的“标签”。
+   *   {Element} inactivePanel 上一个激活的“面板”。
+   *   {number} inactiveIndex 上一个激活的“标签”和“面板”在 tabs 和 panels 中的索引。
    *   在激活的“标签”和“面板”改变时触发。
-   *   <table>
-   *     <tr><th>事件对象的属性</th><th>描述</th></tr>
-   *     <tr><td>activeTab</td><td>当前的激活的“标签”。</td></tr>
-   *     <tr><td>activePanel</td><td>当前的激活的“面板”。</td></tr>
-   *     <tr><td>activeIndex</td><td>当前的激活的“标签”和“面板”在 tabs 和 panels 中的索引。</td></tr>
-   *     <tr><td>inactiveTab</td><td>上一个激活的“标签”。</td></tr>
-   *     <tr><td>inactivePanel</td><td>上一个激活的“面板”。</td></tr>
-   *     <tr><td>inactiveIndex</td><td>上一个激活的“标签”和“面板”在 tabs 和 panels 中的索引。</td></tr>
-   *   </table>
    * @requires components.Switcher
    * @description
    *   “标签”和“面板”必须是按顺序一一对应，保存在参数 tabs 和 panels 中。

@@ -1,4 +1,7 @@
-﻿>2012-04-18
+﻿>2012-04-27
+Number.prototype.toRegular -> Number.prototype.padZero
+
+>2012-04-18
 首末帧同步处理，中间帧挂载到引擎。
 bodyMask.show().hide().show().hide().show().hide().show().show().hide().hide().show().hide();
 使用升级后的 Animation 测试通过。

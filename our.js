@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-04-20
+ *  Version: 2012-04-27
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -635,7 +635,7 @@
    *   Array.from
    *   Array.prototype.contains
    *   String.prototype.clean
-   *   Number.prototype.toRegular
+   *   Number.prototype.padZero
    *   Math.limit
    *   Math.randomRange
    *   RegExp.escape
@@ -812,15 +812,15 @@
     return this.replace(RE_WHITESPACES, ' ').trim();
   };
 
-//--------------------------------------------------[Number.prototype.toRegular]  // TODO: 改为 format。
+//--------------------------------------------------[Number.prototype.padZero]
   /**
    * 在数字左侧补零，以使数字更整齐。
-   * @name Number.prototype.toRegular
+   * @name Number.prototype.padZero
    * @function
    * @param {number} digits 数字总位数（包括整数位和小数位），当数字实际位数小于指定的数字总位数时，会在左侧补零。
    * @returns {string} 补零后的数字、NaN、Infinity 或 -Infinity 的字符形式。
    */
-  Number.prototype.toRegular = function(digits) {
+  Number.prototype.padZero = function(digits) {
     var sign = (this < 0) ? '-' : '';
     var number = Math.abs(this) + '';
     if (isFinite(this)) {
@@ -3382,11 +3382,11 @@
    * 为 document 扩展新特性，提供与 Element 类似的事件机制。
    *
    * 扩展方法：
-   *   document.preloadImages
    *   document.$
    *   document.on
    *   document.off
    *   document.fire
+   *   document.preloadImages
    */
 
   /**
@@ -3396,19 +3396,6 @@
    */
 
   document.uid = 'document';
-
-//--------------------------------------------------[document.preloadImages]
-  /**
-   * 预加载图片。
-   * @name document.preloadImages
-   * @function
-   * @param {Array} urlArray 包含需预加载的图片路径的数组。
-   */
-  document.preloadImages = function(urlArray) {
-    urlArray.forEach(function(url) {
-      new Image().src = url;
-    });
-  };
 
 //--------------------------------------------------[document.$]
   var RE_TAG_NAME = /^<(\w+)/;
@@ -3489,7 +3476,9 @@
     var callListener = function(listener) {
       // 将 listener 的 this 设置为 document。
       // 不会传入事件对象。
-      listener.call(document);
+      setTimeout(function() {
+        listener.call(document);
+      }, 0);
     };
 
     // 派发 domready 事件，监听器在运行后会被删除。
@@ -3543,9 +3532,7 @@
 
     return {
       addListener: function(listener) {
-        listeners ? listeners.push(listener) : setTimeout(function() {
-          callListener(listener);
-        }, 0);
+        listeners ? listeners.push(listener) : callListener(listener);
       }
     };
 
@@ -3603,6 +3590,19 @@
    * @returns {Object} document 对象。
    */
   document.fire = Element.prototype.fire;
+
+//--------------------------------------------------[document.preloadImages]
+  /**
+   * 预加载图片。
+   * @name document.preloadImages
+   * @function
+   * @param {Array} urlArray 包含需预加载的图片路径的数组。
+   */
+  document.preloadImages = function(urlArray) {
+    urlArray.forEach(function(url) {
+      new Image().src = url;
+    });
+  };
 
 //==================================================[window 扩展]
   /*

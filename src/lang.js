@@ -630,7 +630,7 @@
    *   Array.from
    *   Array.prototype.contains
    *   String.prototype.clean
-   *   Number.prototype.toRegular
+   *   Number.prototype.padZero
    *   Math.limit
    *   Math.randomRange
    *   RegExp.escape
@@ -807,15 +807,15 @@
     return this.replace(RE_WHITESPACES, ' ').trim();
   };
 
-//--------------------------------------------------[Number.prototype.toRegular]  // TODO: 改为 format。
+//--------------------------------------------------[Number.prototype.padZero]
   /**
    * 在数字左侧补零，以使数字更整齐。
-   * @name Number.prototype.toRegular
+   * @name Number.prototype.padZero
    * @function
    * @param {number} digits 数字总位数（包括整数位和小数位），当数字实际位数小于指定的数字总位数时，会在左侧补零。
    * @returns {string} 补零后的数字、NaN、Infinity 或 -Infinity 的字符形式。
    */
-  Number.prototype.toRegular = function(digits) {
+  Number.prototype.padZero = function(digits) {
     var sign = (this < 0) ? '-' : '';
     var number = Math.abs(this) + '';
     if (isFinite(this)) {

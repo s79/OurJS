@@ -138,32 +138,29 @@
    * @constructor
    * @param {string} url 请求地址。
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Request.options 中。
-   * @param {string} options.username 用户名。
-   * @param {string} options.password 密码。
-   * @param {string} options.method 请求方法，默认为 'post'。
+   * @param {string} options.username 用户名，默认为空字符串，即不指定用户名。
+   * @param {string} options.password 密码，默认为空字符串，即不指定密码。
+   * @param {string} options.method 请求方法，默认为 'get'。
    * @param {Object} options.headers 要设置的 request headers，格式为 {key: value, ...} 的对象。
    * @param {string} options.contentType 发送数据的内容类型，默认为 'application/x-www-form-urlencoded'，method 为 'post' 时有效。
    * @param {boolean} options.useCache 是否允许浏览器的缓存生效，默认为 true。
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
    * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，应返回处理后的字符串数据。
-   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，应返回处理后的响应数据。
+   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回处理后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为 null。
+   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回处理后的响应数据，默认无特殊处理。
    * @fires request
-   *   在发送请求时触发，无事件对象传入。
+   *   在发送请求时触发。
    * @fires response
+   *   {number} status 状态码。
+   *   {string} statusText 状态描述。
+   *   {Object} headers 响应头。
+   *   {string} text 响应文本。
+   *   {XMLDocument} xml 响应 XML 文档。
    *   在收到响应时触发。
    *   在调用 abort 方法取消请求，或请求超时的情况下，也会收到响应数据。此时的状态码分别为 -498 和 -408。
    *   换句话说，只要调用了 send 方法发起了请求，就必然会收到响应，虽然上述两种情况的响应并非是真实的来自于服务端的响应数据。
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
-   *   <table>
-   *     <tr><th>事件对象的属性类型</th><th>事件对象的属性名称</th><th>描述</th></tr>
-   *     <tr><td>number</td><td>status</td><td>状态码。</td></tr>
-   *     <tr><td>string</td><td>statusText</td><td>状态描述。</td></tr>
-   *     <tr><td>Object</td><td>headers</td><td>响应头。</td></tr>
-   *     <tr><td>string</td><td>text</td><td>响应文本。</td></tr>
-   *     <tr><td>XMLDocument</td><td>xml</td><td>响应 XML 文档。</td></tr>
-   *   </table>
    */
   function Request(url, options) {
     this.xhr = getXHRObject();

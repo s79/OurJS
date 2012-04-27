@@ -60,7 +60,7 @@ var manifest = {
     'Number.isInteger',
     'Number.toInteger',
     '<#>自定义扩展',
-    'Number.prototype.format'
+    'Number.prototype.padZero'
   ],
   'Math': [
     '<#>自定义扩展',
@@ -143,7 +143,7 @@ var manifest = {
   'Element': [
     '<#>扩展属性/方法',
     'Element.prototype',
-    '<#>HTML5',
+    '<#>处理内容',
     'Element.prototype.innerText',
     'Element.prototype.outerText',
     'Element.prototype.outerHTML',
@@ -191,7 +191,8 @@ var manifest = {
     'Element.prototype.fire',
     '<#>动画效果',
     'Element.prototype.morph',
-    'Element.prototype.fade',
+    'Element.prototype.fadeIn',
+    'Element.prototype.fadeOut',
     'Element.prototype.highlight'
   ],
   'Event': [

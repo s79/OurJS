@@ -22,11 +22,8 @@ execute(function($) {
    * @param {string} options.maxDate 最大日期，格式为 yyyy-mm-dd，默认为 2100-12-31。
    * @param {string} options.date 选定日期，格式为 yyyy-mm-dd。
    * @fires select
+   *   {string} date 选定的日期，格式为 yyyy-mm-dd 的字符串。
    *   选定日期后触发。
-   *   <table>
-   *     <tr><th>事件对象的属性</th><th>描述</th></tr>
-   *     <tr><td>date</td><td>选定的日期，格式为 yyyy-mm-dd 的字符串。</td></tr>
-   *   </table>
    */
   function Calendar(options) {
     var calendar = this;

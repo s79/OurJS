@@ -17,14 +17,11 @@ execute(function($) {
    * @constructor
    * @param {Array} items 指定在本数组中的各元素间切换，本数组包含的元素必须是引用类型的值，且不能有重复。
    * @fires change
+   *   {Element} activeItem 当前的活动元素。
+   *   {number} activeIndex 当前的活动元素在 items 中的索引。
+   *   {Element} inactiveItem 上一个活动元素。
+   *   {number} inactiveIndex 上一个活动元素在 items 中的索引。
    *   在当前的活动元素改变时触发。
-   *   <table>
-   *     <tr><th>事件对象的属性</th><th>描述</th></tr>
-   *     <tr><td>activeItem</td><td>当前的活动元素。</td></tr>
-   *     <tr><td>activeIndex</td><td>当前的活动元素在 items 中的索引。</td></tr>
-   *     <tr><td>inactiveItem</td><td>上一个活动元素。</td></tr>
-   *     <tr><td>inactiveIndex</td><td>上一个活动元素在 items 中的索引。</td></tr>
-   *   </table>
    * @description
    *   高级应用：动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
    */

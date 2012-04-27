@@ -234,17 +234,19 @@ execute(function($) {
         'location',
         'cookie',
         'localStorage'
-      ].forEach(function(name) {
-        buildDocument(name, 'a');
-      });
+      ]
+          .forEach(function(name) {
+            buildDocument(name, 'a');
+          });
       [
         'window',
         'document',
         'Element',
         'Event'
-      ].forEach(function(name) {
-        buildDocument(name, 'b');
-      });
+      ]
+          .forEach(function(name) {
+            buildDocument(name, 'b');
+          });
       [
         'Component',
         'Request',
@@ -253,9 +255,10 @@ execute(function($) {
         'components.TabPanel',
         'components.Dialog',
         'components.Calendar'
-      ].forEach(function(name) {
-        buildDocument(name, 'c');
-      });
+      ]
+          .forEach(function(name) {
+            buildDocument(name, 'c');
+          });
     });
 
   });
@@ -355,9 +358,10 @@ execute(function($) {
     // 如果指定了 hash，则直达细节页的对应位置。
     if (location.hash) {
       notify('details.show');
-      setTimeout(function() {
-        location.hash = location.hash;
-      }, 0);
+      var $target = document.$(location.hash);
+      if ($target) {
+        $target.scrollIntoView();
+      }
     }
 
     // 是否在索引页显示短描述。
@@ -377,6 +381,7 @@ execute(function($) {
 
     // 代码高亮。
     prettyPrint();
+
   });
 
 }, true);
