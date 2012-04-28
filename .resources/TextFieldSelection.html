@@ -238,7 +238,7 @@ var TextFieldSelection = function() {
 
 //--------------------------------------------------[window.onload]
 window.onload = function() {
-  textRange = new TextFieldSelection(document.getElementById('test_textarea'));
+  textRange = new TextFieldSelection(document.getElementById('test_input'));
 
   var copiedText = '[hellow]';
   var $start = document.getElementById('start');
@@ -259,6 +259,9 @@ window.onload = function() {
     $start.value = selection.start;
     $end.value = selection.end;
   };
+
+  textRange.setSelectionRange(2,2);
+  textRange.$target.focus();
 };
 </script>
 </head>

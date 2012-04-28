@@ -291,15 +291,16 @@ execute(function($) {
    * @fires close
    *   在对话框关闭时触发。如果启用了动画效果，则在对话框关闭动画播放完毕的时候触发。
    * @description
-   *   对话框的弹出位置、遮掩层遮盖的范围都是与对话框的父元素有关的。因此不要修改对话框元素在文档树中的位置。
+   *   对话框的弹出位置、遮掩层遮盖的范围都是与对话框的父元素有关的。
+   *   对话框元素将以其父元素为“参考元素”进行定位，遮掩层也作为其父元素的子元素被创建。
+   *   如果对话框元素的父元素是 body，遮掩层将遮掩整个视口。
+   *   当对话框元素的父元素不是 body 时，应避免其父元素出现滚动条，以免对话框和遮掩层能随其内容滚动。
+   *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。
    *   <ul>
    *     <li>对话框的默认状态为关闭。因此 element 的 display 将被设置为 none。</li>
-   *     <li>该元素的 position 将在创建后视情况而被修改为 absolute 或 fixed，另外建议为该元素设置明确的 zIndex。</li>
-   *     <li>对话框元素将以其父元素（父元素应创建 stacking context）为“参考元素”进行定位，遮掩层也作为其父元素的子元素被创建。</li>
-   *     <li>如果话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
-   *     <li>如果话框元素的父元素为 body 元素时，遮掩层将遮掩整个视口。此时如果 element 的 position 为 fixed，对话框将始终保持显示在视口内（仅在这种情况下 element 的 position: fixed 才会有效）。</li>
-   *     <li>避免让对话框元素的父元素（除 body 外）出现滚动条，以免对话框和遮掩层能随其内容滚动。</li>
-   *     <li>当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。</li>
+   *     <li>当对话框元素的父元素为 body 元素时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
+   *     <li>建议为该元素设置明确的 zIndex，如果未设置 zIndex，则自动设置 zIndex 为 1000。</li>
+   *     <li>如果对话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
    *   </ul>
    */
   function Dialog(element, options) {
