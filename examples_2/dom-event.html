@@ -28,8 +28,7 @@ button { padding: 0 5px; }
 #container { position: relative; height: 150px; background: #f5f5f5; }
 #drag { position: absolute; left: 0; top: 0; width: 160px; height: 120px; padding: 3px; border: 2px solid lightsteelblue; background: lightsteelblue; cursor: default; }
 #drag.dragging { border-color: dodgerblue; }
-.click { background: silver; }
-.focusin { border-style: dotted; }
+.focusin { background: silver; }
 </style>
 </head>
 <body>
@@ -49,10 +48,18 @@ button { padding: 0 5px; }
   <input id="c2" type="checkBox" value="checkbox2">
   <input id="r1" name="r1" type="Radio" value="111">
   <input id="r2" name="r1" type="Radio" value="222">
-  <input id="t1" type="text" value="select select select">
+  <input id="t1" type="text" value="input">
+  <textarea id="t2"></textarea>
 </fieldset>
 <script>
 var $ = document.$;
+
+$('#t1').on('input', function() {
+  console.log('#t1: ' + this.value);
+});
+$('#t2').on('input', function() {
+  console.log('#t2: ' + this.value);
+});
 
 //$('#r3').on('focus', function(e) {
 //  this.blur();
@@ -63,9 +70,9 @@ var $ = document.$;
 //});
 //
 $('#focusin').find('input').forEach(function(item) {
-  item.on('change', function(e) {
-    console.log('::change::', e.target.value);
-  });
+//  item.on('change', function(e) {
+//    console.log('::change::', e.target.value);
+//  });
 });
 //document.on('click', function(e) {
 //  console.log('--click--', e.target.value);
@@ -189,7 +196,8 @@ $('#clear').on('click', function() {
   <div id="mouse">
     <div id="d51"></div>
     <div id="d52"></div>
-    <div id="d53"></div><code>code</code><samp>samp</samp><kbd>kbd</kbd><var id="var">var</var><span>span</span><p id="inner">p</p></div>
+    <div id="d53"></div>
+    <code>code</code><samp>samp</samp><kbd>kbd</kbd><var id="var">var</var><span>span</span><p id="inner">p</p></div>
 </fieldset>
 
 <script>
@@ -389,12 +397,13 @@ function L2() {
 //  console.log(event.type, event.target.outerHTML, this.tagName);
 //});
 
-$b1.getParent().on('click', function(e) {
-  this.toggleClass('click');
-});
-$b1.getParent().on('focusin', function(e) {
-  this.toggleClass('focusin');
-});
+$b1.getParent()
+    .on('focusin', function(e) {
+      this.addClass('focusin');
+    })
+    .on('focusout', function(e) {
+      this.removeClass('focusin');
+    });
 
 $(document.body).on('foo.bar', function(e) {
   console.log(e);

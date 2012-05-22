@@ -315,17 +315,18 @@ execute(function($) {
           window.scrollTo(0, offsetY);
           // 打开时的向左移动的效果。
           detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
-          $deatilsPanel.setStyles({left: detailsPanelLeft + 30}).morph({left: detailsPanelLeft}, {duration: 150});
+          $deatilsPanel.setStyles({left: detailsPanelLeft + 30, opacity: 0}).morph({left: detailsPanelLeft, opacity: 1}, {duration: 150});
         }
       },
       close: function() {
         if (this.isOpen) {
           this.isOpen = false;
-          var offsetY = window.getPageOffset().y;
-          deatilsPanel.close();
-          window.scrollTo(0, offsetY);
           // 关闭时的向右移动的效果。
-          $deatilsPanel.morph({left: detailsPanelLeft + 15}, {transition: 'easeIn', duration: 150});
+          $deatilsPanel.morph({left: detailsPanelLeft + 15, opacity: 0}, {transition: 'easeIn', duration: 150, callback: function() {
+            var offsetY = window.getPageOffset().y;
+            deatilsPanel.close();
+            window.scrollTo(0, offsetY);
+          }});
         }
       },
       isOpen: false

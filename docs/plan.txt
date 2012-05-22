@@ -63,6 +63,7 @@ components.mask.html:591331403483764 "HIDE"
 >TODO: Date.from/format
 
 >TODO: 事件部分 fire 参数由 type 改为 name。
+>不会实施这个修改，这会把问题变复杂。如果需要触发特定的一些监听器，应该为他们单独指定 type。
 
 >TODO: 事件部分 + input。
 
@@ -110,4 +111,4 @@ API应该是最精简的，不要为调用者带来多余的不便。
 API应该从调用者的角度来进行设计。
 好的API绝不推卸责任，把自己该做的事情留给别人。
 在实现API之前，就应该把API文档化。
-好的API应当符合工效学（Ergonomic）。
+好的API应当符合工效学。

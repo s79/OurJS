@@ -44,7 +44,7 @@ execute(function($) {
     listen('say', function(data) {
       $output.innerHTML = data;
     });
-    notify('click_1', '[auto]-万');
+//    notify('click_1', '[auto]-万');
   });
 
   declareModule('m2', function(listen, notify) {
@@ -89,16 +89,9 @@ execute(function($) {
 
     listen('m1.click_1, m1.click_2, m1.click_3', function(a, b, c) {
       notify('m1.say', [a, b, c].join('-'));
-      $('#m1_output').setStyles({borderColor: '#FFD700', backgroundColor: '#FFFF00'})
-          .stopAnimate()
-          .animate({
-            borderTopColor: '#F0FFF0',
-            borderRightColor: '#F0FFF0',
-            borderBottomColor: '#F0FFF0',
-            borderLeftColor: '#F0FFF0',
-            backgroundColor: '#F8FFF8'
-          })
+      $('#m1_output').highlight();
     });
+
   });
 
   declareModule('m3', function(listen, notify) {
@@ -113,15 +106,7 @@ execute(function($) {
   runApplication(function(listen, notify) {
     listen('m1.click_1, m1.click_2, m1.click_3, m3.click_1, m3.click_2', function(a, b, c, d, e) {
       notify('m2.say', [a, b, c, d.id, e.id].join('-'));
-      $('#m2_output').setStyles({borderColor: '#BA55D3', backgroundColor: '#DA70D6'})
-          .stopAnimate()
-          .animate({
-            borderTopColor: '#F0FFF0',
-            borderRightColor: '#F0FFF0',
-            borderBottomColor: '#F0FFF0',
-            borderLeftColor: '#F0FFF0',
-            backgroundColor: '#F8FFF8'
-          })
+      $('#m2_output').highlight({color: '#DA70D6'});
     });
   });
 

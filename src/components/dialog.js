@@ -106,7 +106,7 @@ execute(function($) {
    * @name Mask
    * @function
    * @private
-   * @param {Element|Object} target 要遮掩的目标元素，当其值为 body 元素时，将覆盖整个视口。
+   * @param {Element} target 要遮掩的目标元素，当其值为 body 元素时，将覆盖整个视口。
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Mask.options 中。
    * @param {Object} options.attributes 为遮掩层元素附加的属性。
    * @param {Object} options.styles 为遮掩层元素设置的样式。

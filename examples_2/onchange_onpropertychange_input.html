@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!--
+【测试环境】
+IE 6
+IE 7
+IE 8
+Firefox 3.6.13
+Chrome 10.0.648.45 dev
+Safari 5.0 (7533.16)
+Opera 11.00
+
+【结果】
+1.IE 中可以使用 onpropertychange 即时相应用户输入。
+2.其他浏览器中可以使用 input 事件即时响应用户输入（需使用 addEventListener 绑定）。
+-->
+</head>
+<body>
+<fieldset>
+  <legend>onchange</legend>
+  <input id="onchange" type="email">
+</fieldset>
+<fieldset>
+  <legend>onpropertychange / input</legend>
+  <textarea id="input"></textarea>
+  <input type="text">
+</fieldset>
+<fieldset>
+  <legend>log</legend>
+  <input id="log" type="text" readonly>
+</fieldset>
+<script>
+//var $onchange = document.getElementById('onchange');
+var $input = document.getElementById('input');
+var $log = document.getElementById('log');
+var synchronous = function($target) {
+  $log.value = $target.value;
+};
+//$onchange.onchange = function() {
+//  synchronous(this);
+//};
+if ($input.addEventListener) {
+  $input.addEventListener('input', function(e) {
+    synchronous(this);
+  }, false);
+  // IE9 在删除文本内容时不触发 input 事件。如：按键 <- 和 DEL，拖拽内容出去，右键菜单删除/剪切。
+//  $input.addEventListener('keydown', function(e) {
+//    setTimeout(function() {
+//      synchronous(e.target);
+//    }, 0);
+//  }, false);
+//  $input.addEventListener('cut', function(e) {
+//    setTimeout(function() {
+//      synchronous(e.target);
+//    }, 0);
+//  }, false);
+//  $input.addEventListener('blur', function(e) {
+//    synchronous(e.target);
+//  }, false);
+  // 通过 keydown，cut 和 blur 事件能解决按键删除和剪切、菜单剪切、拖拽内容出去的问题，但无恰当的事件类型能够解决菜单删除的问题。
+  // 因此为 IE9 设置一个全局 pool，使用 document.onselectionchange 来一并解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题。
+  // IE8 的 textarea 也有上述问题，因此 IE8 IE9 可同样如此处理。
+  document.addEventListener('selectionchange', function(e) {
+    console.log(e.target);
+    synchronous($input);
+  });
+
+} else {
+  $input.attachEvent('onpropertychange', function(e) {
+    if (e.propertyName === 'value') {
+      synchronous(e.srcElement);
+    }
+  });
+}
+</script>
+</body>
+</html>

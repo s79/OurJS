@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-04-27
+ *  Version: 2012-05-22
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -844,10 +844,12 @@
    * @example
    *   Math.limit(100, 0, 80);
    *   // 80
+   *   Math.limit(NaN, 0, 80);
+   *   // 0
    * @see http://mootools.net/
    */
   Math.limit = function(number, min, max) {
-    return Math.min(max, Math.max(min, number));
+    return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : (number === Infinity ? max : min);
   };
 
 //--------------------------------------------------[Math.randomRange]
@@ -2990,21 +2992,39 @@
   // 事件管理。
   var eventPool = {};
 
-  var commonEventDispatcher = {
-    propertychange: function(e) {
-      if (e.propertyName === 'checked') {
-        e.srcElement.changed = true;
+  var eventHelper = {
+    mousedragstart: {related: ['mousedrag', 'mousedragend']},
+    mousedrag: {related: ['mousedragstart', 'mousedragend']},
+    mousedragend: {related: ['mousedragstart', 'mousedrag']},
+    input: {
+      processors: {},
+      setup: function($element) {
+        $element.currentValue = $element.value;
+        addEventListener(document, 'selectionchange', this.processors[$element.uid] = function(e) {
+          if ($element.currentValue !== $element.value) {
+            $element.currentValue = $element.value;
+            $element.fire('input');
+          }
+        });
+      },
+      teardown: function($element) {
+        removeEventListener(document, 'selectionchange', this.processors[$element.uid]);
+        delete this.processors[$element.uid];
       }
     },
-    contextmenu: function(e) {
-      e.preventDefault ? e.preventDefault() : e.returnValue = false;
+    change: {
+      processor: function(e) {
+        if (e.propertyName === 'checked') {
+          e.srcElement.changed = true;
+        }
+      },
+      setup: function($element) {
+        addEventListener($element, 'propertychange', this.processor);
+      },
+      teardown: function($element) {
+        removeEventListener($element, 'propertychange', this.processor);
+      }
     }
-  };
-
-  var DRAG_MAPPING = {
-    'mousedragstart': ['mousedrag', 'mousedragend'],
-    'mousedrag': ['mousedragstart', 'mousedragend'],
-    'mousedragend': ['mousedragstart', 'mousedrag']
   };
 
   // 将被捕获到的 DOM 事件对象进行包装后派发到目标元素上。
@@ -3090,14 +3110,14 @@
     if (!uid) {
       return this;
     }
-    var $self = this;
+    var $element = this;
     // 同时为多个事件类型添加监听器。
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
         // 允许 window/document.on 的多次调用。
-        Element.prototype.on.call($self, name, listener, filter);
+        Element.prototype.on.call($element, name, listener, filter);
       });
-      return $self;
+      return $element;
     }
     // 从事件名称中取出事件类型。
     var dotIndex = name.indexOf('.');
@@ -3113,7 +3133,7 @@
       handlers.delegateCount = 0;
       // 新派发器（默认）。
       var dispatcher = function(e) {
-        dispatchEvent($self, handlers, new Event(e || window.event, type));
+        dispatchEvent($element, handlers, new Event(e || window.event, type));
       };
       dispatcher.type = type;
       dispatcher.useCapture = false;
@@ -3127,7 +3147,7 @@
             var wheel = 'wheelDelta' in e ? -e.wheelDelta : e.detail || 0;
             event.wheelUp = wheel < 0;
             event.wheelDown = wheel > 0;
-            dispatchEvent($self, handlers, event);
+            dispatchEvent($element, handlers, event);
           };
           dispatcher.type = navigator.isFirefox ? 'DOMMouseScroll' : 'mousewheel';
           break;
@@ -3135,7 +3155,7 @@
         case 'mouseleave':
           // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
           dispatcher = function(e) {
-            dispatchEvent($self, handlers, new Event(e || window.event, type), function(event) {
+            dispatchEvent($element, handlers, new Event(e || window.event, type), function(event) {
               var $relatedTarget = event.relatedTarget;
               return !$relatedTarget || !this.contains($relatedTarget);
             });
@@ -3154,7 +3174,7 @@
           var dragstart = function(e) {
             var event = new Event(e || window.event, 'mousedragstart');
             event.offsetX = event.offsetY = 0;
-            if (!event.leftButton || dispatchEvent($self, dragHandlers.mousedragstart, event).isDefaultPrevented()) {
+            if (!event.leftButton || dispatchEvent($element, dragHandlers.mousedragstart, event).isDefaultPrevented()) {
               return;
             }
             var $target = event.target;
@@ -3172,7 +3192,7 @@
             event.target = dragState.target;
             event.offsetX = event.pageX - dragState.startX;
             event.offsetY = event.pageY - dragState.startY;
-            dispatchEvent($self, dragHandlers.mousedrag, event);
+            dispatchEvent($element, dragHandlers.mousedrag, event);
             dragState.lastEvent = event;
           };
           var dragend = function(e) {
@@ -3184,7 +3204,7 @@
             $target.releaseCapture && $target.releaseCapture();
             event = dragState.lastEvent;
             event.type = 'mousedragend';
-            dispatchEvent($self, dragHandlers.mousedragend, event);
+            dispatchEvent($element, dragHandlers.mousedragend, event);
             dragState = null;
             removeEventListener(document, 'mousemove', drag);
             removeEventListener(document, 'mousedown', dragend);
@@ -3195,7 +3215,7 @@
           dispatcher.type = 'mousedown';
           // HACK：这三个关联事件有相同的派发器和各自的处理器组，此处分别创建另外两个关联事件的项和处理器组。
           var dragHandlers = {};
-          DRAG_MAPPING[type].forEach(function(type) {
+          eventHelper[type].related.forEach(function(type) {
             var handlers = [];
             handlers.delegateCount = 0;
             item[type] = {handlers: handlers, dispatcher: dispatcher};
@@ -3211,16 +3231,51 @@
             dispatcher.useCapture = true;
           }
           break;
+        case 'input':
+          // IE6 IE7 IE8 可以使用 onpropertychange 即时相应用户输入，其他浏览器中可以使用 input 事件即时响应用户输入（需使用 addEventListener 绑定）。
+          // 但是 IE9 的 INPUT[type=text|password] 和 TEXTAREA 在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。IE8 的 TEXTAREA 也有以上问题，因此需要添加辅助派发器。
+          // 通过 keydown，cut 和 blur 事件能解决按键删除和剪切、菜单剪切、拖拽内容出去的问题，但不能解决菜单删除的问题。
+          // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次触发监听器。
+          var nodeName = $element.nodeName.toLowerCase();
+          var nodeType = $element.type;
+          // TODO: 这个判断在加入 isIE10 后要修改为 isIElt10。
+          if ((navigator.isIE9 || navigator.isIElt9) && (nodeName === 'textarea' || nodeName === 'input' && (nodeType === 'text' || nodeType === 'password'))) {
+            if (navigator.isIE9) {
+              eventHelper.input.setup($element);
+              dispatcher = function(e) {
+                $element.currentValue = $element.value;
+                dispatchEvent($element, handlers, new Event(e || window.event, type));
+              };
+              dispatcher.type = 'input';
+            } else if (navigator.isIE8 && nodeName === 'textarea') {
+              eventHelper.input.setup($element);
+              dispatcher = function(e) {
+                if (e.propertyName === 'value' && $element.currentValue !== $element.value) {
+                  $element.currentValue = $element.value;
+                  dispatchEvent($element, handlers, new Event(e || window.event, type));
+                }
+              };
+              dispatcher.type = 'propertychange';
+            } else {
+              dispatcher = function(e) {
+                if (e.propertyName === 'value') {
+                  dispatchEvent($element, handlers, new Event(e || window.event, type));
+                }
+              };
+              dispatcher.type = 'propertychange';
+            }
+          }
+          break;
         case 'change':
-          // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
+          // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。  // TODO: 待测 IE9- 是否拖拽内容出去的时候取值有误？
           // 需要添加辅助派发器。
-          if (navigator.isIElt9 && $self.nodeName.toLowerCase() === 'input' && ($self.type === 'checkbox' || $self.type === 'radio')) {
-            addEventListener($self, 'propertychange', commonEventDispatcher.propertychange);
+          if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
+            eventHelper.change.setup($element);
             dispatcher = function(e) {
               var target = e.srcElement;
               if (target.changed) {
                 target.changed = false;
-                dispatchEvent($self, handlers, new Event(e || window.event, type));
+                dispatchEvent($element, handlers, new Event(e || window.event, type));
               }
             };
             dispatcher.type = 'click';
@@ -3228,7 +3283,7 @@
           break;
       }
       // 绑定派发器。
-      addEventListener($self, dispatcher.type, dispatcher, dispatcher.useCapture);
+      addEventListener($element, dispatcher.type, dispatcher, dispatcher.useCapture);
       // 存储处理器组和派发器。
       manager.handlers = handlers;
       manager.dispatcher = dispatcher;
@@ -3242,7 +3297,7 @@
       // 普通类型的监听器。
       handlers.push({name: name, listener: listener});
     }
-    return $self;
+    return $element;
   };
 
 //--------------------------------------------------[Element.prototype.off]
@@ -3259,13 +3314,13 @@
     if (!uid) {
       return this;
     }
-    var $self = this;
+    var $element = this;
     // 同时删除该元素上的多个监听器。
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        Element.prototype.off.call($self, name);
+        Element.prototype.off.call($element, name);
       });
-      return $self;
+      return $element;
     }
     // 从事件名称中取出事件类型。
     var dotIndex = name.indexOf('.');
@@ -3273,11 +3328,11 @@
     // 尝试获取对应的项，及其管理器和处理器组，以便从处理器组中删除监听器（和过滤器）。
     var item = eventPool[uid];
     if (!item) {
-      return $self;
+      return $element;
     }
     var manager = item[type];
     if (!manager) {
-      return $self;
+      return $element;
     }
     var handlers = manager.handlers;
     // 删除监听器（和过滤器）。
@@ -3309,29 +3364,29 @@
         case 'mousedragend':
           // 必须在这组关联事件的最后一个监听器被删除后才清理派发器。
           var listenersCount = 0;
-          DRAG_MAPPING[type].forEach(function(type) {
+          eventHelper[type].related.forEach(function(type) {
             listenersCount += item[type].handlers.length;
           });
           if (listenersCount) {
-            return $self;
+            return $element;
           }
-          removeEventListener($self, dispatcher.type, dispatcher);
+          removeEventListener($element, dispatcher.type, dispatcher);
           // HACK：分别删除另外两个关联事件的触发器及项。
-          DRAG_MAPPING[type].forEach(function(type) {
+          eventHelper[type].related.forEach(function(type) {
             var dispatcher = item[type].dispatcher;
-            removeEventListener($self, dispatcher.type, dispatcher);
+            removeEventListener($element, dispatcher.type, dispatcher);
             delete item[type];
           });
           break;
         case 'change':
           // 需要删除辅助派发器。
-          if (navigator.isIElt9 && $self.nodeName.toLowerCase() === 'input' && ($self.type === 'checkbox' || $self.type === 'radio')) {
-            removeEventListener($self, 'propertychange', commonEventDispatcher.propertychange);
+          if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
+            eventHelper.change.teardown($element);
           }
-          removeEventListener($self, dispatcher.type, dispatcher);
+          removeEventListener($element, dispatcher.type, dispatcher);
           break;
         default:
-          removeEventListener($self, dispatcher.type, dispatcher, dispatcher.useCapture);
+          removeEventListener($element, dispatcher.type, dispatcher, dispatcher.useCapture);
       }
       delete item[type];
     }
@@ -3339,7 +3394,7 @@
     if (Object.keys(item).length === 0) {
       delete eventPool[uid];
     }
-    return $self;
+    return $element;
   };
 
 //--------------------------------------------------[Element.prototype.fire]
@@ -3937,6 +3992,129 @@
    * @namespace
    */
   window.components = {};
+
+})();
+
+(function() {
+//==================================================[Switcher]
+  /*
+   * 使用一个数组创建切换器，在每次切换活动元素时会触发相应的事件。
+   * Switcher 是一个基础组件，因此放在本文件中。
+   */
+
+//--------------------------------------------------[Switcher Constructor]
+  /**
+   * 使用一个数组创建切换控制器。在这个数组中，同一时刻最多只有一个元素是“活动”的。
+   * @name Switcher
+   * @memberOf components
+   * @constructor
+   * @param {Array} items 指定在本数组中的各元素间切换，本数组包含的元素必须是引用类型的值，且不能有重复。
+   * @fires change
+   *   {Element} activeItem 当前的活动元素。
+   *   {number} activeIndex 当前的活动元素在 items 中的索引。
+   *   {Element} inactiveItem 上一个活动元素。
+   *   {number} inactiveIndex 上一个活动元素在 items 中的索引。
+   *   在当前的活动元素改变时触发。
+   * @description
+   *   高级应用：动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
+   */
+  function Switcher(items, options) {
+    this.items = items;
+    this.activeItem = null;
+    this.activeIndex = NaN;
+  }
+
+//--------------------------------------------------[Switcher.options]
+  /**
+   * 默认选项。
+   * @name Switcher.options
+   * @memberOf components
+   */
+  Switcher.options = {};
+
+//--------------------------------------------------[Switcher.prototype.active]
+  /**
+   * 将一个元素标记为“活动”，并将当前的活动元素（如果有）标记为“非活动”。
+   * @name Switcher.prototype.active
+   * @memberOf components
+   * @function
+   * @param {Object|number} i 要标记为“活动”的元素，或者这个元素在 items 中的索引值。
+   *   要标记为“活动”的元素不能为当前的活动元素。
+   *   如果指定的值为不在 items 中的对象，或为一个不在有效范索引围内的数字，则取消活动元素。
+   * @returns {Object} Switcher 对象。
+   */
+  Switcher.prototype.active = function(i) {
+    // 参数 i 可能是 Object 或者 number 类型，从中解出 item 和 index 的值。
+    var item = null;
+    var index = NaN;
+    var x;
+    if (typeof i === 'number') {
+      x = this.items[i];
+      if (x) {
+        item = x;
+        index = i;
+      }
+    } else {
+      x = this.items.indexOf(i);
+      if (x > -1) {
+        item = i;
+        index = x;
+      }
+    }
+    // 上一个活动元素的索引。
+    var lastActiveIndex = this.activeIndex;
+    // 尝试更改活动元素。
+    if (index !== lastActiveIndex) {
+      this.activeItem = item;
+      this.activeIndex = index;
+      var eventTriggered = false;
+      var event = {
+        activeItem: null,
+        activeIndex: NaN,
+        inactiveItem: null,
+        inactiveIndex: NaN
+      };
+      if (!isNaN(index)) {
+        eventTriggered = true;
+        event.activeItem = item;
+        event.activeIndex = index;
+      }
+      if (!isNaN(lastActiveIndex)) {
+        eventTriggered = true;
+        event.inactiveItem = this.items[lastActiveIndex];
+        event.inactiveIndex = lastActiveIndex;
+      }
+      eventTriggered && this.fire('change', event);
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Switcher.prototype.getActiveItem]
+  /**
+   * 获取当前标记为“活动”的元素。
+   * @name Switcher.prototype.getActiveItem
+   * @memberOf components
+   * @function
+   * @returns {Object} 当前标记为“活动”的元素，如果为 null，则当前无活动元素。
+   */
+  Switcher.prototype.getActiveItem = function() {
+    return this.activeItem;
+  };
+
+//--------------------------------------------------[Switcher.prototype.getActiveIndex]
+  /**
+   * 获取当前标记为“活动”的元素的索引。
+   * @name Switcher.prototype.getActiveIndex
+   * @memberOf components
+   * @function
+   * @returns {number} 当前标记为“活动”的元素的索引，如果为 NaN，则当前无活动元素。
+   */
+  Switcher.prototype.getActiveIndex = function() {
+    return this.activeIndex;
+  };
+
+//--------------------------------------------------[components.Switcher]
+  components.Switcher = new Component(Switcher);
 
 })();
 /**
@@ -4925,32 +5103,29 @@
    * @constructor
    * @param {string} url 请求地址。
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Request.options 中。
-   * @param {string} options.username 用户名。
-   * @param {string} options.password 密码。
-   * @param {string} options.method 请求方法，默认为 'post'。
+   * @param {string} options.username 用户名，默认为空字符串，即不指定用户名。
+   * @param {string} options.password 密码，默认为空字符串，即不指定密码。
+   * @param {string} options.method 请求方法，默认为 'get'。
    * @param {Object} options.headers 要设置的 request headers，格式为 {key: value, ...} 的对象。
    * @param {string} options.contentType 发送数据的内容类型，默认为 'application/x-www-form-urlencoded'，method 为 'post' 时有效。
    * @param {boolean} options.useCache 是否允许浏览器的缓存生效，默认为 true。
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
    * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，应返回处理后的字符串数据。
-   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，应返回处理后的响应数据。
+   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回处理后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为 null。
+   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回处理后的响应数据，默认无特殊处理。
    * @fires request
-   *   在发送请求时触发，无事件对象传入。
+   *   在发送请求时触发。
    * @fires response
+   *   {number} status 状态码。
+   *   {string} statusText 状态描述。
+   *   {Object} headers 响应头。
+   *   {string} text 响应文本。
+   *   {XMLDocument} xml 响应 XML 文档。
    *   在收到响应时触发。
    *   在调用 abort 方法取消请求，或请求超时的情况下，也会收到响应数据。此时的状态码分别为 -498 和 -408。
    *   换句话说，只要调用了 send 方法发起了请求，就必然会收到响应，虽然上述两种情况的响应并非是真实的来自于服务端的响应数据。
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
-   *   <table>
-   *     <tr><th>事件对象的属性类型</th><th>事件对象的属性名称</th><th>描述</th></tr>
-   *     <tr><td>number</td><td>status</td><td>状态码。</td></tr>
-   *     <tr><td>string</td><td>statusText</td><td>状态描述。</td></tr>
-   *     <tr><td>Object</td><td>headers</td><td>响应头。</td></tr>
-   *     <tr><td>string</td><td>text</td><td>响应文本。</td></tr>
-   *     <tr><td>XMLDocument</td><td>xml</td><td>响应 XML 文档。</td></tr>
-   *   </table>
    */
   function Request(url, options) {
     this.xhr = getXHRObject();

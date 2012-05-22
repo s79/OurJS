@@ -19,8 +19,8 @@ execute(function($) {
    * @param {Array} panels 包含所有“面板”的数组，应确保 panels 的数量和 tabs 的数量一致。
    * @param {Object} [options] 可选参数。
    * @param {string} options.activeClassName 为激活的“标签”和“面板”添加的类名，默认为 'active'。
-   * @param {Element} options.tabsContainer 用来绑定各“标签”的代理事件监听器的元素。当所有的“标签”有一个共同的父元素时，可以设置为 undefined，此时使用第一个“标签”的父元素。
-   * @param {number} options.hoverDelay 以毫秒为单位的鼠标悬停激活延时，如果为 0，则由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
+   * @param {Element} options.tabsContainer 用来绑定各“标签”的代理事件监听器的元素。当所有的“标签”有一个共同的父元素时，可以省略，此时使用第一个“标签”的父元素。
+   * @param {number} options.hoverDelay 以毫秒为单位的鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
    * @fires change
    *   {Element} activeTab 当前的激活的“标签”。
    *   {Element} activePanel 当前的激活的“面板”。
@@ -78,7 +78,7 @@ execute(function($) {
     var filter = function() {
       return tabPanel.tabs.contains(this);
     };
-    if (tabPanel.hoverDelay) {
+    if (Number.isFinite(tabPanel.hoverDelay)) {
       var timer;
       $container.on('mouseenter.tabPanel', function(e) {
         var $self = this;
@@ -112,7 +112,7 @@ execute(function($) {
   TabPanel.options = {
     activeClassName: 'active',
     tabsContainer: undefined,
-    hoverDelay: 0
+    hoverDelay: NaN
   };
 
 //--------------------------------------------------[TabPanel.prototype.active]

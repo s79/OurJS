@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>input_file</title>
+<style>
+.browser input.text {
+  float: left;
+  width: 200px;
+  height: 17px;
+  margin-right: 10px;
+  padding: 0px;
+  border: 1px solid #c0c0c0;
+  font: 12px/17px Verdana;
+}
+.browser span {
+  display: block;
+  position: relative;
+  width: 46px;
+  height: 19px;
+  overflow: hidden;
+  background: url("btn_browse.gif") no-repeat 0 0;
+}
+.browser span.over {
+  background-position: 0 -19px;
+}
+.browser span input {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 220px;
+  height: 50px;
+  opacity: 0;
+  filter: alpha(opacity = 0);
+}
+</style>
+<script>
+/**
+ * 使用createFileBrowser($target)创建一个文件浏览组件。
+ * $target是默认的<input type="file" ...>的元素。
+ *
+ * 创建后的结构为：
+ * <div class="browser"><input type="text" class="text"><span><input type="file" ...></span></div>
+ * 请参考以上结构定义其css。
+ */
+//--------------------------------------------------[createFileBrowser]
+var createFileBrowser = function() {
+  function mouseover() {
+    this.className = 'over';
+  }
+
+  function mouseout() {
+    this.className = '';
+  }
+
+  function change() {
+    this.parentNode.previousSibling.value = this.value;
+  }
+
+  return function($target) {
+    //建立DOM。
+    var $div = document.createElement('div');
+    $div.className = 'browser';
+    var $text = document.createElement('input');
+    $text.type = 'text';
+    $text.className = 'text';
+    $text.value = '请选择您要上传的文件';
+    $text.readOnly = true;
+    var $span = document.createElement('span');
+    $div.appendChild($text);
+    $div.appendChild($span);
+    $target.parentNode.insertBefore($div, $target);
+    $span.appendChild($target);
+    //绑定事件。
+    $target.onchange = change;
+    $span.onmouseover = mouseover;
+    $span.onmouseout = mouseout;
+  };
+}();
+</script>
+</head>
+<body>
+<input id="b1" name="file1" type="file">
+<br>
+<input id="b2" name="file2" type="file">
+<br>
+<input id="b3" name="file3" type="file">
+
+<script>
+createFileBrowser(document.getElementById('b1'));
+createFileBrowser(document.getElementById('b2'));
+createFileBrowser(document.getElementById('b3'));
+</script>
+</body>
+</html>

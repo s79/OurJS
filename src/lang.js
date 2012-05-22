@@ -839,10 +839,12 @@
    * @example
    *   Math.limit(100, 0, 80);
    *   // 80
+   *   Math.limit(NaN, 0, 80);
+   *   // 0
    * @see http://mootools.net/
    */
   Math.limit = function(number, min, max) {
-    return Math.min(max, Math.max(min, number));
+    return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : (number === Infinity ? max : min);
   };
 
 //--------------------------------------------------[Math.randomRange]
