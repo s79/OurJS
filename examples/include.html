@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>include</title>
+<script src="../dev.js"></script>
+<script>
+// 使用 <include file="/path/to/file">XXX</include> 引入模版文件，注意避免模版文件之间的循环引用。
+// TODO: STYLE 标签目前可以支持，但 SCRIPT 需要处理，LINK 待测。
+document.createElement('include');
+document.on('domready', function() {
+  function include(target) {
+    new Request(target.getAttribute('file'), {useCache: false, async: false})
+        .on('response',
+        function(e) {
+          target.outerHTML = e.status === 200 ? e.text : '<ins style="background: yellow; color: red; font-weight: bold;">include error: ' + this.url + '</ins>';
+        })
+        .send();
+  }
+
+  var includeElements = document.getElementsByTagName('include');
+  var includeElement;
+  while (includeElement = includeElements[0]) {
+    include(includeElement);
+  }
+}, true);
+</script>
+</head>
+<body id="results">
+<h1>include</h1>
+<include file="t1.html">模版一</include>
+<include file="t2.html">模版二</include>
+
+<h2>END</h2>
+</body>
+</html>
