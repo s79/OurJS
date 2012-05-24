@@ -47,7 +47,7 @@ execute(function($) {
   var $table = document.getElementById('list');
   var $tr;
   var $td;
-  ['inStandardsMode', 'isIE', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'].forEach(function(key) {
+  ['inStandardsMode', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'].forEach(function(key) {
     var value = navigator[key];
     $tr = $table.insertRow(-1);
     $td = $tr.insertCell(-1);

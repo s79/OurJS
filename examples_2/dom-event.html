@@ -7,7 +7,7 @@
 <script src="../dev.js"></script>
 <style>
 fieldset { width: 500px; height: 200px; }
-button { padding: 0 5px; }
+button { padding: 3px 5px; overflow: visible; }
 .debug { float: right; width: 180px; height: 180px; margin: 0 5px; background: gold; overflow: auto; line-height: 1.2; }
 #scroll { float: left; width: 100px; height: 180px; background: #9acd32; font: bold 14px/180px Verdana; text-align: center; }
 #div { height: 150px; background: whitesmoke; }
@@ -54,26 +54,20 @@ button { padding: 0 5px; }
 <script>
 var $ = document.$;
 
-$('#t1').on('input', function() {
+$('#t1').on('change', function() {
   console.log('#t1: ' + this.value);
 });
-$('#t2').on('input', function() {
+$('#t2').on('change', function() {
   console.log('#t2: ' + this.value);
 });
 
-//$('#r3').on('focus', function(e) {
-//  this.blur();
-//  console.log('::propertychange::', e.event.propertyName);
-//});
-//$('#r3').on('propertychange', function(e) {
-//  console.log('::propertychange::', e.event.propertyName);
-//});
-//
 $('#focusin').find('input').forEach(function(item) {
 //  item.on('change', function(e) {
 //    console.log('::change::', e.target.value);
 //  });
 });
+
+
 //document.on('click', function(e) {
 //  console.log('--click--', e.target.value);
 //});

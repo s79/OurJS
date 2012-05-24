@@ -164,7 +164,6 @@
    *   navigator.userAgentInfo.name
    *   navigator.userAgentInfo.version
    *   navigator.inStandardsMode
-   *   navigator.isIE
    *   navigator.isIE9
    *   navigator.isIElt9
    *   navigator.isIE8
@@ -218,13 +217,6 @@
   /**
    * 是否工作在标准模式下。
    * @name inStandardsMode
-   * @memberOf navigator
-   * @type boolean
-   */
-
-  /**
-   * 浏览器是否为 IE。
-   * @name isIE
    * @memberOf navigator
    * @type boolean
    */
@@ -325,7 +317,6 @@
     var inStandardsMode = document.compatMode === 'CSS1Compat';
     !inStandardsMode && window.console && console.warn('Browser is working in non-standards mode.');
     // 浏览器特性判断。
-    var isIE = false;
     var isIE9 = false;
     var isIElt9 = false;
     var isIE8 = false;
@@ -338,7 +329,6 @@
     var isOpera = false;
     var html = document.documentElement;
     if ('ActiveXObject' in window) {
-      isIE = true;
       if (inStandardsMode) {
         if ('HTMLElement' in window) {
           isIE9 = true;
@@ -371,7 +361,6 @@
         version: version
       },
       inStandardsMode: inStandardsMode,
-      isIE: isIE,
       isIE9: isIE9,
       isIElt9: isIElt9,
       isIE8: isIE8,

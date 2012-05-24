@@ -89,7 +89,6 @@ var manifest = {
     'navigator.userAgentInfo.version',
     '<#>特性判断得到的结果(准确)',
     'navigator.inStandardsMode',
-    'navigator.isIE',
     'navigator.isIE9',
     'navigator.isIElt9',
     'navigator.isIE8',

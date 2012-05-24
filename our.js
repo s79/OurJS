@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-05-22
+ *  Version: 2012-05-24
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -1048,7 +1048,6 @@
    *   navigator.userAgentInfo.name
    *   navigator.userAgentInfo.version
    *   navigator.inStandardsMode
-   *   navigator.isIE
    *   navigator.isIE9
    *   navigator.isIElt9
    *   navigator.isIE8
@@ -1102,13 +1101,6 @@
   /**
    * 是否工作在标准模式下。
    * @name inStandardsMode
-   * @memberOf navigator
-   * @type boolean
-   */
-
-  /**
-   * 浏览器是否为 IE。
-   * @name isIE
    * @memberOf navigator
    * @type boolean
    */
@@ -1209,7 +1201,6 @@
     var inStandardsMode = document.compatMode === 'CSS1Compat';
     !inStandardsMode && window.console && console.warn('Browser is working in non-standards mode.');
     // 浏览器特性判断。
-    var isIE = false;
     var isIE9 = false;
     var isIElt9 = false;
     var isIE8 = false;
@@ -1222,7 +1213,6 @@
     var isOpera = false;
     var html = document.documentElement;
     if ('ActiveXObject' in window) {
-      isIE = true;
       if (inStandardsMode) {
         if ('HTMLElement' in window) {
           isIE9 = true;
@@ -1255,7 +1245,6 @@
         version: version
       },
       inStandardsMode: inStandardsMode,
-      isIE: isIE,
       isIE9: isIE9,
       isIElt9: isIElt9,
       isIE8: isIE8,
@@ -2997,10 +2986,10 @@
     mousedrag: {related: ['mousedragstart', 'mousedragend']},
     mousedragend: {related: ['mousedragstart', 'mousedrag']},
     input: {
-      processors: {},
+      dispatchers: {},
       setup: function($element) {
         $element.currentValue = $element.value;
-        addEventListener(document, 'selectionchange', this.processors[$element.uid] = function(e) {
+        addEventListener(document, 'selectionchange', this.dispatchers[$element.uid] = function(e) {
           if ($element.currentValue !== $element.value) {
             $element.currentValue = $element.value;
             $element.fire('input');
@@ -3008,21 +2997,21 @@
         });
       },
       teardown: function($element) {
-        removeEventListener(document, 'selectionchange', this.processors[$element.uid]);
-        delete this.processors[$element.uid];
+        removeEventListener(document, 'selectionchange', this.dispatchers[$element.uid]);
+        delete this.dispatchers[$element.uid];
       }
     },
     change: {
-      processor: function(e) {
+      dispatcher: function(e) {
         if (e.propertyName === 'checked') {
           e.srcElement.changed = true;
         }
       },
       setup: function($element) {
-        addEventListener($element, 'propertychange', this.processor);
+        addEventListener($element, 'propertychange', this.dispatcher);
       },
       teardown: function($element) {
-        removeEventListener($element, 'propertychange', this.processor);
+        removeEventListener($element, 'propertychange', this.dispatcher);
       }
     }
   };
@@ -3235,7 +3224,7 @@
           // IE6 IE7 IE8 可以使用 onpropertychange 即时相应用户输入，其他浏览器中可以使用 input 事件即时响应用户输入（需使用 addEventListener 绑定）。
           // 但是 IE9 的 INPUT[type=text|password] 和 TEXTAREA 在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。IE8 的 TEXTAREA 也有以上问题，因此需要添加辅助派发器。
           // 通过 keydown，cut 和 blur 事件能解决按键删除和剪切、菜单剪切、拖拽内容出去的问题，但不能解决菜单删除的问题。
-          // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次触发监听器。
+          // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次调用监听器。
           var nodeName = $element.nodeName.toLowerCase();
           var nodeType = $element.type;
           // TODO: 这个判断在加入 isIE10 后要修改为 isIElt10。
@@ -3377,6 +3366,17 @@
             removeEventListener($element, dispatcher.type, dispatcher);
             delete item[type];
           });
+          break;
+        case 'input':
+          // 需要删除辅助派发器。
+          var nodeName = $element.nodeName.toLowerCase();
+          var nodeType = $element.type;
+          // TODO: 这个判断在加入 isIE10 后要修改为 isIElt10。
+          // 以下判断也可以使用 eventHelper.input.dispatchers[$element.uid] 代替。
+          if ((navigator.isIE9 && (nodeName === 'textarea' || nodeName === 'input' && (nodeType === 'text' || nodeType === 'password'))) || (navigator.isIE8 && nodeName === 'textarea')) {
+            eventHelper.input.teardown($element);
+          }
+          removeEventListener($element, dispatcher.type, dispatcher);
           break;
         case 'change':
           // 需要删除辅助派发器。

@@ -1,4 +1,10 @@
-﻿>2012-04-27
+﻿>2012-05-24
+-navigator.isIE
+
+>2012-05-22
+添加 input 事件支持。
+
+>2012-04-27
 Number.prototype.toRegular -> Number.prototype.padZero
 
 >2012-04-18
