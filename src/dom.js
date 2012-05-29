@@ -58,7 +58,7 @@
 //--------------------------------------------------[HTMLElement.prototype.innerText]
   // 为 Firefox 添加 HTMLElement.prototype.innerText 属性。
   /**
-   * 设置/获取元素内的文本信息。
+   * 获取/设置本元素内的文本信息。
    * @name Element.prototype.innerText
    * @type string
    * @description
@@ -78,14 +78,14 @@
 //--------------------------------------------------[HTMLElement.prototype.outerText]
   // 为 Firefox 添加 HTMLElement.prototype.outerText 属性。
   /**
-   * 设置/获取元素本身及该元素内的文本信息。
+   * 获取本元素内的文本信息，或使用文本信息替换本元素。
    * @name Element.prototype.outerText
    * @type string
    * @description
    *   注意：
    *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
    *   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
-   *   与 innerText 不同，如果设置一个元素的 outerText，那么设置的字符串将作为文本节点替换该元素在文档树中的位置。
+   *   与 innerText 不同，如果设置一个元素的 outerText，那么设置的字符串将作为文本节点替换本元素在文档树中的位置。
    */
   if (!('outerText' in document.head)) {
     HTMLElement.prototype.__defineGetter__('outerText', function() {
@@ -101,7 +101,7 @@
 //--------------------------------------------------[HTMLElement.prototype.outerHTML]
   // 为 Firefox 添加 HTMLElement.prototype.outerHTML 属性。
   /**
-   * 设置/获取元素节点及其后代节点的序列化字符串。
+   * 获取/设置本元素（包含后代节点在内）的序列化字符串。
    * @name Element.prototype.outerHTML
    * @type string
    * @description
@@ -259,11 +259,11 @@
 
 //--------------------------------------------------[Element.prototype.hasClass]
   /**
-   * 判断元素是否有指定的类名。
+   * 判断本元素是否有指定的类名。
    * @name Element.prototype.hasClass
    * @function
    * @param {string} className 类名。
-   * @returns {boolean} 调用本方法的元素是否有指定的类名。
+   * @returns {boolean} 本元素是否有指定的类名。
    */
   Element.prototype.hasClass = function(className) {
     return (' ' + this.className.clean() + ' ').contains(' ' + className + ' ');
@@ -271,11 +271,11 @@
 
 //--------------------------------------------------[Element.prototype.addClass]
   /**
-   * 为元素添加一个类名。
+   * 为本元素添加一个类名。
    * @name Element.prototype.addClass
    * @function
    * @param {string} className 类名。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    */
   Element.prototype.addClass = function(className) {
     if (!this.hasClass(className)) {
@@ -286,11 +286,11 @@
 
 //--------------------------------------------------[Element.prototype.removeClass]
   /**
-   * 为元素删除一个类名。
+   * 为本元素删除一个类名。
    * @name Element.prototype.removeClass
    * @function
    * @param {string} className 类名。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    */
   Element.prototype.removeClass = function(className) {
     this.className = (' ' + this.className.clean() + ' ').replace(' ' + className + ' ', ' ').trim();
@@ -299,11 +299,11 @@
 
 //--------------------------------------------------[Element.prototype.toggleClass]
   /**
-   * 为元素添加一个类名（如果该元素没有这个类名）或删除一个类名（如果该元素有这个类名）。
+   * 为本元素添加一个类名（如果本元素没有这个类名）或删除一个类名（如果本元素有这个类名）。
    * @name Element.prototype.toggleClass
    * @function
    * @param {string} className 类名。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    */
   Element.prototype.toggleClass = function(className) {
     return this.hasClass(className) ? this.removeClass(className) : this.addClass(className);
@@ -591,7 +591,7 @@
 
 //--------------------------------------------------[Element.prototype.getStyle]
   /**
-   * 获取元素的“计算后的样式”中某个特性的值。
+   * 获取本元素的“计算后的样式”中某个特性的值。
    * @name Element.prototype.getStyle
    * @function
    * @param {string} propertyName 特性名，支持 camel case 和 hyphenate 格式。
@@ -607,7 +607,7 @@
 
 //--------------------------------------------------[Element.prototype.getStyles]
   /**
-   * 获取元素的“计算后的样式”中一组特性的值。
+   * 获取本元素的“计算后的样式”中一组特性的值。
    * @name Element.prototype.getStyles
    * @function
    * @param {Array} propertyNames 指定要获取的特性名，可以为任意个。
@@ -624,12 +624,12 @@
 
 //--------------------------------------------------[Element.prototype.setStyle]
   /**
-   * 设置一条元素的行内样式声明。
+   * 为本元素设置一条行内样式声明。
    * @name Element.prototype.setStyle
    * @function
    * @param {string} propertyName 特性名，支持 camel case 和 hyphenate 格式。
    * @param {number|string} propertyValue 特性值，若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    * @description
    *   注意：
    *   如果设置的是长度值，若长度单位不是 'px' 则不能省略长度单位。
@@ -653,11 +653,11 @@
 
 //--------------------------------------------------[Element.prototype.setStyles]
   /**
-   * 设置一组元素的行内样式声明。
+   * 为本元素设置一组行内样式声明。
    * @name Element.prototype.setStyles
    * @function
    * @param {Object} declarations 包含一条或多条要设置的样式声明，格式为 {propertyName: propertyValue, ...} 的对象。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    */
   Element.prototype.setStyles = function(declarations) {
     for (var propertyName in declarations) {
@@ -693,7 +693,7 @@
    */
 
   /**
-   * 获取元素的 border-box 在视口中的坐标。
+   * 获取本元素的 border-box 在视口中的坐标。
    * @name Element.prototype.getClientRect
    * @function
    * @returns {Object} 包含位置（left、right、top、bottom）及尺寸（width、height）的对象，所有属性值均为 number 类型，单位为像素。
@@ -749,7 +749,7 @@
 
 //--------------------------------------------------[Element.prototype.getData]
   /**
-   * 获取元素附加的自定义数据。
+   * 获取本元素附加的自定义数据。
    * @name Element.prototype.getData
    * @function
    * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
@@ -769,12 +769,12 @@
 
 //--------------------------------------------------[Element.prototype.setData]
   /**
-   * 设置元素附加的自定义数据。
+   * 设置本元素附加的自定义数据。
    * @name Element.prototype.setData
    * @function
    * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
    * @param {string} value 数据的值，必须为字符串。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    */
   Element.prototype.setData = function(name, value) {
     name = parseName(name);
@@ -786,11 +786,11 @@
 
 //--------------------------------------------------[Element.prototype.removeData]
   /**
-   * 删除元素附加的自定义数据。
+   * 删除本元素附加的自定义数据。
    * @name Element.prototype.removeData
    * @function
    * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    * @description
    *   注意：
    *   IE6 IE7 在 removeAttribute 时，name 参数是大小写敏感的。
@@ -814,11 +814,11 @@
 
 //--------------------------------------------------[Element.prototype.comparePosition]
   /**
-   * 与另一个元素比较在文档树中的位置关系。  // TODO: 极少使用，考虑删除。先标记为 private。
+   * 比较本元素和目标元素在文档树中的位置关系。  // TODO: 极少使用，考虑删除。先标记为 private。
    * @name Element.prototype.comparePosition
    * @function
    * @private
-   * @param {Element} element 目标元素。
+   * @param {Element} target 目标元素。
    * @returns {number} 比较结果。
    * @description
    *   调用本方法后返回的 number 值的含义：
@@ -835,30 +835,30 @@
    * @see http://www.w3.org/TR/DOM-Level-3-Core/core.html#Node3-compareDocumentPosition
    * @see http://ejohn.org/blog/comparing-document-position/
    */
-  Element.prototype.comparePosition = 'compareDocumentPosition' in html ? function(element) {
-    return this.compareDocumentPosition(element);
-  } : function(element) {
-    return (this != element && this.contains(element) && 16) +
-        (this != element && element.contains(this) && 8) +
-        (this.sourceIndex >= 0 && element.sourceIndex >= 0 ?
-            (this.sourceIndex < element.sourceIndex && 4) + (this.sourceIndex > element.sourceIndex && 2) :
+  Element.prototype.comparePosition = 'compareDocumentPosition' in html ? function(target) {
+    return this.compareDocumentPosition(target);
+  } : function(target) {
+    return (this != target && this.contains(target) && 16) +
+        (this != target && target.contains(this) && 8) +
+        (this.sourceIndex >= 0 && target.sourceIndex >= 0 ?
+            (this.sourceIndex < target.sourceIndex && 4) + (this.sourceIndex > target.sourceIndex && 2) :
             1) +
         0;
   };
 
 //--------------------------------------------------[Element.prototype.contains]
   /**
-   * 判断元素是否包含另一个元素。
+   * 判断本元素是否包含目标元素。
    * @name Element.prototype.contains
    * @function
-   * @param {Element} element 目标元素。
+   * @param {Element} target 目标元素。
    * @returns {boolean} 判断结果。
    * @description
    *   注意，如果本元素和目标元素一致，本方法也将返回 true。
    */
   if (!('contains' in html)) {
-    Element.prototype.contains = function(element) {
-      return (this === element || !!(this.compareDocumentPosition(element) & 16));
+    Element.prototype.contains = function(target) {
+      return (this === target || !!(this.compareDocumentPosition(target) & 16));
     };
   }
 
@@ -883,10 +883,10 @@
 
 //--------------------------------------------------[Element.prototype.getParent]
   /**
-   * 获取父元素。
+   * 获取本元素的父元素。
    * @name Element.prototype.getParent
    * @function
-   * @returns {Element} 父元素。
+   * @returns {Element} 本元素的父元素。
    */
   Element.prototype.getParent = 'parentElement' in html ? function() {
     return $(this.parentElement);
@@ -901,10 +901,10 @@
 
 //--------------------------------------------------[Element.prototype.getPrevious]
   /**
-   * 获取上一个相邻元素。
+   * 获取与本元素相邻的上一个元素。
    * @name Element.prototype.getPrevious
    * @function
-   * @returns {Element} 上一个相邻元素。
+   * @returns {Element} 与本元素相邻的上一个元素。
    */
   Element.prototype.getPrevious = 'previousElementSibling' in html ? function() {
     return $(this.previousElementSibling);
@@ -917,10 +917,10 @@
 
 //--------------------------------------------------[Element.prototype.getNext]
   /**
-   * 获取下一个相邻元素。
+   * 获取与本元素相邻的下一个元素。
    * @name Element.prototype.getNext
    * @function
-   * @returns {Element} 下一个相邻元素。
+   * @returns {Element} 与本元素相邻的下一个元素。
    */
   Element.prototype.getNext = 'nextElementSibling' in html ? function() {
     return $(this.nextElementSibling);
@@ -933,10 +933,10 @@
 
 //--------------------------------------------------[Element.prototype.getFirstChild]
   /**
-   * 获取第一个子元素。
+   * 获取本元素的第一个子元素。
    * @name Element.prototype.getFirstChild
    * @function
-   * @returns {Element} 第一个子元素。
+   * @returns {Element} 本元素的第一个子元素。
    */
   Element.prototype.getFirstChild = 'firstElementChild' in html ? function() {
     return $(this.firstElementChild);
@@ -949,10 +949,10 @@
 
 //--------------------------------------------------[Element.prototype.getLastChild]
   /**
-   * 获取最后一个子元素。
+   * 获取本元素的最后一个子元素。
    * @name Element.prototype.getLastChild
    * @function
-   * @returns {Element} 最后一个子元素。
+   * @returns {Element} 本元素的最后一个子元素。
    */
   Element.prototype.getLastChild = 'lastElementChild' in html ? function() {
     return $(this.lastElementChild);
@@ -965,10 +965,10 @@
 
 //--------------------------------------------------[Element.prototype.getChildren]
   /**
-   * 获取所有子元素。
+   * 获取本元素的所有子元素。
    * @name Element.prototype.getChildren
    * @function
-   * @returns {Array} 包含所有子元素的数组，数组内各元素的顺序为执行本方法时各元素在文档树中的顺序。
+   * @returns {Array} 包含本元素的所有子元素的数组，数组内各元素的顺序为执行本方法时各元素在文档树中的顺序。
    */
   Element.prototype.getChildren = function() {
     var children = [];
@@ -982,10 +982,10 @@
 
 //--------------------------------------------------[Element.prototype.getChildCount]
   /**
-   * 获取子元素的总数。
+   * 获取本元素的子元素的总数。
    * @name Element.prototype.getChildCount
    * @function
-   * @returns {number} 子元素的总数。
+   * @returns {number} 本元素的子元素的总数。
    */
   Element.prototype.getChildCount = 'childElementCount' in html ? function() {
     return this.childElementCount;
@@ -1018,69 +1018,69 @@
 
 //--------------------------------------------------[Element.prototype.append]
   /**
-   * 将目标元素追加为自己的最后一个子元素。
+   * 将目标元素追加为本元素的最后一个子元素。
    * @name Element.prototype.append
    * @function
-   * @param {Element} element 目标元素。
-   * @returns {Element} 调用本方法的元素。
+   * @param {Element} target 目标元素。
+   * @returns {Element} 本元素。
    */
-  Element.prototype.append = function(element) {
-    this.appendChild(element);
+  Element.prototype.append = function(target) {
+    this.appendChild(target);
     return this;
   };
 
 //--------------------------------------------------[Element.prototype.prepend]
   /**
-   * 将目标元素追加为自己的第一个子元素。
+   * 将目标元素追加为本元素的第一个子元素。
    * @name Element.prototype.prepend
    * @function
-   * @param {Element} element 目标元素。
-   * @returns {Element} 调用本方法的元素。
+   * @param {Element} target 目标元素。
+   * @returns {Element} 本元素。
    */
-  Element.prototype.prepend = function(element) {
-    this.insertBefore(element, this.firstChild);
+  Element.prototype.prepend = function(target) {
+    this.insertBefore(target, this.firstChild);
     return this;
   };
 
 //--------------------------------------------------[Element.prototype.putBefore]
   /**
-   * 将元素放到目标元素之前。
+   * 将本元素放到目标元素之前。
    * @name Element.prototype.putBefore
    * @function
-   * @param {Element} element 目标元素。
-   * @returns {Element} 调用本方法的元素。
+   * @param {Element} target 目标元素。
+   * @returns {Element} 本元素。
    */
-  Element.prototype.putBefore = function(element) {
-    var $parent = $(element).getParent();
+  Element.prototype.putBefore = function(target) {
+    var $parent = $(target).getParent();
     if ($parent) {
-      $parent.insertBefore(this, element);
+      $parent.insertBefore(this, target);
     }
     return this;
   };
 
 //--------------------------------------------------[Element.prototype.putAfter]
   /**
-   * 将元素放到目标元素之后。
+   * 将本元素放到目标元素之后。
    * @name Element.prototype.putAfter
    * @function
-   * @param {Element} element 目标元素。
-   * @returns {Element} 调用本方法的元素。
+   * @param {Element} target 目标元素。
+   * @returns {Element} 本元素。
    */
-  Element.prototype.putAfter = function(element) {
-    var $parent = $(element).getParent();
+  Element.prototype.putAfter = function(target) {
+    var $parent = $(target).getParent();
     if ($parent) {
-      $parent.insertBefore(this, element.nextSibling);
+      $parent.insertBefore(this, target.nextSibling);
     }
     return this;
   };
 
 //--------------------------------------------------[Element.prototype.remove]
   /**
-   * 将元素从文档树中删除。
+   * 将本元素从文档树中删除。
    * @name Element.prototype.remove
    * @function
-   * @param {boolean} [keepListeners] 是否保留该元素及其子元素上绑定的所有事件监听器。
-   * @returns {Element} 调用本方法的元素。
+   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上绑定的所有事件监听器。
+   * @returns {Element} 本元素。
    */
   Element.prototype.remove = function(keepListeners) {
     var $parent = this.getParent();
@@ -1095,31 +1095,31 @@
 
 //--------------------------------------------------[Element.prototype.replace]
   /**
-   * 替换目标元素。
+   * 使用本元素替换目标元素。
    * @name Element.prototype.replace
    * @function
-   * @param {Element} element 目标元素。
-   * @param {boolean} [keepListeners] 是否保留目标元素及其子元素上绑定的所有事件监听器。
-   * @returns {Element} 目标元素。
+   * @param {Element} target 目标元素。
+   * @param {boolean} [keepListeners] 是否保留目标元素及后代元素上绑定的所有事件监听器。
+   * @returns {Element} 本元素。
    */
-  Element.prototype.replace = function(element, keepListeners) {
-    var $element = $(element);
-    var $parent = $element.getParent();
+  Element.prototype.replace = function(target, keepListeners) {
+    var $target = $(target);
+    var $parent = $target.getParent();
     if ($parent) {
       if (!keepListeners) {
-        Array.from(removeAllListeners($element).getElementsByTagName('*')).forEach(removeAllListeners);
+        Array.from(removeAllListeners($target).getElementsByTagName('*')).forEach(removeAllListeners);
       }
-      $parent.replaceChild($element, this);
+      $parent.replaceChild($target, this);
     }
-    return $element;
+    return this;
   };
 
 //--------------------------------------------------[Element.prototype.empty]
   /**
-   * 将元素的内容清空，并删除其子元素上绑定的所有事件监听器。
+   * 将本元素的内容清空，并删除本元素及后代元素上绑定的所有事件监听器。
    * @name Element.prototype.empty
    * @function
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    */
   Element.prototype.empty = function() {
     Array.from(this.getElementsByTagName('*')).forEach(removeAllListeners);
@@ -1574,13 +1574,13 @@
 
 //--------------------------------------------------[Element.prototype.on]
   /**
-   * 为元素添加监听器。
+   * 为本元素添加事件监听器。
    * @name Element.prototype.on
    * @function
-   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。可以同时为多个事件注册同一个监听器（或对相同的子元素代理事件），使用空格分割要多个事件名称即可。
+   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。可以同时为多个事件注册同一个监听器（或为相同的后代元素代理事件），使用空格分割要多个事件名称即可。
    * @param {Function} listener 要添加的事件监听器。
-   * @param {Function} [filter] 为符合条件的子元素代理事件。但要注意的是，在代理事件监听器中调用 e.stopPropagation 或 e.stopImmediatePropagation 时，事件对象实际上已经从触发对象传递到监听对象了。
-   * @returns {Element} 调用本方法的元素。
+   * @param {Function} [filter] 为符合条件的后代元素代理事件。但要注意的是，在代理事件监听器中调用 e.stopPropagation 或 e.stopImmediatePropagation 时，事件对象实际上已经从触发对象传递到监听对象了。
+   * @returns {Element} 本元素。
    * @see http://www.quirksmode.org/dom/events/index.html
    */
   Element.prototype.on = function(name, listener, filter) {
@@ -1781,11 +1781,11 @@
 
 //--------------------------------------------------[Element.prototype.off]
   /**
-   * 根据名称删除元素上已添加的监听器。
+   * 根据名称删除本元素上已添加的事件监听器。
    * @name Element.prototype.off
    * @function
    * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    */
   Element.prototype.off = function(name) {
     var uid = this.uid;
@@ -1889,13 +1889,13 @@
 
 //--------------------------------------------------[Element.prototype.fire]
   /**
-   * 触发一个元素的某类事件，运行相关的监听器。
+   * 触发本元素的某类事件，运行相关的事件监听器。
    * @name Element.prototype.fire
    * @function
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    *   data 的属性会被追加到事件对象中，但名称为 originalEvent 的属性除外。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    */
   Element.prototype.fire = function(type, data) {
     var handlers;
@@ -2084,7 +2084,7 @@
   }();
 
   /**
-   * 为 document 添加监听器。
+   * 为 document 添加事件监听器。
    * @name document.on
    * @function
    * @param {string} name 事件名称。参考 Element.prototype.on 的同名参数。
@@ -2117,7 +2117,7 @@
 
 //--------------------------------------------------[document.off]
   /**
-   * 根据名称删除 document 上已添加的监听器。
+   * 根据名称删除 document 上已添加的事件监听器。
    * @name document.off
    * @function
    * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
@@ -2127,7 +2127,7 @@
 
 //--------------------------------------------------[document.fire]
   /**
-   * 触发 document 的某类事件，运行相关的监听器。
+   * 触发 document 的某类事件，运行相关的事件监听器。
    * @name document.fire
    * @function
    * @param {String} type 事件类型。
@@ -2236,7 +2236,7 @@
 
 //--------------------------------------------------[window.on]
   /**
-   * 为 window 添加监听器。
+   * 为 window 添加事件监听器。
    * @name window.on
    * @function
    * @param {string} name 事件名称。参考 Element.prototype.on 的同名参数。
@@ -2274,7 +2274,7 @@
 
 //--------------------------------------------------[window.off]
   /**
-   * 根据名称删除 window 上已添加的监听器。
+   * 根据名称删除 window 上已添加的事件监听器。
    * @name window.off
    * @function
    * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
@@ -2298,7 +2298,7 @@
 
 //--------------------------------------------------[window.fire]
   /**
-   * 触发 window 的某类事件，运行相关的监听器。
+   * 触发 window 的某类事件，运行相关的事件监听器。
    * @name window.fire
    * @function
    * @param {String} type 事件类型。
