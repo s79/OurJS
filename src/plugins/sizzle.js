@@ -1460,7 +1460,7 @@
 
   // EXPOSE
   /**
-   * 在当前元素的后代元素中，根据指定的选择符查找元素。
+   * 在本元素的后代元素中，根据指定的选择符查找元素。
    * @name Element.prototype.find
    * @function
    * @param {string} selector 选择符。

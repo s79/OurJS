@@ -455,7 +455,7 @@
   /*
    * 添加 ES6 中引入的部分常用方法。
    *
-   * 扩展方法：
+   * 补缺方法：
    *   String.prototype.repeat
    *   String.prototype.startsWith
    *   String.prototype.endsWith
@@ -4848,7 +4848,7 @@
 
 //--------------------------------------------------[Element.prototype.morph]
   /**
-   * 在当前元素的动画队列中添加一个渐变效果。
+   * 在本元素的动画队列中添加一个渐变效果。
    * @name Element.prototype.morph
    * @function
    * @param {Object} styles 目标样式，元素将向指定的目标样式渐变。目标样式包含一条或多条要设置的样式声明，与 setStyles 的参数的差异如下：
@@ -4859,7 +4859,7 @@
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
    * @param {string} options.timingFunction 控速函数名称或表达式。
    * @param {Function} options.callback 播放完成后的回调。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    * @description
    *   队列是指将需要较长时间完成的多个指令排序，以先进先出的形式逐个执行这些指令。
    *   在元素上调用本方法添加动画时：
@@ -4884,13 +4884,13 @@
 
 //--------------------------------------------------[Element.prototype.fadeIn]
   /**
-   * 在当前元素的动画队列中添加一个淡入效果。
+   * 在本元素的动画队列中添加一个淡入效果。
    * @name Element.prototype.fadeIn
    * @function
    * @param {Object} [options] 动画选项。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
    * @param {Function} options.callback 播放完成后的回调。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    * @description
    *   当前已被渲染的元素不能执行淡入效果。
    */
@@ -4910,13 +4910,13 @@
 
 //--------------------------------------------------[Element.prototype.fadeOut]
   /**
-   * 在当前元素的动画队列中添加一个淡出效果。
+   * 在本元素的动画队列中添加一个淡出效果。
    * @name Element.prototype.fadeOut
    * @function
    * @param {Object} [options] 动画选项。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
    * @param {Function} options.callback 播放完成后的回调。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    * @description
    *   当前并未被渲染的元素不能执行淡出效果。
    */
@@ -4936,7 +4936,7 @@
 
 //--------------------------------------------------[Element.prototype.highlight]
   /**
-   * 在当前元素的动画队列中添加一个高亮效果。
+   * 在本元素的动画队列中添加一个高亮效果。
    * @name Element.prototype.highlight
    * @function
    * @param {Object} [options] 动画选项。
@@ -4944,9 +4944,9 @@
    * @param {number} options.times 高亮次数，默认为 2。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
    * @param {Function} options.callback 播放完成后的回调。
-   * @returns {Element} 调用本方法的元素。
+   * @returns {Element} 本元素。
    * @description
-   *   调用本方法时，如果当前队列的前一个动画也是高亮动画，则丢弃当前的高亮动画。若此时当前元素正在播放一个高亮动画，则重新播放该动画。
+   *   调用本方法时，如果当前队列的前一个动画也是高亮动画，则丢弃当前的高亮动画。若此时本元素正在播放一个高亮动画，则重新播放该动画。
    */
   Element.prototype.highlight = function(options) {
     var $element = this;
@@ -7540,7 +7540,7 @@
 
   // EXPOSE
   /**
-   * 在当前元素的后代元素中，根据指定的选择符查找元素。
+   * 在本元素的后代元素中，根据指定的选择符查找元素。
    * @name Element.prototype.find
    * @function
    * @param {string} selector 选择符。
