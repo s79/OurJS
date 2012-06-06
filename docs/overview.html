@@ -23,10 +23,11 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
   <h2>要求</h2>
   <p>OurJS 是一个适用于 WEB 应用开发的 JavaScript 快速开发框架，使用 OurJS 的开发者只需要有 JavaScript 和 DOM 的一些基础知识<sup>1</sup>，即可编写出兼容各主流浏览器（指 IE6 IE7 IE8 IE9 Firefox Chrome Safari Opera 以及其他使用 Trident 和 WebKit 内核的浏览器）的 WEB 应用。</p>
   <p>OurJS 要求浏览器运行在“标准模式”下<sup>2</sup>，当浏览器工作在非标准模式下时，开发者将收到一条警告信息。</p>
-  <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此能够应对大部分需求。<br>当必须引入其他的类库以满足特定需求时，要注意一点：OurJS 使用了侵入式设计，因此只能和其他非侵入式设计的类库<sup>3</sup>共存。</p>
+  <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此能够解决大部分需求。<br>当必须引入其他的类库以满足特定需求时，要注意一点：OurJS 使用了侵入式设计<sup>3</sup>，因此只能和其他非侵入式设计的类库共存<sup>4</sup>。</p>
   <ol class="comment">
     <li>开发者要了解 JS 的变量、数据类型、运算符、流程控制，以及 DOM 的一些常见的 API。</li>
     <li>这是为了强制开发者编写符合标准规范的代码，以获得更好的兼容性，并发挥浏览器的最大功效。</li>
+    <li>此处的“侵入式设计”是指通过扩展 JS 对象的原型来增加新的功能。使用这种方式可以提供可读性更好的、更接近原生语法的 API。</li>
     <li>可以和 jQuery 共存。</li>
   </ol>
 
@@ -62,15 +63,15 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
           <p class="comment">IE6 IE7 本来没有 Element 构造函数，但现在可以通过扩充 Element.prototype 来为页面上的 DOM 元素添加新特性了。</p>
         </li>
         <li>
-          <p><code>element.<span>outerHTML</span> = '&lt;h1&gt;OK&lt;/h1&gt;';</code></p>
-          <p class="comment">元素的 outerHTML 特性是 IE 最先引入的，目前只有 Firefox 不支持，但现在可以放心使用了。</p>
+          <p><code>element.<span>innerText</span> = 'new content';</code></p>
+          <p class="comment">元素的 innerText 特性是 IE 最先引入的，目前只有 Firefox 不支持，但现在可以放心使用了。</p>
         </li>
       </ul>
     </li>
     <li>
       <p>
         对于有规范支持但无法通过技术手段实现补缺的，或者无规范支持仅为方便使用而提供的特性，以扩展的方式提供。<br>
-        这些扩展的 API 语义明确，容易记忆，具备“自注释”的特性，力求和源生 API 的语法一样自然。<br>
+        这些扩展的 API 语义明确，容易记忆，具备“自注释”的特性，力求和原生 API 的语法一样自然。<br>
         举例如下：
       </p>
       <ul class="example">
@@ -78,7 +79,7 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
           <p><code>element.<span>setStyles({position: 'fixed', right: 0, bottom: 0})</span>;</code></p>
           <p class="comment">
             IE6 并不支持 CSS2 引入的固定定位，但现在通过使用 element.setStyle/setStyles 方法，可以实现在各浏览器中的一致的表现，而使用 element.getStyle/getStyles，也将获得预期的返回值 'fixed'。<br>
-            值得注意的是，setStyles 是设置多个样式，而 setStyle 是设置一个样式，二者的用途不同、名称不同、参数也不相同。
+            值得注意的是，setStyles 是设置多个样式，而 setStyle 是设置一个样式，二者的用途不同、名称不同、参数也不同。
           </p>
         </li>
         <li>
@@ -101,7 +102,7 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
     </li>
   </ul>
 
-  <h3>思路清晰 —— 对于一个问题只提供唯一的、最通用的解决方案<sup>4</sup>。</h3>
+  <h3>思路清晰 —— 对于一个问题只给出一种通用的解决方案<sup>4</sup>。</h3>
   <ul>
     <li>
       唯一的解决方案更利于理解和记忆，而多个可选的解决方案在提供便利的同时，也增加了理解和记忆的复杂度。<br>
@@ -115,7 +116,7 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
           </p>
           <p class="comment">
             对于上述问题，有的库提供了两种解决方案，比如分别是 <code>A.after(B)</code> 和 <code>B.insertAfter(A)</code>。<br>
-            事实上 <code>after</code> 和 <code>insertAfter</code> 的语义并不明确，除非开发者对 API 有足够的了解，否则很容易将二者混淆，从而带来意料之外的麻烦。
+            事实上 <code>after</code> 和 <code>insertAfter</code> 的语义差异并不明确，除非开发者对 API 有足够的了解，否则很容易将二者混淆，从而带来意料之外的麻烦。
           </p>
         </li>
         <li>
@@ -133,12 +134,24 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
 
   <h3>风格一致 —— 只要掌握了部分用法，就可以轻易的推测出其他部分的用法。</h3>
   <ul>
-    <li></li>
+    <li><em>无包装的 DOM 元素。</em></li>
+    <li><em>只有一个可选参数。</em></li>
+    <li><em>DOM 元素的事件处理。</em></li>
+    <li><em>组件的事件处理。</em></li>
+    <li><em>可重复使用的功能和一次性使用的功能。</em></li>
   </ul>
 
   <h3>功能完善 —— 提供粒度恰当<sup>5</sup>的功能和组件，可以通过灵活的配置和组合进行自由的设计。</h3>
   <ul>
-    <li></li>
+    <li>
+      在扩充对象的功能方面，OurJS 提供比其他库提供了更实用、覆盖面更广的功能，而不仅仅在某个方面提供一堆生僻的扩展（如提供十个完全可以由其他方式代替、仅仅是少些了几个单词的对 String.prototype 的扩展）。<br>
+      一些相对复杂的功能也隐藏在简单的 API 之后，如 element.setStyle('position', 'fixed') 提供了 IE6 的固定定位支持，localStorage 对 IE6 IE7 提供的模拟等。
+    </li>
+    <li>
+      组件方面，OurJS 尽量提供可以灵活搭配的各种事件。<br>
+      组件包括“功能组件”和“UI 组件”两种，其中功能组件包含 Request 和 Animation 两个对象，UI 组件则可以根据情况进行扩展，UI 组件有一个共同的 namespace：components。
+    </li>
+    <li>面对复杂的需求，OurJS 提供了“模块 - 应用”机制来化繁为简：将可分离的业务逻辑拆分为多个模块，再通过应用将各模块连接起来。其中每个模块都是完全独立的，有利于协同开发和单元测试。</li>
   </ul>
 
   <ol class="comment">
@@ -153,20 +166,6 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
       “任何事情都应该尽可能的做到简单，简单到极致。”—— 爱因斯坦
     </p>
   </blockquote>
-
-  <p>面对复杂的需求，OurJS 提供了“模块 - 应用”机制来化繁为简：将可分离的业务逻辑拆分为多个模块，再通过应用将各模块连接起来。其中每个模块都是完全独立的，有利于协同开发和单元测试。</p>
-
-  <p>
-    <em>TODO: 关于 API 一致性的描述。举以下几个例子：</em>
-  </p>
-  <ul>
-    <li><em>无包装的 DOM 元素。</em></li>
-    <li><em>只有一个可选参数。</em></li>
-    <li><em>DOM 元素的事件处理。</em></li>
-    <li><em>组件的事件处理。</em></li>
-    <li><em>可重复使用的功能和一次性使用的功能。</em></li>
-  </ul>
-
 
 </div>
 </body>

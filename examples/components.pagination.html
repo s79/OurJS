@@ -36,7 +36,8 @@ execute(function($) {
   var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 1, 1, totalPage);
   p = new components.Pagination($('#pagination'), {prevText: '‹', nextText: '›'})
       .on('turn', function(e) {
-//        location.search = 'page=' + number;
+        alert('loading ' + e.number);
+//        location.search = 'page=' + e.number;
         this.render(e.number, totalPage);
       })
       .render(currentPage, totalPage);
