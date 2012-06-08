@@ -42,7 +42,7 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
     <li>
       <p>
         对于一些在新的规范（草案）中定义的，或已成为事实标准的特性，在尚未支持的浏览器上通过技术手段予以补缺。<br>
-        这些 API 的语法是最自然的，使用它们时，开发者像面对最新的浏览器一样写代码，甚至感觉不到 OurJS 的存在。<br>
+        这些 API 的语法是最自然的，使用它们时，开发者像面对最新的浏览器一样写代码，完全感觉不到 OurJS 的存在。<br>
         举例如下：
       </p>
       <ul class="example">
@@ -102,40 +102,27 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
     </li>
   </ul>
 
-  <h3>思路清晰 —— 对于一个问题只给出一种通用的解决方案<sup>4</sup>。</h3>
+  <h3>风格一致 —— 只要掌握了部分用法，就可以轻易的推测出其他部分的用法。</h3>
   <ul>
     <li>
-      唯一的解决方案更利于理解和记忆，而多个可选的解决方案在提供便利的同时，也增加了理解和记忆的复杂度。<br>
-      举例如下：<br>
+      OurJS 扩展的功能都是通过 JavaScript 的原型机制实现的，即便对 DOM 元素的扩展也是如此（这里对 IE6 IE7 做了特殊处理），这样的好处是可以像调用一个对象的源生方法一样来调用它的扩展方法。<br>
+      也就是说，不用再担心分不清你正在操作的对象到底是源生对象还是包装对象了——OurJS 没有“包装对象”的概念。
       <ul class="example">
         <li>
-          <p>假设 DOM 树中已有一个元素 <code>A</code>，现在要在它的后边插入一个元素 <code>B</code>。</p>
-          <p>
-            使用 OurJS 的解决方案是 <code>B.putAfter(A)</code>。<br>
-            OurJS 并没有提供其他的方法来做这件事情，像是 <code>A.someMethod(B)</code> 这样的方法是不存在的，因此只需要记住一个语义很明确的 <code>putAfter</code> 方法即可。
-          </p>
-          <p class="comment">
-            对于上述问题，有的库提供了两种解决方案，比如分别是 <code>A.after(B)</code> 和 <code>B.insertAfter(A)</code>。<br>
-            事实上 <code>after</code> 和 <code>insertAfter</code> 的语义差异并不明确，除非开发者对 API 有足够的了解，否则很容易将二者混淆，从而带来意料之外的麻烦。
-          </p>
+          <p class="comment">调用了扩展方法后，又想调用源生方法？没问题，按照直觉告诉你的方式，写下来就行了。</p>
+          <p><code>element.empty().scrollIntoView()</code></p>
         </li>
         <li>
-          <p>使用正则表达式 <code>regExp</code> 在字符串 <code>string</code> 中进行匹配，返回匹配结果。</p>
-          <p>最普遍的解决方案是 <code>string.match(regExp)</code>，这很容易理解。OurJS 也没有提供其他的方法来做这件事。</p>
-          <p class="comment">
-            对于上述问题，有的库扩展了 <code>RegExp.prototype.match</code> 方法，并为其提供与 <code>String.prototype.match</code> 相同的行为。<br>
-            在这种情况下，使用这个库的开发者可以使用两种不同的解决方案：<code>string.match(regExp)</code> 和 <code>regExp.match(string)</code>。<br>
-            这种“灵活”带来的代价，是混淆常见 API 的用法，这将会导致记忆混乱，浪费不必要的精力。
-          </p>
+          <p class="comment">想获取地址栏中 Query String 的某个字段？首先想到 location 对象了吗？正是，这个方法就在 location 对象上提供。</p>
+          <p><code>location.parameters.id</code></p>
+        </li>
+        <li>
+          <p class="comment">想操作 cookie？为了保持一致的风格，OurJS 提供了一个 cookie 对象。</p>
+          <p><code>cookie.get('username')</code></p>
         </li>
       </ul>
     </li>
-  </ul>
-
-  <h3>风格一致 —— 只要掌握了部分用法，就可以轻易的推测出其他部分的用法。</h3>
-  <ul>
-    <li><em>无包装的 DOM 元素。</em></li>
-    <li><em>只有一个可选参数。</em></li>
+    <li>只有一个可选参数。</li>
     <li><em>DOM 元素的事件处理。</em></li>
     <li><em>组件的事件处理。</em></li>
     <li><em>可重复使用的功能和一次性使用的功能。</em></li>

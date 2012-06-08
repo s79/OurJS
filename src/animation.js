@@ -102,7 +102,9 @@
       }
       animation.fire('step');
       if (timePoint === animation.duration) {
-        unmountAnimation(animation);
+        if (animation.timestamp) {
+          unmountAnimation(animation);
+        }
         animation.status = END_POINT;
         animation.fire('playfinish');
       }
@@ -112,7 +114,9 @@
       }
       animation.fire('step');
       if (timePoint === 0) {
-        unmountAnimation(animation);
+        if (animation.timestamp) {
+          unmountAnimation(animation);
+        }
         animation.status = STARTING_POINT;
         animation.fire('reversefinish');
       }
@@ -530,7 +534,7 @@
    * @name Fx.Morph
    * @constructor
    * @param {Element} $element 要实施渐变效果的元素。
-   * @param {Object} styles 要实施渐变的样式。支持相对长度值、预命名颜色值和缩写的 #XXX 颜色值。
+   * @param {Object} styles 要实施渐变的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个预命名颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(正整数R, 正整数G, 正整数B) 格式。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
    * @param {string} timingFunction 控速函数名称或表达式。
@@ -622,7 +626,7 @@
    * @name Fx.Highlight
    * @constructor
    * @param {Element} $element 要实施渐隐效果的元素。
-   * @param {string} color 高亮的颜色，#XXXXXX 格式的字符串。
+   * @param {string} color 高亮的颜色。
    * @param {number} times 高亮的次数。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
