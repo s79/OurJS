@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-05-29
+ *  Version: 2012-06-09
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -3087,9 +3087,11 @@
    * 为本元素添加事件监听器。
    * @name Element.prototype.on
    * @function
-   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。可以同时为多个事件注册同一个监听器（或为相同的后代元素代理事件），使用空格分割要多个事件名称即可。
+   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
+   *   使用空格分割多个事件名称，即可同时为多个事件注册同一个监听器（或为相同的后代元素代理多个事件）。
    * @param {Function} listener 要添加的事件监听器。
-   * @param {Function} [filter] 为符合条件的后代元素代理事件。但要注意的是，在代理事件监听器中调用 e.stopPropagation 或 e.stopImmediatePropagation 时，事件对象实际上已经从触发对象传递到监听对象了。
+   * @param {Function} [filter] 为符合条件的后代元素代理事件。
+   *   要注意的是，在代理事件监听器中调用 e.stopPropagation 或 e.stopImmediatePropagation 时，事件对象实际上已经从触发对象传递到监听对象了。
    * @returns {Element} 本元素。
    * @see http://www.quirksmode.org/dom/events/index.html
    */
@@ -3843,7 +3845,6 @@
    *   components
    */
 
-  var instanceMethods = {};
   var filter = {blackList: ['on', 'off', 'fire']};
 
 //--------------------------------------------------[Component Constructor]
@@ -3863,7 +3864,7 @@
    */
   function Component(constructor) {
     // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
-    var Component = function() {
+    var ComponentConstructor = function() {
       // 追加默认 options 到实例对象。
       Object.append(this, constructor.options, filter);
       // 分析形参和实参的差别。
@@ -3879,36 +3880,46 @@
       this.events = {};
       constructor.apply(this, parameters);
     };
-    // 将 instanceMethods 添加到 Component 的原型链。
-    var Prototype = function() {
-    };
-    Prototype.prototype = instanceMethods;
-    Component.prototype = new Prototype();
-    Component.prototype.constructor = Component;
-    Component.prototype.superPrototype = Prototype.prototype;
-    // 将 constructor 的原型内的属性追加到 Component 的原型中。
-    Object.append(Component.prototype, constructor.prototype, filter);
+    // 将 Component.prototype 添加到 ComponentConstructor 的原型链。
+//    var ComponentImplementation = function() {
+//    };
+//    ComponentImplementation.prototype = Component.prototype;
+    ComponentConstructor.prototype = this;
+    ComponentConstructor.prototype.constructor = ComponentConstructor;
+//    ComponentConstructor.prototype.superPrototype = ComponentImplementation.prototype;
+    // 将 constructor 的原型内的属性追加到 ComponentConstructor 的原型中。
+    Object.append(ComponentConstructor.prototype, constructor.prototype, filter);
     // 返回组件。
-    return Component;
+    return ComponentConstructor;
   }
 
-  window.Component = Component;
-
-//--------------------------------------------------[instanceMethods.on]
+//--------------------------------------------------[Component.prototype.setOptions]
   /**
-   * 为组件添加监听器。
-   * @name Component#on
+   * 为本组件设置选项。
+   * @name Component.prototype.setOptions
+   * @function
+   * @param {Object} options 选项。
+   * @returns {Object} 本组件。
+   */
+  Component.prototype.setOptions = function(options) {
+    return this;
+  };
+
+//--------------------------------------------------[Component.prototype.on]
+  /**
+   * 为本组件添加事件监听器。
+   * @name Component.prototype.on
    * @function
    * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
-   *   使用空格分割要多个事件名称，即可同时为多个事件注册同一个监听器。
-   * @param {Function} listener 要添加的事件监听器，传入调用此方法的组件提供的事件对象。
-   * @returns {Object} 调用本方法的组件。
+   *   使用空格分割多个事件名称，即可同时为多个事件注册同一个监听器。
+   * @param {Function} listener 要添加的事件监听器。
+   * @returns {Object} 本组件。
    */
-  instanceMethods.on = function(name, listener) {
+  Component.prototype.on = function(name, listener) {
     var self = this;
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        instanceMethods.on.call(self, name, listener);
+        Component.prototype.on.call(self, name, listener);
       });
       return self;
     }
@@ -3920,19 +3931,19 @@
     return self;
   };
 
-//--------------------------------------------------[instanceMethods.off]
+//--------------------------------------------------[Component.prototype.off]
   /**
-   * 根据名称删除组件上已添加的监听器。
-   * @name Component#off
+   * 根据名称删除本组件上已添加的事件监听器。
+   * @name Component.prototype.off
    * @function
    * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
-   * @returns {Object} 调用本方法的组件。
+   * @returns {Object} 本组件。
    */
-  instanceMethods.off = function(name) {
+  Component.prototype.off = function(name) {
     var self = this;
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        instanceMethods.off.call(self, name);
+        Component.prototype.off.call(self, name);
       });
       return self;
     }
@@ -3963,16 +3974,16 @@
     return self;
   };
 
-//--------------------------------------------------[instanceMethods.fire]
+//--------------------------------------------------[Component.prototype.fire]
   /**
-   * 触发一个组件的某类事件，运行相关的监听器。
-   * @name Component#fire
+   * 触发本组件的某类事件，运行相关的事件监听器。
+   * @name Component.prototype.fire
    * @function
    * @param {String} type 事件类型。
-   * @param {Object} [event] 事件对象。
-   * @returns {Object} 调用本方法的组件。
+   * @param {Object} [data] 在事件对象上附加的数据。
+   * @returns {Object} 本组件。
    */
-  instanceMethods.fire = function(type, event) {
+  Component.prototype.fire = function(type, data) {
     var self = this;
     var events = self.events;
     var handlers = events[type];
@@ -3980,10 +3991,13 @@
       return self;
     }
     handlers.forEach(function(handler) {
-      handler.listener.call(self, event);
+      handler.listener.call(self, data);
     });
     return self;
   };
+
+//--------------------------------------------------[Component]
+  window.Component = Component;
 
 //--------------------------------------------------[components]
   /**
@@ -4221,7 +4235,9 @@
       }
       animation.fire('step');
       if (timePoint === animation.duration) {
-        unmountAnimation(animation);
+        if (animation.timestamp) {
+          unmountAnimation(animation);
+        }
         animation.status = END_POINT;
         animation.fire('playfinish');
       }
@@ -4231,7 +4247,9 @@
       }
       animation.fire('step');
       if (timePoint === 0) {
-        unmountAnimation(animation);
+        if (animation.timestamp) {
+          unmountAnimation(animation);
+        }
         animation.status = STARTING_POINT;
         animation.fire('reversefinish');
       }
@@ -4649,7 +4667,7 @@
    * @name Fx.Morph
    * @constructor
    * @param {Element} $element 要实施渐变效果的元素。
-   * @param {Object} styles 要实施渐变的样式。支持相对长度值、预命名颜色值和缩写的 #XXX 颜色值。
+   * @param {Object} styles 要实施渐变的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个预命名颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(正整数R, 正整数G, 正整数B) 格式。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
    * @param {string} timingFunction 控速函数名称或表达式。
@@ -4741,7 +4759,7 @@
    * @name Fx.Highlight
    * @constructor
    * @param {Element} $element 要实施渐隐效果的元素。
-   * @param {string} color 高亮的颜色，#XXXXXX 格式的字符串。
+   * @param {string} color 高亮的颜色。
    * @param {number} times 高亮的次数。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。

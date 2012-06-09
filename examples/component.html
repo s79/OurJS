@@ -7,37 +7,77 @@
 </head>
 <body>
 <script>
-//--------------------------------------------------[Component C]
-function C(c, options) {
-  this.c = c;
-  console.warn('形参最后的 options 被外包装函数劫持：', arguments);
-//  this.events = '如果此处设置 events 属性为非对象，Component 的事件处理将失效。';
-//  this.on = function() {
-//    console.log('如果此处设置 on/off/fire，Component 的事件处理也将失效。', arguments);
-//  };
+//--------------------------------------------------[inherits]
+function getInheritanceChain(constructor) {
+  var inheritanceChain = [constructor.prototype.originalConstructor || constructor];
+  var superConstructor;
+  while (superConstructor = constructor.prototype.superConstructor) {
+    inheritanceChain.push(superConstructor);
+    constructor = superConstructor;
+  }
+  return inheritanceChain;
 }
 
-C.options = {
-  text: '$'
+/**
+ * 使当前类继承父类，产生一个新类。
+ * @name Function.prototype.inherits
+ * @function
+ * @param {Function} superConstructor 父类的构造器。
+ * @returns {Function} 新类的构造器，父类被追加至这个新类的继承链的顶端。
+ * @description
+ *   高级应用：
+ *   可以在一个类的构造器上连续多次调用本方法，以实现多重继承。
+ *   非必要时不建议这样做，通常情况下，应使用组合来代替继承，可获得更多的灵活性。
+ */
+Function.prototype.inherits = function(superConstructor) {
+  var inheritanceChain = getInheritanceChain(this).concat(getInheritanceChain(superConstructor));
+  console.log('getInheritanceChain(this)', getInheritanceChain(this));
+  console.log('getInheritanceChain(superConstructor)', getInheritanceChain(superConstructor));
+  var originalConstructor = this;
+  var Class = function() {
+    superConstructor.apply(this, arguments);
+    originalConstructor.apply(this, arguments);
+  };
+  var Prototype = function() {
+  };
+  Prototype.prototype = superConstructor.prototype;
+  Class.prototype = new Prototype();
+  Class.prototype.constructor = Class;
+  Class.prototype.originalConstructor = originalConstructor;
+  Class.prototype.superConstructor = superConstructor;
+  Object.append(Class.prototype, originalConstructor.prototype);
+  return Class;
 };
 
-C.prototype.getC = function() {
-  return this.text + this.c;
+//--------------------------------------------------[test]
+function Component() {
+  this.events = {};
+}
+Component.prototype.setOptions = function() {
+};
+Component.prototype.on = function() {
+};
+Component.prototype.off = function() {
+};
+Component.prototype.fire = function() {
 };
 
-components.C = new Component(C);
+function X() {
+  this.x = 5000;
+}
+X.prototype.getX = function() {
+  console.log('>>>' + this.x);
+};
 
-//--------------------------------------------------[TEST]
-var c = new components.C(100, {optionTest: 12345});
-c.on('test.1st', function() {
-  console.log('[test]' + this.getC());
-});
-c.on('test.2nd', function(e) {
-  console.log('[test.2nd]' + JSON.stringify(e) + ' | ' + this.getC());
-});
-c.fire('test', {name: 'test', data: [0]});
-c.off('test.2nd');
-c.fire('test', {name: 'test', data: [1]})
+var A = function(y) {
+  this.y = y;
+}.inherits(Component).inherits(X);
+
+A.prototype.getY = function() {
+  console.log('>>>' + this.x, this.y);
+};
+
+a = new A(9);
 </script>
 </body>
 </html>

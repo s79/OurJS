@@ -190,10 +190,9 @@
    */
 
 //--------------------------------------------------[Element.prototype]
-
   /**
    * 可以通过扩展本对象来为页面中的所有元素扩展新特性。
-   * @name prototype
+   * @name __prototype__
    * @memberOf Element
    * @type Object
    * @description
@@ -1577,9 +1576,11 @@
    * 为本元素添加事件监听器。
    * @name Element.prototype.on
    * @function
-   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。可以同时为多个事件注册同一个监听器（或为相同的后代元素代理事件），使用空格分割要多个事件名称即可。
+   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
+   *   使用空格分割多个事件名称，即可同时为多个事件注册同一个监听器（或为相同的后代元素代理多个事件）。
    * @param {Function} listener 要添加的事件监听器。
-   * @param {Function} [filter] 为符合条件的后代元素代理事件。但要注意的是，在代理事件监听器中调用 e.stopPropagation 或 e.stopImmediatePropagation 时，事件对象实际上已经从触发对象传递到监听对象了。
+   * @param {Function} [filter] 为符合条件的后代元素代理事件。
+   *   要注意的是，在代理事件监听器中调用 e.stopPropagation 或 e.stopImmediatePropagation 时，事件对象实际上已经从触发对象传递到监听对象了。
    * @returns {Element} 本元素。
    * @see http://www.quirksmode.org/dom/events/index.html
    */

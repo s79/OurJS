@@ -177,7 +177,6 @@ execute(function($) {
 //    };
 
 //--------------------------------------------------[生成一类对象的文档]
-    var RE_COMMENT = /<#>(.*)/;
     // 同时生成索引文档和细节文档，side 参数仅供索引文档使用。
     var buildDocument = function(name, side) {
       // 本类对象的标题。
@@ -196,8 +195,8 @@ execute(function($) {
       var comment = '';
       var lastGroupName;
       manifest[name].forEach(function(name) {
-        if (name.startsWith('<#>')) {
-          comment = name.match(RE_COMMENT)[1];
+        if (name.startsWith('#')) {
+          comment = name.slice(1);
           $indexFieldset.append($('<h2>' + comment + '</h2>'));
         } else {
           var symbol = apiData[name];
