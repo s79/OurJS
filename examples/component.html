@@ -18,6 +18,26 @@ function getInheritanceChain(constructor) {
   return inheritanceChain;
 }
 
+function getPrototypeChain(inheritanceChain) {
+  var superConstructor = Object;
+  var prototype;
+  var Prototype = function() {
+  };
+  inheritanceChain.forEach(function(constructor, index, inheritanceChain) {
+    if (index === 0) {
+      prototype = constructor.prototype;
+    }
+    Prototype.prototype = prototype;
+    Prototype.prototype.constructor = constructor;
+    Prototype.prototype.superConstructor = superConstructor;
+    prototype = new Prototype();
+    superConstructor = constructor;
+  });
+  return prototype;
+//  Constructor.prototype.originalConstructor = originalConstructor;
+//  Object.append(Constructor.prototype, originalConstructor.prototype);
+}
+
 /**
  * 使当前类继承父类，产生一个新类。
  * @name Function.prototype.inherits
@@ -30,23 +50,22 @@ function getInheritanceChain(constructor) {
  *   非必要时不建议这样做，通常情况下，应使用组合来代替继承，可获得更多的灵活性。
  */
 Function.prototype.inherits = function(superConstructor) {
-  var inheritanceChain = getInheritanceChain(this).concat(getInheritanceChain(superConstructor));
+  // 将继承链按自顶向底的排序（自外向内）。
+  var inheritanceChain = getInheritanceChain(this).concat(getInheritanceChain(superConstructor)).reverse();
   console.log('getInheritanceChain(this)', getInheritanceChain(this));
   console.log('getInheritanceChain(superConstructor)', getInheritanceChain(superConstructor));
+  // 生成新构造器。
   var originalConstructor = this;
-  var Class = function() {
-    superConstructor.apply(this, arguments);
-    originalConstructor.apply(this, arguments);
+  var Constructor = function() {
+    var self = this;
+    inheritanceChain.forEach(function(constructor) {
+      constructor.apply(self, arguments);
+    });
   };
-  var Prototype = function() {
-  };
-  Prototype.prototype = superConstructor.prototype;
-  Class.prototype = new Prototype();
-  Class.prototype.constructor = Class;
-  Class.prototype.originalConstructor = originalConstructor;
-  Class.prototype.superConstructor = superConstructor;
-  Object.append(Class.prototype, originalConstructor.prototype);
-  return Class;
+  Constructor.prototype = getPrototypeChain(inheritanceChain);
+  Constructor.prototype.originalConstructor = originalConstructor;
+  // 返回新构造器。
+  return Constructor;
 };
 
 //--------------------------------------------------[test]

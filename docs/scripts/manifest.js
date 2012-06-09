@@ -231,7 +231,7 @@ var manifest = {
     'Event.prototype.stopImmediatePropagation'
   ],
   'Component': [
-    '#所有组件的构造器',
+    '#组件基类',
     'Component',
     '#处理选项',
     'Component.prototype.setOptions',

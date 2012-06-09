@@ -159,12 +159,7 @@ function parseExample(string) {
 
 /** Get a symbol's raw data. */
 function filterSymbol(source) {
-  // 别名替换。
   var name = source.alias.replace('#', (source.isNamespace ? '.' : '.prototype.'));
-  // 为 *.prototype 的特殊处理。
-  if (name.endsWith('__prototype__')) {
-    name = name.replace('__prototype__', 'prototype');
-  }
   symbols[name] = {
 //    author: source.author,
     name: name,

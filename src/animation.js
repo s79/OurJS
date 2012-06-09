@@ -513,13 +513,15 @@
 
 //--------------------------------------------------[Fx.Base]
   /**
-   * 基础动画效果，其他动画效果都是从基础动画效果衍生出来的。
+   * 基础动画效果。
    * @name Fx.Base
    * @constructor
    * @param {Function} handler 动画处理函数，this 指向所属的 Animation 对象。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
    * @param {string} timingFunction 控速函数名称或表达式。
+   * @description
+   *   可以通过定制动画处理函数来制作各种动画，Fx 下的其他动画效果都是这样实现的。
    */
   Fx.Base = function(handler, delay, duration, timingFunction) {
     this.handler = handler;

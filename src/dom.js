@@ -192,7 +192,7 @@
 //--------------------------------------------------[Element.prototype]
   /**
    * 可以通过扩展本对象来为页面中的所有元素扩展新特性。
-   * @name __prototype__
+   * @name prototype
    * @memberOf Element
    * @type Object
    * @description
