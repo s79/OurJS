@@ -193,7 +193,7 @@
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
    *   仅应在动画初始化时添加影片剪辑，不要在动画开始播放后更改影片剪辑的状态。
    */
-  function Animation(duration, options) {
+  function Animation(duration) {
     this.uid = ++uid;
     this.clips = [];
     this.timePoint = 0;
@@ -310,7 +310,7 @@
   };
 
 //--------------------------------------------------[Animation]
-  window.Animation = new Component(Animation);
+  window.Animation = new Component(Animation, Animation.options, Animation.prototype);
 
 //==================================================[Fx]
   // 可变的 CSS properties 类型。

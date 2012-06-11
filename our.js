@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-09
+ *  Version: 2012-06-12
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -634,6 +634,8 @@
    *   Object.append
    *   Array.from
    *   Array.prototype.contains
+   *   Array.prototype.getFirst
+   *   Array.prototype.getLast
    *   String.prototype.clean
    *   Number.prototype.padZero
    *   Math.limit
@@ -783,7 +785,7 @@
 
 //--------------------------------------------------[Array.prototype.contains]
   /**
-   * 检查数组中是否包含指定的元素。
+   * 检查本数组中是否包含指定的元素。
    * @name Array.prototype.contains
    * @function
    * @param {*} element 指定的元素。
@@ -796,11 +798,39 @@
     return this.indexOf(element) !== -1;
   };
 
+//--------------------------------------------------[Array.prototype.getFirst]
+  /**
+   * 获取本数组的第一个元素。
+   * @name Array.prototype.getFirst
+   * @function
+   * @returns {*} 本数组的第一个元素。
+   * @example
+   *   [0, 1, 2, 3, 4].getFirst();
+   *   // 0
+   */
+  Array.prototype.getFirst = function() {
+    return this[0];
+  };
+
+//--------------------------------------------------[Array.prototype.getLast]
+  /**
+   * 获取本数组的最后一个元素。
+   * @name Array.prototype.getLast
+   * @function
+   * @returns {*} 本数组的最后一个元素。
+   * @example
+   *   [0, 1, 2, 3, 4].getLast();
+   *   // 4
+   */
+  Array.prototype.getLast = function() {
+    return this[this.length - 1];
+  };
+
 //--------------------------------------------------[String.prototype.clean]
   var RE_WHITESPACES = new RegExp('[' + WHITESPACES + ']+', 'g');
 
   /**
-   * 合并字符串中的空白字符，并去掉首尾的空白字符。
+   * 合并本字符串中的空白字符，并去掉首尾的空白字符。
    * @name String.prototype.clean
    * @function
    * @returns {string} 清理后的字符串。
@@ -1700,7 +1730,6 @@
    */
 
 //--------------------------------------------------[Element.prototype]
-
   /**
    * 可以通过扩展本对象来为页面中的所有元素扩展新特性。
    * @name prototype
@@ -2526,28 +2555,30 @@
    *   Element.prototype.clone  // TODO: pending。
    */
 
-//--------------------------------------------------[Element.prototype.append]
+//--------------------------------------------------[Element.prototype.appendChild]
   /**
    * 将目标元素追加为本元素的最后一个子元素。
-   * @name Element.prototype.append
+   * @name Element.prototype.appendChild
    * @function
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
    */
-  Element.prototype.append = function(target) {
+/*
+  Element.prototype.appendChild = function(target) {
     this.appendChild(target);
     return this;
   };
+*/
 
-//--------------------------------------------------[Element.prototype.prepend]
+//--------------------------------------------------[Element.prototype.prependChild]
   /**
    * 将目标元素追加为本元素的第一个子元素。
-   * @name Element.prototype.prepend
+   * @name Element.prototype.prependChild
    * @function
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
    */
-  Element.prototype.prepend = function(target) {
+  Element.prototype.prependChild = function(target) {
     this.insertBefore(target, this.firstChild);
     return this;
   };
@@ -3823,14 +3854,14 @@
 /**
  * @fileOverview 组件。
  * @author sundongguo@gmail.com
- * @version 20120402
+ * @version 20120610
  */
 (function() {
 //==================================================[组件]
   /*
-   * 提供组件的构造器。
-   * 为组件的实例提供 on/off/fire 方法，这些方法依赖组件实例自身的 event 属性。
-   * <Object event> {
+   * 组件的构造器。
+   * 为各组件的实例提供 options/events 属性，以及 setOptions/on/off/fire 原型方法。
+   * <Object events> {
    *   <string type>: <Array handlers> [
    *     <Object handler>: {
    *       name: <string>
@@ -3841,56 +3872,39 @@
    *
    * 构造函数：
    *   Component
-   * 命名空间：
-   *   components
    */
-
-  var filter = {blackList: ['on', 'off', 'fire']};
 
 //--------------------------------------------------[Component Constructor]
   /**
    * 创建一个组件。
    * @name Component
    * @constructor
-   * @param {Function} constructor 组件构造函数。
-   *   <ul>
-   *     <li>声明 constructor 时，其最后一个形参必须是一个可选参数 options。即便一个组件不需要 options，也应将其写入形参内。</li>
-   *     <li>不要在 constructor 中访问 options 形参，因为此形参并不会被传入 constructor。要访问 options 形参的属性，直接访问实例的同名属性即可。</li>
-   *     <li>必须指定 constructor.options，以代表默认选项。即便一个组件不需要默认选项，也应将 constructor.options 设置为空对象。</li>
-   *     <li>constructor、constructor.options、constructor.prototype 内均不能设置实例的 events/on/off/fire 属性。</li>
-   *   </ul>
+   * @param {Function} constructor 组件的构造函数。
+   * @param {Object} defaultOptions 组件的默认选项。
+   * @param {Object} prototype 组件的原型对象。
    * @description
-   *   本方法本质是包装 constructor，以加入对事件的支持，并能自动处理默认选项和指定选项。
+   *   组件的实例及其原型对象中都不能设置以下属性：
+   *   'options'，'events'，'setOptions'，'on'，'off'，'fire'。
+   *   修改各组件的默认选项时，不要修改 XXX.options 的指向。
    */
-  function Component(constructor) {
-    // 组件的包装构造函数，为实例加入 events，并自动处理默认和指定的 options。
-    var ComponentConstructor = function() {
-      // 追加默认 options 到实例对象。
-      Object.append(this, constructor.options, filter);
-      // 分析形参和实参的差别。
-      var parameters = Array.from(arguments);
-      var formalParameterLength = constructor.length;
-      var actualParameterLength = arguments.length;
-      if (formalParameterLength !== actualParameterLength) {
-        parameters.length = formalParameterLength;
-      }
-      // 移除实参中的 options 对象，并追加这个指定的 options 对象到实例对象。
-      Object.append(this, parameters.pop() || {}, filter);  // TODO: 是否添加白名单？
-      // 实例的 events 必须为以下指定的空对象。
+  function Component(constructor, defaultOptions, prototype) {
+    // 真正的构造函数。
+    var Component = function() {
+      this.options = {};
       this.events = {};
-      constructor.apply(this, parameters);
+      Object.append(this.options, Component.options);
+      constructor.apply(this, arguments);
     };
-    // 将 Component.prototype 添加到 ComponentConstructor 的原型链。
-//    var ComponentImplementation = function() {
-//    };
-//    ComponentImplementation.prototype = Component.prototype;
-    ComponentConstructor.prototype = this;
-    ComponentConstructor.prototype.constructor = ComponentConstructor;
-//    ComponentConstructor.prototype.superPrototype = ComponentImplementation.prototype;
-    // 将 constructor 的原型内的属性追加到 ComponentConstructor 的原型中。
-    Object.append(ComponentConstructor.prototype, constructor.prototype, filter);
+    // 默认选项。
+    Component.options = defaultOptions;
+    // 扩充原型链。
+    Component.prototype = this;
+    // 将 prototype 的属性追加到原型中。
+    Object.append(Component.prototype, prototype);
+    // 重新设定 constructor 属性。
+    Component.prototype.constructor = Component;
     // 返回组件。
-    return ComponentConstructor;
+    return Component;
   }
 
 //--------------------------------------------------[Component.prototype.setOptions]
@@ -3902,6 +3916,7 @@
    * @returns {Object} 本组件。
    */
   Component.prototype.setOptions = function(options) {
+    Object.append(this.options, options || {}, {whiteList: Object.keys(this.options)});
     return this;
   };
 
@@ -3999,14 +4014,6 @@
 //--------------------------------------------------[Component]
   window.Component = Component;
 
-//--------------------------------------------------[components]
-  /**
-   * 为组件提供的命名空间。
-   * @name components
-   * @namespace
-   */
-  window.components = {};
-
 })();
 
 (function() {
@@ -4020,7 +4027,6 @@
   /**
    * 使用一个数组创建切换控制器。在这个数组中，同一时刻最多只有一个元素是“活动”的。
    * @name Switcher
-   * @memberOf components
    * @constructor
    * @param {Array} items 指定在本数组中的各元素间切换，本数组包含的元素必须是引用类型的值，且不能有重复。
    * @fires change
@@ -4032,7 +4038,7 @@
    * @description
    *   高级应用：动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
    */
-  function Switcher(items, options) {
+  function Switcher(items) {
     this.items = items;
     this.activeItem = null;
     this.activeIndex = NaN;
@@ -4042,7 +4048,6 @@
   /**
    * 默认选项。
    * @name Switcher.options
-   * @memberOf components
    */
   Switcher.options = {};
 
@@ -4050,7 +4055,6 @@
   /**
    * 将一个元素标记为“活动”，并将当前的活动元素（如果有）标记为“非活动”。
    * @name Switcher.prototype.active
-   * @memberOf components
    * @function
    * @param {Object|number} i 要标记为“活动”的元素，或者这个元素在 items 中的索引值。
    *   要标记为“活动”的元素不能为当前的活动元素。
@@ -4107,7 +4111,6 @@
   /**
    * 获取当前标记为“活动”的元素。
    * @name Switcher.prototype.getActiveItem
-   * @memberOf components
    * @function
    * @returns {Object} 当前标记为“活动”的元素，如果为 null，则当前无活动元素。
    */
@@ -4119,7 +4122,6 @@
   /**
    * 获取当前标记为“活动”的元素的索引。
    * @name Switcher.prototype.getActiveIndex
-   * @memberOf components
    * @function
    * @returns {number} 当前标记为“活动”的元素的索引，如果为 NaN，则当前无活动元素。
    */
@@ -4127,8 +4129,8 @@
     return this.activeIndex;
   };
 
-//--------------------------------------------------[components.Switcher]
-  components.Switcher = new Component(Switcher);
+//--------------------------------------------------[Switcher]
+  window.Switcher = new Component(Switcher, Switcher.options, Switcher.prototype);
 
 })();
 /**
@@ -4326,7 +4328,7 @@
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
    *   仅应在动画初始化时添加影片剪辑，不要在动画开始播放后更改影片剪辑的状态。
    */
-  function Animation(duration, options) {
+  function Animation(duration) {
     this.uid = ++uid;
     this.clips = [];
     this.timePoint = 0;
@@ -4443,7 +4445,7 @@
   };
 
 //--------------------------------------------------[Animation]
-  window.Animation = new Component(Animation);
+  window.Animation = new Component(Animation, Animation.options, Animation.prototype);
 
 //==================================================[Fx]
   // 可变的 CSS properties 类型。
@@ -4646,13 +4648,15 @@
 
 //--------------------------------------------------[Fx.Base]
   /**
-   * 基础动画效果，其他动画效果都是从基础动画效果衍生出来的。
+   * 基础动画效果。
    * @name Fx.Base
    * @constructor
    * @param {Function} handler 动画处理函数，this 指向所属的 Animation 对象。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
    * @param {string} timingFunction 控速函数名称或表达式。
+   * @description
+   *   可以通过定制动画处理函数来制作各种动画，Fx 下的其他动画效果都是这样实现的。
    */
   Fx.Base = function(handler, delay, duration, timingFunction) {
     this.handler = handler;
@@ -5039,10 +5043,11 @@
 
   // 获取响应信息，state 可能是 DONE、ABORT 或 TIMEOUT。
   var getResponse = function(request, state) {
+    var options = request.options;
     // 处理请求的最短和最长时间。
-    if (request.async) {
+    if (options.async) {
       // 由于 getResponse(request, DONE) 在 send 方法中有两个入口，因此在此处对 minTime 进行延时处理。
-      if (request.minTime > 0) {
+      if (options.minTime > 0) {
         if (request.minTimeTimer) {
           // 已经限定过请求的最短时间。此时 ABORT 或 TIMEOUT 状态在有意如此操作或设置的情况下，可能比延迟的 DONE 状态来的早。
           // 但因为此时请求已经完成，所以要把本次调用的 state 重置为 DONE。
@@ -5053,7 +5058,7 @@
           // 这种情况需要限定请求的最短时间。
           request.minTimeTimer = setTimeout(function() {
             getResponse(request, DONE);
-          }, Math.max(0, Number.toInteger(request.minTime - (Date.now() - request.timestamp))));
+          }, Math.max(0, Number.toInteger(options.minTime - (Date.now() - request.timestamp))));
           return;
         }
       }
@@ -5105,7 +5110,7 @@
         break;
     }
     // 触发响应事件。
-    request.fire('response', request.responseParser({
+    request.fire('response', options.responseParser({
       status: status,
       statusText: statusText,
       headers: headers,
@@ -5148,6 +5153,7 @@
   function Request(url, options) {
     this.xhr = getXHRObject();
     this.url = url;
+    this.setOptions(options);
   }
 
 //--------------------------------------------------[Request.options]
@@ -5186,33 +5192,34 @@
    */
   Request.prototype.send = function(data) {
     var request = this;
+    var options = request.options;
     var xhr = request.xhr;
     // 只有进行中的请求有 timestamp 属性，需等待此次交互结束（若设置了 minTime 则交互结束的时间可能被延长）才能再次发起请求。若无 xhr 对象，则无法发起请求。
     if (request.timestamp || !xhr) {
       return request;
     }
     // 处理请求数据。
-    data = request.requestParser(data);
+    data = options.requestParser(data);
     // 创建请求。
     var url = request.url;
-    var method = request.method.toLowerCase();
+    var method = options.method.toLowerCase();
     if (method === 'get' && data) {
       url += (url.contains('?') ? '&' : '?') + data;
       data = null;
     }
-    if (!request.useCache) {
+    if (!options.useCache) {
       url += (url.contains('?') ? '&' : '?') + ++uid;
     }
     // http://bugs.jquery.com/ticket/2865
-    if (request.username) {
-      xhr.open(method, url, request.async, request.username, request.password);
+    if (options.username) {
+      xhr.open(method, url, options.async, options.username, options.password);
     } else {
-      xhr.open(method, url, request.async);
+      xhr.open(method, url, options.async);
     }
     // 设置请求头。
-    var headers = request.headers;
+    var headers = options.headers;
     if (method === 'post') {
-      headers['Content-Type'] = this.contentType;
+      headers['Content-Type'] = options.contentType;
     }
     for (var name in headers) {
       xhr.setRequestHeader(name, headers[name]);
@@ -5220,13 +5227,13 @@
     // 发送请求。
     xhr.send(data || null);
     request.timestamp = Date.now();
-    if (request.async && request.maxTime > 0) {
+    if (options.async && options.maxTime > 0) {
       request.maxTimeTimer = setTimeout(function() {
         getResponse(request, TIMEOUT);
-      }, request.maxTime);
+      }, options.maxTime);
     }
     // 获取响应。
-    if (!request.async || xhr.readyState === 4) {
+    if (!options.async || xhr.readyState === 4) {
       // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
       getResponse(request, DONE);
     } else {
@@ -5258,7 +5265,7 @@
   };
 
 //--------------------------------------------------[Request]
-  window.Request = new Component(Request);
+  window.Request = new Component(Request, Request.options, Request.prototype);
 
 })();
 /**

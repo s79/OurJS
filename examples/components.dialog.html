@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>components.Dialog</title>
+<title>Dialog</title>
 <link rel="stylesheet" href="common.css">
 <script src="../dev.js"></script>
 <script src="../src/components/dialog.js"></script>
@@ -12,7 +12,7 @@ button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
 </style>
 </head>
 <body>
-<h1>components.Dialog</h1>
+<h1>Dialog</h1>
 <fieldset>
   <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
   <input type="button" value="button">
@@ -73,7 +73,7 @@ execute(function($) {
 //--------------------------------------------------[TEST]
 //$('#pin').setStyle('position', 'fixed');
 
-  dialogOne = new components.Dialog($('#dialog_1'), {offsetX: NaN, offsetY: 200, effect: false})
+  dialogOne = new Dialog($('#dialog_1'), {offsetX: NaN, offsetY: 200, effect: false})
       .on('open',
       function() {
         console.log('open');
@@ -82,7 +82,7 @@ execute(function($) {
       function() {
         console.log('close');
       });
-  dialogTwo = new components.Dialog($('#dialog_2'), {effect: true});
+  dialogTwo = new Dialog($('#dialog_2'), {effect: true});
 
   animation = new Animation().addClip(new Fx.Morph(dialogTwo.element, {height: 400}, 0, 200, 'ease'))
       .on('step', function() {

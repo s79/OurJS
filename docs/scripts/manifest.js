@@ -32,7 +32,9 @@ var manifest = {
 //    'Array.prototype.reduceRight',
     '#自定义扩展',
     'Array.from',
-    'Array.prototype.contains'
+    'Array.prototype.contains',
+    'Array.prototype.getFirst',
+    'Array.prototype.getLast'
   ],
   'String': [
     '#ES5',
@@ -83,7 +85,6 @@ var manifest = {
   ],
   'navigator': [
     '#从 UA 中得到的结果(仅供参考)',
-    'navigator.userAgentInfo',
     'navigator.userAgentInfo.engine',
     'navigator.userAgentInfo.name',
     'navigator.userAgentInfo.version',
@@ -176,8 +177,8 @@ var manifest = {
     'Element.prototype.getChildren',
     'Element.prototype.getChildCount',
     '#修改文档树',
-    'Element.prototype.append',
-    'Element.prototype.prepend',
+    'Element.prototype.appendChild',
+    'Element.prototype.prependChild',
     'Element.prototype.putBefore',
     'Element.prototype.putAfter',
     'Element.prototype.remove',
@@ -231,11 +232,11 @@ var manifest = {
     'Event.prototype.stopImmediatePropagation'
   ],
   'Component': [
-    '#组件基类',
+    '#创建组件',
     'Component',
-    '#处理选项',
+    '#处理选项-所有组件实例',
     'Component.prototype.setOptions',
-    '#处理事件',
+    '#处理事件-所有组件实例',
     'Component.prototype.on',
     'Component.prototype.off',
     'Component.prototype.fire'
@@ -248,7 +249,6 @@ var manifest = {
   ],
   'Animation': [
     'Animation',
-    'Animation.options',
     'Animation.prototype.addClip',
     'Animation.prototype.play',
     'Animation.prototype.reverse',
@@ -259,28 +259,28 @@ var manifest = {
     'Fx.Fade',
     'Fx.Highlight'
   ],
-  'components.Switcher': [
-    'components.Switcher',
-    'components.Switcher.prototype.active',
-    'components.Switcher.prototype.getActiveItem',
-    'components.Switcher.prototype.getActiveIndex'
+  'Switcher': [
+    'Switcher',
+    'Switcher.prototype.active',
+    'Switcher.prototype.getActiveItem',
+    'Switcher.prototype.getActiveIndex'
   ],
-  'components.TabPanel': [
-    'components.TabPanel',
-    'components.TabPanel.options',
-    'components.TabPanel.prototype.active'
+  'TabPanel': [
+    'TabPanel',
+    'TabPanel.options',
+    'TabPanel.prototype.active'
   ],
-  'components.Dialog': [
-    'components.Dialog',
-    'components.Dialog.options',
-    'components.Dialog.prototype.open',
-    'components.Dialog.prototype.close',
-    'components.Dialog.prototype.adjust'
+  'Dialog': [
+    'Dialog',
+    'Dialog.options',
+    'Dialog.prototype.open',
+    'Dialog.prototype.close',
+    'Dialog.prototype.adjust'
   ],
-  'components.Calendar': [
-    'components.Calendar',
-    'components.Calendar.options',
-    'components.Calendar.prototype.getElement',
-    'components.Calendar.prototype.render'
+  'Calendar': [
+    'Calendar',
+    'Calendar.options',
+    'Calendar.prototype.getElement',
+    'Calendar.prototype.render'
   ]
 };

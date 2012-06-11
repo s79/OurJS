@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>components.Mask</title>
+<title>Mask</title>
 <link rel="stylesheet" href="common.css">
 <script src="../dev.js"></script>
 <script src="../src/components/dialog.js"></script>
@@ -12,7 +12,7 @@ select { width: 100px; background: orangered; }
 </style>
 </head>
 <body>
-<h1>components.Mask</h1>
+<h1>Mask</h1>
 <h2 id="x" style="position: absolute; left: 150px; top: 150px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
 <select></select>
 <select></select>
@@ -50,7 +50,7 @@ var $span;
 var $div;
 execute(function($) {
 //--------------------------------------------------[Mask]
-  bodyMask = new components.Mask(document.body, {effect: false})
+  bodyMask = new Mask(document.body, {effect: false})
       .on('show',
       function() {
         console.log(Date.now(), 'SHOW');
@@ -59,7 +59,7 @@ execute(function($) {
       function() {
         console.log(Date.now(), 'HIDE');
       });
-  pMask = new components.Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 1, zIndex: 100}})
+  pMask = new Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 1, zIndex: 100}})
       .on('show',
       function() {
         console.log(Date.now(), 'SHOW');
@@ -68,9 +68,9 @@ execute(function($) {
       function() {
         console.log(Date.now(), 'HIDE');
       });
-  divMask = new components.Mask($('#div'), {styles: {backgroundColor: 'cornflowerblue', opacity: 0.75, zIndex: 100}});
-  spanMask = new components.Mask($('#span'), {styles: {backgroundColor: 'orchid', opacity: 0.5, zIndex: 100}});
-  varMask = new components.Mask($('#var'), {styles: {backgroundColor: 'springgreen', opacity: 0.35, zIndex: 100}});
+  divMask = new Mask($('#div'), {styles: {backgroundColor: 'cornflowerblue', opacity: 0.75, zIndex: 100}});
+  spanMask = new Mask($('#span'), {styles: {backgroundColor: 'orchid', opacity: 0.5, zIndex: 100}});
+  varMask = new Mask($('#var'), {styles: {backgroundColor: 'springgreen', opacity: 0.35, zIndex: 100}});
 
 //--------------------------------------------------[fix support]
   $span = $('#span').setStyle('opacity', .75);

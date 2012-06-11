@@ -29,10 +29,6 @@ execute(function($) {
         syntax = '';
         if (!symbol.isStatic) {
           name = name.replace('.prototype.', '.');
-          // 避免实例方法前带有命名空间。
-          if (name.startsWith('components.')) {
-            name = name.slice(11);
-          }
         }
         var parents = name.split('.');
         var symbolName = parents.pop();
@@ -197,23 +193,23 @@ execute(function($) {
       manifest[name].forEach(function(name) {
         if (name.startsWith('#')) {
           comment = name.slice(1);
-          $indexFieldset.append($('<h2>' + comment + '</h2>'));
+          $indexFieldset.appendChild($('<h2>' + comment + '</h2>'));
         } else {
           var symbol = apiData[name];
           var category = getCategory(symbol);
           // 语法和说明。
-          $indexFieldset.append($('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>'));
+          $indexFieldset.appendChild($('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>'));
           // 详细信息。
           var groupName = symbol ? (symbol.isFunction ? (symbol.isConstructor ? 'constructor' : 'methods') : 'properties') : '';
           if (groupName && groupName !== lastGroupName) {
-            $detailsDiv.append($(group[groupName]));
+            $detailsDiv.appendChild($(group[groupName]));
           }
-          $detailsDiv.append($('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>'));
+          $detailsDiv.appendChild($('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>'));
           lastGroupName = groupName;
         }
       });
-      $details.append($detailsDiv);
-      indexColumns[side].append($indexFieldset);
+      $details.appendChild($detailsDiv);
+      indexColumns[side].appendChild($indexFieldset);
     };
 
 //--------------------------------------------------[列出名单中的指定内容]
@@ -250,10 +246,10 @@ execute(function($) {
         'Component',
         'Request',
         'Animation',
-        'components.Switcher',
-        'components.TabPanel',
-        'components.Dialog',
-        'components.Calendar'
+        'Switcher',
+        'TabPanel',
+        'Dialog',
+        'Calendar'
       ]
           .forEach(function(name) {
             buildDocument(name, 'c');
@@ -278,7 +274,7 @@ execute(function($) {
       });
     };
     // 使用对话框实现。
-    var deatilsPanel = new components.Dialog($deatilsPanel, {
+    var deatilsPanel = new Dialog($deatilsPanel, {
       maskStyles: {background: 'black', opacity: .05},
       offsetX: pinnedOffsetX,
       offsetY: 0

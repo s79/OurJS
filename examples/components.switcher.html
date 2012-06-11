@@ -2,19 +2,18 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>components.Switcher</title>
+<title>Switcher</title>
 <link rel="stylesheet" href="common.css">
 <script src="../dev.js"></script>
-<script src="../src/components/switcher.js"></script>
 <style>
 span { float: left; width: 100px; height: 100px; margin: 10px; background: yellowgreen; font: 14px/100px Verdana; text-align: center; }
 .active { background: greenyellow; }
 </style>
 </head>
 <body>
-<h1>components.Switcher</h1>
+<h1>Switcher</h1>
 <fieldset>
-  <legend>点击一个绿色方块将之设置为“活动”状态，点击空白处取消活动元素。</legend>
+  <legend>点击一个方块将之设置为“活动”状态，点击空白处取消活动方块。</legend>
   <span>〇</span>
   <span>一</span>
   <span>二</span>
@@ -26,7 +25,7 @@ span { float: left; width: 100px; height: 100px; margin: 10px; background: yello
 //--------------------------------------------------[switcher]
 execute(function($) {
   var $message = $('#message');
-  var switcher = new components.Switcher($(document.body).find('span'))
+  var switcher = new Switcher($(document.body).find('span'))
       .on('change',
       function(e) {
         e.activeItem && e.activeItem.addClass('active');

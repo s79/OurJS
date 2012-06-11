@@ -13,7 +13,6 @@ execute(function($) {
   /**
    * 根据已有的一系列 DOM 元素创建多页标签面板。
    * @name TabPanel
-   * @memberOf components
    * @constructor
    * @param {Array} tabs 包含所有“标签”的数组。
    * @param {Array} panels 包含所有“面板”的数组，应确保 panels 的数量和 tabs 的数量一致。
@@ -29,14 +28,14 @@ execute(function($) {
    *   {Element} inactivePanel 上一个激活的“面板”。
    *   {number} inactiveIndex 上一个激活的“标签”和“面板”在 tabs 和 panels 中的索引。
    *   在激活的“标签”和“面板”改变时触发。
-   * @requires components.Switcher
+   * @requires Switcher
    * @description
    *   “标签”和“面板”必须是按顺序一一对应，保存在参数 tabs 和 panels 中。
    *   一个“标签”和一个“面板”组成一组“标签面板”。
    *   同一时刻最多只有一组“标签面板”被激活。
    *   高级应用：在创建一个实例后，可以动态修改 tabPanel.tabs 和 tabPanel.panels，动态添加/删除“标签面板”组，但要确保新增加的“标签”与原有“标签”的在 DOM 树的位置层次是相同的。
    */
-  var TabPanel = function(tabs, panels, options) {
+  function TabPanel(tabs, panels, options) {
     var tabPanel = this;
     // 保存属性。
     tabPanel.tabs = tabs;
@@ -44,9 +43,11 @@ execute(function($) {
     tabPanel.activeTab = null;
     tabPanel.activePanel = null;
     tabPanel.activeIndex = NaN;
+    // 保存选项。
+    options = tabPanel.setOptions(options).options;
     // 使用 Switcher 实现选项卡切换。
-    var className = this.activeClassName;
-    var switcher = tabPanel.switcher = new components.Switcher(tabs).on('change', function(event) {
+    var className = options.activeClassName;
+    var switcher = tabPanel.switcher = new Switcher(tabs).on('change', function(event) {
       // 确定状态。
       var activeIndex = event.activeIndex;
       var activeTab = event.activeItem;
@@ -74,17 +75,17 @@ execute(function($) {
       });
     });
     // 绑定激活标签页的事件。
-    var $container = tabPanel.tabsContainer || tabs[0].getParent();
+    var $container = options.tabsContainer || tabs[0].getParent();
     var filter = function() {
       return tabPanel.tabs.contains(this);
     };
-    if (Number.isFinite(tabPanel.hoverDelay)) {
+    if (Number.isFinite(options.hoverDelay)) {
       var timer;
       $container.on('mouseenter.tabPanel', function(e) {
         var $self = this;
         timer = setTimeout(function() {
           switcher.active($self);
-        }, tabPanel.hoverDelay);
+        }, options.hoverDelay);
       }, filter);
       $container.on('mouseleave.tabPanel', function(e) {
         clearTimeout(timer);
@@ -94,13 +95,12 @@ execute(function($) {
         switcher.active(this);
       }, filter);
     }
-  };
+  }
 
 //--------------------------------------------------[TabPanel.options]
   /**
    * 默认选项。
    * @name TabPanel.options
-   * @memberOf components
    * @description
    *   可选参数对象，包含的属性及其默认值为：
    *   <table>
@@ -119,7 +119,6 @@ execute(function($) {
   /**
    * 激活一组“标签面板”。
    * @name TabPanel.prototype.active
-   * @memberOf components
    * @function
    * @param {Object|number} i 要激活的“标签面板”的“标签”元素，或者该元素在 tabs 中的索引值。
    *   从 tabs 和 panels 中计算的，默认激活的某组“标签面板”的索引值从 0 开始。
@@ -131,7 +130,7 @@ execute(function($) {
     return this;
   };
 
-//--------------------------------------------------[components.TabPanel]
-  components.TabPanel = new Component(TabPanel);
+//--------------------------------------------------[TabPanel]
+  window.TabPanel = new Component(TabPanel, TabPanel.options, TabPanel.prototype);
 
 });

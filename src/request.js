@@ -56,10 +56,11 @@
 
   // 获取响应信息，state 可能是 DONE、ABORT 或 TIMEOUT。
   var getResponse = function(request, state) {
+    var options = request.options;
     // 处理请求的最短和最长时间。
-    if (request.async) {
+    if (options.async) {
       // 由于 getResponse(request, DONE) 在 send 方法中有两个入口，因此在此处对 minTime 进行延时处理。
-      if (request.minTime > 0) {
+      if (options.minTime > 0) {
         if (request.minTimeTimer) {
           // 已经限定过请求的最短时间。此时 ABORT 或 TIMEOUT 状态在有意如此操作或设置的情况下，可能比延迟的 DONE 状态来的早。
           // 但因为此时请求已经完成，所以要把本次调用的 state 重置为 DONE。
@@ -70,7 +71,7 @@
           // 这种情况需要限定请求的最短时间。
           request.minTimeTimer = setTimeout(function() {
             getResponse(request, DONE);
-          }, Math.max(0, Number.toInteger(request.minTime - (Date.now() - request.timestamp))));
+          }, Math.max(0, Number.toInteger(options.minTime - (Date.now() - request.timestamp))));
           return;
         }
       }
@@ -122,7 +123,7 @@
         break;
     }
     // 触发响应事件。
-    request.fire('response', request.responseParser({
+    request.fire('response', options.responseParser({
       status: status,
       statusText: statusText,
       headers: headers,
@@ -165,6 +166,7 @@
   function Request(url, options) {
     this.xhr = getXHRObject();
     this.url = url;
+    this.setOptions(options);
   }
 
 //--------------------------------------------------[Request.options]
@@ -203,33 +205,34 @@
    */
   Request.prototype.send = function(data) {
     var request = this;
+    var options = request.options;
     var xhr = request.xhr;
     // 只有进行中的请求有 timestamp 属性，需等待此次交互结束（若设置了 minTime 则交互结束的时间可能被延长）才能再次发起请求。若无 xhr 对象，则无法发起请求。
     if (request.timestamp || !xhr) {
       return request;
     }
     // 处理请求数据。
-    data = request.requestParser(data);
+    data = options.requestParser(data);
     // 创建请求。
     var url = request.url;
-    var method = request.method.toLowerCase();
+    var method = options.method.toLowerCase();
     if (method === 'get' && data) {
       url += (url.contains('?') ? '&' : '?') + data;
       data = null;
     }
-    if (!request.useCache) {
+    if (!options.useCache) {
       url += (url.contains('?') ? '&' : '?') + ++uid;
     }
     // http://bugs.jquery.com/ticket/2865
-    if (request.username) {
-      xhr.open(method, url, request.async, request.username, request.password);
+    if (options.username) {
+      xhr.open(method, url, options.async, options.username, options.password);
     } else {
-      xhr.open(method, url, request.async);
+      xhr.open(method, url, options.async);
     }
     // 设置请求头。
-    var headers = request.headers;
+    var headers = options.headers;
     if (method === 'post') {
-      headers['Content-Type'] = this.contentType;
+      headers['Content-Type'] = options.contentType;
     }
     for (var name in headers) {
       xhr.setRequestHeader(name, headers[name]);
@@ -237,13 +240,13 @@
     // 发送请求。
     xhr.send(data || null);
     request.timestamp = Date.now();
-    if (request.async && request.maxTime > 0) {
+    if (options.async && options.maxTime > 0) {
       request.maxTimeTimer = setTimeout(function() {
         getResponse(request, TIMEOUT);
-      }, request.maxTime);
+      }, options.maxTime);
     }
     // 获取响应。
-    if (!request.async || xhr.readyState === 4) {
+    if (!options.async || xhr.readyState === 4) {
       // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
       getResponse(request, DONE);
     } else {
@@ -275,6 +278,6 @@
   };
 
 //--------------------------------------------------[Request]
-  window.Request = new Component(Request);
+  window.Request = new Component(Request, Request.options, Request.prototype);
 
 })();

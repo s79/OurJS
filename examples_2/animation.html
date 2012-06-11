@@ -228,30 +228,30 @@ execute(function($) {
 //--------------------------------------------------[animation]
   var $layer = $('#layer').setStyle('opacity', 0.75);
   window.animation = new Animation()
-//      .addClip(new Fx.Fade($layer, 'in', 0, 100, 'easeOut'))
-//      .addClip(new Fx.Highlight($layer, 'aqua', 1, 100, 300, 'linear'))
-//      .addClip(
-//      new Fx.Morph($layer, {
-//        backgroundColor: 'steelblue'
-//      }, 400, 600))
-//      .addClip(
-//      new Fx.Morph($layer, {
-//        left: '-=150',
-//        width: '+=300'
-//      }, 400, 200, 'cubicBezier(.6,0,.6,1.35)'))
+      .addClip(new Fx.Fade($layer, 'in', 0, 100, 'easeOut'))
+      .addClip(new Fx.Highlight($layer, 'aqua', 1, 100, 300, 'linear'))
+      .addClip(
+      new Fx.Morph($layer, {
+        backgroundColor: 'steelblue'
+      }, 400, 600))
+      .addClip(
+      new Fx.Morph($layer, {
+        left: '-=150',
+        width: '+=300'
+      }, 400, 200, 'cubicBezier(.6,0,.6,1.35)'))
       .addClip(
       new Fx.Base(function(x, y) {
         console.log(x, y);
         $layer.toggleClass('italic');
       }, 0, 0, 'linear'))
-//      .addClip(
-//      new Fx.Morph($layer, {
-//        top: '-=150',
-//        height: '+=100',
-//        color: '#C00000',
-//        fontSize: 50,
-//        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
-//      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
+      .addClip(
+      new Fx.Morph($layer, {
+        top: '-=150',
+        height: '+=100',
+        color: '#C00000',
+        fontSize: 50,
+        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
+      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
       .on('playstart', function() {
         $layer.innerHTML = 'PLAYSTART';
         console.log('PLAYSTART');
@@ -302,7 +302,7 @@ execute(function($) {
   var duration = animation.duration;
   animation.clips.forEach(function(clip, index) {
     var color = getRandomColor();
-    $number.append($('<div style="height: 12px;">' + (index + 1) + '</div>'));
+    $number.appendChild($('<div style="height: 12px;">' + (index + 1) + '</div>'));
     var type = '';
     if (clip instanceof Fx.Base) {
       type = 'Fx.Base'
@@ -313,9 +313,9 @@ execute(function($) {
     } else if (clip instanceof Fx.Highlight) {
       type = 'Fx.Highlight'
     }
-    $type.append($('<div style="height: 12px;">' + type + '</div>'));
+    $type.appendChild($('<div style="height: 12px;">' + type + '</div>'));
     var $clipPanlel = $('<div style="width: ' + clip.duration / duration * length + 'px; height: 12px; margin-left: ' + clip.delay / duration * length + 'px; background: ' + color + '; overflow: hidden;"></div>');
-    $timeline.append($clipPanlel);
+    $timeline.appendChild($clipPanlel);
     if (!$clipPanlel.offsetWidth) {
       $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
     }
@@ -327,7 +327,7 @@ execute(function($) {
 
   });
   var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5);
-  $timeline.append($time);
+  $timeline.appendChild($time);
   animation.addClip(new Fx.Morph($time, {left: length - 1}, 0, duration, 'linear')).on('stop', function() {
     $time.setStyle('left', 0);
   });

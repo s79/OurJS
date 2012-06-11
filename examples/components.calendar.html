@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>components.Calendar</title>
+<title>Calendar</title>
 <link rel="stylesheet" href="../examples/common.css">
 <link rel="stylesheet" href="calendar.css">
 <script src="../dev.js"></script>
@@ -12,7 +12,7 @@ input { width: 100px; height: 20px; padding: 0 2px; border: 1px solid gainsboro;
 </style>
 </head>
 <body>
-<h1>components.Calendar</h1>
+<h1>Calendar</h1>
 <fieldset>
   <legend>月历</legend>
   <form id="test">
@@ -55,7 +55,7 @@ execute(function($) {
         var minDate = $target.getData('minDate');
         var maxDate = $target.getData('maxDate');
         if (!calendar) {
-          calendar = new components.Calendar({minDate: '2012-03-15', maxDate: '2012-04-04'})
+          calendar = new Calendar({minDate: '2012-03-15', maxDate: '2012-04-04'})
               .on('select',
               function(e) {
                 var $rel = $('#' + $pinnedElement.getData('relId'));

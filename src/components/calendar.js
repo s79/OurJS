@@ -13,7 +13,6 @@ execute(function($) {
   /**
    * 日历选择组件。
    * @name Calendar
-   * @memberOf components
    * @constructor
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Calendar.options 中。
    * @param {boolean} options.useStandardSequence 是否按照标准顺序排列日期。设置为 true 按照“周日 - 周六”的顺序排列，否则按照“周一 - 周日”的顺序排列。
@@ -27,8 +26,10 @@ execute(function($) {
    */
   function Calendar(options) {
     var calendar = this;
+    // 保存选项。
+    options = calendar.setOptions(options).options;
     // 创建 DOM 基本结构。
-    var $calendar = $('<div class="' + calendar.theme + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>.</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
+    var $calendar = $('<div class="' + options.theme + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>.</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
     var $controlPanel = $calendar.getFirstChild();
     var controls = $controlPanel.find('*');
     var $thead = $controlPanel.getNext().getFirstChild();
@@ -105,7 +106,6 @@ execute(function($) {
   /**
    * 默认选项。
    * @name Calendar.options
-   * @memberOf components
    */
   Calendar.options = {
     useStandardSequence: true,
@@ -144,15 +144,15 @@ execute(function($) {
   /**
    * 渲染指定年/月份的日历。
    * @name Calendar.prototype.render
-   * @memberOf components
    * @function
    * @param {string} dataString 字符串表示的日期，格式为 yyyy-MM-dd。
    * @returns {Calendar} Calendar 对象。
    */
   Calendar.prototype.render = function(dataString) {
+    var options = this.options;
     // 获取最大、最小、要显示的时间。
-    var minDate = parseDate(this.minDate);
-    var maxDate = parseDate(this.maxDate);
+    var minDate = parseDate(options.minDate);
+    var maxDate = parseDate(options.maxDate);
     var showDate = new Date(Math.limit(dataString ? parseDate(dataString) : new Date(), minDate, maxDate));
     var minY = minDate.getFullYear();
     var maxY = maxDate.getFullYear();
@@ -174,7 +174,7 @@ execute(function($) {
     var dayNames = ['sun', 'mon', 'tues', 'wed', 'thurs', 'fri', 'sat'];
     var dayTexts = ['日', '一', '二', '三', '四', '五', '六'];
     // 每周从周几开始。
-    var startDay = this.useStandardSequence ? 0 : 1;
+    var startDay = options.useStandardSequence ? 0 : 1;
     // 输出日历头（头尾均可能出现星期日）。
     this.elements.headCells.forEach(function($cell, index) {
       $cell.className = dayNames[(index + startDay) % 7];
@@ -189,7 +189,7 @@ execute(function($) {
     startIndex = startDay ? (startIndex < 2 ? startIndex + 6 : startIndex - 1) : (startIndex === 0 ? 7 : startIndex);
     var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
     // 选定的日期。
-    var selectedDate = this.date ? new Date(Math.limit(parseDate(this.date), minDate, maxDate)) : null;
+    var selectedDate = options.date ? new Date(Math.limit(parseDate(options.date), minDate, maxDate)) : null;
     // 输出日历体。
     this.elements.bodyCells.forEach(function($cell, index) {
       date = new Date(showY, showM, index - startIndex + 1);
@@ -231,7 +231,6 @@ execute(function($) {
   /**
    * 获取日历的容器元素，以便选择插入 DOM 树的位置。
    * @name Calendar.prototype.getElement
-   * @memberOf components
    * @function
    * @returns {Element} 日历的容器元素。
    */
@@ -239,7 +238,7 @@ execute(function($) {
     return this.elements.calendar;
   };
 
-//--------------------------------------------------[components.Calendar]
-  components.Calendar = new Component(Calendar);
+//--------------------------------------------------[Calendar]
+  window.Calendar = new Component(Calendar, Calendar.options, Calendar.prototype);
 
 });

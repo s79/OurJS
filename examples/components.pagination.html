@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>components.Pagination</title>
+<title>Pagination</title>
 <link rel="stylesheet" href="common.css">
 <script src="../dev.js"></script>
 <script src="../src/components/pagination.js"></script>
@@ -21,7 +21,7 @@
 </style>
 </head>
 <body>
-<h1>components.Pagination</h1>
+<h1>Pagination</h1>
 <fieldset>
   <legend>分页导航条</legend>
   <div id="pagination" style="width:500px; margin:200px; text-align:center;"></div>
@@ -34,7 +34,7 @@ execute(function($) {
   var pageSize = 10;
   var totalPage = Math.ceil(totalRows / pageSize);
   var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 1, 1, totalPage);
-  p = new components.Pagination($('#pagination'), {prevText: '‹', nextText: '›'})
+  p = new Pagination($('#pagination'), {prevText: '‹', nextText: '›'})
       .on('turn', function(e) {
         alert('loading ' + e.number);
 //        location.search = 'page=' + e.number;

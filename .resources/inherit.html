@@ -19,23 +19,26 @@ function getInheritanceChain(constructor) {
 }
 
 function getPrototypeChain(inheritanceChain) {
-  var superConstructor = Object;
+  console.log(inheritanceChain.length);
   var prototype;
-  var Prototype = function() {
-  };
-  inheritanceChain.forEach(function(constructor, index, inheritanceChain) {
-    if (index === 0) {
+  var superConstructor;
+  inheritanceChain.forEach(function(constructor) {
+    var Prototype = function() {
+    };
+    if (!prototype) {
       prototype = constructor.prototype;
     }
     Prototype.prototype = prototype;
-    Prototype.prototype.constructor = constructor;
-    Prototype.prototype.superConstructor = superConstructor;
     prototype = new Prototype();
+//    Object.append(prototype, constructor.prototype);
+    prototype.constructor = constructor;
+    if (superConstructor) {
+      prototype.superConstructor = superConstructor;
+    }
     superConstructor = constructor;
+    console.log(constructor, prototype);
   });
   return prototype;
-//  Constructor.prototype.originalConstructor = originalConstructor;
-//  Object.append(Constructor.prototype, originalConstructor.prototype);
 }
 
 /**
@@ -50,12 +53,11 @@ function getPrototypeChain(inheritanceChain) {
  *   非必要时不建议这样做，通常情况下，应使用组合来代替继承，可获得更多的灵活性。
  */
 Function.prototype.inherits = function(superConstructor) {
-  // 将继承链按自顶向底的排序（自外向内）。
+  // 将继承链自外向内排序。
   var inheritanceChain = getInheritanceChain(this).concat(getInheritanceChain(superConstructor)).reverse();
   console.log('getInheritanceChain(this)', getInheritanceChain(this));
   console.log('getInheritanceChain(superConstructor)', getInheritanceChain(superConstructor));
   // 生成新构造器。
-  var originalConstructor = this;
   var Constructor = function() {
     var self = this;
     inheritanceChain.forEach(function(constructor) {
@@ -63,7 +65,7 @@ Function.prototype.inherits = function(superConstructor) {
     });
   };
   Constructor.prototype = getPrototypeChain(inheritanceChain);
-  Constructor.prototype.originalConstructor = originalConstructor;
+  Constructor.prototype.originalConstructor = this;
   // 返回新构造器。
   return Constructor;
 };
@@ -81,22 +83,36 @@ Component.prototype.off = function() {
 Component.prototype.fire = function() {
 };
 
-function X() {
+function X(x) {
   this.x = 5000;
 }
 X.prototype.getX = function() {
   console.log('>>>' + this.x);
 };
 
-var A = function(y) {
+function Y(y) {
   this.y = y;
-}.inherits(Component).inherits(X);
+}
+Y.prototype.getY = function() {
+  console.log('>>>' + this.y);
+};
 
-A.prototype.getY = function() {
-  console.log('>>>' + this.x, this.y);
+function Z(z) {
+  this.z = z;
+}
+Z.prototype.getZ = function() {
+  console.log('>>>' + this.z);
+};
+
+//var A = Z.inherits(Y).inherits(X).inherits(Component);
+var A = Z.inherits(Y);
+
+A.prototype.getA = function() {
 };
 
 a = new A(9);
+
+console.warn(A.prototype);
 </script>
 </body>
 </html>

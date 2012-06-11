@@ -1015,28 +1015,30 @@
    *   Element.prototype.clone  // TODO: pending。
    */
 
-//--------------------------------------------------[Element.prototype.append]
+//--------------------------------------------------[Element.prototype.appendChild]
   /**
    * 将目标元素追加为本元素的最后一个子元素。
-   * @name Element.prototype.append
+   * @name Element.prototype.appendChild
    * @function
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
    */
-  Element.prototype.append = function(target) {
+/*
+  Element.prototype.appendChild = function(target) {
     this.appendChild(target);
     return this;
   };
+*/
 
-//--------------------------------------------------[Element.prototype.prepend]
+//--------------------------------------------------[Element.prototype.prependChild]
   /**
    * 将目标元素追加为本元素的第一个子元素。
-   * @name Element.prototype.prepend
+   * @name Element.prototype.prependChild
    * @function
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
    */
-  Element.prototype.prepend = function(target) {
+  Element.prototype.prependChild = function(target) {
     this.insertBefore(target, this.firstChild);
     return this;
   };

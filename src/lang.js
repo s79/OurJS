@@ -629,6 +629,8 @@
    *   Object.append
    *   Array.from
    *   Array.prototype.contains
+   *   Array.prototype.getFirst
+   *   Array.prototype.getLast
    *   String.prototype.clean
    *   Number.prototype.padZero
    *   Math.limit
@@ -778,7 +780,7 @@
 
 //--------------------------------------------------[Array.prototype.contains]
   /**
-   * 检查数组中是否包含指定的元素。
+   * 检查本数组中是否包含指定的元素。
    * @name Array.prototype.contains
    * @function
    * @param {*} element 指定的元素。
@@ -791,11 +793,39 @@
     return this.indexOf(element) !== -1;
   };
 
+//--------------------------------------------------[Array.prototype.getFirst]
+  /**
+   * 获取本数组的第一个元素。
+   * @name Array.prototype.getFirst
+   * @function
+   * @returns {*} 本数组的第一个元素。
+   * @example
+   *   [0, 1, 2, 3, 4].getFirst();
+   *   // 0
+   */
+  Array.prototype.getFirst = function() {
+    return this[0];
+  };
+
+//--------------------------------------------------[Array.prototype.getLast]
+  /**
+   * 获取本数组的最后一个元素。
+   * @name Array.prototype.getLast
+   * @function
+   * @returns {*} 本数组的最后一个元素。
+   * @example
+   *   [0, 1, 2, 3, 4].getLast();
+   *   // 4
+   */
+  Array.prototype.getLast = function() {
+    return this[this.length - 1];
+  };
+
 //--------------------------------------------------[String.prototype.clean]
   var RE_WHITESPACES = new RegExp('[' + WHITESPACES + ']+', 'g');
 
   /**
-   * 合并字符串中的空白字符，并去掉首尾的空白字符。
+   * 合并本字符串中的空白字符，并去掉首尾的空白字符。
    * @name String.prototype.clean
    * @function
    * @returns {string} 清理后的字符串。
