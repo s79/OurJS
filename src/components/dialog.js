@@ -118,7 +118,6 @@ execute(function($) {
    */
   function Mask(target, options) {
     this.target = $(target);
-    console.log(this)
     this.setOptions(options);
   }
 

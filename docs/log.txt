@@ -1,4 +1,8 @@
-﻿>2012-06-10
+﻿>2012-06-12
+-components
+取消 Animation 的可选参数。
+
+>2012-06-10
 -append
 prepend -> prependChild
 

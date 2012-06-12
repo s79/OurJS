@@ -16,7 +16,7 @@ input { width: 100px; height: 20px; padding: 0 2px; border: 1px solid gainsboro;
 <fieldset>
   <legend>月历</legend>
   <form id="test">
-    <input id="from" type="text" value="2012-04-01" readonly data-type="date" data-min-date="2012-01-01" data-max-date="2012-04-04" data-rel-id="to" data-rel-type="minDate"> ~ <input id="to" type="text" value="2012-04-04" readonly data-type="date" data-min-date="2012-01-01" data-max-date="2012-04-04" data-rel-id="from" data-rel-type="maxDate">
+    <input id="from" type="text" value="" readonly data-type="date" data-min-date="2012-01-01" data-rel-id="to" data-rel-type="minDate"> ~ <input id="to" type="text" value="" readonly data-type="date" data-rel-id="from" data-rel-type="maxDate">
   </form>
 </fieldset>
 <script>
@@ -30,37 +30,79 @@ execute(function($) {
    * sId是目标元素。
    */
 //--------------------------------------------------[calendar]
+  var $from = $('#from');
+  var $to = $('#to');
+
+  // 日期选定。
   function format(n) {
     return n < 10 ? '0' + n : n;
   }
 
-  var calendar;
+  function parseDate(dateString) {
+    var ymd = dateString.split('-').map(function(item) {
+      return Number.toInteger(item);
+    });
+    return new Date(ymd[0], ymd[1] - 1, ymd[2]);
+  }
+
+  calendar = null;
   var $calendar;
   var $pinnedElement;
-// 默认日期为昨天。
-  var minDate = '2012-04-01';
-  var date = new Date();
+  // 默认日期。
+  var date;
+  var minDate = '2012-03-01';
+  date = new Date();
   date.setDate(date.getDate() - 1);
   var maxDate = date.getFullYear() + '-' + format(date.getMonth() + 1) + '-' + format(date.getDate());
-  $('#from').setData('minDate', minDate);
-  $('#from').setData('maxDate', maxDate).value = maxDate;
-  $('#to').setData('minDate', maxDate);
-  $('#to').setData('maxDate', maxDate).value = maxDate;
-
+  $from.setData('minDate', minDate);
+  $from.setData('maxDate', maxDate);
+  $to.setData('minDate', minDate);
+  $to.setData('maxDate', maxDate);
+  $to.value = maxDate;
+  date = parseDate($to.value);
+  date.setDate(date.getDate() - 6);
+  $from.value = date.getFullYear() + '-' + format(date.getMonth() + 1) + '-' + format(date.getDate());
+//    $from.value = '2012-03-01';
+//    $to.value = '2012-03-30';
+  // 选择事件。
   document.on('click', function(e) {
     var $target = e.target;
     if ($target != $pinnedElement && $target.nodeName === 'INPUT' && $target.type === 'text') {
       var type = $target.getData('type');
       if (type === 'date') {
-        var minDate = $target.getData('minDate');
-        var maxDate = $target.getData('maxDate');
         if (!calendar) {
-          calendar = new Calendar({minDate: '2012-03-15', maxDate: '2012-04-04'})
+          calendar = new Calendar({minDate: minDate, maxDate: maxDate})
               .on('select',
               function(e) {
-                var $rel = $('#' + $pinnedElement.getData('relId'));
-                $rel.setData($pinnedElement.getData('relType'), e.date);
                 $pinnedElement.value = e.date;
+                $pinnedElement.highlight({color: '#FFD700'});
+                var date;
+                var showDate;
+                var $rel = $('#' + $pinnedElement.getData('relId'));
+                if ($rel) {
+                  var relType = $rel.getData('relType');
+                  if (relType === 'maxDate') {
+                    // 判断最大时间是否在范围内，若不在则修改。
+                    date = parseDate($rel.value);
+                    var selectedMaxDate = parseDate(e.date);
+                    selectedMaxDate.setDate(selectedMaxDate.getDate() + 29);
+                    showDate = new Date(Math.limit(date.getTime(), parseDate(e.date).getTime(), selectedMaxDate.getTime()));
+                    if (date.getTime() !== showDate.getTime()) {
+                      $rel.highlight({color: '#FFD700'});
+                      $rel.value = showDate.getFullYear() + '-' + format(showDate.getMonth() + 1) + '-' + format(showDate.getDate());
+                    }
+                  } else {
+                    // 判断最小时间是否在范围内，若不在则修改。
+                    date = parseDate($rel.value);
+                    var selectedMinDate = parseDate(e.date);
+                    selectedMinDate.setDate(selectedMinDate.getDate() - 29);
+                    showDate = new Date(Math.limit(date.getTime(), selectedMinDate.getTime(), parseDate(e.date).getTime()));
+                    if (date.getTime() !== showDate.getTime()) {
+                      $rel.highlight({color: '#FFD700'});
+                      $rel.value = showDate.getFullYear() + '-' + format(showDate.getMonth() + 1) + '-' + format(showDate.getDate());
+                    }
+                  }
+                }
                 calendar.fire('hide');
               })
               .on('hide',
@@ -71,8 +113,6 @@ execute(function($) {
           $calendar = calendar.getElement();
         }
         $pinnedElement = $target;
-        calendar.minDate = minDate;
-        calendar.maxDate = maxDate;
         if ($target.value) {
           calendar.date = $target.value;
         }

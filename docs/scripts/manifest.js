@@ -234,9 +234,9 @@ var manifest = {
   'Component': [
     '#创建组件',
     'Component',
-    '#处理选项-所有组件实例',
+    '#处理选项',
     'Component.prototype.setOptions',
-    '#处理事件-所有组件实例',
+    '#处理事件',
     'Component.prototype.on',
     'Component.prototype.off',
     'Component.prototype.fire'

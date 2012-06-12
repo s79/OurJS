@@ -28,6 +28,7 @@ execute(function($) {
     var calendar = this;
     // 保存选项。
     options = calendar.setOptions(options).options;
+    this.date = options.data || undefined;
     // 创建 DOM 基本结构。
     var $calendar = $('<div class="' + options.theme + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>.</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
     var $controlPanel = $calendar.getFirstChild();
@@ -145,15 +146,17 @@ execute(function($) {
    * 渲染指定年/月份的日历。
    * @name Calendar.prototype.render
    * @function
-   * @param {string} dataString 字符串表示的日期，格式为 yyyy-MM-dd。
+   * @param {string} dateString 字符串表示的日期，格式为 yyyy-MM-dd。
    * @returns {Calendar} Calendar 对象。
    */
-  Calendar.prototype.render = function(dataString) {
+  Calendar.prototype.render = function(dateString) {
     var options = this.options;
     // 获取最大、最小、要显示的时间。
     var minDate = parseDate(options.minDate);
     var maxDate = parseDate(options.maxDate);
-    var showDate = new Date(Math.limit(dataString ? parseDate(dataString) : new Date(), minDate, maxDate));
+    var showDate = new Date(Math.limit(dateString ? parseDate(dateString).getTime() : new Date().getTime(), minDate.getTime(), maxDate.getTime()));
+    console.log('-----', showDate);
+    console.error(dateString, parseDate(dateString), showDate, minDate, maxDate);
     var minY = minDate.getFullYear();
     var maxY = maxDate.getFullYear();
     var showY = showDate.getFullYear();
@@ -189,7 +192,10 @@ execute(function($) {
     startIndex = startDay ? (startIndex < 2 ? startIndex + 6 : startIndex - 1) : (startIndex === 0 ? 7 : startIndex);
     var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
     // 选定的日期。
-    var selectedDate = options.date ? new Date(Math.limit(parseDate(options.date), minDate, maxDate)) : null;
+    console.log(showDate);
+    console.log(dateString);
+    console.warn(this.date);
+    var selectedDate = this.date ? new Date(Math.limit(parseDate(this.date).getTime(), minDate.getTime(), maxDate.getTime())) : null;
     // 输出日历体。
     this.elements.bodyCells.forEach(function($cell, index) {
       date = new Date(showY, showM, index - startIndex + 1);

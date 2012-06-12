@@ -4302,9 +4302,6 @@
    * 创建动画效果。
    * @name Animation
    * @constructor
-   * @param {number} [duration] 动画的持续时间。
-   *   通常不必设置该值，该值会随着动画剪辑的插入自动调整，以保证不小于任何一个剪辑的播放时间的总长。
-   *   这个参数的意义在于：设置一个足够长的 duration，可以实现在播放时间最长的剪辑的结束点之后的延时。
    * @fires play
    *   开始播放时，渲染本次播放的第一帧之前触发。
    * @fires playstart
@@ -4326,14 +4323,14 @@
    * @description
    *   高级应用：
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
-   *   仅应在动画初始化时添加影片剪辑，不要在动画开始播放后更改影片剪辑的状态。
+   *   仅应在动画初始化时（播放之前）添加影片剪辑，不要在开始播放后添加或更改影片剪辑。
    */
-  function Animation(duration) {
+  function Animation() {
     this.uid = ++uid;
     this.clips = [];
     this.timePoint = 0;
     this.status = STARTING_POINT;
-    this.duration = duration || 0;
+    this.duration = 0;
   }
 
 //--------------------------------------------------[Animation.options]

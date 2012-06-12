@@ -36,10 +36,6 @@ function parseColor(color) {
 --------------------------------------------------[TODO]
 超级挑战：Utilities Cookie placeholder 各种组件 (common.js)
 页码 Include CSS插入 省略号
-location.replace()
-
-去掉 components。
-Animation - options
 
 [已解决？]
 [可行]以下命令不符合预期，应考虑加入 deffered 类型。
@@ -66,13 +62,18 @@ components.mask.html:591331403483764 "HIDE"
 
 >TODO: Date.from/format
 
->TODO: 事件部分 fire 参数由 type 改为 name。
->不会实施这个修改，这会把问题变复杂。如果需要触发特定的一些监听器，应该为他们单独指定 type。
+{
+TODO: 事件部分 fire 参数由 type 改为 name。
+不会实施这个修改，这会把事情变复杂。如果需要触发特定的一些监听器，应该为他们单独指定 type。
+}
 
 >TODO: 事件部分 + input。
 
->TODO: Animation 继续参考 CSS3 Transition，增加 delay 参数，并对外暴露 timingFunction。
->      [low] +反向动画支持
+{
+TODO: Animation 继续参考 CSS3 Transition，增加 delay 参数，并对外暴露 timingFunction。
+      [low] +反向动画支持
+Animation 已使用新的思路设计，上述内容全部可以实现。
+}
 
 >TODO: 添加白名单。
 && !(/^(?:object|embed)$/i).test(el.tagName)
@@ -85,11 +86,11 @@ colgroup？
 
 >TODO: SWFObject
 
->TODO: Date.prototype.format & Number.prototype.format
-
->components 的 options 参数，应区分为“可改写”和“不可改写”两种，“不可改写”的不要附加在实例上。
->以上取消，使用 prototype 实现，天然选项。
-
+{
+TODO: components 的 options 参数，应区分为“可改写”和“不可改写”两种，“不可改写”的不要附加在实例上。
+以上取消，使用 prototype 实现，天然选项。
+现在的方式是将选项保存到实例的 options 属性内。
+}
 --------------------------------------------------[NOTE]
 Application 即页面应用。
 Modules 即可分离的业务逻辑，各自独立，不会互相依赖，也不能互相访问。它们使用消息机制与 Application 通信。
