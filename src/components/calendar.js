@@ -155,8 +155,6 @@ execute(function($) {
     var minDate = parseDate(options.minDate);
     var maxDate = parseDate(options.maxDate);
     var showDate = new Date(Math.limit(dateString ? parseDate(dateString).getTime() : new Date().getTime(), minDate.getTime(), maxDate.getTime()));
-    console.log('-----', showDate);
-    console.error(dateString, parseDate(dateString), showDate, minDate, maxDate);
     var minY = minDate.getFullYear();
     var maxY = maxDate.getFullYear();
     var showY = showDate.getFullYear();
@@ -192,9 +190,6 @@ execute(function($) {
     startIndex = startDay ? (startIndex < 2 ? startIndex + 6 : startIndex - 1) : (startIndex === 0 ? 7 : startIndex);
     var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
     // 选定的日期。
-    console.log(showDate);
-    console.log(dateString);
-    console.warn(this.date);
     var selectedDate = this.date ? new Date(Math.limit(parseDate(this.date).getTime(), minDate.getTime(), maxDate.getTime())) : null;
     // 输出日历体。
     this.elements.bodyCells.forEach(function($cell, index) {

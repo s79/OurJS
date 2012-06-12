@@ -71,7 +71,7 @@ execute(function($) {
       var type = $target.getData('type');
       if (type === 'date') {
         if (!calendar) {
-          calendar = new Calendar({minDate: minDate, maxDate: maxDate})
+          var calendar = new Calendar({minDate: minDate, maxDate: maxDate})
               .on('select',
               function(e) {
                 $pinnedElement.value = e.date;
