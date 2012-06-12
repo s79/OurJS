@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-12
+ *  Version: 2012-06-13
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -1078,6 +1078,8 @@
    *   navigator.userAgentInfo.name
    *   navigator.userAgentInfo.version
    *   navigator.inStandardsMode
+   *   navigator.isIE10
+   *   navigator.isIElt10
    *   navigator.isIE9
    *   navigator.isIElt9
    *   navigator.isIE8
@@ -1131,6 +1133,20 @@
   /**
    * 是否工作在标准模式下。
    * @name inStandardsMode
+   * @memberOf navigator
+   * @type boolean
+   */
+
+  /**
+   * 浏览器是否为 IE10。
+   * @name isIE10
+   * @memberOf navigator
+   * @type boolean
+   */
+
+  /**
+   * 浏览器是否为 IE，且版本小于 10。
+   * @name isIElt10
    * @memberOf navigator
    * @type boolean
    */
@@ -1229,8 +1245,10 @@
     }
     // 检查工作模式。
     var inStandardsMode = document.compatMode === 'CSS1Compat';
-    !inStandardsMode && window.console && console.warn('Browser is working in non-standards mode.');
+    !inStandardsMode && console && console.warn('[OurJS] Browser is working in non-standards mode.');
     // 浏览器特性判断。
+    var isIE10 = false;
+    var isIElt10 = false;
     var isIE9 = false;
     var isIElt9 = false;
     var isIE8 = false;
@@ -1244,7 +1262,9 @@
     var html = document.documentElement;
     if ('ActiveXObject' in window) {
       if (inStandardsMode) {
-        if ('HTMLElement' in window) {
+        if ('WebSocket' in window) {
+          isIE10 = true;
+        } else if ('HTMLElement' in window) {
           isIE9 = true;
         } else if ('Element' in window) {
           isIE8 = true;
@@ -1254,8 +1274,9 @@
           isIE6 = true;
         }
       }
-      isIElt9 = isIE8 || isIE7 || isIE6;
       isIElt8 = isIE7 || isIE6;
+      isIElt9 = isIE8 || isIElt8;
+      isIElt10 = isIE9 || isIElt9;
     } else if ('uneval' in window) {
       isFirefox = true;
     } else if (getComputedStyle(html, null).getPropertyValue('-webkit-user-select')) {
@@ -1275,6 +1296,8 @@
         version: version
       },
       inStandardsMode: inStandardsMode,
+      isIE10: isIE10,
+      isIElt10: isIElt10,
       isIE9: isIE9,
       isIElt9: isIElt9,
       isIE8: isIE8,
@@ -2353,10 +2376,10 @@
 
 //--------------------------------------------------[Element.prototype.comparePosition]
   /**
-   * 比较本元素和目标元素在文档树中的位置关系。  // TODO: 极少使用，考虑删除。先标记为 private。
+   * 比较本元素和目标元素在文档树中的位置关系。  // TODO: 高级用法，标记为 master。
+   * @master
    * @name Element.prototype.comparePosition
    * @function
-   * @private
    * @param {Element} target 目标元素。
    * @returns {number} 比较结果。
    * @description
@@ -3260,8 +3283,7 @@
           // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次调用监听器。
           var nodeName = $element.nodeName.toLowerCase();
           var nodeType = $element.type;
-          // TODO: 这个判断在加入 isIE10 后要修改为 isIElt10。
-          if ((navigator.isIE9 || navigator.isIElt9) && (nodeName === 'textarea' || nodeName === 'input' && (nodeType === 'text' || nodeType === 'password'))) {
+          if (navigator.isIElt10 && (nodeName === 'textarea' || nodeName === 'input' && (nodeType === 'text' || nodeType === 'password'))) {
             if (navigator.isIE9) {
               eventHelper.input.setup($element);
               dispatcher = function(e) {
@@ -3289,7 +3311,8 @@
           }
           break;
         case 'change':
-          // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。  // TODO: 待测 IE9- 是否拖拽内容出去的时候取值有误？
+          // TODO: 一些浏览器拖拽内容出去时有不触发事件的问题，目前尚未处理。
+          // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
           // 需要添加辅助派发器。
           if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
             eventHelper.change.setup($element);
@@ -3402,11 +3425,7 @@
           break;
         case 'input':
           // 需要删除辅助派发器。
-          var nodeName = $element.nodeName.toLowerCase();
-          var nodeType = $element.type;
-          // TODO: 这个判断在加入 isIE10 后要修改为 isIElt10。
-          // 以下判断也可以使用 eventHelper.input.dispatchers[$element.uid] 代替。
-          if ((navigator.isIE9 && (nodeName === 'textarea' || nodeName === 'input' && (nodeType === 'text' || nodeType === 'password'))) || (navigator.isIE8 && nodeName === 'textarea')) {
+          if (eventHelper.input.dispatchers[$element.uid]) {
             eventHelper.input.teardown($element);
           }
           removeEventListener($element, dispatcher.type, dispatcher);

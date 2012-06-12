@@ -813,10 +813,10 @@
 
 //--------------------------------------------------[Element.prototype.comparePosition]
   /**
-   * 比较本元素和目标元素在文档树中的位置关系。  // TODO: 极少使用，考虑删除。先标记为 private。
+   * 比较本元素和目标元素在文档树中的位置关系。  // TODO: 高级用法，标记为 master。
+   * @master
    * @name Element.prototype.comparePosition
    * @function
-   * @private
    * @param {Element} target 目标元素。
    * @returns {number} 比较结果。
    * @description
@@ -1720,8 +1720,7 @@
           // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次调用监听器。
           var nodeName = $element.nodeName.toLowerCase();
           var nodeType = $element.type;
-          // TODO: 这个判断在加入 isIE10 后要修改为 isIElt10。
-          if ((navigator.isIE9 || navigator.isIElt9) && (nodeName === 'textarea' || nodeName === 'input' && (nodeType === 'text' || nodeType === 'password'))) {
+          if (navigator.isIElt10 && (nodeName === 'textarea' || nodeName === 'input' && (nodeType === 'text' || nodeType === 'password'))) {
             if (navigator.isIE9) {
               eventHelper.input.setup($element);
               dispatcher = function(e) {
@@ -1749,7 +1748,8 @@
           }
           break;
         case 'change':
-          // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。  // TODO: 待测 IE9- 是否拖拽内容出去的时候取值有误？
+          // TODO: 一些浏览器拖拽内容出去时有不触发事件的问题，目前尚未处理。
+          // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
           // 需要添加辅助派发器。
           if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
             eventHelper.change.setup($element);
@@ -1862,11 +1862,7 @@
           break;
         case 'input':
           // 需要删除辅助派发器。
-          var nodeName = $element.nodeName.toLowerCase();
-          var nodeType = $element.type;
-          // TODO: 这个判断在加入 isIE10 后要修改为 isIElt10。
-          // 以下判断也可以使用 eventHelper.input.dispatchers[$element.uid] 代替。
-          if ((navigator.isIE9 && (nodeName === 'textarea' || nodeName === 'input' && (nodeType === 'text' || nodeType === 'password'))) || (navigator.isIE8 && nodeName === 'textarea')) {
+          if (eventHelper.input.dispatchers[$element.uid]) {
             eventHelper.input.teardown($element);
           }
           removeEventListener($element, dispatcher.type, dispatcher);

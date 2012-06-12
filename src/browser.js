@@ -164,6 +164,8 @@
    *   navigator.userAgentInfo.name
    *   navigator.userAgentInfo.version
    *   navigator.inStandardsMode
+   *   navigator.isIE10
+   *   navigator.isIElt10
    *   navigator.isIE9
    *   navigator.isIElt9
    *   navigator.isIE8
@@ -217,6 +219,20 @@
   /**
    * 是否工作在标准模式下。
    * @name inStandardsMode
+   * @memberOf navigator
+   * @type boolean
+   */
+
+  /**
+   * 浏览器是否为 IE10。
+   * @name isIE10
+   * @memberOf navigator
+   * @type boolean
+   */
+
+  /**
+   * 浏览器是否为 IE，且版本小于 10。
+   * @name isIElt10
    * @memberOf navigator
    * @type boolean
    */
@@ -315,8 +331,10 @@
     }
     // 检查工作模式。
     var inStandardsMode = document.compatMode === 'CSS1Compat';
-    !inStandardsMode && window.console && console.warn('Browser is working in non-standards mode.');
+    !inStandardsMode && console && console.warn('[OurJS] Browser is working in non-standards mode.');
     // 浏览器特性判断。
+    var isIE10 = false;
+    var isIElt10 = false;
     var isIE9 = false;
     var isIElt9 = false;
     var isIE8 = false;
@@ -330,7 +348,9 @@
     var html = document.documentElement;
     if ('ActiveXObject' in window) {
       if (inStandardsMode) {
-        if ('HTMLElement' in window) {
+        if ('WebSocket' in window) {
+          isIE10 = true;
+        } else if ('HTMLElement' in window) {
           isIE9 = true;
         } else if ('Element' in window) {
           isIE8 = true;
@@ -340,8 +360,9 @@
           isIE6 = true;
         }
       }
-      isIElt9 = isIE8 || isIE7 || isIE6;
       isIElt8 = isIE7 || isIE6;
+      isIElt9 = isIE8 || isIElt8;
+      isIElt10 = isIE9 || isIElt9;
     } else if ('uneval' in window) {
       isFirefox = true;
     } else if (getComputedStyle(html, null).getPropertyValue('-webkit-user-select')) {
@@ -361,6 +382,8 @@
         version: version
       },
       inStandardsMode: inStandardsMode,
+      isIE10: isIE10,
+      isIElt10: isIElt10,
       isIE9: isIE9,
       isIElt9: isIElt9,
       isIE8: isIE8,

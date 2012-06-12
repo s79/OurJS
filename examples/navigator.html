@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>navigator</title>
 <link rel="stylesheet" href="common.css">
-<script src="../our.min.js"></script>
+<script src="../dev.js"></script>
 <style>
 fieldset { clear: both; }
 col { width: 100px; }
@@ -20,13 +20,11 @@ pre { clear: both; }
     <colgroup>
       <col class="name">
       <col class="value">
-      <col class="type">
     </colgroup>
     <thead>
       <tr>
         <th>Name</th>
         <th>Value</th>
-        <th>Type</th>
       </tr>
     </thead>
     <tbody id="list">
@@ -34,12 +32,8 @@ pre { clear: both; }
   </table>
 </fieldset>
 <fieldset>
-  <legend>navigator.userAgent & navigator.userAgentInfo</legend>
+  <legend>navigator.userAgent & navigator.userAgentInfo.*</legend>
   <pre id="ua_info"></pre>
-</fieldset>
-<fieldset>
-  <legend>location.parameters</legend>
-  <p id="parameters"></p>
 </fieldset>
 <script>
 execute(function($) {
@@ -47,7 +41,7 @@ execute(function($) {
   var $table = document.getElementById('list');
   var $tr;
   var $td;
-  ['inStandardsMode', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'].forEach(function(key) {
+  ['inStandardsMode', 'isIE10', 'isIElt10', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'].forEach(function(key) {
     var value = navigator[key];
     $tr = $table.insertRow(-1);
     $td = $tr.insertCell(-1);
@@ -57,17 +51,25 @@ execute(function($) {
     if (value === true) {
       $td.style.backgroundColor = 'greenyellow';
     }
-    $td = $tr.insertCell(-1);
-    $td.innerHTML = typeof value;
   });
 
-  // navigator.userAgent 和 navigator.userAgentInfo 预览。
+  // navigator.userAgent 和 navigator.userAgentInfo.* 预览。
   $('#ua_info').innerHTML = navigator.userAgent + '<br>' + JSON.stringify(navigator.userAgentInfo);
 
+});
+</script>
+
+<fieldset>
+  <legend>location.parameters</legend>
+  <p id="parameters"></p>
+</fieldset>
+<script>
+execute(function($) {
   // location.parameters 预览。
   $('#parameters').innerHTML = JSON.stringify(location.parameters);
 
 });
 </script>
+
 </body>
 </html>
