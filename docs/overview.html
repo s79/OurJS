@@ -8,16 +8,19 @@
 <script src="../our.js"></script>
 <!--<script src="/scripts/common.js"></script>-->
 <style>
-body { padding: 40px 0; background: url(images/bg.jpg); }
+body { padding: 50px 0; background: url(images/bg.jpg); }
 div#content { width: 880px; margin: 0 auto; padding: 50px 50px; border: 1px solid silver; box-shadow: 0 0 10px black; background: white; }
 
-#header2 { position: fixed; left: 0; top: 0; z-index: 10000; width: 100%; height: 35px; box-shadow: 0 0 2px black; background: #30322F; }
-#menu2 { width: 960px; height: 35px; margin: 0 auto; padding-left: 30px; background: url(images/logo.png) no-repeat left center; color: #B3B7BC; }
-#menu2 div { position: relative; display: inline-block; height: 29px; margin-top: 3px; padding: 0 5px; color: #B3B7BC; line-height: 29px; text-decoration: none; }
-
-#menu_panel { list-style: none; position: absolute; left: 0; top: 0; z-index: 100; width: 240px; padding: 0; border-bottom: 1px solid #473737; box-shadow: 0 0 2px black; overflow: hidden; background: #313330 url(images/bg_menu_panel.jpg) no-repeat top left; }
-#menu_panel li a { display: block; height: 29px; padding-left: 10px; border-top: 1px solid #473737; color: #B3B7BC; line-height: 29px; }
-#menu_panel li a.selected { background: url(images/bg_menu_selected.jpg); color: #FFF; }
+#header2 { position: fixed; left: 0; top: 0; z-index: 10000; width: 100%; height: 35px; box-shadow: 0 0 3px black; background: #30322F; }
+#menu2 { position: relative; width: 960px; height: 35px; margin: 0 auto; padding-left: 30px; background: url(images/logo.png) no-repeat left center; color: #B3B7BC; }
+#menu2 ul { list-style: none; float: left; margin-top: 3px; margin-right: 10px; height: 29px; padding: 0; overflow: hidden; }
+#menu2 li { display: none; }
+#menu2 li.selected { display: block; }
+#menu2 li a { display: block; height: 29px; padding: 0 10px; border-top: 1px solid #30322F; color: #B3B7BC; line-height: 29px; white-space: nowrap; }
+#menu2 li a:hover { text-decoration: none; }
+#menu2 ul.active { border-bottom: 1px solid #30322F; box-shadow: 0 0 3px black; background: #40423F; }
+#menu2 ul.active li { display: block; }
+#menu2 ul.active li.selected a { background: url(images/bg_menu_selected.png); color: #FFF; }
 
 .example { list-style-type: circle; padding: 5px 5px 5px 2em; border: 1px solid #dcdcdc; border-radius: 5px; background: #f5f5f5; }
 .example li { margin: 15px 0; }
@@ -30,40 +33,74 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
 <body>
 <div id="header2">
   <div id="menu2">
-    <div>
-      开发规范
-    </div>
-    >
-    <div>
-      HTML 编码规范
-      <ul id="menu_panel">
-        <li><a href="#">文件创建规范</a></li>
-        <li><a href="#">文本书写规范</a></li>
-        <li><a href="#" class="selected">HTML 编码规范</a></li>
-        <li><a href="#">CSS 编码规范</a></li>
-        <li><a href="#">JavaScript 编码规范</a></li>
-      </ul>
-    </div>
-    >
-    <div>
-      开发规范
-    </div>
+    <ul>
+      <li><a href="#">工作流程</a></li>
+      <li class="selected"><a href="#">开发规范</a></li>
+      <li><a href="#">OurJS</a></li>
+      <li><a href="#">UI 组件</a></li>
+      <li><a href="#">常用模版</a></li>
+      <li><a href="#">资源下载</a></li>
+    </ul>
+    <ul>
+      <li><a href="#">文件创建规范</a></li>
+      <li><a href="#">文本书写规范</a></li>
+      <li class="selected"><a href="#">HTML 编码规范</a></li>
+      <li><a href="#">CSS 编码规范</a></li>
+      <li><a href="#">JavaScript 编码规范</a></li>
+    </ul>
+    <ul>
+      <li><a href="#">文件创建规范</a></li>
+      <li><a href="#">文本书写规范</a></li>
+      <li><a href="#">HTML 编码规范</a></li>
+      <li><a href="#">CSS 编码规范</a></li>
+      <li class="selected"><a href="#">JavaScript 编码规范</a></li>
+    </ul>
   </div>
 </div>
 <script>
 execute(function($) {
-  $('#header2').setStyle('position', 'fixed');
+//  return;
+//  $('#header2').setStyle('position', 'fixed');
 
-  var $panel = $('#menu_panel').setStyles({width: 150, height: 30});
-  $panel.scrollTop = 60;
-  $('#menu_panel')
+  var aniPool = {};
+  $('#menu2').find('ul').forEach(function($ul, index, uls) {
+    $ul.setStyle('width', $ul.offsetWidth);
+    var $li = $ul.getFirstChild();
+    var selectedIndex = $ul.getChildren().indexOf($ul.find('.selected')[0]);
+    var nextSiblings = uls.slice(index + 1);
+    aniPool[$ul.uid] = new Animation()
+        .addClip(new Fx.Morph($ul, {width: 240}, 100, 150, 'easeInOut'))
+        .addClip(new Fx.Morph($ul, {height: 151}, 300, 300, 'easeInOut'))
+        .addClip(new Fx.Morph($li, {marginTop: 0}, 300, 300, 'easeInOut'))
+        .on('playstart', function() {
+          $ul.addClass('active');
+          $li.setStyles({marginTop: -30 * selectedIndex});
+//          nextSiblings.forEach(function($sibling) {
+//            $sibling.fadeOut({
+//              duration: 100,
+//              callback: initItem
+//            });
+//          });
+        })
+        .on('reversefinish', function() {
+          $ul.removeClass('active');
+          nextSiblings.forEach(function($sibling) {
+//            $sibling.fadeIn();
+          });
+        });
+  });
+  $('#menu2')
       .on('mouseenter', function(e) {
-        $panel.morph({width: 240}, {duration: 100}).morph({height: 151});
+        aniPool[this.uid].play();
+      }, function() {
+        return this.tagName === 'UL';
       })
       .on('mouseleave', function(e) {
-        $panel.morph({height: 30}).morph({width: 100}, {duration: 150});
+        aniPool[this.uid].reverse();
+      }, function() {
+        return this.tagName === 'UL';
       });
-});
+}, true);
 </script>
 <div id="content">
   <h1>OurJS 概述</h1>
