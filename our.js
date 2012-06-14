@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-13
+ *  Version: 2012-06-14
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -4206,6 +4206,17 @@
 
   // 播放动画对应某一时间点的某一帧。
   var playAnimation = function(animation, timePoint, isPlayMethod) {
+    // 触发事件。
+    if (isPlayMethod) {
+      if (timePoint === 0) {
+        animation.fire('playstart');
+      }
+    } else {
+      if (timePoint === animation.duration) {
+        animation.fire('reversestart');
+      }
+    }
+    // 播放当前帧。
     animation.clips.forEach(function(clip) {
       var active = false;
       var duration = clip.duration;
@@ -4250,11 +4261,8 @@
       }
     });
     // 触发事件。
+    animation.fire('step');
     if (isPlayMethod) {
-      if (timePoint === 0) {
-        animation.fire('playstart');
-      }
-      animation.fire('step');
       if (timePoint === animation.duration) {
         if (animation.timestamp) {
           unmountAnimation(animation);
@@ -4263,10 +4271,6 @@
         animation.fire('playfinish');
       }
     } else {
-      if (timePoint === animation.duration) {
-        animation.fire('reversestart');
-      }
-      animation.fire('step');
       if (timePoint === 0) {
         if (animation.timestamp) {
           unmountAnimation(animation);
@@ -4324,13 +4328,13 @@
    * @fires play
    *   开始播放时，渲染本次播放的第一帧之前触发。
    * @fires playstart
-   *   开始播放时，渲染整个动画的第一帧之后触发。
+   *   开始播放时，渲染整个动画的第一帧之前触发。
    * @fires playfinish
    *   播放结束时，渲染整个动画的最后一帧之后触发。
    * @fires reverse
    *   开始反向播放时，渲染本次播放的第一帧之前触发。
    * @fires reversestart
-   *   开始反向播放时，渲染整个动画的第一帧之后触发。
+   *   开始反向播放时，渲染整个动画的第一帧之前触发。
    * @fires reversefinish
    *   反向播放结束时，渲染整个动画的最后一帧之后触发。
    * @fires step
@@ -4343,6 +4347,7 @@
    *   高级应用：
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
    *   仅应在动画初始化时（播放之前）添加影片剪辑，不要在开始播放后添加或更改影片剪辑。
+   *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
    */
   function Animation() {
     this.uid = ++uid;

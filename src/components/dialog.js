@@ -66,7 +66,7 @@ execute(function($) {
             $after.focus();
           }
         });
-        $enable.prependChild($before).appendChild($after);
+        $enable.prependChild($before).append($after);
         $after.fire('focus');
         $enabled = $enable;
         $disabled = $disable;
@@ -155,7 +155,7 @@ execute(function($) {
       var $mask;
       if (navigator.isIE6) {
         // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
-        $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').appendChild($('<div></div>').setStyles(options.styles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
+        $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').append($('<div></div>').setStyles(options.styles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
         // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
         if ($container === document.body) {
           var resizeMaskElementForIE6 = function() {
@@ -169,16 +169,18 @@ execute(function($) {
             mask.off('show.ie6 hide.ie6');
           });
         }
+        console.log($mask.innerHTML);
       } else {
         $mask = $('<div' + attributes + '></div>').setStyles(options.styles);
       }
       // 确定遮掩层元素的样式并插入文档树。
-      $container.appendChild($mask.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
+      $container.append($mask.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
       mask.element = $mask;
       // 动画效果。
       mask.animation = new Animation()
-          .addClip(new Fx.Fade($mask, 'in', 0, options.effect ? 150 : 0, 'easeIn'))
+          .addClip(new Fx.Morph($mask, {opacity: $mask.getStyle('opacity')}, 0, options.effect ? 150 : 0, 'easeIn'))
           .on('playstart', function() {
+            $mask.setStyles({display: 'block', opacity: 0});
             mask.resize();
             mask.fire('show');
           })
@@ -341,9 +343,14 @@ execute(function($) {
     var mask = group.mask;
     // 动画效果。
     dialog.animation = new Animation()
-        .addClip(new Fx.Fade($dialog, 'in', 0, options.effect ? 200 : 0, 'easeIn'))
         .on('playstart', function() {
           stack.push(dialog);
+          // 初始化对话框状态。
+          $dialog.setStyle('display', 'block');
+          if (options.effect) {
+            // IE6 的动画效果会被强制禁用，避免与 PNG 图片的 alpha 透明修复冲突。
+            $dialog.setStyle('opacity', 0);
+          }
           // 显示遮掩层及遮掩区域焦点锁定。
           mask.setZIndex($dialog.getStyle('zIndex') - 1).show();
           freezeFocusArea({enable: $dialog, disable: $container});
@@ -379,10 +386,16 @@ execute(function($) {
           if ($container === document.body) {
             window.off('resize.dialog' + $dialog.uid);
           }
+          // 恢复对话框状态。
+          $dialog.setStyle('display', 'none');
           // 对话框已关闭。
           dialog.isOpen = false;
           dialog.fire('close');
         });
+    if (options.effect) {
+      dialog.animation.addClip(new Fx.Morph($dialog, {opacity: $dialog.getStyle('opacity')}, 0, 200, 'easeIn'));
+    }
+
   }
 
 //--------------------------------------------------[Dialog.options]

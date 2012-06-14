@@ -1023,12 +1023,10 @@
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
    */
-/*
-  Element.prototype.appendChild = function(target) {
+  Element.prototype.append = function(target) {
     this.appendChild(target);
     return this;
   };
-*/
 
 //--------------------------------------------------[Element.prototype.prependChild]
   /**

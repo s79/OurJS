@@ -56,8 +56,6 @@ mask.js:52show
 Mask
 components.mask.html:591331403483764 "HIDE"
 
->TODO: Animation 的 playstart/reversestart 事件改为 step 之前，并在 step 中加入第几帧的标记。
-
 >TODO: 检查代码，移除作为一条语句使用的短路操作，JS 编码规范也会添加此类内容。
 
 >TODO: include (from site.js)
