@@ -65,7 +65,7 @@ execute(function($) {
   var aniPool = {};
   $('#menu2').find('ul').forEach(function($ul, index, uls) {
     $ul.setStyle('width', $ul.offsetWidth);
-    var $li = $ul.getFirstChild();
+    var $li = $ul.getFirst();
     var selectedIndex = $ul.getChildren().indexOf($ul.find('.selected')[0]);
     var nextSiblings = uls.slice(index + 1);
     aniPool[$ul.uid] = new Animation()

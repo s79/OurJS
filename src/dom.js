@@ -748,56 +748,56 @@
 
 //--------------------------------------------------[Element.prototype.getData]
   /**
-   * 获取本元素附加的自定义数据。
+   * 从本元素中读取一条自定义数据。
    * @name Element.prototype.getData
    * @function
-   * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
-   * @returns {string} 数据的值。
+   * @param {string} key 数据名。
+   * @returns {string} 数据值。
    * @description
    *   注意：
-   *   Chrome 在 dataset 中不存在名称为 name 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
+   *   Chrome 在 dataset 中不存在名称为 key 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
    * @see http://www.w3.org/TR/2011/WD-html5-20110525/elements.html#embedding-custom-non-visible-data-with-the-data-attributes
    */
-  Element.prototype.getData = 'dataset' in html ? function(name) {
-    return this.dataset[name] || undefined;
-  } : function(name) {
-    name = parseName(name);
-    var value = this.getAttribute(name);
+  Element.prototype.getData = 'dataset' in html ? function(key) {
+    return this.dataset[key] || undefined;
+  } : function(key) {
+    key = parseName(key);
+    var value = this.getAttribute(key);
     return typeof value === 'string' ? value : undefined;
   };
 
 //--------------------------------------------------[Element.prototype.setData]
   /**
-   * 设置本元素附加的自定义数据。
+   * 在本元素中保存一条自定义数据。
    * @name Element.prototype.setData
    * @function
-   * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
-   * @param {string} value 数据的值，必须为字符串。
+   * @param {string} key 数据名，必须为 camelCase 形式，并且只能包含英文字母。
+   * @param {string} value 数据值，必须为字符串。
    * @returns {Element} 本元素。
    */
-  Element.prototype.setData = function(name, value) {
-    name = parseName(name);
-    if (name) {
-      this.setAttribute(name, value);
+  Element.prototype.setData = function(key, value) {
+    key = parseName(key);
+    if (key) {
+      this.setAttribute(key, value);
     }
     return this;
   };
 
 //--------------------------------------------------[Element.prototype.removeData]
   /**
-   * 删除本元素附加的自定义数据。
+   * 从本元素中删除一条自定义数据。
    * @name Element.prototype.removeData
    * @function
-   * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
+   * @param {string} key 数据名。
    * @returns {Element} 本元素。
    * @description
    *   注意：
-   *   IE6 IE7 在 removeAttribute 时，name 参数是大小写敏感的。
+   *   IE6 IE7 在 removeAttribute 时，key 参数是大小写敏感的。
    */
-  Element.prototype.removeData = function(name) {
-    name = parseName(name);
-    if (name) {
-      this.removeAttribute(name);
+  Element.prototype.removeData = function(key) {
+    key = parseName(key);
+    if (key) {
+      this.removeAttribute(key);
     }
     return this;
   };
@@ -861,7 +861,7 @@
     };
   }
 
-//==================================================[Element 扩展 - 获取相关元素]
+//==================================================[Element 扩展 - 遍历文档树]
   /*
    * 获取文档树中与目标元素相关的元素。
    *
@@ -869,8 +869,8 @@
    *   Element.prototype.getParent
    *   Element.prototype.getPrevious
    *   Element.prototype.getNext
-   *   Element.prototype.getFirstChild
-   *   Element.prototype.getLastChild
+   *   Element.prototype.getFirst
+   *   Element.prototype.getLast
    *   Element.prototype.getChildren
    *   Element.prototype.getChildCount
    *
@@ -930,14 +930,14 @@
     return $(element);
   };
 
-//--------------------------------------------------[Element.prototype.getFirstChild]
+//--------------------------------------------------[Element.prototype.getFirst]
   /**
    * 获取本元素的第一个子元素。
-   * @name Element.prototype.getFirstChild
+   * @name Element.prototype.getFirst
    * @function
    * @returns {Element} 本元素的第一个子元素。
    */
-  Element.prototype.getFirstChild = 'firstElementChild' in html ? function() {
+  Element.prototype.getFirst = 'firstElementChild' in html ? function() {
     return $(this.firstElementChild);
   } : function() {
     var element = this.firstChild;
@@ -946,14 +946,14 @@
     return $(element);
   };
 
-//--------------------------------------------------[Element.prototype.getLastChild]
+//--------------------------------------------------[Element.prototype.getLast]
   /**
    * 获取本元素的最后一个子元素。
-   * @name Element.prototype.getLastChild
+   * @name Element.prototype.getLast
    * @function
    * @returns {Element} 本元素的最后一个子元素。
    */
-  Element.prototype.getLastChild = 'lastElementChild' in html ? function() {
+  Element.prototype.getLast = 'lastElementChild' in html ? function() {
     return $(this.lastElementChild);
   } : function() {
     var element = this.lastChild;
@@ -971,7 +971,7 @@
    */
   Element.prototype.getChildren = function() {
     var children = [];
-    var $element = this.getFirstChild();
+    var $element = this.getFirst();
     while ($element) {
       children.push($element);
       $element = $element.getNext();
@@ -1015,10 +1015,10 @@
    *   Element.prototype.clone  // TODO: pending。
    */
 
-//--------------------------------------------------[Element.prototype.appendChild]
+//--------------------------------------------------[Element.prototype.append]
   /**
    * 将目标元素追加为本元素的最后一个子元素。
-   * @name Element.prototype.appendChild
+   * @name Element.prototype.append
    * @function
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
@@ -1028,15 +1028,15 @@
     return this;
   };
 
-//--------------------------------------------------[Element.prototype.prependChild]
+//--------------------------------------------------[Element.prototype.prepend]
   /**
    * 将目标元素追加为本元素的第一个子元素。
-   * @name Element.prototype.prependChild
+   * @name Element.prototype.prepend
    * @function
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
    */
-  Element.prototype.prependChild = function(target) {
+  Element.prototype.prepend = function(target) {
     this.insertBefore(target, this.firstChild);
     return this;
   };
@@ -1971,7 +1971,7 @@
    *   <ul>
    *     <li>忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。</li>
    *     <li>修改“IE 添加多余的 tbody 元素”的问题的解决方案，在 wrappers 里预置一个 tbody 即可。</li>
-   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 appendChild 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
+   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 append 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
    *   </ul>
    *   在创建元素时，如果包含 table，建议写上 tbody 以确保结构严谨。举例如下：
    *   $('&lt;div&gt;&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;');

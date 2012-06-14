@@ -302,7 +302,7 @@ execute(function($) {
   var duration = animation.duration;
   animation.clips.forEach(function(clip, index) {
     var color = getRandomColor();
-    $number.appendChild($('<div style="height: 12px;">' + (index + 1) + '</div>'));
+    $number.append($('<div style="height: 12px;">' + (index + 1) + '</div>'));
     var type = '';
     if (clip instanceof Fx.Base) {
       type = 'Fx.Base'
@@ -313,21 +313,21 @@ execute(function($) {
     } else if (clip instanceof Fx.Highlight) {
       type = 'Fx.Highlight'
     }
-    $type.appendChild($('<div style="height: 12px;">' + type + '</div>'));
+    $type.append($('<div style="height: 12px;">' + type + '</div>'));
     var $clipPanlel = $('<div style="width: ' + clip.duration / duration * length + 'px; height: 12px; margin-left: ' + clip.delay / duration * length + 'px; background: ' + color + '; overflow: hidden;"></div>');
-    $timeline.appendChild($clipPanlel);
+    $timeline.append($clipPanlel);
     if (!$clipPanlel.offsetWidth) {
       $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
     }
     $clipPanlel.on('click', function() {
       for (var i = 0; i < 299; i++) {
-        $('#canvas').appendChild($('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>'));
+        $('#canvas').append($('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>'));
       }
     });
 
   });
   var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5);
-  $timeline.appendChild($time);
+  $timeline.append($time);
   animation.addClip(new Fx.Morph($time, {left: length - 1}, 0, duration, 'linear')).on('stop', function() {
     $time.setStyle('left', 0);
   });
@@ -409,7 +409,7 @@ execute(function($) {
         new Fx.Base(function(x, y) {
           x = Math.floor(x * 299);
           y = Math.floor(y * 299);
-          $canvas.appendChild($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
+          $canvas.append($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
         }, 0, 2500, this.innerText))
         .play();
   }, function() {

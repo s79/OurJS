@@ -54,7 +54,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
           </tr>
           <tr>
             <td colspan="2">
-              <button id="cookie_set" type="button">cookie.set</button>
+              <button id="cookie_set" type="button">cookie.setItem</button>
             </td>
           </tr>
         </tbody>
@@ -76,7 +76,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
           </tr>
           <tr>
             <td colspan="2">
-              <button id="cookie_get" type="button">cookie.get</button>
+              <button id="cookie_get" type="button">cookie.getItem</button>
             </td>
           </tr>
         </tbody>
@@ -106,7 +106,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
           </tr>
           <tr>
             <td colspan="2">
-              <button id="cookie_remove" type="button">cookie.remove</button>
+              <button id="cookie_remove" type="button">cookie.removeItem</button>
             </td>
           </tr>
         </tbody>
@@ -122,20 +122,20 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
     $('#cookie_set').on('click', function() {
       var $form = $('#form_cookie_set');
       var expires = $form.days.value ? new Date(Date.now() + Number.toInteger($form.days.value) * 1000 * 60 * 60 * 24) : null;
-      cookie.set($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: expires});
+      cookie.setItem($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: expires});
       showAllCookies();
     });
 
     $('#cookie_get').on('click', function() {
       var $form = $('#form_cookie_get');
-      var value = cookie.get($form.name.value);
+      var value = cookie.getItem($form.name.value);
       $form.value.value = value || '';
       showAllCookies();
     });
 
     $('#cookie_remove').on('click', function() {
       var $form = $('#form_cookie_remove');
-      cookie.remove($form.name.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value});
+      cookie.removeItem($form.name.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value});
       showAllCookies();
     });
 

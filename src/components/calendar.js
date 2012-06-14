@@ -31,9 +31,9 @@ execute(function($) {
     this.date = options.data || undefined;
     // 创建 DOM 基本结构。
     var $calendar = $('<div class="' + options.theme + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>.</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
-    var $controlPanel = $calendar.getFirstChild();
+    var $controlPanel = $calendar.getFirst();
     var controls = $controlPanel.find('*');
-    var $thead = $controlPanel.getNext().getFirstChild();
+    var $thead = $controlPanel.getNext().getFirst();
     var $tbody = $thead.getNext();
     // 创建日历头。
     var tr = $thead.insertRow(-1);
@@ -42,7 +42,7 @@ execute(function($) {
     }
     // 创建日历体。
     for (var row = 0; row < 6; row++) {
-      $tbody.appendChild(tr.cloneNode(true));
+      $tbody.append(tr.cloneNode(true));
     }
     // 保存 DOM 元素。
     calendar.elements = {

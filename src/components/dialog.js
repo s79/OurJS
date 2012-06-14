@@ -66,7 +66,7 @@ execute(function($) {
             $after.focus();
           }
         });
-        $enable.prependChild($before).append($after);
+        $enable.prepend($before).append($after);
         $after.fire('focus');
         $enabled = $enable;
         $disabled = $disable;
@@ -178,9 +178,8 @@ execute(function($) {
       mask.element = $mask;
       // 动画效果。
       mask.animation = new Animation()
-          .addClip(new Fx.Morph($mask, {opacity: $mask.getStyle('opacity')}, 0, options.effect ? 150 : 0, 'easeIn'))
           .on('playstart', function() {
-            $mask.setStyles({display: 'block', opacity: 0});
+            $mask.setStyle('display', 'block');
             mask.resize();
             mask.fire('show');
           })
@@ -190,6 +189,13 @@ execute(function($) {
             $mask.remove();
             mask.fire('hide');
           });
+      if (options.effect) {
+        mask.animation
+            .addClip(new Fx.Morph($mask, {opacity: $mask.getStyle('opacity')}, 0, 150, 'easeIn'))
+            .on('playstart', function() {
+              $mask.setStyle('opacity', 0);
+            });
+      }
     }
     this.animation.play();
     return this;
@@ -347,10 +353,6 @@ execute(function($) {
           stack.push(dialog);
           // 初始化对话框状态。
           $dialog.setStyle('display', 'block');
-          if (options.effect) {
-            // IE6 的动画效果会被强制禁用，避免与 PNG 图片的 alpha 透明修复冲突。
-            $dialog.setStyle('opacity', 0);
-          }
           // 显示遮掩层及遮掩区域焦点锁定。
           mask.setZIndex($dialog.getStyle('zIndex') - 1).show();
           freezeFocusArea({enable: $dialog, disable: $container});
@@ -393,9 +395,12 @@ execute(function($) {
           dialog.fire('close');
         });
     if (options.effect) {
-      dialog.animation.addClip(new Fx.Morph($dialog, {opacity: $dialog.getStyle('opacity')}, 0, 200, 'easeIn'));
+      dialog.animation
+          .addClip(new Fx.Morph($dialog, {opacity: $dialog.getStyle('opacity')}, 0, 200, 'easeIn'))
+          .on('playstart', function() {
+            $dialog.setStyle('opacity', 0);
+          });
     }
-
   }
 
 //--------------------------------------------------[Dialog.options]

@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-14
+ *  Version: 2012-06-15
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -1365,9 +1365,9 @@
    * 将 document.cookie 扩展为 cookie 对象。
    *
    * 提供方法：
-   *   cookie.set
-   *   cookie.get
-   *   cookie.remove
+   *   cookie.getItem
+   *   cookie.setItem
+   *   cookie.removeItem
    */
 
   /**
@@ -1378,65 +1378,65 @@
   var cookie = {};
   window.cookie = cookie;
 
-//--------------------------------------------------[cookie.set]
+//--------------------------------------------------[cookie.getItem]
   /**
-   * 设置 cookie。
-   * @name cookie.set
+   * 从 cookie 中读取一条数据。
+   * @name cookie.getItem
    * @function
-   * @param {string} name 要设置的 cookie 名称。
-   * @param {string} value 要设置的 cookie 名称对应的值。
-   * @param {Object} [options] 可选参数。
-   * @param {string} options.path 限定生效的路径，默认为当前路径。
-   * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输 cookie，默认为否。
-   * @param {Date} options.expires 过期时间。
+   * @param {string} key 数据名。
+   * @returns {string} 数据值。
    */
-  cookie.set = function(name, value, options) {
-    options = options || {};
-    var cookie = name + '=' + encodeURIComponent(value);
-    if (options.path) {
-      cookie += '; path=' + options.path;
-    }
-    if (options.domain) {
-      cookie += '; domain=' + options.domain;
-    }
-    if (options.secure) {
-      cookie += '; secure';
-    }
-    if (options.expires) {
-      cookie += '; expires=' + options.expires.toUTCString();
-    }
-    document.cookie = cookie;
-  };
-
-//--------------------------------------------------[cookie.get]
-  /**
-   * 读取 cookie。
-   * @name cookie.get
-   * @function
-   * @param {string} name 要读取的 cookie 名称。
-   * @returns {string} 对应的值。
-   */
-  cookie.get = function(name) {
-    var matchs = document.cookie.match('(?:^|;)\\s*' + RegExp.escape(name) + '=([^;]*)');
+  cookie.getItem = function(key) {
+    var matchs = document.cookie.match(new RegExp('(?:^|;)\\s*' + RegExp.escape(key) + '=([^;]*)'));
     return matchs ? decodeURIComponent(matchs[1]) : null;
   };
 
-//--------------------------------------------------[cookie.remove]
+//--------------------------------------------------[cookie.setItem]
   /**
-   * 删除 cookie。
-   * @name cookie.remove
+   * 在 cookie 中保存一条数据。
+   * @name cookie.setItem
    * @function
-   * @param {string} name 要删除的 cookie 名称。
+   * @param {string} key 数据名。
+   * @param {string} value 数据值。
    * @param {Object} [options] 可选参数。
    * @param {string} options.path 限定生效的路径，默认为当前路径。
    * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输 cookie，默认为否。
+   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   * @param {Date} options.expires 过期时间。
    */
-  cookie.remove = function(name, options) {
+  cookie.setItem = function(key, value, options) {
+    options = options || {};
+    var item = key + '=' + encodeURIComponent(value);
+    if (options.path) {
+      item += '; path=' + options.path;
+    }
+    if (options.domain) {
+      item += '; domain=' + options.domain;
+    }
+    if (options.secure) {
+      item += '; secure';
+    }
+    if (options.expires) {
+      item += '; expires=' + options.expires.toUTCString();
+    }
+    document.cookie = item;
+  };
+
+//--------------------------------------------------[cookie.removeItem]
+  /**
+   * 从 cookie 中删除一条数据。
+   * @name cookie.removeItem
+   * @function
+   * @param {string} key 数据名。
+   * @param {Object} [options] 可选参数。
+   * @param {string} options.path 限定生效的路径，默认为当前路径。
+   * @param {string} options.domain 限定生效的域名，默认为当前域名。
+   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   */
+  cookie.removeItem = function(key, options) {
     options = options || {};
     options.expires = new Date(0);
-    this.set(name, '', options);
+    this.set(key, '', options);
   };
 
 //==================================================[localStorage 补缺]
@@ -1444,8 +1444,8 @@
    * 为不支持 localStorage 的浏览器（IE6 IE7）模拟此特性。
    *
    * 补缺属性：
-   *   localStorage.setItem
    *   localStorage.getItem
+   *   localStorage.setItem
    *   localStorage.removeItem
    *   localStorage.clear
    *
@@ -1499,13 +1499,26 @@
   // 添加行为。
   userDataElement.addBehavior('#default#userData');
 
+//--------------------------------------------------[localStorage.getItem]
+  /**
+   * 从 localStorage 中读取一条数据。
+   * @name localStorage.getItem
+   * @function
+   * @param {string} key 数据名。
+   * @returns {string} 数据值。
+   */
+  localStorage.getItem = function(key) {
+    userDataElement.load(USER_DATA_FILE_NAME);
+    return userDataElement.getAttribute(key);
+  };
+
 //--------------------------------------------------[localStorage.setItem]
   /**
-   * 保存数据。
+   * 在 localStorage 中保存一条数据。
    * @name localStorage.setItem
    * @function
-   * @param {string} key 要保存的数据名，不能为空字符串。
-   * @param {string} value 要保存的数据值。
+   * @param {string} key 数据名，不能为空字符串。
+   * @param {string} value 数据值。
    * @description
    *   注意：
    *   与源生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
@@ -1517,25 +1530,12 @@
     userDataElement.save(USER_DATA_FILE_NAME);
   };
 
-//--------------------------------------------------[localStorage.getItem]
-  /**
-   * 读取数据。
-   * @name localStorage.getItem
-   * @function
-   * @param {string} key 要读取的数据名，不能为空字符串。
-   * @returns {string} 对应的值。
-   */
-  localStorage.getItem = function(key) {
-    userDataElement.load(USER_DATA_FILE_NAME);
-    return userDataElement.getAttribute(key);
-  };
-
 //--------------------------------------------------[localStorage.removeItem]
   /**
-   * 删除数据。
+   * 从 localStorage 中删除一条数据。
    * @name localStorage.removeItem
    * @function
-   * @param {string} key 要删除的数据名，不能为空字符串。
+   * @param {string} key 数据名。
    */
   localStorage.removeItem = function(key) {
     userDataElement.load(USER_DATA_FILE_NAME);
@@ -1545,7 +1545,7 @@
 
 //--------------------------------------------------[localStorage.clear]
   /**
-   * 清空所有数据。
+   * 清空 localStorage 中的所有数据。
    * @name localStorage.clear
    * @function
    */
@@ -2311,56 +2311,56 @@
 
 //--------------------------------------------------[Element.prototype.getData]
   /**
-   * 获取本元素附加的自定义数据。
+   * 从本元素中读取一条自定义数据。
    * @name Element.prototype.getData
    * @function
-   * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
-   * @returns {string} 数据的值。
+   * @param {string} key 数据名。
+   * @returns {string} 数据值。
    * @description
    *   注意：
-   *   Chrome 在 dataset 中不存在名称为 name 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
+   *   Chrome 在 dataset 中不存在名称为 key 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
    * @see http://www.w3.org/TR/2011/WD-html5-20110525/elements.html#embedding-custom-non-visible-data-with-the-data-attributes
    */
-  Element.prototype.getData = 'dataset' in html ? function(name) {
-    return this.dataset[name] || undefined;
-  } : function(name) {
-    name = parseName(name);
-    var value = this.getAttribute(name);
+  Element.prototype.getData = 'dataset' in html ? function(key) {
+    return this.dataset[key] || undefined;
+  } : function(key) {
+    key = parseName(key);
+    var value = this.getAttribute(key);
     return typeof value === 'string' ? value : undefined;
   };
 
 //--------------------------------------------------[Element.prototype.setData]
   /**
-   * 设置本元素附加的自定义数据。
+   * 在本元素中保存一条自定义数据。
    * @name Element.prototype.setData
    * @function
-   * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
-   * @param {string} value 数据的值，必须为字符串。
+   * @param {string} key 数据名，必须为 camelCase 形式，并且只能包含英文字母。
+   * @param {string} value 数据值，必须为字符串。
    * @returns {Element} 本元素。
    */
-  Element.prototype.setData = function(name, value) {
-    name = parseName(name);
-    if (name) {
-      this.setAttribute(name, value);
+  Element.prototype.setData = function(key, value) {
+    key = parseName(key);
+    if (key) {
+      this.setAttribute(key, value);
     }
     return this;
   };
 
 //--------------------------------------------------[Element.prototype.removeData]
   /**
-   * 删除本元素附加的自定义数据。
+   * 从本元素中删除一条自定义数据。
    * @name Element.prototype.removeData
    * @function
-   * @param {string} name 数据的名称，必须为 camelCase 形式，并且只能包含英文字母。
+   * @param {string} key 数据名。
    * @returns {Element} 本元素。
    * @description
    *   注意：
-   *   IE6 IE7 在 removeAttribute 时，name 参数是大小写敏感的。
+   *   IE6 IE7 在 removeAttribute 时，key 参数是大小写敏感的。
    */
-  Element.prototype.removeData = function(name) {
-    name = parseName(name);
-    if (name) {
-      this.removeAttribute(name);
+  Element.prototype.removeData = function(key) {
+    key = parseName(key);
+    if (key) {
+      this.removeAttribute(key);
     }
     return this;
   };
@@ -2424,7 +2424,7 @@
     };
   }
 
-//==================================================[Element 扩展 - 获取相关元素]
+//==================================================[Element 扩展 - 遍历文档树]
   /*
    * 获取文档树中与目标元素相关的元素。
    *
@@ -2432,8 +2432,8 @@
    *   Element.prototype.getParent
    *   Element.prototype.getPrevious
    *   Element.prototype.getNext
-   *   Element.prototype.getFirstChild
-   *   Element.prototype.getLastChild
+   *   Element.prototype.getFirst
+   *   Element.prototype.getLast
    *   Element.prototype.getChildren
    *   Element.prototype.getChildCount
    *
@@ -2493,14 +2493,14 @@
     return $(element);
   };
 
-//--------------------------------------------------[Element.prototype.getFirstChild]
+//--------------------------------------------------[Element.prototype.getFirst]
   /**
    * 获取本元素的第一个子元素。
-   * @name Element.prototype.getFirstChild
+   * @name Element.prototype.getFirst
    * @function
    * @returns {Element} 本元素的第一个子元素。
    */
-  Element.prototype.getFirstChild = 'firstElementChild' in html ? function() {
+  Element.prototype.getFirst = 'firstElementChild' in html ? function() {
     return $(this.firstElementChild);
   } : function() {
     var element = this.firstChild;
@@ -2509,14 +2509,14 @@
     return $(element);
   };
 
-//--------------------------------------------------[Element.prototype.getLastChild]
+//--------------------------------------------------[Element.prototype.getLast]
   /**
    * 获取本元素的最后一个子元素。
-   * @name Element.prototype.getLastChild
+   * @name Element.prototype.getLast
    * @function
    * @returns {Element} 本元素的最后一个子元素。
    */
-  Element.prototype.getLastChild = 'lastElementChild' in html ? function() {
+  Element.prototype.getLast = 'lastElementChild' in html ? function() {
     return $(this.lastElementChild);
   } : function() {
     var element = this.lastChild;
@@ -2534,7 +2534,7 @@
    */
   Element.prototype.getChildren = function() {
     var children = [];
-    var $element = this.getFirstChild();
+    var $element = this.getFirst();
     while ($element) {
       children.push($element);
       $element = $element.getNext();
@@ -2578,30 +2578,28 @@
    *   Element.prototype.clone  // TODO: pending。
    */
 
-//--------------------------------------------------[Element.prototype.appendChild]
+//--------------------------------------------------[Element.prototype.append]
   /**
    * 将目标元素追加为本元素的最后一个子元素。
-   * @name Element.prototype.appendChild
+   * @name Element.prototype.append
    * @function
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
    */
-/*
-  Element.prototype.appendChild = function(target) {
+  Element.prototype.append = function(target) {
     this.appendChild(target);
     return this;
   };
-*/
 
-//--------------------------------------------------[Element.prototype.prependChild]
+//--------------------------------------------------[Element.prototype.prepend]
   /**
    * 将目标元素追加为本元素的第一个子元素。
-   * @name Element.prototype.prependChild
+   * @name Element.prototype.prepend
    * @function
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
    */
-  Element.prototype.prependChild = function(target) {
+  Element.prototype.prepend = function(target) {
     this.insertBefore(target, this.firstChild);
     return this;
   };
@@ -3536,7 +3534,7 @@
    *   <ul>
    *     <li>忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。</li>
    *     <li>修改“IE 添加多余的 tbody 元素”的问题的解决方案，在 wrappers 里预置一个 tbody 即可。</li>
-   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 appendChild 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
+   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 append 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
    *   </ul>
    *   在创建元素时，如果包含 table，建议写上 tbody 以确保结构严谨。举例如下：
    *   $('&lt;div&gt;&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;');

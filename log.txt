@@ -1,16 +1,24 @@
-﻿>2012-06-14 (TODO)
-Animation 的 playstart/reversestart 事件改为 step 之前。
+﻿>2012-06-15 (TODO - Fx.Fade)
 取消 Fx.Fade，因为这个效果不是“线性变换”，涉及到在首末帧修改 display 属性的值，这将导致 Animation 的 beforestart/afterstart 等事件的处理变得复杂。
+
+>2012-06-14
+Animation 的 playstart/reversestart 事件改为 step 之前。
 修改 Dialog 逻辑。
-取消 prepend -> prependChild 的修改。
+取消 0610 的修改，以使 append/prepend 能够返回本元素。
+cookie.set -> cookie.setItem
+cookie.get -> cookie.getItem
+cookie.remove -> cookie.removeItem
+element.getFirstChild -> element.getFirst
+element.getLastChild -> element.getLast
+更改注释文档，以使同一类 API 的说明和参数的风格尽量保持一致。
 
 >2012-06-12
 -components
 取消 Animation 的可选参数。
 
 >2012-06-10
--append
-prepend -> prependChild
+-element.append
+element.prepend -> element.prependChild
 
 >2012-05-29
 编辑“概述”文档。

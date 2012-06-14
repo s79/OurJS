@@ -133,7 +133,7 @@
   // 初始化界面。
   window.attachEvent('onload', function() {
     // 更新文档树及数据。
-    var $body = $(document.body).appendChild($console.setStyle('position', 'fixed'));
+    var $body = $(document.body).append($console.setStyle('position', 'fixed'));
     bodyPaddingBottom = parseInt($body.getStyle('paddingBottom'), 10) || 0;
     // 启用打开/关闭控制台的快捷键 F12。
     document.attachEvent('onkeydown', function(e) {

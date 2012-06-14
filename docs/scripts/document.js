@@ -193,23 +193,23 @@ execute(function($) {
       manifest[name].forEach(function(name) {
         if (name.startsWith('#')) {
           comment = name.slice(1);
-          $indexFieldset.appendChild($('<h2>' + comment + '</h2>'));
+          $indexFieldset.append($('<h2>' + comment + '</h2>'));
         } else {
           var symbol = apiData[name];
           var category = getCategory(symbol);
           // 语法和说明。
-          $indexFieldset.appendChild($('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>'));
+          $indexFieldset.append($('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>'));
           // 详细信息。
           var groupName = symbol ? (symbol.isFunction ? (symbol.isConstructor ? 'constructor' : 'methods') : 'properties') : '';
           if (groupName && groupName !== lastGroupName) {
-            $detailsDiv.appendChild($(group[groupName]));
+            $detailsDiv.append($(group[groupName]));
           }
-          $detailsDiv.appendChild($('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>'));
+          $detailsDiv.append($('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>'));
           lastGroupName = groupName;
         }
       });
-      $details.appendChild($detailsDiv);
-      indexColumns[side].appendChild($indexFieldset);
+      $details.append($detailsDiv);
+      indexColumns[side].append($indexFieldset);
     };
 
 //--------------------------------------------------[列出名单中的指定内容]

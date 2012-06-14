@@ -451,9 +451,9 @@
    * 将 document.cookie 扩展为 cookie 对象。
    *
    * 提供方法：
-   *   cookie.set
-   *   cookie.get
-   *   cookie.remove
+   *   cookie.getItem
+   *   cookie.setItem
+   *   cookie.removeItem
    */
 
   /**
@@ -464,65 +464,65 @@
   var cookie = {};
   window.cookie = cookie;
 
-//--------------------------------------------------[cookie.set]
+//--------------------------------------------------[cookie.getItem]
   /**
-   * 设置 cookie。
-   * @name cookie.set
+   * 从 cookie 中读取一条数据。
+   * @name cookie.getItem
    * @function
-   * @param {string} name 要设置的 cookie 名称。
-   * @param {string} value 要设置的 cookie 名称对应的值。
-   * @param {Object} [options] 可选参数。
-   * @param {string} options.path 限定生效的路径，默认为当前路径。
-   * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输 cookie，默认为否。
-   * @param {Date} options.expires 过期时间。
+   * @param {string} key 数据名。
+   * @returns {string} 数据值。
    */
-  cookie.set = function(name, value, options) {
-    options = options || {};
-    var cookie = name + '=' + encodeURIComponent(value);
-    if (options.path) {
-      cookie += '; path=' + options.path;
-    }
-    if (options.domain) {
-      cookie += '; domain=' + options.domain;
-    }
-    if (options.secure) {
-      cookie += '; secure';
-    }
-    if (options.expires) {
-      cookie += '; expires=' + options.expires.toUTCString();
-    }
-    document.cookie = cookie;
-  };
-
-//--------------------------------------------------[cookie.get]
-  /**
-   * 读取 cookie。
-   * @name cookie.get
-   * @function
-   * @param {string} name 要读取的 cookie 名称。
-   * @returns {string} 对应的值。
-   */
-  cookie.get = function(name) {
-    var matchs = document.cookie.match('(?:^|;)\\s*' + RegExp.escape(name) + '=([^;]*)');
+  cookie.getItem = function(key) {
+    var matchs = document.cookie.match(new RegExp('(?:^|;)\\s*' + RegExp.escape(key) + '=([^;]*)'));
     return matchs ? decodeURIComponent(matchs[1]) : null;
   };
 
-//--------------------------------------------------[cookie.remove]
+//--------------------------------------------------[cookie.setItem]
   /**
-   * 删除 cookie。
-   * @name cookie.remove
+   * 在 cookie 中保存一条数据。
+   * @name cookie.setItem
    * @function
-   * @param {string} name 要删除的 cookie 名称。
+   * @param {string} key 数据名。
+   * @param {string} value 数据值。
    * @param {Object} [options] 可选参数。
    * @param {string} options.path 限定生效的路径，默认为当前路径。
    * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输 cookie，默认为否。
+   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   * @param {Date} options.expires 过期时间。
    */
-  cookie.remove = function(name, options) {
+  cookie.setItem = function(key, value, options) {
+    options = options || {};
+    var item = key + '=' + encodeURIComponent(value);
+    if (options.path) {
+      item += '; path=' + options.path;
+    }
+    if (options.domain) {
+      item += '; domain=' + options.domain;
+    }
+    if (options.secure) {
+      item += '; secure';
+    }
+    if (options.expires) {
+      item += '; expires=' + options.expires.toUTCString();
+    }
+    document.cookie = item;
+  };
+
+//--------------------------------------------------[cookie.removeItem]
+  /**
+   * 从 cookie 中删除一条数据。
+   * @name cookie.removeItem
+   * @function
+   * @param {string} key 数据名。
+   * @param {Object} [options] 可选参数。
+   * @param {string} options.path 限定生效的路径，默认为当前路径。
+   * @param {string} options.domain 限定生效的域名，默认为当前域名。
+   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   */
+  cookie.removeItem = function(key, options) {
     options = options || {};
     options.expires = new Date(0);
-    this.set(name, '', options);
+    this.set(key, '', options);
   };
 
 //==================================================[localStorage 补缺]
@@ -530,8 +530,8 @@
    * 为不支持 localStorage 的浏览器（IE6 IE7）模拟此特性。
    *
    * 补缺属性：
-   *   localStorage.setItem
    *   localStorage.getItem
+   *   localStorage.setItem
    *   localStorage.removeItem
    *   localStorage.clear
    *
@@ -585,13 +585,26 @@
   // 添加行为。
   userDataElement.addBehavior('#default#userData');
 
+//--------------------------------------------------[localStorage.getItem]
+  /**
+   * 从 localStorage 中读取一条数据。
+   * @name localStorage.getItem
+   * @function
+   * @param {string} key 数据名。
+   * @returns {string} 数据值。
+   */
+  localStorage.getItem = function(key) {
+    userDataElement.load(USER_DATA_FILE_NAME);
+    return userDataElement.getAttribute(key);
+  };
+
 //--------------------------------------------------[localStorage.setItem]
   /**
-   * 保存数据。
+   * 在 localStorage 中保存一条数据。
    * @name localStorage.setItem
    * @function
-   * @param {string} key 要保存的数据名，不能为空字符串。
-   * @param {string} value 要保存的数据值。
+   * @param {string} key 数据名，不能为空字符串。
+   * @param {string} value 数据值。
    * @description
    *   注意：
    *   与源生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
@@ -603,25 +616,12 @@
     userDataElement.save(USER_DATA_FILE_NAME);
   };
 
-//--------------------------------------------------[localStorage.getItem]
-  /**
-   * 读取数据。
-   * @name localStorage.getItem
-   * @function
-   * @param {string} key 要读取的数据名，不能为空字符串。
-   * @returns {string} 对应的值。
-   */
-  localStorage.getItem = function(key) {
-    userDataElement.load(USER_DATA_FILE_NAME);
-    return userDataElement.getAttribute(key);
-  };
-
 //--------------------------------------------------[localStorage.removeItem]
   /**
-   * 删除数据。
+   * 从 localStorage 中删除一条数据。
    * @name localStorage.removeItem
    * @function
-   * @param {string} key 要删除的数据名，不能为空字符串。
+   * @param {string} key 数据名。
    */
   localStorage.removeItem = function(key) {
     userDataElement.load(USER_DATA_FILE_NAME);
@@ -631,7 +631,7 @@
 
 //--------------------------------------------------[localStorage.clear]
   /**
-   * 清空所有数据。
+   * 清空 localStorage 中的所有数据。
    * @name localStorage.clear
    * @function
    */
