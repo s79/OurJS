@@ -21,6 +21,45 @@
    *   Component
    */
 
+  var returnTrue = function() {
+    return true;
+  };
+  var returnFalse = function() {
+    return false;
+  };
+
+  /**
+   * 组件事件。
+   * @name ComponentEvent
+   * @constructor
+   * @private
+   * @param {string} type 事件类型。
+   * @description
+   *   组件事件可以取消默认行为（建议为用户主动触发的事件添加此功能），但不会传递。
+   */
+  function ComponentEvent(type) {
+    this.type = type;
+  }
+
+  /**
+   * 阻止事件的默认行为。
+   * @name ComponentEvent.prototype.preventDefault
+   * @function
+   * @private
+   */
+  ComponentEvent.prototype.preventDefault = function() {
+    this.isDefaultPrevented = returnTrue;
+  };
+
+  /**
+   * 查询事件的默认行为是否已被阻止。
+   * @name ComponentEvent.prototype.isDefaultPrevented
+   * @function
+   * @private
+   * @returns {boolean} 查询结果。
+   */
+  ComponentEvent.prototype.isDefaultPrevented = returnFalse;
+
 //--------------------------------------------------[Component Constructor]
   /**
    * 创建一个组件。
@@ -78,19 +117,19 @@
    * @returns {Object} 本组件。
    */
   Component.prototype.on = function(name, listener) {
-    var self = this;
+    var component = this;
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        Component.prototype.on.call(self, name, listener);
+        Component.prototype.on.call(component, name, listener);
       });
-      return self;
+      return component;
     }
-    var events = self.events;
+    var events = component.events;
     var dotIndex = name.indexOf('.');
     var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
     var handlers = events[type] || (events[type] = []);
     handlers.push({name: name, listener: listener});
-    return self;
+    return component;
   };
 
 //--------------------------------------------------[Component.prototype.off]
@@ -102,19 +141,19 @@
    * @returns {Object} 本组件。
    */
   Component.prototype.off = function(name) {
-    var self = this;
+    var component = this;
     if (name.contains(' ')) {
       name.split(' ').forEach(function(name) {
-        Component.prototype.off.call(self, name);
+        Component.prototype.off.call(component, name);
       });
-      return self;
+      return component;
     }
-    var events = self.events;
+    var events = component.events;
     var dotIndex = name.indexOf('.');
     var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
     var handlers = events[type];
     if (!handlers) {
-      return self;
+      return component;
     }
     var i = 0;
     var handler;
@@ -133,7 +172,7 @@
     if (handlers.length === 0) {
       delete events[type];
     }
-    return self;
+    return component;
   };
 
 //--------------------------------------------------[Component.prototype.fire]
@@ -144,18 +183,27 @@
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    * @returns {Object} 本组件。
+   * @description
+   *   高级应用：第三个隐藏参数 callback 供组件编写时调用，该函数仅在本事件对象从未调用过 preventDefault 方法的情况下才会执行。建议在用户触发的事件上使用 callback。
    */
-  Component.prototype.fire = function(type, data) {
-    var self = this;
-    var events = self.events;
-    var handlers = events[type];
-    if (!handlers) {
-      return self;
+  Component.prototype.fire = function(type, data, callback) {
+    var component = this;
+    var handlers = component.events[type];
+    if (handlers) {
+      var event = Object.append(new ComponentEvent(type), data || {});
+      handlers.forEach(function(handler) {
+        if (handler.listener.call(component, event) === false) {
+          event.preventDefault();
+        }
+      });
+      if (event.isDefaultPrevented()) {
+        return component;
+      }
     }
-    handlers.forEach(function(handler) {
-      handler.listener.call(self, data);
-    });
-    return self;
+    if (callback) {
+      callback();
+    }
+    return component;
   };
 
 //--------------------------------------------------[Component]

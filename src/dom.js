@@ -1415,12 +1415,15 @@
       e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
       this.isPropagationStopped = returnTrue;
     },
+
     /**
-     * 事件的传递是否已被阻止。
+     * 查询事件的传递是否已被阻止。
      * @name Event.prototype.isPropagationStopped
-     * @type boolean
+     * @function
+     * @returns {boolean} 查询结果。
      */
     isPropagationStopped: returnFalse,
+
     /**
      * 阻止事件的默认行为。
      * @name Event.prototype.preventDefault
@@ -1431,12 +1434,15 @@
       e.preventDefault ? e.preventDefault() : e.returnValue = false;
       this.isDefaultPrevented = returnTrue;
     },
+
     /**
-     * 事件的默认行为是否已被阻止。
+     * 查询事件的默认行为是否已被阻止。
      * @name Event.prototype.isDefaultPrevented
-     * @type boolean
+     * @function
+     * @returns {boolean} 查询结果。
      */
     isDefaultPrevented: returnFalse,
+
     /**
      * 立即阻止事件的传递，被立即阻止传递的事件不仅不会向其他元素传递，也不会在当前元素上触发其他事件监听器。
      * @name Event.prototype.stopImmediatePropagation
@@ -1446,12 +1452,15 @@
       this.stopPropagation();
       this.isImmediatePropagationStopped = returnTrue;
     },
+
     /**
-     * 事件的传递是否已被立即阻止。
+     * 查询事件的传递是否已被立即阻止。
      * @name Event.prototype.isImmediatePropagationStopped
-     * @type boolean
+     * @function
+     * @returns {boolean} 查询结果。
      */
     isImmediatePropagationStopped: returnFalse
+
   });
 
   // 添加/删除事件处理函数的 DOM 方法。
@@ -1531,8 +1540,7 @@
         if (!handler.filter || handler.filter.call($target)) {
           // isTriggered 为判断预期的事件是否被触发的函数，返回 false 则忽略该事件。
           if (!isTriggered || isTriggered.call($target, event)) {
-            var result = handler.listener.call($target, event);
-            if (result === false) {
+            if (handler.listener.call($target, event) === false) {
               event.preventDefault();
               event.stopPropagation();
             }

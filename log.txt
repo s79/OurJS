@@ -1,5 +1,50 @@
-﻿>2012-06-15 (TODO - Fx.Fade)
+﻿>2012-06-15
+Component.prototype.fire 添加第三个参数，以支持 event.preventDefault 方法。建议在用户调用组件的某个方法时触发的事件中使用。
+>TODO 各组件的 fire 方法。
 取消 Fx.Fade，因为这个效果不是“线性变换”，涉及到在首末帧修改 display 属性的值，这将导致 Animation 的 beforestart/afterstart 等事件的处理变得复杂。
+//--------------------------------------------------[Fx.Fade]
+  /**
+   * 渐隐效果。
+   * @name Fx.Fade
+   * @constructor
+   * @param {Element} $element 要实施渐隐效果的元素。
+   * @param {string} mode 渐隐模式，in 为渐入，out 为渐出。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
+   */
+  Fx.Fade = function($element, mode, delay, duration, timingFunction) {
+    var isFadeInMode = mode === 'in';
+    var originalOpacity;
+    this.handler = function(x, y) {
+      if (originalOpacity === undefined) {
+        originalOpacity = $element.getStyle('opacity');
+      }
+      var isPlayMethod = this.status === PLAYING;
+      var styles = {
+        // 正常状态。
+        normal: {'display': 'block', 'opacity': originalOpacity},
+        // 全透明状态。
+        fullTransparency: {'display': 'block', 'opacity': 0},
+        // 隐藏状态。
+        noDisplay: {'display': 'none', 'opacity': originalOpacity}
+      };
+      switch (x) {
+        case 0:
+          $element.setStyles(styles[isFadeInMode ? (isPlayMethod ? 'fullTransparency' : 'noDisplay') : 'normal']);
+          break;
+        case 1:
+          $element.setStyles(styles[isFadeInMode ? 'normal' : (isPlayMethod ? 'noDisplay' : 'fullTransparency')]);
+          break;
+        default:
+          $element.setStyle('opacity', (originalOpacity * (isFadeInMode ? y : 1 - y)).toFixed(2));
+          break;
+      }
+    };
+    this.delay = delay;
+    this.duration = duration;
+    this.timingFunction = getTimingFunction(timingFunction);
+  };
 
 >2012-06-14
 Animation 的 playstart/reversestart 事件改为 step 之前。

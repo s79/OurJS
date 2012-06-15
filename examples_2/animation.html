@@ -47,7 +47,7 @@ execute(function($) {
 <!-- e_m_1 { -->
 <fieldset>
   <legend>可以为数字值、长度值、颜色值设置渐变。</legend>
-  <div id="e_m_1" style="width: 100px; height: 50px; padding: 2px; border: 0 solid gray; background: gold; line-height: 50px; text-align: center;">M</div>
+  <div id="e_m_1" style="width: 100px; height: 50px; padding: 2px; border: 0 solid gray; background: gold; line-height: 50px; text-align: center;">0</div>
   <button id="e_m_1_go">morph</button>
 </fieldset>
 <pre></pre>
@@ -59,7 +59,7 @@ execute(function($) {
       borderLeftWidth: '10px', // 长度值目前仅支持像素单位。
       borderLeftColor: '#808080',
       fontSize: 35, // 可以省略 'px'，直接使用数字。
-      lineHeight: 50, // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置（否则 50 的含义就是当前字体尺寸的 50 倍）。
+      lineHeight: 50, // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置。
       backgroundColor: 'tomato',
       color: '#FFF',
       opacity: .5
@@ -68,7 +68,7 @@ execute(function($) {
       duration: 1000,
       timingFunction: 'bounceIn',
       callback: function() {
-        this.innerText += 'M';
+        this.innerText++;
       }
     });
   });
@@ -128,11 +128,12 @@ execute(function($) {
 <script>
 execute(function($) {
   $('#e_h_2_go').on('click', function() {
-    $('#e_h_2').highlight({
-      callback: function() {
-        this.innerText += '1';
-      }
-    })
+    $('#e_h_2')
+        .highlight({
+          callback: function() {
+            this.innerText += '1';
+          }
+        })
         .highlight({
           callback: function() {
             this.innerText += '2';

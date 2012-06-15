@@ -172,13 +172,13 @@
    * @name Animation
    * @constructor
    * @fires play
-   *   开始播放时，渲染本次播放的第一帧之前触发。
+   *   调用 play 方法时，渲染本次播放的第一帧之前触发；可以取消本次动作。
    * @fires playstart
    *   开始播放时，渲染整个动画的第一帧之前触发。
    * @fires playfinish
    *   播放结束时，渲染整个动画的最后一帧之后触发。
    * @fires reverse
-   *   开始反向播放时，渲染本次播放的第一帧之前触发。
+   *   调用 reverse 方法时，渲染本次播放的第一帧之前触发；可以取消本次动作。
    * @fires reversestart
    *   开始反向播放时，渲染整个动画的第一帧之前触发。
    * @fires reversefinish
@@ -186,9 +186,9 @@
    * @fires step
    *   渲染每一帧之后触发。
    * @fires pause
-   *   暂停播放时触发。
+   *   调用 pause 方法时触发；可以取消本次动作。
    * @fires stop
-   *   停止播放时触发。
+   *   调用 stop 方法时触发；可以取消本次动作。
    * @description
    *   高级应用：
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
@@ -236,24 +236,26 @@
    *   如果当前动画的时间点在终点，则调用此方法无效。
    */
   Animation.prototype.play = function(reverse) {
+    var animation = this;
     var isPlayMethod = reverse !== INTERNAL_IDENTIFIER_REVERSE;
-    var status = this.status;
-    var duration = this.duration;
+    var status = animation.status;
     if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != STARTING_POINT) {
-      this.status = isPlayMethod ? PLAYING : REVERSING;
       // 触发事件。
-      this.fire(isPlayMethod ? 'play' : 'reverse');
-      // 未挂载到引擎（执行此方法前为暂停/停止状态）。
-      if (!this.timestamp) {
-        // 每次播放/反向播放时的首帧同步播放。
-        playAnimation(this, isPlayMethod ? 0 : duration, isPlayMethod);
-        // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
-        if (duration) {
-          mountAnimation(this);
+      animation.fire(isPlayMethod ? 'play' : 'reverse', null, function() {
+        animation.status = isPlayMethod ? PLAYING : REVERSING;
+        // 未挂载到引擎（执行此方法前为暂停/停止状态）。
+        if (!animation.timestamp) {
+          var duration = animation.duration;
+          // 每次播放/反向播放时的首帧同步播放。
+          playAnimation(animation, isPlayMethod ? 0 : duration, isPlayMethod);
+          // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
+          if (duration) {
+            mountAnimation(animation);
+          }
         }
-      }
+      });
     }
-    return this;
+    return animation;
   };
 
 //--------------------------------------------------[Animation.prototype.reverse]
@@ -279,12 +281,14 @@
    *   仅在动画处于“播放”或“反向播放”状态时，调用此方法才有效。
    */
   Animation.prototype.pause = function() {
-    if (this.timestamp) {
-      unmountAnimation(this);
-      this.status = PASUING;
-      this.fire('pause');
+    var animation = this;
+    if (animation.timestamp) {
+      animation.fire('pause', null, function() {
+        animation.status = PASUING;
+        unmountAnimation(animation);
+      });
     }
-    return this;
+    return animation;
   };
 
 //--------------------------------------------------[Animation.prototype.stop]
@@ -297,18 +301,20 @@
    *   如果当前动画的时间点在起点，则调用此方法无效。
    */
   Animation.prototype.stop = function() {
-    if (this.status !== STARTING_POINT) {
-      if (this.timestamp) {
-        unmountAnimation(this);
-      }
-      this.timePoint = 0;
-      this.clips.forEach(function(clip) {
-        clip.status = BEFORE_STARTING_POINT;
+    var animation = this;
+    if (animation.status !== STARTING_POINT) {
+      animation.fire('stop', null, function() {
+        animation.timePoint = 0;
+        animation.status = STARTING_POINT;
+        animation.clips.forEach(function(clip) {
+          clip.status = BEFORE_STARTING_POINT;
+        });
+        if (animation.timestamp) {
+          unmountAnimation(animation);
+        }
       });
-      this.status = STARTING_POINT;
-      this.fire('stop');
     }
-    return this;
+    return animation;
   };
 
 //--------------------------------------------------[Animation]
@@ -574,50 +580,6 @@
     this.timingFunction = getTimingFunction(timingFunction);
   };
 
-//--------------------------------------------------[Fx.Fade]
-  /**
-   * 渐隐效果。
-   * @name Fx.Fade
-   * @constructor
-   * @param {Element} $element 要实施渐隐效果的元素。
-   * @param {string} mode 渐隐模式，in 为渐入，out 为渐出。
-   * @param {number} delay 延时。
-   * @param {number} duration 播放时间。
-   * @param {string} timingFunction 控速函数名称或表达式。
-   */
-  Fx.Fade = function($element, mode, delay, duration, timingFunction) {
-    var isFadeInMode = mode === 'in';
-    var originalOpacity;
-    this.handler = function(x, y) {
-      if (originalOpacity === undefined) {
-        originalOpacity = $element.getStyle('opacity');
-      }
-      var isPlayMethod = this.status === PLAYING;
-      var styles = {
-        // 正常状态。
-        normal: {'display': 'block', 'opacity': originalOpacity},
-        // 全透明状态。
-        fullTransparency: {'display': 'block', 'opacity': 0},
-        // 隐藏状态。
-        noDisplay: {'display': 'none', 'opacity': originalOpacity}
-      };
-      switch (x) {
-        case 0:
-          $element.setStyles(styles[isFadeInMode ? (isPlayMethod ? 'fullTransparency' : 'noDisplay') : 'normal']);
-          break;
-        case 1:
-          $element.setStyles(styles[isFadeInMode ? 'normal' : (isPlayMethod ? 'noDisplay' : 'fullTransparency')]);
-          break;
-        default:
-          $element.setStyle('opacity', (originalOpacity * (isFadeInMode ? y : 1 - y)).toFixed(2));
-          break;
-      }
-    };
-    this.delay = delay;
-    this.duration = duration;
-    this.timingFunction = getTimingFunction(timingFunction);
-  };
-
 //--------------------------------------------------[Fx.Slide]
 
 //--------------------------------------------------[Fx.Highlight]
@@ -687,49 +649,30 @@
   var playQueue = function(uid) {
     var queue = queuePool[uid];
     if (queue) {
-      // 要播放的动画的参数。
-      var item = queue[0];
-      var $element = item[0];
-      var type = item[1];
-      var clip = item[2];
-      var callback = item[3];
-      var onPlayFinish = function() {
-        queue.shift();
-        if (queue.length) {
-          playQueue(uid);
-        } else {
-          delete queuePool[uid];
-        }
-      };
-      // fadeIn/fadeOut 的特殊情况处理。
-      if (type === 'fadeIn' && $element.offsetWidth || type === 'fadeOut' && !$element.offsetWidth) {
-        onPlayFinish();
-        return;
-      }
+      console.log('playQueue', queue.length);
       // 开始播放动画。
-      queue.currentAnimation = new Animation().addClip(clip).on('playfinish', onPlayFinish).on('playfinish', callback).play();
+      queue.currentAnimation = queue.shift()
+          .on('playfinish', function() {
+            if (queue.length) {
+              playQueue(uid);
+            } else {
+              delete queuePool[uid];
+            }
+          })
+          .play();
     }
   };
 
   // 在指定的队列中添加一个动画。
-  var addToQueue = function($element, type, clip, callback) {
-    var uid = $element.uid;
+  var addToQueue = function(uid, animation) {
     var queue = queuePool[uid];
     if (queue) {
-      // highlight 的特殊情况处理。
-      if (type === 'highlight') {
-        var currentAnimation = queue.currentAnimation;
-        if (queue[queue.length - 1] && queue[queue.length - 1][2] instanceof Fx.Highlight) {
-          if (currentAnimation && currentAnimation.clips[0] instanceof Fx.Highlight) {
-            currentAnimation.stop().play();
-          }
-          return;
-        }
-      }
+      console.log('has queue');
     } else {
       queue = queuePool[uid] = [];
     }
-    queue.push([$element, type, clip, callback]);
+    queue.push(animation);
+    console.warn('addToQueue', queue.length, queue.currentAnimation);
     if (!queue.currentAnimation) {
       playQueue(uid);
     }
@@ -759,15 +702,14 @@
    */
   Element.prototype.morph = function(styles, options) {
     var $element = this;
-    options = options || {};
-    addToQueue(
-        $element,
-        'morph',
-        new Fx.Morph($element, styles, options.delay || 0, options.duration || 400, options.timingFunction || 'ease'),
-        function() {
-          options.callback && options.callback.call($element);
-        }
-    );
+    options = Object.append({delay: 0, duration: 400, timingFunction: 'ease', callback: null}, options || {});
+    var animation = new Animation().addClip(new Fx.Morph($element, styles, options.delay, options.duration, options.timingFunction));
+    if (options.callback) {
+      animation.on('playfinish', function() {
+        options.callback.call($element);
+      });
+    }
+    addToQueue($element.uid, animation);
     return $element;
   };
 
@@ -777,23 +719,34 @@
    * @name Element.prototype.fadeIn
    * @function
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {number} options.delay 延时，默认为 0，即马上开始播放。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
+   * @param {string} options.timingFunction 控速函数名称或表达式。
    * @param {Function} options.callback 播放完成后的回调。
    * @returns {Element} 本元素。
    * @description
-   *   当前已被渲染的元素不能执行淡入效果。
+   *   display 不为 none 的元素不能执行淡入效果。
    */
   Element.prototype.fadeIn = function(options) {
     var $element = this;
-    options = options || {};
-    addToQueue(
-        $element,
-        'fadeIn',
-        new Fx.Fade($element, 'in', 0, options.duration || 200, 'easeIn'),
-        function() {
-          options.callback && options.callback.call($element);
-        }
-    );
+    var animation = new Animation()
+        .on('play', function(e) {
+          if ($element.getStyle('display') === 'none') {
+            var originalOpacity = $element.getStyle('opacity');
+            options = Object.append({delay: 0, duration: 200, timingFunction: 'easeIn', callback: null}, options || {});
+            this.addClip(new Fx.Morph($element, {opacity: originalOpacity}, options.delay, options.duration, options.timingFunction));
+            $element.setStyles({'display': 'block', 'opacity': 0});
+          } else {
+            e.preventDefault();
+            this.off('playfinish.callback').fire('playfinish');
+          }
+        })
+        .on('playfinish.callback', function() {
+          if (options.callback) {
+            options.callback.call($element);
+          }
+        });
+    addToQueue($element.uid, animation);
     return $element;
   };
 
@@ -803,23 +756,35 @@
    * @name Element.prototype.fadeOut
    * @function
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {number} options.delay 延时，默认为 0，即马上开始播放。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
+   * @param {string} options.timingFunction 控速函数名称或表达式。
    * @param {Function} options.callback 播放完成后的回调。
    * @returns {Element} 本元素。
    * @description
-   *   当前并未被渲染的元素不能执行淡出效果。
+   *   display 为 none 的元素不能执行淡入效果。
    */
   Element.prototype.fadeOut = function(options) {
     var $element = this;
-    options = options || {};
-    addToQueue(
-        $element,
-        'fadeOut',
-        new Fx.Fade($element, 'out', 0, options.duration || 200, 'easeOut'),
-        function() {
-          options.callback && options.callback.call($element);
-        }
-    );
+    var originalOpacity;
+    var animation = new Animation()
+        .on('play', function(e) {
+          if ($element.getStyle('display') !== 'none') {
+            originalOpacity = $element.getStyle('opacity');
+            options = Object.append({delay: 0, duration: 200, timingFunction: 'easeOut', callback: null}, options || {});
+            this.addClip(new Fx.Morph($element, {opacity: 0}, options.delay, options.duration, options.timingFunction));
+          } else {
+            e.preventDefault();
+            this.off('playfinish.callback').fire('playfinish');
+          }
+        })
+        .on('playfinish.callback', function() {
+          $element.setStyles({'display': 'none', 'opacity': originalOpacity});
+          if (options.callback) {
+            options.callback.call($element);
+          }
+        });
+    addToQueue($element.uid, animation);
     return $element;
   };
 
@@ -839,16 +804,29 @@
    */
   Element.prototype.highlight = function(options) {
     var $element = this;
-    options = options || {};
-    addToQueue(
-        $element,
-        'highlight',
-        new Fx.Highlight($element, options.color || 'yellow', options.times || 1, 0, options.duration || 500, 'easeIn'),
-        function() {
-          options.callback && options.callback.call($element);
-        }
-    );
+    options = Object.append({color: 'yellow', times: 2, duration: 500, callback: null}, options || {});
+    var animation = new Animation().addClip(new Fx.Highlight($element, options.color, options.times, 0, options.duration, 'easeIn'));
+    if (options.callback) {
+      animation.on('playfinish', function() {
+        options.callback.call($element);
+      });
+    }
+    addToQueue($element.uid, animation);
     return $element;
   };
+
+  /*
+   // highlight 的特殊情况处理。
+   if (animation.type === 'highlight') {
+   //        if (queue[queue.length - 1] && queue[queue.length - 1][2] instanceof Fx.Highlight) {
+   //          var currentAnimation = queue.currentAnimation;
+   //          if (currentAnimation && currentAnimation.clips[0] instanceof Fx.Highlight) {
+   //            currentAnimation.stop().play();
+   //          }
+   //          return;
+   //        }
+   }
+
+   */
 
 })();

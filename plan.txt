@@ -67,8 +67,6 @@ TODO: 事件部分 fire 参数由 type 改为 name。
 不会实施这个修改，这会把事情变复杂。如果需要触发特定的一些监听器，应该为他们单独指定 type。
 }
 
->TODO: 事件部分 + input。
-
 {
 TODO: Animation 继续参考 CSS3 Transition，增加 delay 参数，并对外暴露 timingFunction。
       [low] +反向动画支持
