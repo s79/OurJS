@@ -317,7 +317,7 @@ execute(function($) {
         if (this.isOpen) {
           this.isOpen = false;
           // 关闭时的向右移动的效果。
-          $deatilsPanel.morph({left: detailsPanelLeft + 15, opacity: 0}, {transition: 'easeIn', duration: 150, callback: function() {
+          $deatilsPanel.morph({left: detailsPanelLeft + 15, opacity: 0}, {transition: 'easeIn', duration: 150, onFinish: function() {
             var offsetY = window.getPageOffset().y;
             deatilsPanel.close();
             window.scrollTo(0, offsetY);

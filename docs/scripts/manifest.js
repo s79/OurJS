@@ -193,9 +193,9 @@ var manifest = {
     'Element.prototype.fire',
     '#动画效果',
     'Element.prototype.morph',
+    'Element.prototype.highlight',
     'Element.prototype.fadeIn',
-    'Element.prototype.fadeOut',
-    'Element.prototype.highlight'
+    'Element.prototype.fadeOut'
   ],
   'Event': [
     '#自定义扩展',
@@ -258,7 +258,6 @@ var manifest = {
     'Animation.prototype.stop',
     'Fx.Base',
     'Fx.Morph',
-    'Fx.Fade',
     'Fx.Highlight'
   ],
   'Switcher': [

@@ -1,5 +1,5 @@
 ﻿>2012-06-15
-Component.prototype.fire 添加第三个参数，以支持 event.preventDefault 方法。建议在用户调用组件的某个方法时触发的事件中使用。
+Component.prototype.fire 添加第三个参数，以支持 event.preventDefault 方法。建议在用户调用组件的各方法时触发的事件中使用。
 >TODO 各组件的 fire 方法。
 取消 Fx.Fade，因为这个效果不是“线性变换”，涉及到在首末帧修改 display 属性的值，这将导致 Animation 的 beforestart/afterstart 等事件的处理变得复杂。
 //--------------------------------------------------[Fx.Fade]

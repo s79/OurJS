@@ -8,9 +8,10 @@
 <script src="../docs/scripts/prettify.js"></script>
 <script src="../dev.js"></script>
 <style>
+h1 { margin-bottom: -30px; }
 h2 { margin: 50px 0 20px; }
 fieldset { display: block; float: none; margin: 20px 0 0; }
-button { padding: 2px 5px; }
+button { padding: 5px 10px; overflow: visible; }
 </style>
 <script>
 execute(function($) {
@@ -47,7 +48,7 @@ execute(function($) {
 <!-- e_m_1 { -->
 <fieldset>
   <legend>可以为数字值、长度值、颜色值设置渐变。</legend>
-  <div id="e_m_1" style="width: 100px; height: 50px; padding: 2px; border: 0 solid gray; background: gold; line-height: 50px; text-align: center;">0</div>
+  <div id="e_m_1" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
   <button id="e_m_1_go">morph</button>
 </fieldset>
 <pre></pre>
@@ -59,15 +60,14 @@ execute(function($) {
       borderLeftWidth: '10px', // 长度值目前仅支持像素单位。
       borderLeftColor: '#808080',
       fontSize: 35, // 可以省略 'px'，直接使用数字。
-      lineHeight: 50, // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置。
+      lineHeight: 80, // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置。
       backgroundColor: 'tomato',
       color: '#FFF',
-      opacity: .5
+      opacity: .75
     }, {
-      delay: 0,
       duration: 1000,
       timingFunction: 'bounceIn',
-      callback: function() {
+      onStart: function() {
         this.innerText++;
       }
     });
@@ -76,33 +76,11 @@ execute(function($) {
 </script>
 <!-- } e_m_1 -->
 
-<h2>element.fadeIn/fadeOut</h2>
-<!-- e_f_1 { -->
-<fieldset>
-  <legend>渐隐效果。</legend>
-  <div id="e_f_1" style="width: 100px; height: 50px; padding: 2px; background: gold; line-height: 50px; text-align: center;">F</div>
-  <button id="e_f_1_in">fadeIn()</button>
-  <button id="e_f_1_out">fadeOut()</button>
-</fieldset>
-<pre></pre>
-<script>
-execute(function($) {
-  var $e = $('#e_f_1');
-  $('#e_f_1_in').on('click', function() {
-    $e.fadeIn();  // 当前已被渲染的元素不能执行淡入效果。
-  });
-  $('#e_f_1_out').on('click', function() {
-    $e.fadeOut();  // 当前并未被渲染的元素不能执行淡出效果。
-  });
-});
-</script>
-<!-- } e_f_1 -->
-
 <h2>element.highlight</h2>
 <!-- e_h_1 { -->
 <fieldset>
-  <legend>高亮效果，多次点击时将重播队列中正在播放的高亮效果，并且只有这个播放的效果会有回调。</legend>
-  <div id="e_h_1" style="width: 100px; height: 50px; padding: 2px; background: gold; line-height: 50px; text-align: center;">H</div>
+  <legend>高亮效果，多次点击时将重播队列中正在播放的高亮效果，并且只有这个高亮效果会有回调。</legend>
+  <div id="e_h_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
   <button id="e_h_1_go">highlight</button>
 </fieldset>
 <pre></pre>
@@ -110,8 +88,8 @@ execute(function($) {
 execute(function($) {
   $('#e_h_1_go').on('click', function() {
     $('#e_h_1').highlight({
-      callback: function() {
-        this.innerText += 'H';
+      onStart: function() {
+        this.innerText++;
       }
     });
   });
@@ -120,8 +98,8 @@ execute(function($) {
 <!-- } e_h_1 -->
 <!-- e_h_2 { -->
 <fieldset>
-  <legend>如果当前队列的前一个动画也是高亮动画，则丢弃当前的高亮动画。若此时当前元素正在播放一个高亮动画，则重新播放该动画。</legend>
-  <div id="e_h_2" style="width: 100px; height: 50px; padding: 2px; background: gold; line-height: 50px; text-align: center;">H</div>
+  <legend>如果当前队列的前一个动画也是高亮动画，则丢弃新的高亮动画。</legend>
+  <div id="e_h_2" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
   <button id="e_h_2_go">highlight</button>
 </fieldset>
 <pre></pre>
@@ -130,27 +108,25 @@ execute(function($) {
   $('#e_h_2_go').on('click', function() {
     $('#e_h_2')
         .highlight({
-          callback: function() {
+          onStart: function() {
             this.innerText += '1';
           }
         })
         .highlight({
-          callback: function() {
+          onStart: function() {
             this.innerText += '2';
           }
         })
         .morph({
-          width: '+=50'
-        }, {
-          duration: 500
+          width: '+=20'
         })
         .highlight({
-          callback: function() {
+          onStart: function() {
             this.innerText += '3';
           }
         })
         .highlight({
-          callback: function() {
+          onStart: function() {
             this.innerText += '4';
           }
         });
@@ -159,14 +135,43 @@ execute(function($) {
 </script>
 <!-- } e_h_2 -->
 
+<h2>element.fadeIn/fadeOut</h2>
+<!-- e_f_1 { -->
+<fieldset>
+  <legend>淡入淡出动画。display 不为 none 的元素不能播放淡入动画。display 为 none 的元素不能播放淡出动画。</legend>
+  <div style="height: 88px;">
+    <div style="float: left; padding: 2px; border: 2px solid black;">
+      <div id="e_f_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
+    </div>
+    <span>&lArr;左侧黑色方块会自动收缩（IE9 有彩蛋）</span>
+  </div>
+  <button id="e_f_1_in">fadeIn()</button>
+  <button id="e_f_1_out">fadeOut()</button>
+</fieldset>
+<pre></pre>
+<script>
+execute(function($) {
+  var $e = $('#e_f_1');
+  var i = 0;
+  $('#e_f_1_in').on('click', function() {
+    $e.fadeIn();
+  });
+  $('#e_f_1_out').on('click', function() {
+    $e.fadeOut();
+  });
+});
+</script>
+<!-- } e_f_1 -->
+
 <h2>Animation</h2>
+<h3>使用 Animation 创建的高级动画，提供了更灵活的控制手段。</h3>
 <!-- a_1 { -->
 <style>
 #a_1 { list-style: none; padding: 0; cursor: default; }
 #a_1 li { width: 200px; height: 30px; margin: 2px 0; padding-left: 10px; border-left: 0 solid white; background: mediumseagreen; line-height: 30px; }
 </style>
 <fieldset>
-  <legend>使用 Animation 创建的高级动画可以正向播放，也可以反向播放。</legend>
+  <legend>可以正向播放，也可以反向播放。</legend>
   <ul id="a_1">
     <li>菜单一</li>
     <li>菜单二</li>
@@ -198,7 +203,7 @@ execute(function($) {
 <!-- a_2 { -->
 <style>
 #container { position: relative; width: 200px; height: 50px; margin: auto; }
-#layer { display: none; position: absolute; z-index: 2; left: 0; top: 20px; width: 200px; height: 0; background: #c0c0c0; font: 1px/1px Verdana; text-align: center; overflow: hidden; }
+#layer { display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; background: #c0c0c0; font: 12px/20px Verdana; text-align: center; overflow: hidden; }
 #layer.italic { font-style: italic; }
 #panel { position: relative; width: 500px; margin: auto; }
 #panel #number,
@@ -208,7 +213,7 @@ execute(function($) {
 #panel #timeline { position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left; }
 </style>
 <fieldset style="position: relative; text-align: center;">
-  <legend style="text-align: left;">高级动画支持多个影片剪辑、多种动作及事件。</legend>
+  <legend style="text-align: left;">支持多个影片剪辑、多种动作及事件。</legend>
   <div id="container">
     <div id="layer"></div>
   </div>
@@ -227,52 +232,52 @@ execute(function($) {
 <script>
 execute(function($) {
 //--------------------------------------------------[animation]
-  var $layer = $('#layer').setStyle('opacity', 0.75);
+  var $layer = $('#layer').setStyle('opacity', 0);
   window.animation = new Animation()
-//      .addClip(new Fx.Fade($layer, 'in', 0, 100, 'easeOut'))
-//      .addClip(new Fx.Highlight($layer, 'aqua', 1, 100, 300, 'linear'))
-//      .addClip(
-//      new Fx.Morph($layer, {
-//        backgroundColor: 'steelblue'
-//      }, 400, 600))
-//      .addClip(
-//      new Fx.Morph($layer, {
-//        left: '-=150',
-//        width: '+=300'
-//      }, 400, 200, 'cubicBezier(.6,0,.6,1.35)'))
+      .addClip(new Fx.Morph($layer, {opacity: 1}, 0, 700, 'easeOut'))
+      .addClip(new Fx.Highlight($layer, 'yellow', 2, 100, 300, 'linear'))
+      .addClip(
+      new Fx.Morph($layer, {
+        backgroundColor: 'steelblue'
+      }, 400, 600))
+      .addClip(
+      new Fx.Morph($layer, {
+        left: '-=150',
+        width: '+=300'
+      }, 400, 200, 'cubicBezier(.6,0,.6,1.35)'))
       .addClip(
       new Fx.Base(function(x, y) {
         console.log(x, y);
         $layer.toggleClass('italic');
-      }, 0, 0, 'linear'))
-//      .addClip(
-//      new Fx.Morph($layer, {
-//        top: '-=150',
-//        height: '+=100',
-//        color: '#C00000',
-//        fontSize: 50,
-//        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
-//      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
-      .on('playstart', function() {
-        $layer.innerHTML = 'PLAYSTART';
-        console.log('PLAYSTART');
-      })
+      }, 500, 0, 'linear'))
+      .addClip(
+      new Fx.Morph($layer, {
+        top: '-=150',
+        height: '+=100',
+        color: 'crimson',
+        fontSize: 50,
+        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
+      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
       .on('play', function() {
         $layer.innerHTML = 'PLAY';
         console.log('PLAY');
+      })
+      .on('playstart', function() {
+        $layer.setStyle('display', 'block').innerHTML = 'PLAYSTART';
+        console.log('PLAYSTART');
       })
       .on('playfinish', function() {
         $layer.innerHTML = 'PLAYFINISH';
         console.log('PLAYFINISH');
 //        this.reverse();
       })
-      .on('reversestart', function() {
-        $layer.innerHTML = 'REVERSESTART';
-        console.log('REVERSESTART');
-      })
       .on('reverse', function() {
         $layer.innerHTML = 'REVERSE';
         console.log('REVERSE');
+      })
+      .on('reversestart', function() {
+        $layer.innerHTML = 'REVERSESTART';
+        console.log('REVERSESTART');
       })
       .on('reversefinish', function() {
         $layer.innerHTML = 'REVERSEFINISH';
@@ -309,8 +314,6 @@ execute(function($) {
       type = 'Fx.Base'
     } else if (clip instanceof Fx.Morph) {
       type = 'Fx.Morph'
-    } else if (clip instanceof Fx.Fade) {
-      type = 'Fx.Fade'
     } else if (clip instanceof Fx.Highlight) {
       type = 'Fx.Highlight'
     }
@@ -374,7 +377,7 @@ execute(function($) {
 .triggers button { width: 100px; }
 </style>
 <fieldset id="timing_functions" style="text-align: center;">
-  <legend style="text-align: left;">100% 兼容 CSS3 的 transition-timing-function 特性的控速函数。</legend>
+  <legend style="text-align: left;">100% 兼容 CSS3 transition-timing-function 的控速函数。</legend>
   <div id="canvas"></div>
   <p>点击 = 清除，Ctrl + 点击 = 一起画，Shift + 点击 = 分别画。</p>
   <p class="triggers">
