@@ -105,24 +105,29 @@ execute(function($) {
 <div id="content">
   <h1>OurJS 概述</h1>
 
-  <h2>要求</h2>
-  <p>OurJS 是一个适用于 WEB 应用开发的 JavaScript 快速开发框架，使用 OurJS 的开发者只需要有 JavaScript 和 DOM 的一些基础知识<sup>1</sup>，即可编写出兼容各主流浏览器（指 IE6 IE7 IE8 IE9 Firefox Chrome Safari Opera 以及其他使用 Trident 和 WebKit 内核的浏览器）的 WEB 应用。</p>
-  <p>OurJS 要求浏览器运行在“标准模式”下<sup>2</sup>，当浏览器工作在非标准模式下时，开发者将收到一条警告信息。</p>
-  <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此能够解决大部分需求。<br>当必须引入其他的类库以满足特定需求时，要注意一点：OurJS 使用了侵入式设计<sup>3</sup>，因此只能和其他非侵入式设计的类库共存<sup>4</sup>。</p>
+  <p>OurJS 是一个易学易用的、适用于 WEB 应用开发的 JavaScript 框架，开发者只需要有 JavaScript 和 DOM 的一些基础知识<sup>1</sup>，即可编写出兼容各主流浏览器<sup>2</sup>的 WEB 应用。</p>
+  <p>OurJS 要求浏览器运行在“标准模式”下，以获得更好的兼容性，并发挥浏览器的最大功效。当浏览器工作在非标准模式下时，开发者将收到一条警告信息。</p>
+  <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此能够解决大部分需求。当必须引入其他的类库以满足特定需求时，要注意一点：OurJS 使用了侵入式设计<sup>3</sup>，因此只能和其他非侵入式设计的类库共存<sup>4</sup>。</p>
   <ol class="comment">
     <li>开发者要了解 JS 的变量、数据类型、运算符、流程控制，以及 DOM 的一些常见的 API。</li>
-    <li>这是为了强制开发者编写符合标准规范的代码，以获得更好的兼容性，并发挥浏览器的最大功效。</li>
-    <li>此处的“侵入式设计”是指通过扩展 JS 对象的原型来增加新的功能。使用这种方式可以提供可读性更好的、更接近原生语法的 API。</li>
+    <li>指 IE6 IE7 IE8 IE9 Firefox Chrome Safari Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。</li>
+    <li>此处的“侵入式设计”是指通过扩展 JS 对象的原型来增加新的功能。使用这种方式可以提供更接近原生语法的 API。</li>
     <li>可以和 jQuery 共存。</li>
   </ol>
 
   <h2>特点</h2>
   <p>
-    与其他 JavaScript 框架（类库）相比，OurJS 要更加<strong>简单</strong><sup>1</sup>，更易于理解和使用。<br>
-    使 OurJS 变得“简单”的，是以下几个特点：
+    与其他 JavaScript 框架（类库）相比，OurJS 要更加<strong>易学易用</strong>。<br>
+    使 OurJS 变得如此“简单”的，是以下 3 个特点：
   </p>
+  <blockquote>
+    <p>"Everything should be made as simple as possible, but no simpler." -- Albert Einstein<br>
+      “任何事情都应该尽可能的做到简单，简单到极致。”—— 爱因斯坦
+    </p>
+  </blockquote>
 
-  <h3>语法自然 —— 提供向标准靠拢<sup>2</sup>的、语义明确<sup>3</sup>的 API。</h3>
+  <h3>1 语法自然</h3>
+  <h4>OurJS 没有标新立异的语法或充满个性的方法名，而是尽量使用符合源生 JS 或 DOM 习惯的语法，提供一套简洁自然的 API。</h4>
   <ul>
     <li>
       <p>
@@ -187,7 +192,7 @@ execute(function($) {
     </li>
   </ul>
 
-  <h3>风格一致 —— 只要掌握了部分用法，就可以轻易的推测出其他部分的用法。</h3>
+  <h3>2 风格一致 —— 只要掌握了部分用法，就可以轻易的推测出其他部分的用法。</h3>
   <ul>
     <li>
       OurJS 扩展的功能都是通过 JavaScript 的原型机制实现的，即便对 DOM 元素的扩展也是如此（这里对 IE6 IE7 做了特殊处理），这样的好处是可以像调用一个对象的源生方法一样来调用它的扩展方法。<br>
@@ -213,7 +218,7 @@ execute(function($) {
     <li><em>可重复使用的功能和一次性使用的功能。</em></li>
   </ul>
 
-  <h3>功能完善 —— 提供粒度恰当<sup>5</sup>的功能和组件，可以通过灵活的配置和组合进行自由的设计。</h3>
+  <h3>3 功能完善 —— 提供粒度恰当的功能和组件，可以通过灵活的配置和组合进行自由的设计。</h3>
   <ul>
     <li>
       在扩充对象的功能方面，OurJS 提供比其他库提供了更实用、覆盖面更广的功能，而不仅仅在某个方面提供一堆生僻的扩展（如提供十个完全可以由其他方式代替、仅仅是少些了几个单词的对 String.prototype 的扩展）。<br>
@@ -233,11 +238,6 @@ execute(function($) {
       通常，使用可预期的 API 自由的编程是更简单的。而一旦某个 API 让人感到意外或被束缚，就会令人困惑和厌烦，这样的事情如果一再发生，原本简单的事情也会觉得复杂。<br>
     </li>
   </ol>
-  <blockquote>
-    <p>"Everything should be made as simple as possible, but no simpler." -- Albert Einstein<br>
-      “任何事情都应该尽可能的做到简单，简单到极致。”—— 爱因斯坦
-    </p>
-  </blockquote>
 
 </div>
 </body>

@@ -34,11 +34,13 @@
    * @constructor
    * @private
    * @param {string} type 事件类型。
+   * @param {string} target 事件来源。
    * @description
    *   组件事件可以取消默认行为（建议为用户主动触发的事件添加此功能），但不会传递。
    */
-  function ComponentEvent(type) {
+  function ComponentEvent(type, target) {
     this.type = type;
+    this.target = target;
   }
 
   /**
@@ -71,7 +73,7 @@
    * @description
    *   组件的实例及其原型对象中都不能设置以下属性：
    *   'options'，'events'，'setOptions'，'on'，'off'，'fire'。
-   *   修改各组件的默认选项时，不要修改 XXX.options 的指向。
+   *   修改一个组件的默认选项时，应修改该组件的 options 属性所指向的对象，不要修改 options 属性的指向。
    */
   function Component(constructor, defaultOptions, prototype) {
     // 真正的构造函数。
@@ -190,7 +192,7 @@
     var component = this;
     var handlers = component.events[type];
     if (handlers) {
-      var event = Object.append(new ComponentEvent(type), data || {});
+      var event = Object.append(new ComponentEvent(type, component), data || {});
       handlers.forEach(function(handler) {
         if (handler.listener.call(component, event) === false) {
           event.preventDefault();
@@ -224,11 +226,15 @@
    * @name Switcher
    * @constructor
    * @param {Array} items 指定在本数组中的各元素间切换，本数组包含的元素必须是引用类型的值，且不能有重复。
+   * @fires active
+   *   {Element} event.activeItem 要标记为“活动”的元素。
+   *   {number} event.activeIndex 标记为“活动”的元素在 items 中的索引。
+   *   调用 active 方法时触发；可以取消本次动作。
    * @fires change
-   *   {Element} activeItem 当前的活动元素。
-   *   {number} activeIndex 当前的活动元素在 items 中的索引。
-   *   {Element} inactiveItem 上一个活动元素。
-   *   {number} inactiveIndex 上一个活动元素在 items 中的索引。
+   *   {Element} event.activeItem 当前的活动元素。
+   *   {number} event.activeIndex 当前的活动元素在 items 中的索引。
+   *   {Element} event.inactiveItem 上一个活动元素。
+   *   {number} event.inactiveIndex 上一个活动元素在 items 中的索引。
    *   在当前的活动元素改变时触发。
    * @description
    *   高级应用：动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
@@ -236,7 +242,7 @@
   function Switcher(items) {
     this.items = items;
     this.activeItem = null;
-    this.activeIndex = NaN;
+    this.activeIndex = -1;
   }
 
 //--------------------------------------------------[Switcher.options]
@@ -257,49 +263,41 @@
    * @returns {Object} Switcher 对象。
    */
   Switcher.prototype.active = function(i) {
-    // 参数 i 可能是 Object 或者 number 类型，从中解出 item 和 index 的值。
+    var switcher = this;
     var item = null;
-    var index = NaN;
+    var index = -1;
     var x;
     if (typeof i === 'number') {
-      x = this.items[i];
+      x = switcher.items[i];
       if (x) {
         item = x;
         index = i;
       }
     } else {
-      x = this.items.indexOf(i);
+      x = switcher.items.indexOf(i);
       if (x > -1) {
         item = i;
         index = x;
       }
     }
-    // 上一个活动元素的索引。
-    var lastActiveIndex = this.activeIndex;
-    // 尝试更改活动元素。
+    var lastActiveItem = switcher.activeItem;
+    var lastActiveIndex = switcher.activeIndex;
     if (index !== lastActiveIndex) {
-      this.activeItem = item;
-      this.activeIndex = index;
-      var eventTriggered = false;
-      var event = {
-        activeItem: null,
-        activeIndex: NaN,
-        inactiveItem: null,
-        inactiveIndex: NaN
-      };
-      if (!isNaN(index)) {
-        eventTriggered = true;
-        event.activeItem = item;
-        event.activeIndex = index;
-      }
-      if (!isNaN(lastActiveIndex)) {
-        eventTriggered = true;
-        event.inactiveItem = this.items[lastActiveIndex];
-        event.inactiveIndex = lastActiveIndex;
-      }
-      eventTriggered && this.fire('change', event);
+      switcher.fire('active', {
+        activeItem: item,
+        activeIndex: index
+      }, function() {
+        switcher.activeItem = item;
+        switcher.activeIndex = index;
+        switcher.fire('change', {
+          activeItem: item,
+          activeIndex: index,
+          inactiveItem: lastActiveItem,
+          inactiveIndex: lastActiveIndex
+        });
+      });
     }
-    return this;
+    return switcher;
   };
 
 //--------------------------------------------------[Switcher.prototype.getActiveItem]
@@ -318,7 +316,7 @@
    * 获取当前标记为“活动”的元素的索引。
    * @name Switcher.prototype.getActiveIndex
    * @function
-   * @returns {number} 当前标记为“活动”的元素的索引，如果为 NaN，则当前无活动元素。
+   * @returns {number} 当前标记为“活动”的元素的索引，如果为 -1，则当前无活动元素。
    */
   Switcher.prototype.getActiveIndex = function() {
     return this.activeIndex;

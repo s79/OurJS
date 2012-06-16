@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-16
+ *  Version: 2012-06-17
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -3912,11 +3912,13 @@
    * @constructor
    * @private
    * @param {string} type 事件类型。
+   * @param {string} target 事件来源。
    * @description
    *   组件事件可以取消默认行为（建议为用户主动触发的事件添加此功能），但不会传递。
    */
-  function ComponentEvent(type) {
+  function ComponentEvent(type, target) {
     this.type = type;
+    this.target = target;
   }
 
   /**
@@ -3949,7 +3951,7 @@
    * @description
    *   组件的实例及其原型对象中都不能设置以下属性：
    *   'options'，'events'，'setOptions'，'on'，'off'，'fire'。
-   *   修改各组件的默认选项时，不要修改 XXX.options 的指向。
+   *   修改一个组件的默认选项时，应修改该组件的 options 属性所指向的对象，不要修改 options 属性的指向。
    */
   function Component(constructor, defaultOptions, prototype) {
     // 真正的构造函数。
@@ -4068,7 +4070,7 @@
     var component = this;
     var handlers = component.events[type];
     if (handlers) {
-      var event = Object.append(new ComponentEvent(type), data || {});
+      var event = Object.append(new ComponentEvent(type, component), data || {});
       handlers.forEach(function(handler) {
         if (handler.listener.call(component, event) === false) {
           event.preventDefault();
@@ -4102,11 +4104,15 @@
    * @name Switcher
    * @constructor
    * @param {Array} items 指定在本数组中的各元素间切换，本数组包含的元素必须是引用类型的值，且不能有重复。
+   * @fires active
+   *   {Element} event.activeItem 要标记为“活动”的元素。
+   *   {number} event.activeIndex 标记为“活动”的元素在 items 中的索引。
+   *   调用 active 方法时触发；可以取消本次动作。
    * @fires change
-   *   {Element} activeItem 当前的活动元素。
-   *   {number} activeIndex 当前的活动元素在 items 中的索引。
-   *   {Element} inactiveItem 上一个活动元素。
-   *   {number} inactiveIndex 上一个活动元素在 items 中的索引。
+   *   {Element} event.activeItem 当前的活动元素。
+   *   {number} event.activeIndex 当前的活动元素在 items 中的索引。
+   *   {Element} event.inactiveItem 上一个活动元素。
+   *   {number} event.inactiveIndex 上一个活动元素在 items 中的索引。
    *   在当前的活动元素改变时触发。
    * @description
    *   高级应用：动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
@@ -4114,7 +4120,7 @@
   function Switcher(items) {
     this.items = items;
     this.activeItem = null;
-    this.activeIndex = NaN;
+    this.activeIndex = -1;
   }
 
 //--------------------------------------------------[Switcher.options]
@@ -4135,49 +4141,41 @@
    * @returns {Object} Switcher 对象。
    */
   Switcher.prototype.active = function(i) {
-    // 参数 i 可能是 Object 或者 number 类型，从中解出 item 和 index 的值。
+    var switcher = this;
     var item = null;
-    var index = NaN;
+    var index = -1;
     var x;
     if (typeof i === 'number') {
-      x = this.items[i];
+      x = switcher.items[i];
       if (x) {
         item = x;
         index = i;
       }
     } else {
-      x = this.items.indexOf(i);
+      x = switcher.items.indexOf(i);
       if (x > -1) {
         item = i;
         index = x;
       }
     }
-    // 上一个活动元素的索引。
-    var lastActiveIndex = this.activeIndex;
-    // 尝试更改活动元素。
+    var lastActiveItem = switcher.activeItem;
+    var lastActiveIndex = switcher.activeIndex;
     if (index !== lastActiveIndex) {
-      this.activeItem = item;
-      this.activeIndex = index;
-      var eventTriggered = false;
-      var event = {
-        activeItem: null,
-        activeIndex: NaN,
-        inactiveItem: null,
-        inactiveIndex: NaN
-      };
-      if (!isNaN(index)) {
-        eventTriggered = true;
-        event.activeItem = item;
-        event.activeIndex = index;
-      }
-      if (!isNaN(lastActiveIndex)) {
-        eventTriggered = true;
-        event.inactiveItem = this.items[lastActiveIndex];
-        event.inactiveIndex = lastActiveIndex;
-      }
-      eventTriggered && this.fire('change', event);
+      switcher.fire('active', {
+        activeItem: item,
+        activeIndex: index
+      }, function() {
+        switcher.activeItem = item;
+        switcher.activeIndex = index;
+        switcher.fire('change', {
+          activeItem: item,
+          activeIndex: index,
+          inactiveItem: lastActiveItem,
+          inactiveIndex: lastActiveIndex
+        });
+      });
     }
-    return this;
+    return switcher;
   };
 
 //--------------------------------------------------[Switcher.prototype.getActiveItem]
@@ -4196,7 +4194,7 @@
    * 获取当前标记为“活动”的元素的索引。
    * @name Switcher.prototype.getActiveIndex
    * @function
-   * @returns {number} 当前标记为“活动”的元素的索引，如果为 NaN，则当前无活动元素。
+   * @returns {number} 当前标记为“活动”的元素的索引，如果为 -1，则当前无活动元素。
    */
   Switcher.prototype.getActiveIndex = function() {
     return this.activeIndex;
@@ -4217,12 +4215,12 @@
   /*
    * 调用流程：
    *   var animation = new Animation(...).addClip(...);
-   *   animation.play()<playstart>       -> (x, y) <step> -> ... -> <playfinish>
-   *   animation.reverse()<reversestart> -> (x, y) <step> -> ... -> <reversefinish>
-   *                                                      -> animation.pause<pause> -> animation.stop()<stop>
-   *                                                                                -> animation.play()<play>       -> (x, y) <step> ->>>
-   *                                                                                -> animation.reverse()<reverse> -> (x, y) <step> ->>>
-   *                                                      -> animation.stop<stop>
+   *   animation.play()<play><playstart>          -> (x, y) <step> -> ... -> <playfinish>
+   *   animation.reverse()<reverse><reversestart> -> (x, y) <step> -> ... -> <reversefinish>
+   *                                                               -> animation.pause<pause> -> animation.stop()<stop>
+   *                                                                                         -> animation.play()<play>       -> (x, y) <step> ->>>
+   *                                                                                         -> animation.reverse()<reverse> -> (x, y) <step> ->>>
+   *                                                               -> animation.stop<stop>
    *
    * 说明：
    *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
@@ -4233,7 +4231,7 @@
    *   如果一个动画剪辑的持续时间为 0，则 play 时传入的 x 值为 1，reverse 时传入的 x 值为 0。
    *
    * 操作 Animation 对象和调用 Element 上的相关动画方法的差别：
-   *   当需要定制一个可以预期的动画效果时，建议使用 Animation，因为 Animation 对象不仅可以正向播放，还可以随时回退到起点。
+   *   当需要定制一个可以预期的动画效果时，建议使用 Animation，Animation 对象中的 Clip 会记录动画创建时的状态，而且不仅可以正向播放，还可以随时回退到起点。
    *   否则应使用 Element 实例上的对应简化动画方法，这些简化方法每次调用都会自动创建新的 Animation 对象，而不保留之前的状态，这样就可以随时以目标元素最新的状态作为起点来播放动画。
    *   一个明显的差异是使用 Fx.Morph 时传入相对长度的样式值：
    *   在直接使用 Animation 的情况下，无论如何播放/反向播放，目标元素将始终在起点/终点之间渐变。
@@ -4453,9 +4451,10 @@
         animation.status = isPlayMethod ? PLAYING : REVERSING;
         // 未挂载到引擎（执行此方法前为暂停/停止状态）。
         if (!animation.timestamp) {
+          var timePoint = animation.timePoint;
           var duration = animation.duration;
           // 每次播放/反向播放时的首帧同步播放。
-          playAnimation(animation, isPlayMethod ? 0 : duration, isPlayMethod);
+          playAnimation(animation, timePoint ? timePoint : (isPlayMethod ? 0 : duration), isPlayMethod);
           // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
           if (duration) {
             mountAnimation(animation);
@@ -4890,7 +4889,7 @@
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
-   * @param {string} options.timingFunction 控速函数名称或表达式。
+   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'ease'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -4929,8 +4928,8 @@
    * @param {string} options.color 高亮颜色，默认为 yellow。
    * @param {number} options.times 高亮次数，默认为 2。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
-   * @param {string} options.timingFunction 控速函数名称或表达式。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
+   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -4979,8 +4978,8 @@
    * @function
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
-   * @param {string} options.timingFunction 控速函数名称或表达式。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -5022,8 +5021,8 @@
    * @function
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
-   * @param {string} options.timingFunction 控速函数名称或表达式。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeOut'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -5067,16 +5066,17 @@
  */
 // TODO: jQuery - ticket #5280: Internet Explorer will keep connections alive if we don't abort on unload
 // TODO: MooTools 在 xhr.abort() 后新建一个 XHR 对象，原因不明。
-// TODO: 也可以像大多数库那样，不重用 XHR 对象。
+// TODO: 大多数库并不重用 XHR 对象。
 (function() {
 //==================================================[Request]
   /*
    * 调用流程：
    *   var request = new Request(url, options);
-   *   request.send(data) -> request.requestParser(data) -> fire:request(parsedRequestData) -> [request.abort()] -> request.responseParser(response) -> fire:response(parsedResponseData)
+   *   request.send(data)<send> -> requestParser(data)<request> -> responseParser(response)<response>
+   *                                                            -> request.abort()<abort>
    *
    * 说明：
-   *   上述 data/response 均为不可预期的数据，因此可以通过修改选项 requestParser 和 responseParser 这两个函数，来对他们进行处理。
+   *   用户使用 send 方法传递的请求数据与服务端返回的响应数据均不可预期，因此可以通过修改选项 requestParser 和 responseParser 这两个函数以对他们进行预处理。
    *
    * 注意：
    *   IE6 IE7 IE8 IE9 均不支持 overrideMimeType，因此本组件不提供此功能。
@@ -5210,20 +5210,31 @@
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
    * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回处理后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为 null。
-   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回处理后的响应数据，默认无特殊处理。
-   * @fires request
-   *   在发送请求时触发。
-   * @fires response
-   *   {number} status 状态码。
-   *   {string} statusText 状态描述。
-   *   {Object} headers 响应头。
-   *   {string} text 响应文本。
-   *   {XMLDocument} xml 响应 XML 文档。
-   *   在收到响应时触发。
+   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为 null。
+   *   原始请求数据无特殊要求。
+   *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 request 事件对象的 data 属性。
+   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回解析后的对象数据，默认无特殊处理。
+   *   原始响应数据中包含以下属性：
+   *   {number} responseData.status 状态码。
+   *   {string} responseData.statusText 状态描述。
+   *   {Object} responseData.headers 响应头。
+   *   {string} responseData.text 响应文本。
+   *   {XMLDocument} responseData.xml 响应 XML 文档。
+   *   解析后的响应数据无特殊要求，但要注意，解析后的数据对象的属性将被追加到 response 事件对象中。
    *   在调用 abort 方法取消请求，或请求超时的情况下，也会收到响应数据。此时的状态码分别为 -498 和 -408。
    *   换句话说，只要调用了 send 方法发起了请求，就必然会收到响应，虽然上述两种情况的响应并非是真实的来自于服务端的响应数据。
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
+   * @fires send
+   *   {Object} event.data 要发送的数据。
+   *   调用 send 方法时，发送请求之前触发；可以取消本次动作。
+   * @fires request
+   *   {Object} event.data 解析后的请求数据。
+   *   发送请求时触发。
+   * @fires response
+   *   {*} event.* 解析后的响应数据。
+   *   收到响应时触发。
+   * @fires abort
+   *   调用 abort 方法时触发；可以取消本次动作。
    */
   function Request(url, options) {
     this.xhr = getXHRObject();
@@ -5273,53 +5284,55 @@
     if (request.timestamp || !xhr) {
       return request;
     }
-    // 处理请求数据。
-    data = options.requestParser(data);
-    // 创建请求。
-    var url = request.url;
-    var method = options.method.toLowerCase();
-    if (method === 'get' && data) {
-      url += (url.contains('?') ? '&' : '?') + data;
-      data = null;
-    }
-    if (!options.useCache) {
-      url += (url.contains('?') ? '&' : '?') + ++uid;
-    }
-    // http://bugs.jquery.com/ticket/2865
-    if (options.username) {
-      xhr.open(method, url, options.async, options.username, options.password);
-    } else {
-      xhr.open(method, url, options.async);
-    }
-    // 设置请求头。
-    var headers = options.headers;
-    if (method === 'post') {
-      headers['Content-Type'] = options.contentType;
-    }
-    for (var name in headers) {
-      xhr.setRequestHeader(name, headers[name]);
-    }
-    // 发送请求。
-    xhr.send(data || null);
-    request.timestamp = Date.now();
-    if (options.async && options.maxTime > 0) {
-      request.maxTimeTimer = setTimeout(function() {
-        getResponse(request, TIMEOUT);
-      }, options.maxTime);
-    }
-    // 获取响应。
-    if (!options.async || xhr.readyState === 4) {
-      // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
-      getResponse(request, DONE);
-    } else {
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          getResponse(request, DONE);
-        }
-      };
-    }
-    // 触发请求事件。
-    request.fire('request');
+    request.fire('send', {data: data}, function() {
+      // 处理请求数据。
+      var parsedData = data = options.requestParser(data);
+      // 创建请求。
+      var url = request.url;
+      var method = options.method.toLowerCase();
+      if (method === 'get' && data) {
+        url += (url.contains('?') ? '&' : '?') + data;
+        data = null;
+      }
+      if (!options.useCache) {
+        url += (url.contains('?') ? '&' : '?') + ++uid;
+      }
+      // http://bugs.jquery.com/ticket/2865
+      if (options.username) {
+        xhr.open(method, url, options.async, options.username, options.password);
+      } else {
+        xhr.open(method, url, options.async);
+      }
+      // 设置请求头。
+      var headers = options.headers;
+      if (method === 'post') {
+        headers['Content-Type'] = options.contentType;
+      }
+      for (var name in headers) {
+        xhr.setRequestHeader(name, headers[name]);
+      }
+      // 发送请求。
+      xhr.send(data || null);
+      request.timestamp = Date.now();
+      if (options.async && options.maxTime > 0) {
+        request.maxTimeTimer = setTimeout(function() {
+          getResponse(request, TIMEOUT);
+        }, options.maxTime);
+      }
+      // 获取响应。
+      if (!options.async || xhr.readyState === 4) {
+        // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
+        getResponse(request, DONE);
+      } else {
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            getResponse(request, DONE);
+          }
+        };
+      }
+      // 触发请求事件。
+      request.fire('request', {data: parsedData});
+    });
     // 返回实例。
     return request;
   };
@@ -5332,11 +5345,14 @@
    * @returns {Object} request 对象。
    */
   Request.prototype.abort = function() {
-    if (this.timestamp) {
-      // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
-      getResponse(this, ABORT);
+    var request = this;
+    if (request.timestamp) {
+      request.fire('abort', null, function() {
+        // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
+        getResponse(request, ABORT);
+      });
     }
-    return this;
+    return request;
   };
 
 //--------------------------------------------------[Request]

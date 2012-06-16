@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>storage</title>
-<link rel="stylesheet" href="../examples/common.css">
-<script src="../dev.js"></script>
+<link rel="stylesheet" href="../../examples/common.css">
+<script src="../../our.js"></script>
 <style>
 textarea { float: left; width: 600px; height: 100px; background: #f5f5f5; border: 1px solid #c0c0c0; resize: none; }
 table th { width: 50px; text-align: left; }
@@ -16,7 +16,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
 </head>
 <body>
 <!-- cookie { -->
-<div style="float: left; width: 650px;">
+<div style="float: left; width: 630px;">
   <h1>cookie</h1>
   <fieldset>
     <legend>cookie value</legend>
@@ -24,7 +24,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
   </fieldset>
   <div style="clear: both;"></div>
   <fieldset>
-    <legend>set</legend>
+    <legend>setItem</legend>
     <form id="form_cookie_set">
       <table>
         <tbody>
@@ -62,7 +62,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
     </form>
   </fieldset>
   <fieldset>
-    <legend>get</legend>
+    <legend>getItem</legend>
     <form id="form_cookie_get">
       <table>
         <tbody>
@@ -84,7 +84,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
     </form>
   </fieldset>
   <fieldset>
-    <legend>remove</legend>
+    <legend>removeItem</legend>
     <form id="form_cookie_remove">
       <table>
         <tbody>
@@ -121,7 +121,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
 
     $('#cookie_set').on('click', function() {
       var $form = $('#form_cookie_set');
-      var expires = $form.days.value ? new Date(Date.now() + Number.toInteger($form.days.value) * 1000 * 60 * 60 * 24) : null;
+      var expires = $form.days.value ? new Date(Date.now() + Number.toInteger($form.days.value) * 86400000) : null;
       cookie.setItem($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: expires});
       showAllCookies();
     });
@@ -149,7 +149,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
 <div style="float: left; width: 600px;">
   <h1>localStorage</h1>
   <fieldset>
-    <legend>set</legend>
+    <legend>setItem</legend>
     <form id="form_local_storage_set">
       <table>
         <tbody>
@@ -171,7 +171,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
     </form>
   </fieldset>
   <fieldset>
-    <legend>get</legend>
+    <legend>getItem</legend>
     <form id="form_local_storage_get">
       <table>
         <tbody>
@@ -193,7 +193,7 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
     </form>
   </fieldset>
   <fieldset>
-    <legend>remove</legend>
+    <legend>removeItem</legend>
     <form id="form_local_storage_remove">
       <table>
         <tbody>

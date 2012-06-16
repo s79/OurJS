@@ -9,12 +9,12 @@
   /*
    * 调用流程：
    *   var animation = new Animation(...).addClip(...);
-   *   animation.play()<playstart>       -> (x, y) <step> -> ... -> <playfinish>
-   *   animation.reverse()<reversestart> -> (x, y) <step> -> ... -> <reversefinish>
-   *                                                      -> animation.pause<pause> -> animation.stop()<stop>
-   *                                                                                -> animation.play()<play>       -> (x, y) <step> ->>>
-   *                                                                                -> animation.reverse()<reverse> -> (x, y) <step> ->>>
-   *                                                      -> animation.stop<stop>
+   *   animation.play()<play><playstart>          -> (x, y) <step> -> ... -> <playfinish>
+   *   animation.reverse()<reverse><reversestart> -> (x, y) <step> -> ... -> <reversefinish>
+   *                                                               -> animation.pause<pause> -> animation.stop()<stop>
+   *                                                                                         -> animation.play()<play>       -> (x, y) <step> ->>>
+   *                                                                                         -> animation.reverse()<reverse> -> (x, y) <step> ->>>
+   *                                                               -> animation.stop<stop>
    *
    * 说明：
    *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
@@ -25,7 +25,7 @@
    *   如果一个动画剪辑的持续时间为 0，则 play 时传入的 x 值为 1，reverse 时传入的 x 值为 0。
    *
    * 操作 Animation 对象和调用 Element 上的相关动画方法的差别：
-   *   当需要定制一个可以预期的动画效果时，建议使用 Animation，因为 Animation 对象不仅可以正向播放，还可以随时回退到起点。
+   *   当需要定制一个可以预期的动画效果时，建议使用 Animation，Animation 对象中的 Clip 会记录动画创建时的状态，而且不仅可以正向播放，还可以随时回退到起点。
    *   否则应使用 Element 实例上的对应简化动画方法，这些简化方法每次调用都会自动创建新的 Animation 对象，而不保留之前的状态，这样就可以随时以目标元素最新的状态作为起点来播放动画。
    *   一个明显的差异是使用 Fx.Morph 时传入相对长度的样式值：
    *   在直接使用 Animation 的情况下，无论如何播放/反向播放，目标元素将始终在起点/终点之间渐变。
@@ -245,9 +245,10 @@
         animation.status = isPlayMethod ? PLAYING : REVERSING;
         // 未挂载到引擎（执行此方法前为暂停/停止状态）。
         if (!animation.timestamp) {
+          var timePoint = animation.timePoint;
           var duration = animation.duration;
           // 每次播放/反向播放时的首帧同步播放。
-          playAnimation(animation, isPlayMethod ? 0 : duration, isPlayMethod);
+          playAnimation(animation, timePoint ? timePoint : (isPlayMethod ? 0 : duration), isPlayMethod);
           // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
           if (duration) {
             mountAnimation(animation);

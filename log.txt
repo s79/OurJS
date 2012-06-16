@@ -1,7 +1,18 @@
-﻿>2012-06-15
+﻿>2012-06-17
+>TODO animation.addClip 方法修改。
+>TODO 升级 Dialog/Calendar/Pagination 的事件。
+
+>2012-06-16
+修复 Animation.prototype.pause 丢失 timePoint 的 bug。
+为组件事件添加事件源。
+
+>2012-06-15
+修改 Element.prototype.morph/highlight/fadeIn/fadeOut 方法：
+ - 队列由 clip 修改为 animation。
+ - 统一选项。
+ - 将回调函数由 callback 改为 onStart 和 onFinish。
 Component.prototype.fire 添加第三个参数，以支持 event.preventDefault 方法。建议在用户调用组件的各方法时触发的事件中使用。
->TODO 各组件的 fire 方法。
-取消 Fx.Fade，因为这个效果不是“线性变换”，涉及到在首末帧修改 display 属性的值，这将导致 Animation 的 beforestart/afterstart 等事件的处理变得复杂。
+取消 Fx.Fade，因为这个效果不仅是“线性变换”，还涉及到在“首末帧”修改 display 属性的值，这将导致 Animation 的 beforestart/afterstart 等事件的处理变得复杂。
 //--------------------------------------------------[Fx.Fade]
   /**
    * 渐隐效果。

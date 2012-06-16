@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>Animation</title>
-<link rel="stylesheet" href="../docs/stylesheets/prettify.css">
-<link rel="stylesheet" href="../examples/common.css">
-<script src="../docs/scripts/prettify.js"></script>
-<script src="../dev.js"></script>
+<link rel="stylesheet" href="../../docs/stylesheets/prettify.css">
+<link rel="stylesheet" href="../../examples/common.css">
+<script src="../../docs/scripts/prettify.js"></script>
+<script src="../../dev.js"></script>
 <style>
 h1 { margin-bottom: -30px; }
 h2 { margin: 50px 0 20px; }
@@ -44,7 +44,8 @@ execute(function($) {
 
 <h1>Animation</h1>
 
-<h2>element.morph</h2>
+<h2>在 Element.prototype 上提供的简易动画，可以满足大部分需要。</h2>
+<h3>element.morph</h3>
 <!-- e_m_1 { -->
 <fieldset>
   <legend>可以为数字值、长度值、颜色值设置渐变。</legend>
@@ -76,7 +77,7 @@ execute(function($) {
 </script>
 <!-- } e_m_1 -->
 
-<h2>element.highlight</h2>
+<h3>element.highlight</h3>
 <!-- e_h_1 { -->
 <fieldset>
   <legend>高亮效果，多次点击时将重播队列中正在播放的高亮效果，并且只有这个高亮效果会有回调。</legend>
@@ -135,7 +136,7 @@ execute(function($) {
 </script>
 <!-- } e_h_2 -->
 
-<h2>element.fadeIn/fadeOut</h2>
+<h3>element.fadeIn/fadeOut</h3>
 <!-- e_f_1 { -->
 <fieldset>
   <legend>淡入淡出动画。display 不为 none 的元素不能播放淡入动画。display 为 none 的元素不能播放淡出动画。</legend>
@@ -163,8 +164,8 @@ execute(function($) {
 </script>
 <!-- } e_f_1 -->
 
-<h2>Animation</h2>
-<h3>使用 Animation 创建的高级动画，提供了更灵活的控制手段。</h3>
+<h2>使用 Animation 创建的高级动画，提供了更灵活的控制手段。</h2>
+<h3>Animation</h3>
 <!-- a_1 { -->
 <style>
 #a_1 { list-style: none; padding: 0; cursor: default; }
@@ -203,7 +204,7 @@ execute(function($) {
 <!-- a_2 { -->
 <style>
 #container { position: relative; width: 200px; height: 50px; margin: auto; }
-#layer { display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; background: #c0c0c0; font: 12px/20px Verdana; text-align: center; overflow: hidden; }
+#layer { display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; border: 0 solid greenyellow; background: silver; color: red; font: 12px/20px Verdana; text-align: center; overflow: hidden; }
 #layer.italic { font-style: italic; }
 #panel { position: relative; width: 500px; margin: auto; }
 #panel #number,
@@ -235,15 +236,20 @@ execute(function($) {
   var $layer = $('#layer').setStyle('opacity', 0);
   window.animation = new Animation()
       .addClip(new Fx.Morph($layer, {opacity: 1}, 0, 700, 'easeOut'))
-      .addClip(new Fx.Highlight($layer, 'yellow', 2, 100, 300, 'linear'))
+      .addClip(new Fx.Highlight($layer, 'yellow', 1, 200, 400, 'linear'))
       .addClip(
       new Fx.Morph($layer, {
-        backgroundColor: 'steelblue'
-      }, 400, 600))
+        backgroundColor: 'steelblue',
+        borderTopColor: 'silver',
+        borderRightColor: 'dimgray',
+        borderBottomColor: 'dimgray',
+        borderLeftColor: 'silver'
+      }, 600, 400))
       .addClip(
       new Fx.Morph($layer, {
         left: '-=150',
-        width: '+=300'
+        width: '+=300',
+        borderWidth: 10
       }, 400, 200, 'cubicBezier(.6,0,.6,1.35)'))
       .addClip(
       new Fx.Base(function(x, y) {
@@ -254,10 +260,10 @@ execute(function($) {
       new Fx.Morph($layer, {
         top: '-=150',
         height: '+=100',
-        color: 'crimson',
+        color: 'yellow',
         fontSize: 50,
         lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
-      }, 0, 1000, 'cubicBezier(.25,1.25,.75,-0.25)'))
+      }, 0, 1000, 'cubicBezier(.2,1,.8,0)'))
       .on('play', function() {
         $layer.innerHTML = 'PLAY';
         console.log('PLAY');
@@ -285,7 +291,7 @@ execute(function($) {
 //        this.play();
       })
       .on('step', function() {
-        console.log('STEP', this.timePoint);
+//        console.log('STEP', this.timePoint);
       })
       .on('pause', function() {
         $layer.innerHTML = 'PAUSE';

@@ -56,7 +56,7 @@ mask.js:52show
 Mask
 components.mask.html:591331403483764 "HIDE"
 
->TODO: [LOW] fadeIn/fadeOut 逻辑合并。
+>TODO: [LOW] fadeIn/fadeOut 逻辑合并；animation.stop 方法缺少恢复初始状态的功能（考虑到自定动画，此功能难以实现，暂建议在 playstart 事件发生时手动处理）。
 
 >TODO: 检查代码，移除作为一条语句使用的短路操作，JS 编码规范也会添加此类内容。
 
@@ -102,9 +102,9 @@ Components 提供事件监听机制。
 extends 只能逐级继承，应使用原型链。
 implement 可以并行实现多个“接口”（实际也应用各构造器），应使用原型拷贝。
 
->API 风格：
->  选项超过 1 个时以对象的形式提供，确保函数不会出现一个以上的可选参数。
->  回调函数尽量在异步操作时使用。同步操作如果需要返回中间值也可以使用。
+[API 风格]
+  选项超过 1 个时以对象的形式提供，确保函数不会出现一个以上的可选参数。
+  回调函数尽量在异步操作时使用。同步操作如果需要返回中间值也可以使用。
 
 #http://www.slideshare.net/Dmitry.Baranovskiy/your-javascript-library
 Everything should be made as simple as possible, but no simpler.

@@ -5,16 +5,17 @@
  */
 // TODO: jQuery - ticket #5280: Internet Explorer will keep connections alive if we don't abort on unload
 // TODO: MooTools 在 xhr.abort() 后新建一个 XHR 对象，原因不明。
-// TODO: 也可以像大多数库那样，不重用 XHR 对象。
+// TODO: 大多数库并不重用 XHR 对象。
 (function() {
 //==================================================[Request]
   /*
    * 调用流程：
    *   var request = new Request(url, options);
-   *   request.send(data) -> request.requestParser(data) -> fire:request(parsedRequestData) -> [request.abort()] -> request.responseParser(response) -> fire:response(parsedResponseData)
+   *   request.send(data)<send> -> requestParser(data)<request> -> responseParser(response)<response>
+   *                                                            -> request.abort()<abort>
    *
    * 说明：
-   *   上述 data/response 均为不可预期的数据，因此可以通过修改选项 requestParser 和 responseParser 这两个函数，来对他们进行处理。
+   *   用户使用 send 方法传递的请求数据与服务端返回的响应数据均不可预期，因此可以通过修改选项 requestParser 和 responseParser 这两个函数以对他们进行预处理。
    *
    * 注意：
    *   IE6 IE7 IE8 IE9 均不支持 overrideMimeType，因此本组件不提供此功能。
@@ -148,20 +149,31 @@
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
    * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回处理后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为 null。
-   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回处理后的响应数据，默认无特殊处理。
-   * @fires request
-   *   在发送请求时触发。
-   * @fires response
-   *   {number} status 状态码。
-   *   {string} statusText 状态描述。
-   *   {Object} headers 响应头。
-   *   {string} text 响应文本。
-   *   {XMLDocument} xml 响应 XML 文档。
-   *   在收到响应时触发。
+   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为 null。
+   *   原始请求数据无特殊要求。
+   *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 request 事件对象的 data 属性。
+   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回解析后的对象数据，默认无特殊处理。
+   *   原始响应数据中包含以下属性：
+   *   {number} responseData.status 状态码。
+   *   {string} responseData.statusText 状态描述。
+   *   {Object} responseData.headers 响应头。
+   *   {string} responseData.text 响应文本。
+   *   {XMLDocument} responseData.xml 响应 XML 文档。
+   *   解析后的响应数据无特殊要求，但要注意，解析后的数据对象的属性将被追加到 response 事件对象中。
    *   在调用 abort 方法取消请求，或请求超时的情况下，也会收到响应数据。此时的状态码分别为 -498 和 -408。
    *   换句话说，只要调用了 send 方法发起了请求，就必然会收到响应，虽然上述两种情况的响应并非是真实的来自于服务端的响应数据。
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
+   * @fires send
+   *   {Object} event.data 要发送的数据。
+   *   调用 send 方法时，发送请求之前触发；可以取消本次动作。
+   * @fires request
+   *   {Object} event.data 解析后的请求数据。
+   *   发送请求时触发。
+   * @fires response
+   *   {*} event.* 解析后的响应数据。
+   *   收到响应时触发。
+   * @fires abort
+   *   调用 abort 方法时触发；可以取消本次动作。
    */
   function Request(url, options) {
     this.xhr = getXHRObject();
@@ -211,53 +223,55 @@
     if (request.timestamp || !xhr) {
       return request;
     }
-    // 处理请求数据。
-    data = options.requestParser(data);
-    // 创建请求。
-    var url = request.url;
-    var method = options.method.toLowerCase();
-    if (method === 'get' && data) {
-      url += (url.contains('?') ? '&' : '?') + data;
-      data = null;
-    }
-    if (!options.useCache) {
-      url += (url.contains('?') ? '&' : '?') + ++uid;
-    }
-    // http://bugs.jquery.com/ticket/2865
-    if (options.username) {
-      xhr.open(method, url, options.async, options.username, options.password);
-    } else {
-      xhr.open(method, url, options.async);
-    }
-    // 设置请求头。
-    var headers = options.headers;
-    if (method === 'post') {
-      headers['Content-Type'] = options.contentType;
-    }
-    for (var name in headers) {
-      xhr.setRequestHeader(name, headers[name]);
-    }
-    // 发送请求。
-    xhr.send(data || null);
-    request.timestamp = Date.now();
-    if (options.async && options.maxTime > 0) {
-      request.maxTimeTimer = setTimeout(function() {
-        getResponse(request, TIMEOUT);
-      }, options.maxTime);
-    }
-    // 获取响应。
-    if (!options.async || xhr.readyState === 4) {
-      // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
-      getResponse(request, DONE);
-    } else {
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          getResponse(request, DONE);
-        }
-      };
-    }
-    // 触发请求事件。
-    request.fire('request');
+    request.fire('send', {data: data}, function() {
+      // 处理请求数据。
+      var parsedData = data = options.requestParser(data);
+      // 创建请求。
+      var url = request.url;
+      var method = options.method.toLowerCase();
+      if (method === 'get' && data) {
+        url += (url.contains('?') ? '&' : '?') + data;
+        data = null;
+      }
+      if (!options.useCache) {
+        url += (url.contains('?') ? '&' : '?') + ++uid;
+      }
+      // http://bugs.jquery.com/ticket/2865
+      if (options.username) {
+        xhr.open(method, url, options.async, options.username, options.password);
+      } else {
+        xhr.open(method, url, options.async);
+      }
+      // 设置请求头。
+      var headers = options.headers;
+      if (method === 'post') {
+        headers['Content-Type'] = options.contentType;
+      }
+      for (var name in headers) {
+        xhr.setRequestHeader(name, headers[name]);
+      }
+      // 发送请求。
+      xhr.send(data || null);
+      request.timestamp = Date.now();
+      if (options.async && options.maxTime > 0) {
+        request.maxTimeTimer = setTimeout(function() {
+          getResponse(request, TIMEOUT);
+        }, options.maxTime);
+      }
+      // 获取响应。
+      if (!options.async || xhr.readyState === 4) {
+        // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
+        getResponse(request, DONE);
+      } else {
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            getResponse(request, DONE);
+          }
+        };
+      }
+      // 触发请求事件。
+      request.fire('request', {data: parsedData});
+    });
     // 返回实例。
     return request;
   };
@@ -270,11 +284,14 @@
    * @returns {Object} request 对象。
    */
   Request.prototype.abort = function() {
-    if (this.timestamp) {
-      // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
-      getResponse(this, ABORT);
+    var request = this;
+    if (request.timestamp) {
+      request.fire('abort', null, function() {
+        // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
+        getResponse(request, ABORT);
+      });
     }
-    return this;
+    return request;
   };
 
 //--------------------------------------------------[Request]
