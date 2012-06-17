@@ -50,24 +50,8 @@ var $span;
 var $div;
 execute(function($) {
 //--------------------------------------------------[Mask]
-  bodyMask = new Mask(document.body, {effect: false})
-      .on('show',
-      function() {
-        console.log(Date.now(), 'SHOW');
-      })
-      .on('hide',
-      function() {
-        console.log(Date.now(), 'HIDE');
-      });
-  pMask = new Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 1, zIndex: 100}})
-      .on('show',
-      function() {
-        console.log(Date.now(), 'SHOW');
-      })
-      .on('hide',
-      function() {
-        console.log(Date.now(), 'HIDE');
-      });
+  bodyMask = new Mask(document.body, {effect: false});
+  pMask = new Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 1, zIndex: 100}});
   divMask = new Mask($('#div'), {styles: {backgroundColor: 'cornflowerblue', opacity: 0.75, zIndex: 100}});
   spanMask = new Mask($('#span'), {styles: {backgroundColor: 'orchid', opacity: 0.5, zIndex: 100}});
   varMask = new Mask($('#var'), {styles: {backgroundColor: 'springgreen', opacity: 0.35, zIndex: 100}});

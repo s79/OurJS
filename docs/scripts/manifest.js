@@ -256,15 +256,12 @@ var manifest = {
     'Animation.prototype.reverse',
     'Animation.prototype.pause',
     'Animation.prototype.stop',
-    'Fx.Base',
     'Fx.Morph',
     'Fx.Highlight'
   ],
   'Switcher': [
     'Switcher',
-    'Switcher.prototype.active',
-    'Switcher.prototype.getActiveItem',
-    'Switcher.prototype.getActiveIndex'
+    'Switcher.prototype.active'
   ],
   'TabPanel': [
     'TabPanel',

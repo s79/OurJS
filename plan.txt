@@ -11,74 +11,21 @@
 #Error
 #JSON
 
-ELEMENT_NODE       = 1;
-ATTRIBUTE_NODE     = 2;
-TEXT_NODE          = 3;
-CDATA_SECTION_NODE = 4;
-ENTITY_REFERENCE_NODE = 5;
-ENTITY_NODE        = 6;
-PROCESSING_INSTRUCTION_NODE = 7;
-COMMENT_NODE       = 8;
-DOCUMENT_NODE      = 9;
-DOCUMENT_TYPE_NODE = 10;
-DOCUMENT_FRAGMENT_NODE = 11;
-NOTATION_NODE      = 12;
-
-function parseColor(color) {
-  var value = parseInt(color.substring(1), 16);
-  return {
-    r: (value & 0xff0000) >> 16,
-    g: (value & 0xff00) >> 8,
-    b: value & 0xff
-  };
-}
-
 --------------------------------------------------[TODO]
-超级挑战：Utilities Cookie placeholder 各种组件 (common.js)
-页码 Include CSS插入 省略号
+>TODO: [HIGH] 加入 .resources 目录中的 Utilities Cookie placeholder 页码 Include CSS插入 省略号等。
 
-[已解决？]
-[可行]以下命令不符合预期，应考虑加入 deffered 类型。
-[不可行]或者加入在调用 stopAnimation 也会触发的 onComplete 回调，这样就可以在 onComplete 里加入状态处理的代码，而在 onFinish 中加入其他（如动画队列）代码。
-bodyMask.show().hide().show().hide().show().hide().show();
-mask.js:52show
-mask.js:54    -> ok
-components.mask.html:561331403483414 "SHOW"
-mask.js:124hide
-mask.js:126    -> ok
-mask.js:52show
-mask.js:124hide
-mask.js:126    -> ok
-mask.js:52show
-mask.js:124hide
-mask.js:126    -> ok
-mask.js:52show
-Mask
-components.mask.html:591331403483764 "HIDE"
-
->TODO: [LOW] fadeIn/fadeOut 逻辑合并；animation.stop 方法缺少恢复初始状态的功能（考虑到自定动画，此功能难以实现，暂建议在 playstart 事件发生时手动处理）。
-
->TODO: 检查代码，移除作为一条语句使用的短路操作，JS 编码规范也会添加此类内容。
+>TODO: [LOW] 检查代码，移除作为一条语句使用的短路操作，JS 编码规范也会添加此类内容。
 
 >TODO: include (from site.js)
 
 >TODO: Date.from/format
 
-{
-TODO: 事件部分 fire 参数由 type 改为 name。
-不会实施这个修改，这会把事情变复杂。如果需要触发特定的一些监听器，应该为他们单独指定 type。
-}
-
-{
-TODO: Animation 继续参考 CSS3 Transition，增加 delay 参数，并对外暴露 timingFunction。
-      [low] +反向动画支持
-Animation 已使用新的思路设计，上述内容全部可以实现。
-}
-
 >TODO: 添加白名单。
 && !(/^(?:object|embed)$/i).test(el.tagName)
 (area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)-参考。
 colgroup？
+
+>TODO: Mask 升级，支持移动设备浏览器的特殊视口。
 
 >TODO: 表单序列化。
 
@@ -86,31 +33,56 @@ colgroup？
 
 >TODO: SWFObject
 
-{
+>TODO: [LOW] Dialog -> Popup，Mask 没有独立存在的必要，但 Popup 可以选择是否带有 Mask。
+
+>TODO: [LOW] fadeIn/fadeOut 逻辑合并；animation.stop 方法缺少恢复初始状态的功能（考虑到通过事件添加的非线性变换，此功能难以实现，暂建议在 playstart 事件发生时手动处理）。
+
+/*
 TODO: components 的 options 参数，应区分为“可改写”和“不可改写”两种，“不可改写”的不要附加在实例上。
-以上取消，使用 prototype 实现，天然选项。
-现在的方式是将选项保存到实例的 options 属性内。
-}
+DONE: 以上取消，太复杂。
+      现在的方式是将选项保存到实例的 options 属性内。
+*/
+
+/*
+TODO: 事件部分 fire 参数由 type 改为 name。
+DONE: 不会实施这个修改，这会把事情变复杂。如果需要触发特定的一些监听器，应该为他们单独指定 type。
+*/
+
+/*
+TODO: Animation 继续参考 CSS3 Transition，增加 delay 参数，并对外暴露 timingFunction。
+      [low] 添加反向动画支持。
+DONE: Animation 已使用新的思路设计，上述内容全部可以实现。
+*/
+
+/*
+TODO: 以下命令不符合预期，应考虑加入 deffered 类型。
+      或者加入在调用 stopAnimation 也会触发的 onComplete 回调，这样就可以在 onComplete 里加入状态处理的代码，而在 onFinish 中加入其他（如动画队列）代码。
+      bodyMask.show().hide().show().hide().show().hide().show();
+DONE: 使用新的 Animation 即可解决上述问题。
+*/
+
 --------------------------------------------------[NOTE]
+[modularization]
 Application 即页面应用。
 Modules 即可分离的业务逻辑，各自独立，不会互相依赖，也不能互相访问。它们使用消息机制与 Application 通信。
 只有 Application 可以与 Modules 通信。
 只有 Modules 可以与 Application 通信。
-Components 提供事件监听机制。
+
+[Components]
+Components 提供默认选项和类似 window/document/Element 对象的事件机制。
 
 [inherit]
 extends 只能逐级继承，应使用原型链。
 implement 可以并行实现多个“接口”（实际也应用各构造器），应使用原型拷贝。
 
 [API 风格]
-  选项超过 1 个时以对象的形式提供，确保函数不会出现一个以上的可选参数。
-  回调函数尽量在异步操作时使用。同步操作如果需要返回中间值也可以使用。
+可选参数不再强制为一个 options，必要时应归类以保持同类方法的参数含义相同。
 
 #http://www.slideshare.net/Dmitry.Baranovskiy/your-javascript-library
 Everything should be made as simple as possible, but no simpler.
 
 #http://blog.sina.com.cn/s/blog_523491650100eivg.html
-* 简单、自然、完整、一致、易扩展。
+简单、自然、完整、一致、易扩展。
 
 API必须要提供充分的功能，以供调用者完成自己的任务。
 API应该是最精简的，不要为调用者带来多余的不便。

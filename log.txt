@@ -1,6 +1,9 @@
-﻿>2012-06-17
->TODO animation.addClip 方法修改。
->TODO 升级 Dialog/Calendar/Pagination 的事件。
+﻿>TODO 升级 Calendar/Pagination 的事件。
+>TODO new Fx.Morph -> Fx.morph。
+>TODO 可选参数不再强制为一个 options，必要时应归类以保持同类方法的参数含义相同。
+
+>2012-06-17
+animation.addClip 修改。
 
 >2012-06-16
 修复 Animation.prototype.pause 丢失 timePoint 的 bug。

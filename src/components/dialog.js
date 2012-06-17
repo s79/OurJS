@@ -6,7 +6,7 @@
 execute(function($) {
 //==================================================[freezeFocusArea]
   /*
-   * 限定不可聚焦的区域，仅供此组件使用。
+   * 限定不可聚焦的区域。
    */
 
 //--------------------------------------------------[freezeFocusArea]
@@ -83,7 +83,7 @@ execute(function($) {
 
 //==================================================[Mask]
   /*
-   * 创建一个覆盖指定元素的内容的遮掩层，仅供此组件使用。
+   * 创建一个覆盖指定元素的内容的遮掩层。
    * 遮掩层除视觉遮掩效果外，仅能屏蔽鼠标对被遮掩区域的操作，因此应配合 freezeFocusArea 限制键盘操作。
    *
    * 思路：
@@ -111,10 +111,8 @@ execute(function($) {
    * @param {Object} options.attributes 为遮掩层元素附加的属性。
    * @param {Object} options.styles 为遮掩层元素设置的样式。
    * @param {boolean} options.effect 是否启用动画效果。
-   * @fires show
-   *   在遮掩层显示时触发。如果启用了动画效果，则在遮掩层显示动画开始播放的时候触发。
-   * @fires hide
-   *   在遮掩层隐藏时触发。如果启用了动画效果，则在遮掩层隐藏动画播放完毕的时候触发。
+   * @description
+   *   遮掩层仅供内部使用，且均为被动调用，因此未提供事件支持。
    */
   function Mask(target, options) {
     this.target = $(target);
@@ -142,9 +140,8 @@ execute(function($) {
    * @returns {Object} Mask 对象。
    */
   Mask.prototype.show = function() {
-    if (!this.animation) {
-      // 初始化。
-      var mask = this;
+    var mask = this;
+    if (!mask.animation) {
       var options = mask.options;
       var $container = mask.target;
       // 创建遮掩层元素。
@@ -153,23 +150,16 @@ execute(function($) {
         attributes += ' ' + attributeName + '="' + attributeValue + '"';
       });
       var $mask;
+      var resizeMaskElementForIE6;
       if (navigator.isIE6) {
         // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
         $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').append($('<div></div>').setStyles(options.styles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
         // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
         if ($container === document.body) {
-          var resizeMaskElementForIE6 = function() {
+          resizeMaskElementForIE6 = function() {
             mask.resize();
           };
-          mask.on('show.ie6', function() {
-            window.attachEvent('onresize', resizeMaskElementForIE6);
-          });
-          mask.on('hide.ie6', function() {
-            window.detachEvent('onresize', resizeMaskElementForIE6);
-            mask.off('show.ie6 hide.ie6');
-          });
         }
-        console.log($mask.innerHTML);
       } else {
         $mask = $('<div' + attributes + '></div>').setStyles(options.styles);
       }
@@ -181,24 +171,28 @@ execute(function($) {
           .on('playstart', function() {
             $mask.setStyle('display', 'block');
             mask.resize();
-            mask.fire('show');
+            if (resizeMaskElementForIE6) {
+              window.attachEvent('onresize', resizeMaskElementForIE6);
+            }
           })
           .on('reversefinish', function() {
+            $mask.remove();
             delete mask.animation;
             delete mask.element;
-            $mask.remove();
-            mask.fire('hide');
+            if (resizeMaskElementForIE6) {
+              window.detachEvent('onresize', resizeMaskElementForIE6);
+            }
           });
       if (options.effect) {
         mask.animation
-            .addClip(new Fx.Morph($mask, {opacity: $mask.getStyle('opacity')}, 0, 150, 'easeIn'))
+            .addClip(new Fx.Morph($mask, {opacity: $mask.getStyle('opacity')}), 0, 150, 'easeIn')
             .on('playstart', function() {
               $mask.setStyle('opacity', 0);
             });
       }
+      mask.animation.play();
     }
-    this.animation.play();
-    return this;
+    return mask;
   };
 
 //--------------------------------------------------[Mask.prototype.hide]
@@ -296,9 +290,17 @@ execute(function($) {
    * @param {number} options.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
    * @param {boolean} options.effect 是否启用动画效果。在 IE6 下将无视此选项，强行禁用动画效果，以避免和 PNG 透明修复脚本冲突。
    * @fires open
-   *   在对话框打开时触发。如果启用了动画效果，则在对话框打开动画开始播放的时候触发。
+   *   调用 open 方法时触发；可以取消本次动作。
+   * @fires openstart
+   *   在对话框打开时触发。如果启用了动画效果，则在对话框打开动画开始播放后触发。
+   * @fires openfinish
+   *   在对话框打开后触发。如果启用了动画效果，则在对话框打开动画播放完成后触发。
    * @fires close
-   *   在对话框关闭时触发。如果启用了动画效果，则在对话框关闭动画播放完毕的时候触发。
+   *   调用 close 方法时触发；可以取消本次动作。
+   * @fires closestart
+   *   在对话框关闭时触发。如果启用了动画效果，则在对话框关闭动画开始播放后触发。
+   * @fires closefinish
+   *   在对话框关闭后触发。如果启用了动画效果，则在对话框关闭动画播放完成后触发。
    * @description
    *   对话框的弹出位置、遮掩层遮盖的范围都是与对话框的父元素有关的。
    *   对话框元素将以其父元素为“参考元素”进行定位，遮掩层也作为其父元素的子元素被创建。
@@ -370,7 +372,13 @@ execute(function($) {
           // 对话框已打开。
           dialog.isOpen = true;
           dialog.adjust();
-          dialog.fire('open');
+          dialog.fire('openstart');
+        })
+        .on('playfinish', function() {
+          dialog.fire('openfinish');
+        })
+        .on('reversestart', function() {
+          dialog.fire('closestart');
         })
         .on('reversefinish', function() {
           stack.pop();
@@ -392,11 +400,11 @@ execute(function($) {
           $dialog.setStyle('display', 'none');
           // 对话框已关闭。
           dialog.isOpen = false;
-          dialog.fire('close');
+          dialog.fire('closefinish');
         });
     if (options.effect) {
       dialog.animation
-          .addClip(new Fx.Morph($dialog, {opacity: $dialog.getStyle('opacity')}, 0, 200, 'easeIn'))
+          .addClip(new Fx.Morph($dialog, {opacity: $dialog.getStyle('opacity')}), 0, 200, 'easeIn')
           .on('playstart', function() {
             $dialog.setStyle('opacity', 0);
           });
@@ -407,15 +415,6 @@ execute(function($) {
   /**
    * 默认选项。
    * @name Dialog.options
-   * @description
-   *   可选参数对象，包含的属性及其默认值为：
-   *   <table>
-   *     <tr><th>maskAttributes</th><td>{}</td></tr>
-   *     <tr><th>maskStyles</th><td>{backgroundColor: '#000', opacity: 0.2}</td></tr>
-   *     <tr><th>offsetX</th><td>NaN</td></tr>
-   *     <tr><th>offsetY</th><td>NaN</td></tr>
-   *     <tr><th>effect</th><td>false</td></tr>
-   *   </table>
    */
   Dialog.options = {
     maskAttributes: {},
@@ -433,8 +432,13 @@ execute(function($) {
    * @returns {Object} Dialog 对象。
    */
   Dialog.prototype.open = function() {
-    this.animation.play();
-    return this;
+    var dialog = this;
+    if (!dialog.isOpen) {
+      dialog.fire('open', null, function() {
+        dialog.animation.play();
+      });
+    }
+    return dialog;
   };
 
 //--------------------------------------------------[Dialog.prototype.close]
@@ -445,8 +449,13 @@ execute(function($) {
    * @returns {Object} Dialog 对象。
    */
   Dialog.prototype.close = function() {
-    this.animation.reverse();
-    return this;
+    var dialog = this;
+    if (dialog.isOpen) {
+      dialog.fire('close', null, function() {
+        dialog.animation.reverse();
+      });
+    }
+    return dialog;
   };
 
 //--------------------------------------------------[Dialog.prototype.adjust]

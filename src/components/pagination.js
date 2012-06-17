@@ -20,6 +20,7 @@ execute(function($) {
    * @param {number} options.sideEntries 在当前页码的两侧显示的最多页码数量，默认为 2。
    * @param {string} options.prevText 向前翻页按钮的文字，默认为 '上一页'。
    * @param {string} options.nextText 向后翻页按钮的文字，默认为 '下一页'。
+   * // TODO: render/change/turnTo
    * @fires turn
    *   {number} number 目标页码。
    *   调用 turnTo 方法时触发。

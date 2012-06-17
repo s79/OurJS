@@ -300,28 +300,6 @@
     return switcher;
   };
 
-//--------------------------------------------------[Switcher.prototype.getActiveItem]
-  /**
-   * 获取当前标记为“活动”的元素。
-   * @name Switcher.prototype.getActiveItem
-   * @function
-   * @returns {Object} 当前标记为“活动”的元素，如果为 null，则当前无活动元素。
-   */
-  Switcher.prototype.getActiveItem = function() {
-    return this.activeItem;
-  };
-
-//--------------------------------------------------[Switcher.prototype.getActiveIndex]
-  /**
-   * 获取当前标记为“活动”的元素的索引。
-   * @name Switcher.prototype.getActiveIndex
-   * @function
-   * @returns {number} 当前标记为“活动”的元素的索引，如果为 -1，则当前无活动元素。
-   */
-  Switcher.prototype.getActiveIndex = function() {
-    return this.activeIndex;
-  };
-
 //--------------------------------------------------[Switcher]
   window.Switcher = new Component(Switcher, Switcher.options, Switcher.prototype);
 

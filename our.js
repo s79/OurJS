@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-17
+ *  Version: 2012-06-18
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -4178,28 +4178,6 @@
     return switcher;
   };
 
-//--------------------------------------------------[Switcher.prototype.getActiveItem]
-  /**
-   * 获取当前标记为“活动”的元素。
-   * @name Switcher.prototype.getActiveItem
-   * @function
-   * @returns {Object} 当前标记为“活动”的元素，如果为 null，则当前无活动元素。
-   */
-  Switcher.prototype.getActiveItem = function() {
-    return this.activeItem;
-  };
-
-//--------------------------------------------------[Switcher.prototype.getActiveIndex]
-  /**
-   * 获取当前标记为“活动”的元素的索引。
-   * @name Switcher.prototype.getActiveIndex
-   * @function
-   * @returns {number} 当前标记为“活动”的元素的索引，如果为 -1，则当前无活动元素。
-   */
-  Switcher.prototype.getActiveIndex = function() {
-    return this.activeIndex;
-  };
-
 //--------------------------------------------------[Switcher]
   window.Switcher = new Component(Switcher, Switcher.options, Switcher.prototype);
 
@@ -4256,6 +4234,105 @@
   var ACTIVE = 0;
   var AFTER_END_POINT = 1;
 
+  // 三次贝塞尔曲线生成函数，根据指定的 X 坐标（时间点）获取 Y 坐标（偏移量）。
+  // http://www.netzgesta.de/dev/cubic-bezier-timing-function.html
+  var cubicBezier = function(p1x, p1y, p2x, p2y) {
+    var ax = 0, bx = 0, cx = 0, ay = 0, by = 0, cy = 0;
+    var sampleCurveX = function(t) {
+      return ((ax * t + bx) * t + cx) * t;
+    };
+    var sampleCurveY = function(t) {
+      return ((ay * t + by) * t + cy) * t;
+    };
+    var solveCurveX = function(t) {
+      var t0, t1, t2, x2, d2, i;
+      var epsilon = 0.001;
+      for (t2 = t, i = 0; i < 8; i++) {
+        x2 = sampleCurveX(t2) - t;
+        if (Math.abs(x2) < epsilon) {
+          return t2;
+        }
+        d2 = (3.0 * ax * t2 + 2.0 * bx) * t2 + cx;
+        if (Math.abs(d2) < 1e-6) {
+          break;
+        }
+        t2 = t2 - x2 / d2;
+      }
+      t0 = 0.0;
+      t1 = 1.0;
+      t2 = t;
+      if (t2 < t0) {
+        return t0;
+      }
+      if (t2 > t1) {
+        return t1;
+      }
+      while (t0 < t1) {
+        x2 = sampleCurveX(t2);
+        if (Math.abs(x2 - t) < epsilon) {
+          return t2;
+        }
+        if (t > x2) {
+          t0 = t2;
+        } else {
+          t1 = t2;
+        }
+        t2 = (t1 - t0) * .5 + t0;
+      }
+      return t2;
+    };
+    cx = 3.0 * p1x;
+    bx = 3.0 * (p2x - p1x) - cx;
+    ax = 1.0 - cx - bx;
+    cy = 3.0 * p1y;
+    by = 3.0 * (p2y - p1y) - cy;
+    ay = 1.0 - cy - by;
+    return function(t) {
+      return sampleCurveY(solveCurveX(t));
+    };
+  };
+  // 内置控速函数。
+  // http://www.w3.org/TR/css3-transitions/
+  var builtInTimingFunctions = {
+    linear: function(x) {
+      return x;
+    },
+    bounceIn: function(x) {
+      x = 1 - x;
+      var y;
+      for (var a = 0, b = 1; 1; a += b, b /= 2) {
+        if (x >= (7 - 4 * a) / 11) {
+          y = b * b - Math.pow((11 - 6 * a - 11 * x) / 4, 2);
+          break;
+        }
+      }
+      return 1 - y;
+    },
+    bounceOut: function(x) {
+      var y;
+      for (var a = 0, b = 1; 1; a += b, b /= 2) {
+        if (x >= (7 - 4 * a) / 11) {
+          y = b * b - Math.pow((11 - 6 * a - 11 * x) / 4, 2);
+          break;
+        }
+      }
+      return y;
+    },
+    ease: cubicBezier(0.25, 0.1, 0.25, 1.0),
+    easeIn: cubicBezier(0.42, 0, 1.0, 1.0),
+    easeOut: cubicBezier(0, 0, 0.58, 1.0),
+    easeInOut: cubicBezier(0.42, 0, 0.58, 1.0),
+    easeOutIn: cubicBezier(0, 0.42, 1.0, 0.58)
+  };
+  // 获取控速函数。
+  var getTimingFunction = function(name) {
+    name = name || '';
+//    'cubicBezier(0.42, 1.0, 0.75, 1.0)'.match(/^cubicBezier\((0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1)/)
+    return builtInTimingFunctions[name] || (name.startsWith('cubicBezier') ? cubicBezier.apply(null, name.slice(12, -1).split(',').map(function(item) {
+      return parseFloat(item);
+    })) : builtInTimingFunctions.ease);
+  };
+
   // 播放动画对应某一时间点的某一帧。
   var playAnimation = function(animation, timePoint, isPlayMethod) {
     // 触发事件。
@@ -4309,7 +4386,7 @@
         }
       }
       if (active) {
-        clip.handler.call(animation, x, x === 0 ? 0 : (x === 1 ? 1 : clip.timingFunction(x)));
+        clip.call(animation, x, x === 0 ? 0 : (x === 1 ? 1 : clip.timingFunction(x)));
       }
     });
     // 触发事件。
@@ -4421,14 +4498,22 @@
    * 添加动画剪辑。
    * @name Animation.prototype.addClip
    * @function
-   * @param {Object} clip 使用 Fx.* 创建的动画剪辑对象。
+   * @param {Function} renderer 渲染器，可以使用 Fx.* 创建或自定义。
+   *   函数中的 this 指向所属的 Animation 对象。
+   * @param {number} delay 延时。
+   * @param {number} duration 播放时间。
+   * @param {string} timingFunction 控速函数名称或表达式。
    * @returns {Object} Animation 对象。
    */
-  Animation.prototype.addClip = function(clip) {
-    clip.status = BEFORE_STARTING_POINT;
-    this.clips.push(clip);
+  Animation.prototype.addClip = function(renderer, delay, duration, timingFunction) {
+    // 使用各项配置组合影片剪辑（实际是将渲染器升级为影片剪辑）。
+    renderer.delay = delay;
+    renderer.duration = duration;
+    renderer.timingFunction = getTimingFunction(timingFunction);
+    renderer.status = BEFORE_STARTING_POINT;
+    this.clips.push(renderer);
     // 重新计算整个动画持续的时间。
-    this.duration = Math.max(this.duration, clip.delay + clip.duration);
+    this.duration = Math.max(this.duration, delay + duration);
     return this;
   };
 
@@ -4556,214 +4641,96 @@
     acceptableProperties[property] = TYPE_COLOR;
   });
 
-  // 转换数字值为浮点数。
-  var parseNumberValue = function(value) {
-    var parsedValue = parseFloat(value);
-    return isFinite(parsedValue) ? parsedValue : 0;
+  // 提取数字值为一个浮点数。
+  var extractNumberValue = function(value) {
+    var extractedValue = parseFloat(value);
+    return isFinite(extractedValue) ? extractedValue : 0;
   };
 
-  // 转换颜色值为一个包含 RGB 整数表示的数组。
+  // 提取颜色值为一个包含 RGB 整数表示的数组。
   var NAMED_COLORS = {aliceblue: '#F0F8FF', antiquewhite: '#FAEBD7', aqua: '#00FFFF', aquamarine: '#7FFFD4', azure: '#F0FFFF', beige: '#F5F5DC', bisque: '#FFE4C4', black: '#000000', blanchedalmond: '#FFEBCD', blue: '#0000FF', blueviolet: '#8A2BE2', brown: '#A52A2A', burlywood: '#DEB887', cadetblue: '#5F9EA0', chartreuse: '#7FFF00', chocolate: '#D2691E', coral: '#FF7F50', cornflowerblue: '#6495ED', cornsilk: '#FFF8DC', crimson: '#DC143C', cyan: '#00FFFF', darkblue: '#00008B', darkcyan: '#008B8B', darkgoldenrod: '#B8860B', darkgray: '#A9A9A9', darkgreen: '#006400', darkkhaki: '#BDB76B', darkmagenta: '#8B008B', darkolivegreen: '#556B2F', darkorange: '#FF8C00', darkorchid: '#9932CC', darkred: '#8B0000', darksalmon: '#E9967A', darkseagreen: '#8FBC8B', darkslateblue: '#483D8B', darkslategray: '#2F4F4F', darkturquoise: '#00CED1', darkviolet: '#9400D3', deeppink: '#FF1493', deepskyblue: '#00BFFF', dimgray: '#696969', dodgerblue: '#1E90FF', firebrick: '#B22222', floralwhite: '#FFFAF0', forestgreen: '#228B22', fuchsia: '#FF00FF', gainsboro: '#DCDCDC', ghostwhite: '#F8F8FF', gold: '#FFD700', goldenrod: '#DAA520', gray: '#808080', green: '#008000', greenyellow: '#ADFF2F', honeydew: '#F0FFF0', hotpink: '#FF69B4', indianred: '#CD5C5C', indigo: '#4B0082', ivory: '#FFFFF0', khaki: '#F0E68C', lavender: '#E6E6FA', lavenderblush: '#FFF0F5', lawngreen: '#7CFC00', lemonchiffon: '#FFFACD', lightblue: '#ADD8E6', lightcoral: '#F08080', lightcyan: '#E0FFFF', lightgoldenrodyellow: '#FAFAD2', lightgreen: '#90EE90', lightgrey: '#D3D3D3', lightpink: '#FFB6C1', lightsalmon: '#FFA07A', lightseagreen: '#20B2AA', lightskyblue: '#87CEFA', lightslategray: '#778899', lightsteelblue: '#B0C4DE', lightyellow: '#FFFFE0', lime: '#00FF00', limegreen: '#32CD32', linen: '#FAF0E6', magenta: '#FF00FF', maroon: '#800000', mediumaquamarine: '#66CDAA', mediumblue: '#0000CD', mediumorchid: '#BA55D3', mediumpurple: '#9370DB', mediumseagreen: '#3CB371', mediumslateblue: '#7B68EE', mediumspringgreen: '#00FA9A', mediumturquoise: '#48D1CC', mediumvioletred: '#C71585', midnightblue: '#191970', mintcream: '#F5FFFA', mistyrose: '#FFE4E1', moccasin: '#FFE4B5', navajowhite: '#FFDEAD', navy: '#000080', oldlace: '#FDF5E6', olive: '#808000', olivedrab: '#6B8E23', orange: '#FFA500', orangered: '#FF4500', orchid: '#DA70D6', palegoldenrod: '#EEE8AA', palegreen: '#98FB98', paleturquoise: '#AFEEEE', palevioletred: '#DB7093', papayawhip: '#FFEFD5', peachpuff: '#FFDAB9', peru: '#CD853F', pink: '#FFC0CB', plum: '#DDA0DD', powderblue: '#B0E0E6', purple: '#800080', red: '#FF0000', rosybrown: '#BC8F8F', royalblue: '#4169E1', saddlebrown: '#8B4513', salmon: '#FA8072', sandybrown: '#F4A460', seagreen: '#2E8B57', seashell: '#FFF5EE', sienna: '#A0522D', silver: '#C0C0C0', skyblue: '#87CEEB', slateblue: '#6A5ACD', slategray: '#708090', snow: '#FFFAFA', springgreen: '#00FF7F', steelblue: '#4682B4', tan: '#D2B48C', teal: '#008080', thistle: '#D8BFD8', tomato: '#FF6347', turquoise: '#40E0D0', violet: '#EE82EE', wheat: '#F5DEB3', white: '#FFFFFF', whitesmoke: '#F5F5F5', yellow: '#FFFF00', yellowgreen: '#9ACD32'};
   var RE_HEX_COLOR = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i;
   var RE_HEX_COLOR_SHORT = /^#([\da-f])([\da-f])([\da-f])$/i;
   var RE_RGB_COLOR = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
-  var parseColorValue = function(value) {
-    // 将默认的颜色设置为白色。
-    var parsedValue = [255, 255, 255];
+  var extractColorValue = function(value) {
+    var extractedValue = [255, 255, 255];
     if (NAMED_COLORS.hasOwnProperty(value)) {
       value = NAMED_COLORS[value];
     }
     var match;
     if (match = value.match(RE_HEX_COLOR)) {
-      parsedValue = Array.from(match).slice(1).map(function(hexadecimal) {
+      extractedValue = Array.from(match).slice(1).map(function(hexadecimal) {
         return parseInt(hexadecimal, 16);
       });
     } else if (match = value.match(RE_HEX_COLOR_SHORT)) {
-      parsedValue = Array.from(match).slice(1).map(function(hexadecimal) {
+      extractedValue = Array.from(match).slice(1).map(function(hexadecimal) {
         return parseInt(hexadecimal + hexadecimal, 16);
       });
     } else if (match = value.match(RE_RGB_COLOR)) {
-      parsedValue = Array.from(match).slice(1).map(function(decimal) {
+      extractedValue = Array.from(match).slice(1).map(function(decimal) {
         return +decimal;
       });
     }
-    return parsedValue;
+    return extractedValue;
   };
 
-  // 过滤和转换动画需要改变的样式。
+  // 获取可变样式的映射表。
   var RE_RELATIVE_LENGTH = /^[+\-]=\d+$/;
-  var parseStyles = function($element, afterStyles) {
+  var getStylesMap = function($element, afterStyles) {
     var beforeStyles = $element.getStyles(Object.keys(afterStyles));
-    var parsedStyles = {before: {}, after: {}};
+    var map = {before: {}, after: {}};
     Object.forEach(beforeStyles, function(beforeValue, name) {
       var afterValue = afterStyles[name];
       switch (acceptableProperties[name]) {
         case TYPE_NUMBER:
-          parsedStyles.before[name] = parseNumberValue(beforeValue);
-          parsedStyles.after[name] = parseNumberValue(afterValue);
+          map.before[name] = extractNumberValue(beforeValue);
+          map.after[name] = extractNumberValue(afterValue);
           break;
         case TYPE_LENGTH:
-          parsedStyles.before[name] = beforeValue = parseNumberValue(beforeValue);
+          map.before[name] = beforeValue = extractNumberValue(beforeValue);
           if (typeof afterValue === 'string' && RE_RELATIVE_LENGTH.test(afterValue)) {
-            parsedStyles.after[name] = beforeValue + (+(afterValue.slice(0, 1) + '1') * +afterValue.slice(2));
+            map.after[name] = beforeValue + (+(afterValue.slice(0, 1) + '1') * +afterValue.slice(2));
           } else {
-            parsedStyles.after[name] = parseNumberValue(afterValue);
+            map.after[name] = extractNumberValue(afterValue);
           }
           break;
         case TYPE_COLOR:
-          parsedStyles.before[name] = parseColorValue(beforeValue);
-          parsedStyles.after[name] = parseColorValue(afterValue);
+          map.before[name] = extractColorValue(beforeValue);
+          map.after[name] = extractColorValue(afterValue);
           break;
       }
     });
-    return parsedStyles;
+    return map;
   };
 
-  // 三次贝塞尔曲线生成函数，根据指定的 X 坐标（时间点）获取 Y 坐标（偏移量）。
-  // http://www.netzgesta.de/dev/cubic-bezier-timing-function.html
-  var cubicBezier = function(p1x, p1y, p2x, p2y) {
-    var ax = 0, bx = 0, cx = 0, ay = 0, by = 0, cy = 0;
-    var sampleCurveX = function(t) {
-      return ((ax * t + bx) * t + cx) * t;
-    };
-    var sampleCurveY = function(t) {
-      return ((ay * t + by) * t + cy) * t;
-    };
-    var solveCurveX = function(t) {
-      var t0, t1, t2, x2, d2, i;
-      var epsilon = 0.001;
-      for (t2 = t, i = 0; i < 8; i++) {
-        x2 = sampleCurveX(t2) - t;
-        if (Math.abs(x2) < epsilon) {
-          return t2;
-        }
-        d2 = (3.0 * ax * t2 + 2.0 * bx) * t2 + cx;
-        if (Math.abs(d2) < 1e-6) {
-          break;
-        }
-        t2 = t2 - x2 / d2;
-      }
-      t0 = 0.0;
-      t1 = 1.0;
-      t2 = t;
-      if (t2 < t0) {
-        return t0;
-      }
-      if (t2 > t1) {
-        return t1;
-      }
-      while (t0 < t1) {
-        x2 = sampleCurveX(t2);
-        if (Math.abs(x2 - t) < epsilon) {
-          return t2;
-        }
-        if (t > x2) {
-          t0 = t2;
-        } else {
-          t1 = t2;
-        }
-        t2 = (t1 - t0) * .5 + t0;
-      }
-      return t2;
-    };
-    cx = 3.0 * p1x;
-    bx = 3.0 * (p2x - p1x) - cx;
-    ax = 1.0 - cx - bx;
-    cy = 3.0 * p1y;
-    by = 3.0 * (p2y - p1y) - cy;
-    ay = 1.0 - cy - by;
-    return function(t) {
-      return sampleCurveY(solveCurveX(t));
-    };
-  };
-
-  // 内置控速函数。
-  // http://www.w3.org/TR/css3-transitions/
-  var timingFunctions = {
-    linear: function(x) {
-      return x;
-    },
-    bounceIn: function(x) {
-      x = 1 - x;
-      var y;
-      for (var a = 0, b = 1; 1; a += b, b /= 2) {
-        if (x >= (7 - 4 * a) / 11) {
-          y = b * b - Math.pow((11 - 6 * a - 11 * x) / 4, 2);
-          break;
-        }
-      }
-      return 1 - y;
-    },
-    bounceOut: function(x) {
-      var y;
-      for (var a = 0, b = 1; 1; a += b, b /= 2) {
-        if (x >= (7 - 4 * a) / 11) {
-          y = b * b - Math.pow((11 - 6 * a - 11 * x) / 4, 2);
-          break;
-        }
-      }
-      return y;
-    },
-    ease: cubicBezier(0.25, 0.1, 0.25, 1.0),
-    easeIn: cubicBezier(0.42, 0, 1.0, 1.0),
-    easeOut: cubicBezier(0, 0, 0.58, 1.0),
-    easeInOut: cubicBezier(0.42, 0, 0.58, 1.0),
-    easeOutIn: cubicBezier(0, 0.42, 1.0, 0.58)
-  };
-
-  var getTimingFunction = function(name) {
-    name = name || '';
-//    'cubicBezier(0.42, 1.0, 0.75, 1.0)'.match(/^cubicBezier\((0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1)/)
-    return timingFunctions[name] || (name.startsWith('cubicBezier') ? cubicBezier.apply(null, name.slice(12, -1).split(',').map(function(item) {
-      return parseFloat(item);
-    })) : timingFunctions.ease);
+  // 将包含 RGB 整数表示的数组转换为颜色值。
+  var convertToRGBValue = function(colorArray) {
+    return 'rgb(' + colorArray[0] + ', ' + colorArray[1] + ', ' + colorArray[2] + ')';
   };
 
   /**
-   * 用于创建影片剪辑的一组特效。
+   * 用于创建影片的特效渲染器。
    * @name Fx
    * @namespace
    */
   window.Fx = {};
 
-//--------------------------------------------------[Fx.Base]
-  /**
-   * 基础动画效果。
-   * @name Fx.Base
-   * @constructor
-   * @param {Function} handler 动画处理函数，this 指向所属的 Animation 对象。
-   * @param {number} delay 延时。
-   * @param {number} duration 播放时间。
-   * @param {string} timingFunction 控速函数名称或表达式。
-   * @description
-   *   可以通过定制动画处理函数来制作各种动画，Fx 下的其他动画效果都是这样实现的。
-   */
-  Fx.Base = function(handler, delay, duration, timingFunction) {
-    this.handler = handler;
-    this.delay = delay;
-    this.duration = duration;
-    this.timingFunction = getTimingFunction(timingFunction);
-  };
-
 //--------------------------------------------------[Fx.Morph]
   /**
-   * 渐变效果。
+   * 渐变效果渲染器。
    * @name Fx.Morph
    * @constructor
    * @param {Element} $element 要实施渐变效果的元素。
    * @param {Object} styles 要实施渐变的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个预命名颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(正整数R, 正整数G, 正整数B) 格式。
-   * @param {number} delay 延时。
-   * @param {number} duration 播放时间。
-   * @param {string} timingFunction 控速函数名称或表达式。
    */
-  Fx.Morph = function($element, styles, delay, duration, timingFunction) {
-    var transitiveStyles;
-    this.handler = function(x, y) {
-      if (transitiveStyles === undefined) {
-        transitiveStyles = parseStyles($element, styles);
+  Fx.Morph = function($element, styles) {
+    var map;
+    var renderer = function(x, y) {
+      if (map === undefined) {
+        map = getStylesMap($element, styles);
       }
-      Object.forEach(transitiveStyles.before, function(beforeValue, name) {
-        var afterValue = transitiveStyles.after[name];
+      Object.forEach(map.before, function(beforeValue, name) {
+        var afterValue = map.after[name];
         var currentValue;
         switch (acceptableProperties[name]) {
           case TYPE_NUMBER:
@@ -4773,64 +4740,53 @@
             currentValue = Math.floor(beforeValue + (afterValue - beforeValue) * y) + 'px';  // TODO: 支持多种长度单位。
             break;
           case TYPE_COLOR:
-            currentValue = 'rgb(' +
-                Math.floor(beforeValue[0] + (afterValue[0] - beforeValue[0]) * y) + ', ' +
-                Math.floor(beforeValue[1] + (afterValue[1] - beforeValue[1]) * y) + ', ' +
-                Math.floor(beforeValue[2] + (afterValue[2] - beforeValue[2]) * y) + ')';
+            currentValue = convertToRGBValue([
+              Math.floor(beforeValue[0] + (afterValue[0] - beforeValue[0]) * y),
+              Math.floor(beforeValue[1] + (afterValue[1] - beforeValue[1]) * y),
+              Math.floor(beforeValue[2] + (afterValue[2] - beforeValue[2]) * y)
+            ]);
             break;
         }
         $element.setStyle(name, currentValue);
       });
     };
-    this.delay = delay;
-    this.duration = duration;
-    this.timingFunction = getTimingFunction(timingFunction);
+    renderer.type = 'morph';
+    return renderer;
   };
-
-//--------------------------------------------------[Fx.Slide]
 
 //--------------------------------------------------[Fx.Highlight]
-  var getColorString = function(colorArray) {
-    return 'rgb(' + colorArray[0] + ', ' + colorArray[1] + ', ' + colorArray[2] + ')';
-  };
-
   /**
-   * 高亮效果。
+   * 高亮效果渲染器。
    * @name Fx.Highlight
    * @constructor
    * @param {Element} $element 要实施渐隐效果的元素。
    * @param {string} color 高亮的颜色。
    * @param {number} times 高亮的次数。
-   * @param {number} delay 延时。
-   * @param {number} duration 播放时间。
-   * @param {string} timingFunction 控速函数名称或表达式。
    */
-  Fx.Highlight = function($element, color, times, delay, duration, timingFunction) {
+  Fx.Highlight = function($element, color, times) {
     // 内部分多次动画换算后，使用此控速函数。
-    var nativeTimingFunction = getTimingFunction(timingFunction);
+    var map;
     var nativeSection = 1 / times;
-    var transitiveBackgroundColor;
-    this.handler = function(x) {
-      if (transitiveBackgroundColor === undefined) {
-        transitiveBackgroundColor = parseStyles($element, {backgroundColor: color});
+    var renderer = function(x) {
+      if (map === undefined) {
+        map = getStylesMap($element, {backgroundColor: color});
       }
-      var beforeValue = transitiveBackgroundColor.before.backgroundColor;
-      var afterValue = transitiveBackgroundColor.after.backgroundColor;
+      var beforeValue = map.before.backgroundColor;
+      var afterValue = map.after.backgroundColor;
       if (x === 0 || x === 1) {
-        $element.setStyle('backgroundColor', getColorString(beforeValue));
+        $element.setStyle('backgroundColor', convertToRGBValue(beforeValue));
       } else {
         var nativeX = (x % nativeSection) / nativeSection;
-        var nativeY = nativeTimingFunction(nativeX);
-        $element.setStyle('backgroundColor', getColorString([
+        var nativeY = renderer.timingFunction(nativeX);
+        $element.setStyle('backgroundColor', convertToRGBValue([
           Math.floor(afterValue[0] + (beforeValue[0] - afterValue[0]) * nativeY),
           Math.floor(afterValue[1] + (beforeValue[1] - afterValue[1]) * nativeY),
           Math.floor(afterValue[2] + (beforeValue[2] - afterValue[2]) * nativeY)
         ]));
       }
     };
-    this.delay = delay;
-    this.duration = duration;
-    this.timingFunction = timingFunctions.linear;
+    renderer.type = 'highlight';
+    return renderer;
   };
 
 //--------------------------------------------------[Fx.Scroll]
@@ -4904,7 +4860,7 @@
   Element.prototype.morph = function(styles, options) {
     var $element = this;
     options = Object.append({delay: 0, duration: 400, timingFunction: 'ease', onStart: null, onFinish: null}, options || {});
-    var animation = new Animation().addClip(new Fx.Morph($element, styles, options.delay, options.duration, options.timingFunction));
+    var animation = new Animation().addClip(new Fx.Morph($element, styles), options.delay, options.duration, options.timingFunction);
     if (options.onStart) {
       animation.on('playstart', function(e) {
         options.onStart.call($element, e);
@@ -4941,12 +4897,12 @@
     var queue = queuePool[this.uid];
     if (queue) {
       if (queue.length === 0) {
-        if (queue.currentAnimation.clips[0] instanceof Fx.Highlight) {
+        if (queue.currentAnimation.clips[0].type === 'highlight') {
           queue.currentAnimation.stop().play();
           return this;
         }
       } else {
-        if (queue[queue.length - 1].clips[0] instanceof Fx.Highlight) {
+        if (queue[queue.length - 1].clips[0].type === 'highlight') {
           return this;
         }
       }
@@ -4954,7 +4910,7 @@
 
     var $element = this;
     options = Object.append({color: 'yellow', times: 2, delay: 0, duration: 500, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
-    var animation = new Animation().addClip(new Fx.Highlight($element, options.color, options.times, options.delay, options.duration, options.timingFunction));
+    var animation = new Animation().addClip(new Fx.Highlight($element, options.color, options.times), options.delay, options.duration, options.timingFunction);
     if (options.onStart) {
       animation.on('playstart', function(e) {
         this.off('playstart');
@@ -4993,7 +4949,7 @@
           if ($element.getStyle('display') === 'none') {
             var originalOpacity = $element.getStyle('opacity');
             options = Object.append({delay: 0, duration: 200, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
-            this.addClip(new Fx.Morph($element, {opacity: originalOpacity}, options.delay, options.duration, options.timingFunction));
+            this.addClip(new Fx.Morph($element, {opacity: originalOpacity}), options.delay, options.duration, options.timingFunction);
             $element.setStyles({'display': 'block', 'opacity': 0});
           } else {
             e.preventDefault();
@@ -5037,7 +4993,7 @@
           if ($element.getStyle('display') !== 'none') {
             originalOpacity = $element.getStyle('opacity');
             options = Object.append({delay: 0, duration: 200, timingFunction: 'easeOut', onStart: null, onFinish: null}, options || {});
-            this.addClip(new Fx.Morph($element, {opacity: 0}, options.delay, options.duration, options.timingFunction));
+            this.addClip(new Fx.Morph($element, {opacity: 0}), options.delay, options.duration, options.timingFunction);
           } else {
             e.preventDefault();
             this.off('playstart.callback playfinish.callback').fire('playfinish');

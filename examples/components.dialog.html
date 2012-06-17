@@ -78,13 +78,29 @@ execute(function($) {
       function() {
         console.log('open');
       })
+      .on('openstart',
+      function() {
+        console.log('openstart');
+      })
+      .on('openfinish',
+      function() {
+        console.log('openfinish');
+      })
       .on('close',
       function() {
         console.log('close');
+      })
+      .on('closestart',
+      function() {
+        console.log('closestart');
+      })
+      .on('closefinish',
+      function() {
+        console.log('closefinish');
       });
   dialogTwo = new Dialog($('#dialog_2'), {effect: true});
 
-  animation = new Animation().addClip(new Fx.Morph(dialogTwo.element, {height: 400}, 0, 200, 'ease'))
+  animation = new Animation().addClip(new Fx.Morph(dialogTwo.element, {height: 400}), 0, 200, 'ease')
       .on('step', function() {
         dialogTwo.adjust();
       });

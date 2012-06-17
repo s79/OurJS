@@ -20,6 +20,11 @@ execute(function($) {
    * @param {string} options.activeClassName 为激活的“标签”和“面板”添加的类名，默认为 'active'。
    * @param {Element} options.tabsContainer 用来绑定各“标签”的代理事件监听器的元素，默认为 undefined，此时使用第一个“标签”的父元素。当所有的“标签”有一个共同的父元素时，可以省略。
    * @param {number} options.hoverDelay 以毫秒为单位的鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
+   * @fires active
+   *   {Element} activeTab 要激活的“标签”。
+   *   {Element} activePanel 要激活的“面板”。
+   *   {number} activeIndex 要激活的“标签”和“面板”在 tabs 和 panels 中的索引。
+   *   调用 active 方法时触发；可以取消本次动作。
    * @fires change
    *   {Element} activeTab 当前的激活的“标签”。
    *   {Element} activePanel 当前的激活的“面板”。
