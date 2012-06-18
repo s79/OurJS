@@ -314,20 +314,20 @@
    * 添加动画剪辑。
    * @name Animation.prototype.addClip
    * @function
-   * @param {Function} renderer 渲染器，可以使用 Fx.* 创建或自定义。
+   * @param {Function} fxRenderer 使用 Fx.* 创建的特效渲染器。
    *   函数中的 this 指向所属的 Animation 对象。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
    * @param {string} timingFunction 控速函数名称或表达式。
    * @returns {Object} Animation 对象。
    */
-  Animation.prototype.addClip = function(renderer, delay, duration, timingFunction) {
+  Animation.prototype.addClip = function(fxRenderer, delay, duration, timingFunction) {
     // 使用各项配置组合影片剪辑（实际是将渲染器升级为影片剪辑）。
-    renderer.delay = delay;
-    renderer.duration = duration;
-    renderer.timingFunction = getTimingFunction(timingFunction);
-    renderer.status = BEFORE_STARTING_POINT;
-    this.clips.push(renderer);
+    fxRenderer.delay = delay;
+    fxRenderer.duration = duration;
+    fxRenderer.timingFunction = getTimingFunction(timingFunction);
+    fxRenderer.status = BEFORE_STARTING_POINT;
+    this.clips.push(fxRenderer);
     // 重新计算整个动画持续的时间。
     this.duration = Math.max(this.duration, delay + duration);
     return this;
@@ -531,15 +531,29 @@
    */
   window.Fx = {};
 
-//--------------------------------------------------[Fx.Morph]
+//--------------------------------------------------[Fx.base]
+  /**
+   * 基础效果渲染器。
+   * @name Fx.base
+   * @function
+   * @param {Function} renderer 渲染函数，this 指向所属的 Animation 对象，传入两个参数：时间轴和偏移量。
+   * @returns {Function} 生成的渲染器。
+   */
+  Fx.base = function(renderer) {
+    renderer.type = 'base';
+    return renderer;
+  };
+
+//--------------------------------------------------[Fx.morph]
   /**
    * 渐变效果渲染器。
-   * @name Fx.Morph
-   * @constructor
+   * @name Fx.morph
+   * @function
    * @param {Element} $element 要实施渐变效果的元素。
    * @param {Object} styles 要实施渐变的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个预命名颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(正整数R, 正整数G, 正整数B) 格式。
+   * @returns {Function} 生成的渲染器。
    */
-  Fx.Morph = function($element, styles) {
+  Fx.morph = function($element, styles) {
     var map;
     var renderer = function(x, y) {
       if (map === undefined) {
@@ -570,16 +584,19 @@
     return renderer;
   };
 
-//--------------------------------------------------[Fx.Highlight]
+//--------------------------------------------------[Fx.highlight]
   /**
    * 高亮效果渲染器。
-   * @name Fx.Highlight
-   * @constructor
+   * @name Fx.highlight
+   * @function
    * @param {Element} $element 要实施渐隐效果的元素。
-   * @param {string} color 高亮的颜色。
-   * @param {number} times 高亮的次数。
+   * @param {string} [color] 高亮颜色，默认为 'yellow'。
+   * @param {number} [times] 高亮次数，默认为 1。
+   * @returns {Function} 生成的渲染器。
    */
-  Fx.Highlight = function($element, color, times) {
+  Fx.highlight = function($element, color, times) {
+    color = color || 'yellow';
+    times = times || 1;
     // 内部分多次动画换算后，使用此控速函数。
     var map;
     var nativeSection = 1 / times;
@@ -676,7 +693,7 @@
   Element.prototype.morph = function(styles, options) {
     var $element = this;
     options = Object.append({delay: 0, duration: 400, timingFunction: 'ease', onStart: null, onFinish: null}, options || {});
-    var animation = new Animation().addClip(new Fx.Morph($element, styles), options.delay, options.duration, options.timingFunction);
+    var animation = new Animation().addClip(Fx.morph($element, styles), options.delay, options.duration, options.timingFunction);
     if (options.onStart) {
       animation.on('playstart', function(e) {
         options.onStart.call($element, e);
@@ -696,9 +713,9 @@
    * 在本元素的动画队列中添加一个高亮动画。
    * @name Element.prototype.highlight
    * @function
+   * @param {string} [color] 高亮颜色，默认为 'yellow'。
+   * @param {number} [times] 高亮次数，默认为 1。
    * @param {Object} [options] 动画选项。
-   * @param {string} options.color 高亮颜色，默认为 yellow。
-   * @param {number} options.times 高亮次数，默认为 2。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
    * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeIn'。
@@ -709,7 +726,7 @@
    *   如果本元素正在播放一个高亮动画，则丢弃新的高亮动画并重新播放旧的高亮动画。
    *   如果当前队列的前一个动画也是高亮动画，则丢弃新的高亮动画。
    */
-  Element.prototype.highlight = function(options) {
+  Element.prototype.highlight = function(color, times, options) {
     var queue = queuePool[this.uid];
     if (queue) {
       if (queue.length === 0) {
@@ -725,8 +742,8 @@
     }
 
     var $element = this;
-    options = Object.append({color: 'yellow', times: 2, delay: 0, duration: 500, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
-    var animation = new Animation().addClip(new Fx.Highlight($element, options.color, options.times), options.delay, options.duration, options.timingFunction);
+    options = Object.append({delay: 0, duration: 500, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
+    var animation = new Animation().addClip(Fx.highlight($element, color, times), options.delay, options.duration, options.timingFunction);
     if (options.onStart) {
       animation.on('playstart', function(e) {
         this.off('playstart');
@@ -765,7 +782,7 @@
           if ($element.getStyle('display') === 'none') {
             var originalOpacity = $element.getStyle('opacity');
             options = Object.append({delay: 0, duration: 200, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
-            this.addClip(new Fx.Morph($element, {opacity: originalOpacity}), options.delay, options.duration, options.timingFunction);
+            this.addClip(Fx.morph($element, {opacity: originalOpacity}), options.delay, options.duration, options.timingFunction);
             $element.setStyles({'display': 'block', 'opacity': 0});
           } else {
             e.preventDefault();
@@ -809,7 +826,7 @@
           if ($element.getStyle('display') !== 'none') {
             originalOpacity = $element.getStyle('opacity');
             options = Object.append({delay: 0, duration: 200, timingFunction: 'easeOut', onStart: null, onFinish: null}, options || {});
-            this.addClip(new Fx.Morph($element, {opacity: 0}), options.delay, options.duration, options.timingFunction);
+            this.addClip(Fx.morph($element, {opacity: 0}), options.delay, options.duration, options.timingFunction);
           } else {
             e.preventDefault();
             this.off('playstart.callback playfinish.callback').fire('playfinish');

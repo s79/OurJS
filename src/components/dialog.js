@@ -185,7 +185,7 @@ execute(function($) {
           });
       if (options.effect) {
         mask.animation
-            .addClip(new Fx.Morph($mask, {opacity: $mask.getStyle('opacity')}), 0, 150, 'easeIn')
+            .addClip(Fx.morph($mask, {opacity: $mask.getStyle('opacity')}), 0, 150, 'easeIn')
             .on('playstart', function() {
               $mask.setStyle('opacity', 0);
             });
@@ -404,7 +404,7 @@ execute(function($) {
         });
     if (options.effect) {
       dialog.animation
-          .addClip(new Fx.Morph($dialog, {opacity: $dialog.getStyle('opacity')}), 0, 200, 'easeIn')
+          .addClip(Fx.morph($dialog, {opacity: $dialog.getStyle('opacity')}), 0, 200, 'easeIn')
           .on('playstart', function() {
             $dialog.setStyle('opacity', 0);
           });

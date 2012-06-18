@@ -96,7 +96,7 @@ execute(function($) {
       return symbol && symbol.parameters.length ?
           '<dl><dt>参数：</dt><dd><table>' + symbol.parameters.map(
               function(parameter) {
-                return '<tr><td><kbd>&lt;' + parameter.type + '&gt;</kbd></td><td><dfn>' + parameter.name + (parameter.isOptional ? '<em>Optional</em>' : '') + '</dfn></td><td>' + parameter.description + '</td></tr>';
+                return '<tr><td><kbd>&lt;' + parameter.type + '&gt;</kbd></td><td><dfn>' + parameter.name.replace('options.', '<var>options.</var>') + (parameter.isOptional ? '<em>Optional</em>' : '') + '</dfn></td><td>' + parameter.description + '</td></tr>';
               }
           ).join('') + '</table></dd></dl>' :
           '';

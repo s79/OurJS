@@ -1009,8 +1009,8 @@
    *   Element.prototype.prepend
    *   Element.prototype.putBefore
    *   Element.prototype.putAfter
-   *   Element.prototype.remove
    *   Element.prototype.replace
+   *   Element.prototype.remove
    *   Element.prototype.empty
    *   Element.prototype.clone  // TODO: pending。
    */
@@ -1073,25 +1073,6 @@
     return this;
   };
 
-//--------------------------------------------------[Element.prototype.remove]
-  /**
-   * 将本元素从文档树中删除。
-   * @name Element.prototype.remove
-   * @function
-   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上绑定的所有事件监听器。
-   * @returns {Element} 本元素。
-   */
-  Element.prototype.remove = function(keepListeners) {
-    var $parent = this.getParent();
-    if ($parent) {
-      if (!keepListeners) {
-        Array.from(removeAllListeners(this).getElementsByTagName('*')).forEach(removeAllListeners);
-      }
-      $parent.removeChild(this);
-    }
-    return this;
-  };
-
 //--------------------------------------------------[Element.prototype.replace]
   /**
    * 使用本元素替换目标元素。
@@ -1109,6 +1090,25 @@
         Array.from(removeAllListeners($target).getElementsByTagName('*')).forEach(removeAllListeners);
       }
       $parent.replaceChild($target, this);
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Element.prototype.remove]
+  /**
+   * 将本元素从文档树中删除。
+   * @name Element.prototype.remove
+   * @function
+   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上绑定的所有事件监听器。
+   * @returns {Element} 本元素。
+   */
+  Element.prototype.remove = function(keepListeners) {
+    var $parent = this.getParent();
+    if ($parent) {
+      if (!keepListeners) {
+        Array.from(removeAllListeners(this).getElementsByTagName('*')).forEach(removeAllListeners);
+      }
+      $parent.removeChild(this);
     }
     return this;
   };

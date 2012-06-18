@@ -88,7 +88,7 @@ execute(function($) {
 <script>
 execute(function($) {
   $('#e_h_1_go').on('click', function() {
-    $('#e_h_1').highlight({
+    $('#e_h_1').highlight('red', 2, {
       onStart: function() {
         this.innerText++;
       }
@@ -108,12 +108,12 @@ execute(function($) {
 execute(function($) {
   $('#e_h_2_go').on('click', function() {
     $('#e_h_2')
-        .highlight({
+        .highlight('red', 1, {
           onStart: function() {
             this.innerText += '1';
           }
         })
-        .highlight({
+        .highlight('green', 1, {
           onStart: function() {
             this.innerText += '2';
           }
@@ -121,12 +121,12 @@ execute(function($) {
         .morph({
           width: '+=20'
         })
-        .highlight({
+        .highlight('blue', 1, {
           onStart: function() {
             this.innerText += '3';
           }
         })
-        .highlight({
+        .highlight('yellow', 1, {
           onStart: function() {
             this.innerText += '4';
           }
@@ -185,7 +185,7 @@ execute(function($) {
 <script>
 execute(function($) {
   $('#a_1').getChildren().forEach(function($menu) {
-    var animation = new Animation().addClip(new Fx.Morph($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
+    var animation = new Animation().addClip(Fx.morph($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
     $menu.on(
         'mouseenter', function(e) {
           animation.play();
@@ -205,10 +205,10 @@ execute(function($) {
 #layer { display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; border: 0 solid greenyellow; background: silver; color: red; font: 12px/20px Verdana; text-align: center; overflow: hidden; }
 #layer.italic { font-style: italic; }
 #panel { position: relative; width: 500px; margin: auto; }
-#panel #left,
-#panel #right { position: absolute; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; }
-#panel #left { left: 0; text-align: right; }
-#panel #right { right: 0; text-align: left; }
+#panel #number,
+#panel #type { position: absolute; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; }
+#panel #number { left: 0; text-align: right; }
+#panel #type { right: 0; text-align: left; }
 #panel #timeline { position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left; }
 </style>
 <fieldset style="position: relative; text-align: center;">
@@ -217,8 +217,8 @@ execute(function($) {
     <div id="layer"></div>
   </div>
   <div id="panel">
-    <div id="left"></div>
-    <div id="right"></div>
+    <div id="number"></div>
+    <div id="type"></div>
     <div id="timeline"></div>
   </div>
   <button id="reverse2">reverse</button>
@@ -233,10 +233,10 @@ execute(function($) {
 //--------------------------------------------------[animation]
   var $layer = $('#layer').setStyle('opacity', 0);
   window.animation = new Animation()
-      .addClip(new Fx.Morph($layer, {opacity: 1}), 0, 700, 'easeOut')
-      .addClip(new Fx.Highlight($layer, 'yellow', 1), 200, 400, 'linear')
+      .addClip(Fx.morph($layer, {opacity: 1}), 0, 700, 'easeOut')
+      .addClip(Fx.highlight($layer), 200, 400, 'linear')
       .addClip(
-      new Fx.Morph($layer, {
+      Fx.morph($layer, {
         backgroundColor: 'steelblue',
         borderTopColor: 'silver',
         borderRightColor: 'dimgray',
@@ -244,18 +244,18 @@ execute(function($) {
         borderLeftColor: 'silver'
       }), 600, 400)
       .addClip(
-      new Fx.Morph($layer, {
+      Fx.morph($layer, {
         left: '-=150',
         width: '+=300',
         borderWidth: 10
       }), 400, 200, 'cubicBezier(.6,0,.6,1.35)')
       .addClip(
-      function(x, y) {
+      Fx.base(function(x, y) {
         console.log(x, y);
         $layer.toggleClass('italic');
-      }, 500, 0, 'linear')
+      }), 500, 0, 'linear')
       .addClip(
-      new Fx.Morph($layer, {
+      Fx.morph($layer, {
         top: '-=150',
         height: '+=100',
         color: 'yellow',
@@ -305,15 +305,15 @@ execute(function($) {
     return 'rgb(' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ')';
   }
 
-  var $left = $('#left');
-  var $right = $('#right');
+  var $number = $('#number');
+  var $type = $('#type');
   var $timeline = $('#timeline');
   var length = $timeline.clientWidth;
   var duration = animation.duration;
   animation.clips.forEach(function(clip, index) {
     var color = getRandomColor();
-    $left.append($('<div style="height: 12px;">' + (index + 1) + '</div>'));
-    $right.append($('<div style="height: 12px;">' + (index + 1) + '</div>'));
+    $number.append($('<div style="height: 12px;">' + (index + 1) + '</div>'));
+    $type.append($('<div style="height: 12px;">' + clip.type + '</div>'));
     var $clipPanlel = $('<div style="width: ' + clip.duration / duration * length + 'px; height: 12px; margin-left: ' + clip.delay / duration * length + 'px; background: ' + color + '; overflow: hidden;"></div>');
     $timeline.append($clipPanlel);
     if (!$clipPanlel.offsetWidth) {
@@ -328,7 +328,7 @@ execute(function($) {
   });
   var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5);
   $timeline.append($time);
-  animation.addClip(new Fx.Morph($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
+  animation.addClip(Fx.morph($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
     $time.setStyle('left', 0);
   });
 
@@ -406,11 +406,11 @@ execute(function($) {
     var color = this.getStyle('backgroundColor');
     new Animation()
         .addClip(
-        function(x, y) {
+        Fx.base(function(x, y) {
           x = Math.floor(x * 299);
           y = Math.floor(y * 299);
           $canvas.append($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
-        }, 0, 2500, this.innerText)
+        }), 0, 2500, this.innerText)
         .play();
   }, function() {
     return this.nodeName === 'BUTTON';

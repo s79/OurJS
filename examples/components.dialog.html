@@ -100,7 +100,7 @@ execute(function($) {
       });
   dialogTwo = new Dialog($('#dialog_2'), {effect: true});
 
-  animation = new Animation().addClip(new Fx.Morph(dialogTwo.element, {height: 400}), 0, 200, 'ease')
+  animation = new Animation().addClip(Fx.morph(dialogTwo.element, {height: 400}), 0, 200, 'ease')
       .on('step', function() {
         dialogTwo.adjust();
       });

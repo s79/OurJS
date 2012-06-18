@@ -183,8 +183,8 @@ var manifest = {
     'Element.prototype.prepend',
     'Element.prototype.putBefore',
     'Element.prototype.putAfter',
-    'Element.prototype.remove',
     'Element.prototype.replace',
+    'Element.prototype.remove',
     'Element.prototype.empty',
 //    'Element.prototype.clone',
     '#处理事件',
@@ -256,8 +256,9 @@ var manifest = {
     'Animation.prototype.reverse',
     'Animation.prototype.pause',
     'Animation.prototype.stop',
-    'Fx.Morph',
-    'Fx.Highlight'
+    'Fx.base',
+    'Fx.morph',
+    'Fx.highlight'
   ],
   'Switcher': [
     'Switcher',
