@@ -1600,7 +1600,7 @@
     }
     var $element = this;
     // 同时为多个事件类型添加监听器。
-    if (name.contains(' ')) {
+    if (name.contains(' ')) {  // TODO: 改成逗号分割（\s+,\s+），以支持 :relay() 标记；name -> eventDescription
       name.split(' ').forEach(function(name) {
         // 允许 window/document.on 的多次调用。
         Element.prototype.on.call($element, name, listener, filter);

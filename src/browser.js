@@ -331,7 +331,7 @@
     }
     // 检查工作模式。
     var inStandardsMode = document.compatMode === 'CSS1Compat';
-    !inStandardsMode && console && console.warn('[OurJS] Browser is working in non-standards mode.');
+    !inStandardsMode && console && console.warn('OurJS: Browser is working in non-standards mode!');
     // 浏览器特性判断。
     var isIE10 = false;
     var isIElt10 = false;

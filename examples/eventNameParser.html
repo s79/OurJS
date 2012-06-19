@@ -1,0 +1,51 @@
+﻿<!DOCTYPE h`tml>
+<html>
+<head>
+<meta charset="utf-8">
+<title>eventNameParser</title>
+<script src="../dev.js"></script>
+</head>
+<body>
+<h1>eventNameParser</h1>
+<script>
+//--------------------------------------------------[eventNameParser]
+function eventNameParser(eventName) {
+  var result = {};
+  var match;
+  if (eventName && (match = eventName.match(/^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?(:once)?/))) {
+    result.type = match[1];
+    result.label = match[2] || '';
+    result.relay = match[3] || '';
+    result.once = match[4] || '';
+  }
+  var verify = result.type + result.label + (result.relay ? ':relay(' + result.relay + ')' : '') + (result.once ? ':once' : '');
+  if (verify !== eventName) {
+//    throw new SyntaxError('Invalid event description: ' + eventName);
+    console.error(eventName);
+  } else {
+    console.log(eventName/* + '\n' + result.type, result.label, result.relay, result.once*/);
+  }
+  return result;
+}
+
+//--------------------------------------------------[TEST]
+window.p = eventNameParser;
+names = [
+  'click',
+  'click.test',
+  'click:relay(li.item)',
+  'click:once',
+  'click.test:relay(li.item)',
+  'click.test:once',
+  'click:relay(li.item):once',
+  'click.test:relay(li.item):once',
+  'click.test:relay(li.item:once',
+  'click.test:relay(li.item:once)',
+  'click.once:relay(li a span .btn)',
+  'click:once:test:relay(*):once',
+  '~click.test:relay(li.item):once'
+];
+names.forEach(eventNameParser);
+</script>
+</body>
+</html>

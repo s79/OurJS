@@ -348,7 +348,7 @@ execute(function($) {
     $content.on('click', function(e) {
       notify('details.show');
     }, function() {
-      return this.nodeName === 'A' || this.getParent().nodeName === 'A';
+      return this.nodeName === 'A';
     });
 
     // 如果指定了 hash，则直达细节页的对应位置。
