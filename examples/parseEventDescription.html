@@ -10,7 +10,26 @@ p.error { color: red; }
 </style>
 </head>
 <body>
+<ul id="ul">
+  <li>Text <span>{ <a href="javascript:void('0');">[Link 0]</a> }</span> Text</li>
+  <li>Text <span>{ <a href="javascript:void('1');">[Link 1]</a> }</span> Text</li>
+  <li>Text <span>{ <a href="javascript:void('2');">[Link 2]</a> }</span> Text</li>
+  <li>Text <span>{ <a href="javascript:void('3');">[Link 3]</a> }</span> Text</li>
+  <li>Text <span>{ <a href="javascript:void('4');">[Link 4]</a> }</span> Text</li>
+</ul>
+
 <script>
+execute(function($) {
+  $('#ul').on('click.test:relay(a)', function(e) {
+    console.log('● CLICKED: a');
+    e.preventDefault();
+  });
+  $('#ul').on('click:relay(li>span a), click.test:relay(li:even span)', function(e) {
+    console.log('● -> ' + this.nodeName);
+    e.preventDefault();
+  });
+});
+
 //--------------------------------------------------[parseEventDescription]
 function parseEventDescription(eventDescription) {
   var result = {};

@@ -1,4 +1,13 @@
 ﻿>TODO 升级 Calendar/Pagination 的事件。
+>TODO 压缩事件模型。
+>TODO 增加事件选项 :once。（变复杂？有必要？）
+
+>2012-06-21
+修改 window/document/Element.prototype.on/off 的参数，取消 filter，参考 MooTools 的语法，使用 :relay(selector) 实现代理。
+
+>2012-06-18
+修改 new Fx.Morph 为 Fx.morph。
+修改 Element.prototype.highlight/Fx.highlight 的参数，可选参数不再强制为一个 options，必要时应归类以保持同类方法的参数含义相同。
 
 >2012-06-17
 animation.addClip 修改。
