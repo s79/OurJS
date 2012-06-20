@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>parseEventDescription</title>
+<script src="../dev.js"></script>
+<style>
+p { margin: 10px; color: green; font: 14px Consolas, "Lucida Console", Courier, SimSun, monospace; }
+p.error { color: red; }
+</style>
+</head>
+<body>
+<script>
+//--------------------------------------------------[parseEventDescription]
+function parseEventDescription(eventDescription) {
+  var result = {};
+  var match;
+  if (eventDescription && (match = eventDescription.match(/^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?(:once)?/))) {
+    result.type = match[1];
+    result.label = match[2] || '';
+    result.relay = match[3] || '';
+    result.once = match[4] || '';
+  }
+  if (result.type + result.label + (result.relay ? ':relay(' + result.relay + ')' : '') + (result.once ? ':once' : '') !== eventDescription) {
+    throw new SyntaxError('Invalid event description: ' + eventDescription);
+  }
+  return result;
+}
+
+//--------------------------------------------------[TEST]
+[
+  'click',
+  'click.test',
+  'click:relay(li.item)',
+  'click:once',
+  'click.test:relay(li.item)',
+  'click.test:once',
+  'click:relay(li.item):once',
+  'click.test:relay(li.item):once',
+  'click.test:relay(li.item:once',
+  'click.test:relay(li.item:once)',
+  'click.once:relay(li a span .btn)',
+  'click:once:test',
+  '~click.test:relay(li.item):once'
+]
+    .forEach(function(item) {
+      try {
+        parseEventDescription(item);
+        document.write('<p>' + item + '</p>');
+      } catch (e) {
+        document.write('<p class="error">' + item + '</p>');
+      }
+    });
+
+</script>
+</body>
+</html>
