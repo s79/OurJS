@@ -108,8 +108,8 @@ $('#focusin').find('input').forEach(function(item) {
   <legend>拖动事件</legend>
   <div id="container">
     <div id="drag">
-      <div id="d41">Draggable</div>
-      <div id="d42">Draggable</div>
+      <div id="d41" class="draggable">Draggable</div>
+      <div id="d42" class="draggable">Draggable</div>
       <div id="i_gray">[灰]</div>
       <div id="i_blue">[蓝]</div>
     </div>
@@ -146,27 +146,24 @@ $container.on('mousedrag', function(e) {
 });
 
 // 代理。
-var filter = function() {
-  return this.id.slice(0, 2) === 'd4';
-};
-$drag.on('mousedragstart.c', function(e) {
+$drag.on('mousedragstart.c:relay(.draggable)', function(e) {
   this.setStyle('background', 'greenyellow').innerHTML = 'START';
 //    return false;
-}, filter)
-    .on('mousedrag.c', function(e) {
+})
+    .on('mousedrag.c:relay(.draggable)', function(e) {
       this.innerHTML = e.offsetX + ':' + e.offsetY;
-    }, filter)
-    .on('mousedragend.c', function(e) {
+    })
+    .on('mousedragend.c:relay(.draggable)', function(e) {
       this.setStyle('background', 'transparent').innerHTML = 'END';
-    }, filter);
+    });
 
 // 解除。
 $('#freez').on('click', function() {
-  $drag.off('mousedragstart.f mousedrag.f mousedragend.f');
+  $drag.off('mousedragstart.f, mousedrag.f, mousedragend.f');
 });
 
 $('#clear').on('click', function() {
-  $drag.off('mousedragstart.c mousedrag.c mousedragend.c');
+  $drag.off('mousedragstart.c, mousedrag.c, mousedragend.c');
 });
 
 /*
@@ -250,7 +247,7 @@ $scroll.on('mousewheel', wheel);
 $scroll.on('mousewheel', wheel2);
 
 var mousePositions = 'clientX clientY screenX screenY pageX pageY'.split(' ');
-document.on('mousemove mousedown', function(event) {
+document.on('mousemove, mousedown', function(event) {
   var text = '<strong>鼠标坐标</strong><br>';
   mousePositions.forEach(function(item) {
     text += item + ':' + event[item] + '<br>';
@@ -302,7 +299,7 @@ $('#d22')
     .on('mousedown.three', function(e) {
       e.stopImmediatePropagation();
     })
-    .off('mousedown.two mousedown.three');
+    .off('mousedown.two, mousedown.three');
 
 //--------------------------------------------------[事件传播]
 $('#div').on('click', function(event) {

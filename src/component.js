@@ -11,8 +11,8 @@
    * <Object events> {
    *   <string type>: <Array handlers> [
    *     <Object handler>: {
-   *       name: <string>
-   *       listener: <Function>
+   *       name: <string name>
+   *       listener: <Function listener>
    *     }
    *   ]
    * };
