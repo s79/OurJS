@@ -57,7 +57,7 @@ var { color: sienna; font-style: italic; }
 #details table table { margin: 5px; border-collapse: collapse; }
 #details table table tr:nth-child(even) { background: transparent; }
 #details blockquote th,
-#details table table th { background: whitesmoke; }
+#details table table th { background: whitesmoke; white-space: nowrap; }
 #details blockquote th,
 #details blockquote td,
 #details table table th,

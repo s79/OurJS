@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-19
+ *  Version: 2012-06-21
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -1245,7 +1245,7 @@
     }
     // 检查工作模式。
     var inStandardsMode = document.compatMode === 'CSS1Compat';
-    !inStandardsMode && console && console.warn('[OurJS] Browser is working in non-standards mode.');
+    !inStandardsMode && console && console.warn('OurJS: Browser is working in non-standards mode!');
     // 浏览器特性判断。
     var isIE10 = false;
     var isIElt10 = false;
@@ -1706,44 +1706,43 @@
 
 //==================================================[Element 的浏览器差异处理]
   /*
-   * 为 Element 扩展新特性，而不是所有 Node 类型。
+   * 仅为 Element 扩展新特性，而不是所有的 Node 类型。
    *
    * 提供屏蔽浏览器差异的，针对元素操作的方法有以下三种方案：
    * 一、静态方法
    *   方式：
-   *     提供一些静态方法，将元素以参数（一般是方法的第一个参数）的形式传入并进行处理。
+   *     提供一组静态方法，将元素以参数（一般是第一个参数）的形式传入并进行处理。
    *   优点：
-   *     各方法间依赖性小，可以轻易分离。
+   *     可以随意为方法命名。
    *     不修改原生对象，可以跨 frame 操作，可与其他脚本库共存。
    *   缺点：
-   *     对一个元素的连续操作以方法嵌套的形式进行，代码冗长、不易读。
-   *     有时需要使用静态方法，有时又要使用原生方法（特性），缺乏一致性。
+   *     静态方法的调用从字面上看是以方法为主体（先出现），代码冗长，语法不如以目标对象为主体的 . 操作自然。
+   *     有时需要使用静态方法，有时又要使用原生方法，缺乏一致性。
    * 二、包装对象
    *   方式：
-   *     创建一个对象包装目标元素，在这个包装对象的原型链中添加屏蔽浏览器差异的方法。
+   *     创建一个对象包装目标元素，在这个包装对象的原型（链）中添加方法。
    *   优点：
-   *     对一个元素的连续操作可以链式调用，代码通顺。
-   *     提供的方法都是实例方法，具备较好的一致性。
+   *     语法以目标对象为主体，可以链式调用，语法自然。
+   *     可以随意为方法命名。
    *     不修改原生对象，可以跨 frame 操作，可与其他脚本库共存。
    *   缺点：
-   *     访问元素的属性时需要使用 getter 和 setter 方法，或者说包装对象已没有“属性”的概念，对一致性略有影响。
+   *     访问元素的属性时需要使用 getter 和 setter 方法（包装对象没有“属性”的概念），操作元素未被包装的的一些生僻方法或属性时，需要解包，一致性不够好。
+   *     由于对包装对象上方法的调用与对原生对象上方法的调用方式是相同的（使用 . 操作符调用），特殊情况下有误把源生对象当作包装对象误用的可能。
    *     必须以约定的方式获取元素以便对其包装。
-   * 三、为原生对象添加方法
+   * 三、原型扩展
    *   方式：
-   *     直接在 Element.prototype 上扩展特性。对于不支持 Element 构造函数的浏览器 (IE6 IE7)，将对应特性直接附加在元素上。
+   *     直接在 Element.prototype 上添加方法。对于不支持 Element 构造函数的浏览器（IE6 IE7），将对应特性直接附加在元素上。
    *   优点：
-   *     对一个元素的连续操作，如果使用的是方法，则可以链式调用，代码通顺。
-   *     本身就是在对元素操作，易理解，API 的一致性最好。
+   *     不引入新的对象类型或命名空间，只在已有的对象类型上添加方法，一致性最好。
+   *     调用方法时操作主题就是目标元素本身，可以链式调用，语法自然。
    *   缺点：
-   *     对一个元素的连续操作，如果中间有对属性的操作则无法进行链式调用。
-   *     修改了原生对象，跨 frame 操作需要特殊处理 frame 中的 window 和 document 对象，不建议与其他脚本库共存。
-   *     必须以约定的方式获取元素。
+   *     为方法命名时，不能使用 DOM 元素已有的和将来可能会有的特性名。
+   *     修改了原生对象，跨 frame 操作前需要预先修改目标 frame 中的原生对象，不能与其他基于原型扩展的脚本库共存。
+   *     必须以约定的方式获取元素以便兼容 IE6 IE7 的扩展方式，另外对 IE6 IE7 的修补方案有性能损耗。
    *
-   * 这里使用第三种方式。
-   * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 find，getNext 等）来查找/遍历并获取。
-   * 使用其他途径如元素本身的 parentNode 来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
-   * 为保持简单性，不予提供跨 frame 的操作，实际上跨 frame 操作并不常见，通常也不建议这样做。
-   * 必须跨 frame 时，应将 frame 作为一个模块，在其内也引入 js 库，两侧通过事件通信，这样的代码更易于理解与划分模块。
+   * 为达到“易学易用”、“化繁为简”的目标，这里使用第三种实现方式，以使 API 有最好的一致性和最自然语法。
+   * 为保持简单，不予提供跨 frame 的操作。实际上跨 frame 操作并不常见，通常也不建议这样做。必须这样做时，应在 frame 内也引入本脚本库，两侧通过事件通信。
+   * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 find、getNext 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
    */
 
   /**
@@ -2305,8 +2304,8 @@
    */
 
   var VALID_NAME = /^[a-z][a-zA-Z]*$/;
-  var parseName = function(name) {
-    return VALID_NAME.test(name) ? 'data-' + camelCaseToHyphenate(name) : '';
+  var parseDataKey = function(key) {
+    return VALID_NAME.test(key) ? 'data-' + camelCaseToHyphenate(key) : '';
   };
 
 //--------------------------------------------------[Element.prototype.getData]
@@ -2324,7 +2323,7 @@
   Element.prototype.getData = 'dataset' in html ? function(key) {
     return this.dataset[key] || undefined;
   } : function(key) {
-    key = parseName(key);
+    key = parseDataKey(key);
     var value = this.getAttribute(key);
     return typeof value === 'string' ? value : undefined;
   };
@@ -2339,7 +2338,7 @@
    * @returns {Element} 本元素。
    */
   Element.prototype.setData = function(key, value) {
-    key = parseName(key);
+    key = parseDataKey(key);
     if (key) {
       this.setAttribute(key, value);
     }
@@ -2358,7 +2357,7 @@
    *   IE6 IE7 在 removeAttribute 时，key 参数是大小写敏感的。
    */
   Element.prototype.removeData = function(key) {
-    key = parseName(key);
+    key = parseDataKey(key);
     if (key) {
       this.removeAttribute(key);
     }
@@ -2696,29 +2695,27 @@
    * 提供事件兼容性处理的解决方案。
    *
    * 事件兼容性的处理在与 DOM 相关的问题中比较复杂，这里提供的方案中，有以下几个主要概念：
-   *   管理器 (manager)：
-   *     用来管理派发器及处理器的添加、删除和事件的派发。
+   *   处理器 (handler)：
+   *     包含派发器、事件名称、监听器等信息。
    *   派发器 (dispatcher)：
    *     封装事件对象，在条件满足的时候将事件对象派发给相应的监听器。
-   *   处理器 (handler)：
-   *     包括事件名称、监听器和过滤器。
-   *     进一步判断事件是否可以在目标元素上进行代理，若有效则交给监听器处理。
    *   事件名称 (name)：
-   *     用户使用 on 添加一个监听器时，可以为该监听器指定一个别名，别名与事件类型组成事件名称，事件名称在删除该监听器时使用。
+   *     由事件的类型、可选的标签和代理元素选择符组成的字符串。
    *   事件类型 (type)：
    *     供用户使用的事件类型可能是普通事件、扩展的事件，或是用户自定义的事件。
    *     内部事件模型使用的事件类型不一定与供用户使用的事件类型完全匹配。
+   *   事件标签 (labal)：
+   *     标签的意义在于标记一次绑定的行为。
+   *     当用户使用 on 添加一个监听器时，可以指定一个标签，这样可以在使用 off 删除监听器时，通过标签来删除某类事件中特定的监听器。
+   *   代理元素选择符 (selector)：
+   *     通过在事件名称中加入 :relay(selector) 来指定为符合条件的后代元素代理事件监听。
    *   监听器 (listener)：
    *     用户使用 on 添加的直接或代理事件处理函数。在对应的事件触发时，会传入封装后的事件对象。
-   *     用户可以调用该事件对象上的方法，来控制事件的传播或响应情况。
-   *     如果用户在一个事件的监听器中返回布尔值 false，则该事件将停止传播及响应。
-   *   过滤器 (filter)：
-   *     在使用 on 的元素上发生事件时，会根据用户设定的条件过滤出符合条件的后代元素，并模拟这个事件是在这些后代元素上被监听到的。
-   *     过滤器返回布尔值 true 则为过滤通过。
+   *     用户可以调用该事件对象的方法来阻止其传播，或取消其默认行为。
+   *     如果用户在一个事件的监听器中返回布尔值 false，该事件将停止传播并取消默认行为。
    *   事件对象 (event)：
    *     供用户使用的事件对象是封装后的，以屏蔽浏览器差异，并为扩展的事件提供必要的信息。
-   *     供内部 DOM 事件模型使用的原始事件对象不直接对外暴露，该对象上可能有用的特性已被复制到封装后的对象上。
-   *     必须访问原始事件对象时，可以通过调用 event.originalEvent 来得到它。
+   *     原始事件对象不直接对外暴露，该对象上可能有用的特性已被复制到封装后的对象上。必须访问原始事件对象时，可以通过调用 event.originalEvent 来得到它。
    *
    * 扩展方法：
    *   Element.prototype.on
@@ -2732,6 +2729,34 @@
    *   http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
    */
 
+  // 已绑定的事件池。
+  /*
+   * <Object eventPool> {
+   *   <string uid>: <Object item> {
+   *     <string type>: <Array handlers> [
+   *       <Object handler> {
+   *         name: <string name>,
+   *         listener: <Function listener>,
+   *         selector: <string selector>,
+   *         simpleSelector: <Object simpleSelector> {
+   *           tagName: <string tagName>,
+   *           className: <string className>
+   *         }
+   *       }
+   *     ]
+   *      .dispatcher: <Function dispatcher>
+   *                                        .type: <string type>
+   *                                        .useCapture: <boolean useCapture>
+   *      .delegateCount: <number delegateCount>
+   *   }
+   * };
+   */
+  var eventPool = {};
+  window.p = eventPool;  // TODO: 调试用。
+
+  var RE_EVENT_NAME = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
+  var RE_EVENT_NAME_SEPARATOR = /\s*,\s*/;
+  var RE_SIMPLE_SELECTOR = /^(\w*)(?:\.([\w\-]+))?$/;
   var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 4, 'change': 4, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
   var returnTrue = function() {
     return true;
@@ -3026,22 +3051,34 @@
 
   });
 
-  // 添加/删除事件处理函数的 DOM 方法。
+  // 解析事件名称。
+  var parseEventName = function(eventName) {
+    var result = {};
+    var match;
+    if (eventName && (match = eventName.match(RE_EVENT_NAME))) {
+      result.type = match[1];
+      result.label = match[2] || '';
+      result.selector = match[3] || '';
+    }
+    if (result.type + result.label + (result.selector ? ':relay(' + result.selector + ')' : '') !== eventName) {
+      throw new SyntaxError('Invalid event name "' + eventName + '"');
+    }
+    return result;
+  };
+
+  // 添加和删除事件处理函数。
   var addEventListener = 'addEventListener' in window ? function($element, eventType, eventListener, useCapture) {
     $element.addEventListener(eventType, eventListener, useCapture);
   } : function($element, eventType, eventListener) {
     $element.attachEvent('on' + eventType, eventListener);
   };
-
   var removeEventListener = 'removeEventListener' in window ? function($element, eventType, eventListener, useCapture) {
     $element.removeEventListener(eventType, eventListener, useCapture);
   } : function($element, eventType, eventListener) {
     $element.detachEvent('on' + eventType, eventListener);
   };
 
-  // 事件管理。
-  var eventPool = {};
-
+  // 特殊事件处理。
   var eventHelper = {
     mousedragstart: {related: ['mousedrag', 'mousedragend']},
     mousedrag: {related: ['mousedragstart', 'mousedragend']},
@@ -3078,14 +3115,17 @@
   };
 
   // 将被捕获到的 DOM 事件对象进行包装后派发到目标元素上。
-  // 在目标元素上使用 on 绑定的、包括自身和代理的所有事件监听器都会运行，但以其他方式绑定的事件监听器将不会被运行。
+  // 仅会运行在目标元素上使用 on 绑定的事件监听器，以其他方式绑定的事件监听器不会被运行。
   var dispatchEvent = function($element, handlers, event, isTriggered) {
     var delegateCount = handlers.delegateCount;
     var $target = delegateCount ? event.target : $element;
-    var handler;
+    var filters = {};
     var needsBubble;
+    var handler;
+    var selector;
     var from;
     var to;
+//    console.log('==============================', filters);
     while ($target) {
       if ($target !== $element) {
         // 运行代理。
@@ -3100,7 +3140,25 @@
       }
       while (from < to) {
         handler = handlers[from];
-        if (!handler.filter || handler.filter.call($target)) {
+        selector = handler.selector;
+        // 如果是代理事件，则过滤出符合条件的元素。
+//        console.log('------------------------------', selector);
+        if (!selector || (filters[selector] || (filters[selector] = function(simpleSelector) {
+          if (simpleSelector) {
+//            console.warn('simpleSelector');
+            return function($target) {
+              var tagName = simpleSelector.tagName;
+              var className = simpleSelector.className;
+              return (tagName ? $target.nodeName.toLowerCase() === tagName : true) && (className ? $target.hasClass(className) : true);
+            };
+          } else {
+            var elements = $element.find(selector);
+//            console.warn('$element.find(selector)');
+            return function($target) {
+              return elements.contains($target);
+            }
+          }
+        }(handler.simpleSelector)))($target)) {
           // isTriggered 为判断预期的事件是否被触发的函数，返回 false 则忽略该事件。
           if (!isTriggered || isTriggered.call($target, event)) {
             if (handler.listener.call($target, event) === false) {
@@ -3147,15 +3205,16 @@
    * 为本元素添加事件监听器。
    * @name Element.prototype.on
    * @function
-   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
-   *   使用空格分割多个事件名称，即可同时为多个事件注册同一个监听器（或为相同的后代元素代理多个事件）。
+   * @param {string} name 事件名称，格式为 type[.label][:relay(selector)]。使用逗号分割多个事件名称，即可同时为多个事件注册同一个监听器。
+   *   type 为类型，必选项，其他均为可选项。
+   *   .label 用来给事件类型加上标签，以便调用 off 方法时精确匹配要删除的事件监听器。不打算删除的事件监听器没有必要指定标签。
+   *   :relay(selector) 用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。
    * @param {Function} listener 要添加的事件监听器。
-   * @param {Function} [filter] 为符合条件的后代元素代理事件。
-   *   要注意的是，在代理事件监听器中调用 e.stopPropagation 或 e.stopImmediatePropagation 时，事件对象实际上已经从触发对象传递到监听对象了。
    * @returns {Element} 本元素。
+   * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
    */
-  Element.prototype.on = function(name, listener, filter) {
+  Element.prototype.on = function(name, listener) {
     var uid = this.uid;
     // 无法为未经扩展的元素添加监听器。
     if (!uid) {
@@ -3163,17 +3222,18 @@
     }
     var $element = this;
     // 同时为多个事件类型添加监听器。
-    if (name.contains(' ')) {
-      name.split(' ').forEach(function(name) {
+    if (name.contains(',')) {
+      name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
         // 允许 window/document.on 的多次调用。
-        Element.prototype.on.call($element, name, listener, filter);
+        Element.prototype.on.call($element, name, listener);
       });
       return $element;
     }
-    // 从事件名称中取出事件类型。
-    var dotIndex = name.indexOf('.');
-    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
-    // 尝试获取对应的项，及其管理器和处理器组，以便向处理器组中添加监听器和过滤器。
+    // 取出事件类型和选择符。
+    var info = parseEventName(name);
+    var type = info.type;
+    var selector = info.selector;
+    // 尝试获取对应的项，及其管理器和处理器组，以便向处理器组中添加处理器。
     var item = eventPool[uid] || (eventPool[uid] = {});
     var manager = item[type] || (item[type] = {handlers: null, dispatcher: null});
     var handlers = manager.handlers;
@@ -3191,7 +3251,7 @@
       // 特殊事件，可能使用自定义的派发器（或其属性）覆盖默认的派发器（或其属性）。
       switch (type) {
         case 'mousewheel':
-          // 鼠标滚轮事件，Firefox 的事件名称为 DOMMouseScroll。
+          // 鼠标滚轮事件，Firefox 的事件类型为 DOMMouseScroll。
           dispatcher = function(e) {
             e = e || window.event;
             var event = new Event(e, type);
@@ -3265,6 +3325,7 @@
           dispatcher = dragstart;
           dispatcher.type = 'mousedown';
           // HACK：这三个关联事件有相同的派发器和各自的处理器组，此处分别创建另外两个关联事件的项和处理器组。
+          // TODO: 压缩事件模型时，此处需要注意。
           var dragHandlers = {};
           eventHelper[type].related.forEach(function(type) {
             var handlers = [];
@@ -3339,24 +3400,33 @@
       manager.handlers = handlers;
       manager.dispatcher = dispatcher;
     }
-
-    // 添加监听器（允许重复添加同一个监听器 - W3C 的事件模型不允许多次添加同一个监听器）。
-    if (filter) {
+    // 添加处理器（允许重复添加同一个监听器 - W3C 的事件模型不允许多次添加同一个监听器）。
+    var handler = {name: name, listener: listener};
+    if (selector) {
       // 代理类型的监听器。
-      handlers.splice(handlers.delegateCount++, 0, {name: name, listener: listener, filter: filter});
+      handler.selector = selector;
+      var match;
+      if (match = selector.match(RE_SIMPLE_SELECTOR)) {
+        // 保存简单选择器（tagName 和 className 不可能同时为空）以在执行过滤时使用效率更高的方式。
+        handler.simpleSelector = {
+          tagName: match[1] || '',
+          className: match[2] || ''
+        };
+      }
+      handlers.splice(handlers.delegateCount++, 0, handler);
     } else {
       // 普通类型的监听器。
-      handlers.push({name: name, listener: listener});
+      handlers.push(handler);
     }
     return $element;
   };
 
 //--------------------------------------------------[Element.prototype.off]
   /**
-   * 根据名称删除本元素上已添加的事件监听器。
+   * 删除本元素上已添加的事件监听器。
    * @name Element.prototype.off
    * @function
-   * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
+   * @param {string} name 事件名称。本元素上绑定的所有名称与 name 匹配的监听器都将被删除。使用逗号分割多个事件名称，即可同时删除多种名称的事件监听器。
    * @returns {Element} 本元素。
    */
   Element.prototype.off = function(name) {
@@ -3367,16 +3437,15 @@
     }
     var $element = this;
     // 同时删除该元素上的多个监听器。
-    if (name.contains(' ')) {
-      name.split(' ').forEach(function(name) {
+    if (name.contains(',')) {
+      name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
         Element.prototype.off.call($element, name);
       });
       return $element;
     }
-    // 从事件名称中取出事件类型。
-    var dotIndex = name.indexOf('.');
-    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
-    // 尝试获取对应的项，及其管理器和处理器组，以便从处理器组中删除监听器（和过滤器）。
+    // 取出事件类型。
+    var type = parseEventName(name).type;
+    // 尝试获取对应的项，及其管理器和处理器组，以便从处理器组中删除处理器。
     var item = eventPool[uid];
     if (!item) {
       return $element;
@@ -3386,24 +3455,18 @@
       return $element;
     }
     var handlers = manager.handlers;
-    // 删除监听器（和过滤器）。
+    // 删除处理器。
     var i = 0;
     var handler;
-    if (name === type) {
-      // 未指定别名，删除该类型所有监听器。
-      handlers.length = handlers.delegateCount = 0;
-    } else {
-      // 指定了别名，删除名称相匹配的监听器。
-      while (i < handlers.length) {
-        handler = handlers[i];
-        if (handler.name === name) {
-          handlers.splice(i, 1);
-          if (handler.filter) {
-            handlers.delegateCount--;
-          }
-        } else {
-          i++;
+    while (i < handlers.length) {
+      handler = handlers[i];
+      if (handler.name === name) {
+        handlers.splice(i, 1);
+        if (handler.selector) {
+          handlers.delegateCount--;
         }
+      } else {
+        i++;
       }
     }
     // 若处理器组为空，则删除派发器的注册，并删除对应的管理器。
@@ -3655,20 +3718,19 @@
    * 为 document 添加事件监听器。
    * @name document.on
    * @function
-   * @param {string} name 事件名称。参考 Element.prototype.on 的同名参数。
+   * @param {string} name 事件名称，格式请参考 Element.prototype.on 的同名参数。
    * @param {Function} listener 要添加的事件监听器。
-   * @param {Function} [filter] 为符合条件的子元素代理事件。
    * @returns {Object} document 对象。
    * @description
    *   特殊事件：domready
    *   <ul>
-   *     <li>在文档可用时触发，只能添加监听器，不能删除监听器，因此不能使用别名。</li>
+   *     <li>在文档可用时触发，只能添加监听器，不能删除监听器，因此不能使用标签。</li>
    *     <li>不会有事件对象作为参数传入监听器。</li>
    *     <li>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。</li>
    *   </ul>
    */
-  document.on = function(name, listener, filter) {
-    var filteredName = name.split(' ')
+  document.on = function(name, listener) {
+    var filteredName = name.split(RE_EVENT_NAME_SEPARATOR)
         .filter(function(name) {
           if (name === 'domready') {
             domready.addListener(listener);
@@ -3676,19 +3738,19 @@
           }
           return true;
         })
-        .join(' ');
+        .join(', ');
     if (filteredName) {
-      Element.prototype.on.call(document, filteredName, listener, filter);
+      Element.prototype.on.call(document, filteredName, listener);
     }
     return this;
   };
 
 //--------------------------------------------------[document.off]
   /**
-   * 根据名称删除 document 上已添加的事件监听器。
+   * 删除 document 上已添加的事件监听器。
    * @name document.off
    * @function
-   * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
+   * @param {string} name 事件名称，格式请参考 Element.prototype.off 的同名参数。
    * @returns {Object} document 对象。
    */
   document.off = Element.prototype.off;
@@ -3807,21 +3869,20 @@
    * 为 window 添加事件监听器。
    * @name window.on
    * @function
-   * @param {string} name 事件名称。参考 Element.prototype.on 的同名参数。
+   * @param {string} name 事件名称，格式请参考 Element.prototype.on 的同名参数。
    * @param {Function} listener 要添加的事件监听器。
-   * @param {Function} [filter] 为符合条件的子元素代理事件。
    * @returns {Object} window 对象。
    * @description
    *   特殊事件：beforeunload
    *   <ul>
-   *     <li>该事件只能存在一个监听器，因此不能使用别名。</li>
+   *     <li>该事件只能存在一个监听器，因此不能使用标签。</li>
    *     <li>不会有事件对象作为参数传入监听器。</li>
    *     <li>如果添加了多个监听器，则只有最后添加的生效。</li>
    *     <li>可以删除当前生效的监听器。</li>
    *   </ul>
    */
-  window.on = function(name, listener, filter) {
-    var filteredName = name.split(' ')
+  window.on = function(name, listener) {
+    var filteredName = name.split(RE_EVENT_NAME_SEPARATOR)
         .filter(function(name) {
           if (name === 'beforeunload') {
             window.onbeforeunload = function() {
@@ -3833,23 +3894,23 @@
           }
           return true;
         })
-        .join(' ');
+        .join(', ');
     if (filteredName) {
-      Element.prototype.on.call(window, filteredName, listener, filter);
+      Element.prototype.on.call(window, filteredName, listener);
     }
     return this;
   };
 
 //--------------------------------------------------[window.off]
   /**
-   * 根据名称删除 window 上已添加的事件监听器。
+   * 删除 window 上已添加的事件监听器。
    * @name window.off
    * @function
-   * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
+   * @param {string} name 事件名称，格式请参考 Element.prototype.off 的同名参数。
    * @returns {Object} window 对象。
    */
   window.off = function(name) {
-    var filteredName = name.split(' ')
+    var filteredName = name.split(RE_EVENT_NAME_SEPARATOR)
         .filter(function(name) {
           if (name === 'beforeunload') {
             window.onbeforeunload = null;
@@ -3857,7 +3918,7 @@
           }
           return true;
         })
-        .join(' ');
+        .join(', ');
     if (filteredName) {
       Element.prototype.off.call(window, filteredName);
     }
@@ -3889,8 +3950,8 @@
    * <Object events> {
    *   <string type>: <Array handlers> [
    *     <Object handler>: {
-   *       name: <string>
-   *       listener: <Function>
+   *       name: <string name>
+   *       listener: <Function listener>
    *     }
    *   ]
    * };

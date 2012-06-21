@@ -1,4 +1,5 @@
-﻿>TODO 升级 Calendar/Pagination 的事件。
+﻿>TODO 编辑文档，明确各 Function 类型的参数的 this 指向。
+>TODO 升级 Calendar/Pagination 的事件。
 >TODO Dialog -> PopupLayer
 >TODO 压缩事件模型。
 

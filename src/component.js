@@ -21,11 +21,27 @@
    *   Component
    */
 
+  var RE_EVENT_NAME = /^(\w+)(\.\w+)?$/;
+  var RE_EVENT_NAME_SEPARATOR = /\s*,\s*/;
   var returnTrue = function() {
     return true;
   };
   var returnFalse = function() {
     return false;
+  };
+
+  // 解析事件名称。
+  var parseEventName = function(eventName) {
+    var result = {};
+    var match;
+    if (eventName && (match = eventName.match(RE_EVENT_NAME))) {
+      result.type = match[1];
+      result.label = match[2] || '';
+    }
+    if (result.type + result.label !== eventName) {
+      throw new SyntaxError('Invalid event name "' + eventName + '"');
+    }
+    return result;
   };
 
   /**
@@ -113,22 +129,27 @@
    * 为本组件添加事件监听器。
    * @name Component.prototype.on
    * @function
-   * @param {string} name 事件名称，包括事件类型和可选的别名，二者间用 . 分割。
-   *   使用空格分割多个事件名称，即可同时为多个事件注册同一个监听器。
-   * @param {Function} listener 要添加的事件监听器。
+   * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var></dfn>，详细信息请参考下表。
+   *   使用逗号分割多个事件名称，即可同时为多个事件注册同一个监听器。
+   *   <table>
+   *     <tr><th></th><th>是否必选</th><th>详细描述</th></tr>
+   *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型</td></tr>
+   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>给事件类型加上标签，以便调用 off 方法时精确匹配要删除的事件监听器。<br>不打算删除的事件监听器没有必要指定标签。</td></tr>
+   *   </table>
+   * @param {Function} listener 事件监听器。
+   *   监听器中的 this 将指向本组件。
    * @returns {Object} 本组件。
    */
   Component.prototype.on = function(name, listener) {
     var component = this;
-    if (name.contains(' ')) {
-      name.split(' ').forEach(function(name) {
+    if (name.contains(',')) {
+      name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
         Component.prototype.on.call(component, name, listener);
       });
       return component;
     }
     var events = component.events;
-    var dotIndex = name.indexOf('.');
-    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
+    var type = parseEventName(name).type;
     var handlers = events[type] || (events[type] = []);
     handlers.push({name: name, listener: listener});
     return component;
@@ -136,39 +157,34 @@
 
 //--------------------------------------------------[Component.prototype.off]
   /**
-   * 根据名称删除本组件上已添加的事件监听器。
+   * 删除本组件上已添加的事件监听器。
    * @name Component.prototype.off
    * @function
-   * @param {string} name 通过 on 添加监听器时使用的事件名称。可以使用空格分割多个事件名称。
+   * @param {string} name 事件名称。本组件上绑定的所有名称与 name 匹配的监听器都将被删除。使用逗号分割多个事件名称，即可同时删除多种名称的事件监听器。
    * @returns {Object} 本组件。
    */
   Component.prototype.off = function(name) {
     var component = this;
-    if (name.contains(' ')) {
-      name.split(' ').forEach(function(name) {
+    if (name.contains('，')) {
+      name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
         Component.prototype.off.call(component, name);
       });
       return component;
     }
     var events = component.events;
-    var dotIndex = name.indexOf('.');
-    var type = dotIndex === -1 ? name : name.slice(0, dotIndex);
+    var type = parseEventName(name).type;
     var handlers = events[type];
     if (!handlers) {
       return component;
     }
     var i = 0;
     var handler;
-    if (name === type) {
-      handlers.length = 0;
-    } else {
-      while (i < handlers.length) {
-        handler = handlers[i];
-        if (handler.name === name) {
-          handlers.splice(i, 1);
-        } else {
-          i++;
-        }
+    while (i < handlers.length) {
+      handler = handlers[i];
+      if (handler.name === name) {
+        handlers.splice(i, 1);
+      } else {
+        i++;
       }
     }
     if (handlers.length === 0) {

@@ -282,7 +282,7 @@ execute(function($) {
         .on('open',
         function() {
           // 按下 ESC 键或点击细节层外即关闭细节层。
-          $html.on('keydown.deatilsPanel mousedown.deatilsPanel', function(e) {
+          $html.on('keydown.deatilsPanel, mousedown.deatilsPanel', function(e) {
             if (e.isMouseEvent && !$deatilsPanel.contains(e.target) || e.which === 27) {
               detailsLayer.close();
             }
@@ -294,7 +294,7 @@ execute(function($) {
         function() {
           $html.setStyle('overflow', '');
           // 取消事件绑定。
-          $html.off('keydown.deatilsPanel mousedown.deatilsPanel');
+          $html.off('keydown.deatilsPanel, mousedown.deatilsPanel');
           window.off('resize.deatilsPanel');
         });
     // 打开/关闭细节层，包裹对话框的方法。
@@ -345,10 +345,8 @@ execute(function($) {
     notify('reference.build');
 
     // 点击 API 条目，进入细节页的对应位置。
-    $content.on('click', function(e) {
+    $content.on('click:relay(a)', function(e) {
       notify('details.show');
-    }, function() {
-      return this.nodeName === 'A';
     });
 
     // 如果指定了 hash，则直达细节页的对应位置。

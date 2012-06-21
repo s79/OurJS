@@ -1147,7 +1147,7 @@
    *   代理元素选择符 (selector)：
    *     通过在事件名称中加入 :relay(selector) 来指定为符合条件的后代元素代理事件监听。
    *   监听器 (listener)：
-   *     用户使用 on 添加的直接或代理事件处理函数。在对应的事件触发时，会传入封装后的事件对象。
+   *     用户使用 on 添加的普通或代理监听器。在对应的事件触发时，会传入封装后的事件对象。
    *     用户可以调用该事件对象的方法来阻止其传播，或取消其默认行为。
    *     如果用户在一个事件的监听器中返回布尔值 false，该事件将停止传播并取消默认行为。
    *   事件对象 (event)：
@@ -1166,6 +1166,34 @@
    *   http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
    */
 
+  // 已绑定的事件池。
+  /*
+   * <Object eventPool> {
+   *   <string uid>: <Object item> {
+   *     <string type>: <Array handlers> [
+   *       <Object handler> {
+   *         name: <string name>,
+   *         listener: <Function listener>,
+   *         selector: <string selector>,
+   *         simpleSelector: <Object simpleSelector> {
+   *           tagName: <string tagName>,
+   *           className: <string className>
+   *         }
+   *       }
+   *     ]
+   *      .dispatcher: <Function dispatcher>
+   *                                        .type: <string type>
+   *                                        .useCapture: <boolean useCapture>
+   *      .delegateCount: <number delegateCount>
+   *   }
+   * };
+   */
+  var eventPool = {};
+  window.p = eventPool;  // TODO: 调试用。
+
+  var RE_EVENT_NAME = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
+  var RE_EVENT_NAME_SEPARATOR = /\s*,\s*/;
+  var RE_SIMPLE_SELECTOR = /^(\w*)(?:\.([\w\-]+))?$/;
   var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 4, 'change': 4, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
   var returnTrue = function() {
     return true;
@@ -1270,7 +1298,7 @@
    */
 
   /**
-   * 是否可以冒泡，不冒泡的事件不能使用事件代理。
+   * 是否可以冒泡，不冒泡的事件不能使用代理事件监听。
    * @name Event#bubbles
    * @type boolean
    */
@@ -1460,36 +1488,7 @@
 
   });
 
-  // 已绑定的事件池。
-  /*
-   * <Object eventPool> {
-   *   <string uid>: <Object item> {
-   *     <string type>: <Array handlers> [
-   *       <Object handler> {
-   *         name: <string name>,
-   *         listener: <Function listener>,
-   *         selector: <string selector>,
-   *         simpleSelector: <Object simpleSelector> {
-   *           tagName: <string tagName>,
-   *           className: <string className>
-   *         }
-   *       }
-   *     ]
-   *      .dispatcher: <Function dispatcher>
-   *                                        .type: <string type>
-   *                                        .useCapture: <boolean useCapture>
-   *      .delegateCount: <number delegateCount>
-   *   }
-   * };
-   */
-  var eventPool = {};
-  window.p = eventPool;  // TODO: 调试用。
-
-  var RE_EVENT_NAME_SEPARATOR = /\s*,\s*/;
-  var RE_SIMPLE_SELECTOR = /^(\w*)(?:\.([\w\-]+))?$/;
-
   // 解析事件名称。
-  var RE_EVENT_NAME = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
   var parseEventName = function(eventName) {
     var result = {};
     var match;
@@ -1504,7 +1503,7 @@
     return result;
   };
 
-  // 添加和删除事件处理函数。
+  // 添加和删除事件监听器。
   var addEventListener = 'addEventListener' in window ? function($element, eventType, eventListener, useCapture) {
     $element.addEventListener(eventType, eventListener, useCapture);
   } : function($element, eventType, eventListener) {
@@ -1566,12 +1565,12 @@
 //    console.log('==============================', filters);
     while ($target) {
       if ($target !== $element) {
-        // 运行代理。
+        // 代理监听器。
         needsBubble = true;
         from = 0;
         to = delegateCount;
       } else {
-        // 运行自身。
+        // 普通监听器。
         needsBubble = false;
         from = delegateCount;
         to = handlers.length;
@@ -1579,7 +1578,7 @@
       while (from < to) {
         handler = handlers[from];
         selector = handler.selector;
-        // 如果是代理事件，则过滤出符合条件的元素。
+        // 如果是代理事件监听，则过滤出符合条件的元素。
 //        console.log('------------------------------', selector);
         if (!selector || (filters[selector] || (filters[selector] = function(simpleSelector) {
           if (simpleSelector) {
@@ -1613,7 +1612,7 @@
       if (event.isPropagationStopped() || !needsBubble) {
         break;
       }
-      // 如果是在 document 上代理的事件，在 html 元素之后以下方法就会返回 null，不过不影响处理，代理的情况本身就不必检查 document 自身。
+      // 如果是在 document 上代理监听的事件，在 html 元素之后就会返回 null，但并不影响处理，这种情况本身就不必检查 document 自身。
       $target = $target.getParent();
     }
     // 返回 event 对象以用于 fire 方法中事件的传递及复合事件的处理。
@@ -1643,12 +1642,28 @@
    * 为本元素添加事件监听器。
    * @name Element.prototype.on
    * @function
-   * @param {string} name 事件名称，格式为 type[.label][:relay(selector)]。使用逗号分割多个事件名称，即可同时为多个事件注册同一个监听器。
-   *   type 为类型，必选项，其他均为可选项。
-   *   .label 用来给事件类型加上标签，以便调用 off 方法时精确匹配要删除的事件监听器。不打算删除的事件监听器没有必要指定标签。
-   *   :relay(selector) 用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。
-   * @param {Function} listener 要添加的事件监听器。
+   * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var>:relay(<var>selector</var>)</dfn>，详细信息请参考下表。
+   *   使用逗号分割多个事件名称，即可同时为多个事件注册同一个监听器。
+   *   <table>
+   *     <tr><th></th><th>是否必选</th><th>详细描述</th></tr>
+   *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型</td></tr>
+   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>给事件类型加上标签，以便调用 off 方法时精确匹配要删除的事件监听器。<br>不打算删除的事件监听器没有必要指定标签。</td></tr>
+   *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
+   *   </table>
+   * @param {Function} listener 事件监听器。
+   *   监听器中的 this 将指向监听到本次事件的元素。即：
+   *   - 如果是普通监听器，则 this 指向本元素。
+   *   - 如果是代理监听器，则 this 指向被代理的元素。
    * @returns {Element} 本元素。
+   * @example
+   *   $('#test').on('click', handler);
+   *   // 为 id 为 test 的元素添加 click 事件监听器。
+   * @example
+   *   $('#test').on('click.temp', handler);
+   *   // 为 id 为 test 的元素添加 click 事件监听器，并为其指定一个标签 temp。
+   * @example
+   *   $('#test').on('click:relay(a)', handler);
+   *   // 为 id 为 test 的元素添加一个代理事件监听器，为该元素所有的后代 a 元素代理 click 事件的监听。
    * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
    */
@@ -1841,7 +1856,7 @@
     // 添加处理器（允许重复添加同一个监听器 - W3C 的事件模型不允许多次添加同一个监听器）。
     var handler = {name: name, listener: listener};
     if (selector) {
-      // 代理类型的监听器。
+      // 代理监听器。
       handler.selector = selector;
       var match;
       if (match = selector.match(RE_SIMPLE_SELECTOR)) {
@@ -1853,7 +1868,7 @@
       }
       handlers.splice(handlers.delegateCount++, 0, handler);
     } else {
-      // 普通类型的监听器。
+      // 普通监听器。
       handlers.push(handler);
     }
     return $element;
@@ -1866,6 +1881,15 @@
    * @function
    * @param {string} name 事件名称。本元素上绑定的所有名称与 name 匹配的监听器都将被删除。使用逗号分割多个事件名称，即可同时删除多种名称的事件监听器。
    * @returns {Element} 本元素。
+   * @example
+   *   $('#test').off('click');
+   *   // 为 id 为 test 的元素删除名为 click 的事件监听器。
+   * @example
+   *   $('#test').off('click.temp', handler);
+   *   // 为 id 为 test 的元素删除名为 click.temp 的事件监听器。
+   * @example
+   *   $('#test').off('click:relay(a)', handler);
+   *   // 为 id 为 test 的元素删除名为 click:relay(a) 的事件监听器。
    */
   Element.prototype.off = function(name) {
     var uid = this.uid;
@@ -2157,7 +2181,7 @@
    * @name document.on
    * @function
    * @param {string} name 事件名称，格式请参考 Element.prototype.on 的同名参数。
-   * @param {Function} listener 要添加的事件监听器。
+   * @param {Function} listener 事件监听器，细节请参考 Element.prototype.on 的同名参数。
    * @returns {Object} document 对象。
    * @description
    *   特殊事件：domready
@@ -2308,7 +2332,7 @@
    * @name window.on
    * @function
    * @param {string} name 事件名称，格式请参考 Element.prototype.on 的同名参数。
-   * @param {Function} listener 要添加的事件监听器。
+   * @param {Function} listener 事件监听器，细节请参考 Element.prototype.on 的同名参数。
    * @returns {Object} window 对象。
    * @description
    *   特殊事件：beforeunload
