@@ -812,8 +812,7 @@
 
 //--------------------------------------------------[Element.prototype.comparePosition]
   /**
-   * 比较本元素和目标元素在文档树中的位置关系。  // TODO: 高级用法，标记为 master。
-   * @master
+   * 比较本元素和目标元素在文档树中的位置关系。
    * @name Element.prototype.comparePosition
    * @function
    * @param {Element} target 目标元素。
@@ -1189,7 +1188,6 @@
    * };
    */
   var eventPool = {};
-  window.p = eventPool;  // TODO: 调试用。
 
   var RE_EVENT_NAME = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
   var RE_EVENT_NAME_SEPARATOR = /\s*,\s*/;
@@ -1562,7 +1560,6 @@
     var selector;
     var from;
     var to;
-//    console.log('==============================', filters);
     while ($target) {
       if ($target !== $element) {
         // 代理监听器。
@@ -1579,10 +1576,8 @@
         handler = handlers[from];
         selector = handler.selector;
         // 如果是代理事件监听，则过滤出符合条件的元素。
-//        console.log('------------------------------', selector);
         if (!selector || (filters[selector] || (filters[selector] = function(simpleSelector) {
           if (simpleSelector) {
-//            console.warn('simpleSelector');
             return function($target) {
               var tagName = simpleSelector.tagName;
               var className = simpleSelector.className;
@@ -1590,7 +1585,6 @@
             };
           } else {
             var elements = $element.find(selector);
-//            console.warn('$element.find(selector)');
             return function($target) {
               return elements.contains($target);
             }
@@ -1626,13 +1620,19 @@
     if (!uid) {
       return element;
     }
-    // 尝试获取对应的项，以便删除该项中的所有管理器。
+    // 尝试获取对应的项，以便删除该项中的所有处理器组。
     var item = eventPool[uid];
     if (!item) {
       return element;
     }
-    for (var type in item) {
-      element.off(type);
+    // 遍历并删除每一个处理器。
+    var types = Object.keys(item);
+    var handlers;
+    while (types.length) {
+      handlers = item[types.shift()];
+      while (handlers.length) {
+        element.off(handlers[0].name);
+      }
     }
     return element;
   };
@@ -1644,6 +1644,7 @@
    * @function
    * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var>:relay(<var>selector</var>)</dfn>，详细信息请参考下表。
    *   使用逗号分割多个事件名称，即可同时为多个事件注册同一个监听器。
+   *   对于为不保证所有浏览器均可以冒泡的事件类型指定了代理监听的情况，会给出警告信息。
    *   <table>
    *     <tr><th></th><th>是否必选</th><th>详细描述</th></tr>
    *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型</td></tr>
@@ -1686,22 +1687,18 @@
     var info = parseEventName(name);
     var type = info.type;
     var selector = info.selector;
-    // 尝试获取对应的项，及其管理器和处理器组，以便向处理器组中添加处理器。
+    // 尝试获取对应的项及其处理器组，以添加处理器。
     var item = eventPool[uid] || (eventPool[uid] = {});
-    var manager = item[type] || (item[type] = {handlers: null, dispatcher: null});
-    var handlers = manager.handlers;
+    var handlers = item[type] || (item[type] = []);
     // 首次注册此类型的事件。
-    if (!handlers) {
-      // 新处理器组。
-      handlers = [];
-      handlers.delegateCount = 0;
-      // 新派发器（默认）。
+    if (!handlers.dispatcher) {
+      // 普通事件使用默认的派发器。
       var dispatcher = function(e) {
         dispatchEvent($element, handlers, new Event(e || window.event, type));
       };
       dispatcher.type = type;
       dispatcher.useCapture = false;
-      // 特殊事件，可能使用自定义的派发器（或其属性）覆盖默认的派发器（或其属性）。
+      // 特殊事件使用定制的派发器。
       switch (type) {
         case 'mousewheel':
           // 鼠标滚轮事件，Firefox 的事件类型为 DOMMouseScroll。
@@ -1734,6 +1731,7 @@
           // 向这三个关联事件中添加第一个监听器时，即创建上述公用的派发器，在这三个关联事件中删除最后一个监听器时，即删除上述公用的派发器。
           // 只支持鼠标左键的拖拽，拖拽过程中松开左键、按下其他键、或当前窗口失去焦点都将导致拖拽事件结束。
           // 注意：应避免在拖拽进行时删除本组事件的监听器，否则可能导致拖拽动作无法正常完成。
+          var dragHandlers = {};
           var dragState = null;
           var dragstart = function(e) {
             var event = new Event(e || window.event, 'mousedragstart');
@@ -1777,16 +1775,14 @@
           };
           dispatcher = dragstart;
           dispatcher.type = 'mousedown';
+          dragHandlers[type] = handlers;
           // HACK：这三个关联事件有相同的派发器和各自的处理器组，此处分别创建另外两个关联事件的项和处理器组。
-          // TODO: 压缩事件模型时，此处需要注意。
-          var dragHandlers = {};
           eventHelper[type].related.forEach(function(type) {
             var handlers = [];
+            handlers.dispatcher = dispatcher;
             handlers.delegateCount = 0;
-            item[type] = {handlers: handlers, dispatcher: dispatcher};
-            dragHandlers[type] = handlers;
+            dragHandlers[type] = item[type] = handlers;
           });
-          dragHandlers[type] = handlers;
           break;
         case 'focusin':
         case 'focusout':
@@ -1849,9 +1845,9 @@
       }
       // 绑定派发器。
       addEventListener($element, dispatcher.type, dispatcher, dispatcher.useCapture);
-      // 存储处理器组和派发器。
-      manager.handlers = handlers;
-      manager.dispatcher = dispatcher;
+      // 确定管理器组的派发器和代理计数器。
+      handlers.dispatcher = dispatcher;
+      handlers.delegateCount = 0;
     }
     // 添加处理器（允许重复添加同一个监听器 - W3C 的事件模型不允许多次添加同一个监听器）。
     var handler = {name: name, listener: listener};
@@ -1867,6 +1863,10 @@
         };
       }
       handlers.splice(handlers.delegateCount++, 0, handler);
+      // 为不保证所有浏览器均可以冒泡的事件类型指定代理监听时，给出警告信息。
+      if (EVENT_CODES[type] & 4) {
+        navigator.warn('Incompatible event delegation type "' + name + '".');
+      }
     } else {
       // 普通监听器。
       handlers.push(handler);
@@ -1907,16 +1907,15 @@
     }
     // 取出事件类型。
     var type = parseEventName(name).type;
-    // 尝试获取对应的项，及其管理器和处理器组，以便从处理器组中删除处理器。
+    // 尝试获取对应的项及其处理器组，以删除处理器。
     var item = eventPool[uid];
     if (!item) {
       return $element;
     }
-    var manager = item[type];
-    if (!manager) {
+    var handlers = item[type];
+    if (!handlers) {
       return $element;
     }
-    var handlers = manager.handlers;
     // 删除处理器。
     var i = 0;
     var handler;
@@ -1931,9 +1930,9 @@
         i++;
       }
     }
-    // 若处理器组为空，则删除派发器的注册，并删除对应的管理器。
+    // 若处理器组为空，则删除派发器的注册并删除处理器组。
     if (handlers.length === 0) {
-      var dispatcher = manager.dispatcher;
+      var dispatcher = handlers.dispatcher;
       switch (type) {
         case 'mousedragstart':
         case 'mousedrag':
@@ -1941,7 +1940,7 @@
           // 必须在这组关联事件的最后一个监听器被删除后才清理派发器。
           var listenersCount = 0;
           eventHelper[type].related.forEach(function(type) {
-            listenersCount += item[type].handlers.length;
+            listenersCount += item[type].length;
           });
           if (listenersCount) {
             return $element;
@@ -1973,7 +1972,7 @@
       }
       delete item[type];
     }
-    // 若该项再无其他管理器，删除该项。
+    // 若该项再无其他处理器组，删除该项。
     if (Object.keys(item).length === 0) {
       delete eventPool[uid];
     }
@@ -1991,6 +1990,7 @@
    * @returns {Element} 本元素。
    */
   Element.prototype.fire = function(type, data) {
+    var item;
     var handlers;
     var dummyEvent = {
       // 使用空字符串作为虚拟事件的标识符。
@@ -2004,7 +2004,7 @@
     var event = Object.append(new Event(dummyEvent, type), data || {}, {blackList: ['originalEvent']});
     var $element = this;
     while ($element) {
-      if (handlers = (handlers = eventPool[$element.uid]) && (handlers = handlers[type]) && handlers.handlers) {
+      if (handlers = (item = eventPool[$element.uid]) && item[type]) {
         event = dispatchEvent($element, handlers, event);
       }
       if (!event.bubbles || event.isPropagationStopped() || $element === window) {

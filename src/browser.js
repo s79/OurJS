@@ -184,6 +184,20 @@
    * @namespace
    */
 
+  /**
+   * 供内部使用的向用户显示警告信息的方法。
+   * @name navigator.warn
+   * @function
+   * @private
+   * @param {string} message 警告信息。
+   */
+  navigator.warn = function(message) {
+    // 使用 typeof 在 IE 中可能得到 "object"。
+    if (console && typeOf(console.warn) === 'function') {
+      console.warn('OurJS: ' + message);
+    }
+  };
+
 //--------------------------------------------------[navigator.*]
   /**
    * 从 navigator.userAgent 中提取的常用信息。
@@ -331,7 +345,9 @@
     }
     // 检查工作模式。
     var inStandardsMode = document.compatMode === 'CSS1Compat';
-    !inStandardsMode && console && console.warn('OurJS: Browser is working in non-standards mode!');
+    if (!inStandardsMode) {
+      navigator.warn('Browser is working in non-standards mode!');
+    }
     // 浏览器特性判断。
     var isIE10 = false;
     var isIElt10 = false;

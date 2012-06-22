@@ -67,7 +67,6 @@ $('#focusin').find('input').forEach(function(item) {
 //  });
 });
 
-
 //document.on('click', function(e) {
 //  console.log('--click--', e.target.value);
 //});
@@ -163,7 +162,7 @@ $('#freez').on('click', function() {
 });
 
 $('#clear').on('click', function() {
-  $drag.off('mousedragstart.c, mousedrag.c, mousedragend.c');
+  $drag.off('mousedragstart.c:relay(.draggable), mousedrag.c:relay(.draggable), mousedragend.c:relay(.draggable)');
 });
 
 /*

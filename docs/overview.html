@@ -90,15 +90,11 @@ execute(function($) {
         });
   });
   $('#menu2')
-      .on('mouseenter', function(e) {
+      .on('mouseenter:relay(ul)', function(e) {
         aniPool[this.uid].play();
-      }, function() {
-        return this.tagName === 'UL';
       })
-      .on('mouseleave', function(e) {
+      .on('mouseleave:relay(ul)', function(e) {
         aniPool[this.uid].reverse();
-      }, function() {
-        return this.tagName === 'UL';
       });
 }, true);
 </script>

@@ -19,10 +19,17 @@ p.error { color: red; }
   <li>Text <span>{ <a href="javascript:void('3');">[Link 3]</a> }</span> Text</li>
   <li>Text <span>{ <a href="javascript:void('4');">[Link 4]</a> }</span> Text</li>
 </ul>
-
+<div id="d">
+  <form>
+    <input type="text">
+  </form>
+</div>
 <script>
 execute(function($) {
-  $('#ul').on('click.test:relay(a)', function(e) {
+  $('#d').on('input:relay(input)', function(e) {
+    console.log(this.tagName + ': ' + e.type);
+  });
+  $('#ul').on('mousedrag.test:relay(a)', function(e) {
     console.log('● CLICKED: a');
     e.preventDefault();
   });

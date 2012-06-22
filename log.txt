@@ -1,7 +1,9 @@
 ﻿>TODO 编辑文档，明确各 Function 类型的参数的 this 指向。
 >TODO 升级 Calendar/Pagination 的事件。
 >TODO Dialog -> PopupLayer
->TODO 压缩事件模型。
+
+>2012-06-22
+压缩事件管理的数据模型。
 
 >2012-06-21
 修改 window/document/Element.prototype.on/off 的参数，取消 filter，参考 MooTools 的语法，使用 :relay(selector) 实现代理。
