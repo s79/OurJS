@@ -2,6 +2,9 @@
 >TODO 升级 Calendar/Pagination 的事件。
 >TODO Dialog -> PopupLayer
 
+>2012-06-24
+Date.prototype.format
+
 >2012-06-22
 压缩事件管理的数据模型。
 

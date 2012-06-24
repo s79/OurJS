@@ -635,6 +635,7 @@
    *   Number.prototype.padZero
    *   Math.limit
    *   Math.randomRange
+   *   Date.prototype.format
    *   RegExp.escape
    */
 
@@ -822,8 +823,6 @@
   };
 
 //--------------------------------------------------[String.prototype.clean]
-  var RE_WHITESPACES = new RegExp('[' + WHITESPACES + ']+', 'g');
-
   /**
    * 合并本字符串中的空白字符，并去掉首尾的空白字符。
    * @name String.prototype.clean
@@ -833,6 +832,7 @@
    *   ' a b  c   d    e     f      g       '.clean();
    *   // 'a b c d e f g'
    */
+  var RE_WHITESPACES = new RegExp('[' + WHITESPACES + ']+', 'g');
   String.prototype.clean = function() {
     return this.replace(RE_WHITESPACES, ' ').trim();
   };
@@ -851,7 +851,7 @@
     if (isFinite(this)) {
       var length = number.length - (Math.ceil(this) == this ? 0 : 1);
       if (length < digits) {
-        number = '0'.repeat(digits - length + 1) + number;
+        number = '0'.repeat(digits - length) + number;
       }
     }
     return sign + number;
@@ -891,9 +891,67 @@
     return Math.floor(Math.random() * (max - min + 1) + min);
   };
 
-//--------------------------------------------------[RegExp.escape]
-  var RE_REGULAR_EXPRESSION_METACHARACTERS = /([.*+?^=!:${}()|[\]\/\\])/g;
+//--------------------------------------------------[Date.prototype.format]
+  /**
+   * 将日期格式化为字符串。
+   * @name Date.prototype.format
+   * @function
+   * @param {string} [pattern] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'yyyy-MM-dd'。
+   *   各标志符及其含义：
+   *   <table>
+   *     <tr><th>字符</th><th>含义</th></tr>
+   *     <tr><td>YYYY</td><td>四位数年份。</td></tr>
+   *     <tr><td>MM</td><td>两位数月份。</td></tr>
+   *     <tr><td>DD</td><td>两位数日期。</td></tr>
+   *     <tr><td>hh</td><td>两位数小时，24 小时制。</td></tr>
+   *     <tr><td>mm</td><td>两位数分钟。</td></tr>
+   *     <tr><td>ss</td><td>两位数秒钟。</td></tr>
+   *     <tr><td>s</td><td>三位数毫秒。</td></tr>
+   *     <tr><td>TZD</td><td>时区指示。世界标准时间显示大写字母 Z，其他时区用当地时间加时差表示。</td></tr>
+   *   </table>
+   * @param {boolean} [toUTC] 是否格式化为世界标准时间。
+   * @returns {string} 格式化后的字符串。
+   * @example
+   *   new Date(2000,0,1).format()
+   *   // "2000-01-01"
+   *   new Date(2000,2,1).format('MM-DD hh:mm', true)
+   *   // "02-29 16:00"
+   *   new Date('Fri, 21 Dec 2012 15:14:35 GMT').format('YYYY-MM-DDThh:mm:ss.sTZD')
+   *   // "2012-12-21T23:14:35.000+08:00"
+   *   new Date(2012, 0, 1).format('YYYYYY')
+   *   // 未被成功匹配的字符均会作为普通字符显示。
+   *   // "2012YY"
+   * @see http://www.w3.org/TR/NOTE-datetime
+   * @see http://en.wikipedia.org/wiki/ISO_8601
+   * @see http://blog.stevenlevithan.com/archives/date-time-format
+   */
+  var RE_DATE_KEYS = /YYYY|([MDhms])\1|s|TZD/g;
+  Date.prototype.format = function(pattern, toUTC) {
+    pattern = pattern || 'YYYY-MM-DD';
 
+    var get = toUTC ? 'getUTC' : 'get';
+    var timezoneOffset = this.getTimezoneOffset();
+    var timezoneOffsetSign = timezoneOffset < 0 ? '+' : '-';
+    var timezoneOffsetHours = (Math.floor(Math.abs(timezoneOffset) / 60)).padZero(2);
+    var timezoneOffsetMinutes = (Math.abs(timezoneOffset) - timezoneOffsetHours * 60).padZero(2);
+    var keys = {
+      YYYY: this[get + 'FullYear'](),
+      MM: (this[get + 'Month']() + 1).padZero(2),
+      DD: this[get + 'Date']().padZero(2),
+      hh: this[get + 'Hours']().padZero(2),
+      mm: this[get + 'Minutes']().padZero(2),
+      ss: this[get + 'Seconds']().padZero(2),
+      s: this[get + 'Milliseconds']().padZero(3),
+      TZD: (toUTC || timezoneOffset === 0) ? 'Z' : (timezoneOffsetSign + timezoneOffsetHours + ':' + timezoneOffsetMinutes)
+    };
+
+    return pattern.replace(RE_DATE_KEYS, function(key) {
+      return keys[key];
+    });
+
+  };
+
+//--------------------------------------------------[RegExp.escape]
   /**
    * 为字符串编码，避免创建正则表达式时破坏预期的结构。
    * @name RegExp.escape
@@ -902,6 +960,7 @@
    * @returns {string} 编码后的字符串。
    * @see http://prototypejs.org/
    */
+  var RE_REGULAR_EXPRESSION_METACHARACTERS = /([.*+?^=!:${}()|[\]\/\\])/g;
   RegExp.escape = function(string) {
     return (string + '').replace(RE_REGULAR_EXPRESSION_METACHARACTERS, '\\$1');
   };

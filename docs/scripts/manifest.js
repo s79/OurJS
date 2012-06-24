@@ -72,7 +72,9 @@ var manifest = {
   'Date': [
     '#ES5',
     'Date.now',
-    'Date.prototype.toJSON'
+    'Date.prototype.toJSON',
+    '#自定义扩展',
+    'Date.prototype.format'
   ],
   'RegExp': [
     '#自定义扩展',
