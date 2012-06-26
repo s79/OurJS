@@ -1,5 +1,5 @@
 /**
- * @fileOverview 组件 - 弹出层。
+ * @fileOverview 组件 - 模态对话框。
  * @author sundongguo@gmail.com
  * @version 20120310
  */
@@ -10,7 +10,7 @@ execute(function($) {
    * 遮掩层除视觉遮掩效果外，还能屏蔽鼠标和键盘对被遮掩区域的操作。
    *
    * 说明：
-   *   遮掩层用来配合弹出层使用。
+   *   遮掩层用来配合模态对话框使用。
    *   要在页面上实现 L 元素覆盖 M 元素，即要求 L 元素的 stacking context 与 M 元素的 stacking context 相同，或为其祖先级元素。
    *
    * 问题：
