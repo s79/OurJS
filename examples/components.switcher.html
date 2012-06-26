@@ -28,8 +28,12 @@ execute(function($) {
   var switcher = new Switcher($(document.body).find('span'))
       .on('change',
       function(e) {
-        e.activeItem && e.activeItem.addClass('active');
-        e.inactiveItem && e.inactiveItem.removeClass('active');
+        if (e.activeItem) {
+          e.activeItem.addClass('active');
+        }
+        if (e.inactiveItem) {
+          e.inactiveItem.removeClass('active');
+        }
         $message.innerText = e.inactiveIndex + ' -> ' + e.activeIndex;
       })
       .active(2);

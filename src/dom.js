@@ -454,8 +454,12 @@
             fixedData[side].usedValue = offset[side] = length.endsWith('px') ? parseInt(length, 10) : NaN;
           });
           // 如果 usedValue 中横向或纵向的两个值均为 NaN，则给 left 或 top 赋值为当前该元素相对于页面的偏移量。
-          isNaN(fixedData.left.usedValue) && isNaN(fixedData.right.usedValue) && (fixedData.left.usedValue = document.documentElement.scrollLeft + $element.getClientRect().left - (parseInt($element.currentStyle.marginLeft, 10) || 0));
-          isNaN(fixedData.top.usedValue) && isNaN(fixedData.bottom.usedValue) && (fixedData.top.usedValue = document.documentElement.scrollTop + $element.getClientRect().top - (parseInt($element.currentStyle.marginTop, 10) || 0));
+          if (isNaN(fixedData.left.usedValue) && isNaN(fixedData.right.usedValue)) {
+            fixedData.left.usedValue = document.documentElement.scrollLeft + $element.getClientRect().left - (parseInt($element.currentStyle.marginLeft, 10) || 0);
+          }
+          if (isNaN(fixedData.top.usedValue) && isNaN(fixedData.bottom.usedValue)) {
+            fixedData.top.usedValue = document.documentElement.scrollTop + $element.getClientRect().top - (parseInt($element.currentStyle.marginTop, 10) || 0);
+          }
 //          console.log(JSON.stringify(fixedData));
           // 如果元素已被渲染（暂不考虑祖先级元素未被渲染的情况），启用表达式。
           if ($element.currentStyle.display !== 'none') {
@@ -1496,7 +1500,7 @@
       result.selector = match[3] || '';
     }
     if (result.type + result.label + (result.selector ? ':relay(' + result.selector + ')' : '') !== eventName) {
-      throw new SyntaxError('Invalid event name "' + eventName + '"');
+      throw new Error('Invalid event name "' + eventName + '"');
     }
     return result;
   };
@@ -1740,7 +1744,9 @@
               return;
             }
             var $target = event.target;
-            $target.setCapture && $target.setCapture();
+            if ($target.setCapture) {
+              $target.setCapture();
+            }
             event.preventDefault();
             dragState = {target: $target, startX: event.pageX, startY: event.pageY};
             dragState.lastEvent = event;
@@ -1763,7 +1769,9 @@
               return;
             }
             var $target = dragState.target;
-            $target.releaseCapture && $target.releaseCapture();
+            if ($target.releaseCapture) {
+              $target.releaseCapture();
+            }
             event = dragState.lastEvent;
             event.type = 'mousedragend';
             dispatchEvent($element, dragHandlers.mousedragend, event);

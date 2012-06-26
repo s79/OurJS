@@ -13,34 +13,39 @@ select { width: 100px; background: orangered; }
 </head>
 <body>
 <h1>Mask</h1>
-<h2 id="x" style="position: absolute; left: 150px; top: 150px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
+<h2 id="x" style="position: absolute; left: 1500px; top: 1500px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
 <select></select>
 <select></select>
 <span id="span" style="position: absolute; left: 575px; top: 350px; z-index: 50; width: 400px; height: 50px; margin: 25px; padding: 5px 15px; border: 7px solid mediumorchid; background: white">
-  <var id="var" style="position: absolute; left: 10px; bottom: 0; display: block; width: 100px; height:20px; margin: 2px 2px 2px -30px; padding: 5px; border: 3px solid black; background: silver; overflow: hidden;"></var>
+  <var id="var" style="position: absolute; left: 10px; bottom: 0; display: block; width: 100px; height:20px; margin: 2px 2px 2px -30px; padding: 5px; border: 3px solid black; background: silver; overflow: hidden;">
+    <em id="palceholder_A" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
+  </var>
 </span>
-<div id="div" style="position: absolute; left: 600px; top: 100px; width: 400px; height: 300px; margin: 10px; padding: 5px; border: 7px solid black; overflow: auto;">
+<div id="div" style="position: absolute; left: 600px; top: 100px; z-index: 100; width: 400px; height: 300px; margin: 10px; padding: 5px; border: 7px solid black; overflow: auto;">
   <select></select>
   <select style="visibility: hidden;"></select>
   <select></select>
-  <p id="p" style="position: relative; width: 800px; height: 200px; margin: 10px; padding: 10px; border: 10px solid black;"></p>
+  <p id="p" style="position: relative; width: 800px; height: 200px; margin: 10px; padding: 10px; border: 10px solid black;">
+    <em id="palceholder_B" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
+  </p>
 </div>
-<button style="left: 100px; top: 100px;" onclick="bodyMask.show();">bodyMask.show();</button>
-<button style="left: 250px; top: 100px;" onclick="bodyMask.hide();">bodyMask.hide();</button>
-<button style="left: 100px; top: 150px;" onclick="divMask.show();">divMask.show();</button>
-<button style="left: 250px; top: 150px;" onclick="divMask.hide();">divMask.hide();</button>
-<button style="left: 100px; top: 200px;" onclick="pMask.show();">pMask.show();</button>
-<button style="left: 250px; top: 200px;" onclick="pMask.hide();">pMask.hide();</button>
-<button style="left: 100px; top: 250px;" onclick="spanMask.show();">spanMask.show();</button>
-<button style="left: 250px; top: 250px;" onclick="spanMask.hide();">spanMask.hide();</button>
-<button style="left: 100px; top: 300px;" onclick="varMask.show();">varMask.show();</button>
-<button style="left: 250px; top: 300px;" onclick="varMask.hide();">varMask.hide();</button>
+<button style="left: 100px; top: 100px;" onclick="bodyMask.behind($('#div'));">bodyMask 开</button>
+<button style="left: 250px; top: 100px;" onclick="bodyMask.behind();">bodyMask 关</button>
+<button style="left: 100px; top: 150px;" onclick="divMask.behind($('#palceholder_B'));">divMask 开</button>
+<button style="left: 250px; top: 150px;" onclick="divMask.behind();">divMask 关</button>
+<button style="left: 100px; top: 200px;" onclick="pMask.behind($('#palceholder_B'));">pMask 开</button>
+<button style="left: 250px; top: 200px;" onclick="pMask.behind();">pMask 关</button>
+<button style="left: 100px; top: 250px;" onclick="spanMask.behind($('#palceholder_A'));">spanMask 开</button>
+<button style="left: 250px; top: 250px;" onclick="spanMask.behind();">spanMask 关</button>
+<button style="left: 100px; top: 300px;" onclick="varMask.behind($('#palceholder_A'));">varMask 开</button>
+<button style="left: 250px; top: 300px;" onclick="varMask.behind();">varMask 关</button>
 <button style="left: 175px; top: 350px;" onclick="$div.setStyle('position', 'fixed');">div.position=fixed</button>
 <button style="left: 175px; top: 400px;" onclick="$div.setStyle('position', 'absolute');">div.position=absolute</button>
 <button style="left: 175px; top: 450px;" onclick="$div.setStyle('display', 'block');">div.display=block</button>
 <button style="left: 175px; top: 500px;" onclick="$div.setStyle('display', 'none');">div.display=none</button>
 <button style="left: 175px; top: 550px;" onclick="$div.animate({left: 0, top: 0, backgroundColor: '#ff0000'}, {duration: 5000, onFinish: function(){console.log('finish');}}).fadeOut().fadeIn();">div.animate</button>
 <script>
+var $ = document.$;
 var bodyMask;
 var divMask;
 var pMask;

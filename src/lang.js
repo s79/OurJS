@@ -11,6 +11,9 @@
   // 空白字符。
   var WHITESPACES = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF';
 
+  // 日期标识符。
+  var RE_DATE_KEYS = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
+
   // 辅助解决遍历 bug。
   // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
   var hasDontEnumBug = !{toString: null}.propertyIsEnumerable('toString');
@@ -635,6 +638,7 @@
    *   Number.prototype.padZero
    *   Math.limit
    *   Math.randomRange
+   *   Date.from
    *   Date.prototype.format
    *   RegExp.escape
    */
@@ -891,12 +895,93 @@
     return Math.floor(Math.random() * (max - min + 1) + min);
   };
 
+//--------------------------------------------------[Date.from]
+  /**
+   * 将符合某种格式的字符串转换为日期。
+   * @name Date.from
+   * @function
+   * @param {string} string 代表日期的字符串，该字符串应该能够通过 Date.prototype.format 生成。
+   *   日期字符串中缺失的部分将使用默认值代替，各部分的默认值如下：
+   *   <table>
+   *     <tr><th>日期字段</th><th>默认值</th></tr>
+   *     <tr><td>年</td><td>2012</td></tr>
+   *     <tr><td>月</td><td>1</td></tr>
+   *     <tr><td>日</td><td>1</td></tr>
+   *     <tr><td>时</td><td>0</td></tr>
+   *     <tr><td>分</td><td>0</td></tr>
+   *     <tr><td>秒</td><td>0</td></tr>
+   *     <tr><td>毫秒</td><td>0</td></tr>
+   *     <tr><td>时区</td><td>当地时区</td></tr>
+   *   </table>
+   *   注意：未检查字符串内包含数据的有效性，若数据异常，将得不到预期的日期值。
+   * @param {string} [pattern] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。格式请参考 Date.prototype.format 的同名参数。
+   * @param {boolean} [isUTC] 字符串是否为世界标准时间。
+   *   当 isUTC 与 string 中已存在的 TZD 标识冲突时，isUTC 将被忽略。
+   * @returns {Date} 转换后的日期。
+   * @example
+   *   Date.from('2012-06-25 12:00:00', 'YYYY-MM-DD hh:mm:ss')
+   *   // 各浏览器中日期的字符串形式略有差异。
+   *   // "Mon Jun 25 2012 12:00:00 GMT+0800"
+   *   Date.from('2012-12-21T23:14:35.000+08:00', 'YYYY-MM-DDThh:mm:ss.sTZD', true).format('世界标准时间YYYY年MM月DD日hh点mm分ss秒', true)
+   *   // "世界标准时间2012年12月21日15点14分35秒"
+   *   Date.from('02-29 16:00', 'MM-DD hh:mm')
+   *   // 年份缺失，使用默认值代替。
+   *   // "Wed Feb 29 2012 16:00:00 GMT+0800"
+   */
+  var timeZoneOffset = new Date().getTimezoneOffset() * 60000;
+  Date.from = function(string, pattern, isUTC) {
+    pattern = pattern || 'YYYY-MM-DD';
+
+    // 从 string 中参考 pattern 解析出日期数据。
+    var extractedData = {};
+    var match;
+    var index;
+    var key;
+    var value;
+    var start;
+    var currentCorrectedValue;
+    var totalCorrectedValue = 0;
+    while (match = RE_DATE_KEYS.exec(pattern)) {
+      key = match[0];
+      index = match.index;
+      start = index + totalCorrectedValue;
+      // 定位值。
+      if (key === 'TZD') {
+        currentCorrectedValue = string.charAt(start) === 'Z' ? -2 : 3;
+      } else if (key === 's') {
+        currentCorrectedValue = 2;
+      } else {
+        currentCorrectedValue = 0;
+      }
+      // 取出值。
+      value = string.substring(start, start + key.length + currentCorrectedValue);
+      // 转换值。
+      if (key === 'TZD') {
+        value = value === 'Z' ? 0 : (value.slice(0, 1) === '-' ? 1000 : -1000) * (value.slice(1, 3) * 3600 + value.slice(4, 6) * 60);
+      } else {
+        value = Number.toInteger(value);
+        if (key === 'MM') {
+          --value;
+        }
+      }
+      // 保存值。
+      extractedData[key] = value;
+      totalCorrectedValue += currentCorrectedValue;
+    }
+
+    // 缺失的值使用以下默认值代替。
+    var dateValues = Object.append({YYYY: 2012, MM: 0, DD: 1, hh: 0, mm: 0, ss: 0, s: 0, TZD: isUTC ? 0 : timeZoneOffset}, extractedData);
+
+    // 转换为日期类型。
+    return new Date(Date.UTC(dateValues['YYYY'], dateValues['MM'], dateValues['DD'], dateValues['hh'], dateValues['mm'], dateValues['ss'], dateValues['s']) + dateValues['TZD']);
+  };
+
 //--------------------------------------------------[Date.prototype.format]
   /**
    * 将日期格式化为字符串。
    * @name Date.prototype.format
    * @function
-   * @param {string} [pattern] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'yyyy-MM-dd'。
+   * @param {string} [pattern] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。
    *   各标志符及其含义：
    *   <table>
    *     <tr><th>字符</th><th>含义</th></tr>
@@ -925,7 +1010,6 @@
    * @see http://en.wikipedia.org/wiki/ISO_8601
    * @see http://blog.stevenlevithan.com/archives/date-time-format
    */
-  var RE_DATE_KEYS = /YYYY|([MDhms])\1|s|TZD/g;
   Date.prototype.format = function(pattern, toUTC) {
     pattern = pattern || 'YYYY-MM-DD';
 

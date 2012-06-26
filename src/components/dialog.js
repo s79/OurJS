@@ -1,15 +1,28 @@
 /**
- * @fileOverview 组件 - 对话框。
+ * @fileOverview 组件 - 弹出层。
  * @author sundongguo@gmail.com
  * @version 20120310
  */
 execute(function($) {
-//==================================================[freezeFocusArea]
+//==================================================[Mask]
   /*
-   * 限定不可聚焦的区域。
+   * 创建一个覆盖指定元素的内容的遮掩层。
+   * 遮掩层除视觉遮掩效果外，还能屏蔽鼠标和键盘对被遮掩区域的操作。
+   *
+   * 说明：
+   *   遮掩层用来配合弹出层使用。
+   *   要在页面上实现 L 元素覆盖 M 元素，即要求 L 元素的 stacking context 与 M 元素的 stacking context 相同，或为其祖先级元素。
+   *
+   * 问题：
+   *   IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
+   *   这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲覆盖区域不是 BODY，但其中有 SELECT 元素时出现。
+   *   上述情况很少见，因此未处理此问题。
+   *   如果需要处理，去掉 IE6 fixed positioned 相关代码中的“启用/禁用表达式”部分即可。
+   *
+   * 参考：
+   *   http://w3help.org/zh-cn/causes/RM8015
    */
 
-//--------------------------------------------------[freezeFocusArea]
   var $before;
   var $after;
   var $enabled;
@@ -21,7 +34,7 @@ execute(function($) {
    * @name freezeFocusArea
    * @function
    * @private
-   * @param {Object} config 配置信息，包含 enable 和 disable 两个元素，如果设置为 null，则取消限定。
+   * @param {Object} [config] 配置信息，包含 enable 和 disable 两个元素。如果省略此参数，则取消限定。
    */
   function freezeFocusArea(config) {
     if (config) {
@@ -59,7 +72,9 @@ execute(function($) {
             }
           });
       if ($enable !== $enabled) {
-        $disabled && $disabled.off('focusin.freezeFocusArea');
+        if ($disabled) {
+          $disabled.off('focusin.freezeFocusArea');
+        }
         $disable.on('focusin.freezeFocusArea', function(e) {
           // 要判断 $after 此时是否可见，在点击某元素导致对话框关闭时，对话框是先隐藏，然后才执行到这里。
           if (!$enable.contains(e.target) && $after.offsetWidth) {
@@ -74,31 +89,16 @@ execute(function($) {
     } else {
       if ($disabled) {
         $disabled.off('focusin.freezeFocusArea');
-        $before && $before.remove(true);
-        $after && $after.remove(true);
+        if ($before) {
+          $before.remove(true);
+        }
+        if ($after) {
+          $after.remove(true);
+        }
         $enabled = $disabled = null;
       }
     }
   }
-
-//==================================================[Mask]
-  /*
-   * 创建一个覆盖指定元素的内容的遮掩层。
-   * 遮掩层除视觉遮掩效果外，仅能屏蔽鼠标对被遮掩区域的操作，因此应配合 freezeFocusArea 限制键盘操作。
-   *
-   * 思路：
-   *   遮掩层用来配合模态对话框使用。
-   *   要在页面上实现 D 元素覆盖 M 元素，即要求 D 元素的 stacking context 与 M 元素的 stacking context 相同，或为其祖先级元素。
-   *
-   * 已知问题：
-   *   IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
-   *   这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲覆盖区域不是 BODY，但其中有 SELECT 元素时出现。
-   *   上述情况很少见，因此未处理此问题。
-   *   如果需要处理，去掉 IE6 fixed positioned 相关代码中的“启用/禁用表达式”部分即可。
-   *
-   * 参考：
-   *   http://w3help.org/zh-cn/causes/RM8015
-   */
 
 //--------------------------------------------------[Mask Constructor]
   /**
@@ -131,83 +131,78 @@ execute(function($) {
     effect: false
   };
 
-//--------------------------------------------------[Mask.prototype.show]
+//--------------------------------------------------[Mask.prototype.behind]
   /**
-   * 显示遮掩层。
-   * @name Mask.prototype.show
+   * 调整遮掩层的纵向位置，或隐藏遮掩层。
+   * @name Mask.prototype.behind
    * @function
    * @private
+   * @param {Element} [element] 要将遮掩层置于其后的目标元素。如果省略此参数，则隐藏遮掩层。
    * @returns {Object} Mask 对象。
    */
-  Mask.prototype.show = function() {
+  Mask.prototype.behind = function(element) {
     var mask = this;
-    if (!mask.animation) {
-      var options = mask.options;
-      var $container = mask.target;
-      // 创建遮掩层元素。
-      var attributes = '';
-      Object.forEach(options.attributes, function(attributeValue, attributeName) {
-        attributes += ' ' + attributeName + '="' + attributeValue + '"';
-      });
-      var $mask;
-      var resizeMaskElementForIE6;
-      if (navigator.isIE6) {
-        // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
-        $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').append($('<div></div>').setStyles(options.styles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
-        // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
-        if ($container === document.body) {
-          resizeMaskElementForIE6 = function() {
-            mask.resize();
-          };
+    if (element) {
+      if (!mask.animation) {
+        var options = mask.options;
+        var $container = mask.target;
+        // 创建遮掩层元素。
+        var attributes = '';
+        Object.forEach(options.attributes, function(attributeValue, attributeName) {
+          attributes += ' ' + attributeName + '="' + attributeValue + '"';
+        });
+        var $mask;
+        var resizeMaskElementForIE6;
+        if (navigator.isIE6) {
+          // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
+          $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').append($('<div></div>').setStyles(options.styles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
+          // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
+          if ($container === document.body) {
+            resizeMaskElementForIE6 = function() {
+              mask.resize();
+            };
+          }
+        } else {
+          $mask = $('<div' + attributes + '></div>').setStyles(options.styles);
         }
-      } else {
-        $mask = $('<div' + attributes + '></div>').setStyles(options.styles);
-      }
-      // 确定遮掩层元素的样式并插入文档树。
-      $container.append($mask.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
-      mask.element = $mask;
-      // 动画效果。
-      mask.animation = new Animation()
-          .on('playstart', function() {
-            $mask.setStyle('display', 'block');
-            mask.resize();
-            if (resizeMaskElementForIE6) {
-              window.attachEvent('onresize', resizeMaskElementForIE6);
-            }
-          })
-          .on('reversefinish', function() {
-            $mask.remove();
-            delete mask.animation;
-            delete mask.element;
-            if (resizeMaskElementForIE6) {
-              window.detachEvent('onresize', resizeMaskElementForIE6);
-            }
-          });
-      if (options.effect) {
-        mask.animation
-            .addClip(Fx.morph($mask, {opacity: $mask.getStyle('opacity')}), 0, 150, 'easeIn')
+        // 确定遮掩层元素的样式并插入文档树。
+        $container.append($mask.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
+        mask.element = $mask;
+        // 动画效果。
+        mask.animation = new Animation()
             .on('playstart', function() {
-              $mask.setStyle('opacity', 0);
+              $mask.setStyle('display', 'block');
+              mask.resize();
+              if (resizeMaskElementForIE6) {
+                window.attachEvent('onresize', resizeMaskElementForIE6);
+              }
+            })
+            .on('reversefinish', function() {
+              $mask.remove();
+              delete mask.animation;
+              delete mask.element;
+              if (resizeMaskElementForIE6) {
+                window.detachEvent('onresize', resizeMaskElementForIE6);
+              }
             });
+        if (options.effect) {
+          mask.animation
+              .addClip(Fx.morph($mask, {opacity: $mask.getStyle('opacity')}), 0, 150, 'easeIn')
+              .on('playstart', function() {
+                $mask.setStyle('opacity', 0);
+              });
+        }
       }
+      mask.element.setStyle('zIndex', element.getStyle('zIndex') - 1);
+      freezeFocusArea({enable: element, disable: mask.target});
       mask.animation.play();
+    } else {
+      if (this.animation) {
+        this.animation.reverse();
+        freezeFocusArea();
+      }
     }
     return mask;
-  };
-
-//--------------------------------------------------[Mask.prototype.hide]
-  /**
-   * 隐藏遮掩层。
-   * @name Mask.prototype.hide
-   * @function
-   * @private
-   * @returns {Object} Mask 对象。
-   */
-  Mask.prototype.hide = function() {
-    if (this.animation) {
-      this.animation.reverse();
-    }
-    return this;
   };
 
 //--------------------------------------------------[Mask.prototype.resize]
@@ -239,29 +234,13 @@ execute(function($) {
     return this;
   };
 
-//--------------------------------------------------[Mask.prototype.setZIndex]
-  /**
-   * 调整遮掩层的 zIndex。
-   * @name Mask.prototype.setZIndex
-   * @function
-   * @private
-   * @param {number} zIndex 遮掩层的 zIndex。
-   * @returns {Object} Mask 对象。
-   */
-  Mask.prototype.setZIndex = function(zIndex) {
-    if (this.element) {
-      this.element.setStyle('zIndex', zIndex);
-    }
-    return this;
-  };
-
 //--------------------------------------------------[Mask]
   window.Mask = new Component(Mask, Mask.options, Mask.prototype);
 
 //==================================================[Dialog]
   /*
    * 创建一个模态对话框。
-   * 当对话框弹出时，为突出对话框内容，将在对话框之下创建遮掩层，遮掩层配合 freezeFocusArea 可以阻止用户对遮盖部分内容的操作。
+   * 当对话框弹出时，为突出对话框内容，将在对话框之下创建遮掩层，以阻止用户对遮盖部分内容的操作。
    */
 
   // 对话框分组，将使用同一个遮掩层的对话框分为一组，在这组对话框层叠显示时，遮掩层会自动修改 zIndex 以适应顶层对话框。
@@ -288,7 +267,8 @@ execute(function($) {
    * @param {Object} options.maskStyles 为遮掩层元素设置的样式。
    * @param {number} options.offsetX 对话框的左边与其父元素的左边的横向差值。默认为 NaN，此时对话框的中心点在横向将与其父元素的中心点重合。
    * @param {number} options.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
-   * @param {boolean} options.effect 是否启用动画效果。在 IE6 下将无视此选项，强行禁用动画效果，以避免和 PNG 透明修复脚本冲突。
+   * @param {boolean} options.effect 是否启用动画效果。
+   *   在 IE6 IE7 IE8 应关闭，否则动画使用的透明滤镜可能和 PNG 透明修复脚本冲突，或者因透明滤镜重叠而导致显示异常。
    * @fires open
    *   调用 open 方法时触发；可以取消本次动作。
    * @fires openstart
@@ -318,10 +298,6 @@ execute(function($) {
     var dialog = this;
     // 对话框的默认状态为关闭。
     dialog.isOpen = false;
-    // 禁用 IE6 下的动画效果。
-    if (navigator.isIE6) {
-      options.effect = false;
-    }
     // 对话框的初始状态是隐藏的。调节对话框的位置是通过 element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
     // 设置 top 为 -5000 是为了避免在 IE6 中启用 png 修复时出现闪烁现象。
     var $dialog = dialog.element = $(element).setStyles({display: 'none', left: 0, top: -5000});
@@ -355,23 +331,22 @@ execute(function($) {
           stack.push(dialog);
           // 初始化对话框状态。
           $dialog.setStyle('display', 'block');
-          // 显示遮掩层及遮掩区域焦点锁定。
-          mask.setZIndex($dialog.getStyle('zIndex') - 1).show();
-          freezeFocusArea({enable: $dialog, disable: $container});
+          // 调整遮掩层。
+          mask.behind($dialog);
           // 仅父元素为 body 的对话框需要在改变窗口尺寸时重新调整位置（假设其他对话框的父元素的尺寸为固定）。
           if ($container === document.body) {
             window.on('resize.dialog' + $dialog.uid, navigator.isIE6 ? function() {
               // 避免 IE6 的固定定位计算错误。
               setTimeout(function() {
-                dialog.adjust();
+                dialog.reposition();
               }, 0);
             } : function() {
-              dialog.adjust();
+              dialog.reposition();
             });
           }
           // 对话框已打开。
           dialog.isOpen = true;
-          dialog.adjust();
+          dialog.reposition();
           dialog.fire('openstart');
         })
         .on('playfinish', function() {
@@ -383,14 +358,11 @@ execute(function($) {
         .on('reversefinish', function() {
           stack.pop();
           if (stack.length) {
-            var previousDialog = stack[stack.length - 1];
-            // 如果上一层还有对话框，则调整遮掩层及焦点区域锁定。
-            mask.setZIndex(previousDialog.element.getStyle('zIndex') - 1);
-            freezeFocusArea({enable: previousDialog.element, disable: $container});
+            // 如果上一层还有对话框，则调整遮掩层。
+            mask.behind(stack[stack.length - 1].element);
           } else {
-            // 如果是最底层对话框，则隐藏遮掩层，并解除焦点区域锁定。
-            mask.hide();
-            freezeFocusArea(null);
+            // 如果是最底层对话框，则隐藏遮掩层。
+            mask.behind();
           }
           // 删除事件监听器。
           if ($container === document.body) {
@@ -458,14 +430,14 @@ execute(function($) {
     return dialog;
   };
 
-//--------------------------------------------------[Dialog.prototype.adjust]
+//--------------------------------------------------[Dialog.prototype.reposition]
   /**
-   * 调整对话框位置。
-   * @name Dialog.prototype.adjust
+   * 重新定位对话框位置。
+   * @name Dialog.prototype.reposition
    * @function
    * @returns {Object} Dialog 对象。
    */
-  Dialog.prototype.adjust = function() {
+  Dialog.prototype.reposition = function() {
     if (this.isOpen) {
       var options = this.options;
       var $dialog = this.element;

@@ -1,24 +1,7 @@
-﻿#Global
-#Object
-#Function
-#Array
-#String
-#Boolean
-#Number
-#Math
-#Date
-#RegExp
-#Error
-#JSON
-
---------------------------------------------------[TODO]
+﻿--------------------------------------------------[TODO]
 >TODO: [HIGH] 加入 .resources 目录中的 Utilities Cookie placeholder 页码 Include CSS插入 省略号等。
 
->TODO: [LOW] 检查代码，移除作为一条语句使用的短路操作，JS 编码规范也会添加此类内容。
-
 >TODO: include (from site.js)
-
->TODO: Date.from/format
 
 >TODO: 添加白名单。
 && !(/^(?:object|embed)$/i).test(el.tagName)
@@ -67,6 +50,19 @@ DONE: 使用新的 Animation 即可解决上述问题。
 */
 
 --------------------------------------------------[NOTE]
+#Global
+#Object
+#Function
+#Array
+#String
+#Boolean
+#Number
+#Math
+#Date
+#RegExp
+#Error
+#JSON
+
 [modularization]
 Application 即页面应用。
 Modules 即可分离的业务逻辑，各自独立，不会互相依赖，也不能互相访问。它们使用消息机制与 Application 通信。

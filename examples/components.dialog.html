@@ -73,7 +73,7 @@ execute(function($) {
 //--------------------------------------------------[TEST]
 //$('#pin').setStyle('position', 'fixed');
 
-  dialogOne = new Dialog($('#dialog_1'), {offsetX: NaN, offsetY: 200, effect: true})
+  dialogOne = new Dialog($('#dialog_1'), {offsetX: NaN, offsetY: 200})
       .on('open',
       function() {
         console.log('open');
@@ -102,7 +102,7 @@ execute(function($) {
 
   animation = new Animation().addClip(Fx.morph(dialogTwo.element, {height: 400}), 0, 200, 'ease')
       .on('step', function() {
-        dialogTwo.adjust();
+        dialogTwo.reposition();
       });
 });
 

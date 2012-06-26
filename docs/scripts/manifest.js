@@ -74,6 +74,7 @@ var manifest = {
     'Date.now',
     'Date.prototype.toJSON',
     '#自定义扩展',
+    'Date.from',
     'Date.prototype.format'
   ],
   'RegExp': [
@@ -276,7 +277,7 @@ var manifest = {
     'Dialog.options',
     'Dialog.prototype.open',
     'Dialog.prototype.close',
-    'Dialog.prototype.adjust'
+    'Dialog.prototype.reposition'
   ],
   'Calendar': [
     'Calendar',

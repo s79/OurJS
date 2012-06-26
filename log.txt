@@ -1,6 +1,9 @@
 ﻿>TODO 编辑文档，明确各 Function 类型的参数的 this 指向。
 >TODO 升级 Calendar/Pagination 的事件。
->TODO Dialog -> PopupLayer
+
+>2012-06-26
+去掉 Dialog 的浏览器仅用动画的判断，将相关注释写入代码，启用动画与否由用户在应用中控制。
+Date.from
 
 >2012-06-24
 Date.prototype.format

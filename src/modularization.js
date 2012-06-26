@@ -129,9 +129,11 @@
         (cache[name] || (cache[name] = [])).push(data);
       } else {
         var handlers = applicationMessageHandlerPool[name];
-        handlers && handlers.forEach(function(handler) {
-          handler(data);
-        });
+        if (handlers) {
+          handlers.forEach(function(handler) {
+            handler(data);
+          });
+        }
       }
     };
 
@@ -183,9 +185,11 @@
         // 处理在应用尚未启动时收到的消息缓存。
         if (applicationMessageHandlerPool.cache) {
           var cachedData = applicationMessageHandlerPool.cache[name];
-          cachedData && cachedData.forEach(function(data) {
-            handler(data);
-          });
+          if (cachedData) {
+            cachedData.forEach(function(data) {
+              handler(data);
+            });
+          }
         }
       }
     };
@@ -203,9 +207,11 @@
       var item = moduleMessageHandlerPool[idAndType[0]];
       if (item) {
         var handlers = item[idAndType[1]];
-        handlers && handlers.forEach(function(handler) {
-          handler(data);
-        });
+        if (handlers) {
+          handlers.forEach(function(handler) {
+            handler(data);
+          });
+        }
       }
     };
 
