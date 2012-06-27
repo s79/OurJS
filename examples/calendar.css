@@ -1,4 +1,4 @@
-﻿.calendar { position: absolute; padding: 6px; border: 1px solid silver; border-radius: 3px; background: #EEE; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
+﻿.calendar { position: relative; padding: 6px; border: 1px solid silver; border-radius: 3px; background: #EEE; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
 /* 控制区 */
 .calendar div { width: 218px; height: 20px; text-align: center; }
 .calendar div span.btn { position: absolute; top: 6px; width: 28px; height: 20px; border: 1px solid silver; border-radius: 2px; background: whitesmoke; color: #333; }
@@ -24,5 +24,6 @@
 .calendar tbody td.next_month.selected_date,
 .calendar tbody td.prev_month.selected_date:hover,
 .calendar tbody td.next_month.selected_date:hover { background: transparent; border-color: maroon; }
+.calendar tbody td.today { font-weight: bold; text-decoration: underline; }
 .calendar tbody td.selected_date,
 .calendar tbody td.selected_date:hover { background: #FF7B3A; border-color: maroon; font-weight: bold; text-decoration: underline; }

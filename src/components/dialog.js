@@ -239,7 +239,7 @@ execute(function($) {
 
 //==================================================[Dialog]
   /*
-   * 创建一个模态对话框。
+   * 创建模态对话框。
    * 当对话框弹出时，为突出对话框内容，将在对话框之下创建遮掩层，以阻止用户对遮盖部分内容的操作。
    */
 
@@ -263,11 +263,11 @@ execute(function($) {
    * @constructor
    * @param {Element} element 要作为对话框显示的元素。
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Dialog.options 中。
-   * @param {Object} options.maskAttributes 为遮掩层元素附加的属性。
-   * @param {Object} options.maskStyles 为遮掩层元素设置的样式。
+   * @param {Object} options.maskAttributes 为遮掩层元素附加的属性，默认为 {}。
+   * @param {Object} options.maskStyles 为遮掩层元素设置的样式，默认为 {backgroundColor: 'black', opacity: 0.2}。
    * @param {number} options.offsetX 对话框的左边与其父元素的左边的横向差值。默认为 NaN，此时对话框的中心点在横向将与其父元素的中心点重合。
    * @param {number} options.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
-   * @param {boolean} options.effect 是否启用动画效果。
+   * @param {boolean} options.effect 是否启用动画效果，默认为 false。
    *   在 IE6 IE7 IE8 应关闭，否则动画使用的透明滤镜可能和 PNG 透明修复脚本冲突，或者因透明滤镜重叠而导致显示异常。
    * @fires open
    *   成功调用 open 方法后触发。

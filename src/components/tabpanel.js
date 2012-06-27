@@ -11,7 +11,7 @@ execute(function($) {
 
 //--------------------------------------------------[TabPanel Constructor]
   /**
-   * 根据已有的一系列 DOM 元素创建多页标签面板。
+   * 多页标签面板。
    * @name TabPanel
    * @constructor
    * @param {Array} tabs 包含所有“标签”的数组。组成“标签”的各元素的标签名应该一致。

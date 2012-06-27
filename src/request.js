@@ -135,7 +135,7 @@
 
 //--------------------------------------------------[Request Constructor]
   /**
-   * 创建一个请求对象，用来对一个指定的资源发起请求，并获取响应数据。
+   * 对一个指定的资源发起请求，并获取响应数据。
    * @name Request
    * @constructor
    * @param {string} url 请求地址。
@@ -143,7 +143,7 @@
    * @param {string} options.username 用户名，默认为空字符串，即不指定用户名。
    * @param {string} options.password 密码，默认为空字符串，即不指定密码。
    * @param {string} options.method 请求方法，默认为 'get'。
-   * @param {Object} options.headers 要设置的 request headers，格式为 {key: value, ...} 的对象。
+   * @param {Object} options.headers 要设置的 request headers，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
    * @param {string} options.contentType 发送数据的内容类型，默认为 'application/x-www-form-urlencoded'，method 为 'post' 时有效。
    * @param {boolean} options.useCache 是否允许浏览器的缓存生效，默认为 true。
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
@@ -213,7 +213,7 @@
    * @name Request.prototype.send
    * @function
    * @param {Object} [data] 要发送的数据。
-   * @returns {Object} request 对象。
+   * @returns {Object} Request 对象。
    */
   Request.prototype.send = function(data) {
     var request = this;
@@ -281,7 +281,7 @@
    * 取消请求，仅在 Request 设置为异步模式时可用。
    * @name Request.prototype.abort
    * @function
-   * @returns {Object} request 对象。
+   * @returns {Object} Request 对象。
    */
   Request.prototype.abort = function() {
     var request = this;

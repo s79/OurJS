@@ -267,7 +267,7 @@
 
 //--------------------------------------------------[Animation Constructor]
   /**
-   * 创建动画效果。
+   * 动画效果。
    * @name Animation
    * @constructor
    * @fires play
