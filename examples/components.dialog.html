@@ -26,9 +26,9 @@ button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
   </select>
 </fieldset>
 <p style="clear: both; text-align: center;">
-  <button class="action" onclick="dialogOne.open();">dialogOne.open()</button>
+  <button class="action" onclick="dialogA.open();">dialogA.open()</button>
 </p>
-<div id="pin" style="position: relative; top: 100px; width: 800px; height: 500px; background: whitesmoke;">
+<div style="width: 800px; height: 500px; background: whitesmoke;">
   <fieldset>
     <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
     <input type="button" value="button">
@@ -42,8 +42,8 @@ button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
     </select>
   </fieldset>
 </div>
-<!-- dialog { -->
-<div id="dialog_1" style="display: none; position: fixed; z-index: 10; width: 600px; height: 400px; background: steelblue url(../examples_1/png.png);" class="alpha">
+<!-- dialog_a { -->
+<div id="dialog_a" style="display: none; position: fixed; z-index: 10; width: 600px; height: 400px; background: steelblue url(../examples_1/png.png);" class="alpha">
   <fieldset style="background: url(../examples_1/png.png);" class="alpha">
     <legend>测试 IE6 中 SELECT 元素的遮盖情况</legend>
     <select>
@@ -51,29 +51,29 @@ button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
     </select>
   </fieldset>
   <p style="clear: both; text-align: center;">
-    <button class="action" onclick="dialogOne.close();">dialogOne.close()</button>
-    <button class="action" onclick="dialogTwo.open();">dialogTwo.open()</button>
+    <button class="action" onclick="dialogA.close();">dialogA.close()</button>
+    <button class="action" onclick="dialogB.open();">dialogB.open()</button>
   </p>
 </div>
-<div id="dialog_2" style="display: none; position: fixed; left: 20%; top: 20%; z-index: 20; width: 400px; height: 200px; background: mediumorchid;">
+<!-- } dialog_a -->
+<!-- dialog_b { -->
+<div id="dialog_b" style="display: none; position: fixed; left: 20%; top: 20%; z-index: 20; width: 400px; height: 200px; background: mediumorchid;">
   <p style="clear: both; text-align: center;">
-    <button class="action" onclick="dialogTwo.close();">dialogTwo.close()</button>
+    <button class="action" onclick="dialogB.close();">dialogB.close()</button>
   </p>
   <p style="clear: both; text-align: center;">
     <button class="action" onclick="animation.play();">变长</button>
     <button class="action" onclick="animation.reverse();">变短</button>
   </p>
 </div>
-<!-- } dialog -->
+<!-- } dialog_b -->
 <script>
-var dialogOne;
-var dialogTwo;
+var dialogA;
+var dialogB;
 var animation;
 execute(function($) {
 //--------------------------------------------------[TEST]
-//$('#pin').setStyle('position', 'fixed');
-
-  dialogOne = new Dialog($('#dialog_1'), {offsetX: NaN, offsetY: 200})
+  dialogA = new Dialog($('#dialog_a'), {offsetX: NaN, offsetY: 200})
       .on('open',
       function() {
         console.log('open');
@@ -98,12 +98,14 @@ execute(function($) {
       function() {
         console.log('closefinish');
       });
-  dialogTwo = new Dialog($('#dialog_2'), {effect: true});
 
-  animation = new Animation().addClip(Fx.morph(dialogTwo.element, {height: 400}), 0, 200, 'ease')
+  dialogB = new Dialog($('#dialog_b'), {effect: true});
+
+  animation = new Animation().addClip(Fx.morph(dialogB.element, {height: 400}), 0, 200, 'ease')
       .on('step', function() {
-        dialogTwo.reposition();
+        dialogB.reposition();
       });
+
 });
 
 </script>

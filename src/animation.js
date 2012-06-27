@@ -271,23 +271,23 @@
    * @name Animation
    * @constructor
    * @fires play
-   *   调用 play 方法时，渲染本次播放的第一帧之前触发；可以取消本次动作。
+   *   成功调用 play 方法后，正向播放开始前触发。
    * @fires playstart
-   *   开始播放时，渲染整个动画的第一帧之前触发。
+   *   正向播放开始前（渲染整个动画的第一帧之前）触发。
    * @fires playfinish
-   *   播放结束时，渲染整个动画的最后一帧之后触发。
+   *   正向播放结束后（渲染整个动画的最后一帧之后）触发。
    * @fires reverse
-   *   调用 reverse 方法时，渲染本次播放的第一帧之前触发；可以取消本次动作。
+   *   成功调用 reverse 方法后，反向播放开始前触发。
    * @fires reversestart
-   *   开始反向播放时，渲染整个动画的第一帧之前触发。
+   *   反向播放开始前（渲染整个动画的第一帧之前）触发。
    * @fires reversefinish
-   *   反向播放结束时，渲染整个动画的最后一帧之后触发。
+   *   反向播放结束后（渲染整个动画的最后一帧之后）触发。
    * @fires step
-   *   渲染每一帧之后触发。
+   *   渲染动画的每一帧之后触发。
    * @fires pause
-   *   调用 pause 方法时触发；可以取消本次动作。
+   *   成功调用 pause 方法后触发。
    * @fires stop
-   *   调用 stop 方法时触发；可以取消本次动作。
+   *   成功调用 stop 方法后触发。
    * @description
    *   高级应用：
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
@@ -347,21 +347,19 @@
     var isPlayMethod = reverse !== INTERNAL_IDENTIFIER_REVERSE;
     var status = animation.status;
     if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != STARTING_POINT) {
-      // 触发事件。
-      animation.fire(isPlayMethod ? 'play' : 'reverse', null, function() {
-        animation.status = isPlayMethod ? PLAYING : REVERSING;
-        // 未挂载到引擎（执行此方法前为暂停/停止状态）。
-        if (!animation.timestamp) {
-          var timePoint = animation.timePoint;
-          var duration = animation.duration;
-          // 每次播放/反向播放时的首帧同步播放。
-          playAnimation(animation, timePoint ? timePoint : (isPlayMethod ? 0 : duration), isPlayMethod);
-          // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
-          if (duration) {
-            mountAnimation(animation);
-          }
+      animation.fire(isPlayMethod ? 'play' : 'reverse');
+      animation.status = isPlayMethod ? PLAYING : REVERSING;
+      // 未挂载到引擎（执行此方法前为暂停/停止状态）。
+      if (!animation.timestamp) {
+        var timePoint = animation.timePoint;
+        var duration = animation.duration;
+        // 每次播放/反向播放时的首帧同步播放。
+        playAnimation(animation, timePoint ? timePoint : (isPlayMethod ? 0 : duration), isPlayMethod);
+        // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
+        if (duration) {
+          mountAnimation(animation);
         }
-      });
+      }
     }
     return animation;
   };
@@ -391,10 +389,9 @@
   Animation.prototype.pause = function() {
     var animation = this;
     if (animation.timestamp) {
-      animation.fire('pause', null, function() {
-        animation.status = PASUING;
-        unmountAnimation(animation);
-      });
+      animation.status = PASUING;
+      unmountAnimation(animation);
+      animation.fire('pause');
     }
     return animation;
   };
@@ -411,16 +408,15 @@
   Animation.prototype.stop = function() {
     var animation = this;
     if (animation.status !== STARTING_POINT) {
-      animation.fire('stop', null, function() {
-        animation.timePoint = 0;
-        animation.status = STARTING_POINT;
-        animation.clips.forEach(function(clip) {
-          clip.status = BEFORE_STARTING_POINT;
-        });
-        if (animation.timestamp) {
-          unmountAnimation(animation);
-        }
+      animation.timePoint = 0;
+      animation.status = STARTING_POINT;
+      animation.clips.forEach(function(clip) {
+        clip.status = BEFORE_STARTING_POINT;
       });
+      if (animation.timestamp) {
+        unmountAnimation(animation);
+      }
+      animation.fire('stop');
     }
     return animation;
   };

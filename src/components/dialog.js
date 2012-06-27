@@ -270,13 +270,13 @@ execute(function($) {
    * @param {boolean} options.effect 是否启用动画效果。
    *   在 IE6 IE7 IE8 应关闭，否则动画使用的透明滤镜可能和 PNG 透明修复脚本冲突，或者因透明滤镜重叠而导致显示异常。
    * @fires open
-   *   调用 open 方法时触发；可以取消本次动作。
+   *   成功调用 open 方法后触发。
    * @fires openstart
    *   在对话框打开时触发。如果启用了动画效果，则在对话框打开动画开始播放后触发。
    * @fires openfinish
    *   在对话框打开后触发。如果启用了动画效果，则在对话框打开动画播放完成后触发。
    * @fires close
-   *   调用 close 方法时触发；可以取消本次动作。
+   *   成功调用 close 方法后触发。
    * @fires closestart
    *   在对话框关闭时触发。如果启用了动画效果，则在对话框关闭动画开始播放后触发。
    * @fires closefinish
@@ -406,9 +406,8 @@ execute(function($) {
   Dialog.prototype.open = function() {
     var dialog = this;
     if (!dialog.isOpen) {
-      dialog.fire('open', null, function() {
-        dialog.animation.play();
-      });
+      dialog.fire('open');
+      dialog.animation.play();
     }
     return dialog;
   };
@@ -423,9 +422,8 @@ execute(function($) {
   Dialog.prototype.close = function() {
     var dialog = this;
     if (dialog.isOpen) {
-      dialog.fire('close', null, function() {
-        dialog.animation.reverse();
-      });
+      dialog.fire('close');
+      dialog.animation.reverse();
     }
     return dialog;
   };

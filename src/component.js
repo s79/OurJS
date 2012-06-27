@@ -23,12 +23,21 @@
 
   var RE_EVENT_NAME = /^(\w+)(\.\w+)?$/;
   var RE_EVENT_NAME_SEPARATOR = /\s*,\s*/;
-  var returnTrue = function() {
-    return true;
-  };
-  var returnFalse = function() {
-    return false;
-  };
+
+  /**
+   * 组件事件对象。
+   * @name ComponentEvent
+   * @constructor
+   * @private
+   * @param {string} type 事件类型。
+   * @param {string} target 事件来源。
+   * @description
+   *   组件事件可以取消默认行为（建议为用户主动触发的事件添加此功能），但不会传递。
+   */
+  function ComponentEvent(type, target) {
+    this.type = type;
+    this.target = target;
+  }
 
   // 解析事件名称。
   var parseEventName = function(eventName) {
@@ -43,40 +52,6 @@
     }
     return result;
   };
-
-  /**
-   * 组件事件。
-   * @name ComponentEvent
-   * @constructor
-   * @private
-   * @param {string} type 事件类型。
-   * @param {string} target 事件来源。
-   * @description
-   *   组件事件可以取消默认行为（建议为用户主动触发的事件添加此功能），但不会传递。
-   */
-  function ComponentEvent(type, target) {
-    this.type = type;
-    this.target = target;
-  }
-
-  /**
-   * 阻止事件的默认行为。
-   * @name ComponentEvent.prototype.preventDefault
-   * @function
-   * @private
-   */
-  ComponentEvent.prototype.preventDefault = function() {
-    this.isDefaultPrevented = returnTrue;
-  };
-
-  /**
-   * 查询事件的默认行为是否已被阻止。
-   * @name ComponentEvent.prototype.isDefaultPrevented
-   * @function
-   * @private
-   * @returns {boolean} 查询结果。
-   */
-  ComponentEvent.prototype.isDefaultPrevented = returnFalse;
 
 //--------------------------------------------------[Component Constructor]
   /**
@@ -201,25 +176,15 @@
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    * @returns {Object} 本组件。
-   * @description
-   *   高级应用：第三个隐藏参数 callback 供组件编写时调用，该函数仅在本事件对象从未调用过 preventDefault 方法的情况下才会执行。建议在用户触发的事件上使用 callback。
    */
-  Component.prototype.fire = function(type, data, callback) {
+  Component.prototype.fire = function(type, data) {
     var component = this;
     var handlers = component.events[type];
     if (handlers) {
       var event = Object.append(new ComponentEvent(type, component), data || {});
       handlers.forEach(function(handler) {
-        if (handler.listener.call(component, event) === false) {
-          event.preventDefault();
-        }
+        handler.listener.call(component, event);
       });
-      if (event.isDefaultPrevented()) {
-        return component;
-      }
-    }
-    if (callback) {
-      callback();
     }
     return component;
   };
@@ -243,15 +208,11 @@
    * @constructor
    * @param {Array} items 指定在本数组中的各元素间切换，本数组包含的元素必须是引用类型的值，且不能有重复。
    * @fires active
-   *   {Element} event.activeItem 要标记为“活动”的元素。
-   *   {number} event.activeIndex 标记为“活动”的元素在 items 中的索引。
-   *   调用 active 方法时触发；可以取消本次动作。
-   * @fires change
    *   {Element} event.activeItem 当前的活动元素。
    *   {number} event.activeIndex 当前的活动元素在 items 中的索引。
    *   {Element} event.inactiveItem 上一个活动元素。
    *   {number} event.inactiveIndex 上一个活动元素在 items 中的索引。
-   *   在当前的活动元素改变时触发。
+   *   成功调用 active 方法后触发。
    * @description
    *   高级应用：动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
    */
@@ -299,18 +260,13 @@
     var lastActiveItem = switcher.activeItem;
     var lastActiveIndex = switcher.activeIndex;
     if (index !== lastActiveIndex) {
+      switcher.activeItem = item;
+      switcher.activeIndex = index;
       switcher.fire('active', {
         activeItem: item,
-        activeIndex: index
-      }, function() {
-        switcher.activeItem = item;
-        switcher.activeIndex = index;
-        switcher.fire('change', {
-          activeItem: item,
-          activeIndex: index,
-          inactiveItem: lastActiveItem,
-          inactiveIndex: lastActiveIndex
-        });
+        activeIndex: index,
+        inactiveItem: lastActiveItem,
+        inactiveIndex: lastActiveIndex
       });
     }
     return switcher;

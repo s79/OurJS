@@ -165,15 +165,15 @@
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
    * @fires send
    *   {Object} event.data 要发送的数据。
-   *   调用 send 方法时，发送请求之前触发；可以取消本次动作。
+   *   成功调用 send 方法后，发送请求前触发。
    * @fires request
    *   {Object} event.data 解析后的请求数据。
-   *   发送请求时触发。
+   *   发送请求前触发。
    * @fires response
    *   {*} event.* 解析后的响应数据。
-   *   收到响应时触发。
+   *   收到响应后触发。
    * @fires abort
-   *   调用 abort 方法时触发；可以取消本次动作。
+   *   成功调用 abort 方法后触发。
    */
   function Request(url, options) {
     this.xhr = getXHRObject();
@@ -223,55 +223,55 @@
     if (request.timestamp || !xhr) {
       return request;
     }
-    request.fire('send', {data: data}, function() {
-      // 处理请求数据。
-      var parsedData = data = options.requestParser(data);
-      // 创建请求。
-      var url = request.url;
-      var method = options.method.toLowerCase();
-      if (method === 'get' && data) {
-        url += (url.contains('?') ? '&' : '?') + data;
-        data = null;
-      }
-      if (!options.useCache) {
-        url += (url.contains('?') ? '&' : '?') + ++uid;
-      }
-      // http://bugs.jquery.com/ticket/2865
-      if (options.username) {
-        xhr.open(method, url, options.async, options.username, options.password);
-      } else {
-        xhr.open(method, url, options.async);
-      }
-      // 设置请求头。
-      var headers = options.headers;
-      if (method === 'post') {
-        headers['Content-Type'] = options.contentType;
-      }
-      for (var name in headers) {
-        xhr.setRequestHeader(name, headers[name]);
-      }
-      // 发送请求。
-      xhr.send(data || null);
-      request.timestamp = Date.now();
-      if (options.async && options.maxTime > 0) {
-        request.maxTimeTimer = setTimeout(function() {
-          getResponse(request, TIMEOUT);
-        }, options.maxTime);
-      }
-      // 获取响应。
-      if (!options.async || xhr.readyState === 4) {
-        // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
-        getResponse(request, DONE);
-      } else {
-        xhr.onreadystatechange = function() {
-          if (xhr.readyState === 4) {
-            getResponse(request, DONE);
-          }
-        };
-      }
-      // 触发请求事件。
-      request.fire('request', {data: parsedData});
-    });
+    // 触发 send 事件。
+    request.fire('send', {data: data});
+    // 处理请求数据。
+    data = options.requestParser(data);
+    // 触发请求事件。
+    request.fire('request', {data: data});
+    // 创建请求。
+    var url = request.url;
+    var method = options.method.toLowerCase();
+    if (method === 'get' && data) {
+      url += (url.contains('?') ? '&' : '?') + data;
+      data = null;
+    }
+    if (!options.useCache) {
+      url += (url.contains('?') ? '&' : '?') + ++uid;
+    }
+    // http://bugs.jquery.com/ticket/2865
+    if (options.username) {
+      xhr.open(method, url, options.async, options.username, options.password);
+    } else {
+      xhr.open(method, url, options.async);
+    }
+    // 设置请求头。
+    var headers = options.headers;
+    if (method === 'post') {
+      headers['Content-Type'] = options.contentType;
+    }
+    for (var name in headers) {
+      xhr.setRequestHeader(name, headers[name]);
+    }
+    // 发送请求。
+    xhr.send(data || null);
+    request.timestamp = Date.now();
+    if (options.async && options.maxTime > 0) {
+      request.maxTimeTimer = setTimeout(function() {
+        getResponse(request, TIMEOUT);
+      }, options.maxTime);
+    }
+    // 获取响应。
+    if (!options.async || xhr.readyState === 4) {
+      // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
+      getResponse(request, DONE);
+    } else {
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          getResponse(request, DONE);
+        }
+      };
+    }
     // 返回实例。
     return request;
   };
@@ -286,10 +286,9 @@
   Request.prototype.abort = function() {
     var request = this;
     if (request.timestamp) {
-      request.fire('abort', null, function() {
-        // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
-        getResponse(request, ABORT);
-      });
+      // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
+      getResponse(request, ABORT);
+      request.fire('abort', null);
     }
     return request;
   };

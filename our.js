@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-26
+ *  Version: 2012-06-27
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -4154,12 +4154,21 @@
 
   var RE_EVENT_NAME = /^(\w+)(\.\w+)?$/;
   var RE_EVENT_NAME_SEPARATOR = /\s*,\s*/;
-  var returnTrue = function() {
-    return true;
-  };
-  var returnFalse = function() {
-    return false;
-  };
+
+  /**
+   * 组件事件对象。
+   * @name ComponentEvent
+   * @constructor
+   * @private
+   * @param {string} type 事件类型。
+   * @param {string} target 事件来源。
+   * @description
+   *   组件事件可以取消默认行为（建议为用户主动触发的事件添加此功能），但不会传递。
+   */
+  function ComponentEvent(type, target) {
+    this.type = type;
+    this.target = target;
+  }
 
   // 解析事件名称。
   var parseEventName = function(eventName) {
@@ -4174,40 +4183,6 @@
     }
     return result;
   };
-
-  /**
-   * 组件事件。
-   * @name ComponentEvent
-   * @constructor
-   * @private
-   * @param {string} type 事件类型。
-   * @param {string} target 事件来源。
-   * @description
-   *   组件事件可以取消默认行为（建议为用户主动触发的事件添加此功能），但不会传递。
-   */
-  function ComponentEvent(type, target) {
-    this.type = type;
-    this.target = target;
-  }
-
-  /**
-   * 阻止事件的默认行为。
-   * @name ComponentEvent.prototype.preventDefault
-   * @function
-   * @private
-   */
-  ComponentEvent.prototype.preventDefault = function() {
-    this.isDefaultPrevented = returnTrue;
-  };
-
-  /**
-   * 查询事件的默认行为是否已被阻止。
-   * @name ComponentEvent.prototype.isDefaultPrevented
-   * @function
-   * @private
-   * @returns {boolean} 查询结果。
-   */
-  ComponentEvent.prototype.isDefaultPrevented = returnFalse;
 
 //--------------------------------------------------[Component Constructor]
   /**
@@ -4332,25 +4307,15 @@
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    * @returns {Object} 本组件。
-   * @description
-   *   高级应用：第三个隐藏参数 callback 供组件编写时调用，该函数仅在本事件对象从未调用过 preventDefault 方法的情况下才会执行。建议在用户触发的事件上使用 callback。
    */
-  Component.prototype.fire = function(type, data, callback) {
+  Component.prototype.fire = function(type, data) {
     var component = this;
     var handlers = component.events[type];
     if (handlers) {
       var event = Object.append(new ComponentEvent(type, component), data || {});
       handlers.forEach(function(handler) {
-        if (handler.listener.call(component, event) === false) {
-          event.preventDefault();
-        }
+        handler.listener.call(component, event);
       });
-      if (event.isDefaultPrevented()) {
-        return component;
-      }
-    }
-    if (callback) {
-      callback();
     }
     return component;
   };
@@ -4374,15 +4339,11 @@
    * @constructor
    * @param {Array} items 指定在本数组中的各元素间切换，本数组包含的元素必须是引用类型的值，且不能有重复。
    * @fires active
-   *   {Element} event.activeItem 要标记为“活动”的元素。
-   *   {number} event.activeIndex 标记为“活动”的元素在 items 中的索引。
-   *   调用 active 方法时触发；可以取消本次动作。
-   * @fires change
    *   {Element} event.activeItem 当前的活动元素。
    *   {number} event.activeIndex 当前的活动元素在 items 中的索引。
    *   {Element} event.inactiveItem 上一个活动元素。
    *   {number} event.inactiveIndex 上一个活动元素在 items 中的索引。
-   *   在当前的活动元素改变时触发。
+   *   成功调用 active 方法后触发。
    * @description
    *   高级应用：动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
    */
@@ -4430,18 +4391,13 @@
     var lastActiveItem = switcher.activeItem;
     var lastActiveIndex = switcher.activeIndex;
     if (index !== lastActiveIndex) {
+      switcher.activeItem = item;
+      switcher.activeIndex = index;
       switcher.fire('active', {
         activeItem: item,
-        activeIndex: index
-      }, function() {
-        switcher.activeItem = item;
-        switcher.activeIndex = index;
-        switcher.fire('change', {
-          activeItem: item,
-          activeIndex: index,
-          inactiveItem: lastActiveItem,
-          inactiveIndex: lastActiveIndex
-        });
+        activeIndex: index,
+        inactiveItem: lastActiveItem,
+        inactiveIndex: lastActiveIndex
       });
     }
     return switcher;
@@ -4724,23 +4680,23 @@
    * @name Animation
    * @constructor
    * @fires play
-   *   调用 play 方法时，渲染本次播放的第一帧之前触发；可以取消本次动作。
+   *   成功调用 play 方法后，正向播放开始前触发。
    * @fires playstart
-   *   开始播放时，渲染整个动画的第一帧之前触发。
+   *   正向播放开始前（渲染整个动画的第一帧之前）触发。
    * @fires playfinish
-   *   播放结束时，渲染整个动画的最后一帧之后触发。
+   *   正向播放结束后（渲染整个动画的最后一帧之后）触发。
    * @fires reverse
-   *   调用 reverse 方法时，渲染本次播放的第一帧之前触发；可以取消本次动作。
+   *   成功调用 reverse 方法后，反向播放开始前触发。
    * @fires reversestart
-   *   开始反向播放时，渲染整个动画的第一帧之前触发。
+   *   反向播放开始前（渲染整个动画的第一帧之前）触发。
    * @fires reversefinish
-   *   反向播放结束时，渲染整个动画的最后一帧之后触发。
+   *   反向播放结束后（渲染整个动画的最后一帧之后）触发。
    * @fires step
-   *   渲染每一帧之后触发。
+   *   渲染动画的每一帧之后触发。
    * @fires pause
-   *   调用 pause 方法时触发；可以取消本次动作。
+   *   成功调用 pause 方法后触发。
    * @fires stop
-   *   调用 stop 方法时触发；可以取消本次动作。
+   *   成功调用 stop 方法后触发。
    * @description
    *   高级应用：
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
@@ -4800,21 +4756,19 @@
     var isPlayMethod = reverse !== INTERNAL_IDENTIFIER_REVERSE;
     var status = animation.status;
     if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != STARTING_POINT) {
-      // 触发事件。
-      animation.fire(isPlayMethod ? 'play' : 'reverse', null, function() {
-        animation.status = isPlayMethod ? PLAYING : REVERSING;
-        // 未挂载到引擎（执行此方法前为暂停/停止状态）。
-        if (!animation.timestamp) {
-          var timePoint = animation.timePoint;
-          var duration = animation.duration;
-          // 每次播放/反向播放时的首帧同步播放。
-          playAnimation(animation, timePoint ? timePoint : (isPlayMethod ? 0 : duration), isPlayMethod);
-          // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
-          if (duration) {
-            mountAnimation(animation);
-          }
+      animation.fire(isPlayMethod ? 'play' : 'reverse');
+      animation.status = isPlayMethod ? PLAYING : REVERSING;
+      // 未挂载到引擎（执行此方法前为暂停/停止状态）。
+      if (!animation.timestamp) {
+        var timePoint = animation.timePoint;
+        var duration = animation.duration;
+        // 每次播放/反向播放时的首帧同步播放。
+        playAnimation(animation, timePoint ? timePoint : (isPlayMethod ? 0 : duration), isPlayMethod);
+        // 如果动画超出一帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
+        if (duration) {
+          mountAnimation(animation);
         }
-      });
+      }
     }
     return animation;
   };
@@ -4844,10 +4798,9 @@
   Animation.prototype.pause = function() {
     var animation = this;
     if (animation.timestamp) {
-      animation.fire('pause', null, function() {
-        animation.status = PASUING;
-        unmountAnimation(animation);
-      });
+      animation.status = PASUING;
+      unmountAnimation(animation);
+      animation.fire('pause');
     }
     return animation;
   };
@@ -4864,16 +4817,15 @@
   Animation.prototype.stop = function() {
     var animation = this;
     if (animation.status !== STARTING_POINT) {
-      animation.fire('stop', null, function() {
-        animation.timePoint = 0;
-        animation.status = STARTING_POINT;
-        animation.clips.forEach(function(clip) {
-          clip.status = BEFORE_STARTING_POINT;
-        });
-        if (animation.timestamp) {
-          unmountAnimation(animation);
-        }
+      animation.timePoint = 0;
+      animation.status = STARTING_POINT;
+      animation.clips.forEach(function(clip) {
+        clip.status = BEFORE_STARTING_POINT;
       });
+      if (animation.timestamp) {
+        unmountAnimation(animation);
+      }
+      animation.fire('stop');
     }
     return animation;
   };
@@ -5468,15 +5420,15 @@
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
    * @fires send
    *   {Object} event.data 要发送的数据。
-   *   调用 send 方法时，发送请求之前触发；可以取消本次动作。
+   *   成功调用 send 方法后，发送请求前触发。
    * @fires request
    *   {Object} event.data 解析后的请求数据。
-   *   发送请求时触发。
+   *   发送请求前触发。
    * @fires response
    *   {*} event.* 解析后的响应数据。
-   *   收到响应时触发。
+   *   收到响应后触发。
    * @fires abort
-   *   调用 abort 方法时触发；可以取消本次动作。
+   *   成功调用 abort 方法后触发。
    */
   function Request(url, options) {
     this.xhr = getXHRObject();
@@ -5526,55 +5478,55 @@
     if (request.timestamp || !xhr) {
       return request;
     }
-    request.fire('send', {data: data}, function() {
-      // 处理请求数据。
-      var parsedData = data = options.requestParser(data);
-      // 创建请求。
-      var url = request.url;
-      var method = options.method.toLowerCase();
-      if (method === 'get' && data) {
-        url += (url.contains('?') ? '&' : '?') + data;
-        data = null;
-      }
-      if (!options.useCache) {
-        url += (url.contains('?') ? '&' : '?') + ++uid;
-      }
-      // http://bugs.jquery.com/ticket/2865
-      if (options.username) {
-        xhr.open(method, url, options.async, options.username, options.password);
-      } else {
-        xhr.open(method, url, options.async);
-      }
-      // 设置请求头。
-      var headers = options.headers;
-      if (method === 'post') {
-        headers['Content-Type'] = options.contentType;
-      }
-      for (var name in headers) {
-        xhr.setRequestHeader(name, headers[name]);
-      }
-      // 发送请求。
-      xhr.send(data || null);
-      request.timestamp = Date.now();
-      if (options.async && options.maxTime > 0) {
-        request.maxTimeTimer = setTimeout(function() {
-          getResponse(request, TIMEOUT);
-        }, options.maxTime);
-      }
-      // 获取响应。
-      if (!options.async || xhr.readyState === 4) {
-        // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
-        getResponse(request, DONE);
-      } else {
-        xhr.onreadystatechange = function() {
-          if (xhr.readyState === 4) {
-            getResponse(request, DONE);
-          }
-        };
-      }
-      // 触发请求事件。
-      request.fire('request', {data: parsedData});
-    });
+    // 触发 send 事件。
+    request.fire('send', {data: data});
+    // 处理请求数据。
+    data = options.requestParser(data);
+    // 触发请求事件。
+    request.fire('request', {data: data});
+    // 创建请求。
+    var url = request.url;
+    var method = options.method.toLowerCase();
+    if (method === 'get' && data) {
+      url += (url.contains('?') ? '&' : '?') + data;
+      data = null;
+    }
+    if (!options.useCache) {
+      url += (url.contains('?') ? '&' : '?') + ++uid;
+    }
+    // http://bugs.jquery.com/ticket/2865
+    if (options.username) {
+      xhr.open(method, url, options.async, options.username, options.password);
+    } else {
+      xhr.open(method, url, options.async);
+    }
+    // 设置请求头。
+    var headers = options.headers;
+    if (method === 'post') {
+      headers['Content-Type'] = options.contentType;
+    }
+    for (var name in headers) {
+      xhr.setRequestHeader(name, headers[name]);
+    }
+    // 发送请求。
+    xhr.send(data || null);
+    request.timestamp = Date.now();
+    if (options.async && options.maxTime > 0) {
+      request.maxTimeTimer = setTimeout(function() {
+        getResponse(request, TIMEOUT);
+      }, options.maxTime);
+    }
+    // 获取响应。
+    if (!options.async || xhr.readyState === 4) {
+      // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
+      getResponse(request, DONE);
+    } else {
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          getResponse(request, DONE);
+        }
+      };
+    }
     // 返回实例。
     return request;
   };
@@ -5589,10 +5541,9 @@
   Request.prototype.abort = function() {
     var request = this;
     if (request.timestamp) {
-      request.fire('abort', null, function() {
-        // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
-        getResponse(request, ABORT);
-      });
+      // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
+      getResponse(request, ABORT);
+      request.fire('abort', null);
     }
     return request;
   };

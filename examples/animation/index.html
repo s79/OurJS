@@ -402,7 +402,7 @@ execute(function($) {
 //--------------------------------------------------[timingFunctions]
   var $timingFunctions = $('#timing_functions');
   var $canvas = $('#canvas');
-  $timingFunctions.on('click', function(e) {
+  $timingFunctions.on('click:relay(button)', function(e) {
     var color = this.getStyle('backgroundColor');
     new Animation()
         .addClip(
@@ -412,8 +412,6 @@ execute(function($) {
           $canvas.append($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
         }), 0, 2500, this.innerText)
         .play();
-  }, function() {
-    return this.nodeName === 'BUTTON';
   });
   $canvas.on('click', function(e) {
     if (e.shiftKey) {
