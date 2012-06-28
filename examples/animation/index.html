@@ -88,7 +88,7 @@ execute(function($) {
 <script>
 execute(function($) {
   $('#e_h_1_go').on('click', function() {
-    $('#e_h_1').highlight('red', 2, {
+    $('#e_h_1').highlight('backgroundColor', 'red', 1, {
       onStart: function() {
         this.innerText++;
       }
@@ -108,12 +108,12 @@ execute(function($) {
 execute(function($) {
   $('#e_h_2_go').on('click', function() {
     $('#e_h_2')
-        .highlight('red', 1, {
+        .highlight('color', 'red', 1, {
           onStart: function() {
             this.innerText += '1';
           }
         })
-        .highlight('green', 1, {
+        .highlight('color', 'green', 1, {
           onStart: function() {
             this.innerText += '2';
           }
@@ -121,12 +121,12 @@ execute(function($) {
         .morph({
           width: '+=20'
         })
-        .highlight('blue', 1, {
+        .highlight('color', 'blue', 1, {
           onStart: function() {
             this.innerText += '3';
           }
         })
-        .highlight('yellow', 1, {
+        .highlight('color', 'yellow', 1, {
           onStart: function() {
             this.innerText += '4';
           }
@@ -155,10 +155,24 @@ execute(function($) {
   var $e = $('#e_f_1');
   var i = 0;
   $('#e_f_1_in').on('click', function() {
-    $e.fadeIn();
+    $e.fadeIn({
+      onStart: function() {
+        console.log('Fade in start.');
+      },
+      onFinish: function() {
+        console.log('Fade in finish.');
+      }
+    });
   });
   $('#e_f_1_out').on('click', function() {
-    $e.fadeOut();
+    $e.fadeOut({
+      onStart: function() {
+        console.log('Fade out start.');
+      },
+      onFinish: function() {
+        console.log('Fade out finish.');
+      }
+    });
   });
 });
 </script>

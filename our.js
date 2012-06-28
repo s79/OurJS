@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-27
+ *  Version: 2012-06-29
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -4162,8 +4162,6 @@
    * @private
    * @param {string} type 事件类型。
    * @param {string} target 事件来源。
-   * @description
-   *   组件事件可以取消默认行为（建议为用户主动触发的事件添加此功能），但不会传递。
    */
   function ComponentEvent(type, target) {
     this.type = type;
@@ -4271,7 +4269,7 @@
    */
   Component.prototype.off = function(name) {
     var component = this;
-    if (name.contains('，')) {
+    if (name.contains(',')) {
       name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
         Component.prototype.off.call(component, name);
       });
@@ -4676,7 +4674,7 @@
 
 //--------------------------------------------------[Animation Constructor]
   /**
-   * 创建动画效果。
+   * 动画效果。
    * @name Animation
    * @constructor
    * @fires play
@@ -4995,11 +4993,13 @@
    * @name Fx.highlight
    * @function
    * @param {Element} $element 要实施渐隐效果的元素。
+   * @param {string} [property] 高亮样式名，默认为 'backgroundColor'。
    * @param {string} [color] 高亮颜色，默认为 'yellow'。
    * @param {number} [times] 高亮次数，默认为 1。
    * @returns {Function} 生成的渲染器。
    */
-  Fx.highlight = function($element, color, times) {
+  Fx.highlight = function($element, property, color, times) {
+    property = property || 'backgroundColor';
     color = color || 'yellow';
     times = times || 1;
     // 内部分多次动画换算后，使用此控速函数。
@@ -5007,16 +5007,18 @@
     var nativeSection = 1 / times;
     var renderer = function(x) {
       if (map === undefined) {
-        map = getStylesMap($element, {backgroundColor: color});
+        var style = {};
+        style[property] = color;
+        map = getStylesMap($element, style);
       }
-      var beforeValue = map.before.backgroundColor;
-      var afterValue = map.after.backgroundColor;
+      var beforeValue = map.before[property];
+      var afterValue = map.after[property];
       if (x === 0 || x === 1) {
-        $element.setStyle('backgroundColor', convertToRGBValue(beforeValue));
+        $element.setStyle(property, convertToRGBValue(beforeValue));
       } else {
         var nativeX = (x % nativeSection) / nativeSection;
         var nativeY = renderer.timingFunction(nativeX);
-        $element.setStyle('backgroundColor', convertToRGBValue([
+        $element.setStyle(property, convertToRGBValue([
           Math.floor(afterValue[0] + (beforeValue[0] - afterValue[0]) * nativeY),
           Math.floor(afterValue[1] + (beforeValue[1] - afterValue[1]) * nativeY),
           Math.floor(afterValue[2] + (beforeValue[2] - afterValue[2]) * nativeY)
@@ -5118,6 +5120,7 @@
    * 在本元素的动画队列中添加一个高亮动画。
    * @name Element.prototype.highlight
    * @function
+   * @param {string} [property] 高亮样式名，默认为 'backgroundColor'。
    * @param {string} [color] 高亮颜色，默认为 'yellow'。
    * @param {number} [times] 高亮次数，默认为 1。
    * @param {Object} [options] 动画选项。
@@ -5131,7 +5134,7 @@
    *   如果本元素正在播放一个高亮动画，则丢弃新的高亮动画并重新播放旧的高亮动画。
    *   如果当前队列的前一个动画也是高亮动画，则丢弃新的高亮动画。
    */
-  Element.prototype.highlight = function(color, times, options) {
+  Element.prototype.highlight = function(property, color, times, options) {
     var queue = queuePool[this.uid];
     if (queue) {
       if (queue.length === 0) {
@@ -5148,7 +5151,7 @@
 
     var $element = this;
     options = Object.append({delay: 0, duration: 500, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
-    var animation = new Animation().addClip(Fx.highlight($element, color, times), options.delay, options.duration, options.timingFunction);
+    var animation = new Animation().addClip(Fx.highlight($element, property, color, times), options.delay, options.duration, options.timingFunction);
     if (options.onStart) {
       animation.on('playstart', function(e) {
         this.off('playstart');
@@ -5190,8 +5193,7 @@
             this.addClip(Fx.morph($element, {opacity: originalOpacity}), options.delay, options.duration, options.timingFunction);
             $element.setStyles({'display': 'block', 'opacity': 0});
           } else {
-            e.preventDefault();
-            this.off('playstart.callback playfinish.callback').fire('playfinish');
+            this.off('playstart.callback, playfinish.callback');
           }
         })
         .on('playstart.callback', function(e) {
@@ -5233,8 +5235,7 @@
             options = Object.append({delay: 0, duration: 200, timingFunction: 'easeOut', onStart: null, onFinish: null}, options || {});
             this.addClip(Fx.morph($element, {opacity: 0}), options.delay, options.duration, options.timingFunction);
           } else {
-            e.preventDefault();
-            this.off('playstart.callback playfinish.callback').fire('playfinish');
+            this.off('playstart.callback, playfinish.callback');
           }
         })
         .on('playstart.callback', function(e) {
@@ -5390,7 +5391,7 @@
 
 //--------------------------------------------------[Request Constructor]
   /**
-   * 创建一个请求对象，用来对一个指定的资源发起请求，并获取响应数据。
+   * 对一个指定的资源发起请求，并获取响应数据。
    * @name Request
    * @constructor
    * @param {string} url 请求地址。
@@ -5398,7 +5399,7 @@
    * @param {string} options.username 用户名，默认为空字符串，即不指定用户名。
    * @param {string} options.password 密码，默认为空字符串，即不指定密码。
    * @param {string} options.method 请求方法，默认为 'get'。
-   * @param {Object} options.headers 要设置的 request headers，格式为 {key: value, ...} 的对象。
+   * @param {Object} options.headers 要设置的 request headers，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
    * @param {string} options.contentType 发送数据的内容类型，默认为 'application/x-www-form-urlencoded'，method 为 'post' 时有效。
    * @param {boolean} options.useCache 是否允许浏览器的缓存生效，默认为 true。
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
@@ -5468,7 +5469,7 @@
    * @name Request.prototype.send
    * @function
    * @param {Object} [data] 要发送的数据。
-   * @returns {Object} request 对象。
+   * @returns {Object} Request 对象。
    */
   Request.prototype.send = function(data) {
     var request = this;
@@ -5536,7 +5537,7 @@
    * 取消请求，仅在 Request 设置为异步模式时可用。
    * @name Request.prototype.abort
    * @function
-   * @returns {Object} request 对象。
+   * @returns {Object} Request 对象。
    */
   Request.prototype.abort = function() {
     var request = this;

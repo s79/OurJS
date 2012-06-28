@@ -31,10 +31,16 @@ execute(function($) {
     var calendar = this;
     // 保存选项。
     options = calendar.setOptions(options).options;
-    // 创建 DOM 基本结构。
+    // 创建 DOM 结构。
     var $calendar = $('<div class="' + options.theme + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>-</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
     var $controlPanel = $calendar.getFirst();
     var controls = $controlPanel.find('*');
+    var $prevYear = controls[0];
+    var $prevMonth = controls[1];
+    var $year = controls[2];
+    var $month = controls[4];
+    var $nextMonth = controls[5];
+    var $nextYear = controls[6];
     var $thead = $controlPanel.getNext().getFirst();
     var $tbody = $thead.getNext();
     // 创建月历头。
@@ -49,28 +55,24 @@ execute(function($) {
     // 保存 DOM 元素。
     calendar.elements = {
       calendar: $calendar,
-      prevYear: controls[0],
-      prevMonth: controls[1],
-      year: controls[2],
-      month: controls[4],
-      nextMonth: controls[5],
-      nextYear: controls[6],
+      prevYear: $prevYear,
+      prevMonth: $prevMonth,
+      year: $year,
+      month: $month,
+      nextMonth: $nextMonth,
+      nextYear: $nextYear,
       head: $thead,
       body: $tbody,
       headCells: $thead.find('td'),
       bodyCells: $tbody.find('td')
     };
-    // 阻止一些浏览器的划选动作。
-    $calendar.on('mousedown', function() {
-      return false;
-    });
-    // 点击动作按钮。
+    // 点击控制按钮。
     $controlPanel.on('click', function(e) {
       var $target = e.target;
       if ($target.hasClass('btn') && !$target.hasClass('disabled')) {
         var action = $target.getData('action');
-        var year = Number.toInteger(calendar.elements.year.innerText);
-        var month = Number.toInteger(calendar.elements.month.innerText);
+        var year = Number.toInteger($year.innerText);
+        var month = Number.toInteger($month.innerText);
         switch (action) {
           case 'prev_year':
             --year;
@@ -97,6 +99,20 @@ execute(function($) {
         }
         calendar.render(year + '-' + month.padZero(2));
       }
+      return false;
+    });
+    // 鼠标滚轮支持（滚轮翻月，Shift + 滚轮翻年）。
+    $calendar.on('mousewheel', function(e) {
+      if (e.wheelUp) {
+        (e.shiftKey ? $prevYear : $prevMonth).fire('click');
+      }
+      if (e.wheelDown) {
+        (e.shiftKey ? $nextYear : $nextMonth).fire('click');
+      }
+      return false;
+    });
+    // 阻止一些浏览器的划选动作。
+    $calendar.on('mousedown', function(e) {
       return false;
     });
   }
@@ -136,6 +152,7 @@ execute(function($) {
   Calendar.prototype.render = function(month) {
     var calendar = this;
     var options = calendar.options;
+    var elements = calendar.elements;
     // 获取最大、最小、要显示的年和月。
     var minDate = Date.from(options.minDate);
     var maxDate = Date.from(options.maxDate);
@@ -147,20 +164,36 @@ execute(function($) {
     var maxM = maxDate.getMonth();
     var showM = showDate.getMonth();
     // 设置控制按钮。
-    calendar.elements.prevYear[showY === minY ? 'addClass' : 'removeClass']('disabled');
-    calendar.elements.prevMonth[showY === minY && showM === minM ? 'addClass' : 'removeClass']('disabled');
-    calendar.elements.nextMonth[showY === maxY && showM === maxM ? 'addClass' : 'removeClass']('disabled');
-    calendar.elements.nextYear[showY === maxY ? 'addClass' : 'removeClass']('disabled');
+    if (showY === minY) {
+      elements.prevYear.addClass('disabled').title = '上一年（超出范围）';
+    } else {
+      elements.prevYear.removeClass('disabled').title = '上一年';
+    }
+    if (showY === minY && showM === minM) {
+      elements.prevMonth.addClass('disabled').title = '上一月（超出范围）';
+    } else {
+      elements.prevMonth.removeClass('disabled').title = '上一月';
+    }
+    if (showY === maxY && showM === maxM) {
+      elements.nextMonth.addClass('disabled').title = '下一月（超出范围）';
+    } else {
+      elements.nextMonth.removeClass('disabled').title = '下一月';
+    }
+    if (showY === maxY) {
+      elements.nextYear.addClass('disabled').title = '下一年（超出范围）';
+    } else {
+      elements.nextYear.removeClass('disabled').title = '下一年';
+    }
     // 显示年份和月份。
-    calendar.elements.year.innerText = showY;
-    calendar.elements.month.innerText = (showM + 1).padZero(2);
+    elements.year.innerText = showY;
+    elements.month.innerText = (showM + 1).padZero(2);
     // 星期类名与文字。
     var dayNames = ['sun', 'mon', 'tues', 'wed', 'thurs', 'fri', 'sat'];
     var dayTexts = ['日', '一', '二', '三', '四', '五', '六'];
     // 每周从周几开始。
     var startDay = options.firstDayOfWeek;
     // 输出月历头。
-    calendar.elements.headCells.forEach(function($cell, index) {
+    elements.headCells.forEach(function($cell, index) {
       $cell.className = dayNames[(index + startDay) % 7];
       $cell.innerText = dayTexts[(index + startDay) % 7];
     });
@@ -173,7 +206,7 @@ execute(function($) {
     // 今天的日期。
     var today = Date.from(new Date().format()).getTime();
     // 输出月历体。
-    calendar.elements.bodyCells.forEach(function($cell, index) {
+    elements.bodyCells.forEach(function($cell, index) {
       var date = new Date(showY, showM, index - startIndex + 1);
       y = date.getFullYear();
       m = date.getMonth();

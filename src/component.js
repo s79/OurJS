@@ -31,8 +31,6 @@
    * @private
    * @param {string} type 事件类型。
    * @param {string} target 事件来源。
-   * @description
-   *   组件事件可以取消默认行为（建议为用户主动触发的事件添加此功能），但不会传递。
    */
   function ComponentEvent(type, target) {
     this.type = type;
@@ -140,7 +138,7 @@
    */
   Component.prototype.off = function(name) {
     var component = this;
-    if (name.contains('，')) {
+    if (name.contains(',')) {
       name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
         Component.prototype.off.call(component, name);
       });

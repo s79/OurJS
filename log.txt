@@ -1,5 +1,6 @@
 ﻿>TODO 编辑文档，明确各 Function 类型的参数的 this 指向。
 >TODO 升级 Pagination 的事件。
+>TODO 动画支持复合属性。
 
 >2012-06-28
 表单增强-日期选择器。
