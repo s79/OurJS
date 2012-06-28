@@ -1,5 +1,8 @@
 ﻿>TODO 编辑文档，明确各 Function 类型的参数的 this 指向。
->TODO 升级 Calendar/Pagination 的事件。
+>TODO 升级 Pagination 的事件。
+
+>2012-06-28
+表单增强-日期选择器。
 
 >2012-06-27
 取消 2012-06-15 针对组件事件可以取消默认行为的修改。
