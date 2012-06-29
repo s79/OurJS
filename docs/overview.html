@@ -13,7 +13,7 @@ div#content { width: 880px; margin: 0 auto; padding: 50px 50px; border: 1px soli
 
 #header2 { position: fixed; left: 0; top: 0; z-index: 10000; width: 100%; height: 35px; box-shadow: 0 0 3px black; background: #30322F; }
 #menu2 { position: relative; width: 960px; height: 35px; margin: 0 auto; padding-left: 30px; background: url(images/logo.png) no-repeat left center; color: #B3B7BC; }
-#menu2 ul { list-style: none; float: left; margin-top: 3px; margin-right: 10px; height: 29px; padding: 0; overflow: hidden; }
+#menu2 ul { list-style: none; float: left; margin-top: 3px; margin-left: 10px; height: 29px; padding: 0; overflow: hidden; }
 #menu2 li { display: none; }
 #menu2 li.selected { display: block; }
 #menu2 li a { display: block; height: 29px; padding: 0 10px; border-top: 1px solid #30322F; color: #B3B7BC; line-height: 29px; white-space: nowrap; }
@@ -61,40 +61,45 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
 execute(function($) {
 //  return;
 //  $('#header2').setStyle('position', 'fixed');
-
-  var aniPool = {};
+  var expandCount = 0;
+  var morphPool = {};
   $('#menu2').find('ul').forEach(function($ul, index, uls) {
     $ul.setStyle('width', $ul.offsetWidth);
     var $li = $ul.getFirst();
     var selectedIndex = $ul.getChildren().indexOf($ul.find('.selected')[0]);
     var nextSiblings = uls.slice(index + 1);
-    aniPool[$ul.uid] = new Animation()
+    morphPool[$ul.uid] = new Animation()
         .addClip(Fx.morph($ul, {width: 240}), 100, 150, 'easeInOut')
-        .addClip(Fx.morph($ul, {height: 151}), 300, 300, 'easeInOut')
-        .addClip(Fx.morph($li, {marginTop: 0}), 300, 300, 'easeInOut')
+        .addClip(Fx.morph($ul, {height: 151}), 150, 250, 'easeInOut')
+        .addClip(Fx.morph($li, {marginTop: 0}), 150, 250, 'easeInOut')
+        .on('play', function() {
+          expandCount++;
+        })
         .on('playstart', function() {
           $ul.addClass('active');
           $li.setStyles({marginTop: -30 * selectedIndex});
-//          nextSiblings.forEach(function($sibling) {
-//            $sibling.fadeOut({
-//              duration: 100,
-//              callback: initItem
-//            });
-//          });
+          nextSiblings.forEach(function($sibling) {
+            $sibling.fadeOut({duration:100});
+          });
+        })
+        .on('reverse', function() {
+          expandCount--;
         })
         .on('reversefinish', function() {
           $ul.removeClass('active');
-          nextSiblings.forEach(function($sibling) {
-//            $sibling.fadeIn();
-          });
+          if (expandCount === 0) {
+            nextSiblings.forEach(function($sibling) {
+              $sibling.fadeIn();
+            });
+          }
         });
   });
   $('#menu2')
       .on('mouseenter:relay(ul)', function(e) {
-        aniPool[this.uid].play();
+        morphPool[this.uid].play();
       })
       .on('mouseleave:relay(ul)', function(e) {
-        aniPool[this.uid].reverse();
+        morphPool[this.uid].reverse();
       });
 }, true);
 </script>

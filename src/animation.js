@@ -143,7 +143,6 @@
   // 获取控速函数。
   var getTimingFunction = function(name) {
     name = name || '';
-//    'cubicBezier(0.42, 1.0, 0.75, 1.0)'.match(/^cubicBezier\((0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1)/)
     return builtInTimingFunctions[name] || (name.startsWith('cubicBezier') ? cubicBezier.apply(null, name.slice(12, -1).split(',').map(function(item) {
       return parseFloat(item);
     })) : builtInTimingFunctions.ease);
@@ -319,6 +318,8 @@
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
    * @param {string} timingFunction 控速函数名称或表达式。
+   *   支持的名称有 linear，bounceIn，bounceOut，ease，easeIn，easeOut，easeInOut，easeOutIn。
+   *   表达式的格式为 <dfn>cubicBezier(<var>p1x</var>, <var>p1y</var>, <var>p2x</var>, <var>p2y</var>)</dfn>，各参数均为浮点数，其中 <var>p1x</var> 和 <var>p2x</var> 的取值范围必须在 [0, 1] 之间。
    * @returns {Object} Animation 对象。
    */
   Animation.prototype.addClip = function(fxRenderer, delay, duration, timingFunction) {
@@ -678,7 +679,7 @@
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
-   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'ease'。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -719,7 +720,7 @@
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
-   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeIn'。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -769,7 +770,7 @@
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeIn'。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -811,7 +812,7 @@
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeOut'。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeOut'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
