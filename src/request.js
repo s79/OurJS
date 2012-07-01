@@ -4,18 +4,17 @@
  * @version 20120208
  */
 // TODO: jQuery - ticket #5280: Internet Explorer will keep connections alive if we don't abort on unload
-// TODO: MooTools 在 xhr.abort() 后新建一个 XHR 对象，原因不明。
-// TODO: 大多数库并不重用 XHR 对象。
 (function() {
 //==================================================[Request]
   /*
    * 调用流程：
    *   var request = new Request(url, options);
-   *   request.send(data)<send> -> requestParser(data)<request> -> responseParser(response)<response>
-   *                                                            -> request.abort()<abort>
+   *   request.send(requestData)<send> -> requestParser(requestData)<start> -> responseParser(responseData)<finish>
+   *                                                                        -> request.abort()<abort>
    *
    * 说明：
    *   用户使用 send 方法传递的请求数据与服务端返回的响应数据均不可预期，因此可以通过修改选项 requestParser 和 responseParser 这两个函数以对他们进行预处理。
+   *   本实现的每个 Request 对象都仅创建一个 XHR 对象，多次发送请求则重复使用。MooTools 在 xhr.abort() 后新建一个 XHR 对象，原因不明。大多数库并不重用 XHR 对象。若使用中出现其他问题，需考虑是否是因为重用 XHR 对象的原因。
    *
    * 注意：
    *   IE6 IE7 IE8 IE9 均不支持 overrideMimeType，因此本组件不提供此功能。
@@ -123,8 +122,8 @@
         xhr.abort();
         break;
     }
-    // 触发响应事件。
-    request.fire('response', options.responseParser({
+    // 触发 finish 事件。
+    request.fire('finish', options.responseParser({
       status: status,
       statusText: statusText,
       headers: headers,
@@ -149,9 +148,9 @@
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
    * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为 null。
+   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为空字符串。
    *   原始请求数据无特殊要求。
-   *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 request 事件对象的 data 属性。
+   *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 start 事件对象的 data 属性。
    * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回解析后的对象数据，默认无特殊处理。
    *   原始响应数据中包含以下属性：
    *   {number} responseData.status 状态码。
@@ -159,19 +158,18 @@
    *   {Object} responseData.headers 响应头。
    *   {string} responseData.text 响应文本。
    *   {XMLDocument} responseData.xml 响应 XML 文档。
-   *   解析后的响应数据无特殊要求，但要注意，解析后的数据对象的属性将被追加到 response 事件对象中。
-   *   在调用 abort 方法取消请求，或请求超时的情况下，也会收到响应数据。此时的状态码分别为 -498 和 -408。
-   *   换句话说，只要调用了 send 方法发起了请求，就必然会收到响应，虽然上述两种情况的响应并非是真实的来自于服务端的响应数据。
-   *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
+   *   解析后的响应数据无特殊要求，但要注意，解析后的数据对象的属性将被追加到 finish 事件对象中。
    * @fires send
    *   {Object} event.data 要发送的数据。
-   *   成功调用 send 方法后，发送请求前触发。
-   * @fires request
+   *   成功调用 send 方法后，解析请求数据前触发。
+   * @fires start
    *   {Object} event.data 解析后的请求数据。
-   *   发送请求前触发。
-   * @fires response
+   *   解析请求数据后，开始发送请求前触发。
+   * @fires finish
    *   {*} event.* 解析后的响应数据。
-   *   收到响应后触发。
+   *   请求结束并解析响应数据后触发。
+   *   只要调用了 send 方法就必然会触发此事件，在调用 abort 方法取消请求，或请求超时的情况下，也会收到模拟的响应数据并传入 responseParser，此时的状态码分别为 -498 和 -408。
+   *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 start 事件监听器中显示的提示信息隐藏。
    * @fires abort
    *   成功调用 abort 方法后触发。
    */
@@ -199,11 +197,11 @@
     async: true,
     minTime: NaN,
     maxTime: NaN,
-    requestParser: function(data) {
-      return data ? data + '' : null;
+    requestParser: function(requestData) {
+      return requestData ? requestData + '' : '';
     },
-    responseParser: function(response) {
-      return response;
+    responseParser: function(responseData) {
+      return responseData;
     }
   };
 
@@ -212,10 +210,10 @@
    * 发送请求。
    * @name Request.prototype.send
    * @function
-   * @param {Object} [data] 要发送的数据。
+   * @param {Object} [requestData] 要发送的数据。
    * @returns {Object} Request 对象。
    */
-  Request.prototype.send = function(data) {
+  Request.prototype.send = function(requestData) {
     var request = this;
     var options = request.options;
     var xhr = request.xhr;
@@ -224,17 +222,17 @@
       return request;
     }
     // 触发 send 事件。
-    request.fire('send', {data: data});
+    request.fire('send', {data: requestData});
     // 处理请求数据。
-    data = options.requestParser(data);
-    // 触发请求事件。
-    request.fire('request', {data: data});
+    requestData = options.requestParser(requestData);
+    // 触发 start 事件。
+    request.fire('start', {data: requestData});
     // 创建请求。
     var url = request.url;
     var method = options.method.toLowerCase();
-    if (method === 'get' && data) {
-      url += (url.contains('?') ? '&' : '?') + data;
-      data = null;
+    if (method === 'get' && requestData) {
+      url += (url.contains('?') ? '&' : '?') + requestData;
+      requestData = '';
     }
     if (!options.useCache) {
       url += (url.contains('?') ? '&' : '?') + ++uid;
@@ -254,7 +252,7 @@
       xhr.setRequestHeader(name, headers[name]);
     }
     // 发送请求。
-    xhr.send(data || null);
+    xhr.send(requestData || null);
     request.timestamp = Date.now();
     if (options.async && options.maxTime > 0) {
       request.maxTimeTimer = setTimeout(function() {
@@ -288,7 +286,7 @@
     if (request.timestamp) {
       // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
       getResponse(request, ABORT);
-      request.fire('abort', null);
+      request.fire('abort');
     }
     return request;
   };
