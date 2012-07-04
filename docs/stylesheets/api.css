@@ -36,7 +36,7 @@ var { color: sienna; font-style: italic; }
 
 /* --------------------------------------------------[Details] */
 /* layers */
-#details_container { display: none; position: fixed; z-index: 20; background: white; border-left: 1px solid dimgray; box-shadow: 0 0 10px black; overflow-x: hidden; overflow-y: auto; }
+#details_container { display: none; position: fixed; z-index: 2000; background: white; border-left: 1px solid dimgray; box-shadow: 0 0 10px black; overflow-x: hidden; overflow-y: auto; }
 #details { width: 900px; padding: 40px 0 100px 20px; background: white; color: #333; font-size: 14px; }
 #details_close { position: absolute; left: 0; top: 16px; width: 16px; height: 16px; background: url(../images/close.png) no-repeat 0 0; overflow: hidden; cursor: default; }
 #details_close:hover { background-position: -16px 0; }

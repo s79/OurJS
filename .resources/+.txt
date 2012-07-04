@@ -11,6 +11,36 @@
 
 
 
+    // 固定子菜单位置。
+    function keepIntoView($target) {
+//      var targetOffsetToViewPort =
+
+      var subMenuPosition = $target.getClientRect();
+      var offsetLeft = 40;
+      var offsetTop = window.getPageOffset().y + $target.getClientRect().top - parseInt($target.getStyle('marginTop'), 10);
+      var isFixed = false;
+      window.on('scroll.fixSubmenu', function() {
+        if (window.getPageOffset().y >= offsetTop) {
+          if (!isFixed) {
+            $target.setStyles({position: 'fixed', top: 0});
+            isFixed = true;
+          }
+          $target.setStyle('left', offsetLeft - window.getPageOffset().x);
+        } else {
+          if (isFixed) {
+            $target.setStyles({position: 'absolute', left: offsetLeft, top: offsetTop});
+            isFixed = false;
+          }
+        }
+      });
+    }
+
+    keepIntoView($('#submenu'));
+
+
+
+
+
   /**
    * 省略某部分内容以达到要求，内容被省略的元素会被加入 title 属性，其值为其进行省略处理前的内容。
    * @param {Element} targetElement 可以进行内容省略处理的元素，其内容只能是文本，不能有其他 HTML 代码。

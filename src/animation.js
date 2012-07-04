@@ -39,14 +39,14 @@
   var INTERNAL_IDENTIFIER_REVERSE = {};
 
   // 动画的状态。
-  var STARTING_POINT = -2;
+  var START_POINT = -2;
   var REVERSING = -1;
   var PASUING = 0;
   var PLAYING = 1;
   var END_POINT = 2;
 
   // 动画剪辑的状态。
-  var BEFORE_STARTING_POINT = -1;
+  var BEFORE_START_POINT = -1;
   var ACTIVE = 0;
   var AFTER_END_POINT = 1;
 
@@ -150,16 +150,6 @@
 
   // 播放动画对应某一时间点的某一帧。
   var playAnimation = function(animation, timePoint, isPlayMethod) {
-    // 触发事件。
-    if (isPlayMethod) {
-      if (timePoint === 0) {
-        animation.fire('playstart');
-      }
-    } else {
-      if (timePoint === animation.duration) {
-        animation.fire('reversestart');
-      }
-    }
     // 播放当前帧。
     animation.clips.forEach(function(clip) {
       var active = false;
@@ -169,7 +159,7 @@
         if (clip.status === AFTER_END_POINT) {
           return;
         }
-        if (clip.status === BEFORE_STARTING_POINT) {
+        if (clip.status === BEFORE_START_POINT) {
           if (x >= 0) {
             x = duration ? 0 : 1;
             clip.status = ACTIVE;
@@ -183,7 +173,7 @@
           }
         }
       } else {
-        if (clip.status === BEFORE_STARTING_POINT) {
+        if (clip.status === BEFORE_START_POINT) {
           return;
         }
         if (clip.status === AFTER_END_POINT) {
@@ -196,7 +186,7 @@
           active = true;
           if (x <= 0) {
             x = 0;
-            clip.status = BEFORE_STARTING_POINT;
+            clip.status = BEFORE_START_POINT;
           }
         }
       }
@@ -219,7 +209,7 @@
         if (animation.timestamp) {
           unmountAnimation(animation);
         }
-        animation.status = STARTING_POINT;
+        animation.status = START_POINT;
         animation.fire('reversefinish');
       }
     }
@@ -297,7 +287,7 @@
     this.uid = ++uid;
     this.clips = [];
     this.timePoint = 0;
-    this.status = STARTING_POINT;
+    this.status = START_POINT;
     this.duration = 0;
   }
 
@@ -327,7 +317,7 @@
     fxRenderer.delay = delay;
     fxRenderer.duration = duration;
     fxRenderer.timingFunction = getTimingFunction(timingFunction);
-    fxRenderer.status = BEFORE_STARTING_POINT;
+    fxRenderer.status = BEFORE_START_POINT;
     this.clips.push(fxRenderer);
     // 重新计算整个动画持续的时间。
     this.duration = Math.max(this.duration, delay + duration);
@@ -347,9 +337,21 @@
     var animation = this;
     var isPlayMethod = reverse !== INTERNAL_IDENTIFIER_REVERSE;
     var status = animation.status;
-    if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != STARTING_POINT) {
-      animation.fire(isPlayMethod ? 'play' : 'reverse');
-      animation.status = isPlayMethod ? PLAYING : REVERSING;
+    if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != START_POINT) {
+      // 触发事件。
+      if (isPlayMethod) {
+        animation.fire('play');
+        if (status === START_POINT) {
+          animation.fire('playstart');
+        }
+        animation.status = PLAYING;
+      } else {
+        animation.fire('reverse');
+        if (status === END_POINT) {
+          animation.fire('reversestart');
+        }
+        animation.status = REVERSING;
+      }
       // 未挂载到引擎（执行此方法前为暂停/停止状态）。
       if (!animation.timestamp) {
         var timePoint = animation.timePoint;
@@ -408,11 +410,12 @@
    */
   Animation.prototype.stop = function() {
     var animation = this;
-    if (animation.status !== STARTING_POINT) {
+    if (animation.status !== START_POINT) {
       animation.timePoint = 0;
-      animation.status = STARTING_POINT;
+      animation.status = START_POINT;
       animation.clips.forEach(function(clip) {
-        clip.status = BEFORE_STARTING_POINT;
+        clip.call(animation, 0, 0);
+        clip.status = BEFORE_START_POINT;
       });
       if (animation.timestamp) {
         unmountAnimation(animation);
@@ -639,13 +642,14 @@
    *   Element.prototype.highlight
    */
 
-  // 简单动画的队列。
+  // 简单动画的队列，为队列中的 Animation 对象增加类似 renderer 的 type 属性，以供动画合并时使用。
   var queuePool = {};
 
   // 播放指定的队列。
   var playQueue = function(queue) {
-    queue.currentAnimation = queue.shift()
-        .on('playfinish', function() {
+    queue.getFirst()
+        .on('playfinish.native', function() {
+          queue.shift();
           if (queue.length) {
             playQueue(queue);
           } else {
@@ -658,12 +662,11 @@
   // 在指定的队列中添加一个动画。
   var appendToQueue = function(uid, animation) {
     var queue = queuePool[uid];
-    if (!queue) {
-      queue = queuePool[uid] = [];
+    if (queue) {
+      queue.push(animation);
+    } else {
+      queue = queuePool[uid] = [animation];
       queue.id = uid;
-    }
-    queue.push(animation);
-    if (!queue.currentAnimation) {
       playQueue(queue);
     }
   };
@@ -695,6 +698,7 @@
     var $element = this;
     options = Object.append({delay: 0, duration: 400, timingFunction: 'ease', onStart: null, onFinish: null}, options || {});
     var animation = new Animation().addClip(Fx.morph($element, styles), options.delay, options.duration, options.timingFunction);
+    animation.type = 'morph';
     if (options.onStart) {
       animation.on('playstart', function(e) {
         options.onStart.call($element, e);
@@ -725,30 +729,37 @@
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
    * @description
-   *   如果本元素正在播放一个高亮动画，则丢弃新的高亮动画并重新播放旧的高亮动画。
-   *   如果当前队列的前一个动画也是高亮动画，则丢弃新的高亮动画。
+   *   如果动画队列的前一个动画也是高亮动画，那么这两个高亮动画将按照以下方式合并：
+   *   - 若前者正在播放，则合并前者的 onFinish 回调到后者，并停止前者，开始播放后者。
+   *   - 若前者仍在等待，则合并前者的 onStart 和 onFinish 回调到后者，并使用后者代替前者。
    */
   Element.prototype.highlight = function(property, color, times, options) {
-    var queue = queuePool[this.uid];
-    if (queue) {
-      if (queue.length === 0) {
-        if (queue.currentAnimation.clips[0].type === 'highlight') {
-          queue.currentAnimation.stop().play();
-          return this;
-        }
-      } else {
-        if (queue[queue.length - 1].clips[0].type === 'highlight') {
-          return this;
-        }
-      }
-    }
-
     var $element = this;
     options = Object.append({delay: 0, duration: 500, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
     var animation = new Animation().addClip(Fx.highlight($element, property, color, times), options.delay, options.duration, options.timingFunction);
+    animation.type = 'highlight';
+
+    var queue;
+    var prevAnimation;
+    var playStartHandlers;
+    var playFinishHandlers;
+    if ((queue = queuePool[$element.uid]) && (prevAnimation = queue.getLast()).type === 'highlight') {
+      if (queue.length === 1) {
+        prevAnimation.off('playfinish.native').stop();
+        delete queuePool[queue.id];
+      } else {
+        if (playStartHandlers = prevAnimation.events['playstart']) {
+          animation.events['playstart'] = playStartHandlers;
+        }
+        queue.pop();
+      }
+      if (playFinishHandlers = prevAnimation.events['playfinish']) {
+        animation.events['playfinish'] = playFinishHandlers;
+      }
+    }
+
     if (options.onStart) {
       animation.on('playstart', function(e) {
-        this.off('playstart');
         options.onStart.call($element, e);
       });
     }
@@ -780,7 +791,7 @@
   Element.prototype.fadeIn = function(options) {
     var $element = this;
     var animation = new Animation()
-        .on('play', function(e) {
+        .on('play', function() {
           if ($element.getStyle('display') === 'none') {
             var originalOpacity = $element.getStyle('opacity');
             options = Object.append({delay: 0, duration: 200, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
@@ -823,7 +834,7 @@
     var $element = this;
     var originalOpacity;
     var animation = new Animation()
-        .on('play', function(e) {
+        .on('play', function() {
           if ($element.getStyle('display') !== 'none') {
             originalOpacity = $element.getStyle('opacity');
             options = Object.append({delay: 0, duration: 200, timingFunction: 'easeOut', onStart: null, onFinish: null}, options || {});

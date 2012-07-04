@@ -1,15 +1,4 @@
 execute(function($) {
-  var $html = $(document.documentElement);
-  var $content = $('#content');
-  var indexColumns = {
-    a: $('#column_a'),
-    b: $('#column_b'),
-    c: $('#column_c')
-  };
-  var $deatilsPanel = $('#details_container');
-  var $details = $('#details');
-  var $detailsClose = $('#details_close');
-
 //==================================================[API 参考]
   declareModule('reference', function(listen, notify) {
 //--------------------------------------------------[getCategory]
@@ -173,6 +162,11 @@ execute(function($) {
 //    };
 
 //--------------------------------------------------[生成一类对象的文档]
+    var indexColumns = {
+      a: $('#column_a'),
+      b: $('#column_b'),
+      c: $('#column_c')
+    };
     // 同时生成索引文档和细节文档，side 参数仅供索引文档使用。
     var buildDocument = function(name, side) {
       // 本类对象的标题。
@@ -208,7 +202,7 @@ execute(function($) {
           lastGroupName = groupName;
         }
       });
-      $details.append($detailsDiv);
+      $('#details').append($detailsDiv);
       indexColumns[side].append($indexFieldset);
     };
 
@@ -259,11 +253,27 @@ execute(function($) {
   });
 
 //==================================================[API 细节]
+  var $html = $(document.documentElement);
+  var $header = $('#header');
+  var $content = $('#content');
+  var $deatilsPanel = $('#details_container');
+  var $detailsClose = $('#details_close');
+
   declareModule('details', function(listen, notify) {
 //--------------------------------------------------[细节层]
-    var pinnedOffsetX = $content.getClientRect().left + 50;
+    // 获取滚动条宽度。
+    var scrollbarWidth = function() {
+      var $outer = $('<div></div>').setStyles({position: 'absolute', top: 0, left: -10000, width: 100, height: 100, overflow: 'scroll'});
+      var $inner = $('<div></div>').setStyles({height: 200});
+      $(document.body).append($outer.append($inner));
+      var width = 100 - $inner.offsetWidth;
+      $outer.remove();
+      return width;
+    }();
+
     // 调整位置。
     var adjustDeatilsPanel = function() {
+      var pinnedOffsetX = $content.getClientRect().left + 50;
       var clientSize = window.getClientSize();
       $deatilsPanel.setStyles({
         width: clientSize.width - pinnedOffsetX,
@@ -272,11 +282,12 @@ execute(function($) {
       $detailsClose.setStyles({
         left: Math.max(710 - 20, clientSize.width - pinnedOffsetX - 55)
       });
+      deatilsPanel.setOptions({offsetX: pinnedOffsetX});
     };
     // 使用对话框实现。
     var deatilsPanel = new Dialog($deatilsPanel, {
       maskStyles: {background: 'black', opacity: .05},
-      offsetX: pinnedOffsetX,
+      offsetX: 0,
       offsetY: 0
     })
         .on('open',
@@ -292,24 +303,29 @@ execute(function($) {
         })
         .on('close',
         function() {
-          $html.setStyle('overflow', '');
+          if (!navigator.isIE6) {
+            $header.setStyle('right', 0);
+          }
+          $html.setStyles({paddingRight: 0, overflow: ''});
           // 取消事件绑定。
           $html.off('keydown.deatilsPanel, mousedown.deatilsPanel');
           window.off('resize.deatilsPanel');
         });
     // 打开/关闭细节层，包裹对话框的方法。
-    var detailsPanelLeft;
     var detailsLayer = {
       open: function() {
         if (!this.isOpen) {
           this.isOpen = true;
           var offsetY = window.getPageOffset().y;
-          $html.setStyle('overflow', 'hidden');
+          if (!navigator.isIE6) {
+            $header.setStyle('right', scrollbarWidth);
+          }
+          $html.setStyles({paddingRight: scrollbarWidth, overflow: 'hidden'});
           adjustDeatilsPanel();
           deatilsPanel.open();
           window.scrollTo(0, offsetY);
           // 打开时的向左移动的效果。
-          detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
+          var detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
           $deatilsPanel.setStyles({left: detailsPanelLeft + 30, opacity: 0}).morph({left: detailsPanelLeft, opacity: 1}, {duration: 150});
         }
       },
@@ -317,6 +333,7 @@ execute(function($) {
         if (this.isOpen) {
           this.isOpen = false;
           // 关闭时的向右移动的效果。
+          var detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
           $deatilsPanel.morph({left: detailsPanelLeft + 15, opacity: 0}, {transition: 'easeIn', duration: 150, onFinish: function() {
             var offsetY = window.getPageOffset().y;
             deatilsPanel.close();
@@ -345,18 +362,31 @@ execute(function($) {
     notify('reference.build');
 
     // 点击 API 条目，进入细节页的对应位置。
-    $content.on('click:relay(a)', function(e) {
+    $content.on('click:relay(a)', function() {
       notify('details.show');
+      var href = this.href;
+      var id = href.slice(href.indexOf('#'));
+      var $target = $(id);
+      var scrollTop = $deatilsPanel.scrollTop;
+      var top = $target.getClientRect().top + scrollTop;
+      new Animation().addClip(Fx.base(function(x, y) {
+        $deatilsPanel.scrollTop = scrollTop + ((top - 50) - scrollTop) * y;
+      }), 0, 200, 'easeInOut')
+          .on('playfinish', function() {
+            $target.getFirst().highlight()
+          })
+          .play();
+      return false;
     });
 
     // 如果指定了 hash，则直达细节页的对应位置。
-    if (location.hash) {
-      notify('details.show');
-      var $target = document.$(location.hash);
-      if ($target) {
-        $target.scrollIntoView();
-      }
-    }
+//    if (location.hash) {
+//      notify('details.show');
+//      var $target = document.$(location.hash);
+//      if ($target) {
+//        $target.scrollIntoView();
+//      }
+//    }
 
     // 是否在索引页显示短描述。
     function showShortDescription(show) {

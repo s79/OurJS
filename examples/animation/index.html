@@ -8,7 +8,6 @@
 <script src="../../docs/scripts/prettify.js"></script>
 <script src="../../dev.js"></script>
 <style>
-h1 { margin-bottom: -30px; }
 h2 { margin: 50px 0 20px; }
 fieldset { display: block; float: none; margin: 20px 0 0; }
 button { padding: 5px 10px; overflow: visible; }
@@ -42,9 +41,11 @@ execute(function($) {
 </head>
 <body>
 
-<h1>Animation</h1>
 
-<h2>在 Element.prototype 上提供的简易动画，支持队列，可以满足大部分需要。</h2>
+<h1>在 Element.prototype 上提供的简易动画</h1>
+<p>简易动画可以满足大部分需要。</p>
+
+<h2>动画队列</h2>
 <h3>element.morph</h3>
 <!-- e_m_1 { -->
 <fieldset>
@@ -77,10 +78,17 @@ execute(function($) {
 </script>
 <!-- } e_m_1 -->
 
+<h2>动画队列中的同类动画合并</h2>
+<p>在动画队列中，如果相邻的动画是同一种类型，则他们会按照以下对应的规则进行合并：</p>
+<dl>
+  <dt>两个高亮动画相邻</dt>
+  <dd>1. 若前者正在播放，则合并前者的 onFinish 回调到后者，并停止前者，开始播放后者。</dd>
+  <dd>2. 若前者仍在等待，则合并前者的 onStart 和 onFinish 回调到后者，并使用后者代替前者。</dd>
+</dl>
 <h3>element.highlight</h3>
 <!-- e_h_1 { -->
 <fieldset>
-  <legend>高亮效果，多次点击时将重播队列中正在播放的高亮效果，并且只有这个高亮效果会有回调。</legend>
+  <legend>连续点击按钮时，符合上述条件 1。</legend>
   <div id="e_h_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
   <button id="e_h_1_go">highlight</button>
 </fieldset>
@@ -88,19 +96,43 @@ execute(function($) {
 <script>
 execute(function($) {
   $('#e_h_1_go').on('click', function() {
-    $('#e_h_1').highlight('backgroundColor', 'red', 1, {
+    $('#e_h_1').highlight('backgroundColor', 'orchid', 1, {
+      // 每次点击按钮后即运行。
       onStart: function() {
         this.innerText++;
+      },
+      // 连续点击按钮时不会运行，而是合并到下一个高亮动画中，最终所有合并的回调会一起运行。
+      onFinish: function() {
+        this.innerText--;
       }
     });
   });
 });
 </script>
 <!-- } e_h_1 -->
+<!-- e_h_3 { -->
+<fieldset>
+  <legend>高亮效果，多次点击时将重播队列中正在播放的高亮效果，并且只有这个高亮效果会有回调。</legend>
+  <div id="e_h_3" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
+  <button id="e_h_3_red">highlight-red</button>
+  <button id="e_h_3_blue">highlight-blue</button>
+</fieldset>
+<pre></pre>
+<script>
+execute(function($) {
+  $('#e_h_3_red').on('click', function() {
+    $('#e_h_3').highlight('backgroundColor', 'red');
+  });
+  $('#e_h_3_blue').on('click', function() {
+    $('#e_h_3').highlight('backgroundColor', 'blue');
+  });
+});
+</script>
+<!-- } e_h_3 -->
 <!-- e_h_2 { -->
 <fieldset>
   <legend>如果当前队列的前一个动画也是高亮动画，则丢弃新的高亮动画。</legend>
-  <div id="e_h_2" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
+  <div id="e_h_2" style="width: 160px; height: 80px; background: gold; font-weight: bold; font-size: 20px; line-height: 80px; text-align: center;"></div>
   <button id="e_h_2_go">highlight</button>
 </fieldset>
 <pre></pre>
@@ -108,27 +140,35 @@ execute(function($) {
 execute(function($) {
   $('#e_h_2_go').on('click', function() {
     $('#e_h_2')
-        .highlight('color', 'red', 1, {
+        // 高亮一，没有机会播放，总是被高亮二合并。
+        .highlight('backgroundColor', 'red', 1, {
+          duration: 2000,
           onStart: function() {
-            this.innerText += '1';
+            this.innerText += '(';
           }
         })
-        .highlight('color', 'green', 1, {
+        // 高亮二，会播放。
+        .highlight('color', 'red', 1, {
+          duration: 500,
           onStart: function() {
-            this.innerText += '2';
+            this.innerText += 'x';
           }
         })
         .morph({
-          width: '+=20'
+          width: '+=50'
         })
-        .highlight('color', 'blue', 1, {
+        // 高亮三，没有机会播放，总是被高亮四合并。
+        .highlight('color', 'yellow', 1, {
+          duration: 2000,
           onStart: function() {
-            this.innerText += '3';
+            this.innerText += 'o';
           }
         })
-        .highlight('color', 'yellow', 1, {
+        // 高亮四，如果连续点击按钮，会被高亮一合并，否则可以播放。
+        .highlight('backgroundColor', 'yellow', 1, {
+          duration: 500,
           onStart: function() {
-            this.innerText += '4';
+            this.innerText += ')';
           }
         });
   });
@@ -178,8 +218,10 @@ execute(function($) {
 </script>
 <!-- } e_f_1 -->
 
-<h2>使用 Animation 创建的高级动画，提供了更灵活的控制手段。</h2>
-<h3>Animation</h3>
+<h1>使用 Animation 创建的高级动画</h1>
+<p>高级动画提供了更灵活的控制手段。</p>
+
+<h2>Animation</h2>
 <!-- a_1 { -->
 <style>
 #a_1 { list-style: none; padding: 0; cursor: default; }

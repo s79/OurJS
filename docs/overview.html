@@ -6,22 +6,8 @@
 <link rel="stylesheet" href="/stylesheets/common.css">
 <link rel="stylesheet" href="stylesheets/framework.css">
 <script src="../our.js"></script>
-<!--<script src="/scripts/common.js"></script>-->
+<script src="/scripts/common.js"></script>
 <style>
-body { padding: 50px 0; background: url(images/bg.jpg); }
-div#content { width: 880px; margin: 0 auto; padding: 50px 50px; border: 1px solid silver; box-shadow: 0 0 10px black; background: white; }
-
-#header2 { position: fixed; left: 0; top: 0; z-index: 10000; width: 100%; height: 35px; box-shadow: 0 0 3px black; background: #30322F; }
-#menu2 { position: relative; width: 960px; height: 35px; margin: 0 auto; padding-left: 30px; background: url(images/logo.png) no-repeat left center; color: #B3B7BC; }
-#menu2 ul { list-style: none; float: left; margin-top: 3px; margin-left: 10px; height: 29px; padding: 0; overflow: hidden; }
-#menu2 li { display: none; }
-#menu2 li.selected { display: block; }
-#menu2 li a { display: block; height: 29px; padding: 0 10px; border-top: 1px solid #30322F; color: #B3B7BC; line-height: 29px; white-space: nowrap; }
-#menu2 li a:hover { text-decoration: none; }
-#menu2 ul.active { border-bottom: 1px solid #30322F; box-shadow: 0 0 3px black; background: #40423F; }
-#menu2 ul.active li { display: block; }
-#menu2 ul.active li.selected a { background: url(images/bg_menu_selected.png); color: white; }
-
 .example { list-style-type: circle; padding: 5px 5px 5px 2em; border: 1px solid gainsboro; border-radius: 5px; background: whitesmoke; }
 .example li { margin: 15px 0; }
 .example p { margin: 5px 0; }
@@ -31,78 +17,6 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
 </style>
 </head>
 <body>
-<div id="header2">
-  <div id="menu2">
-    <ul>
-      <li><a href="#">工作流程</a></li>
-      <li class="selected"><a href="#">开发规范</a></li>
-      <li><a href="#">OurJS</a></li>
-      <li><a href="#">UI 组件</a></li>
-      <li><a href="#">常用模版</a></li>
-      <li><a href="#">资源下载</a></li>
-    </ul>
-    <ul>
-      <li><a href="#">文件创建规范</a></li>
-      <li><a href="#">文本书写规范</a></li>
-      <li class="selected"><a href="#">HTML 编码规范</a></li>
-      <li><a href="#">CSS 编码规范</a></li>
-      <li><a href="#">JavaScript 编码规范</a></li>
-    </ul>
-    <ul>
-      <li><a href="#">文件创建规范</a></li>
-      <li><a href="#">文本书写规范</a></li>
-      <li><a href="#">HTML 编码规范</a></li>
-      <li><a href="#">CSS 编码规范</a></li>
-      <li class="selected"><a href="#">JavaScript 编码规范</a></li>
-    </ul>
-  </div>
-</div>
-<script>
-execute(function($) {
-//  return;
-//  $('#header2').setStyle('position', 'fixed');
-  var expandCount = 0;
-  var morphPool = {};
-  $('#menu2').find('ul').forEach(function($ul, index, uls) {
-    $ul.setStyle('width', $ul.offsetWidth);
-    var $li = $ul.getFirst();
-    var selectedIndex = $ul.getChildren().indexOf($ul.find('.selected')[0]);
-    var nextSiblings = uls.slice(index + 1);
-    morphPool[$ul.uid] = new Animation()
-        .addClip(Fx.morph($ul, {width: 240}), 100, 150, 'easeInOut')
-        .addClip(Fx.morph($ul, {height: 151}), 150, 250, 'easeInOut')
-        .addClip(Fx.morph($li, {marginTop: 0}), 150, 250, 'easeInOut')
-        .on('play', function() {
-          expandCount++;
-        })
-        .on('playstart', function() {
-          $ul.addClass('active');
-          $li.setStyles({marginTop: -30 * selectedIndex});
-          nextSiblings.forEach(function($sibling) {
-            $sibling.fadeOut({duration:100});
-          });
-        })
-        .on('reverse', function() {
-          expandCount--;
-        })
-        .on('reversefinish', function() {
-          $ul.removeClass('active');
-          if (expandCount === 0) {
-            nextSiblings.forEach(function($sibling) {
-              $sibling.fadeIn();
-            });
-          }
-        });
-  });
-  $('#menu2')
-      .on('mouseenter:relay(ul)', function(e) {
-        morphPool[this.uid].play();
-      })
-      .on('mouseleave:relay(ul)', function(e) {
-        morphPool[this.uid].reverse();
-      });
-}, true);
-</script>
 <div id="content">
   <h1>OurJS 概述</h1>
 
