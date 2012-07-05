@@ -730,34 +730,25 @@
    * @returns {Element} 本元素。
    * @description
    *   如果动画队列的前一个动画也是高亮动画，那么这两个高亮动画将按照以下方式合并：
-   *   - 若前者正在播放，则合并前者的 onFinish 回调到后者，并停止前者，开始播放后者。
-   *   - 若前者仍在等待，则合并前者的 onStart 和 onFinish 回调到后者，并使用后者代替前者。
+   *   - 若前者正在播放，则重新播放前者，并丢弃后者。
+   *   - 若前者仍在等待，则直接丢弃后者。
    */
   Element.prototype.highlight = function(property, color, times, options) {
+    var queue;
+    var prevAnimation;
+    if ((queue = queuePool[this.uid]) && (prevAnimation = queue.getLast()).type === 'highlight') {
+      if (queue.length === 1) {
+        prevAnimation.off('playstart').stop().play();
+        return this;
+      } else {
+        return this;
+      }
+    }
+
     var $element = this;
     options = Object.append({delay: 0, duration: 500, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
     var animation = new Animation().addClip(Fx.highlight($element, property, color, times), options.delay, options.duration, options.timingFunction);
     animation.type = 'highlight';
-
-    var queue;
-    var prevAnimation;
-    var playStartHandlers;
-    var playFinishHandlers;
-    if ((queue = queuePool[$element.uid]) && (prevAnimation = queue.getLast()).type === 'highlight') {
-      if (queue.length === 1) {
-        prevAnimation.off('playfinish.native').stop();
-        delete queuePool[queue.id];
-      } else {
-        if (playStartHandlers = prevAnimation.events['playstart']) {
-          animation.events['playstart'] = playStartHandlers;
-        }
-        queue.pop();
-      }
-      if (playFinishHandlers = prevAnimation.events['playfinish']) {
-        animation.events['playfinish'] = playFinishHandlers;
-      }
-    }
-
     if (options.onStart) {
       animation.on('playstart', function(e) {
         options.onStart.call($element, e);

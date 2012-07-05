@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-06-29
+ *  Version: 2012-07-05
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -4446,14 +4446,14 @@
   var INTERNAL_IDENTIFIER_REVERSE = {};
 
   // 动画的状态。
-  var STARTING_POINT = -2;
+  var START_POINT = -2;
   var REVERSING = -1;
   var PASUING = 0;
   var PLAYING = 1;
   var END_POINT = 2;
 
   // 动画剪辑的状态。
-  var BEFORE_STARTING_POINT = -1;
+  var BEFORE_START_POINT = -1;
   var ACTIVE = 0;
   var AFTER_END_POINT = 1;
 
@@ -4550,7 +4550,6 @@
   // 获取控速函数。
   var getTimingFunction = function(name) {
     name = name || '';
-//    'cubicBezier(0.42, 1.0, 0.75, 1.0)'.match(/^cubicBezier\((0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1),\s*(0\.\d+|0|1\.0+|1)/)
     return builtInTimingFunctions[name] || (name.startsWith('cubicBezier') ? cubicBezier.apply(null, name.slice(12, -1).split(',').map(function(item) {
       return parseFloat(item);
     })) : builtInTimingFunctions.ease);
@@ -4558,16 +4557,6 @@
 
   // 播放动画对应某一时间点的某一帧。
   var playAnimation = function(animation, timePoint, isPlayMethod) {
-    // 触发事件。
-    if (isPlayMethod) {
-      if (timePoint === 0) {
-        animation.fire('playstart');
-      }
-    } else {
-      if (timePoint === animation.duration) {
-        animation.fire('reversestart');
-      }
-    }
     // 播放当前帧。
     animation.clips.forEach(function(clip) {
       var active = false;
@@ -4577,7 +4566,7 @@
         if (clip.status === AFTER_END_POINT) {
           return;
         }
-        if (clip.status === BEFORE_STARTING_POINT) {
+        if (clip.status === BEFORE_START_POINT) {
           if (x >= 0) {
             x = duration ? 0 : 1;
             clip.status = ACTIVE;
@@ -4591,7 +4580,7 @@
           }
         }
       } else {
-        if (clip.status === BEFORE_STARTING_POINT) {
+        if (clip.status === BEFORE_START_POINT) {
           return;
         }
         if (clip.status === AFTER_END_POINT) {
@@ -4604,7 +4593,7 @@
           active = true;
           if (x <= 0) {
             x = 0;
-            clip.status = BEFORE_STARTING_POINT;
+            clip.status = BEFORE_START_POINT;
           }
         }
       }
@@ -4627,7 +4616,7 @@
         if (animation.timestamp) {
           unmountAnimation(animation);
         }
-        animation.status = STARTING_POINT;
+        animation.status = START_POINT;
         animation.fire('reversefinish');
       }
     }
@@ -4705,7 +4694,7 @@
     this.uid = ++uid;
     this.clips = [];
     this.timePoint = 0;
-    this.status = STARTING_POINT;
+    this.status = START_POINT;
     this.duration = 0;
   }
 
@@ -4726,6 +4715,8 @@
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
    * @param {string} timingFunction 控速函数名称或表达式。
+   *   支持的名称有 linear，bounceIn，bounceOut，ease，easeIn，easeOut，easeInOut，easeOutIn。
+   *   表达式的格式为 <dfn>cubicBezier(<var>p1x</var>, <var>p1y</var>, <var>p2x</var>, <var>p2y</var>)</dfn>，各参数均为浮点数，其中 <var>p1x</var> 和 <var>p2x</var> 的取值范围必须在 [0, 1] 之间。
    * @returns {Object} Animation 对象。
    */
   Animation.prototype.addClip = function(fxRenderer, delay, duration, timingFunction) {
@@ -4733,7 +4724,7 @@
     fxRenderer.delay = delay;
     fxRenderer.duration = duration;
     fxRenderer.timingFunction = getTimingFunction(timingFunction);
-    fxRenderer.status = BEFORE_STARTING_POINT;
+    fxRenderer.status = BEFORE_START_POINT;
     this.clips.push(fxRenderer);
     // 重新计算整个动画持续的时间。
     this.duration = Math.max(this.duration, delay + duration);
@@ -4753,9 +4744,21 @@
     var animation = this;
     var isPlayMethod = reverse !== INTERNAL_IDENTIFIER_REVERSE;
     var status = animation.status;
-    if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != STARTING_POINT) {
-      animation.fire(isPlayMethod ? 'play' : 'reverse');
-      animation.status = isPlayMethod ? PLAYING : REVERSING;
+    if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != START_POINT) {
+      // 触发事件。
+      if (isPlayMethod) {
+        animation.fire('play');
+        if (status === START_POINT) {
+          animation.fire('playstart');
+        }
+        animation.status = PLAYING;
+      } else {
+        animation.fire('reverse');
+        if (status === END_POINT) {
+          animation.fire('reversestart');
+        }
+        animation.status = REVERSING;
+      }
       // 未挂载到引擎（执行此方法前为暂停/停止状态）。
       if (!animation.timestamp) {
         var timePoint = animation.timePoint;
@@ -4814,11 +4817,12 @@
    */
   Animation.prototype.stop = function() {
     var animation = this;
-    if (animation.status !== STARTING_POINT) {
+    if (animation.status !== START_POINT) {
       animation.timePoint = 0;
-      animation.status = STARTING_POINT;
+      animation.status = START_POINT;
       animation.clips.forEach(function(clip) {
-        clip.status = BEFORE_STARTING_POINT;
+        clip.call(animation, 0, 0);
+        clip.status = BEFORE_START_POINT;
       });
       if (animation.timestamp) {
         unmountAnimation(animation);
@@ -5045,13 +5049,14 @@
    *   Element.prototype.highlight
    */
 
-  // 简单动画的队列。
+  // 简单动画的队列，为队列中的 Animation 对象增加类似 renderer 的 type 属性，以供动画合并时使用。
   var queuePool = {};
 
   // 播放指定的队列。
   var playQueue = function(queue) {
-    queue.currentAnimation = queue.shift()
-        .on('playfinish', function() {
+    queue.getFirst()
+        .on('playfinish.native', function() {
+          queue.shift();
           if (queue.length) {
             playQueue(queue);
           } else {
@@ -5064,12 +5069,11 @@
   // 在指定的队列中添加一个动画。
   var appendToQueue = function(uid, animation) {
     var queue = queuePool[uid];
-    if (!queue) {
-      queue = queuePool[uid] = [];
+    if (queue) {
+      queue.push(animation);
+    } else {
+      queue = queuePool[uid] = [animation];
       queue.id = uid;
-    }
-    queue.push(animation);
-    if (!queue.currentAnimation) {
       playQueue(queue);
     }
   };
@@ -5085,7 +5089,7 @@
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
-   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'ease'。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -5101,6 +5105,7 @@
     var $element = this;
     options = Object.append({delay: 0, duration: 400, timingFunction: 'ease', onStart: null, onFinish: null}, options || {});
     var animation = new Animation().addClip(Fx.morph($element, styles), options.delay, options.duration, options.timingFunction);
+    animation.type = 'morph';
     if (options.onStart) {
       animation.on('playstart', function(e) {
         options.onStart.call($element, e);
@@ -5126,41 +5131,50 @@
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
-   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeIn'。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
    * @description
-   *   如果本元素正在播放一个高亮动画，则丢弃新的高亮动画并重新播放旧的高亮动画。
-   *   如果当前队列的前一个动画也是高亮动画，则丢弃新的高亮动画。
+   *   如果动画队列的前一个动画也是高亮动画，那么这两个高亮动画将按照以下方式合并：
+   *   - 若前者正在播放，则合并前者的 onFinish 回调到后者，并停止前者，开始播放后者。
+   *   - 若前者仍在等待，则合并前者的 onStart 和 onFinish 回调到后者，并使用后者代替前者。
    */
   Element.prototype.highlight = function(property, color, times, options) {
-    var queue = queuePool[this.uid];
-    if (queue) {
-      if (queue.length === 0) {
-        if (queue.currentAnimation.clips[0].type === 'highlight') {
-          queue.currentAnimation.stop().play();
-          return this;
-        }
-      } else {
-        if (queue[queue.length - 1].clips[0].type === 'highlight') {
-          return this;
-        }
-      }
-    }
-
     var $element = this;
     options = Object.append({delay: 0, duration: 500, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
     var animation = new Animation().addClip(Fx.highlight($element, property, color, times), options.delay, options.duration, options.timingFunction);
+    animation.type = 'highlight';
+
+    var queue;
+    var prevAnimation;
+    var playStartHandlers;
+    var playFinishHandlers;
+    if ((queue = queuePool[$element.uid]) && (prevAnimation = queue.getLast()).type === 'highlight') {
+      if (queue.length === 1) {
+        prevAnimation.off('playfinish.native').stop();
+        delete queuePool[queue.id];
+      } else {
+        if (playStartHandlers = prevAnimation.events['playstart']) {
+          animation.events['playstart'] = playStartHandlers;
+        }
+        queue.pop();
+      }
+      if (playFinishHandlers = prevAnimation.events['playfinish']) {
+        animation.events['playfinish'] = playFinishHandlers;
+      }
+    }
+
     if (options.onStart) {
       animation.on('playstart', function(e) {
-        this.off('playstart');
         options.onStart.call($element, e);
       });
     }
     if (options.onFinish) {
       animation.on('playfinish', function(e) {
-        options.onFinish.call($element, e);
+        setTimeout(function() {
+          options.onFinish.call($element, e);
+        }, 0);
       });
     }
     appendToQueue($element.uid, animation);
@@ -5176,7 +5190,7 @@
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeIn'。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -5186,7 +5200,7 @@
   Element.prototype.fadeIn = function(options) {
     var $element = this;
     var animation = new Animation()
-        .on('play', function(e) {
+        .on('play', function() {
           if ($element.getStyle('display') === 'none') {
             var originalOpacity = $element.getStyle('opacity');
             options = Object.append({delay: 0, duration: 200, timingFunction: 'easeIn', onStart: null, onFinish: null}, options || {});
@@ -5218,7 +5232,7 @@
    * @param {Object} [options] 动画选项。
    * @param {number} options.delay 延时，默认为 0，即马上开始播放。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，默认为 'easeOut'。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeOut'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。
@@ -5229,7 +5243,7 @@
     var $element = this;
     var originalOpacity;
     var animation = new Animation()
-        .on('play', function(e) {
+        .on('play', function() {
           if ($element.getStyle('display') !== 'none') {
             originalOpacity = $element.getStyle('opacity');
             options = Object.append({delay: 0, duration: 200, timingFunction: 'easeOut', onStart: null, onFinish: null}, options || {});
@@ -5260,18 +5274,17 @@
  * @version 20120208
  */
 // TODO: jQuery - ticket #5280: Internet Explorer will keep connections alive if we don't abort on unload
-// TODO: MooTools 在 xhr.abort() 后新建一个 XHR 对象，原因不明。
-// TODO: 大多数库并不重用 XHR 对象。
 (function() {
 //==================================================[Request]
   /*
    * 调用流程：
    *   var request = new Request(url, options);
-   *   request.send(data)<send> -> requestParser(data)<request> -> responseParser(response)<response>
-   *                                                            -> request.abort()<abort>
+   *   request.send(requestData)<send> -> requestParser(requestData)<start> -> responseParser(responseData)<finish>
+   *                                                                        -> request.abort()<abort>
    *
    * 说明：
    *   用户使用 send 方法传递的请求数据与服务端返回的响应数据均不可预期，因此可以通过修改选项 requestParser 和 responseParser 这两个函数以对他们进行预处理。
+   *   本实现的每个 Request 对象都仅创建一个 XHR 对象，多次发送请求则重复使用。MooTools 在 xhr.abort() 后新建一个 XHR 对象，原因不明。大多数库并不重用 XHR 对象。若使用中出现其他问题，需考虑是否是因为重用 XHR 对象的原因。
    *
    * 注意：
    *   IE6 IE7 IE8 IE9 均不支持 overrideMimeType，因此本组件不提供此功能。
@@ -5379,8 +5392,8 @@
         xhr.abort();
         break;
     }
-    // 触发响应事件。
-    request.fire('response', options.responseParser({
+    // 触发 finish 事件。
+    request.fire('finish', options.responseParser({
       status: status,
       statusText: statusText,
       headers: headers,
@@ -5405,9 +5418,9 @@
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
    * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为 null。
+   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为空字符串。
    *   原始请求数据无特殊要求。
-   *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 request 事件对象的 data 属性。
+   *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 start 事件对象的 data 属性。
    * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回解析后的对象数据，默认无特殊处理。
    *   原始响应数据中包含以下属性：
    *   {number} responseData.status 状态码。
@@ -5415,19 +5428,18 @@
    *   {Object} responseData.headers 响应头。
    *   {string} responseData.text 响应文本。
    *   {XMLDocument} responseData.xml 响应 XML 文档。
-   *   解析后的响应数据无特殊要求，但要注意，解析后的数据对象的属性将被追加到 response 事件对象中。
-   *   在调用 abort 方法取消请求，或请求超时的情况下，也会收到响应数据。此时的状态码分别为 -498 和 -408。
-   *   换句话说，只要调用了 send 方法发起了请求，就必然会收到响应，虽然上述两种情况的响应并非是真实的来自于服务端的响应数据。
-   *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 request 事件监听器中显示的提示信息隐藏。
+   *   解析后的响应数据无特殊要求，但要注意，解析后的数据对象的属性将被追加到 finish 事件对象中。
    * @fires send
    *   {Object} event.data 要发送的数据。
-   *   成功调用 send 方法后，发送请求前触发。
-   * @fires request
+   *   成功调用 send 方法后，解析请求数据前触发。
+   * @fires start
    *   {Object} event.data 解析后的请求数据。
-   *   发送请求前触发。
-   * @fires response
+   *   解析请求数据后，开始发送请求前触发。
+   * @fires finish
    *   {*} event.* 解析后的响应数据。
-   *   收到响应后触发。
+   *   请求结束并解析响应数据后触发。
+   *   只要调用了 send 方法就必然会触发此事件，在调用 abort 方法取消请求，或请求超时的情况下，也会收到模拟的响应数据并传入 responseParser，此时的状态码分别为 -498 和 -408。
+   *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 start 事件监听器中显示的提示信息隐藏。
    * @fires abort
    *   成功调用 abort 方法后触发。
    */
@@ -5455,11 +5467,11 @@
     async: true,
     minTime: NaN,
     maxTime: NaN,
-    requestParser: function(data) {
-      return data ? data + '' : null;
+    requestParser: function(requestData) {
+      return requestData ? requestData + '' : '';
     },
-    responseParser: function(response) {
-      return response;
+    responseParser: function(responseData) {
+      return responseData;
     }
   };
 
@@ -5468,10 +5480,10 @@
    * 发送请求。
    * @name Request.prototype.send
    * @function
-   * @param {Object} [data] 要发送的数据。
+   * @param {Object} [requestData] 要发送的数据。
    * @returns {Object} Request 对象。
    */
-  Request.prototype.send = function(data) {
+  Request.prototype.send = function(requestData) {
     var request = this;
     var options = request.options;
     var xhr = request.xhr;
@@ -5480,17 +5492,17 @@
       return request;
     }
     // 触发 send 事件。
-    request.fire('send', {data: data});
+    request.fire('send', {data: requestData});
     // 处理请求数据。
-    data = options.requestParser(data);
-    // 触发请求事件。
-    request.fire('request', {data: data});
+    requestData = options.requestParser(requestData);
+    // 触发 start 事件。
+    request.fire('start', {data: requestData});
     // 创建请求。
     var url = request.url;
     var method = options.method.toLowerCase();
-    if (method === 'get' && data) {
-      url += (url.contains('?') ? '&' : '?') + data;
-      data = null;
+    if (method === 'get' && requestData) {
+      url += (url.contains('?') ? '&' : '?') + requestData;
+      requestData = '';
     }
     if (!options.useCache) {
       url += (url.contains('?') ? '&' : '?') + ++uid;
@@ -5510,7 +5522,7 @@
       xhr.setRequestHeader(name, headers[name]);
     }
     // 发送请求。
-    xhr.send(data || null);
+    xhr.send(requestData || null);
     request.timestamp = Date.now();
     if (options.async && options.maxTime > 0) {
       request.maxTimeTimer = setTimeout(function() {
@@ -5544,7 +5556,7 @@
     if (request.timestamp) {
       // 不在此处调用 xhr.abort()，统一在 getResponse 中处理，可以避免依赖 readystatechange，逻辑更清晰。
       getResponse(request, ABORT);
-      request.fire('abort', null);
+      request.fire('abort');
     }
     return request;
   };

@@ -369,13 +369,8 @@ execute(function($) {
       var $target = $(id);
       var scrollTop = $deatilsPanel.scrollTop;
       var top = $target.getClientRect().top + scrollTop;
-      new Animation().addClip(Fx.base(function(x, y) {
-        $deatilsPanel.scrollTop = scrollTop + ((top - 50) - scrollTop) * y;
-      }), 0, 200, 'easeInOut')
-          .on('playfinish', function() {
-            $target.getFirst().highlight()
-          })
-          .play();
+      $deatilsPanel.scrollTop = scrollTop + ((top - 50) - scrollTop);
+      $target.getFirst().highlight('backgroundColor', 'yellow', 2, {delay: 150, duration: 500});
       return false;
     });
 
