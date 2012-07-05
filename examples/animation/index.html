@@ -91,21 +91,25 @@ execute(function($) {
   <legend>连续点击按钮时，符合上述合并条件 1。</legend>
   <div id="e_h_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
   <button id="e_h_1_red">highlight-red</button>
-  <button id="e_h_1_green">highlight-greenyellow</button>
+  <button id="e_h_1_green">highlight-blue</button>
 </fieldset>
 <pre></pre>
 <script>
 execute(function($) {
   var $target = $('#e_h_1');
   $('#e_h_1_red').on('click', function() {
-    $target.highlight('backgroundColor', 'red', 1, {onFinish: function() {
-      this.innerText += 'R';
-    }});
+    $target.highlight('backgroundColor', 'red', 1, {
+      onFinish: function() {
+        this.innerText += 'R';
+      }
+    });
   });
   $('#e_h_1_green').on('click', function() {
-    $target.highlight('backgroundColor', 'greenyellow', 1, {onFinish: function() {
-      this.innerText += 'G';
-    }});
+    $target.highlight('backgroundColor', 'blue', 1, {
+      onFinish: function() {
+        this.innerText += 'B';
+      }
+    });
   });
 });
 </script>
@@ -177,7 +181,7 @@ execute(function($) {
   var i = 0;
   $('#e_f_1_in').on('mouseover', function() {
     $e.fadeIn({
-      duration: 500,
+      duration: 1000,
       onStart: function() {
         console.log('Fade in start.');
       },
@@ -225,12 +229,11 @@ execute(function($) {
 execute(function($) {
   $('#a_1').getChildren().forEach(function($menu) {
     var animation = new Animation().addClip(Fx.morph($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
-    $menu.on(
-        'mouseenter', function(e) {
+    $menu
+        .on('mouseenter', function() {
           animation.play();
         })
-        .on(
-        'mouseleave', function(e) {
+        .on('mouseleave', function() {
           animation.reverse();
         });
   });
@@ -289,7 +292,7 @@ execute(function($) {
         borderWidth: 10
       }), 400, 200, 'cubicBezier(.6,0,.6,1.35)')
       .addClip(
-      Fx.base(function(x, y) {
+      Fx.custom(function(x, y) {
         console.log(x, y);
         $layer.toggleClass('italic');
       }), 500, 0, 'linear')
@@ -304,6 +307,7 @@ execute(function($) {
       .on('play', function() {
         $layer.innerHTML = 'PLAY';
         console.log('PLAY');
+        this.pause();
       })
       .on('playstart', function() {
         $layer.setStyle('display', 'block').innerHTML = 'PLAYSTART';
@@ -445,7 +449,7 @@ execute(function($) {
     var color = this.getStyle('backgroundColor');
     new Animation()
         .addClip(
-        Fx.base(function(x, y) {
+        Fx.custom(function(x, y) {
           x = Math.floor(x * 299);
           y = Math.floor(y * 299);
           $canvas.append($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
