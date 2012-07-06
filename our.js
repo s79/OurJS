@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-07-06
+ *  Version: 2012-07-07
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -4410,7 +4410,6 @@
  * @author sundongguo@gmail.com
  * @version 20120412
  */
-// TODO: Fx.Slide 和 Fx.Scroll 效果。
 (function() {
 //==================================================[Animation]
   /*
@@ -4424,7 +4423,7 @@
    *                                                               -> animation.stop<stop>
    *
    * 说明：
-   *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画效果的消耗时间尽可能的接近设定时间。
+   *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。
    *   传入函数的参数 x 为时间点，y 为偏移量，他们的值都将从 0 趋向于 1。
    *   在动画在进行中时，执行动画对象的 stop 方法即可停止的继续调用，但也会阻止事件 end 的触发。
    *   调用 reverse 可以反向播放，但要注意，反向播放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
@@ -4432,9 +4431,9 @@
    *   如果一个动画剪辑的持续时间为 0，则 play 时传入的 x 值为 1，reverse 时传入的 x 值为 0。
    *
    * 操作 Animation 对象和调用 Element 上的相关动画方法的差别：
-   *   当需要定制一个可以预期的动画效果时，建议使用 Animation，Animation 对象中的 Clip 会记录动画创建时的状态，而且不仅可以正向播放，还可以随时回退到起点。
+   *   当需要定制一个可以精确控制的动画时，建议使用 Animation，Animation 对象中的 Clip 会记录动画创建时的状态，而且不仅可以正向播放，还可以随时回退到起点。
    *   否则应使用 Element 实例上的对应简化动画方法，这些简化方法每次调用都会自动创建新的 Animation 对象，而不保留之前的状态，这样就可以随时以目标元素最新的状态作为起点来播放动画。
-   *   一个明显的差异是使用 Fx.Morph 时传入相对长度的样式值：
+   *   一个明显的差异是为不同类型的样式渐变动画设置相同的相对长度的变化值：
    *   在直接使用 Animation 的情况下，无论如何播放/反向播放，目标元素将始终在起点/终点之间渐变。
    *   在使用 Element.prototype.morph 方法时，传入同样的参数，多次播放时，目标元素将以上一次的终点作为起点，开始渐变。
    */
@@ -4663,7 +4662,7 @@
 
 //--------------------------------------------------[Animation Constructor]
   /**
-   * 动画效果。
+   * 动画。
    * @name Animation
    * @constructor
    * @fires play
@@ -4686,7 +4685,7 @@
    *   成功调用 stop 方法后触发。
    * @description
    *   高级应用：
-   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画效果。
+   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。
    *   仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
    *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
    */
@@ -4710,7 +4709,7 @@
    * 添加动画剪辑。
    * @name Animation.prototype.addClip
    * @function
-   * @param {Function} fxRenderer 使用 Fx.* 创建的特效渲染器。
+   * @param {Function} renderer 使用 Animation.create*Renderer 创建的渲染器。
    *   函数中的 this 指向所属的 Animation 对象。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
@@ -4719,13 +4718,13 @@
    *   表达式的格式为 <dfn>cubicBezier(<var>p1x</var>, <var>p1y</var>, <var>p2x</var>, <var>p2y</var>)</dfn>，各参数均为浮点数，其中 <var>p1x</var> 和 <var>p2x</var> 的取值范围必须在 [0, 1] 之间。
    * @returns {Object} Animation 对象。
    */
-  Animation.prototype.addClip = function(fxRenderer, delay, duration, timingFunction) {
+  Animation.prototype.addClip = function(renderer, delay, duration, timingFunction) {
     // 使用各项配置组合动画剪辑（实际是将渲染器升级为动画剪辑）。
-    fxRenderer.delay = delay;
-    fxRenderer.duration = duration;
-    fxRenderer.timingFunction = getTimingFunction(timingFunction);
-    fxRenderer.status = BEFORE_START_POINT;
-    this.clips.push(fxRenderer);
+    renderer.delay = delay;
+    renderer.duration = duration;
+    renderer.timingFunction = getTimingFunction(timingFunction);
+    renderer.status = BEFORE_START_POINT;
+    this.clips.push(renderer);
     // 重新计算整个动画持续的时间。
     this.duration = Math.max(this.duration, delay + duration);
     return this;
@@ -4838,7 +4837,15 @@
 //--------------------------------------------------[Animation]
   window.Animation = new Component(Animation, Animation.options, Animation.prototype);
 
-//==================================================[Fx]
+})();
+
+(function() {
+//==================================================[Animation.create*Renderer]
+  /*
+   * 创建用于绘制动画每一帧的渲染器。
+   * 渲染器实际上是一个函数，接受两个参数 x 和 y，其中 x 为时间轴，y 为偏移量，两者均从 0 趋向于 1。
+   */
+
   // 可变的 CSS properties 类型。
   var TYPE_NUMBER = 1;
   var TYPE_LENGTH = 2;
@@ -4934,36 +4941,33 @@
     return 'rgb(' + colorArray[0] + ', ' + colorArray[1] + ', ' + colorArray[2] + ')';
   };
 
+//--------------------------------------------------[Animation.createBasicRenderer]
   /**
-   * 用于创建影片的特效渲染器。
-   * @name Fx
-   * @namespace
-   */
-  window.Fx = {};
-
-//--------------------------------------------------[Fx.custom]
-  /**
-   * 基础效果渲染器。
-   * @name Fx.custom
+   * 创建基本渲染器。
+   * @name Animation.createBasicRenderer
    * @function
    * @param {Function} renderer 渲染函数，this 指向所属的 Animation 对象，传入两个参数：时间轴和偏移量。
    * @returns {Function} 生成的渲染器。
    */
-  Fx.custom = function(renderer) {
-    renderer.type = 'custom';
+  Animation.createBasicRenderer = function(renderer) {
+    renderer.type = 'basic';
     return renderer;
   };
 
-//--------------------------------------------------[Fx.morph]
+//--------------------------------------------------[Animation.createStyleRenderer]
   /**
-   * 渐变效果渲染器。
-   * @name Fx.morph
+   * 创建样式渐变效果渲染器。
+   * @name Animation.createStyleRenderer
    * @function
-   * @param {Element} $element 要实施渐变效果的元素。
-   * @param {Object} styles 要实施渐变的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个预命名颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(正整数R, 正整数G, 正整数B) 格式。
+   * @param {Element} element 要实施渐变效果的元素。
+   * @param {Object} styles 要实施渐变效果的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个预命名颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(正整数R, 正整数G, 正整数B) 格式。
    * @returns {Function} 生成的渲染器。
+   * @description
+   *   样式渐变效果渲染器只能指定一个元素。
    */
-  Fx.morph = function($element, styles) {
+  var $ = document.$;
+  Animation.createStyleRenderer = function(element, styles) {
+    var $element = $(element);
     var map;
     var renderer = function(x, y) {
       if (map === undefined) {
@@ -4990,11 +4994,11 @@
         $element.setStyle(name, currentValue);
       });
     };
-    renderer.type = 'morph';
+    renderer.type = 'style';
     return renderer;
   };
 
-//--------------------------------------------------[Fx.Scroll]
+//--------------------------------------------------[Animation.createScrollRenderer]
 
 })();
 
@@ -5023,7 +5027,7 @@
 
   // 获取供 FadeIn/FadeOut 使用的 Animation 对象。
   var getFadeAnimation = function($element, isFadeInMode, originalOpacity, duration, timingFunction) {
-    var animation = new Animation().addClip(Fx.custom(function(x, y) {
+    var animation = new Animation().addClip(Animation.createBasicRenderer(function(x, y) {
       $element.setStyle('opacity', (originalOpacity * (isFadeInMode ? y : 1 - y)).toFixed(2));
     }), 0, duration, timingFunction);
     if (isFadeInMode) {
@@ -5072,7 +5076,7 @@
       list.morph.pause();
     }
     list.morph = new Animation()
-        .addClip(Fx.morph($element, styles), 0, options.duration, options.timingFunction)
+        .addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction)
         .on('playstart', function(e) {
           options.onStart.call($element, e);
         })
@@ -5121,7 +5125,7 @@
     var styles = {};
     styles[property] = originalColor;
     list.highlight = new Animation()
-        .addClip(Fx.morph($element, styles), 0, options.duration, options.timingFunction)
+        .addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction)
         .on('playstart', function(e) {
           $element.setStyle(property, color);
           options.onStart.call($element, e);
@@ -5197,7 +5201,7 @@
    * @function
    * @param {Object} [options] 动画选项。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeOut'。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    * @param {Function} options.onFinish 播放完成时的回调。
    * @returns {Element} 本元素。

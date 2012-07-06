@@ -101,7 +101,7 @@ execute(function($) {
 
   dialogB = new Dialog($('#dialog_b'), {effect: true});
 
-  animation = new Animation().addClip(Fx.morph(dialogB.element, {height: 400}), 0, 200, 'ease')
+  animation = new Animation().addClip(Animation.createStyleRenderer(dialogB.element, {height: 400}), 0, 200, 'ease')
       .on('step', function() {
         dialogB.reposition();
       });

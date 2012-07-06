@@ -242,7 +242,7 @@ execute(function($) {
   <script>
   execute(function($) {
     $('#a_1').getChildren().forEach(function($menu) {
-      var animation = new Animation().addClip(Fx.morph($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
+      var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
       $menu
           .on('mouseenter', function() {
             animation.play();
@@ -289,9 +289,9 @@ execute(function($) {
 //--------------------------------------------------[animation]
     var $layer = $('#layer').setStyle('opacity', 0);
     window.animation = new Animation()
-        .addClip(Fx.morph($layer, {opacity: 1}), 0, 700, 'easeOut')
+        .addClip(Animation.createStyleRenderer($layer, {opacity: 1}), 0, 700, 'easeOut')
         .addClip(
-        Fx.morph($layer, {
+        Animation.createStyleRenderer($layer, {
           backgroundColor: 'steelblue',
           borderTopColor: 'silver',
           borderRightColor: 'dimgray',
@@ -299,18 +299,18 @@ execute(function($) {
           borderLeftColor: 'silver'
         }), 600, 400)
         .addClip(
-        Fx.morph($layer, {
+        Animation.createStyleRenderer($layer, {
           left: '-=150',
           width: '+=300',
           borderWidth: 10
         }), 400, 200, 'cubicBezier(.6,0,.6,1.35)')
         .addClip(
-        Fx.custom(function(x, y) {
+        Animation.createBasicRenderer(function(x, y) {
           console.log(x, y);
           $layer.toggleClass('italic');
         }), 500, 0, 'linear')
         .addClip(
-        Fx.morph($layer, {
+        Animation.createStyleRenderer($layer, {
           top: '-=150',
           height: '+=100',
           color: 'yellow',
@@ -389,7 +389,7 @@ execute(function($) {
     });
     var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5);
     $timeline.append($time);
-    animation.addClip(Fx.morph($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
+    animation.addClip(Animation.createStyleRenderer($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
       $time.setStyle('left', 0);
     });
 
@@ -467,7 +467,7 @@ execute(function($) {
       var color = this.getStyle('backgroundColor');
       new Animation()
           .addClip(
-          Fx.custom(function(x, y) {
+          Animation.createBasicRenderer(function(x, y) {
             x = Math.floor(x * 299);
             y = Math.floor(y * 299);
             $canvas.append($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
