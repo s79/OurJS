@@ -1,6 +1,91 @@
 ﻿>TODO 编辑文档，明确各 Function 类型的参数的 this 指向。
 >TODO 升级 Pagination 的事件。
 >TODO 动画支持复合属性。
+>TODO Fx -> Renderer。
+>TODO fadeIn/fadeOut 合并。
+
+>2012-07-06
+修复 on('play', function() {this.pause/stop();}) 无效的问题。
+取消队列，加入列表。
+ - 目前的动画队列并不实用，其功能也不如 Animation 上提供的 clips 强大，因此决定去除此特性，因此也消除了对链式写法的“同步插入队列但异步执行”的歧义。
+ - 简单动画本意为指定一个终点，做补间动画。希望在动画结束后做的事情，放在 onFinish 回调中更容易理解。
+ - 增加“本元素播放中的动画列表”特性，这个特性可以让同一个元素上播放的同类动画合并（或抵消），在多种有动画效果的组件编写中可以简化开发。
+去掉 delay 参数，没有队列更加没有意义。
+去掉 highlight 的 times 参数。
+删除 Fx.highlight ，去掉 times 后完全可以由 morph 代替。
+//--------------------------------------------------[Fx.highlight]
+  /**
+   * 高亮效果渲染器。
+   * @name Fx.highlight
+   * @function
+   * @param {Element} $element 要实施渐隐效果的元素。
+   * @param {string} [property] 高亮样式名，默认为 'backgroundColor'。
+   * @param {string} [color] 高亮颜色，默认为 'yellow'。
+   * @param {number} [times] 高亮次数，默认为 1。
+   * @returns {Function} 生成的渲染器。
+   */
+  Fx.highlight = function($element, property, color, times) {
+    property = property || 'backgroundColor';
+    color = color || 'yellow';
+    times = times || 1;
+    // 内部分多次动画换算后，使用此控速函数。
+    var map;
+    var nativeSection = 1 / times;
+    var renderer = function(x) {
+      if (map === undefined) {
+        var style = {};
+        style[property] = color;
+        map = getStylesMap($element, style);
+      }
+      var beforeValue = map.before[property];
+      var afterValue = map.after[property];
+      if (x === 0 || x === 1) {
+        $element.setStyle(property, convertToRGBValue(beforeValue));
+      } else {
+        var nativeX = (x % nativeSection) / nativeSection;
+        var nativeY = renderer.timingFunction(nativeX);
+        $element.setStyle(property, convertToRGBValue([
+          Math.floor(afterValue[0] + (beforeValue[0] - afterValue[0]) * nativeY),
+          Math.floor(afterValue[1] + (beforeValue[1] - afterValue[1]) * nativeY),
+          Math.floor(afterValue[2] + (beforeValue[2] - afterValue[2]) * nativeY)
+        ]));
+      }
+    };
+    renderer.type = 'highlight';
+    return renderer;
+  };
+
+//--------------------------------------------------[队列]
+  // 简单动画的队列，为队列中的 Animation 对象增加类似 renderer 的 type 属性，以供动画合并时使用。
+  var queuePool = {};
+
+  // 播放指定的队列。
+  var playQueue = function(queue) {
+    queue.getFirst()
+        .on('playfinish.native', function() {
+          queue.shift();
+          if (queue.length) {
+            setTimeout(function() {
+              playQueue(queue);
+            }, 0);
+          } else {
+            delete queuePool[queue.id];
+          }
+        })
+        .play();
+  };
+
+  // 在指定的队列中添加一个动画。
+  var appendToQueue = function(uid, animation) {
+    var queue = queuePool[uid];
+    if (queue) {
+      queue.push(animation);
+    } else {
+      queue = queuePool[uid] = [animation];
+      queue.id = uid;
+      playQueue(queue);
+    }
+  };
 
 >2012-07-05
 Fx.base -> Fx.custom
@@ -340,7 +425,7 @@ String.prototype.clean
 调整注释结构
 正则提出为常量 (还差 dom)
 辅助函数改为函数表达式
-  - WebStorm 格式化代码时会自动在函数声明上下插入空行，另外函数声明的函数名称会被特殊高亮，这两点有时会影响代码阅读。
+ - WebStorm 格式化代码时会自动在函数声明上下插入空行，另外函数声明的函数名称会被特殊高亮，这两点有时会影响代码阅读。
 
 >2012-02-12
 整理代码，调整注释结构。

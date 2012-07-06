@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>Animation</title>
-<link rel="stylesheet" href="../../docs/stylesheets/prettify.css">
+<link rel="stylesheet" href="/stylesheets/common.css">
 <link rel="stylesheet" href="../../examples/common.css">
-<script src="../../docs/scripts/prettify.js"></script>
+<link rel="stylesheet" href="../../docs/stylesheets/prettify.css">
 <script src="../../dev.js"></script>
+<script src="/scripts/common.js"></script>
+<script src="../../docs/scripts/prettify.js"></script>
 <style>
 h2 { margin: 50px 0 20px; }
 fieldset { display: block; float: none; margin: 20px 0 0; }
@@ -40,443 +42,460 @@ execute(function($) {
 </script>
 </head>
 <body>
-
-
-<h1>在 Element.prototype 上提供的动画</h1>
-<p>这类动画调用方便，可以满足大部分需要。</p>
-
-<h2>动画队列</h2>
-<h3>element.morph</h3>
-<!-- e_m_1 { -->
-<fieldset>
-  <legend>可以为数字值、长度值、颜色值设置渐变。</legend>
-  <div id="e_m_1" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
-  <button id="e_m_1_go">morph</button>
-</fieldset>
-<pre></pre>
-<script>
-execute(function($) {
-  $('#e_m_1_go').on('click', function() {
-    $('#e_m_1').morph({
-      width: '+=100', // 可以使用相对长度。
-      borderLeftWidth: '10px', // 长度值目前仅支持像素单位。
-      borderLeftColor: '#808080',
-      fontSize: 35, // 可以省略 'px'，直接使用数字。
-      lineHeight: 80, // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置。
-      backgroundColor: 'tomato',
-      color: '#FFF',
-      opacity: .75
-    }, {
-      duration: 1000,
-      timingFunction: 'bounceIn',
-      onFinish: function() {
-        this.innerText--;
-      }
-    }).innerText++;
-  });
-});
-</script>
-<!-- } e_m_1 -->
-
-<h2>动画队列中的动画合并</h2>
-<p>在动画队列中，如果相邻的动画是同一种类型，则他们会按照以下对应的规则进行合并：</p>
-<dl>
-  <dt>两个高亮动画相邻</dt>
-  <dd>1. 若前者正在播放，则重新播放前者，并丢弃后者。</dd>
-  <dd>2. 若前者仍在等待，则直接丢弃后者。</dd>
-</dl>
-<h3>element.highlight</h3>
-<!-- e_h_1 { -->
-<fieldset>
-  <legend>连续点击按钮时，符合上述合并条件 1。</legend>
-  <div id="e_h_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
-  <button id="e_h_1_red">highlight-red</button>
-  <button id="e_h_1_green">highlight-blue</button>
-</fieldset>
-<pre></pre>
-<script>
-execute(function($) {
-  var $target = $('#e_h_1');
-  $('#e_h_1_red').on('click', function() {
-    $target.highlight('backgroundColor', 'red', 1, {
-      onFinish: function() {
-        this.innerText += 'R';
-      }
-    });
-  });
-  $('#e_h_1_green').on('click', function() {
-    $target.highlight('backgroundColor', 'blue', 1, {
-      onFinish: function() {
-        this.innerText += 'B';
-      }
-    });
-  });
-});
-</script>
-<!-- } e_h_1 -->
-<!-- e_h_2 { -->
-<fieldset>
-  <legend>连续点击按钮时，符合上述合并条件 2。</legend>
-  <div id="e_h_2" style="width: 160px; height: 80px; background: gold; font-weight: bold; font-size: 20px; line-height: 80px; text-align: center;"></div>
-  <button id="e_h_2_go">highlight</button>
-</fieldset>
-<pre></pre>
-<script>
-execute(function($) {
-  $('#e_h_2_go').on('click', function() {
-    $('#e_h_2')
-      // 高亮一，会播放。连续点击按钮时会被丢弃（与高亮四合并）。
-        .highlight('color', 'red', 1, {
-          duration: 500,
-          onStart: function() {
-            this.innerText += '1';
-          }
-        })
-      // 高亮二，被丢弃。
-        .highlight('color', 'red', 1, {
-          duration: 2500,
-          onStart: function() {
-            this.innerText += '2';
-          }
-        })
-        .morph({
-          width: '+=20'
-        })
-      // 高亮三，会播放。
-        .highlight('backgroundColor', 'yellow', 1, {
-          duration: 500,
-          onStart: function() {
-            this.innerText += '3';
-          }
-        })
-      // 高亮四，被丢弃。
-        .highlight('backgroundColor', 'yellow', 1, {
-          duration: 2500,
-          onStart: function() {
-            this.innerText += '4';
-          }
-        });
-  });
-});
-</script>
-<!-- } e_h_2 -->
-
-<h3>element.fadeIn/fadeOut</h3>
-<!-- e_f_1 { -->
-<fieldset>
-  <legend>淡入淡出动画。display 不为 none 的元素不能播放淡入动画。display 为 none 的元素不能播放淡出动画。</legend>
-  <div style="height: 88px;">
-    <div style="float: left; padding: 2px; border: 2px solid black;">
-      <div id="e_f_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
-    </div>
-    <span>&lArr;黑色方块会自动收缩（IE9 有渲染错误）</span>
-  </div>
-  <button id="e_f_1_in">fadeIn()</button>
-  <button id="e_f_1_out">fadeOut()</button>
-</fieldset>
-<pre></pre>
-<script>
-execute(function($) {
-  var $e = $('#e_f_1');
-  var i = 0;
-  $('#e_f_1_in').on('mouseover', function() {
-    $e.fadeIn({
-      duration: 1000,
-      onStart: function() {
-        console.log('Fade in start.');
-      },
-      onFinish: function() {
-        console.log('Fade in finish.');
-      }
-    });
-  });
-  $('#e_f_1_out').on('mouseover', function() {
-    $e.fadeOut({
-      duration: 1000,
-      onStart: function() {
-        console.log('Fade out start.');
-      },
-      onFinish: function() {
-        console.log('Fade out finish.');
-      }
-    });
-  });
-});
-</script>
-<!-- } e_f_1 -->
-
-<h1>使用 Animation 创建的高级动画</h1>
-<p>高级动画提供了更灵活的控制手段。</p>
-
-<h2>Animation</h2>
-<!-- a_1 { -->
-<style>
-#a_1 { list-style: none; padding: 0; cursor: default; }
-#a_1 li { width: 200px; height: 30px; margin: 2px 0; padding-left: 10px; border-left: 0 solid white; background: mediumseagreen; line-height: 30px; }
-</style>
-<fieldset>
-  <legend>可以正向播放，也可以反向播放。</legend>
-  <ul id="a_1">
-    <li>菜单一</li>
-    <li>菜单二</li>
-    <li>菜单三</li>
-    <li>菜单四</li>
-    <li>菜单五</li>
+<div id="content">
+  <h1>在 Element.prototype 上提供的简单动画</h1>
+  <p>简单动画的特点：</p>
+  <ul>
+    <li>调用方便，可以满足大部分需要。</li>
+    <li>每次运行是以元素的当前状态为起点，比较灵活。</li>
+    <li>动画比较简单，不能精细的控制。</li>
   </ul>
-</fieldset>
-<pre></pre>
-<script>
-execute(function($) {
-  $('#a_1').getChildren().forEach(function($menu) {
-    var animation = new Animation().addClip(Fx.morph($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
-    $menu
-        .on('mouseenter', function() {
-          animation.play();
-        })
-        .on('mouseleave', function() {
-          animation.reverse();
-        });
-  });
-});
-</script>
-<!-- } a_1 -->
 
-<!-- a_2 { -->
-<style>
-#container { position: relative; width: 200px; height: 50px; margin: auto; }
-#layer { display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; border: 0 solid greenyellow; background: silver; color: red; font: 12px/20px Verdana; text-align: center; overflow: hidden; }
-#layer.italic { font-style: italic; }
-#panel { position: relative; width: 500px; margin: auto; }
-#panel #number,
-#panel #type { position: absolute; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; }
-#panel #number { left: 0; text-align: right; }
-#panel #type { right: 0; text-align: left; }
-#panel #timeline { position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left; }
-</style>
-<fieldset style="position: relative; text-align: center;">
-  <legend style="text-align: left;">支持多个影片剪辑、多种动作及事件。</legend>
-  <div id="container">
-    <div id="layer"></div>
-  </div>
-  <div id="panel">
-    <div id="number"></div>
-    <div id="type"></div>
-    <div id="timeline"></div>
-  </div>
-  <button id="reverse2">reverse</button>
-  <button id="pause2">pause</button>
-  <button id="play2">play</button>
-  <button id="stop2">stop</button>
-  <p>键盘左 = reverse，键盘下 = pause，键盘右 = play，键盘上 = stop。</p>
-  <p>点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
-</fieldset>
-<script>
-execute(function($) {
-//--------------------------------------------------[animation]
-  var $layer = $('#layer').setStyle('opacity', 0);
-  window.animation = new Animation()
-      .addClip(Fx.morph($layer, {opacity: 1}), 0, 700, 'easeOut')
-      .addClip(Fx.highlight($layer), 200, 400, 'linear')
-      .addClip(
-      Fx.morph($layer, {
-        backgroundColor: 'steelblue',
-        borderTopColor: 'silver',
-        borderRightColor: 'dimgray',
-        borderBottomColor: 'dimgray',
-        borderLeftColor: 'silver'
-      }), 600, 400)
-      .addClip(
-      Fx.morph($layer, {
-        left: '-=150',
-        width: '+=300',
-        borderWidth: 10
-      }), 400, 200, 'cubicBezier(.6,0,.6,1.35)')
-      .addClip(
-      Fx.custom(function(x, y) {
-        console.log(x, y);
-        $layer.toggleClass('italic');
-      }), 500, 0, 'linear')
-      .addClip(
-      Fx.morph($layer, {
-        top: '-=150',
-        height: '+=100',
-        color: 'yellow',
-        fontSize: 50,
-        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
-      }), 0, 1000, 'cubicBezier(.2,1,.8,0)')
-      .on('play', function() {
-        $layer.innerHTML = 'PLAY';
-        console.log('PLAY');
-        this.pause();
-      })
-      .on('playstart', function() {
-        $layer.setStyle('display', 'block').innerHTML = 'PLAYSTART';
-        console.log('PLAYSTART');
-      })
-      .on('playfinish', function() {
-        $layer.innerHTML = 'PLAYFINISH';
-        console.log('PLAYFINISH');
-//        this.reverse();
-      })
-      .on('reverse', function() {
-        $layer.innerHTML = 'REVERSE';
-        console.log('REVERSE');
-      })
-      .on('reversestart', function() {
-        $layer.innerHTML = 'REVERSESTART';
-        console.log('REVERSESTART');
-      })
-      .on('reversefinish', function() {
-        $layer.innerHTML = 'REVERSEFINISH';
-        console.log('REVERSEFINISH');
-//        this.play();
-      })
-      .on('step', function() {
-//        console.log('STEP', this.timePoint);
-      })
-      .on('pause', function() {
-        $layer.innerHTML = 'PAUSE';
-        console.log('PAUSE');
-      })
-      .on('stop', function() {
-        $layer.innerHTML = 'STOP';
-        console.log('STOP');
-      });
-
-//--------------------------------------------------[panel]
-  function getRandomColor() {
-    return 'rgb(' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ')';
-  }
-
-  var $number = $('#number');
-  var $type = $('#type');
-  var $timeline = $('#timeline');
-  var length = $timeline.clientWidth;
-  var duration = animation.duration;
-  animation.clips.forEach(function(clip, index) {
-    var color = getRandomColor();
-    $number.append($('<div style="height: 12px;">' + (index + 1) + '</div>'));
-    $type.append($('<div style="height: 12px;">' + clip.type + '</div>'));
-    var $clipPanlel = $('<div style="width: ' + clip.duration / duration * length + 'px; height: 12px; margin-left: ' + clip.delay / duration * length + 'px; background: ' + color + '; overflow: hidden;"></div>');
-    $timeline.append($clipPanlel);
-    if (!$clipPanlel.offsetWidth) {
-      $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
-    }
-    $clipPanlel.on('click', function() {
-      for (var i = 0; i < 299; i++) {
-        $('#canvas').append($('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>'));
-      }
+  <h2>element.morph</h2>
+  <p>可以为数字值、长度值、颜色值设置渐变。</p>
+  <h3>如果本元素的动画播放列表中已经存在一个 morph 动画，则丢弃旧的，播放新的。</h3>
+  <!-- e_m_1 { -->
+  <fieldset>
+    <legend>被丢弃的动画的 onFinish 回调不会执行。</legend>
+    <div id="e_m_1" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
+    <button id="e_m_1_go">morph</button>
+  </fieldset>
+  <pre></pre>
+  <script>
+  execute(function($) {
+    $('#e_m_1_go').on('click', function() {
+      $('#e_m_1').morph({
+        width: '+=100', // 可以使用相对长度。
+        borderLeftWidth: '10px', // 长度值目前仅支持像素单位。
+        borderLeftColor: '#808080',
+        fontSize: 35, // 可以省略 'px'，直接使用数字。
+        lineHeight: 80, // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置。
+        backgroundColor: 'tomato',
+        color: '#FFF',
+        opacity: .75
+      }, {
+        duration: 1000,
+        timingFunction: 'bounceIn',
+        onFinish: function() {
+          this.morph({
+            width: 160,
+            borderLeftWidth: 0,
+            borderLeftColor: '#808080',
+            fontSize: 20,
+            backgroundColor: 'gold',
+            color: 'black',
+            opacity: 1
+          }, {
+            onFinish: function() {
+              this.highlight('aqua').innerText = '0';
+            }
+          });
+        }
+      }).innerText++;
     });
+  });
+  </script>
+  <!-- } e_m_1 -->
 
+  <h2>element.highlight</h2>
+  <h3>如果本元素的动画播放列表中已经存在一个 highlight 动画，则丢弃旧的，播放新的。</h3>
+  <!-- e_h_1 { -->
+  <fieldset>
+    <legend>被丢弃的动画的 onFinish 回调不会执行。</legend>
+    <div id="e_h_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
+    <button id="e_h_1_red">highlight-red</button>
+    <button id="e_h_1_green">highlight-green</button>
+  </fieldset>
+  <pre></pre>
+  <script>
+  execute(function($) {
+    var $target = $('#e_h_1');
+    $('#e_h_1_red').on('click', function() {
+      $target.highlight('orangered', 'backgroundColor', {
+        onFinish: function() {
+          this.innerText += 'R';
+          this.highlight();
+        }
+      });
+    });
+    $('#e_h_1_green').on('click', function() {
+      $target.highlight('greenyellow', 'backgroundColor', {
+        onFinish: function() {
+          this.innerText += 'G';
+        }
+      });
+    });
   });
-  var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5);
-  $timeline.append($time);
-  animation.addClip(Fx.morph($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
-    $time.setStyle('left', 0);
+  </script>
+  <!-- } e_h_1 -->
+  <!-- e_h_2 { -->
+  <fieldset>
+    <legend>虽然高亮动画使用了不同的属性，但在连续播放时，旧的动画也将被丢弃。</legend>
+    <div id="e_h_2" style="width: 160px; height: 80px; background: gold; font-weight: bold; font-size: 20px; line-height: 80px; text-align: center;"></div>
+    <button id="e_h_2_go">highlight</button>
+  </fieldset>
+  <pre></pre>
+  <script>
+  execute(function($) {
+    $('#e_h_2_go').on('click', function() {
+      $('#e_h_2')
+        // 高亮一，被丢弃。
+          .highlight('red', 'color', {
+            duration: 200,
+            onFinish: function() {
+              this.innerText += '1';
+            }
+          })
+        // 高亮二，被丢弃。
+          .highlight('red', 'color', {
+            duration: 500,
+            onFinish: function() {
+              this.innerText += '2';
+            }
+          })
+          .morph({
+            width: '+=20'
+          })
+        // 高亮三，被丢弃。
+          .highlight('yellow', 'backgroundColor', {
+            duration: 200,
+            onFinish: function() {
+              this.innerText += '3';
+            }
+          })
+        // 高亮四，会播放。
+          .highlight('yellow', 'backgroundColor', {
+            duration: 500,
+            onFinish: function() {
+              this.innerText += '4';
+            }
+          });
+    });
   });
+  </script>
+  <!-- } e_h_2 -->
 
-//--------------------------------------------------[controls]
-  document.on('keydown', function(e) {
-    switch (e.which) {
-      case 37:
-        animation.reverse();
-        return false;
-      case 38:
-        animation.stop();
-        return false;
-      case 39:
-        animation.play();
-        return false;
-      case 40:
-        animation.pause();
-        return false;
-    }
+  <h3>element.fadeIn/fadeOut</h3>
+  <!-- e_f_1 { -->
+  <fieldset>
+    <legend>淡入淡出动画。display 不为 none 的元素不能播放淡入动画。display 为 none 的元素不能播放淡出动画。</legend>
+    <div style="height: 88px;">
+      <div style="float: left; padding: 2px; border: 2px solid black;">
+        <div id="e_f_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
+      </div>
+      <span>&lArr;黑色方块会自动收缩（IE9 有渲染错误）</span>
+    </div>
+    <button id="e_f_1_in">fadeIn()</button>
+    <button id="e_f_1_out">fadeOut()</button>
+  </fieldset>
+  <pre></pre>
+  <script>
+  execute(function($) {
+    var $e = $('#e_f_1');
+    var i = 0;
+    $('#e_f_1_in').on('mouseover', function() {
+      $e.fadeIn({
+        duration: 500,
+        onStart: function() {
+          console.log('Fade in start.');
+        },
+        onFinish: function() {
+          console.log('Fade in finish.');
+        }
+      });
+    });
+    $('#e_f_1_out').on('mouseover', function() {
+      $e.fadeOut({
+        duration: 500,
+        onStart: function() {
+          console.log('Fade out start.');
+        },
+        onFinish: function() {
+          console.log('Fade out finish.');
+        }
+      });
+    });
   });
-  $('#play2').on('click', function() {
-    animation.play();
-  });
-  $('#reverse2').on('click', function() {
-    animation.reverse();
-  });
-  $('#pause2').on('click', function() {
-    animation.pause();
-  });
-  $('#stop2').on('click', function() {
-    animation.stop();
-  });
+  </script>
+  <!-- } e_f_1 -->
 
-});
-</script>
-<!-- a_2 { -->
+  <h1>使用 Animation 创建的高级动画</h1>
+  <p>高级动画提供了更灵活的控制手段。</p>
 
-<!-- a_3 { -->
-<style>
-#canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
-#canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
-.triggers button { width: 100px; }
-</style>
-<fieldset id="timing_functions" style="text-align: center;">
-  <legend style="text-align: left;">100% 兼容 CSS3 transition-timing-function 的控速函数。</legend>
-  <div id="canvas"></div>
-  <p>点击 = 清除，Ctrl + 点击 = 一起画，Shift + 点击 = 分别画。</p>
-  <p class="triggers">
-    <button style="background-color: white;">linear</button>
-    <button style="background-color: silver;">bounceIn</button>
-    <button style="background-color: gold;">bounceOut</button>
-    <br>
-    <button style="background-color: orangered;">ease</button>
-    <br>
-    <button style="background-color: greenyellow;;">easeIn</button>
-    <button style="background-color: cornflowerblue;">easeOut</button>
-    <br>
-    <button style="background-color: springgreen;">easeInOut</button>
-    <button style="background-color: orchid;">easeOutIn</button>
-    <br>
-    <button style="background-color: tomato; width: 200px;">cubicBezier(.6,0,.6,1.35)</button>
-    <button style="background-color: yellowgreen; width: 200px;">cubicBezier(.4,-0.35,.4,1)</button>
-    <br>
-    <button style="background-color: steelblue; width: 250px;">cubicBezier(.5,.29,.23,-0.58)</button>
-    <button style="background-color: mediumseagreen; width: 250px;">cubicBezier(.25,1.25,.75,-0.25)</button>
-    <br>
-  </p>
-</fieldset>
-<script>
-execute(function($) {
-//--------------------------------------------------[timingFunctions]
-  var $timingFunctions = $('#timing_functions');
-  var $canvas = $('#canvas');
-  $timingFunctions.on('click:relay(button)', function(e) {
-    var color = this.getStyle('backgroundColor');
-    new Animation()
+  <h2>Animation</h2>
+  <!-- a_1 { -->
+  <style>
+  #a_1 { list-style: none; padding: 0; cursor: default; }
+  #a_1 li { width: 200px; height: 30px; margin: 2px 0; padding-left: 10px; border-left: 0 solid white; background: mediumseagreen; line-height: 30px; }
+  </style>
+  <fieldset>
+    <legend>可以正向播放，也可以反向播放。</legend>
+    <ul id="a_1">
+      <li>菜单一</li>
+      <li>菜单二</li>
+      <li>菜单三</li>
+      <li>菜单四</li>
+      <li>菜单五</li>
+    </ul>
+  </fieldset>
+  <pre></pre>
+  <script>
+  execute(function($) {
+    $('#a_1').getChildren().forEach(function($menu) {
+      var animation = new Animation().addClip(Fx.morph($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
+      $menu
+          .on('mouseenter', function() {
+            animation.play();
+          })
+          .on('mouseleave', function() {
+            animation.reverse();
+          });
+    });
+  });
+  </script>
+  <!-- } a_1 -->
+
+  <!-- a_2 { -->
+  <style>
+  #container { position: relative; width: 200px; height: 50px; margin: auto; }
+  #layer { display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; border: 0 solid greenyellow; background: silver; color: red; font: 12px/20px Verdana; text-align: center; overflow: hidden; }
+  #layer.italic { font-style: italic; }
+  #panel { position: relative; width: 500px; margin: auto; }
+  #panel #number,
+  #panel #type { position: absolute; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; }
+  #panel #number { left: 0; text-align: right; }
+  #panel #type { right: 0; text-align: left; }
+  #panel #timeline { position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left; }
+  </style>
+  <fieldset style="position: relative; text-align: center;">
+    <legend style="text-align: left;">支持多个影片剪辑、多种动作及事件。</legend>
+    <div id="container">
+      <div id="layer"></div>
+    </div>
+    <div id="panel">
+      <div id="number"></div>
+      <div id="type"></div>
+      <div id="timeline"></div>
+    </div>
+    <button id="reverse2">reverse</button>
+    <button id="pause2">pause</button>
+    <button id="play2">play</button>
+    <button id="stop2">stop</button>
+    <p>键盘左 = reverse，键盘下 = pause，键盘右 = play，键盘上 = stop。</p>
+    <p>点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
+  </fieldset>
+  <script>
+  execute(function($) {
+//--------------------------------------------------[animation]
+    var $layer = $('#layer').setStyle('opacity', 0);
+    window.animation = new Animation()
+        .addClip(Fx.morph($layer, {opacity: 1}), 0, 700, 'easeOut')
+        .addClip(
+        Fx.morph($layer, {
+          backgroundColor: 'steelblue',
+          borderTopColor: 'silver',
+          borderRightColor: 'dimgray',
+          borderBottomColor: 'dimgray',
+          borderLeftColor: 'silver'
+        }), 600, 400)
+        .addClip(
+        Fx.morph($layer, {
+          left: '-=150',
+          width: '+=300',
+          borderWidth: 10
+        }), 400, 200, 'cubicBezier(.6,0,.6,1.35)')
         .addClip(
         Fx.custom(function(x, y) {
-          x = Math.floor(x * 299);
-          y = Math.floor(y * 299);
-          $canvas.append($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
-        }), 0, 2500, this.innerText)
-        .play();
-  });
-  $canvas.on('click', function(e) {
-    if (e.shiftKey) {
-      $timingFunctions.find('button').forEach(function($button, index) {
-        setTimeout(function() {
-          $button.fire('click');
-        }, index * 100);
-      });
-      return false;
-    }
-    if (e.ctrlKey) {
-      $timingFunctions.find('button').forEach(function($button) {
-        $button.fire('click');
-      });
-      return false;
-    }
-    this.empty();
-    return false;
-  });
-});
-</script>
-<!-- } a_3 -->
+          console.log(x, y);
+          $layer.toggleClass('italic');
+        }), 500, 0, 'linear')
+        .addClip(
+        Fx.morph($layer, {
+          top: '-=150',
+          height: '+=100',
+          color: 'yellow',
+          fontSize: 50,
+          lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
+        }), 0, 1000, 'cubicBezier(.2,1,.8,0)')
+        .on('play', function() {
+          $layer.innerHTML = 'PLAY';
+          console.log('PLAY');
+//        this.stop();
+        })
+        .on('playstart', function() {
+          $layer.setStyle('display', 'block').innerHTML = 'PLAYSTART';
+          console.log('PLAYSTART');
+//        this.reverse();
+        })
+        .on('playfinish', function() {
+          $layer.innerHTML = 'PLAYFINISH';
+          console.log('PLAYFINISH');
+//        this.reverse();
+        })
+        .on('reverse', function() {
+          $layer.innerHTML = 'REVERSE';
+          console.log('REVERSE');
+//        this.play();
+        })
+        .on('reversestart', function() {
+          $layer.innerHTML = 'REVERSESTART';
+          console.log('REVERSESTART');
+//        this.pause();
+        })
+        .on('reversefinish', function() {
+          $layer.innerHTML = 'REVERSEFINISH';
+          console.log('REVERSEFINISH');
+//        this.play();
+        })
+        .on('step', function() {
+//        console.log('STEP', this.timePoint);
+        })
+        .on('pause', function() {
+          $layer.innerHTML = 'PAUSE';
+          console.log('PAUSE');
+//        this.play();
+        })
+        .on('stop', function() {
+          $layer.innerHTML = 'STOP';
+          console.log('STOP');
+//        this.play();
+        });
 
+//--------------------------------------------------[panel]
+    function getRandomColor() {
+      return 'rgb(' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ')';
+    }
+
+    var $number = $('#number');
+    var $type = $('#type');
+    var $timeline = $('#timeline');
+    var length = $timeline.clientWidth;
+    var duration = animation.duration;
+    animation.clips.forEach(function(clip, index) {
+      var color = getRandomColor();
+      $number.append($('<div style="height: 12px;">' + (index + 1) + '</div>'));
+      $type.append($('<div style="height: 12px;">' + clip.type + '</div>'));
+      var $clipPanlel = $('<div style="width: ' + clip.duration / duration * length + 'px; height: 12px; margin-left: ' + clip.delay / duration * length + 'px; background: ' + color + '; overflow: hidden;"></div>');
+      $timeline.append($clipPanlel);
+      if (!$clipPanlel.offsetWidth) {
+        $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
+      }
+      $clipPanlel.on('click', function() {
+        for (var i = 0; i < 299; i++) {
+          $('#canvas').append($('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>'));
+        }
+      });
+
+    });
+    var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5);
+    $timeline.append($time);
+    animation.addClip(Fx.morph($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
+      $time.setStyle('left', 0);
+    });
+
+//--------------------------------------------------[controls]
+    document.on('keydown', function(e) {
+      switch (e.which) {
+        case 37:
+          animation.reverse();
+          return false;
+        case 38:
+          animation.stop();
+          return false;
+        case 39:
+          animation.play();
+          return false;
+        case 40:
+          animation.pause();
+          return false;
+      }
+    });
+    $('#play2').on('click', function() {
+      animation.play();
+    });
+    $('#reverse2').on('click', function() {
+      animation.reverse();
+    });
+    $('#pause2').on('click', function() {
+      animation.pause();
+    });
+    $('#stop2').on('click', function() {
+      animation.stop();
+    });
+
+  });
+  </script>
+  <!-- a_2 { -->
+
+  <!-- a_3 { -->
+  <style>
+  #canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
+  #canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
+  .triggers button { width: 100px; }
+  </style>
+  <fieldset id="timing_functions" style="text-align: center;">
+    <legend style="text-align: left;">100% 兼容 CSS3 transition-timing-function 的控速函数。</legend>
+    <div id="canvas"></div>
+    <p>点击 = 清除，Ctrl + 点击 = 一起画，Shift + 点击 = 分别画。</p>
+    <p class="triggers">
+      <button style="background-color: white;">linear</button>
+      <button style="background-color: silver;">bounceIn</button>
+      <button style="background-color: gold;">bounceOut</button>
+      <br>
+      <button style="background-color: orangered;">ease</button>
+      <br>
+      <button style="background-color: greenyellow;;">easeIn</button>
+      <button style="background-color: cornflowerblue;">easeOut</button>
+      <br>
+      <button style="background-color: springgreen;">easeInOut</button>
+      <button style="background-color: orchid;">easeOutIn</button>
+      <br>
+      <button style="background-color: tomato; width: 200px;">cubicBezier(.6,0,.6,1.35)</button>
+      <button style="background-color: yellowgreen; width: 200px;">cubicBezier(.4,-0.35,.4,1)</button>
+      <br>
+      <button style="background-color: steelblue; width: 250px;">cubicBezier(.5,.29,.23,-0.58)</button>
+      <button style="background-color: mediumseagreen; width: 250px;">cubicBezier(.25,1.25,.75,-0.25)</button>
+      <br>
+    </p>
+  </fieldset>
+  <script>
+  execute(function($) {
+//--------------------------------------------------[timingFunctions]
+    var $timingFunctions = $('#timing_functions');
+    var $canvas = $('#canvas');
+    $timingFunctions.on('click:relay(button)', function(e) {
+      var color = this.getStyle('backgroundColor');
+      new Animation()
+          .addClip(
+          Fx.custom(function(x, y) {
+            x = Math.floor(x * 299);
+            y = Math.floor(y * 299);
+            $canvas.append($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
+          }), 0, 2500, this.innerText)
+          .play();
+    });
+    $canvas.on('click', function(e) {
+      if (e.shiftKey) {
+        $timingFunctions.find('button').forEach(function($button, index) {
+          setTimeout(function() {
+            $button.fire('click');
+          }, index * 100);
+        });
+        return false;
+      }
+      if (e.ctrlKey) {
+        $timingFunctions.find('button').forEach(function($button) {
+          $button.fire('click');
+        });
+        return false;
+      }
+      this.empty();
+      return false;
+    });
+  });
+  </script>
+  <!-- } a_3 -->
+
+</div>
 </body>
 </html>

@@ -259,9 +259,8 @@ var manifest = {
     'Animation.prototype.reverse',
     'Animation.prototype.pause',
     'Animation.prototype.stop',
-    'Fx.base',
-    'Fx.morph',
-    'Fx.highlight'
+    'Fx.custom',
+    'Fx.morph'
   ],
   'Switcher': [
     'Switcher',
