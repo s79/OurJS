@@ -53,10 +53,10 @@ execute(function($) {
 
   <h2>element.morph</h2>
   <p>可以为数字值、长度值、颜色值设置渐变。</p>
-  <h3>如果本元素的动画播放列表中已经存在一个 morph 动画，则丢弃旧的，播放新的。</h3>
+  <h3>如果本元素的动画播放列表中已经存在一个 morph 动画，则停止旧的，播放新的。</h3>
   <!-- e_m_1 { -->
   <fieldset>
-    <legend>被丢弃的动画的 onFinish 回调不会执行。</legend>
+    <legend>被停止的动画的 onFinish 回调不会执行。</legend>
     <div id="e_m_1" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
     <button id="e_m_1_go">morph</button>
   </fieldset>
@@ -98,10 +98,10 @@ execute(function($) {
   <!-- } e_m_1 -->
 
   <h2>element.highlight</h2>
-  <h3>如果本元素的动画播放列表中已经存在一个 highlight 动画，则丢弃旧的，播放新的。</h3>
+  <h3>如果本元素的动画播放列表中已经存在一个 highlight 动画，则停止旧的，播放新的。</h3>
   <!-- e_h_1 { -->
   <fieldset>
-    <legend>被丢弃的动画的 onFinish 回调不会执行。</legend>
+    <legend>被停止的动画的 onFinish 回调不会执行。</legend>
     <div id="e_h_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
     <button id="e_h_1_red">highlight-red</button>
     <button id="e_h_1_green">highlight-green</button>
@@ -130,7 +130,7 @@ execute(function($) {
   <!-- } e_h_1 -->
   <!-- e_h_2 { -->
   <fieldset>
-    <legend>虽然高亮动画使用了不同的属性，但在连续播放时，旧的动画也将被丢弃。</legend>
+    <legend>虽然高亮动画使用了不同的属性，但在连续播放时，旧的动画也将被停止。</legend>
     <div id="e_h_2" style="width: 160px; height: 80px; background: gold; font-weight: bold; font-size: 20px; line-height: 80px; text-align: center;"></div>
     <button id="e_h_2_go">highlight</button>
   </fieldset>
@@ -139,14 +139,14 @@ execute(function($) {
   execute(function($) {
     $('#e_h_2_go').on('click', function() {
       $('#e_h_2')
-        // 高亮一，被丢弃。
+        // 高亮一，被停止，onFinish 回调没机会执行。
           .highlight('red', 'color', {
             duration: 200,
             onFinish: function() {
               this.innerText += '1';
             }
           })
-        // 高亮二，被丢弃。
+        // 高亮二，被停止，onFinish 回调没机会执行。
           .highlight('red', 'color', {
             duration: 500,
             onFinish: function() {
@@ -156,14 +156,14 @@ execute(function($) {
           .morph({
             width: '+=20'
           })
-        // 高亮三，被丢弃。
+        // 高亮三，被停止，onFinish 回调没机会执行。
           .highlight('yellow', 'backgroundColor', {
             duration: 200,
             onFinish: function() {
               this.innerText += '3';
             }
           })
-        // 高亮四，会播放。
+        // 高亮四，如果播放完毕之前没有再次点击按钮，onFinish 回调会执行。
           .highlight('yellow', 'backgroundColor', {
             duration: 500,
             onFinish: function() {
@@ -195,7 +195,8 @@ execute(function($) {
     var i = 0;
     $('#e_f_1_in').on('mouseover', function() {
       $e.fadeIn({
-        duration: 500,
+        duration: 2500,
+        timingFunction: 'bounceIn',
         onStart: function() {
           console.log('Fade in start.');
         },
