@@ -1,4 +1,3 @@
-/* Reset 和 Theme 部分与 common.css 中的同类内容基本一致 */
 /* --------------------------------------------------[Reset] */
 body, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, p, blockquote, pre, form, fieldset, legend, button, input, textarea, th, td { margin: 0; padding: 0; }
 ul, ol { list-style: outside none; }
@@ -12,13 +11,14 @@ code, kbd, pre, samp { font-family: Consolas, "Lucida Console", Courier, SimSun,
 sup, sub { position: relative; vertical-align: baseline; }
 sup { top: -3px; }
 sub { bottom: -3px; }
+button { padding: 5px 10px; overflow: visible; }
 
 /* --------------------------------------------------[Theme] */
 /* 视口 */
 html { overflow-y: scroll; }
-body { background-color: #FFF; }
+body { background-color: white; }
 
-/* 字体（在 reset 的基础上加大字号，调整英文字体顺序，并加入微软雅黑。） */
+/* 字体（在 reset 的基础上加大字号并加入微软雅黑） */
 body,
 small,
 sup,
@@ -42,17 +42,14 @@ a.link { padding-left: 16px; background: url(../images/link.gif) no-repeat left 
 
 /* 标题 */
 h1 { margin-bottom: 30px; font-size: 28px; text-align: center; }
-h2 { margin: 30px 0 20px; font-size: 18px; }
+h2 { margin: 30px 0 20px; background: url(../images/title_bg.gif) no-repeat left bottom; font-size: 18px; }
 h3 { margin: 20px 0 10px; font-size: 16px; }
 h4,
 h5,
 h6 { margin: 10px 0 5px; font-size: 14px; }
 h2.heading { padding-left: 20px; border-bottom: 1px solid #898989; background: url(../images/heading.gif) no-repeat left center; }
 
-/* 段落 */
-dl { margin: 10px 0; }
-dt { font-weight: bold; }
-dd { padding-left: 2em; }
+/* 列表 */
 ul,
 ol { padding-left: 2em; }
 ul { list-style-type: square; }
@@ -61,16 +58,70 @@ ul ul,
 ol ul { list-style-type: circle; }
 ul ol,
 ol ol { list-style-type: decimal; }
-blockquote { margin: 10px 0; padding: 0 10px; border: 1px dotted #888; background-image: url(../images/bg_comment.png); color: #333; font-size: 12px; }
+
+/* 段落 */
+fieldset { margin: 10px 0; padding: 5px; border: 1px solid #D5DFE5; border-radius: 2px; }
+legend { margin-left: 5px; color: #ff7300; *margin-left: 0; }
+dl { margin: 10px 0; }
+dt { font-weight: bold; }
+dd { padding-left: 2em; }
 p { margin: 10px 0; }
 em { color: #333; font-style: italic; }
-sup { display: inline-block; top: 0; padding: 0 3px 3px; border-radius: 8px; background: #333; color: white; font-size: 9px; font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 1; vertical-align: top; -webkit-text-size-adjust: none; }
-p.referral { margin: 10px 0 0; }
-p.comment { margin: 0 0 10px; color: #666; font-size: 12px; }
 
-/* --------------------------------------------------[Layout] */
-/* 内容 */
-#content { width: 960px; margin: 0 auto; padding: 40px 20px 100px; overflow: hidden; color: #333; font-size: 14px; }
+/* 表格 */
+th,
+td { padding: 2px 5px; border: 1px solid silver; font-size: 14px; }
+th { background: whitesmoke; }
 
 /* 代码 */
-pre { padding: 5px; border: 1px solid #f0fff0; border-left-width: 5px; background: #f8fff8; color: #333; white-space: pre-wrap; word-wrap: break-word; }
+pre { margin: 10px 0; padding: 5px; border: 1px solid #EEE8AA; border-radius: 2px; background: #FFFFE1; color: #333; white-space: pre-wrap; word-wrap: break-word; }
+
+/* 备注 */
+blockquote { margin: 10px 0; padding: 0 10px; border: 1px dotted #888; background-image: url(../images/bg_comment.png); color: #333; font-size: 12px; }
+.referral { margin: 10px 0 0; }
+.comment { margin: 0 0 10px; color: #666; font-size: 12px; }
+
+/* --------------------------------------------------[Layout] */
+/* 容器 */
+.container { overflow: hidden; *zoom: 1; }
+
+/* 页头 */
+#header { position: fixed; left: 0; right: 0; top: 0; z-index: 1000; min-width: 1000px; border-bottom: 2px solid whitesmoke; background: whitesmoke url(../images/menu_bg.png) repeat-x 0 0; -right: auto; -width: 100%; }
+#header div { width: 1000px; height: 36px; margin: auto; }
+/* LOGO */
+#logo { float: left; width: 150px; height: 36px; margin: 0; background: url(../images/logo.png) no-repeat left center; }
+#logo span { display: none; }
+/* 主菜单 */
+#menu { float: left; padding: 0; }
+#menu li { float: left; list-style: none; height: 36px; border-right: 1px solid gainsboro; }
+#menu li.hover,
+#menu li:hover { background: white url(../images/menu_bg.png) repeat-x 0 -36px; }
+#menu li.first { border-left: 1px solid gainsboro; }
+#menu li a { display: block; height: 36px; padding: 0 25px; color: #333; font-weight: bold; font-size: 14px; line-height: 36px; text-decoration: none; -float: left; }
+#menu li.current a { background: transparent url(../images/menu_current.png) repeat-x 0 33px; }
+/* 子菜单 */
+#menu ul { display: none; position: absolute; z-index: 10; width: 200px; height: auto; margin: -1px auto auto -1px; padding: 0; border: 1px solid gainsboro; background: whitesmoke; -clear: both; }
+#menu ul li { width: 200px; height: 30px; border: none; }
+#menu ul li.hover,
+#menu ul li:hover { background-image: none; }
+#menu ul li.folder { background: whitesmoke url(../images/folder.png) no-repeat right center; }
+#menu ul li.folder.hover,
+#menu ul li.folder:hover,
+#menu ul li.current.hover,
+#menu ul li.current:hover { background-color: white; }
+#menu ul li a { width: 200px; height: 30px; padding: 0; line-height: 30px; text-indent: 15px; }
+#menu ul li.current a { color: #BE1D2C; }
+/* 二级以上的子菜单 */
+#menu ul ul { margin: -31px auto auto 200px; }
+/* 三级子菜单选中项 */
+#menu ul li.current ul li a { color: #333; }
+#menu ul li.current ul li.current a { color: #BE1D2C; }
+
+/* 内容 */
+div#content { width: 960px; min-height: 600px; margin: auto; padding: 70px 20px 100px; overflow: hidden; color: #333; font-size: 14px; -height: 600px; -overflow: visible; }
+div#content.loaded { }
+#content .include_error { height: 500px; padding-top: 200px; color: crimson; font-weight: bold; font-size: 14px; text-align: center; }
+
+/* 页脚 */
+#footer { clear: both; min-width: 1000px; padding: 10px 0; border-top: 1px solid gainsboro; overflow: hidden; background: #F3F3F3; color: #666; text-align: center; }
+#footer span { font-size: 12px; }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Calendar</title>
-<link rel="stylesheet" href="../examples/common.css">
+<link rel="stylesheet" href="example.css">
 <link rel="stylesheet" href="calendar.css">
 <script src="../dev.js"></script>
 <script src="../src/components/calendar.js"></script>
@@ -112,7 +112,7 @@ execute(function($) {
       setValue: function(value) {
         if (this.isShown) {
           if (this.target.value !== value) {
-            this.target.highlight('color', 'red').value = value;
+            this.target.highlight('red', 'color').value = value;
           }
         }
         return this;
@@ -120,7 +120,7 @@ execute(function($) {
       clearValue: function() {
         if (this.isShown) {
           if (this.target.value !== '') {
-            this.target.highlight('backgroundColor', 'whitesmoke').value = '';
+            this.target.highlight('whitesmoke').value = '';
           }
         }
         return this;

@@ -4,15 +4,12 @@
 <meta charset="utf-8">
 <title>Animation</title>
 <link rel="stylesheet" href="/stylesheets/common.css">
-<link rel="stylesheet" href="../../examples/common.css">
 <link rel="stylesheet" href="../../docs/stylesheets/prettify.css">
 <script src="../../dev.js"></script>
 <script src="/scripts/common.js"></script>
 <script src="../../docs/scripts/prettify.js"></script>
 <style>
 h2 { margin: 50px 0 20px; }
-fieldset { display: block; float: none; margin: 20px 0 0; }
-button { padding: 5px 10px; overflow: visible; }
 </style>
 <script>
 execute(function($) {
@@ -175,10 +172,11 @@ execute(function($) {
   </script>
   <!-- } e_h_2 -->
 
-  <h3>element.fadeIn/fadeOut</h3>
+  <h2>element.fadeIn/fadeOut</h2>
+  <h3>如果本元素的动画播放列表中已经存在一个相同的 fadeIn/fadeOut 动画，则反向播放前者，并删除前者的 onFinish 回调，执行后者的 onStart 回调，并在反向播放结束时执行后者的 onFinish 回调。</h3>
   <!-- e_f_1 { -->
   <fieldset>
-    <legend>淡入淡出动画。display 不为 none 的元素不能播放淡入动画。display 为 none 的元素不能播放淡出动画。</legend>
+    <legend>display 不为 none 的元素不能播放淡入动画。display 为 none 的元素不能播放淡出动画。</legend>
     <div style="height: 88px;">
       <div style="float: left; padding: 2px; border: 2px solid black;">
         <div id="e_f_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
@@ -220,8 +218,13 @@ execute(function($) {
   </script>
   <!-- } e_f_1 -->
 
-  <h1>使用 Animation 创建的高级动画</h1>
-  <p>高级动画提供了更灵活的控制手段。</p>
+  <h1 style="margin-top: 100px;">使用 Animation 创建的高级动画</h1>
+  <p>高级动画的特点：</p>
+  <ul>
+    <li>支持多个动画剪辑，并可以动态添加/删除动画剪辑。</li>
+    <li>提供了更灵活的控制手段，可以暂停、反向播放。</li>
+    <li>支持多种事件。</li>
+  </ul>
 
   <h2>Animation</h2>
   <!-- a_1 { -->

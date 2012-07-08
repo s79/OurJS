@@ -69,7 +69,6 @@ var { color: sienna; font-style: italic; }
 #details var { color: sienna; font-style: italic; }
 #details ul { list-style: circle; padding-left: 2em; }
 /* example */
-#details pre { margin-bottom: 10px; padding: 5px; border: 1px solid #EEE8AA; border-radius: 2px; background: #FFFFE1; color: #333; white-space: pre-wrap; word-wrap: break-word; }
 #details blockquote pre { margin-left: 2em; border-color: #F0FFF0; border-radius: 0; background-color: #F8FFF8; }
 /* params deprecated since exceptions returns requires see */
 #details dl { margin: 10px; padding: 0; border: none; color: #333; }
@@ -78,5 +77,5 @@ var { color: sienna; font-style: italic; }
 #details dd table { border-collapse: collapse; }
 #details dd tr:nth-child(even) { background: whitesmoke; }
 #details dd th,
-#details dd td { padding: 2px 3px; vertical-align: top; }
+#details dd td { padding: 2px 3px; border: none; vertical-align: top; }
 #details dd td em { margin-left: 5px; padding: 0 2px; border-radius: 5px 0; background: gold; color: maroon; font: italic 10px Arial; -webkit-text-size-adjust: none; }
