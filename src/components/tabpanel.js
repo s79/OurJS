@@ -83,7 +83,7 @@ execute(function($) {
     var delegate = ':relay(' + tabPanel.tabs.getFirst().nodeName.toLowerCase() + ')';
     if (Number.isFinite(options.hoverDelay)) {
       var timer;
-      $container.on('mouseenter.tabPanel' + delegate, function(e) {
+      $container.on('mouseenter.tabPanel' + delegate, function() {
         var $self = this;
         if (tabPanel.tabs.contains($self)) {
           timer = setTimeout(function() {
@@ -91,13 +91,13 @@ execute(function($) {
           }, options.hoverDelay);
         }
       });
-      $container.on('mouseleave.tabPanel' + delegate, function(e) {
+      $container.on('mouseleave.tabPanel' + delegate, function() {
         if (tabPanel.tabs.contains(this)) {
           clearTimeout(timer);
         }
       });
     } else {
-      $container.on('click.tabPanel' + delegate, function(e) {
+      $container.on('click.tabPanel' + delegate, function() {
         if (tabPanel.tabs.contains(this)) {
           switcher.active(this);
         }
@@ -121,13 +121,28 @@ execute(function($) {
    * 激活一组“标签面板”。
    * @name TabPanel.prototype.active
    * @function
-   * @param {Object|number} i 要激活的“标签面板”的“标签”元素，或者该元素在 tabs 中的索引值。
+   * @param {Element|number} value 要激活的“标签面板”的“标签”元素、“面板”元素或它们在各自所属的数组（tabs 和 panels）中的索引值。
    *   从 tabs 和 panels 中计算的，默认激活的某组“标签面板”的索引值从 0 开始。
-   *   如果指定的值为不在 tabs 中的对象，或为一个不在有效范索引围内的数字，则取消激活的“标签面板”。
+   *   如果指定的值为不在 tabs 或 panels 中的对象，或为一个不在有效范索引围内的数字，则取消激活的“标签面板”。
    * @returns {Object} TabPanel 对象。
    */
-  TabPanel.prototype.active = function(i) {
-    this.switcher.active(i);
+  TabPanel.prototype.active = function(value) {
+    var index = -1;
+    var x;
+    if (typeof value === 'number') {
+      index = value;
+    } else {
+      x = this.tabs.indexOf(value);
+      if (x > -1) {
+        index = x;
+      } else {
+        x = this.panels.indexOf(value);
+        if (x > -1) {
+          index = x;
+        }
+      }
+    }
+    this.switcher.active(index);
     return this;
   };
 

@@ -8,6 +8,6 @@ echo. * OurJS>>%ourjs%
 echo. *  Released under the MIT License.>>%ourjs%
 echo. *  Version: %date%>>%ourjs%
 echo. */>>%ourjs%
-copy/y/b %ourjs% + lang.js + browser.js + dom.js + component.js + animation.js + request.js + modularization.js + execute.js + plugins\json2.js + plugins\sizzle.js + plugins\DD_belatedPNG.js %ourjs%
+copy/y/b %ourjs% + lang.js + browser.js + dom.js + component.js + animation.js + request.js + modularization.js + execute.js + plugins\json2.js + plugins\sizzle.js %ourjs%
 java -jar %yuicompressor_path%\yuicompressor-2.4.7.jar %ourjs% -o %ourjsmin% --charset UTF-8
 pause

@@ -38,7 +38,7 @@ execute(function($) {
     pagination.currentPage = 1;
     pagination.totalPage = 1;
     // 绑定事件。
-    pagination.element = $(element).on('click:relay(a)', function(e) {
+    pagination.element = $(element).on('click:relay(a)', function() {
       if (!this.hasClass('disabled')) {
         if (this.hasClass('number')) {
           pagination.turnTo(Number.toInteger(this.innerText));

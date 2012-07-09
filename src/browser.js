@@ -490,7 +490,7 @@
    */
   cookie.getItem = function(key) {
     var matchs = document.cookie.match(new RegExp('(?:^|;)\\s*' + RegExp.escape(key) + '=([^;]*)'));
-    return matchs ? decodeURIComponent(matchs[1]) : null;
+    return matchs ? decodeURIComponent(matchs[1]) : undefined;
   };
 
 //--------------------------------------------------[cookie.setItem]

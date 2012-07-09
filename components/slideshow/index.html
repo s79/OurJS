@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Slideshow</title>
+<title>幻灯片播放</title>
 <link rel="stylesheet" href="/stylesheets/common.css">
 <script src="../../dev.js"></script>
 <script src="/scripts/common.js"></script>
@@ -34,10 +34,10 @@
 </head>
 <body>
 <div id="content">
-  <h1>Slideshow</h1>
+  <h1>幻灯片播放</h1>
 
-  <!-- 淡入淡出效果 { -->
-  <h2>淡入淡出效果</h2>
+  <!-- 渐变效果 { -->
+  <h2>渐变效果</h2>
   <div id="fading" class="slideshow">
     <ol>
       <li><a href="javascript:void('1');" hidefocus class="tab"></a></li>
@@ -53,20 +53,21 @@
       <li><a href="javascript:alert('4');"><img src="4.jpg" galleryimg="no"></a></li>
       <li><a href="javascript:alert('5');"><img src="5.jpg" galleryimg="no"></a></li>
     </ul>
-    <a href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
-    <a href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
+    <div>
+      <a href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
+      <a href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
+    </div>
   </div>
   <script>
   execute(function($) {
     var $container = $('#fading');
     var slides = $container.find('ul li');
     var pointers = $container.find('ol li');
-    var $prevBtn = $container.find('.prev').getFirst();
-    var $nextBtn = $container.find('.next').getFirst();
-    var slideshow = new Slideshow($container, slides, pointers, $prevBtn, $nextBtn, {switchMode: 'fading', interval: 250});
+    var controls = $container.find('div a');
+    var slideshow = new Slideshow($container, slides, pointers, controls, {switchMode: 'fading', interval: 3000});
   });
   </script>
-  <!-- } 淡入淡出效果 -->
+  <!-- } 渐变效果 -->
 
   <!-- 翻页效果 { -->
   <h2>翻页效果</h2>
@@ -85,17 +86,18 @@
       <li><a href="javascript:alert('4');"><img src="4.jpg" galleryimg="no"></a></li>
       <li><a href="javascript:alert('5');"><img src="5.jpg" galleryimg="no"></a></li>
     </ul>
-    <a href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
-    <a href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
+    <div>
+      <a href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
+      <a href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
+    </div>
   </div>
   <script>
   execute(function($) {
     var $container = $('#turning');
     var slides = $container.find('ul li');
     var pointers = $container.find('ol li');
-    var $prevBtn = $container.find('.prev').getFirst();
-    var $nextBtn = $container.find('.next').getFirst();
-    var slideshow = new Slideshow($container, slides, pointers, $prevBtn, $nextBtn, {switchMode: 'turning', interval: 250});
+    var controls = $container.find('div a');
+    var slideshow = new Slideshow($container, slides, pointers, controls, {switchMode: 'turning', interval: 5000});
   });
   </script>
   <!-- } 翻页效果 -->

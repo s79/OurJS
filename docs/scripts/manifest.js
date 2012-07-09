@@ -271,6 +271,11 @@ var manifest = {
     'TabPanel.options',
     'TabPanel.prototype.active'
   ],
+  'Slideshow': [
+    'Slideshow',
+    'Slideshow.options',
+    'Slideshow.prototype.show'
+  ],
   'Dialog': [
     'Dialog',
     'Dialog.options',

@@ -50,8 +50,8 @@ execute(function($) {
               focusedByUser = true;
             }
           })
-          .on('keydown', function(e) {
-            if (e.which === 9 && e.shiftKey) {
+          .on('keydown', function(event) {
+            if (event.which === 9 && event.shiftKey) {
               this.fire('focus');
               return false;
             }
@@ -65,8 +65,8 @@ execute(function($) {
               focusedByUser = true;
             }
           })
-          .on('keydown', function(e) {
-            if (e.which === 9 && !e.shiftKey) {
+          .on('keydown', function(event) {
+            if (event.which === 9 && !event.shiftKey) {
               this.fire('focus');
               return false;
             }
@@ -75,9 +75,9 @@ execute(function($) {
         if ($disabled) {
           $disabled.off('focusin.freezeFocusArea');
         }
-        $disable.on('focusin.freezeFocusArea', function(e) {
+        $disable.on('focusin.freezeFocusArea', function(event) {
           // 要判断 $after 此时是否可见，在点击某元素导致对话框关闭时，对话框是先隐藏，然后才执行到这里。
-          if (!$enable.contains(e.target) && $after.offsetWidth) {
+          if (!$enable.contains(event.target) && $after.offsetWidth) {
             $after.focus();
           }
         });

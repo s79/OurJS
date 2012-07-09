@@ -580,7 +580,7 @@
         // 仅 IE6 有 specialCSSPropertyGetter，因此放在此处处理。
         value = specialCSSPropertyGetter[name] ? specialCSSPropertyGetter[name](this.element) : this.currentStyle[hyphenateToCamelCase(name)];
     }
-    return value === undefined ? '' : value;
+    return value || '';
   };
 
   // 获取元素的“计算后的样式”。
@@ -2171,7 +2171,7 @@
             setTimeout(doScrollCheck, 10);
             return;
           }
-          dispatcher(undefined, true);
+          dispatcher(null, true);
         })();
       }
     }

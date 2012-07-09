@@ -242,6 +242,7 @@ execute(function($) {
         'Animation',
         'Switcher',
         'TabPanel',
+        'Slideshow',
         'Dialog',
         'Calendar'
       ]

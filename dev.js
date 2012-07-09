@@ -21,10 +21,7 @@
     scripts.push('<script src="/framework/src/plugins/json2.js"></script>');
   }
   if (document.documentElement.currentStyle && !document.documentElement.currentStyle.minWidth) {
-    scripts.push(
-        '<script src="/framework/src/plugins/DD_belatedPNG.js"></script>',
-        '<script src="/framework/src/plugins/console.js"></script>'
-    );
+    scripts.push('<script src="/framework/src/plugins/console.js"></script>');
   }
   document.write(scripts.join('\n'));
 })();

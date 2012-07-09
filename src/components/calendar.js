@@ -66,10 +66,10 @@ execute(function($) {
       headCells: $thead.find('td'),
       bodyCells: $tbody.find('td')
     };
-    // 点击控制按钮。
-    $controlPanel.on('click', function(e) {
-      var $target = e.target;
-      if ($target.hasClass('btn') && !$target.hasClass('disabled')) {
+    // 点击控制按钮，仅在控制按钮可见且没有被禁用的情况下有效。
+    $controlPanel.on('click', function(event) {
+      var $target = event.target;
+      if ($target.offsetWidth && $target.hasClass('btn') && !$target.hasClass('disabled')) {
         var action = $target.getData('action');
         var year = Number.toInteger($year.innerText);
         var month = Number.toInteger($month.innerText);
@@ -102,17 +102,17 @@ execute(function($) {
       return false;
     });
     // 鼠标滚轮支持（滚轮翻月，Shift + 滚轮翻年）。
-    $calendar.on('mousewheel', function(e) {
-      if (e.wheelUp) {
-        (e.shiftKey ? $prevYear : $prevMonth).fire('click');
+    $calendar.on('mousewheel', function(event) {
+      if (event.wheelUp) {
+        (event.shiftKey ? $prevYear : $prevMonth).fire('click');
       }
-      if (e.wheelDown) {
-        (e.shiftKey ? $nextYear : $nextMonth).fire('click');
+      if (event.wheelDown) {
+        (event.shiftKey ? $nextYear : $nextMonth).fire('click');
       }
       return false;
     });
     // 阻止一些浏览器的划选动作。
-    $calendar.on('mousedown', function(e) {
+    $calendar.on('mousedown', function() {
       return false;
     });
   }

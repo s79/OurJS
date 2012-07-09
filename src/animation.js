@@ -561,11 +561,8 @@
   var $ = document.$;
   Animation.createStyleRenderer = function(element, styles) {
     var $element = $(element);
-    var map;
+    var map = getStylesMap($element, styles);
     var renderer = function(x, y) {
-      if (map === undefined) {
-        map = getStylesMap($element, styles);
-      }
       Object.forEach(map.before, function(beforeValue, name) {
         var afterValue = map.after[name];
         var currentValue;
@@ -630,12 +627,12 @@
     var isFadeInMode = fadeMode === 'fadeIn';
     var inverseFadeMode = isFadeInMode ? 'fadeOut' : 'fadeIn';
     options = Object.append({duration: 200, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
-    var onStart = function(e) {
-      options.onStart.call($element, e);
+    var onStart = function(event) {
+      options.onStart.call($element, event);
     };
-    var onFinish = function(e) {
+    var onFinish = function(event) {
       delete list[fadeMode];
-      options.onFinish.call($element, e);
+      options.onFinish.call($element, event);
     };
 
     // 若列表中已有一个相反模式的 fade 动画正在播放，则将其重用为本次指定的模式，并重新绑定其回调函数，将其反向播放。
@@ -704,12 +701,12 @@
     }
     list.morph = new Animation()
         .addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction)
-        .on('playstart', function(e) {
-          options.onStart.call($element, e);
+        .on('playstart', function(event) {
+          options.onStart.call($element, event);
         })
-        .on('playfinish', function(e) {
+        .on('playfinish', function(event) {
           delete list.morph;
-          options.onFinish.call($element, e);
+          options.onFinish.call($element, event);
         });
     list.morph.play();
     return $element;
@@ -753,13 +750,13 @@
     styles[property] = originalColor;
     list.highlight = new Animation()
         .addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction)
-        .on('playstart', function(e) {
+        .on('playstart', function(event) {
           $element.setStyle(property, color);
-          options.onStart.call($element, e);
+          options.onStart.call($element, event);
         })
-        .on('playfinish', function(e) {
+        .on('playfinish', function(event) {
           delete list.highlight;
-          options.onFinish.call($element, e);
+          options.onFinish.call($element, event);
         });
     list.highlight.originalColor = originalColor;
     list.highlight.highlightProperty = property;

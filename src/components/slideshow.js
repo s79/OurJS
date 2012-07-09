@@ -14,10 +14,10 @@ execute(function($) {
    * 幻灯片播放器。
    * @name Slideshow
    * @constructor
+   * @param {Element} container 组件的容器。
    * @param {Array} slides 包含所有“幻灯片”的数组。组成“幻灯片”的各元素的标签名应该一致，并且有共同的父元素。
    * @param {Array} pointers 包含所有“指示器”的数组。组成“指示器”的各元素的标签名应该一致，并且有共同的父元素。另外应确保 pointers 的数量和 slides 的数量一致。
-   * @param {Element} showPrevBtn “显示上一张”的按钮元素。
-   * @param {Element} showNextBtn “显示下一张”的按钮元素。
+   * @param {Array} controls 包含所有“控制按钮”的数组，其中第一个为“显示上一张”的按钮元素，最后一个为“显示下一张”的按钮元素。
    * @param {Object} [options] 可选参数。
    * @param {string} options.activeClassName 为激活的“幻灯片”和“指示器”添加的类名，默认为 'active'。
    * @param {number} options.hoverDelay 以毫秒为单位的“指示器”鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
@@ -31,17 +31,16 @@ execute(function($) {
    *   {Element} inactivePointer 上一个激活的“指示器”。
    *   {number} inactiveIndex 上一个激活的“指示器”和“幻灯片”在 pointers 和 slides 中的索引。
    *   成功调用 show 方法后触发。
-   * @requires Switcher
    * @requires TabPanel
    */
-  function Slideshow(container, slides, pointers, showPrevBtn, showNextBtn, options) {
+  function Slideshow(container, slides, pointers, controls, options) {
     var slideshow = this;
     // 保存属性。
     slideshow.slides = slides;
     slideshow.pointers = pointers;
     slideshow.elements = {
-      showPrevBtn: $(showPrevBtn),
-      showNextBtn: $(showNextBtn)
+      showPrevBtn: $(controls.getFirst()),
+      showNextBtn: $(controls.getLast())
     };
     slideshow.activeSlide = null;
     slideshow.activePointer = null;
@@ -115,26 +114,20 @@ execute(function($) {
       slideshow.show(currentIndex);
     });
     // 自动播放下一张。
-    var autoPlayStart = function() {
-      timer = setInterval(function() {
-        $next.fire('click');
-      }, options.interval);
-    };
-    var autoPlayStop = function() {
-      clearInterval(timer);
-    };
     $slideshow
         .on('mouseenter', function() {
           $prev.fadeIn();
           $next.fadeIn();
-          autoPlayStop();
+          clearInterval(timer);
         })
         .on('mouseleave', function() {
           $prev.fadeOut();
           $next.fadeOut();
-          autoPlayStart();
-        });
-    autoPlayStart();
+          timer = setInterval(function() {
+            $next.fire('click');
+          }, options.interval);
+        })
+        .fire('mouseleave');
   }
 
 //--------------------------------------------------[Slideshow.options]
@@ -154,11 +147,11 @@ execute(function($) {
    * 显示一张“幻灯片”。
    * @name Slideshow.prototype.show
    * @function
-   * @param {Object|number} i 要显示的“幻灯片”对应的“指示器”元素，或者该元素在 pointers 中的索引值。
+   * @param {Element|number} value 要显示的“幻灯片”元素、“指示器”元素或它们在各自所属的数组（slides 和 pointers）中的索引值。
    * @returns {Object} Slideshow 对象。
    */
-  Slideshow.prototype.show = function(i) {
-    this.tabPanel.active(i);
+  Slideshow.prototype.show = function(value) {
+    this.tabPanel.active(value);
     return this;
   };
 

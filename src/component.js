@@ -232,26 +232,26 @@
    * 将一个元素标记为“活动”，并将当前的活动元素（如果有）标记为“非活动”。
    * @name Switcher.prototype.active
    * @function
-   * @param {Object|number} i 要标记为“活动”的元素，或者这个元素在 items 中的索引值。
+   * @param {Object|number} value 要标记为“活动”的元素，或者这个元素在 items 中的索引值。
    *   要标记为“活动”的元素不能为当前的活动元素。
    *   如果指定的值为不在 items 中的对象，或为一个不在有效范索引围内的数字，则取消活动元素。
    * @returns {Object} Switcher 对象。
    */
-  Switcher.prototype.active = function(i) {
+  Switcher.prototype.active = function(value) {
     var switcher = this;
     var item = null;
     var index = -1;
     var x;
-    if (typeof i === 'number') {
-      x = switcher.items[i];
+    if (typeof value === 'number') {
+      x = switcher.items[value];
       if (x) {
         item = x;
-        index = i;
+        index = value;
       }
     } else {
-      x = switcher.items.indexOf(i);
+      x = switcher.items.indexOf(value);
       if (x > -1) {
-        item = i;
+        item = value;
         index = x;
       }
     }
