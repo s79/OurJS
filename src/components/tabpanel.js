@@ -19,7 +19,7 @@ execute(function($) {
    * @param {Object} [options] 可选参数。
    * @param {string} options.activeClassName 为激活的“标签”和“面板”添加的类名，默认为 'active'。
    * @param {Element} options.tabsContainer 用来绑定各“标签”的代理事件监听器的元素，默认为 undefined，此时使用第一个“标签”的父元素。当所有的“标签”有一个共同的父元素时，可以省略。
-   * @param {number} options.hoverDelay 以毫秒为单位的鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
+   * @param {number} options.hoverDelay 以毫秒为单位的“标签”鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
    * @fires active
    *   {Element} activeTab 当前的激活的“标签”。
    *   {Element} activePanel 当前的激活的“面板”。
@@ -30,7 +30,7 @@ execute(function($) {
    *   成功调用 active 方法后触发。
    * @requires Switcher
    * @description
-   *   “标签”和“面板”必须是按顺序一一对应，保存在参数 tabs 和 panels 中。
+   *   “标签”和“面板”必须按顺序一一对应，保存在参数 tabs 和 panels 中。
    *   一个“标签”和一个“面板”组成一组“标签面板”。
    *   同一时刻最多只有一组“标签面板”被激活。
    *   高级应用：在创建一个实例后，可以动态修改 tabPanel.tabs 和 tabPanel.panels，动态添加/删除“标签面板”组，但要确保新增加的“标签”与原有“标签”的在 DOM 树的位置层次是相同的。

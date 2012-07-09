@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Slideshow</title>
+<link rel="stylesheet" href="/stylesheets/common.css">
+<script src="../../dev.js"></script>
+<script src="/scripts/common.js"></script>
+<script src="../../src/components/tabpanel.js"></script>
+<script src="../../src/components/slideshow.js"></script>
+<style>
+.slideshow { position: relative; width: 512px; height: 288px; padding: 0; overflow: hidden; background: black; }
+.slideshow ol { list-style: none; position: absolute; right: 10px; bottom: 10px; z-index: 10; }
+.slideshow ol li { float: left; width: 30px; height: 5px; margin-right: 2px; overflow: hidden; }
+.slideshow ul { list-style: none; position: absolute; left: 0; top: 0; padding: 0; }
+.slideshow ul li {; position: absolute; left: 0; top: 0; z-index: 0; }
+.slideshow a { outline: none; }
+.slideshow li a.tab { display: block; height: 5px; background: silver; cursor: default; opacity: .3; filter: alpha(opacity = 30); }
+.slideshow li a.tab:hover { background: gainsboro; opacity: .5; filter: alpha(opacity = 50); }
+.slideshow li.active a.tab,
+.slideshow li.active a.tab:hover { color: black; background: whitesmoke; opacity: .75; filter: alpha(opacity = 75); }
+.slideshow img { display: block; width: 512px; height: 288px; }
+.slideshow a.btn { display: none; position: absolute; top: 112px; z-index: 50; width: 64px; height: 64px; overflow: hidden; border: 2px solid darkgray; border-radius: 35px; background: black; color: white; font-size: 60px; line-height: 50px; text-align: center; text-decoration: none; opacity: .5; filter: alpha(opacity = 50); }
+.slideshow a.btn:hover { opacity: .75 !important; filter: alpha(opacity = 75) !important; }
+.slideshow a.btn span { display: block; width: 64px; height: 64px; background: url(buttons.png) no-repeat; }
+.slideshow a.prev { left: 10px; }
+.slideshow a.prev span { background-position: -2px 0; }
+.slideshow a.next { right: 10px; }
+.slideshow a.next span { background-position: -62px 0; }
+</style>
+<script>
+
+</script>
+</head>
+<body>
+<div id="content">
+  <h1>Slideshow</h1>
+
+  <!-- 淡入淡出效果 { -->
+  <h2>淡入淡出效果</h2>
+  <div id="fading" class="slideshow">
+    <ol>
+      <li><a href="javascript:void('1');" hidefocus class="tab"></a></li>
+      <li><a href="javascript:void('2');" hidefocus class="tab"></a></li>
+      <li><a href="javascript:void('3');" hidefocus class="tab"></a></li>
+      <li><a href="javascript:void('4');" hidefocus class="tab"></a></li>
+      <li><a href="javascript:void('5');" hidefocus class="tab"></a></li>
+    </ol>
+    <ul>
+      <li><a href="javascript:alert('1');"><img src="1.jpg" galleryimg="no"></a></li>
+      <li><a href="javascript:alert('2');"><img src="2.jpg" galleryimg="no"></a></li>
+      <li><a href="javascript:alert('3');"><img src="3.jpg" galleryimg="no"></a></li>
+      <li><a href="javascript:alert('4');"><img src="4.jpg" galleryimg="no"></a></li>
+      <li><a href="javascript:alert('5');"><img src="5.jpg" galleryimg="no"></a></li>
+    </ul>
+    <a href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
+    <a href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
+  </div>
+  <script>
+  execute(function($) {
+    var $container = $('#fading');
+    var slides = $container.find('ul li');
+    var pointers = $container.find('ol li');
+    var $prevBtn = $container.find('.prev').getFirst();
+    var $nextBtn = $container.find('.next').getFirst();
+    var slideshow = new Slideshow($container, slides, pointers, $prevBtn, $nextBtn, {switchMode: 'fading', interval: 250});
+  });
+  </script>
+  <!-- } 淡入淡出效果 -->
+
+  <!-- 翻页效果 { -->
+  <h2>翻页效果</h2>
+  <div id="turning" class="slideshow">
+    <ol>
+      <li><a href="javascript:void('1');" hidefocus class="tab"></a></li>
+      <li><a href="javascript:void('2');" hidefocus class="tab"></a></li>
+      <li><a href="javascript:void('3');" hidefocus class="tab"></a></li>
+      <li><a href="javascript:void('4');" hidefocus class="tab"></a></li>
+      <li><a href="javascript:void('5');" hidefocus class="tab"></a></li>
+    </ol>
+    <ul>
+      <li><a href="javascript:alert('1');"><img src="1.jpg" galleryimg="no"></a></li>
+      <li><a href="javascript:alert('2');"><img src="2.jpg" galleryimg="no"></a></li>
+      <li><a href="javascript:alert('3');"><img src="3.jpg" galleryimg="no"></a></li>
+      <li><a href="javascript:alert('4');"><img src="4.jpg" galleryimg="no"></a></li>
+      <li><a href="javascript:alert('5');"><img src="5.jpg" galleryimg="no"></a></li>
+    </ul>
+    <a href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
+    <a href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
+  </div>
+  <script>
+  execute(function($) {
+    var $container = $('#turning');
+    var slides = $container.find('ul li');
+    var pointers = $container.find('ol li');
+    var $prevBtn = $container.find('.prev').getFirst();
+    var $nextBtn = $container.find('.next').getFirst();
+    var slideshow = new Slideshow($container, slides, pointers, $prevBtn, $nextBtn, {switchMode: 'turning', interval: 250});
+  });
+  </script>
+  <!-- } 翻页效果 -->
+
+</div>
+</body>
+</html>
