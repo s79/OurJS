@@ -749,9 +749,9 @@
     var styles = {};
     styles[property] = originalColor;
     list.highlight = new Animation()
-        .addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction)
         .on('playstart', function(event) {
           $element.setStyle(property, color);
+          this.addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction);
           options.onStart.call($element, event);
         })
         .on('playfinish', function(event) {

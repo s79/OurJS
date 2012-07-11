@@ -14,9 +14,9 @@ execute(function($) {
    * 月历。
    * @name Calendar
    * @constructor
+   * @param {string} [className] 创建的最外层 DOM 元素的类名，默认为 'calendar'。
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Calendar.options 中。
    * @param {number} options.firstDayOfWeek 指定每周的第一天是星期几，取值范围为 0 - 6，默认为 0，即星期日。
-   * @param {string} options.theme 主题样式，即创建的最外层 DOM 元素的 className，默认为 'calendar'。
    * @param {string} options.minDate 最小日期，格式为 YYYY-MM-DD，默认为 1900-01-01。
    * @param {string} options.maxDate 最大日期，格式为 YYYY-MM-DD，默认为 2100-12-31。
    * @fires render
@@ -27,12 +27,14 @@ execute(function($) {
    *   {Date} date 已更新的日期。
    *   日期单元格更新后触发，月历每次 render 时，每个日期单元格都会更新一次。
    */
-  function Calendar(options) {
+  function Calendar(className, options) {
     var calendar = this;
+
     // 保存选项。
-    options = calendar.setOptions(options).options;
+    calendar.setOptions(options);
+
     // 创建 DOM 结构。
-    var $calendar = $('<div class="' + options.theme + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>-</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
+    var $calendar = $('<div class="' + (className || 'calendar') + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>-</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
     var $controlPanel = $calendar.getFirst();
     var controls = $controlPanel.find('*');
     var $prevYear = controls[0];
@@ -52,9 +54,10 @@ execute(function($) {
     for (var row = 0; row < 6; row++) {
       $tbody.append(tr.cloneNode(true));
     }
-    // 保存 DOM 元素。
+
+    // 保存属性。
     calendar.elements = {
-      calendar: $calendar,
+      container: $calendar,
       prevYear: $prevYear,
       prevMonth: $prevMonth,
       year: $year,
@@ -66,6 +69,7 @@ execute(function($) {
       headCells: $thead.find('td'),
       bodyCells: $tbody.find('td')
     };
+
     // 点击控制按钮，仅在控制按钮可见且没有被禁用的情况下有效。
     $controlPanel.on('click', function(event) {
       var $target = event.target;
@@ -101,6 +105,7 @@ execute(function($) {
       }
       return false;
     });
+
     // 鼠标滚轮支持（滚轮翻月，Shift + 滚轮翻年）。
     $calendar.on('mousewheel', function(event) {
       if (event.wheelUp) {
@@ -111,10 +116,12 @@ execute(function($) {
       }
       return false;
     });
+
     // 阻止一些浏览器的划选动作。
     $calendar.on('mousedown', function() {
       return false;
     });
+
   }
 
 //--------------------------------------------------[Calendar.options]
@@ -124,7 +131,6 @@ execute(function($) {
    */
   Calendar.options = {
     firstDayOfWeek: 0,
-    theme: 'calendar',
     minDate: '1900-01-01',
     maxDate: '2100-12-31'
   };
@@ -137,7 +143,7 @@ execute(function($) {
    * @returns {Element} 月历的容器元素。
    */
   Calendar.prototype.getElement = function() {
-    return this.elements.calendar;
+    return this.elements.container;
   };
 
 //--------------------------------------------------[Calendar.prototype.render]
@@ -146,23 +152,25 @@ execute(function($) {
    * @name Calendar.prototype.render
    * @function
    * @param {string} [month] 月份，格式为 YYYY-MM 的字符串。
-   *   若该参数没有指定，则使用当前日期所在的月份。
+   *   若该参数没有指定，则使用当前已渲染的月份（即刷新当前的月历）；若没有当前已渲染的月份，则使用当前系统时间所在的月份。
    * @returns {Calendar} Calendar 对象。
    */
   Calendar.prototype.render = function(month) {
     var calendar = this;
     var options = calendar.options;
     var elements = calendar.elements;
+
     // 获取最大、最小、要显示的年和月。
     var minDate = Date.from(options.minDate);
     var maxDate = Date.from(options.maxDate);
-    var showDate = new Date(Math.limit((month ? Date.from(month, 'YYYY-MM') : new Date()).getTime(), minDate.getTime(), maxDate.getTime()));
+    var showDate = new Date(Math.limit((month ? Date.from(month, 'YYYY-MM') : (calendar.renderedMonth ? Date.from(calendar.renderedMonth, 'YYYY-MM') : new Date())).getTime(), minDate.getTime(), maxDate.getTime()));
     var minY = minDate.getFullYear();
     var maxY = maxDate.getFullYear();
     var showY = showDate.getFullYear();
     var minM = minDate.getMonth();
     var maxM = maxDate.getMonth();
     var showM = showDate.getMonth();
+
     // 设置控制按钮。
     if (showY === minY) {
       elements.prevYear.addClass('disabled').title = '上一年（超出范围）';
@@ -184,28 +192,27 @@ execute(function($) {
     } else {
       elements.nextYear.removeClass('disabled').title = '下一年';
     }
-    // 显示年份和月份。
+
+    // 输出年份和月份。
     elements.year.innerText = showY;
     elements.month.innerText = (showM + 1).padZero(2);
-    // 星期类名与文字。
+
+    // 输出星期类名与文字。
     var dayNames = ['sun', 'mon', 'tues', 'wed', 'thurs', 'fri', 'sat'];
     var dayTexts = ['日', '一', '二', '三', '四', '五', '六'];
-    // 每周从周几开始。
-    var startDay = options.firstDayOfWeek;
-    // 输出月历头。
-    elements.headCells.forEach(function($cell, index) {
-      $cell.className = dayNames[(index + startDay) % 7];
-      $cell.innerText = dayTexts[(index + startDay) % 7];
-    });
-    // 计算本月第一天和最后一天应该在月历的第几个单元格显示。
+
+    // 输出月历头和月历体。
     var y;
     var m;
     var d;
-    var startIndex = (new Date(showY, showM, 1).getDay() + 7 - startDay) % 7 || 7;
+    var firstDayOfWeek = options.firstDayOfWeek;
+    var startIndex = (new Date(showY, showM, 1).getDay() + 7 - firstDayOfWeek) % 7 || 7;
     var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
-    // 今天的日期。
     var today = Date.from(new Date().format()).getTime();
-    // 输出月历体。
+    elements.headCells.forEach(function($cell, index) {
+      $cell.className = dayNames[(index + firstDayOfWeek) % 7];
+      $cell.innerText = dayTexts[(index + firstDayOfWeek) % 7];
+    });
     elements.bodyCells.forEach(function($cell, index) {
       var date = new Date(showY, showM, index - startIndex + 1);
       y = date.getFullYear();
@@ -238,9 +245,13 @@ execute(function($) {
       // 触发 cellUpdate 事件，供单元格定制用。
       calendar.fire('cellUpdate', {cell: $cell, date: date});
     });
-    // 渲染完毕。
-    calendar.fire('render', {renderedMonth: showDate.format('YYYY-MM')});
+
+    // 渲染完毕，保存状态并触发 render 事件。
+    calendar.renderedMonth = showDate.format('YYYY-MM');
+    calendar.fire('render', {renderedMonth: calendar.renderedMonth});
+
     return calendar;
+
   };
 
 //--------------------------------------------------[Calendar]

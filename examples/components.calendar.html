@@ -20,7 +20,7 @@
 </fieldset>
 <script>
 execute(function($) {
-  var calendar = new Calendar({minDate: '2011-10-15', maxDate: '2012-06-30', firstDayOfWeek: 0});
+  window.calendar = new Calendar('calendar', {minDate: '2011-10-15', maxDate: '2012-06-30'});
   $('#container').append(calendar.getElement());
   calendar.render();
 });
@@ -72,7 +72,7 @@ execute(function($) {
       return;
     }
     // 创建 datePicker 对象。
-    var datePicker = Object.append(new Calendar().on('cellUpdate', function(e) {
+    window.datePicker = Object.append(new Calendar().on('cellUpdate', function(e) {
       var $cell = e.cell;
       var date = e.date;
       $cell.title = date.format();
