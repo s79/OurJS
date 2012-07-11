@@ -244,6 +244,7 @@ execute(function($) {
         'TabPanel',
         'Slideshow',
         'Dialog',
+        'Paginator',
         'Calendar'
       ]
           .forEach(function(name) {

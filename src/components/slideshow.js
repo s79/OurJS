@@ -17,8 +17,8 @@ execute(function($) {
    * @param {Object} elements 相关元素。
    * @param {Array} elements.slides 包含所有“幻灯片”的数组。组成“幻灯片”的各元素的渲染尺寸应该一致，并且有共同的父元素。
    * @param {Array} elements.pointers 包含所有“指示器”的数组。组成“指示器”的各元素的标签名应该一致，并且有共同的父元素。另外应确保 pointers 的数量和 slides 的数量一致。
-   * @param {Element} elements.showPrevButton “显示上一张”的按钮元素。
-   * @param {Element} elements.showNextButton “显示下一张”的按钮元素。
+   * @param {Element} elements.prev “显示上一张”按钮。
+   * @param {Element} elements.next “显示下一张”按钮。
    * @param {Object} [options] 可选参数。
    * @param {string} options.activeClassName 为激活的“幻灯片”和“指示器”添加的类名，默认为 'active'。
    * @param {number} options.hoverDelay 以毫秒为单位的“指示器”鼠标悬停激活延时，默认为 undefined，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
@@ -93,8 +93,8 @@ execute(function($) {
         .active(0);
 
     // 播放上一张/下一张。
-    var $prev = elements.showPrevButton;
-    var $next = elements.showNextButton;
+    var $prev = elements.prev;
+    var $next = elements.next;
     var totalSlides = slides.length;
     $prev.on('click', function() {
       $clicked = this;

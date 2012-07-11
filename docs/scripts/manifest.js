@@ -283,6 +283,12 @@ var manifest = {
     'Dialog.prototype.close',
     'Dialog.prototype.reposition'
   ],
+  'Paginator': [
+    'Paginator',
+    'Paginator.options',
+    'Paginator.prototype.turn',
+    'Paginator.prototype.render'
+  ],
   'Calendar': [
     'Calendar',
     'Calendar.options',

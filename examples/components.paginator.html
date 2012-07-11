@@ -7,7 +7,7 @@
 <script src="../dev.js"></script>
 <script src="../src/components/paginator.js"></script>
 <style>
-#log { width: 50px; height: 20px; margin: 70px auto 0; color: orangered; font-weight: bold; text-align: center; }
+#log { width: 100px; height: 30px; margin: 60px auto 0; color: orangered; font-weight: bold; font-size: 20px; text-align: center; }
 #paginator { margin: 10px auto 100px; font-size: 12px; line-height: 14px; text-align: center; }
 #paginator a { display: inline-block; margin: 2px; padding: 2px 5px; border: 1px solid silver; background: gainsboro; color: black; text-decoration: none; }
 #paginator a.prev,
@@ -27,21 +27,34 @@
   <fieldset>
     <legend>分页导航条</legend>
     <div id="log"></div>
-    <div id="paginator"></div>
+    <div id="paginator">
+      <a href="javascript:void('prev');" title="上一页" class="prev">‹</a>
+      <span></span>
+      <a href="javascript:void('next');" title="下一页" class="next">›</a>
+    </div>
   </fieldset>
   <script>
   var p;
   execute(function($) {
 //--------------------------------------------------[paginator]
-    var totalRows = 180;
+    var $paginator = $('#paginator');
+    var controls = $paginator.find('a');
+    var $pages = $paginator.find('span').getFirst();
+    var totalRows = 500;
     var pageSize = 10;
     var totalPage = Math.ceil(totalRows / pageSize);
     var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 1, 1, totalPage);
-    p = new Paginator($('#paginator'), {prevText: '‹', nextText: '›'})
+    p = new Paginator({
+      prev: controls[0],
+      next: controls[1],
+      pages: $pages
+    })
         .on('turn', function(e) {
           $('#log').highlight().innerText = e.number;
 //        location.search = 'page=' + e.number;
           this.render(e.number, totalPage);
+        })
+        .on('render', function(e) {
         })
         .render(currentPage, totalPage);
   });

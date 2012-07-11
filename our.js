@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-07-11
+ *  Version: 2012-07-12
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -5164,9 +5164,9 @@
     var styles = {};
     styles[property] = originalColor;
     list.highlight = new Animation()
-        .addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction)
         .on('playstart', function(event) {
           $element.setStyle(property, color);
+          this.addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction);
           options.onStart.call($element, event);
         })
         .on('playfinish', function(event) {
@@ -5282,7 +5282,7 @@
     // 处理请求的最短和最长时间。
     if (options.async) {
       // 由于 getResponse(request, DONE) 在 send 方法中有两个入口，因此在此处对 minTime 进行延时处理。
-      if (options.minTime > 0) {
+      if (Number.isFinite(options.minTime)) {
         if (request.minTimeTimer) {
           // 已经限定过请求的最短时间。此时 ABORT 或 TIMEOUT 状态在有意如此操作或设置的情况下，可能比延迟的 DONE 状态来的早。
           // 但因为此时请求已经完成，所以要把本次调用的 state 重置为 DONE。
@@ -5293,7 +5293,7 @@
           // 这种情况需要限定请求的最短时间。
           request.minTimeTimer = setTimeout(function() {
             getResponse(request, DONE);
-          }, Math.max(0, Number.toInteger(options.minTime - (Date.now() - request.timestamp))));
+          }, Math.max(0, options.minTime - (Date.now() - request.timestamp)));
           return;
         }
       }
@@ -5368,8 +5368,8 @@
    * @param {string} options.contentType 发送数据的内容类型，默认为 'application/x-www-form-urlencoded'，method 为 'post' 时有效。
    * @param {boolean} options.useCache 是否允许浏览器的缓存生效，默认为 true。
    * @param {boolean} options.async 是否使用异步方式，默认为 true。
-   * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
-   * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
+   * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 undefined，即无最短时间限制，async 为 true 时有效。
+   * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 undefined，即无超时时间限制，async 为 true 时有效。
    * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为空字符串。
    *   原始请求数据无特殊要求。
    *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 start 事件对象的 data 属性。
@@ -5417,8 +5417,8 @@
     contentType: 'application/x-www-form-urlencoded',
     useCache: true,
     async: true,
-    minTime: NaN,
-    maxTime: NaN,
+    minTime: undefined,
+    maxTime: undefined,
     requestParser: function(requestData) {
       return requestData ? requestData + '' : '';
     },
@@ -5476,10 +5476,10 @@
     // 发送请求。
     xhr.send(requestData || null);
     request.timestamp = Date.now();
-    if (async && options.maxTime > 0) {
+    if (async && Number.isFinite(options.maxTime)) {
       request.maxTimeTimer = setTimeout(function() {
         getResponse(request, TIMEOUT);
-      }, options.maxTime);
+      }, Math.max(0, options.maxTime));
     }
     // 获取响应。
     if (!async || xhr.readyState === 4) {
