@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 2012-07-09
+ *  Version: 2012-07-11
  */
 /**
  * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
@@ -141,9 +141,9 @@
    * @name Array.prototype.indexOf
    * @function
    * @param {*} searchElement 指定的值。
-   * @param {number} [fromIndex] 在数组中的指定索引开始查找，默认为 0。
-   *   如果指定的值大于等于数组的长度，则仍使用数组的长度。
-   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 fromIndex + length（数组的长度）作为查找起始点，如果这个结果仍为负数，则使用 0 作为最终结果。
+   * @param {number} [fromIndex] 从指定索引为起始点开始查找，默认为 0。
+   *   如果指定的值大于数组的长度，则使用数组的长度作为查找起始点。
+   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 (fromIndex + 数组的长度) 作为查找起始点，如果这个结果仍为负数，则使用 0 作为查找起始点。
    * @returns {number} 索引值，如果数组中不包含指定的值，则返回 -1。
    * @example
    *   [1, 2, 3, 2, 1].indexOf(2);
@@ -187,9 +187,9 @@
    * @name Array.prototype.lastIndexOf
    * @function
    * @param {*} searchElement 指定的值。
-   * @param {number} [fromIndex] 在数组中的指定索引开始查找，默认为数组的长度。
-   *   如果指定的值大于等于数组的长度，则仍使用数组的长度。
-   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 (fromIndex + 数组的长度) 作为查找起始点，如果这个结果仍为负数，则使用 0 作为最终结果。
+   * @param {number} [fromIndex] 从指定索引为起始点开始查找，默认为数组的长度。
+   *   如果指定的值大于数组的长度，则使用数组的长度作为查找起始点。
+   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 (fromIndex + 数组的长度) 作为查找起始点，如果这个结果仍为负数，则使用 0 作为查找起始点。
    * @returns {number} 索引值，如果数组中不包含指定的值，则返回 -1。
    * @example
    *   [1, 2, 3, 2, 1].lastIndexOf(2);
@@ -4220,8 +4220,16 @@
    * 为本组件设置选项。
    * @name Component.prototype.setOptions
    * @function
-   * @param {Object} options 选项。
+   * @param {Object} options 新的选项。新的选项用于覆盖旧的选项，因此旧选项中原本不存在的属性不会被设置。
    * @returns {Object} 本组件。
+   * @description
+   *   共有三种方式为一个组件设置选项：
+   *     - 在在创建组件实例之前，可以修改该组件的构造器的 options 属性，来修改此类组件的默认选项。这种方式设置的选项对后续创建的组件均生效。
+   *       建议在项目对某一类组件有相同的要求时这么做。
+   *     - 在创建组件实例时，可以通过参数 options 来指定本次创建的实例的选项。这种方式设置的选项仅对本次创建的实例生效。
+   *       建议在创建每个组件的实例时这么做。
+   *     - 使用本方法，可以在实例创建之后修改当前的选项。这种方式设置的选项将在组件下一次访问这些设置时生效。
+   *       仅在需要重用某一个组件，但需要不同的选项时才这么做。
    */
   Component.prototype.setOptions = function(options) {
     Object.append(this.options, options || {}, {whiteList: Object.keys(this.options)});
@@ -4363,26 +4371,26 @@
    * 将一个元素标记为“活动”，并将当前的活动元素（如果有）标记为“非活动”。
    * @name Switcher.prototype.active
    * @function
-   * @param {Object|number} i 要标记为“活动”的元素，或者这个元素在 items 中的索引值。
+   * @param {Object|number} value 要标记为“活动”的元素，或者这个元素在 items 中的索引值。
    *   要标记为“活动”的元素不能为当前的活动元素。
    *   如果指定的值为不在 items 中的对象，或为一个不在有效范索引围内的数字，则取消活动元素。
    * @returns {Object} Switcher 对象。
    */
-  Switcher.prototype.active = function(i) {
+  Switcher.prototype.active = function(value) {
     var switcher = this;
     var item = null;
     var index = -1;
     var x;
-    if (typeof i === 'number') {
-      x = switcher.items[i];
+    if (typeof value === 'number') {
+      x = switcher.items[value];
       if (x) {
         item = x;
-        index = i;
+        index = value;
       }
     } else {
-      x = switcher.items.indexOf(i);
+      x = switcher.items.indexOf(value);
       if (x > -1) {
-        item = i;
+        item = value;
         index = x;
       }
     }
@@ -5444,6 +5452,7 @@
     // 创建请求。
     var url = request.url;
     var method = options.method.toLowerCase();
+    var async = options.async;
     if (method === 'get' && requestData) {
       url += (url.contains('?') ? '&' : '?') + requestData;
       requestData = '';
@@ -5453,28 +5462,27 @@
     }
     // http://bugs.jquery.com/ticket/2865
     if (options.username) {
-      xhr.open(method, url, options.async, options.username, options.password);
+      xhr.open(method, url, async, options.username, options.password);
     } else {
-      xhr.open(method, url, options.async);
+      xhr.open(method, url, async);
     }
     // 设置请求头。
-    var headers = options.headers;
     if (method === 'post') {
-      headers['Content-Type'] = options.contentType;
+      xhr.setRequestHeader('Content-Type', options.contentType);
     }
-    for (var name in headers) {
-      xhr.setRequestHeader(name, headers[name]);
-    }
+    Object.forEach(options.headers, function(value, key) {
+      xhr.setRequestHeader(key, value);
+    });
     // 发送请求。
     xhr.send(requestData || null);
     request.timestamp = Date.now();
-    if (options.async && options.maxTime > 0) {
+    if (async && options.maxTime > 0) {
       request.maxTimeTimer = setTimeout(function() {
         getResponse(request, TIMEOUT);
       }, options.maxTime);
     }
     // 获取响应。
-    if (!options.async || xhr.readyState === 4) {
+    if (!async || xhr.readyState === 4) {
       // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
       getResponse(request, DONE);
     } else {

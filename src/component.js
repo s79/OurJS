@@ -89,8 +89,16 @@
    * 为本组件设置选项。
    * @name Component.prototype.setOptions
    * @function
-   * @param {Object} options 选项。
+   * @param {Object} options 新的选项。新的选项用于覆盖旧的选项，因此旧选项中原本不存在的属性不会被设置。
    * @returns {Object} 本组件。
+   * @description
+   *   共有三种方式为一个组件设置选项：
+   *     - 在在创建组件实例之前，可以修改该组件的构造器的 options 属性，来修改此类组件的默认选项。这种方式设置的选项对后续创建的组件均生效。
+   *       建议在项目对某一类组件有相同的要求时这么做。
+   *     - 在创建组件实例时，可以通过参数 options 来指定本次创建的实例的选项。这种方式设置的选项仅对本次创建的实例生效。
+   *       建议在创建每个组件的实例时这么做。
+   *     - 使用本方法，可以在实例创建之后修改当前的选项。这种方式设置的选项将在组件下一次访问这些设置时生效。
+   *       仅在需要重用某一个组件，但需要不同的选项时才这么做。
    */
   Component.prototype.setOptions = function(options) {
     Object.append(this.options, options || {}, {whiteList: Object.keys(this.options)});

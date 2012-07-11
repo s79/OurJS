@@ -36,9 +36,8 @@
 <div id="content">
   <h1>幻灯片播放</h1>
 
-  <!-- 渐变效果 { -->
-  <h2>渐变效果</h2>
-  <div id="fading" class="slideshow">
+  <h2>slideshow</h2>
+  <div id="slideshow" class="slideshow">
     <ol>
       <li><a href="javascript:void('1');" hidefocus class="tab"></a></li>
       <li><a href="javascript:void('2');" hidefocus class="tab"></a></li>
@@ -54,53 +53,24 @@
       <li><a href="javascript:alert('5');"><img src="5.jpg" galleryimg="no"></a></li>
     </ul>
     <div>
-      <a href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
-      <a href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
+      <a id="slideshow_prev" href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
+      <a id="slideshow_next" href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
     </div>
   </div>
   <script>
   execute(function($) {
-    var $container = $('#fading');
-    var slides = $container.find('ul li');
-    var pointers = $container.find('ol li');
-    var controls = $container.find('div a');
-    var slideshow = new Slideshow($container, slides, pointers, controls, {switchMode: 'fading', interval: 3000});
+    var $container = $('#slideshow');
+    window.slideshow = new Slideshow({
+      slides: $container.find('ul li'),
+      pointers: $container.find('ol li'),
+      showPrevButton: $('#slideshow_prev'),
+      showNextButton: $('#slideshow_next')
+    }, {
+      switchMode: 'turning',
+      interval: 3000
+    });
   });
   </script>
-  <!-- } 渐变效果 -->
-
-  <!-- 翻页效果 { -->
-  <h2>翻页效果</h2>
-  <div id="turning" class="slideshow">
-    <ol>
-      <li><a href="javascript:void('1');" hidefocus class="tab"></a></li>
-      <li><a href="javascript:void('2');" hidefocus class="tab"></a></li>
-      <li><a href="javascript:void('3');" hidefocus class="tab"></a></li>
-      <li><a href="javascript:void('4');" hidefocus class="tab"></a></li>
-      <li><a href="javascript:void('5');" hidefocus class="tab"></a></li>
-    </ol>
-    <ul>
-      <li><a href="javascript:alert('1');"><img src="1.jpg" galleryimg="no"></a></li>
-      <li><a href="javascript:alert('2');"><img src="2.jpg" galleryimg="no"></a></li>
-      <li><a href="javascript:alert('3');"><img src="3.jpg" galleryimg="no"></a></li>
-      <li><a href="javascript:alert('4');"><img src="4.jpg" galleryimg="no"></a></li>
-      <li><a href="javascript:alert('5');"><img src="5.jpg" galleryimg="no"></a></li>
-    </ul>
-    <div>
-      <a href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
-      <a href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
-    </div>
-  </div>
-  <script>
-  execute(function($) {
-    var $container = $('#turning');
-    var slides = $container.find('ul li');
-    var pointers = $container.find('ol li');
-    var controls = $container.find('div a');
-    var slideshow = new Slideshow($container, slides, pointers, controls, {switchMode: 'turning', interval: 5000});
-  });
-  </script>
-  <!-- } 翻页效果 -->
 
 </div>
 </body>

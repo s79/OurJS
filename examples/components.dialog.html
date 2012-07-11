@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Dialog</title>
-<link rel="stylesheet" href="example.css">
+<link rel="stylesheet" href="../docs/stylesheets/framework.css">
 <script src="../dev.js"></script>
 <script src="../src/components/dialog.js"></script>
 <style>
@@ -73,7 +73,7 @@ var dialogB;
 var animation;
 execute(function($) {
 //--------------------------------------------------[TEST]
-  dialogA = new Dialog($('#dialog_a'), {offsetX: NaN, offsetY: 200})
+  dialogA = new Dialog($('#dialog_a'), {offsetY: 200})
       .on('open',
       function() {
         console.log('open');

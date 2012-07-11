@@ -14,14 +14,15 @@ execute(function($) {
    * 幻灯片播放器。
    * @name Slideshow
    * @constructor
-   * @param {Element} container 组件的容器。
-   * @param {Array} slides 包含所有“幻灯片”的数组。组成“幻灯片”的各元素的标签名应该一致，并且有共同的父元素。
-   * @param {Array} pointers 包含所有“指示器”的数组。组成“指示器”的各元素的标签名应该一致，并且有共同的父元素。另外应确保 pointers 的数量和 slides 的数量一致。
-   * @param {Array} controls 包含所有“控制按钮”的数组，其中第一个为“显示上一张”的按钮元素，最后一个为“显示下一张”的按钮元素。
+   * @param {Object} elements 相关元素。
+   * @param {Array} elements.slides 包含所有“幻灯片”的数组。组成“幻灯片”的各元素的渲染尺寸应该一致，并且有共同的父元素。
+   * @param {Array} elements.pointers 包含所有“指示器”的数组。组成“指示器”的各元素的标签名应该一致，并且有共同的父元素。另外应确保 pointers 的数量和 slides 的数量一致。
+   * @param {Element} elements.showPrevButton “显示上一张”的按钮元素。
+   * @param {Element} elements.showNextButton “显示下一张”的按钮元素。
    * @param {Object} [options] 可选参数。
    * @param {string} options.activeClassName 为激活的“幻灯片”和“指示器”添加的类名，默认为 'active'。
-   * @param {number} options.hoverDelay 以毫秒为单位的“指示器”鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
-   * @param {string} options.switchMode 幻灯片切换的模式，目前支持 'fading' 和 'turning' 两种，默认为 'fading'。
+   * @param {number} options.hoverDelay 以毫秒为单位的“指示器”鼠标悬停激活延时，默认为 undefined，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
+   * @param {string} options.switchMode 幻灯片切换的模式，目前支持 'normal'，'fading' 和 'turning' 三种，默认为 'fading'。
    * @param {number} options.interval 以毫秒为单位的自动播放间隔，默认为 5000。
    * @fires show
    *   {Element} activeSlide 当前的激活的“幻灯片”。
@@ -33,34 +34,27 @@ execute(function($) {
    *   成功调用 show 方法后触发。
    * @requires TabPanel
    */
-  function Slideshow(container, slides, pointers, controls, options) {
+  function Slideshow(elements, options) {
     var slideshow = this;
+
     // 保存属性。
-    slideshow.slides = slides;
-    slideshow.pointers = pointers;
-    slideshow.elements = {
-      showPrevBtn: $(controls.getFirst()),
-      showNextBtn: $(controls.getLast())
-    };
+    slideshow.elements = elements;
     slideshow.activeSlide = null;
     slideshow.activePointer = null;
     slideshow.activeIndex = -1;
+
     // 保存选项。
     options = slideshow.setOptions(options).options;
-    // 内部使用的变量。
-    var $slideshow = $(container);
-    var $slideSample = slides.getFirst();
-    var $container = $slideSample.getParent();
-    var $prev = slideshow.elements.showPrevBtn;
-    var $next = slideshow.elements.showNextBtn;
-    var $clicked;
-    var slideWidth = $slideSample.offsetWidth;
-    var totalSlides = slides.length;
-    var currentIndex;
-    var timer;
-    var switchMode = options.switchMode;
+
     // 使用 TabPanel 实现幻灯片播放器。
-    slideshow.tabPanel = new TabPanel(pointers, slides, {activeClassName: options.activeClassName, hoverDelay: options.hoverDelay})
+    var slides = elements.slides;
+    var pointers = elements.pointers;
+    var $slideSample = slides.getFirst();
+    var $slideContainer = $slideSample.getParent();
+    var slideWidth = $slideSample.offsetWidth;
+    var $clicked = null;
+    var currentIndex = -1;
+    slideshow.tabPanel = new TabPanel({tabs: pointers, panels: slides}, options)
         .on('active', function(event) {
           var activeSlide = event.activePanel;
           var activePointer = event.activeTab;
@@ -72,18 +66,20 @@ execute(function($) {
           slideshow.activeIndex = activeIndex;
           // 切换幻灯片。
           if (activeSlide) {
-            $container.append(activeSlide.setStyle('opacity', 0));
-            switch (switchMode) {
+            switch (options.switchMode) {
+              case 'normal':
+                $slideContainer.append(activeSlide);
+                break;
               case 'fading':
-                activeSlide.morph({opacity: 1});
+                $slideContainer.append(activeSlide.setStyle('opacity', 0).morph({opacity: 1}));
                 break;
               case 'turning':
-                activeSlide.setStyles(($clicked ? $clicked === $next : activeIndex > inactiveIndex) ? {left: slideWidth} : {left: -slideWidth}).morph({left: 0, opacity: 1});
+                $slideContainer.append(activeSlide.setStyle('opacity', 0).setStyles(($clicked ? $clicked === $next : activeIndex > inactiveIndex) ? {left: slideWidth} : {left: -slideWidth}).morph({left: 0, opacity: 1}));
                 break;
             }
           }
-          currentIndex = this.activeIndex;
           $clicked = null;
+          currentIndex = this.activeIndex;
           // 触发事件。
           slideshow.fire('show', {
             activeSlide: activeSlide,
@@ -95,7 +91,11 @@ execute(function($) {
           });
         })
         .active(0);
-    // 播放上一张。
+
+    // 播放上一张/下一张。
+    var $prev = elements.showPrevButton;
+    var $next = elements.showNextButton;
+    var totalSlides = slides.length;
     $prev.on('click', function() {
       $clicked = this;
       --currentIndex;
@@ -104,7 +104,6 @@ execute(function($) {
       }
       slideshow.show(currentIndex);
     });
-    // 播放下一张。
     $next.on('click', function() {
       $clicked = this;
       ++currentIndex;
@@ -113,8 +112,15 @@ execute(function($) {
       }
       slideshow.show(currentIndex);
     });
+
     // 自动播放下一张。
-    $slideshow
+    var $pointerSample = pointers.getFirst();
+    var $container = $slideContainer;
+    while ($container && !($container.contains($pointerSample) && $container.contains($prev) && $container.contains($next))) {
+      $container = $container.getParent();
+    }
+    var timer;
+    $container
         .on('mouseenter', function() {
           $prev.fadeIn();
           $next.fadeIn();
@@ -128,6 +134,14 @@ execute(function($) {
           }, options.interval);
         })
         .fire('mouseleave');
+
+    // 为本组件设置选项的同时，也为 tabPanel 设置选项。
+    slideshow.setOptions = function(options) {
+      Component.prototype.setOptions.call(this, options);
+      this.tabPanel.setOptions(options);
+      return this;
+    }
+
   }
 
 //--------------------------------------------------[Slideshow.options]
@@ -137,7 +151,7 @@ execute(function($) {
    */
   Slideshow.options = {
     activeClassName: 'active',
-    hoverDelay: NaN,
+    hoverDelay: undefined,
     switchMode: 'fading',
     interval: 5000
   };

@@ -23,20 +23,13 @@ execute(function($) {
    *   http://w3help.org/zh-cn/causes/RM8015
    */
 
+  // 限定不可聚焦的区域。参数 config 包含 enable 和 disable 两个元素。如果省略此参数，则取消限定。
   var $before;
   var $after;
   var $enabled;
   var $disabled;
   var focusedByUser = true;
-
-  /**
-   * 限定不可聚焦的区域。
-   * @name freezeFocusArea
-   * @function
-   * @private
-   * @param {Object} [config] 配置信息，包含 enable 和 disable 两个元素。如果省略此参数，则取消限定。
-   */
-  function freezeFocusArea(config) {
+  var freezeFocusArea = function(config) {
     if (config) {
       var $enable = $(config.enable);
       var $disable = $(config.disable);
@@ -98,7 +91,7 @@ execute(function($) {
         $enabled = $disabled = null;
       }
     }
-  }
+  };
 
 //--------------------------------------------------[Mask Constructor]
   /**
@@ -108,8 +101,8 @@ execute(function($) {
    * @private
    * @param {Element} target 要遮掩的目标元素，当其值为 body 元素时，将覆盖整个视口。
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Mask.options 中。
-   * @param {Object} options.attributes 为遮掩层元素附加的属性。
-   * @param {Object} options.styles 为遮掩层元素设置的样式。
+   * @param {Object} options.maskAttributes 为遮掩层元素附加的属性。
+   * @param {Object} options.maskStyles 为遮掩层元素设置的样式。
    * @param {boolean} options.effect 是否启用动画效果。
    * @description
    *   遮掩层仅供内部使用，且均为被动调用，因此未提供事件支持。
@@ -126,8 +119,8 @@ execute(function($) {
    * @private
    */
   Mask.options = {
-    attributes: {},
-    styles: {backgroundColor: 'black', opacity: 0.2},
+    maskAttributes: {},
+    maskStyles: {backgroundColor: 'black', opacity: 0.2},
     effect: false
   };
 
@@ -148,14 +141,14 @@ execute(function($) {
         var $container = mask.target;
         // 创建遮掩层元素。
         var attributes = '';
-        Object.forEach(options.attributes, function(attributeValue, attributeName) {
+        Object.forEach(options.maskAttributes, function(attributeValue, attributeName) {
           attributes += ' ' + attributeName + '="' + attributeValue + '"';
         });
         var $mask;
         var resizeMaskElementForIE6;
         if (navigator.isIE6) {
           // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
-          $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').append($('<div></div>').setStyles(options.styles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
+          $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').append($('<div></div>').setStyles(options.maskStyles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
           // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
           if ($container === document.body) {
             resizeMaskElementForIE6 = function() {
@@ -163,7 +156,7 @@ execute(function($) {
             };
           }
         } else {
-          $mask = $('<div' + attributes + '></div>').setStyles(options.styles);
+          $mask = $('<div' + attributes + '></div>').setStyles(options.maskStyles);
         }
         // 确定遮掩层元素的样式并插入文档树。
         $container.append($mask.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
@@ -172,6 +165,12 @@ execute(function($) {
         mask.animation = new Animation()
             .on('playstart', function() {
               $mask.setStyle('display', 'block');
+              // 如果启用了动画效果则添加动画剪辑。
+              if (options.effect) {
+                var originalOpacity = $mask.getStyle('opacity');
+                $mask.setStyle('opacity', 0);
+                this.addClip(Animation.createStyleRenderer($mask, {opacity: originalOpacity}), 0, 1150, 'easeIn');
+              }
               mask.resize();
               if (resizeMaskElementForIE6) {
                 window.attachEvent('onresize', resizeMaskElementForIE6);
@@ -185,13 +184,6 @@ execute(function($) {
                 window.detachEvent('onresize', resizeMaskElementForIE6);
               }
             });
-        if (options.effect) {
-          mask.animation
-              .addClip(Animation.createStyleRenderer($mask, {opacity: $mask.getStyle('opacity')}), 0, 150, 'easeIn')
-              .on('playstart', function() {
-                $mask.setStyle('opacity', 0);
-              });
-        }
       }
       mask.element.setStyle('zIndex', element.getStyle('zIndex') - 1);
       freezeFocusArea({enable: element, disable: mask.target});
@@ -237,6 +229,9 @@ execute(function($) {
 //--------------------------------------------------[Mask]
   window.Mask = new Component(Mask, Mask.options, Mask.prototype);
 
+});
+
+execute(function($) {
 //==================================================[Dialog]
   /*
    * 创建模态对话框。
@@ -265,9 +260,9 @@ execute(function($) {
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Dialog.options 中。
    * @param {Object} options.maskAttributes 为遮掩层元素附加的属性，默认为 {}。
    * @param {Object} options.maskStyles 为遮掩层元素设置的样式，默认为 {backgroundColor: 'black', opacity: 0.2}。
-   * @param {number} options.offsetX 对话框的左边与其父元素的左边的横向差值。默认为 NaN，此时对话框的中心点在横向将与其父元素的中心点重合。
-   * @param {number} options.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
-   * @param {boolean} options.effect 是否启用动画效果，默认为 false。
+   * @param {number} options.offsetX 对话框的左边与其父元素的左边的横向差值。默认为 undefined，此时对话框的中心点在横向将与其父元素的中心点重合。
+   * @param {number} options.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 undefined，此时对话框的中心点在纵向将与其父元素的中心点重合。
+   * @param {boolean} options.effect 是否启用淡入淡出的动画效果，默认为 false。
    *   在 IE6 IE7 IE8 应关闭，否则动画使用的透明滤镜可能和 PNG 透明修复脚本冲突，或者因透明滤镜重叠而导致显示异常。
    * @fires open
    *   成功调用 open 方法后触发。
@@ -296,12 +291,17 @@ execute(function($) {
    */
   function Dialog(element, options) {
     var dialog = this;
-    // 对话框的默认状态为关闭。
+
+    // 保存属性。
+    // 对话框的初始状态为关闭、隐藏状态。
     dialog.isOpen = false;
-    // 对话框的初始状态是隐藏的。调节对话框的位置是通过 element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
-    // 设置 top 为 -5000 是为了避免在 IE6 中启用 png 修复时出现闪烁现象。
+    // 调节对话框的位置是通过 element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。设置 top 为 -5000 是为了避免在 IE6 中启用 png 修复时出现闪烁现象。
     var $dialog = dialog.element = $(element).setStyles({display: 'none', left: 0, top: -5000});
-    // 根据 element 的父元素 $container 确定对话框使用的定位方式。
+    // 确保 element 的 zIndex 已设置，以供遮掩层参照。
+    if ($dialog.getStyle('zIndex') === 'auto') {
+      $dialog.setStyle('zIndex', 1000);
+    }
+    // 确定对话框元素的定位方式。
     var $container = $dialog.getParent();
     if ($container === document.body && $dialog.getStyle('position') === 'fixed') {
       $dialog.setStyle('position', 'fixed');
@@ -314,23 +314,39 @@ execute(function($) {
         $container.setStyle('position', 'relative');
       }
     }
-    // 确保 element 的 zIndex 已设置，以供遮掩层参照。
-    if ($dialog.getStyle('zIndex') === 'auto') {
-      $dialog.setStyle('zIndex', 1000);
-    }
+
     // 保存选项。
     options = dialog.setOptions(options).options;
+
     // 为对话框分组。
     var uid = $container.uid;
-    var group = groups[uid] || (groups[uid] = {stack: [], mask: new window.Mask($container, {attributes: options.maskAttributes, styles: options.maskStyles, effect: options.effect})});
+    var group = groups[uid] || (groups[uid] = {stack: [], mask: new window.Mask($container, options)});
     var stack = group.stack;
     var mask = group.mask;
-    // 动画效果。
+
+    // 使用 Animation 建立对话框的操作序列。
     dialog.animation = new Animation()
+        .on('play', function() {
+          dialog.fire('open');
+        })
         .on('playstart', function() {
           stack.push(dialog);
           // 初始化对话框状态。
           $dialog.setStyle('display', 'block');
+          // 如果启用了动画效果则添加动画剪辑，否则清理动画剪辑。
+          if (options.effect) {
+            if (this.clips.length === 0) {
+              this.originalOpacity = $dialog.getStyle('opacity');
+              $dialog.setStyle('opacity', 0);
+              this.addClip(Animation.createStyleRenderer($dialog, {opacity: this.originalOpacity}), 0, 1200, 'easeIn');
+            }
+          } else {
+            if (this.clips.length > 0) {
+              delete this.originalOpacity;
+              this.clips.length = 0;
+              this.duration = 0;
+            }
+          }
           // 调整遮掩层。
           mask.behind($dialog);
           // 仅父元素为 body 的对话框需要在改变窗口尺寸时重新调整位置（假设其他对话框的父元素的尺寸为固定）。
@@ -352,6 +368,9 @@ execute(function($) {
         .on('playfinish', function() {
           dialog.fire('openfinish');
         })
+        .on('reverse', function() {
+          dialog.fire('close');
+        })
         .on('reversestart', function() {
           dialog.fire('closestart');
         })
@@ -370,17 +389,22 @@ execute(function($) {
           }
           // 恢复对话框状态。
           $dialog.setStyle('display', 'none');
+          // 如果启用了动画效果则恢复原始透明度。
+          if (this.hasOwnProperty('originalOpacity')) {
+            $dialog.setStyle('opacity', this.originalOpacity);
+          }
           // 对话框已关闭。
           dialog.isOpen = false;
           dialog.fire('closefinish');
         });
-    if (options.effect) {
-      dialog.animation
-          .addClip(Animation.createStyleRenderer($dialog, {opacity: $dialog.getStyle('opacity')}), 0, 200, 'easeIn')
-          .on('playstart', function() {
-            $dialog.setStyle('opacity', 0);
-          });
+
+    // 为本组件设置选项的同时，也为 mask 设置选项。
+    dialog.setOptions = function(options) {
+      Component.prototype.setOptions.call(this, options);
+      mask.setOptions(options);
+      return this;
     }
+
   }
 
 //--------------------------------------------------[Dialog.options]
@@ -391,8 +415,8 @@ execute(function($) {
   Dialog.options = {
     maskAttributes: {},
     maskStyles: {backgroundColor: 'black', opacity: 0.2},
-    offsetX: NaN,
-    offsetY: NaN,
+    offsetX: undefined,
+    offsetY: undefined,
     effect: false
   };
 
@@ -404,12 +428,8 @@ execute(function($) {
    * @returns {Object} Dialog 对象。
    */
   Dialog.prototype.open = function() {
-    var dialog = this;
-    if (!dialog.isOpen) {
-      dialog.fire('open');
-      dialog.animation.play();
-    }
-    return dialog;
+    this.animation.play();
+    return this;
   };
 
 //--------------------------------------------------[Dialog.prototype.close]
@@ -420,12 +440,8 @@ execute(function($) {
    * @returns {Object} Dialog 对象。
    */
   Dialog.prototype.close = function() {
-    var dialog = this;
-    if (dialog.isOpen) {
-      dialog.fire('close');
-      dialog.animation.reverse();
-    }
-    return dialog;
+    this.animation.reverse();
+    return this;
   };
 
 //--------------------------------------------------[Dialog.prototype.reposition]
@@ -460,8 +476,8 @@ execute(function($) {
       } else {
         containerClientRect = $container.getClientRect();
       }
-      expectedX = containerClientRect.left + (isNaN(options.offsetX) ? (containerClientRect.width - currentWidth) / 2 : options.offsetX);
-      expectedY = containerClientRect.top + (isNaN(options.offsetY) ? (containerClientRect.height - currentHeight) / 2 : options.offsetY);
+      expectedX = containerClientRect.left + (Number.isFinite(options.offsetX) ? options.offsetX : (containerClientRect.width - currentWidth) / 2);
+      expectedY = containerClientRect.top + (Number.isFinite(options.offsetY) ? options.offsetY : (containerClientRect.height - currentHeight) / 2);
       // 确保固定定位的对话框显示在视口内。
       if (isFixedPositioned) {
         var leftLimit = 0;
