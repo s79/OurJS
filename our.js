@@ -235,7 +235,7 @@
    * @param {Function} callback 用来检查的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
    *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @returns {boolean} 检查结果。
    * @example
    *   [1, 2, 3].every(function(item) {
@@ -272,7 +272,7 @@
    * @param {Function} callback 用来检查的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
    *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @returns {boolean} 检查结果。
    * @example
    *   [1, 2, 3].some(function(item) {
@@ -308,7 +308,7 @@
    * @function
    * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @example
    *   var s = '';
    *   [1, 2, 3].forEach(function(item) {
@@ -344,7 +344,7 @@
    * @function
    * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @returns {Array} 包含 callback 的每次执行后的返回值的新数组。
    * @example
    *   var a = [1, 2, 3].map(function(item) {
@@ -382,7 +382,7 @@
    * @function
    * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @returns {Array} 包含所有回调函数执行后返回值为 true 时对应的原数组元素的新数组。
    * @example
    *   var a = [1, 2, 3].filter(function(item) {
@@ -655,12 +655,12 @@
    * @function
    * @param {Object} object 要遍历的对象。
    * @param {Function} callback 用来遍历的函数，参数为 value，key，object。
-   * @param {Object} [thisObj] 遍历函数的 this 值。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    */
-  Object.forEach = function(object, callback, thisObj) {
+  Object.forEach = function(object, callback, thisObject) {
     for (var key in object) {
       if (HAS_OWN_PROPERTY.call(object, key)) {
-        callback.call(thisObj, object[key], key, object);
+        callback.call(thisObject, object[key], key, object);
       }
     }
     if (hasDontEnumBug) {
@@ -668,7 +668,7 @@
       while (i < DONT_ENUM_PROPERTIES_LENGTH) {
         var dontEnumProperty = DONT_ENUM_PROPERTIES[i];
         if (HAS_OWN_PROPERTY.call(object, dontEnumProperty)) {
-          callback.call(thisObj, object[dontEnumProperty], dontEnumProperty, object);
+          callback.call(thisObject, object[dontEnumProperty], dontEnumProperty, object);
         }
         i++;
       }
@@ -3378,9 +3378,11 @@
    *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
    *   </table>
    * @param {Function} listener 事件监听器。
-   *   监听器中的 this 将指向监听到本次事件的元素。即：
-   *   - 如果是普通监听器，则 this 指向本元素。
-   *   - 如果是代理监听器，则 this 指向被代理的元素。
+   *   该函数被调用时 this 的值为监听到本次事件的元素，即：
+   *   <ul>
+   *     <li>如果是普通监听器，则 this 的值为本元素。</li>
+   *     <li>如果是代理监听器，则 this 的值为被代理的元素。</li>
+   *   </ul>
    * @returns {Element} 本元素。
    * @example
    *   $('#test').on('click', handler);
@@ -4224,12 +4226,11 @@
    * @returns {Object} 本组件。
    * @description
    *   共有三种方式为一个组件设置选项：
-   *     - 在在创建组件实例之前，可以修改该组件的构造器的 options 属性，来修改此类组件的默认选项。这种方式设置的选项对后续创建的组件均生效。
-   *       建议在项目对某一类组件有相同的要求时这么做。
-   *     - 在创建组件实例时，可以通过参数 options 来指定本次创建的实例的选项。这种方式设置的选项仅对本次创建的实例生效。
-   *       建议在创建每个组件的实例时这么做。
-   *     - 使用本方法，可以在实例创建之后修改当前的选项。这种方式设置的选项将在组件下一次访问这些设置时生效。
-   *       仅在需要重用某一个组件，但需要不同的选项时才这么做。
+   *   <ul>
+   *     <li>在在创建组件实例之前，可以修改该组件的构造器的 options 属性，来修改此类组件的默认选项。这种方式设置的选项对后续创建的组件均生效。<br>建议在项目对某一类组件有相同的要求时这么做。</li>
+   *     <li>在创建组件实例时，可以通过参数 options 来指定本次创建的实例的选项。这种方式设置的选项仅对本次创建的实例生效。<br>建议在创建每个组件的实例时这么做。</li>
+   *     <li>使用本方法，可以在实例创建之后修改当前的选项。这种方式设置的选项将在组件下一次访问这些设置时生效。<br>仅在需要重用某一个组件，但需要不同的选项时才这么做。</li>
+   *   </ul>
    */
   Component.prototype.setOptions = function(options) {
     Object.append(this.options, options || {}, {whiteList: Object.keys(this.options)});
@@ -4249,7 +4250,7 @@
    *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>给事件类型加上标签，以便调用 off 方法时精确匹配要删除的事件监听器。<br>不打算删除的事件监听器没有必要指定标签。</td></tr>
    *   </table>
    * @param {Function} listener 事件监听器。
-   *   监听器中的 this 将指向本组件。
+   *   该函数被调用时 this 的值为本组件。
    * @returns {Object} 本组件。
    */
   Component.prototype.on = function(name, listener) {
@@ -4351,7 +4352,7 @@
    *   {number} event.inactiveIndex 上一个活动元素在 items 中的索引。
    *   成功调用 active 方法后触发。
    * @description
-   *   高级应用：动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
+   *   动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
    */
   function Switcher(items) {
     this.items = items;
@@ -4375,6 +4376,8 @@
    *   要标记为“活动”的元素不能为当前的活动元素。
    *   如果指定的值为不在 items 中的对象，或为一个不在有效范索引围内的数字，则取消活动元素。
    * @returns {Object} Switcher 对象。
+   * @description
+   *   如果要标记为“活动”的元素与当前的活动元素相同，则调用此方法无效。
    */
   Switcher.prototype.active = function(value) {
     var switcher = this;
@@ -4692,9 +4695,7 @@
    * @fires stop
    *   成功调用 stop 方法后触发。
    * @description
-   *   高级应用：
-   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。
-   *   仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
+   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。<br>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
    *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
    */
   function Animation() {
@@ -4718,7 +4719,7 @@
    * @name Animation.prototype.addClip
    * @function
    * @param {Function} renderer 使用 Animation.create*Renderer 创建的渲染器。
-   *   函数中的 this 指向所属的 Animation 对象。
+   *   该函数被调用时 this 的值为所属的 Animation 对象。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
    * @param {string} timingFunction 控速函数名称或表达式。
@@ -4745,7 +4746,7 @@
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画的时间点在终点，则调用此方法无效。
+   *   如果当前动画正在播放中，或时间点已到达终点，则调用此方法无效。
    */
   Animation.prototype.play = function(reverse) {
     var animation = this;
@@ -4788,7 +4789,7 @@
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画的时间点在起点，则调用此方法无效。
+   *   如果当前动画正在反向播放中，或时间点已到达起点，则调用此方法无效。
    */
   Animation.prototype.reverse = function() {
     return this.play(INTERNAL_IDENTIFIER_REVERSE);
@@ -4822,8 +4823,8 @@
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画的时间点在起点，则调用此方法无效。
    *   调用此方法时，动画中所有的剪辑都将回到起点状态。
+   *   如果当前动画的时间点在起点，则调用此方法无效。
    */
   Animation.prototype.stop = function() {
     var animation = this;
@@ -4954,7 +4955,8 @@
    * 创建基本渲染器。
    * @name Animation.createBasicRenderer
    * @function
-   * @param {Function} renderer 渲染函数，this 指向所属的 Animation 对象，传入两个参数：时间轴和偏移量。
+   * @param {Function} renderer 渲染函数，传入两个参数“时间轴”和“偏移量”。
+   *   该函数被调用时 this 的值为所属的 Animation 对象。
    * @returns {Function} 生成的渲染器。
    */
   Animation.createBasicRenderer = function(renderer) {
@@ -5102,7 +5104,9 @@
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
    * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
    *   如果本元素的动画播放列表中已经存在一个 morph 动画，则停止旧的，播放新的。
@@ -5138,7 +5142,9 @@
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
    *   如果本元素的动画播放列表中已经存在一个 highlight 动画，则停止旧的，播放新的。
@@ -5188,7 +5194,9 @@
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
    *   display 不为 none 的元素不能播放淡入动画。
@@ -5208,7 +5216,9 @@
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
    *   display 为 none 的元素不能播放淡出动画。
@@ -5345,7 +5355,7 @@
         break;
     }
     // 触发 finish 事件。
-    request.fire('finish', options.responseParser({
+    request.fire('finish', options.responseParser.call(request, {
       status: status,
       statusText: statusText,
       headers: headers,
@@ -5373,6 +5383,7 @@
    * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为空字符串。
    *   原始请求数据无特殊要求。
    *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 start 事件对象的 data 属性。
+   *   该函数被调用时 this 的值为本组件。
    * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回解析后的对象数据，默认无特殊处理。
    *   原始响应数据中包含以下属性：
    *   {number} responseData.status 状态码。
@@ -5381,6 +5392,7 @@
    *   {string} responseData.text 响应文本。
    *   {XMLDocument} responseData.xml 响应 XML 文档。
    *   解析后的响应数据无特殊要求，但要注意，解析后的数据对象的属性将被追加到 finish 事件对象中。
+   *   该函数被调用时 this 的值为本组件。
    * @fires send
    *   {Object} event.data 要发送的数据。
    *   成功调用 send 方法后，解析请求数据前触发。
@@ -5434,6 +5446,8 @@
    * @function
    * @param {Object} [requestData] 要发送的数据。
    * @returns {Object} Request 对象。
+   * @description
+   *   如果上一次发送的请求尚未完成，则调用此方法无效。
    */
   Request.prototype.send = function(requestData) {
     var request = this;
@@ -5446,7 +5460,7 @@
     // 触发 send 事件。
     request.fire('send', {data: requestData});
     // 处理请求数据。
-    requestData = options.requestParser(requestData);
+    requestData = options.requestParser.call(request, requestData);
     // 触发 start 事件。
     request.fire('start', {data: requestData});
     // 创建请求。
@@ -5498,10 +5512,12 @@
 
 //--------------------------------------------------[Request.prototype.abort]
   /**
-   * 取消请求，仅在 Request 设置为异步模式时可用。
+   * 取消请求。
    * @name Request.prototype.abort
    * @function
    * @returns {Object} Request 对象。
+   * @description
+   *   仅在一次异步模式的请求正在进行时，调用此方法才有效。
    */
   Request.prototype.abort = function() {
     var request = this;
@@ -5528,8 +5544,7 @@
    * 设计思路：
    *   本方案为扁平式（简单）模块管理：将应用划分为多个独立的、并列的模块，然后在应用中将各模块的功能连接起来。
    *   每个模块只需要处理好自己的业务逻辑，不需要考虑其他模块的状态。模块的输入和输出使用消息的接受和发送来完成。
-   *   当使用 declareModule 声明模块时，这个模块在外部是无法访问的，这样可以确保模块间完全隔离，避免模块 A 中出现对模块 B 的操作。
-   *     - 因此 API 没有设计为 new Module(...) 的形式。
+   *   当使用 declareModule 声明模块时，这个模块在外部是无法访问的，这样可以确保模块间完全隔离，避免模块 A 中出现对模块 B 的操作。（因此 API 没有设计为 new Module(...) 的形式。）
    *
    * 主要概念：
    *   模块 id (id)：
@@ -5768,9 +5783,7 @@
    * @param {Function} codeBlock 包含要执行的代码块的匿名函数。
    * @param {boolean} [waitingForDomReady] 设置为 true 则在 DOM 树加载完成后再执行代码块，否则立即执行。
    * @description
-   *   通常，为了减少全局变量的数量和避免不同代码块之间的变量名有冲突，会使用一个匿名函数来执行一个相对独立的代码块：
-   *   <pre>(function() {...})();</pre>
-   *   使用本方法可以达到相同目的，除此之外还有以下好处：
+   *   通常，为了减少全局变量的数量和避免不同代码块之间的变量名有冲突，会使用一个匿名函数来执行一个相对独立的代码块，使用本方法可以达到相同目的，除此之外还有以下好处：
    *   <ul>
    *     <li>原匿名函数的第一个参数将被传入 document.$，因此可以通过在该匿名函数的形参中写上一个 $，以便在函数内直接使用 $ 而不必担心与其他脚本库的 $ 冲突。</li>
    *     <li>的可选参数 waitingForDomReady 可以控制这个匿名函数的执行时机（如何设置这个参数取决于代码块内是否有依赖 DOM 元素的操作）。</li>
@@ -6048,14 +6061,24 @@
    * 将 ECMAScript 值转换为 JSON 格式的字符串。
    * @name JSON.stringify
    * @function
-   * @param {*} value 要转换的 ECMAScript 值，通常是 Object 或 Array 类型的数据，也可以是 String、Boolean、Number、Date 类型的数据或者 null。
-   * @param {Function|Array} [replacer] 用来过滤的函数或数组。
-   *   如果是函数，则传入 key 和 value，并使用其返回值替换 value，若返回 undefined，则忽略该 key。
-   *   如果是数组，则该数组只能包含字符串，本方法会仅对 key 出现在数组中的部分进行转换。
-   * @param {string|number} [space] 为使 JSON 字符串更易读而在每行内容之前加入的前缀。
+   * @param {*} value 要转换的 ECMAScript 值，通常是 Object 或 Array 类型，也可以是 String、Boolean、Number、Date 类型或者 null。
+   * @param {Function|Array} [replacer] 用来过滤/更改转换结果的函数或数组。
+   *   <dl>
+   *     <dt>如果是函数，则：</dt>
+   *     <dd>
+   *       该函数将在解析要转换的 ECMAScript 值中每一个键值对之前被调用，传入两个参数 key 和 value，并使用其返回值代替 value 进行转换。<br>如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
+   *       该函数第一次被调用（如果要转换的 ECMAScript 值的类型是 String、Boolean、Number、Date 或为 null 时则是唯一一次被调用）时，传入的 key 是空字符串，value 是要转换的 ECMAScript 值。
+   *       该函数被调用时 this 的值为当前传入的 key 和 value 所属的 ECMAScript 对象，可能为 Object 或 Array。
+   *     </dd>
+   *     <dt>如果是数组，则：</dt>
+   *     <dd>
+   *       该数组只能包含字符串，本方法会仅对 key 出现在数组中的部分进行转换。
+   *     </dd>
+   *   </dl>
+   * @param {string|number} [space] 为使 JSON 字符串更易读而将其换行，并在每行内容之前加入的前缀。
    *   如果是字符串，则直接加入这个字符串作为前缀。若字符串的长度超过 10，则仅保留前 10 个字符。
    *   如果是数字，则加入对应数目的空格符。若数字大于 10，则只使用 10 个空格符。
-   *   如果未指定该值，或者该值为 '' 或 0，则 JSON 字符串不会换行（全部内容在一行内）。
+   *   如果未指定该值，或者该值为 '' 或小于 1 的数字，则 JSON 字符串不会换行。
    * @returns {string} 转换后的字符串。
    */
 
@@ -6270,7 +6293,10 @@
    * @name JSON.parse
    * @function
    * @param {string} text 要转换的 JSON 格式的字符串。
-   * @param {Function} [reviver] 用来过滤的函数。传入 key 和 value，将使用其返回值替换 value。
+   * @param {Function} [reviver] 用来过滤或更改转换结果的函数。
+   *   该函数将在解析 text 中每一个键值对之后被调用，传入两个参数 key 和 value，并使用其返回值代替 value 作为最终值。<br>如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
+   *   该函数最后一次被调用（如果 text 表示的是一个 String、Boolean、Number 类型的值或 null 时则是唯一一次被调用）时，传入的 key 是空字符串，value 是已从 text 转换到 ECMAScript 值的结果。
+   *   该函数被调用时 this 的值为当前传入的 key 和 value 所属的 ECMAScript 对象，可能为 Object 或 Array。
    * @returns {*} 转换后的 ECMAScript 值。
    */
 

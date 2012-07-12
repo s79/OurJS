@@ -1656,9 +1656,11 @@
    *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
    *   </table>
    * @param {Function} listener 事件监听器。
-   *   监听器中的 this 将指向监听到本次事件的元素。即：
-   *   - 如果是普通监听器，则 this 指向本元素。
-   *   - 如果是代理监听器，则 this 指向被代理的元素。
+   *   该函数被调用时 this 的值为监听到本次事件的元素，即：
+   *   <ul>
+   *     <li>如果是普通监听器，则 this 的值为本元素。</li>
+   *     <li>如果是代理监听器，则 this 的值为被代理的元素。</li>
+   *   </ul>
    * @returns {Element} 本元素。
    * @example
    *   $('#test').on('click', handler);

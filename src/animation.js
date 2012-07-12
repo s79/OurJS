@@ -277,9 +277,7 @@
    * @fires stop
    *   成功调用 stop 方法后触发。
    * @description
-   *   高级应用：
-   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。
-   *   仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
+   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。<br>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
    *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
    */
   function Animation() {
@@ -303,7 +301,7 @@
    * @name Animation.prototype.addClip
    * @function
    * @param {Function} renderer 使用 Animation.create*Renderer 创建的渲染器。
-   *   函数中的 this 指向所属的 Animation 对象。
+   *   该函数被调用时 this 的值为所属的 Animation 对象。
    * @param {number} delay 延时。
    * @param {number} duration 播放时间。
    * @param {string} timingFunction 控速函数名称或表达式。
@@ -330,7 +328,7 @@
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画的时间点在终点，则调用此方法无效。
+   *   如果当前动画正在播放中，或时间点已到达终点，则调用此方法无效。
    */
   Animation.prototype.play = function(reverse) {
     var animation = this;
@@ -373,7 +371,7 @@
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画的时间点在起点，则调用此方法无效。
+   *   如果当前动画正在反向播放中，或时间点已到达起点，则调用此方法无效。
    */
   Animation.prototype.reverse = function() {
     return this.play(INTERNAL_IDENTIFIER_REVERSE);
@@ -407,8 +405,8 @@
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画的时间点在起点，则调用此方法无效。
    *   调用此方法时，动画中所有的剪辑都将回到起点状态。
+   *   如果当前动画的时间点在起点，则调用此方法无效。
    */
   Animation.prototype.stop = function() {
     var animation = this;
@@ -539,7 +537,8 @@
    * 创建基本渲染器。
    * @name Animation.createBasicRenderer
    * @function
-   * @param {Function} renderer 渲染函数，this 指向所属的 Animation 对象，传入两个参数：时间轴和偏移量。
+   * @param {Function} renderer 渲染函数，传入两个参数“时间轴”和“偏移量”。
+   *   该函数被调用时 this 的值为所属的 Animation 对象。
    * @returns {Function} 生成的渲染器。
    */
   Animation.createBasicRenderer = function(renderer) {
@@ -687,7 +686,9 @@
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
    * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
    *   如果本元素的动画播放列表中已经存在一个 morph 动画，则停止旧的，播放新的。
@@ -723,7 +724,9 @@
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
    *   如果本元素的动画播放列表中已经存在一个 highlight 动画，则停止旧的，播放新的。
@@ -773,7 +776,9 @@
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
    *   display 不为 none 的元素不能播放淡入动画。
@@ -793,7 +798,9 @@
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
    *   display 为 none 的元素不能播放淡出动画。

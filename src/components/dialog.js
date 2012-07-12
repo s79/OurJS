@@ -169,7 +169,7 @@ execute(function($) {
               if (options.effect) {
                 var originalOpacity = $mask.getStyle('opacity');
                 $mask.setStyle('opacity', 0);
-                this.addClip(Animation.createStyleRenderer($mask, {opacity: originalOpacity}), 0, 1150, 'easeIn');
+                this.addClip(Animation.createStyleRenderer($mask, {opacity: originalOpacity}), 0, 150, 'easeIn');
               }
               mask.resize();
               if (resizeMaskElementForIE6) {
@@ -276,6 +276,8 @@ execute(function($) {
    *   在对话框关闭时触发。如果启用了动画效果，则在对话框关闭动画开始播放后触发。
    * @fires closefinish
    *   在对话框关闭后触发。如果启用了动画效果，则在对话框关闭动画播放完成后触发。
+   * @fires reposition
+   *   成功调用 reposition 方法后触发。
    * @description
    *   对话框的弹出位置、遮掩层遮盖的范围都是与对话框的父元素有关的。
    *   对话框元素将以其父元素为“参考元素”进行定位，遮掩层也作为其父元素的子元素被创建。
@@ -338,7 +340,7 @@ execute(function($) {
             if (this.clips.length === 0) {
               this.originalOpacity = $dialog.getStyle('opacity');
               $dialog.setStyle('opacity', 0);
-              this.addClip(Animation.createStyleRenderer($dialog, {opacity: this.originalOpacity}), 0, 1200, 'easeIn');
+              this.addClip(Animation.createStyleRenderer($dialog, {opacity: this.originalOpacity}), 0, 200, 'easeIn');
             }
           } else {
             if (this.clips.length > 0) {
@@ -426,6 +428,8 @@ execute(function($) {
    * @name Dialog.prototype.open
    * @function
    * @returns {Object} Dialog 对象。
+   * @description
+   *   如果对话框正在打开或已经打开，则调用此方法无效。
    */
   Dialog.prototype.open = function() {
     this.animation.play();
@@ -438,6 +442,8 @@ execute(function($) {
    * @name Dialog.prototype.close
    * @function
    * @returns {Object} Dialog 对象。
+   * @description
+   *   如果对话框正在关闭或已经关闭，则调用此方法无效。
    */
   Dialog.prototype.close = function() {
     this.animation.reverse();
@@ -450,6 +456,8 @@ execute(function($) {
    * @name Dialog.prototype.reposition
    * @function
    * @returns {Object} Dialog 对象。
+   * @description
+   *   仅在对话框处于“打开”状态时，调用此方法才有效。
    */
   Dialog.prototype.reposition = function() {
     if (this.isOpen) {
@@ -500,6 +508,8 @@ execute(function($) {
       }
       // 设置最终位置。
       $dialog.setStyles({left: parseInt($dialog.getStyle('left'), 10) + expectedX - currentX, top: parseInt($dialog.getStyle('top'), 10) + expectedY - currentY});
+      // 触发事件。
+      this.fire('reposition');
     }
     return this;
   };

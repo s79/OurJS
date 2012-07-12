@@ -93,12 +93,11 @@
    * @returns {Object} 本组件。
    * @description
    *   共有三种方式为一个组件设置选项：
-   *     - 在在创建组件实例之前，可以修改该组件的构造器的 options 属性，来修改此类组件的默认选项。这种方式设置的选项对后续创建的组件均生效。
-   *       建议在项目对某一类组件有相同的要求时这么做。
-   *     - 在创建组件实例时，可以通过参数 options 来指定本次创建的实例的选项。这种方式设置的选项仅对本次创建的实例生效。
-   *       建议在创建每个组件的实例时这么做。
-   *     - 使用本方法，可以在实例创建之后修改当前的选项。这种方式设置的选项将在组件下一次访问这些设置时生效。
-   *       仅在需要重用某一个组件，但需要不同的选项时才这么做。
+   *   <ul>
+   *     <li>在在创建组件实例之前，可以修改该组件的构造器的 options 属性，来修改此类组件的默认选项。这种方式设置的选项对后续创建的组件均生效。<br>建议在项目对某一类组件有相同的要求时这么做。</li>
+   *     <li>在创建组件实例时，可以通过参数 options 来指定本次创建的实例的选项。这种方式设置的选项仅对本次创建的实例生效。<br>建议在创建每个组件的实例时这么做。</li>
+   *     <li>使用本方法，可以在实例创建之后修改当前的选项。这种方式设置的选项将在组件下一次访问这些设置时生效。<br>仅在需要重用某一个组件，但需要不同的选项时才这么做。</li>
+   *   </ul>
    */
   Component.prototype.setOptions = function(options) {
     Object.append(this.options, options || {}, {whiteList: Object.keys(this.options)});
@@ -118,7 +117,7 @@
    *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>给事件类型加上标签，以便调用 off 方法时精确匹配要删除的事件监听器。<br>不打算删除的事件监听器没有必要指定标签。</td></tr>
    *   </table>
    * @param {Function} listener 事件监听器。
-   *   监听器中的 this 将指向本组件。
+   *   该函数被调用时 this 的值为本组件。
    * @returns {Object} 本组件。
    */
   Component.prototype.on = function(name, listener) {
@@ -220,7 +219,7 @@
    *   {number} event.inactiveIndex 上一个活动元素在 items 中的索引。
    *   成功调用 active 方法后触发。
    * @description
-   *   高级应用：动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
+   *   动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
    */
   function Switcher(items) {
     this.items = items;
@@ -244,6 +243,8 @@
    *   要标记为“活动”的元素不能为当前的活动元素。
    *   如果指定的值为不在 items 中的对象，或为一个不在有效范索引围内的数字，则取消活动元素。
    * @returns {Object} Switcher 对象。
+   * @description
+   *   如果要标记为“活动”的元素与当前的活动元素相同，则调用此方法无效。
    */
   Switcher.prototype.active = function(value) {
     var switcher = this;

@@ -163,6 +163,8 @@ execute(function($) {
    * @function
    * @param {Element|number} value 要显示的“幻灯片”元素、“指示器”元素或它们在各自所属的数组（slides 和 pointers）中的索引值。
    * @returns {Object} Slideshow 对象。
+   * @description
+   *   如果要显示的“幻灯片”与当前显示的“幻灯片”相同，则调用此方法无效。
    */
   Slideshow.prototype.show = function(value) {
     this.tabPanel.active(value);

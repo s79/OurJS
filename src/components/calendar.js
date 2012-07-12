@@ -21,11 +21,11 @@ execute(function($) {
    * @param {string} options.maxDate 最大日期，格式为 YYYY-MM-DD，默认为 2100-12-31。
    * @fires render
    *   {string} renderedMonth 渲染的月份，格式为 YYYY-MM 的字符串。
-   *   日期渲染后触发。
+   *   调用 render 方法后触发。
    * @fires cellUpdate
    *   {Element} cell 已更新的单元格。
    *   {Date} date 已更新的日期。
-   *   日期单元格更新后触发，月历每次 render 时，每个日期单元格都会更新一次。
+   *   日期单元格更新后触发，每次调用 render 方法时，每个日期单元格都会更新一次。
    */
   function Calendar(className, options) {
     var calendar = this;

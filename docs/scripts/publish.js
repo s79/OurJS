@@ -140,10 +140,10 @@ String.prototype.endsWith = function(subString) {
 };
 function parseDescription(string) {
   return string.split(/[\r\n]+/)
-      .map(function(line, index, lines) {
+      .map(function(line) {
         var newLine = line.trim();
-        if (index !== lines.length - 1 && !newLine.endsWith('>')) {
-          newLine += '<br>';
+        if (!(newLine.startsWith('<') || newLine.endsWith('>'))) {
+          newLine = '<p>' + newLine + '</p>';
         }
         return newLine;
       })
@@ -183,7 +183,7 @@ function filterSymbol(source) {
     }),
     fires: source.fires.map(function(item) {
       // 使用 jsdoc-toolkit 获取的文档数据中，fires 仅为字符串，因此在写注释文档时约定：第一行为事件名，其后为描述。
-      var match = parseDescription(item).match(/(\w*)(?:<br>)(.*)/);
+      var match = parseDescription(item).match(/<p>(.*?)<\/p>(.*)/);
       var mame = match && match[1] || '';
       var description = match && match[2] || '';
       return {

@@ -257,14 +257,24 @@
    * 将 ECMAScript 值转换为 JSON 格式的字符串。
    * @name JSON.stringify
    * @function
-   * @param {*} value 要转换的 ECMAScript 值，通常是 Object 或 Array 类型的数据，也可以是 String、Boolean、Number、Date 类型的数据或者 null。
-   * @param {Function|Array} [replacer] 用来过滤的函数或数组。
-   *   如果是函数，则传入 key 和 value，并使用其返回值替换 value，若返回 undefined，则忽略该 key。
-   *   如果是数组，则该数组只能包含字符串，本方法会仅对 key 出现在数组中的部分进行转换。
-   * @param {string|number} [space] 为使 JSON 字符串更易读而在每行内容之前加入的前缀。
+   * @param {*} value 要转换的 ECMAScript 值，通常是 Object 或 Array 类型，也可以是 String、Boolean、Number、Date 类型或者 null。
+   * @param {Function|Array} [replacer] 用来过滤/更改转换结果的函数或数组。
+   *   <dl>
+   *     <dt>如果是函数，则：</dt>
+   *     <dd>
+   *       该函数将在解析要转换的 ECMAScript 值中每一个键值对之前被调用，传入两个参数 key 和 value，并使用其返回值代替 value 进行转换。<br>如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
+   *       该函数第一次被调用（如果要转换的 ECMAScript 值的类型是 String、Boolean、Number、Date 或为 null 时则是唯一一次被调用）时，传入的 key 是空字符串，value 是要转换的 ECMAScript 值。
+   *       该函数被调用时 this 的值为当前传入的 key 和 value 所属的 ECMAScript 对象，可能为 Object 或 Array。
+   *     </dd>
+   *     <dt>如果是数组，则：</dt>
+   *     <dd>
+   *       该数组只能包含字符串，本方法会仅对 key 出现在数组中的部分进行转换。
+   *     </dd>
+   *   </dl>
+   * @param {string|number} [space] 为使 JSON 字符串更易读而将其换行，并在每行内容之前加入的前缀。
    *   如果是字符串，则直接加入这个字符串作为前缀。若字符串的长度超过 10，则仅保留前 10 个字符。
    *   如果是数字，则加入对应数目的空格符。若数字大于 10，则只使用 10 个空格符。
-   *   如果未指定该值，或者该值为 '' 或 0，则 JSON 字符串不会换行（全部内容在一行内）。
+   *   如果未指定该值，或者该值为 '' 或小于 1 的数字，则 JSON 字符串不会换行。
    * @returns {string} 转换后的字符串。
    */
 
@@ -479,7 +489,10 @@
    * @name JSON.parse
    * @function
    * @param {string} text 要转换的 JSON 格式的字符串。
-   * @param {Function} [reviver] 用来过滤的函数。传入 key 和 value，将使用其返回值替换 value。
+   * @param {Function} [reviver] 用来过滤或更改转换结果的函数。
+   *   该函数将在解析 text 中每一个键值对之后被调用，传入两个参数 key 和 value，并使用其返回值代替 value 作为最终值。<br>如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
+   *   该函数最后一次被调用（如果 text 表示的是一个 String、Boolean、Number 类型的值或 null 时则是唯一一次被调用）时，传入的 key 是空字符串，value 是已从 text 转换到 ECMAScript 值的结果。
+   *   该函数被调用时 this 的值为当前传入的 key 和 value 所属的 ECMAScript 对象，可能为 Object 或 Array。
    * @returns {*} 转换后的 ECMAScript 值。
    */
 

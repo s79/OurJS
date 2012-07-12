@@ -230,7 +230,7 @@
    * @param {Function} callback 用来检查的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
    *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @returns {boolean} 检查结果。
    * @example
    *   [1, 2, 3].every(function(item) {
@@ -267,7 +267,7 @@
    * @param {Function} callback 用来检查的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
    *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @returns {boolean} 检查结果。
    * @example
    *   [1, 2, 3].some(function(item) {
@@ -303,7 +303,7 @@
    * @function
    * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @example
    *   var s = '';
    *   [1, 2, 3].forEach(function(item) {
@@ -339,7 +339,7 @@
    * @function
    * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @returns {Array} 包含 callback 的每次执行后的返回值的新数组。
    * @example
    *   var a = [1, 2, 3].map(function(item) {
@@ -377,7 +377,7 @@
    * @function
    * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
-   * @param {Object} [thisObject] 执行回调函数时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @returns {Array} 包含所有回调函数执行后返回值为 true 时对应的原数组元素的新数组。
    * @example
    *   var a = [1, 2, 3].filter(function(item) {
@@ -650,12 +650,12 @@
    * @function
    * @param {Object} object 要遍历的对象。
    * @param {Function} callback 用来遍历的函数，参数为 value，key，object。
-   * @param {Object} [thisObj] 遍历函数的 this 值。
+   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    */
-  Object.forEach = function(object, callback, thisObj) {
+  Object.forEach = function(object, callback, thisObject) {
     for (var key in object) {
       if (HAS_OWN_PROPERTY.call(object, key)) {
-        callback.call(thisObj, object[key], key, object);
+        callback.call(thisObject, object[key], key, object);
       }
     }
     if (hasDontEnumBug) {
@@ -663,7 +663,7 @@
       while (i < DONT_ENUM_PROPERTIES_LENGTH) {
         var dontEnumProperty = DONT_ENUM_PROPERTIES[i];
         if (HAS_OWN_PROPERTY.call(object, dontEnumProperty)) {
-          callback.call(thisObj, object[dontEnumProperty], dontEnumProperty, object);
+          callback.call(thisObject, object[dontEnumProperty], dontEnumProperty, object);
         }
         i++;
       }

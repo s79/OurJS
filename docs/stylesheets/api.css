@@ -16,12 +16,14 @@ cite { color: #333; }
 samp { color: gray; font-style: italic; }
 dfn { color: steelblue; }
 var { color: sienna; font-style: italic; }
+
 .column { clear: right; float: left; width: 310px; padding: 5px; cursor: default; }
 .column h1 { margin: 0; background: gray; color: white; font-size: 14px; }
 .constructor { border-left: 2px solid red; }
 .static { border-left: 2px solid limegreen; }
 .instance { border-left: 2px solid mediumorchid; }
 .show_short_description dd { display: block; }
+
 #content { height: auto; }
 #cutline { margin: 20px; overflow: hidden; }
 #cutline ul { float: right; padding-left: 70px; }
@@ -40,9 +42,11 @@ var { color: sienna; font-style: italic; }
 #details { width: 900px; padding: 40px 0 100px 20px; background: white; color: #333; font-size: 14px; }
 #details_close { position: absolute; left: 0; top: 16px; width: 16px; height: 16px; background: url(../images/close.png) no-repeat 0 0; overflow: hidden; cursor: default; }
 #details_close:hover { background-position: -16px 0; }
-/* symbol */
+
+/* symbols container */
 #details .symbol { margin-bottom: 50px; border: 1px solid silver; border-radius: 5px; }
-/* title */
+
+/* symbols heading */
 #details h1 { margin: 15px 0; color: orangered; font-size: 22px; text-align: left; }
 #details h2 { margin: 10px 0; padding: 2px 5px; background: steelblue; color: white; font-weight: normal; font-size: 16px; }
 #details h3 { position: relative; margin: 0; padding: 5px 10px; border-bottom: 1px solid silver; border-radius: 5px 5px 0 0; background: whitesmoke; color: #666; font-size: 16px; *zoom: 1; }
@@ -51,31 +55,41 @@ var { color: sienna; font-style: italic; }
 #details h3 span.patch { background: greenyellow; color: darkgreen; }
 #details h3 span.category { right: 10px; bottom: 0; color: silver; }
 #details h3 kbd { margin-right: 5px; font-weight: normal; }
-/* description */
-#details blockquote { margin: 10px; padding: 0; border: none; background-image: none; font-size: 14px; }
-#details blockquote table,
-#details table table { margin: 5px; border-collapse: collapse; }
-#details table table tr:nth-child(even) { background: transparent; }
-#details blockquote th,
-#details table table th { background: whitesmoke; white-space: nowrap; }
-#details blockquote th,
-#details blockquote td,
-#details table table th,
-#details table table td { padding: 2px 3px; border: 1px solid silver; }
+
+/* symbols description/example/params/deprecated/since/exceptions/returns/requires/see */
+#details p { margin: 10px 0; }
 #details kbd { font-style: italic; }
 #details cite { color: #333; }
 #details samp { color: gray; font-style: italic; }
 #details dfn { color: steelblue; }
 #details var { color: sienna; font-style: italic; }
-#details ul { list-style: circle; padding-left: 2em; }
-/* example */
-#details blockquote pre { margin-left: 2em; border-color: #F0FFF0; border-radius: 0; background-color: #F8FFF8; }
-/* params deprecated since exceptions returns requires see */
+#details em { margin-left: 5px; padding: 0 2px; border-radius: 5px 0; background: gold; color: maroon; font: italic 10px Arial; -webkit-text-size-adjust: none; }
+
+#details blockquote { margin: 10px; padding: 0; border: none; background-image: none; font-size: 14px; }
 #details dl { margin: 10px; padding: 0; border: none; color: #333; }
 #details dt { font-weight: bold; font-size: 14px; }
 #details dd { display: block; padding-left: 2em; font-size: 14px; }
-#details dd table { border-collapse: collapse; }
-#details dd tr:nth-child(even) { background: whitesmoke; }
-#details dd th,
-#details dd td { padding: 2px 3px; border: none; vertical-align: top; }
-#details dd td em { margin-left: 5px; padding: 0 2px; border-radius: 5px 0; background: gold; color: maroon; font: italic 10px Arial; -webkit-text-size-adjust: none; }
+#details ul { list-style: circle; padding-left: 2em; }
+#details li { margin: 10px 0; }
+#details table { border-collapse: collapse; }
+#details tr:nth-child(even) { background: whitesmoke; }
+#details th,
+#details td { padding: 0 5px; border: none; vertical-align: top; }
+
+#details blockquote table,
+#details table table { margin: 10px 0; }
+#details blockquote table tr:nth-child(even),
+#details table table tr:nth-child(even) { background: transparent; }
+#details blockquote th,
+#details blockquote td,
+#details table table th,
+#details table table td { padding: 2px 5px; border: 1px solid silver; white-space: nowrap; }
+
+#details table dl { margin: 0; }
+#details table dd { padding: 0; }
+#details table kbd,
+#details table dfn { display: inline-block; margin: 10px 0; }
+#details table table kbd,
+#details table table dfn,
+#details table p kbd,
+#details table p dfn { display: inline; margin: 0; }

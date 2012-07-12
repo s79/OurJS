@@ -123,7 +123,7 @@
         break;
     }
     // 触发 finish 事件。
-    request.fire('finish', options.responseParser({
+    request.fire('finish', options.responseParser.call(request, {
       status: status,
       statusText: statusText,
       headers: headers,
@@ -151,6 +151,7 @@
    * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为空字符串。
    *   原始请求数据无特殊要求。
    *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 start 事件对象的 data 属性。
+   *   该函数被调用时 this 的值为本组件。
    * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回解析后的对象数据，默认无特殊处理。
    *   原始响应数据中包含以下属性：
    *   {number} responseData.status 状态码。
@@ -159,6 +160,7 @@
    *   {string} responseData.text 响应文本。
    *   {XMLDocument} responseData.xml 响应 XML 文档。
    *   解析后的响应数据无特殊要求，但要注意，解析后的数据对象的属性将被追加到 finish 事件对象中。
+   *   该函数被调用时 this 的值为本组件。
    * @fires send
    *   {Object} event.data 要发送的数据。
    *   成功调用 send 方法后，解析请求数据前触发。
@@ -212,6 +214,8 @@
    * @function
    * @param {Object} [requestData] 要发送的数据。
    * @returns {Object} Request 对象。
+   * @description
+   *   如果上一次发送的请求尚未完成，则调用此方法无效。
    */
   Request.prototype.send = function(requestData) {
     var request = this;
@@ -224,7 +228,7 @@
     // 触发 send 事件。
     request.fire('send', {data: requestData});
     // 处理请求数据。
-    requestData = options.requestParser(requestData);
+    requestData = options.requestParser.call(request, requestData);
     // 触发 start 事件。
     request.fire('start', {data: requestData});
     // 创建请求。
@@ -276,10 +280,12 @@
 
 //--------------------------------------------------[Request.prototype.abort]
   /**
-   * 取消请求，仅在 Request 设置为异步模式时可用。
+   * 取消请求。
    * @name Request.prototype.abort
    * @function
    * @returns {Object} Request 对象。
+   * @description
+   *   仅在一次异步模式的请求正在进行时，调用此方法才有效。
    */
   Request.prototype.abort = function() {
     var request = this;

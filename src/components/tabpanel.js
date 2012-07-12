@@ -127,6 +127,8 @@ execute(function($) {
    *   从 tabs 和 panels 中计算的，默认激活的某组“标签面板”的索引值从 0 开始。
    *   如果指定的值为不在 tabs 或 panels 中的对象，或为一个不在有效范索引围内的数字，则取消激活的“标签面板”。
    * @returns {Object} TabPanel 对象。
+   * @description
+   *   如果要激活的“标签面板”已在激活状态，则调用此方法无效。
    */
   TabPanel.prototype.active = function(value) {
     var index = -1;
