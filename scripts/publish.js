@@ -238,6 +238,6 @@ function publish(symbolSet) {
     filterSymbol(symbol);
   });
 
-  IO.saveFile(publish.conf.outDir + '/scripts/', 'data.js', 'var apiData = ' + JSON.stringify(symbols) + ';');
+  IO.saveFile(publish.conf.outDir, 'api_data.js', 'var apiData = ' + JSON.stringify(symbols) + ';');
 
 }

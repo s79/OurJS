@@ -98,24 +98,17 @@ blockquote { margin: 10px 0; padding: 0 10px; border: 1px dotted #888; backgroun
 #menu li:hover { background: white url(../images/menu_bg.png) repeat-x 0 -36px; }
 #menu li.first { border-left: 1px solid gainsboro; }
 #menu li a { display: block; height: 36px; padding: 0 25px; color: #333; font-weight: bold; font-size: 14px; line-height: 36px; text-decoration: none; -float: left; }
-#menu li.current a { background: transparent url(../images/menu_current.png) repeat-x 0 33px; }
+#menu li a.current { background: transparent url(../images/menu_current.png) repeat-x 0 33px; }
 /* 子菜单 */
 #menu ul { display: none; position: absolute; z-index: 10; width: 200px; height: auto; margin: -1px auto auto -1px; padding: 0; border: 1px solid gainsboro; background: whitesmoke; -clear: both; }
 #menu ul li { width: 200px; height: 30px; border: none; }
-#menu ul li.hover,
-#menu ul li:hover { background-image: none; }
 #menu ul li.folder { background: whitesmoke url(../images/folder.png) no-repeat right center; }
-#menu ul li.folder.hover,
-#menu ul li.folder:hover,
-#menu ul li.current.hover,
-#menu ul li.current:hover { background-color: white; }
+#menu ul li.hover,
+#menu ul li:hover { background-color: white; }
 #menu ul li a { width: 200px; height: 30px; padding: 0; line-height: 30px; text-indent: 15px; }
-#menu ul li.current a { color: #BE1D2C; }
+#menu ul li a.current { color: #BE1D2C; }
 /* 二级以上的子菜单 */
 #menu ul ul { margin: -31px auto auto 200px; }
-/* 三级子菜单选中项 */
-#menu ul li.current ul li a { color: #333; }
-#menu ul li.current ul li.current a { color: #BE1D2C; }
 
 /* 内容 */
 div#content { width: 960px; min-height: 600px; margin: auto; padding: 70px 20px 100px; overflow: hidden; color: #333; font-size: 14px; -height: 600px; -overflow: visible; }

@@ -2,27 +2,31 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>storage</title>
-<link rel="stylesheet" href="../example.css">
+<title>cookie & localStorage</title>
+<link rel="stylesheet" href="/stylesheets/common.css">
 <script src="../../our.js"></script>
+<script src="/scripts/common.js"></script>
 <style>
-textarea { float: left; width: 600px; height: 100px; background: #f5f5f5; border: 1px solid #c0c0c0; resize: none; }
+h2 { margin: 50px 0 20px; }
+textarea { width: 600px; height: 100px; background: #f5f5f5; border: 1px solid #c0c0c0; resize: none; }
 table th { width: 50px; text-align: left; }
 table td { text-align: right; }
 input { width: 100px; padding: 2px; border: 1px solid #c0c0c0; line-height: 1; }
-button { margin: 2px; padding: 0 6px; line-height: 1.5; }
-iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
+button { font-size: 12px; }
+fieldset { display: inline-block; width: 200px; margin: 5px; }
+iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
 </style>
 </head>
 <body>
-<!-- cookie { -->
-<div style="float: left; width: 630px;">
-  <h1>cookie</h1>
-  <fieldset>
+<div id="content">
+  <h1>存储</h1>
+
+  <!-- cookie { -->
+  <h2>cookie</h2>
+  <fieldset style="display: block; width: auto;">
     <legend>cookie value</legend>
     <textarea id="cookie_value" readonly></textarea>
   </fieldset>
-  <div style="clear: both;"></div>
   <fieldset>
     <legend>setItem</legend>
     <form id="form_cookie_set">
@@ -143,11 +147,10 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
 
   });
   </script>
-</div>
-<!-- } cookie -->
-<!-- localStorage { -->
-<div style="float: left; width: 600px;">
-  <h1>localStorage</h1>
+  <!-- } cookie -->
+
+  <!-- localStorage { -->
+  <h2>localStorage</h2>
   <fieldset>
     <legend>setItem</legend>
     <form id="form_local_storage_set">
@@ -249,7 +252,8 @@ iframe { display: block; width: 600px; height: 300px; border: 1px solid black; }
   });
   </script>
   <iframe src="another_path/storage_frame.html" width="500" height="300" frameborder="0"></iframe>
+  <!-- } localStorage -->
+
 </div>
-<!-- } localStorage -->
 </body>
 </html>
