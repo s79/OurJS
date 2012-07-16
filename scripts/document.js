@@ -373,7 +373,7 @@ execute(function($) {
       var scrollTop = $deatilsPanel.scrollTop;
       var top = $target.getClientRect().top + scrollTop;
       $deatilsPanel.scrollTop = scrollTop + ((top - 50) - scrollTop);
-      $target.getFirst().highlight('yellow', 'backgroundColor', {delay: 150, duration: 500});
+      $target.getFirst().highlight('yellow', 'backgroundColor', {delay: 150, duration: 1000});
       return false;
     });
 

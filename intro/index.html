@@ -7,41 +7,46 @@
 <script src="../our.js"></script>
 <script src="/scripts/common.js"></script>
 <style>
+sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; background: #333; color: white; font-size: 11px; font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 1; -webkit-text-size-adjust: none; }
+pre strong,
+code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: normal; }
 .example { list-style-type: circle; padding: 5px 5px 5px 2em; border: 1px solid gainsboro; border-radius: 5px; background: whitesmoke; }
 .example li { margin: 15px 0; }
 .example p { margin: 5px 0; }
 .example code { color: sienna; }
-pre span,
-code span { border: 1px solid #9acd32; background: #f8fff8; }
 </style>
 </head>
 <body>
 <div id="content">
-  <h1>OurJS 简介</h1>
+  <h1>OurJS</h1>
 
-  <p>OurJS 是一个易学易用的、适用于 WEB 应用开发的 JavaScript 框架，开发者只需要有 JavaScript 和 DOM 的一些基础知识<sup>1</sup>，即可编写出兼容各主流浏览器<sup>2</sup>的 WEB 应用。</p>
-  <p>OurJS 要求浏览器运行在“标准模式”下，以获得更好的兼容性，并发挥浏览器的最大功效。当浏览器工作在非标准模式下时，开发者将收到一条警告信息。</p>
-  <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此能够解决大部分需求。当必须引入其他的类库以满足特定需求时，要注意一点：OurJS 使用了侵入式设计<sup>3</sup>，因此只能和其他非侵入式设计的类库共存<sup>4</sup>。</p>
-  <ol class="comment">
-    <li>开发者要了解 JS 的变量、数据类型、运算符、流程控制，以及 DOM 的一些常见的 API。</li>
-    <li>指 IE6 IE7 IE8 IE9 Firefox Chrome Safari Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。</li>
-    <li>此处的“侵入式设计”是指通过扩展 JS 对象的原型来增加新的功能。使用这种方式可以提供更接近原生语法的 API。</li>
-    <li>可以和 jQuery 共存。</li>
-  </ol>
-
-  <h2>特点</h2>
+  <h2>简介</h2>
+  <h3>OurJS 是一个简单轻便的、适用于 WEB 应用开发的 JavaScript 框架。</h3>
   <p>
-    与其他 JavaScript 框架（类库）相比，OurJS 要更加<strong>易学易用</strong>。<br>
-    使 OurJS 变得如此“简单”的，是以下 3 个特点：
+    “简单”不是指功能单一，实际上，OurJS 提供的一些常用功能的实用性和兼容性要超过很多其他类库。<br>
+    “简单”是相对于“复杂”而言的。通常，使用可预期的 API 自由的编程是更简单的。而一旦某个 API 让人感到意外或被束缚，就会令人困惑和厌烦，如果这样的事情一再发生，将导致不必要的精力消耗，最终简单的事情也会变得复杂。
   </p>
+  <p>“轻便”是指轻量级的解决方案，它也是为“简单”服务的，即避免将简单问题复杂化。一个相似的例子是 JSON 和 XML 的对比，JSON 的理念就是“轻便”。</p>
   <blockquote>
-    <p>"Everything should be made as simple as possible, but no simpler." -- Albert Einstein<br>
+    <p>
+      "Everything should be made as simple as possible, but no simpler." -- Albert Einstein<br>
       “任何事情都应该尽可能的做到简单，简单到极致。”—— 爱因斯坦
     </p>
   </blockquote>
 
-  <h3>1 语法自然</h3>
-  <h4>OurJS 没有标新立异的语法或充满个性的方法名，而是尽量使用符合源生 JS 或 DOM 习惯的语法，提供一套简洁自然的 API。</h4>
+  <h3>OurJS 会强制浏览器运行在“标准模式”下。</h3>
+  <p>这样可以确保开发者编写出规范的代码，并获得更好的兼容性、发挥浏览器的最大功效。</p>
+  <p>当浏览器工作在非标准模式下时，开发者将收到一条警告信息。</p>
+
+  <h3>OurJS 只可以和非侵入式设计的类库共存。</h3>
+  <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此能够独立解决大部分需求。<br>当必须引入其他的类库以满足特定需求时，要注意：OurJS 使用了侵入式设计<sup>1</sup>，因此不能和其他使用同样方式设计的类库共存<sup>2</sup>。</p>
+  <ol class="comment">
+    <li>此处的“侵入式设计”是指通过扩展 JS 对象的原型来增加新的功能。使用这种方式可以提供更接近原生语法的 API。</li>
+    <li>可以和 jQuery 共存，并且彼此互不影响。</li>
+  </ol>
+
+  <h2>特点</h2>
+  <h3>语法自然 —— 完全符合源生 JS 和 DOM 的语法习惯。</h3>
   <ul>
     <li>
       <p>
@@ -51,23 +56,23 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
       </p>
       <ul class="example">
         <li>
-          <p><code>anArray.<span>forEach</span>(function(item) {...});</code></p>
+          <p><code>anArray.<strong>forEach</strong>(function(item) {...});</code></p>
           <p class="comment">Array 对象的 forEach 方法是 ECMAScript 5 引入的，本来只有在较新版本的浏览器中才能使用，但现在可以放心使用了。</p>
         </li>
         <li>
-          <p><code>if (aString.<span>startsWith</span>('ex-') {...}</code></p>
+          <p><code>if (aString.<strong>startsWith</strong>('ex-') {...}</code></p>
           <p class="comment">ECMAScript 6 (Harmony) 中的提案：检查字符串是否以指定的子串开始。这个方法很实用，有助于提高代码的可读性。</p>
         </li>
         <li>
-          <p><code><span>localStorage.setItem</span>('data', <span>JSON.stringify</span>(userData));</code></p>
+          <p><code><strong>localStorage.setItem</strong>('data', <strong>JSON.stringify</strong>(userData));</code></p>
           <p class="comment">HTML5 的 localStorage 对象和 ECMAScript 5 的 JSON 对象原本在 IE6 IE7 中是不支持的，但现在可以放心使用了。</p>
         </li>
         <li>
-          <p><code><span>Element.prototype</span>.newMethod = function() {...};</code></p>
+          <p><code><strong>Element.prototype</strong>.newMethod = function() {...};</code></p>
           <p class="comment">IE6 IE7 本来没有 Element 构造函数，但现在可以通过扩充 Element.prototype 来为页面上的 DOM 元素添加新特性了。</p>
         </li>
         <li>
-          <p><code>element.<span>innerText</span> = 'new content';</code></p>
+          <p><code>element.<strong>innerText</strong> = 'new content';</code></p>
           <p class="comment">元素的 innerText 特性是 IE 最先引入的，目前只有 Firefox 不支持，但现在可以放心使用了。</p>
         </li>
       </ul>
@@ -80,78 +85,151 @@ code span { border: 1px solid #9acd32; background: #f8fff8; }
       </p>
       <ul class="example">
         <li>
-          <p><code>element.<span>setStyles({position: 'fixed', right: 0, bottom: 0})</span>;</code></p>
+          <p><code>element.<strong>setStyles({position: 'fixed', right: 0, bottom: 0})</strong>;</code></p>
           <p class="comment">
             IE6 并不支持 CSS2 引入的固定定位，但现在通过使用 element.setStyle/setStyles 方法，可以实现在各浏览器中的一致的表现，而使用 element.getStyle/getStyles，也将获得预期的返回值 'fixed'。<br>
             值得注意的是，setStyles 是设置多个样式，而 setStyle 是设置一个样式，二者的用途不同、名称不同、参数也不同。
           </p>
         </li>
         <li>
-          <p><code>element.<span>on</span>('click', function(e) {...});</code></p>
+          <p><code>element.<strong>on</strong>('click', function(e) {...});</code></p>
           <p class="comment">IE6 IE7 IE8 的事件模型与其他浏览器的不同，但现在可以通过 element.on/off/fire 方法实在各浏览器通用的事件处理函数的绑定/解除绑定/触发了。</p>
         </li>
         <li>
-          <p><code>var nextElement = element.<span>getNext</span>();</code></p>
+          <p><code>var nextElement = element.<strong>getNext</strong>();</code></p>
           <p class="comment">要获取一个元素的下一个相邻元素，在 Element Traversal Specification 中推荐的、指定获取元素类型节点的 nextElementSibling 属性仅在较新的浏览器中才支持，在 IE6 IE7 IE8 中只能通过该元素的 nextSibling 属性获取，不过这需要进一步判断，因为得到的可能是一个文本节点，但现在可以在所有浏览器上通过调用元素的 getNext 方法而达到相同的目的了。</p>
         </li>
         <li>
-          <p><code>element.<span>addClass</span>('active').<span>putBefore</span>(anotherElement);</code></p>
+          <p><code>element.<strong>addClass</strong>('active').<strong>putBefore</strong>(anotherElement);</code></p>
           <p class="comment">给元素添加一个类名，然后插入到另一个元素的前边。这个需求也可以使用其他无兼容性问题的途径来实现，扩展这两个方法仅是为了方便使用。</p>
         </li>
         <li>
-          <p><code>Array.<span>from</span>(element.getElementsByTagName('select')).forEach(function(item){...});</code></p>
+          <p><code>Array.<strong>from</strong>(element.getElementsByTagName('select')).forEach(function(item){...});</code></p>
           <p class="comment">将一个 NodeList 对象（或其他任意数据类型）转化为数组，以便使用数组的方法进行操作。Array.from 目前尚无规范支持，是仅为方便使用而添加的属性。</p>
         </li>
       </ul>
     </li>
   </ul>
 
-  <h3>2 风格一致 —— 只要掌握了部分用法，就可以轻易的推测出其他部分的用法。</h3>
+  <h3>风格一致 —— 功能上有共同点的 API 也有共同的风格，便于记忆，并可以通过熟悉的 API 推测出其他 API 的用法。</h3>
   <ul>
     <li>
-      OurJS 扩展的功能都是通过 JavaScript 的原型机制实现的，即便对 DOM 元素的扩展也是如此（这里对 IE6 IE7 做了特殊处理），这样的好处是可以像调用一个对象的源生方法一样来调用它的扩展方法。<br>
-      也就是说，不用再担心分不清你正在操作的对象到底是源生对象还是包装对象了——OurJS 没有“包装对象”的概念。
+      针对一个相同对象的操作，调用方法时操作主体始终是这个目标对象（没有“包装对象”的概念）。
       <ul class="example">
         <li>
-          <p class="comment">调用了扩展方法后，又想调用源生方法？没问题，按照直觉告诉你的方式，写下来就行了。</p>
+          <p class="comment">调用了扩展方法后，可以继续调用源生方法。</p>
           <p><code>element.empty().scrollIntoView()</code></p>
-        </li>
-        <li>
-          <p class="comment">想获取地址栏中 Query String 的某个字段？首先想到 location 对象了吗？正是，这个方法就在 location 对象上提供。</p>
-          <p><code>location.parameters.id</code></p>
-        </li>
-        <li>
-          <p class="comment">想操作 cookie？为了保持一致的风格，OurJS 提供了一个 cookie 对象。</p>
-          <p><code>cookie.get('username')</code></p>
+          <p><code>Array.from(lists).filter(...).getFirst()</code></p>
         </li>
       </ul>
     </li>
-    <li>只有一个可选参数。</li>
-    <li><em>DOM 元素的事件处理。</em></li>
-    <li><em>组件的事件处理。</em></li>
-    <li><em>可重复使用的功能和一次性使用的功能。</em></li>
+    <li>
+      各对象（未必是同类对象）的同类方法的名称基本相同，并且他们的同名参数的含义也基本一致。举例如下：
+      <ul class="example">
+        <li>
+          <p class="comment">
+            cookie 和 localStorage 这两个和存储有关的对象都有 getItem、setItem 和 removeItem 方法来进行获取、修改和删除的操作。<br>
+            并且他们的参数 key 和 value 都代表数据名和数据值，都是字符串类型。
+          </p>
+        </li>
+        <li>
+          <p class="comment">
+            DOM 对象和组件对象处理事件的方法都是 on、off 和 fire。<br>
+            他们的 name 参数格式略有不同，因为组件的事件不像 DOM 事件那样可以传递。<br>
+            他们的 listener 参数的含义和作用则完全一致，并且当 listener 被调用时，this 的值也均为监听的目标对象。
+          </p>
+        </li>
+        <li>
+          <p class="comment">
+            element.append、element.putBefore 等修改文档树的方法中，所有 target 参数均为目标元素。<br>
+            element.morph、element.fadeIn 等创建动画效果的方法中，所有 options 参数的内容和含义都是完全一致的。
+          </p>
+        </li>
+      </ul>
+    </li>
+    <li>
+      OurJS 提供的所有组件均具备事件处理和选项设置的功能。
+      <ul class="example">
+        <li>
+          <p class="comment">所有的组件都可以通过 on、off 和 fire 方法来处理事件。</p>
+        </li>
+        <li>
+          <p class="comment">
+            所有的组件的构造器均有一个 options 属性，表示该组件的默认选项（没有选项的组件除外）。<br>
+            在在创建组件实例之前，可以修改该组件的构造器的 options 属性，来修改此类组件的默认选项。这种方式设置的选项对后续创建的组件均生效。
+          </p>
+          <p><code>Request.<strong>options</strong>.method = 'post';</code></p>
+        </li>
+        <li>
+          <p class="comment">
+            所有的组件的构造器均有一个 options 参数，表示该创建组件实例时的选项（没有选项的组件除外）。<br>
+            可以通过参数 options 来指定本次创建的实例的选项。这种方式设置的选项仅对本次创建的实例生效。
+          </p>
+          <p><code>var request = new Request('/product/getfriends', <strong>{method: 'get'}</strong>);</code></p>
+        </li>
+        <li>
+          <p class="comment">
+            所有的组件的实例均有 setOptions 参数，可以用来修改当前的选项（没有选项的组件除外）。<br>
+            可以在实例创建之后修改当前的选项。这种方式设置的选项将在组件下一次访问这些设置时生效。
+          </p>
+          <p><code>request.<strong>setOptions({headers: {uid: 12345}})</strong>;</code></p>
+        </li>
+      </ul>
+    </li>
   </ul>
 
-  <h3>3 功能完善 —— 提供粒度恰当的功能和组件，可以通过灵活的配置和组合进行自由的设计。</h3>
+  <h3>功能完善 —— 提供覆盖面广、粒度恰当的功能和组件，可以通过灵活的配置和组合来设计复杂的功能。</h3>
   <ul>
     <li>
-      在扩充对象的功能方面，OurJS 提供比其他库提供了更实用、覆盖面更广的功能，而不仅仅在某个方面提供一堆生僻的扩展（如提供十个完全可以由其他方式代替、仅仅是少些了几个单词的对 String.prototype 的扩展）。<br>
-      一些相对复杂的功能也隐藏在简单的 API 之后，如 element.setStyle('position', 'fixed') 提供了 IE6 的固定定位支持，localStorage 对 IE6 IE7 提供的模拟等。
+      OurJS 提供了覆盖面更广、更实用的功能（并且还会不断添加），从源生对象的扩展到以组件形式封装的具备独立性的功能、代码的模块化管理等，可以解决 WEB 应用开发中的绝大多数常见需求。
     </li>
     <li>
-      组件方面，OurJS 尽量提供可以灵活搭配的各种事件。<br>
-      组件包括“功能组件”和“UI 组件”两种，其中功能组件包含 Request 和 Animation 两个对象，UI 组件则可以根据情况进行扩展。
+      功能和组件的功能点经过长期实践，设计的粒度恰当，可以灵活使用。
+      <ul class="example">
+        <li>
+          <p class="comment">
+            Request 组件设计为每发送一个请求就必然会收到一个响应，即便本次请求超时、或本次请求被取消的情况下也是如此。<br>
+            相应的具体信息可以通过 finish 事件的监听器中传入的事件对象进一步判断和处理（或者使用 responseParser 进行预处理）。<br>
+            这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 start 事件监听器中显示的提示信息隐藏。<br>
+            另外有些应用中，响应状态码是 200 的情况也未必代表“操作成功”，因此大多数库中认为此种情况为“成功”，而其他状态码为“失败”是不合理的。增加了处理逻辑的复杂度。
+          </p>
+        </li>
+        <li>
+          <p class="comment">
+            Animation 组件可以添加多个动画剪辑，实现复杂的动画效果和动画队列。<br>
+            每个动画剪辑都可以使用不同的渲染器，其中 BasicRenderer 在需要精确控制时间轴和偏移量的时候使用，StyleRenderer 则可以快捷的设定一个元素的动画方式。
+          </p>
+        </li>
+        <li>
+          <p class="comment">
+            Switcher 组件是一个切换器，可以应用在各种需要在一组元素中只激活唯一元素的场景下。<br>
+            TabPanel 组件是常见的标签面板，它就是通过扩展 Switcher 而来的。<br>
+            Slideshow 组件则是通过扩展 TabPanel 而来。
+          </p>
+        </li>
+      </ul>
     </li>
-    <li>面对复杂的需求，OurJS 提供了“模块 - 应用”机制来化繁为简：将可分离的业务逻辑拆分为多个模块，再通过应用将各模块连接起来。其中每个模块都是完全独立的，有利于协同开发和单元测试。</li>
+    <li>
+      面对复杂的需求，OurJS 提供了“模块 - 应用”机制来化繁为简：将可分离的业务逻辑拆分为多个模块，再通过应用将各模块连接起来。其中每个模块都是完全独立的，有利于协同开发和单元测试。
+    </li>
   </ul>
 
-  <ol class="comment">
+  <h3>易于扩展 —— 不论是要为基础类型的对象扩展功能，还是添加新的组件，OurJS 均提供了简易的方式。</h3>
+  <ul>
     <li>
-      此处所说的“简单”不是指功能单一，实际上，OurJS 的功能要超过一些常见的类库。<br>
-      简单是相对于复杂而言的，描述的是人们的感觉。<br>
-      通常，使用可预期的 API 自由的编程是更简单的。而一旦某个 API 让人感到意外或被束缚，就会令人困惑和厌烦，这样的事情如果一再发生，原本简单的事情也会觉得复杂。<br>
+      要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（但应避免扩展 Object 的原型）。<br>
+      OurJS 并没有提供特有的语法来做这件事情，用这种 JS 固有的方式来做这件事，可以让代码的目的更加的明确。
     </li>
-  </ol>
+    <li>
+      要添加新的组件，使用 Component 构造器来生成即可。<br>
+      OurJS 没有提供“继承”的 API，这是为了避免引入不必要（不严密）的概念而将简单问题复杂化。当一个组件依赖另一个时，使用“组合”的方式会更加灵活可控。具体的实施方式可以参考 TabPanel 和 Slideshow 的源码。
+    </li>
+  </ul>
+
+  <h2>兼容性</h2>
+  <h3>OurJS 目前兼容 PC 端各主流浏览器。</h3>
+  <p>PC 端的主流浏览器是指 IE6 IE7 IE8 IE9 IE10 Firefox Chrome Safari Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。</p>
+  <p>在将来的计划中，OurJS 还将同时兼容移动浏览器。</p>
 
 </div>
 </body>
