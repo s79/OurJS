@@ -1,4 +1,5 @@
 ﻿>TODO 动画支持复合属性。
+>TODO IE9- window 的事件代理有兼容性问题，mouseenter/mouseleave 也不能在 window/document 上使用。
 
 >2012-07-12
 编辑文档。

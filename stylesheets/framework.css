@@ -78,6 +78,7 @@ pre { margin: 10px 0; padding: 5px; border: 1px solid #EEE8AA; border-radius: 2p
 
 /* 备注 */
 blockquote { margin: 10px 0; padding: 0 10px; border: 1px dotted #888; background-image: url(../images/bg_comment.png); color: #333; font-size: 12px; }
+sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; background: #333; color: white; font-size: 11px; line-height: 1; -webkit-text-size-adjust: none; }
 .referral { margin: 10px 0 0; }
 .comment { margin: 0 0 10px; color: #666; font-size: 12px; }
 
@@ -111,10 +112,10 @@ blockquote { margin: 10px 0; padding: 0 10px; border: 1px dotted #888; backgroun
 #menu ul ul { margin: -31px auto auto 200px; }
 
 /* 内容 */
-div#content { width: 960px; min-height: 600px; margin: auto; padding: 70px 20px 100px; overflow: hidden; color: #333; font-size: 14px; -height: 600px; -overflow: visible; }
+div#content { width: 960px; min-height: 600px; margin: auto auto 42px; padding: 70px 20px 100px; overflow: hidden; color: #333; font-size: 14px; -height: 600px; -overflow: visible; }
 div#content.loaded { }
 #content .include_error { height: 500px; padding-top: 200px; color: crimson; font-weight: bold; font-size: 14px; text-align: center; }
 
 /* 页脚 */
-#footer { clear: both; min-width: 1000px; padding: 10px 0; border-top: 1px solid gainsboro; overflow: hidden; background: #F3F3F3; color: #666; text-align: center; }
+#footer { clear: both; min-width: 1000px; margin-top: -42px; padding: 10px 0; border-top: 1px solid gainsboro; overflow: hidden; background: #F3F3F3; color: #666; text-align: center; }
 #footer span { font-size: 12px; }

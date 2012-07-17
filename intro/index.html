@@ -2,12 +2,11 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>OurJS</title>
+<title>OurJS 简介</title>
 <link rel="stylesheet" href="/stylesheets/common.css">
 <script src="../our.js"></script>
 <script src="/scripts/common.js"></script>
 <style>
-sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; background: #333; color: white; font-size: 11px; font-family: Verdana, Arial, Helvetica, sans-serif; line-height: 1; -webkit-text-size-adjust: none; }
 pre strong,
 code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: normal; }
 .example { list-style-type: circle; padding: 5px 5px 5px 2em; border: 1px solid gainsboro; border-radius: 5px; background: whitesmoke; }
@@ -18,13 +17,12 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
 </head>
 <body>
 <div id="content">
-  <h1>OurJS</h1>
+  <h1>OurJS 简介</h1>
 
-  <h2>简介</h2>
   <p>OurJS 是一个能让工作变得简单<sup>1</sup>的、适合 WEB 应用开发的 JavaScript 框架，它能让开发者写出清晰易读、并具备良好的兼容性<sup>2</sup>和扩展性<sup>3</sup>的代码。</p>
   <ol class="comment">
     <li>
-      指开发者能够使用可预期的 API 自由的编程，从而感觉到整个工作是简单和有趣的。OurJS 提供的就是这样的 API。<br>
+      指开发者通过使用可预期的 API 自由的编程，从而感觉到整个工作是简单和有趣的。OurJS 提供的就是这样的 API。<br>
       一些类库的 API 有时会让人感到意外或被束缚，从而令人困惑和厌烦，这样的事情如果一再发生，原本简单的事情也会变得复杂。
     </li>
     <li>
@@ -32,7 +30,7 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
       稍后还会对移动设备提供支持。
     </li>
     <li>
-      OurJS 提供的组件覆盖面广，并可以对多种事件进行监听和处理（而不是简单的回调函数），因此在遇到频繁改动的项目时，可以游刃有余的应付。<br>
+      OurJS 提供的组件覆盖面广，并可以对多种事件进行监听和处理（而不是简单的回调函数），可以游刃有余的应对频繁改动的项目。<br>
       面对复杂的需求，OurJS 还提供了“模块 - 应用”机制来化繁为简：将可分离的业务逻辑拆分为多个模块，再通过应用将各模块连接起来。其中每个模块都是完全独立的，这有利于协同开发和单元测试。
     </li>
   </ol>
@@ -45,7 +43,6 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
   </blockquote>
 
   <h2>特点</h2>
-  <p>OurJS 能让工作变得简单，是因为它具备以下几个特点：</p>
   <h3>语法自然 —— 完全符合源生 JS 和 DOM 的语法习惯。</h3>
   <ul>
     <li>
@@ -114,7 +111,7 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
   <h3>风格一致 —— 功能上有共同点的 API 也有共同的风格，便于记忆，并可以通过熟悉的 API 推测出其他 API 的用法。</h3>
   <ul>
     <li>
-      针对一个相同对象的操作，调用方法时操作主体始终是这个目标对象（没有“包装对象”的概念）。
+      <p>针对一个相同对象的操作，调用方法时操作主体始终是这个目标对象（没有“包装对象”的概念）。</p>
       <ul class="example">
         <li>
           <p class="comment">调用了扩展方法后，可以继续调用源生方法。</p>
@@ -124,7 +121,7 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
       </ul>
     </li>
     <li>
-      各对象（未必是同类对象）的同类方法的名称基本相同，并且他们的同名参数的含义也基本一致。举例如下：
+      <p>各对象（未必是同类对象）的同类方法的名称基本相同，并且他们的同名参数的含义也基本一致。举例如下：</p>
       <ul class="example">
         <li>
           <p class="comment">
@@ -148,10 +145,14 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
       </ul>
     </li>
     <li>
-      OurJS 提供的所有组件均具备事件处理和选项设置的功能。
+      <p>OurJS 提供的所有组件均具备事件处理和选项设置的功能。</p>
       <ul class="example">
         <li>
           <p class="comment">所有的组件都可以通过 on、off 和 fire 方法来处理事件。</p>
+        </li>
+        <li>
+          <p class="comment">几乎每个组件的实例方法都会触发一个同名事件。</p>
+          <p><code>var paginator = new Paginator(elements).on('turn', onTurnHandler).on(<strong>'render'</strong>, onRenderHandler).<strong>render</strong>(1, 50);</code></p>
         </li>
         <li>
           <p class="comment">
@@ -181,10 +182,10 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
   <h3>功能完善 —— 提供覆盖面广、粒度恰当的功能和组件，可以通过灵活的配置和组合来设计复杂的功能。</h3>
   <ul>
     <li>
-      OurJS 提供了覆盖面更广、更实用的功能（并且还会不断添加），从源生对象的扩展到以组件形式封装的具备独立性的功能、代码的模块化管理等，可以解决 WEB 应用开发中的绝大多数常见需求。
+      <p>OurJS 提供了覆盖面更广、更实用的功能（并且还会不断添加），从源生对象的扩展到以组件形式封装的具备独立性的功能、代码的模块化管理等，可以解决 WEB 应用开发中的绝大多数常见需求。</p>
     </li>
     <li>
-      功能和组件的功能点经过长期实践，设计的粒度恰当，可以灵活使用。
+      <p>功能和组件的功能点经过长期实践，设计的粒度恰当，可以灵活使用。</p>
       <ul class="example">
         <li>
           <p class="comment">
@@ -211,18 +212,25 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
     </li>
   </ul>
 
-  <h3>易于扩展 —— 不论是要为基础类型的对象扩展功能，还是添加新的组件，OurJS 均提供了简易的方式。</h3>
+  <h3>易于扩展 —— 不论是要扩展框架本身，还是扩展应用，OurJS 均提供了简易的方式。</h3>
   <ul>
     <li>
-      要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（但应避免扩展 Object 的原型）。<br>
-      OurJS 并没有提供特有的语法来做这件事情，用这种 JS 固有的方式来做这件事，可以让代码的目的更加的明确。
+      <p class="referral">要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（但应避免扩展 Object 的原型）。</p>
+      <p class="comment">OurJS 并没有提供特有的语法来做这件事情，用这种 JS 固有的方式来做这件事，可以让代码的目的更加的明确。</p>
     </li>
     <li>
-      要添加新的组件，使用 Component 构造器来生成即可。<br>
-      OurJS 没有提供“继承”的 API，这是为了避免引入不必要（不严密）的概念而将简单问题复杂化。当一个组件依赖另一个时，使用“组合”的方式会更加灵活可控。具体的实施方式可以参考 TabPanel 和 Slideshow 的源码。
+      <p class="referral">要添加新的组件，使用 Component 构造器即可创建出和现有组件具有相同特性的新组件。</p>
+      <p class="comment">OurJS 没有提供“继承”的机制，这是为了避免引入不必要（不严密）的概念而将简单问题复杂化。当一个组件依赖另一个时，使用“组合”的方式会更加灵活可控。具体的实施方式可以参考 TabPanel 和 Slideshow 的源码。</p>
+    </li>
+    <li>
+      <p class="referral">要扩展一个已编写好的应用时，使用 Component 提供的事件机制来添加新的事件（可以为组件添加任意多的自定义事件类型），并在对应的监听器中进行必要的处理。</p>
+      <p class="comment">这样做可以最大限度的避免新增的逻辑影响以前的代码。</p>
+    </li>
+    <li>
+      <p class="referral">对于更复杂的应用，为其添加新的模块，并添加新的应用函数来处理新的逻辑。</p>
+      <p class="comment">新增的逻辑仍然不会影响以前的代码，并且只对新模块进行单独的测试即可。</p>
     </li>
   </ul>
-
   <h2>要求和限制</h2>
   <h3>OurJS 会强制浏览器运行在“标准模式”下。</h3>
   <p>这样可以确保开发者编写出规范的代码，并获得更好的兼容性、发挥浏览器的最大功效。</p>
@@ -234,7 +242,6 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
     <li>此处的“侵入式设计”是指通过扩展 JS 对象的原型来增加新的功能。使用这种方式可以提供更接近原生语法的 API。</li>
     <li>可以和 jQuery 共存，并且彼此互不影响。</li>
   </ol>
-
 
 </div>
 </body>

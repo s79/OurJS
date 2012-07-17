@@ -83,8 +83,9 @@ var { color: sienna; font-style: italic; }
 #details blockquote th,
 #details blockquote td,
 #details table table th,
-#details table table td { padding: 2px 5px; border: 1px solid silver; white-space: nowrap; }
-
+#details table table td { padding: 2px 5px; border: 1px solid silver; }
+#details blockquote th,
+#details table table th { white-space: nowrap; }
 #details table dl { margin: 0; }
 #details table dd { padding: 0; }
 #details table kbd,
