@@ -36,7 +36,7 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
     </li>
     <li>
       一些无法使用“原型扩展”的功能使用“静态方法”提供，如 Object.append，Date.from 等。<br>
-      只有事件对象使用了“包装对象”方式，这是因为在处理浏览器兼容性问题时必须修改某些属性，而它们中的一部分在源生 DOM 事件对象中是只读的。
+      只有事件对象使用了“包装对象”方式，这是因为在处理浏览器兼容性问题时必须修改某些属性，而它们中的一部分在原生 DOM 事件对象中是只读的。
     </li>
   </ol>
   <blockquote>
@@ -47,7 +47,7 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
   </blockquote>
 
   <h2>特点</h2>
-  <h3>语法自然 —— 完全符合源生 JS 和 DOM 的语法习惯。</h3>
+  <h3>语法自然 —— 完全符合原生 JS 和 DOM 的语法习惯。</h3>
   <ul>
     <li>
       <p>
@@ -118,26 +118,26 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
       <p>针对一个相同对象的操作，调用方法时操作主体始终是这个目标对象（没有“包装对象”的概念）。</p>
       <ul class="example">
         <li>
-          <p class="comment">调用了扩展方法后，可以继续调用源生方法。</p>
+          <p class="comment">调用了扩展方法后，可以继续调用原生方法。</p>
           <p><code>element.empty().scrollIntoView()</code></p>
           <p><code>Array.from(lists).filter(...).getFirst()</code></p>
         </li>
       </ul>
     </li>
     <li>
-      <p>各对象（未必是同类对象）的同类方法的名称基本相同，并且他们的同名参数的含义也基本一致。举例如下：</p>
+      <p>各对象（未必是同类对象）的同类方法的名称基本相同，并且它们的同名参数的含义也基本一致。举例如下：</p>
       <ul class="example">
         <li>
           <p class="comment">
             cookie 和 localStorage 这两个和存储有关的对象都有 getItem、setItem 和 removeItem 方法来进行获取、修改和删除的操作。<br>
-            并且他们的参数 key 和 value 都代表数据名和数据值，都是字符串类型。
+            并且它们的参数 key 和 value 都代表数据名和数据值，都是字符串类型。
           </p>
         </li>
         <li>
           <p class="comment">
             DOM 对象和组件对象处理事件的方法都是 on、off 和 fire。<br>
-            他们的 name 参数格式略有不同，因为组件的事件不像 DOM 事件那样可以传递。<br>
-            他们的 listener 参数的含义和作用则完全一致，并且当 listener 被调用时，this 的值也均为监听的目标对象。
+            它们的 name 参数格式略有不同，因为组件的事件不像 DOM 事件那样可以传递。<br>
+            它们的 listener 参数的含义和作用则完全一致，并且当 listener 被调用时，this 的值也均为监听的目标对象。
           </p>
         </li>
         <li>
@@ -186,7 +186,7 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
   <h3>功能完善 —— 提供覆盖面广、粒度恰当的功能和组件，可以通过灵活的配置和组合来设计复杂的功能。</h3>
   <ul>
     <li>
-      <p>OurJS 提供了覆盖面更广、更实用的功能（并且还会不断添加），从源生对象的扩展到以组件形式封装的具备独立性的功能、代码的模块化管理等，可以解决 WEB 应用开发中的绝大多数常见需求。</p>
+      <p>OurJS 提供了覆盖面更广、更实用的功能（并且还会不断添加），从原生对象的扩展到以组件形式封装的具备独立性的功能、代码的模块化管理等，可以解决 WEB 应用开发中的绝大多数常见需求。</p>
     </li>
     <li>
       <p>功能和组件的功能点经过长期实践，设计的粒度恰当，可以灵活使用。</p>

@@ -49,7 +49,7 @@ execute(function($) {
   </ul>
 
   <h2>处理 JS 内置对象</h2>
-  <p>OurJS 为了增强对 JS 内置对象进行处理的能力，提供了很多扩展方法。调用这些方法时，和调用它们的内置方法一样方便：</p>
+  <p>OurJS 为了增强 JavaScript 的处理能力，为各种内置对象提供了很多扩展方法。调用这些方法时，和调用它们的原生方法一样方便：</p>
 <pre>
 var list = [0, 1, 2, 3, 4];
 list.reverse().getLast();
@@ -66,7 +66,7 @@ var day = Date.from('2012-06-25 12:00:00', 'YYYY-MM-DD hh:mm:ss').getDay();
   <p>关于这些 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的左侧列上方大写字母开头的部分。</p>
 
   <h2>处理浏览器内置对象</h2>
-  <p>浏览器的内置对象是指与浏览器或当前文档相关的对象，他们都是唯一的实例，不能被创建。</p>
+  <p>浏览器的内置对象是指与浏览器或当前文档相关的对象，它们都是唯一的实例，不能被创建（它们的构造器是对开发者隐藏的）。</p>
   <p>OurJS 为常用的浏览器内置对象也提供了扩展方法或属性：</p>
 <pre>
 if (navigator.isChrome) ...
@@ -84,9 +84,9 @@ var username = localStorage.getItem('username');
 
   <h2>获取、创建和处理 DOM 对象</h2>
   <p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>、<strong>元素</strong>和<strong>事件</strong>四种类型。</p>
-  <p>其中窗口和文档对象在页面中仅有一个实例，可以直接获取（即 window 和 document），但不能被创建。如果页面中有通过 frame 嵌入的另一个页面，那么这个被嵌入的页面有其自己的窗口和文档对象。</p>
-  <p>而元素对象会有多个实例，它们通常是以 DOM 树中的一个节点的形式存在。获取、创建和处理元素对象是 WEB 应用开发中的一个重要部分。</p>
-  <p>事件对象则是在对窗口、文档和元素对象进行特定操作的时候被创建的，他们会被以参数的形式传入对应的事件监听器，并能够在这个监听器中进行后续处理。</p>
+  <p>其中窗口和文档对象也是特殊的浏览器内置对象，和其他浏览器内置对象一样，它们在页面中也是唯一的实例，可以直接获取（即 window 和 document）而不能被创建。如果页面中有通过 frame 嵌入的另一个页面，那么这个被嵌入的页面有其自己的窗口和文档对象。</p>
+  <p>元素对象会有多个实例，它们通常是以 DOM 树中的一个节点的形式存在，可以创建新的元素对象，也可以对它们进行多种形式的修改或删除。</p>
+  <p>事件对象是在窗口、文档和元素对象发生事件时被自动创建的，它们会以参数的形式被传入对应的监听器，并可以在这个监听器中进行后续处理。</p>
   <p>关于这些 DOM 相关 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的中间列的内容。</p>
 
   <h3>为窗口对象扩充的方法</h3>
@@ -124,7 +124,7 @@ var $message = document.$('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd
 
   <h3>处理元素</h3>
   <p>OurJS 为元素类型的对象扩展了很多方法，如处理内容和样式、遍历和修改文档树、获取位置和尺寸等。</p>
-  <p>调用为元素扩展的方法时，也和调用他们的内置方法或属性一样方便：</p>
+  <p>调用为元素扩展的方法时，也和调用它们的原生方法或属性一样方便：</p>
 <pre>
 if ($input.offsetWidth) {
   $input.addClass('active').focus();
@@ -153,13 +153,13 @@ $container.find('li').forEach(function($item) {
     </li>
     <li>
       这样做的好处是能够以最清晰的代码逻辑来处理更复杂的情况。<br>
-      如上例，可以给 id 为“<code>container</code>”的元素添加一个类名“<code>selected</code>”，并在 CSS 中加入 <code>.selected li { color: silver; font-style: italic; }</code> 来控制这一状态下各 li 元素的表现。
+      如上例，可以修改为 <code>$container.addClass('selected');</code> 并在 CSS 中加入 <code>.selected li { color: silver; font-style: italic; }</code> 来达到相同目的。
     </li>
   </ol>
 
   <h3>处理事件</h3>
-  <p>窗口、文档和元素对象都可能发生事件，OurJS 提供了一套完整的事件管理机制，并对常见的 DOM 事件做了兼容性处理，可以让开发者很方便的添加或删除事件监听器，或者触发一个事件。</p>
-  <p>这三种类型的对象都有 on、off 和 fire 方法，并且他们的作用也完全一致。</p>
+  <p>窗口、文档和元素对象都可能发生事件并产生事件对象，OurJS 提供了一套完整的事件管理机制，并对常见的事件做了兼容性处理。</p>
+  <p>这三种类型的对象都有 on、off 和 fire 方法，并且它们的作用也完全一致：on 用来添加事件监听器，off 用来删除事件监听器，fire 用来触发一个事件。</p>
   <blockquote>
     <p>注意：一些事件类型只有特定的 DOM 对象才支持，详情请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
   </blockquote>
@@ -167,7 +167,7 @@ $container.find('li').forEach(function($item) {
   <h4>添加一个事件监听器</h4>
 <pre>
 window.on('resize', handler);
-// 在 handler 被调用时，其中的 this 的值为监听目标 window 对象。
+// 在 handler 被调用时，this 的值为监听目标 window 对象。
 </pre>
 
   <h4>添加多个事件监听器</h4>
@@ -185,9 +185,8 @@ document.on('mouseenter, mouseleave', handler);
 
   <h4>事件代理</h4>
   <p>
-    事件代理是一个很有用的功能，OurJS 使用“代理选择符”对指定的元素代理事件监听。<br>
-    “代理选择符”的写法为 :relay(selector)，其中 selector 可以为任意 CSS 选择符。<br>
-    以目标元素<sup>1</sup>为起点，其后代元素中能被 selector 选中的，都是被代理的目标。
+    事件代理是一个很重要的功能，OurJS 使用“代理选择符”对指定的元素代理事件监听。<br>
+    “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 是“接替”的意思，selector 可以为任意 CSS 选择符，它们合在一起表示“接替发生在<strong>以目标元素<sup>2</sup>为起点，能被 selector 选中的后代元素</strong>上的事件”，亦即为这些后代元素代理事件监听。
   </p>
 <pre>
 $element.on('mouseenter<strong>:relay(li.enabled)</strong>', handler);
@@ -195,6 +194,7 @@ $element.on('mouseenter<strong>:relay(li.enabled)</strong>', handler);
 // 在 handler 被调用时，this 的值为被代理的 li 元素。
 </pre>
   <ol class="comment">
+    <li>这个语法参考自 MooTools。</li>
     <li>
       应避免让 window 和 document 对象为其他元素代理事件监听，以免在 IE 低版本中遇到兼容性问题。<br>
       由于这个原因，本小节中使用了“元素”一词来代替“DOM 对象”，以明确事件代理的这一特殊情况。<br>
@@ -225,6 +225,11 @@ $element.on('<strong>click.bar:relay(a)</strong>', handler2);
 $element.off('<strong>click.bar:relay(a)</strong>');
 // 删除代理事件监听器 handler2。
 </pre>
+  <p>OurJS 没有提供删除一个DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器名称，这个设计是为了避免监听器被误删<sup>2</sup>。</p>
+  <ol class="comment">
+    <li>特殊情况是：在调用一个元素的 replace 或 remove 方法时，可以通过参数指定是否清除相应元素的所有类型的所有事件监听器。</li>
+    <li>要避免一个监听器被误删，应为其指定一个具有明确含义的“标签”，并确保整个应用中不会有其他地方在为这个元素添加事件监听器时使用这个“标签”。</li>
+  </ol>
 
   <h4>触发某类事件</h4>
   <p>使用 fire 方法来触发某类事件。</p>
