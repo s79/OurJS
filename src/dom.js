@@ -1236,7 +1236,7 @@
       this.relatedTarget = $(relatedTarget);
     }
     // 发生时间。
-    this.timeStamp = Date.now();
+    this.timeStamp = e.timeStamp || Date.now();
     // 鼠标和键盘事件，由 fire 方法传递过来的模拟事件对象没有以下信息。
     if (this.isMouseEvent || this.isKeyboardEvent) {
       this.ctrlKey = !!e.ctrlKey;

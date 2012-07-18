@@ -48,15 +48,8 @@ execute(function($) {
     <li><a href="../src/components/calendar.js" target="_blank" class="link">Calendar</a> 月历</li>
   </ul>
 
-  <h2>API 风格</h2>
-  <p>JavaScript 框架提供 API 的方式有三种：静态方法、包装对象和原型扩展。<br>OurJS 为提供<strong>自然的语法</strong>，并保持 <strong>API 的一致性</strong>，优先使用了“原型扩展”这种方式。</p>
-  <p class="comment">
-    一些扩展的功能使用“静态方法”提供，如 Object.append，Date.from 等。<br>
-    由于源生 DOM 事件对象的一些属性是只读的，在处理浏览器兼容性问题时此处使用了“包装对象”，但用户感觉不到这一点。
-  </p>
-
   <h2>处理 JS 内置对象</h2>
-  <p>调用这些对象的扩展方法时，和调用他们的内置方法一样：</p>
+  <p>OurJS 为了增强对 JS 内置对象进行处理的能力，提供了很多扩展方法。调用这些方法时，和调用它们的内置方法一样方便：</p>
 <pre>
 var list = [0, 1, 2, 3, 4];
 list.reverse().getLast();
@@ -70,10 +63,11 @@ Object.append(defaultOptions, newOptions, {whiteList: Object.keys(defaultOptions
 var day = Date.from('2012-06-25 12:00:00', 'YYYY-MM-DD hh:mm:ss').getDay();
 // day 的值为 1，2012年6月25日是星期一。
 </pre>
+  <p>关于这些 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的左侧列上方大写字母开头的部分。</p>
 
   <h2>处理浏览器内置对象</h2>
   <p>浏览器的内置对象是指与浏览器或当前文档相关的对象，他们都是唯一的实例，不能被创建。</p>
-  <p>调用这些对象的扩展方法或属性时，也和调用他们的内置方法或属性一样：</p>
+  <p>OurJS 为常用的浏览器内置对象也提供了扩展方法或属性：</p>
 <pre>
 if (navigator.isChrome) ...
 // OurJS 为 navigator 对象扩展了一些列的属性，用于判断当前的浏览器类型。
@@ -86,69 +80,95 @@ var targetId = location.parameters.id || 1;
 var username = localStorage.getItem('username');
 // IE6 IE7 中原本是不支持 localStorage 的，但 OurJS 对它们进行了增强，使其可以像现代浏览器一样支持本地存储（可以跨路径）。
 </pre>
+  <p>关于这些 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的左侧列下方小写字母开头的部分。</p>
 
   <h2>获取、创建和处理 DOM 对象</h2>
-  <h3>获取、创建和处理元素</h3>
-  <p>
-    DOM 对象包括窗口、文档、元素和事件四种类型的对象。<br>
-    其中窗口（window）和文档（document）对象在页面中仅有一个实例，可以直接获取，但不能被创建（frame 中的页面有其自己的窗口和文档对象）。<br>
-    事件则是在元素的事件监听器中以参数的形式被传入，也不能被显式的创建。<br>
-    因此实际最常使用的功能是获取、创建和处理元素。这是 WEB 应用开发的一个重要部分。著名 JS 库 jQuery 的重心也在这里。
-  </p>
-  <p>
-    与 jQuery 不同，使用 OurJS 获取或创建元素时，只能获取或创建一个元素。所有处理元素的 API 也都是针对单个元素进行的。<br>
-    在 OurJS 里可以调用一个元素的 find 方法来获取一批元素（实际是一个数组），但 OurJS 没有提供“批量操作元素”的方法<sup>1</sup>，如果要对一批元素进行操作，需要遍历这个数组中的每一个元素才行。<br>
-    获取元素后，调用元素的扩展方法时，依然和调用他们的内置方法一样：
-  </p>
+  <p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>、<strong>元素</strong>和<strong>事件</strong>四种类型。</p>
+  <p>其中窗口和文档对象在页面中仅有一个实例，可以直接获取（即 window 和 document），但不能被创建。如果页面中有通过 frame 嵌入的另一个页面，那么这个被嵌入的页面有其自己的窗口和文档对象。</p>
+  <p>而元素对象会有多个实例，它们通常是以 DOM 树中的一个节点的形式存在。获取、创建和处理元素对象是 WEB 应用开发中的一个重要部分。</p>
+  <p>事件对象则是在对窗口、文档和元素对象进行特定操作的时候被创建的，他们会被以参数的形式传入对应的事件监听器，并能够在这个监听器中进行后续处理。</p>
+  <p>关于这些 DOM 相关 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的中间列的内容。</p>
+
+  <h3>为窗口对象扩充的方法</h3>
+  <p>可以通过调用 OurJS 在窗口对象上扩展的几个与视口有关的方法，来获取视口的相关信息：</p>
 <pre>
-<strong>document.$</strong>('#container').find('li').forEach(function($item) {
+var width = window.getClientSize().width;
+// 获取视口可视区域的宽度。
+</pre>
+<pre>
+var height = window.getScrollSize().height;
+// 获取视口滚动区域的高度。
+</pre>
+<pre>
+var pageOffset = window.getPageOffset();
+// 获取视口的滚动偏移量。
+</pre>
+
+  <h3>为文档对象扩充的方法</h3>
+  <p>可以通过 document.$ 来获取和创建元素。使用这个方法每次只能获取或创建一个元素。</p>
+<pre>
+var $container = document.$('#container');
+// 获取 id 为 container 的元素。这相当于 document.getElementById('container')。
+</pre>
+<pre>
+var $message = document.$('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd&gt;&lt;/dd&gt;&lt;/dl&gt;');
+// 创建一个 dl 元素。虽然每次只能创建一个元素，但这个元素可以包含任意多的后代元素。
+</pre>
+  <p>像很多库一样，OurJS 也可以使用 $ 来代替 document.$，以简化代码。具体做法请参考下文“<strong>使用 execute 方法执行代码块</strong>”一节中的内容。</p>
+  <blockquote>
+    <p>
+      从本节开始，你会发现一些变量以 $ 开头，如上边两个例子中的 $container 和 $message，OurJS 的所有演示代码（也包括源码）中都会使用这样的方式来标识一个元素对象，以使代码更易读。<br>
+      实际开发中，在为元素类型的变量命名时（注意不是属性名），也建议这么做。
+    </p>
+  </blockquote>
+
+  <h3>处理元素</h3>
+  <p>OurJS 为元素类型的对象扩展了很多方法，如处理内容和样式、遍历和修改文档树、获取位置和尺寸等。</p>
+  <p>调用为元素扩展的方法时，也和调用他们的内置方法或属性一样方便：</p>
+<pre>
+if ($input.offsetWidth) {
+  $input.addClass('active').focus();
+}
+// addClass 是为处理元素的类添加的扩展方法。
+</pre>
+  <p>
+    上一节中提到，OurJS 提供的获取和创建元素的 API document.$ 每次只能获取或创建一个元素。<br>
+    在处理元素时，所有相关的 API 也都是针对单个元素进行的。
+  </p>
+  <p>虽然可以通过调用一个元素的 find 或 getChildren 方法来获取一批元素（实际是一个数组），但 OurJS 并没有提供“批量操作元素”的方法<sup>1</sup>。如果一定要对一批元素进行操作，则需要遍历这些元素，并对其中的每一个单独进行操作：</p>
+<pre>
+$container.find('li').forEach(function($item) {
   $item.setStyles({color: 'silver', font-style: 'italic'}));
 });
 // 修改 id 为“container”的元素的所有后代 li 元素的样式。
 </pre>
   <p>
     这点和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路：<br>
-    恰当的设计可以避免很多需要“批量操作元素”的场景，如通过修改某个恰当的元素节点的 class 名称，来改变这个 DOM 树分支的“状态”，并配合 CSS 来达到目的<sup>2</sup>。
+    恰当的设计可以避免很多需要“批量操作元素”的场景。如通过修改某个恰当的元素节点的 class 名称，来改变这个 DOM 树分支的“状态”，并配合 CSS 来达到目的<sup>2</sup>。
   </p>
   <ol class="comment">
-    <li>OurJS 不提倡对元素批量进行操作，除了性能问题外，过于随意的批量操作会降低开发者寻找更好的解决方案的动力，还会让代码变得越来越难以维护。</li>
+    <li>
+      OurJS 不提倡对元素批量进行操作。批量操作可能带来性能问题，还会降低代码的可控性。<br>
+      而只针对单一元素进行操作则更加严谨和高效，能杜绝不易察觉的误操作，并避开了提供针对元素集合进行操作的 API 时会面临的“get first set all”还是“get all set all”的两难抉择。
+    </li>
     <li>
       这样做的好处是能够以最清晰的代码逻辑来处理更复杂的情况。<br>
       如上例，可以给 id 为“<code>container</code>”的元素添加一个类名“<code>selected</code>”，并在 CSS 中加入 <code>.selected li { color: silver; font-style: italic; }</code> 来控制这一状态下各 li 元素的表现。
     </li>
   </ol>
 
-  <h3>使用 execute 方法执行代码块</h3>
-  <p>
-    上例使用了 <strong>document.$</strong> 来获取元素，这个方法还可以用来创建一个元素。<br>
-    建议使用 execute 方法执行一个代码块，这样可以减少全局变量的数量和避免不同代码块之间的变量名有冲突。<br>
-    另外在 execute 方法的第一个参数“代码块函数”被执行时，<strong>document.$</strong> 方法会作为参数传入，以便简化内部代码。<br>
-    它还可以通过设置第二个参数 waitingForDomReady 为 true 来确保这段代码在 DOM 树加载完成后再执行：
-  </p>
-<pre>
-execute(function(<strong>$</strong>) {
-  <strong>$</strong>('#container').addClass('selected');
-});
-</pre>
-<pre>
-execute(function(<strong>$</strong>) {
-  <strong>$</strong>('#test').prepend(<strong>$</strong>('&lt;span class="icon"&gt;&lt;/span&gt;'));
-}, <strong>true</strong>);
-</pre>
-  <p>事实上，OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是使用 OurJS 编写的代码最有特色的地方之一。</p>
-  <p class="comment">最初设计这个方法的目的是为了在能使用 $ 这个变量名的同时避免与其他使用这个变量名的库冲突。</p>
-
   <h3>处理事件</h3>
-  <p>OurJS 为常见的 DOM 事件都做了兼容性处理，并且提供了一套完整的事件管理机制，可以让开发者很方便的添加或删除事件监听器，或者触发一个事件。</p>
+  <p>窗口、文档和元素对象都可能发生事件，OurJS 提供了一套完整的事件管理机制，并对常见的 DOM 事件做了兼容性处理，可以让开发者很方便的添加或删除事件监听器，或者触发一个事件。</p>
+  <p>这三种类型的对象都有 on、off 和 fire 方法，并且他们的作用也完全一致。</p>
+  <blockquote>
+    <p>注意：一些事件类型只有特定的 DOM 对象才支持，详情请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
+  </blockquote>
 
   <h4>添加一个事件监听器</h4>
 <pre>
 window.on('resize', handler);
 // 在 handler 被调用时，其中的 this 的值为监听目标 window 对象。
 </pre>
-  <blockquote>
-    <p>注意：一些事件类型只有特定的 DOM 对象才支持，详情请参考<a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
-  </blockquote>
 
   <h4>添加多个事件监听器</h4>
   <p>可以在一个 DOM 对象上为同一类型的事件添加任意个监听器，这可以通过多次调用 on 方法来完成。</p>
@@ -165,24 +185,24 @@ document.on('mouseenter, mouseleave', handler);
 
   <h4>事件代理</h4>
   <p>
-    事件代理是一个很有用的功能，OurJS 使用“代理选择符”对指定的元素代理事件。<br>
+    事件代理是一个很有用的功能，OurJS 使用“代理选择符”对指定的元素代理事件监听。<br>
     “代理选择符”的写法为 :relay(selector)，其中 selector 可以为任意 CSS 选择符。<br>
     以目标元素<sup>1</sup>为起点，其后代元素中能被 selector 选中的，都是被代理的目标。
   </p>
 <pre>
 $element.on('mouseenter<strong>:relay(li.enabled)</strong>', handler);
-// $element 元素将为其所有标签名为 li 且类名包含 enabled 的后代元素代理 mouseenter 事件。
+// $element 元素将为其所有标签名为 li 且类名包含 enabled 的后代元素代理监听 mouseenter 事件。
 // 在 handler 被调用时，this 的值为被代理的 li 元素。
 </pre>
   <ol class="comment">
     <li>
-      应避免在 window 和 document 对象上使用使用事件代理，一些事件在 IE 低版本中会有兼容性问题。<br>
+      应避免让 window 和 document 对象为其他元素代理事件监听，以免在 IE 低版本中遇到兼容性问题。<br>
       由于这个原因，本小节中使用了“元素”一词来代替“DOM 对象”，以明确事件代理的这一特殊情况。<br>
-      要对整个页面范围内的元素进行选择性代理时，可以将监听器添加到 HTML 元素上。
+      要对整个页面范围内的元素进行选择性代理时，可以将监听器添加到 HTML 或 BODY 元素上。
     </li>
   </ol>
   <blockquote>
-    <p>注意：不是所有类型的事件都可以被代理，详情请参考<a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
+    <p>注意：不是所有类型的事件都可以被代理，详情请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
   </blockquote>
 
   <h4>删除已添加的事件监听器</h4>
@@ -219,16 +239,34 @@ $form.fire('submit');
 </pre>
 
   <h4>事件对象</h4>
-  <p>...</p>
+  <p>除了少数特殊事件（window 的 beforeunload 和 document 的 domready）外，其他所有事件的监听器均会被传入本次事件发生时所产生的事件对象。</p>
+  <p>所有事件对象都有其特定的一些属性，使用 fire 方法触发的事件产生的事件对象也不例外。</p>
+  <p>所有事件对象都有控制其传播和默认行为的方法。</p>
+  <p>关于事件的类型与属性的对应关系，请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a> 中的内容。</p>
 
-  <ul>
-    <li>
-      <p>监听器均有唯一的参数——事件对象（特殊事件 —— window 的 beforeunload 事件和 document 的 domready 事件除外）。</p>
-      <p>统一事件对象，提供 DOM3 的方法。</p>
-    </li>
-  </ul>
+  <h2>使用 execute 方法执行代码块</h2>
+  <p>
+    上例使用了 <strong>document.$</strong> 来获取元素，这个方法还可以用来创建一个元素。<br>
+    建议使用 execute 方法执行一个代码块，这样可以减少全局变量的数量和避免不同代码块之间的变量名有冲突。<br>
+    另外在 execute 方法的第一个参数“代码块函数”被执行时，<strong>document.$</strong> 方法会作为参数传入，以便简化内部代码。<br>
+    它还可以通过设置第二个参数 waitingForDomReady 为 true 来确保这段代码在 DOM 树加载完成后再执行：
+  </p>
+<pre>
+execute(function(<strong>$</strong>) {
+  <strong>$</strong>('#container').addClass('selected');
+});
+</pre>
+<pre>
+execute(function(<strong>$</strong>) {
+  <strong>$</strong>('#test').prepend(<strong>$</strong>('&lt;span class="icon"&gt;&lt;/span&gt;'));
+}, <strong>true</strong>);
+</pre>
+  <p>事实上，OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是使用 OurJS 编写的代码最有特色的地方之一。</p>
+  <p class="comment">最初设计这个方法的目的是为了在能使用 $ 这个变量名的同时避免与其他使用这个变量名的库冲突。</p>
+
   <h2>组件</h2>
   <p>...</p>
+  <p>关于组件相关 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的右侧列的内容。</p>
 
   <h2>模块和应用</h2>
   <p>...</p>

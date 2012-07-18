@@ -136,7 +136,7 @@ var manifest = {
   'document': [
     '#HTML5',
     'document.head',
-    '#获取元素',
+    '#获取和创建元素',
     'document.$',
     '#处理事件',
     'document.on',
