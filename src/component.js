@@ -6,8 +6,8 @@
 (function() {
 //==================================================[组件]
   /*
-   * 组件的构造器。
-   * 为各组件的实例提供 options/events 属性，以及 setOptions/on/off/fire 原型方法。
+   * 创建组件构造器。
+   * 为各组件的实例提供 options/events 属性，以及 setOptions/on/off/fire 实例方法。
    * <Object events> {
    *   <string type>: <Array handlers> [
    *     <Object handler>: {
@@ -53,40 +53,44 @@
 
 //--------------------------------------------------[Component Constructor]
   /**
-   * 创建一个组件。
+   * 创建一个组件构造器。
    * @name Component
    * @constructor
-   * @param {Function} constructor 组件的构造函数。
-   * @param {Object} defaultOptions 组件的默认选项。
-   * @param {Object} prototype 组件的原型对象。
+   * @param {Function} initialization 组件的初始化函数。
+   * @param {Object} [options] 组件的默认选项。
+   *   如果省略，则认为该组件没有默认选项。可以在创建组件构造器之后再设置其 options 属性以更改其默认选项。
+   * @param {Object} [prototype] 组件的原型对象。
+   *   可以在创建组件构造器之后再扩充其 prototype 属性以添加其实例方法。
    * @description
-   *   组件的实例将具备事件处理和选项设置的功能。
+   *   组件的实例将具备选项设置和事件处理的功能。
    *   组件的实例及其原型对象中都不能设置以下属性：
    *   'options'，'events'，'setOptions'，'on'，'off'，'fire'。
    *   修改一个组件的默认选项时，应修改该组件的 options 属性的属性值，不要为 options 属性重新赋值。
    */
-  function Component(constructor, defaultOptions, prototype) {
-    var formalParameterLength = constructor.length;
-    // 真正的构造函数，为事件处理做准备并自动处理选项。
+  function Component(initialization, options, prototype) {
+    var formalParameterLength = initialization.length;
+    // 组件构造器，为事件处理做准备并自动处理选项，最后执行组件的初始化函数。
     var Component = function() {
-      this.events = {};
       this.options = Object.clone(Component.options);
       var parameters = Array.from(arguments);
       if (parameters.length > formalParameterLength) {
         this.setOptions(parameters[formalParameterLength]);
         parameters.length = formalParameterLength;
       }
-      constructor.apply(this, parameters);
+      this.events = {};
+      initialization.apply(this, parameters);
     };
     // 默认选项。
-    Component.options = defaultOptions;
+    Component.options = options || {};
     // 扩充原型链。
     Component.prototype = this;
     // 将 prototype 的属性追加到原型中。
-    Object.append(Component.prototype, prototype);
+    if (prototype) {
+      Object.append(Component.prototype, prototype);
+    }
     // 重新设定 constructor 属性。
     Component.prototype.constructor = Component;
-    // 返回组件。
+    // 返回组件构造器。
     return Component;
   }
 
@@ -227,18 +231,11 @@
    * @description
    *   动态修改实例对象的 items 属性的内容，可以随时增加/减少切换控制器的控制范围。
    */
-  function Switcher(items) {
+  var Switcher = new Component(function(items) {
     this.items = items;
     this.activeItem = null;
     this.activeIndex = -1;
-  }
-
-//--------------------------------------------------[Switcher.options]
-  /**
-   * 默认选项。
-   * @name Switcher.options
-   */
-  Switcher.options = {};
+  });
 
 //--------------------------------------------------[Switcher.prototype.active]
   /**
@@ -286,6 +283,6 @@
   };
 
 //--------------------------------------------------[Switcher]
-  window.Switcher = new Component(Switcher, Switcher.options, Switcher.prototype);
+  window.Switcher = Switcher;
 
 })();

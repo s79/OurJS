@@ -107,10 +107,9 @@ execute(function($) {
    * @description
    *   遮掩层仅供内部使用，且均为被动调用，因此未提供事件支持。
    */
-  function Mask(target, options) {
+  var Mask = new Component(function(target) {
     this.target = $(target);
-    this.setOptions(options);
-  }
+  });
 
 //--------------------------------------------------[Mask.options]
   /**
@@ -227,7 +226,7 @@ execute(function($) {
   };
 
 //--------------------------------------------------[Mask]
-  window.Mask = new Component(Mask, Mask.options, Mask.prototype);
+  window.Mask = Mask;
 
 });
 
@@ -291,8 +290,11 @@ execute(function($) {
    *     <li>如果对话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
    *   </ul>
    */
-  function Dialog(element, options) {
+  var Dialog = new Component(function(element) {
     var dialog = this;
+
+    // 获取选项。
+    var options = dialog.options;
 
     // 保存属性。
     // 对话框的初始状态为关闭、隐藏状态。
@@ -316,9 +318,6 @@ execute(function($) {
         $container.setStyle('position', 'relative');
       }
     }
-
-    // 保存选项。
-    options = dialog.setOptions(options).options;
 
     // 为对话框分组。
     var uid = $container.uid;
@@ -407,7 +406,7 @@ execute(function($) {
       return this;
     }
 
-  }
+  });
 
 //--------------------------------------------------[Dialog.options]
   /**
@@ -515,6 +514,6 @@ execute(function($) {
   };
 
 //--------------------------------------------------[Dialog]
-  window.Dialog = new Component(Dialog, Dialog.options, Dialog.prototype);
+  window.Dialog = Dialog;
 
 });

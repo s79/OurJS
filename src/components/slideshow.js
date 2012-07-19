@@ -34,17 +34,17 @@ execute(function($) {
    *   成功调用 show 方法后触发。
    * @requires TabPanel
    */
-  function Slideshow(elements, options) {
+  var Slideshow = new Component(function(elements) {
     var slideshow = this;
+
+    // 获取选项。
+    var options = slideshow.options;
 
     // 保存属性。
     slideshow.elements = elements;
     slideshow.activeSlide = null;
     slideshow.activePointer = null;
     slideshow.activeIndex = -1;
-
-    // 保存选项。
-    options = slideshow.setOptions(options).options;
 
     // 使用 TabPanel 实现幻灯片播放器。
     var slides = elements.slides;
@@ -142,7 +142,7 @@ execute(function($) {
       return this;
     }
 
-  }
+  });
 
 //--------------------------------------------------[Slideshow.options]
   /**
@@ -172,6 +172,6 @@ execute(function($) {
   };
 
 //--------------------------------------------------[Slideshow]
-  window.Slideshow = new Component(Slideshow, Slideshow.options, Slideshow.prototype);
+  window.Slideshow = Slideshow;
 
 });

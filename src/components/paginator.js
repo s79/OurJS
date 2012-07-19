@@ -31,17 +31,17 @@ execute(function($) {
    *   {number} totalPage 总页数。
    *   成功调用 render 方法后触发。
    */
-  function Paginator(elements, options) {
+  var Paginator = new Component(function(elements) {
     var paginator = this;
+
+    // 获取选项。
+    var options = paginator.options;
 
     // 保存属性。
     paginator.elements = elements;
     paginator.targetPage = 0;
     paginator.currentPage = 0;
     paginator.totalPage = 0;
-
-    // 保存选项。
-    options = paginator.setOptions(options).options;
 
     // 翻到上一页/下一页。
     elements.prev.on('click', function() {
@@ -60,7 +60,7 @@ execute(function($) {
       paginator.turn(Number.toInteger(this.innerText));
     });
 
-  }
+  });
 
 //--------------------------------------------------[Paginator.options]
   /**
@@ -168,6 +168,6 @@ execute(function($) {
   };
 
 //--------------------------------------------------[Paginator]
-  window.Paginator = new Component(Paginator, Paginator.options, Paginator.prototype);
+  window.Paginator = Paginator;
 
 });

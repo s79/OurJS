@@ -34,17 +34,17 @@ execute(function($) {
    *   一个“标签”和一个“面板”组成一组“标签面板”。
    *   同一时刻最多只有一组“标签面板”被激活。
    */
-  function TabPanel(elements, options) {
+  var TabPanel = new Component(function(elements) {
     var tabPanel = this;
+
+    // 获取选项。
+    var options = tabPanel.options;
 
     // 保存属性。
     tabPanel.elements = elements;
     tabPanel.activeTab = null;
     tabPanel.activePanel = null;
     tabPanel.activeIndex = -1;
-
-    // 保存选项。
-    options = tabPanel.setOptions(options).options;
 
     // 使用 Switcher 实现选项卡切换。
     var tabs = elements.tabs;
@@ -106,7 +106,7 @@ execute(function($) {
           }
         });
 
-  }
+  });
 
 //--------------------------------------------------[TabPanel.options]
   /**
@@ -151,6 +151,6 @@ execute(function($) {
   };
 
 //--------------------------------------------------[TabPanel]
-  window.TabPanel = new Component(TabPanel, TabPanel.options, TabPanel.prototype);
+  window.TabPanel = TabPanel;
 
 });

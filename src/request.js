@@ -175,11 +175,10 @@
    * @fires abort
    *   成功调用 abort 方法后触发。
    */
-  function Request(url, options) {
+  var Request = new Component(function(url) {
     this.xhr = getXHRObject();
     this.url = url;
-    this.setOptions(options);
-  }
+  });
 
 //--------------------------------------------------[Request.options]
   /**
@@ -298,6 +297,6 @@
   };
 
 //--------------------------------------------------[Request]
-  window.Request = new Component(Request, Request.options, Request.prototype);
+  window.Request = Request;
 
 })();
