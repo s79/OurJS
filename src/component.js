@@ -70,7 +70,7 @@
     // 真正的构造函数，为事件处理做准备并自动处理选项。
     var Component = function() {
       this.events = {};
-      this.options = Object.append({}, Component.options);
+      this.options = Object.clone(Component.options);
       var parameters = Array.from(arguments);
       if (parameters.length > formalParameterLength) {
         this.setOptions(parameters[formalParameterLength]);
