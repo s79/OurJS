@@ -1597,8 +1597,8 @@
           // isTriggered 为判断预期的事件是否被触发的函数，返回 false 则忽略该事件。
           if (!isTriggered || isTriggered.call($target, event)) {
             if (handler.listener.call($target, event) === false) {
-              event.preventDefault();
               event.stopPropagation();
+              event.preventDefault();
             }
             if (event.isImmediatePropagationStopped()) {
               break;
@@ -1656,20 +1656,22 @@
    *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
    *   </table>
    * @param {Function} listener 事件监听器。
+   *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。
    *   该函数被调用时 this 的值为监听到本次事件的元素，即：
    *   <ul>
    *     <li>如果是普通监听器，则 this 的值为本元素。</li>
    *     <li>如果是代理监听器，则 this 的值为被代理的元素。</li>
    *   </ul>
+   *   如果该函数返回 false，则相当于调用了传入的事件对象的 stopPropagation 和 preventDefault 方法。
    * @returns {Element} 本元素。
    * @example
-   *   $('#test').on('click', handler);
+   *   $('#test').on('click', onClick);
    *   // 为 id 为 test 的元素添加 click 事件监听器。
    * @example
-   *   $('#test').on('click.temp', handler);
+   *   $('#test').on('click.temp', onClick);
    *   // 为 id 为 test 的元素添加 click 事件监听器，并为其指定一个标签 temp。
    * @example
-   *   $('#test').on('click:relay(a)', handler);
+   *   $('#test').on('click:relay(a)', onClick);
    *   // 为 id 为 test 的元素添加一个代理事件监听器，为该元素所有的后代 a 元素代理 click 事件的监听。
    * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
@@ -1895,10 +1897,10 @@
    *   $('#test').off('click');
    *   // 为 id 为 test 的元素删除名为 click 的事件监听器。
    * @example
-   *   $('#test').off('click.temp', handler);
+   *   $('#test').off('click.temp');
    *   // 为 id 为 test 的元素删除名为 click.temp 的事件监听器。
    * @example
-   *   $('#test').off('click:relay(a)', handler);
+   *   $('#test').off('click:relay(a)');
    *   // 为 id 为 test 的元素删除名为 click:relay(a) 的事件监听器。
    */
   Element.prototype.off = function(name) {

@@ -60,17 +60,23 @@
    * @param {Object} defaultOptions 组件的默认选项。
    * @param {Object} prototype 组件的原型对象。
    * @description
+   *   组件的实例将具备事件处理和选项设置的功能。
    *   组件的实例及其原型对象中都不能设置以下属性：
    *   'options'，'events'，'setOptions'，'on'，'off'，'fire'。
-   *   修改一个组件的默认选项时，应修改该组件的 options 属性所指向的对象，不要修改 options 属性的指向。
+   *   修改一个组件的默认选项时，应修改该组件的 options 属性的属性值，不要为 options 属性重新赋值。
    */
   function Component(constructor, defaultOptions, prototype) {
-    // 真正的构造函数。
+    var formalParameterLength = constructor.length;
+    // 真正的构造函数，为事件处理做准备并自动处理选项。
     var Component = function() {
-      this.options = {};
       this.events = {};
-      Object.append(this.options, Component.options);
-      constructor.apply(this, arguments);
+      this.options = Object.append({}, Component.options);
+      var parameters = Array.from(arguments);
+      if (parameters.length > formalParameterLength) {
+        this.setOptions(parameters[formalParameterLength]);
+        parameters.length = formalParameterLength;
+      }
+      constructor.apply(this, parameters);
     };
     // 默认选项。
     Component.options = defaultOptions;

@@ -1,6 +1,9 @@
 ﻿>TODO 动画支持复合属性。
 >TODO IE9- window 的事件代理有兼容性问题，mouseenter/mouseleave 也不能在 window/document 上使用。
 
+>2012-07-19
+Component 修改，使其像最初版本一样，能自动处理选项。
+
 >2012-07-18
 入门指南。
 
@@ -277,7 +280,7 @@ Object.merge -> Object.append
 >2012-03-30
 Object.merge
 
-增加 Components 类，提供与 Element/document/window 相同的操作事件的方法 on/off/fire。
+增加 Component 类，提供与 Element/document/window 相同的操作事件的方法 on/off/fire。
 这样处理之后，创建组件时“选项”和“事件监听”就可以在代码中更明显的区分开。
 修改前：
 1. 组件的事件处理仅提供一个回调函数，必须处理多种情况时，只能使用新的函数来包装原有的函数。

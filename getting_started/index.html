@@ -63,7 +63,9 @@ Object.append(defaultOptions, newOptions, {whiteList: Object.keys(defaultOptions
 var day = Date.from('2012-06-25 12:00:00', 'YYYY-MM-DD hh:mm:ss').getDay();
 // day 的值为 1，2012年6月25日是星期一。
 </pre>
-  <p>关于这些 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的左侧列上方大写字母开头的部分。</p>
+  <blockquote>
+    <p>关于这些 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的左侧列上方大写字母开头的部分。</p>
+  </blockquote>
 
   <h2>处理浏览器内置对象</h2>
   <p>浏览器的内置对象是指与浏览器或当前文档相关的对象，它们都是唯一的实例，不能被创建（它们的构造器是对开发者隐藏的）。</p>
@@ -80,14 +82,18 @@ var targetId = location.parameters.id || 1;
 var username = localStorage.getItem('username');
 // IE6 IE7 中原本是不支持 localStorage 的，但 OurJS 对它们进行了增强，使其可以像现代浏览器一样支持本地存储（可以跨路径）。
 </pre>
-  <p>关于这些 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的左侧列下方小写字母开头的部分。</p>
+  <blockquote>
+    <p>关于这些 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的左侧列下方小写字母开头的部分。</p>
+  </blockquote>
 
   <h2>获取、创建和处理 DOM 对象</h2>
   <p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>、<strong>元素</strong>和<strong>事件</strong>四种类型。</p>
   <p>其中窗口和文档对象也是特殊的浏览器内置对象，和其他浏览器内置对象一样，它们在页面中也是唯一的实例，可以直接获取（即 window 和 document）而不能被创建。如果页面中有通过 frame 嵌入的另一个页面，那么这个被嵌入的页面有其自己的窗口和文档对象。</p>
   <p>元素对象会有多个实例，它们通常是以 DOM 树中的一个节点的形式存在，可以创建新的元素对象，也可以对它们进行多种形式的修改或删除。</p>
   <p>事件对象是在窗口、文档和元素对象发生事件时被自动创建的，它们会以参数的形式被传入对应的监听器，并可以在这个监听器中进行后续处理。</p>
-  <p>关于这些 DOM 相关 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的中间列的内容。</p>
+  <blockquote>
+    <p>关于这些 DOM 相关 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的中间列的内容。</p>
+  </blockquote>
 
   <h3>为窗口对象扩充的方法</h3>
   <p>可以通过调用 OurJS 在窗口对象上扩展的几个与视口有关的方法，来获取视口的相关信息：</p>
@@ -105,7 +111,7 @@ var pageOffset = window.getPageOffset();
 </pre>
 
   <h3>为文档对象扩充的方法</h3>
-  <p>可以通过 document.$ 来获取和创建元素。使用这个方法每次只能获取或创建一个元素。</p>
+  <p>可以通过 document.$ 来获取和创建元素。使用这个方法每次只能获取或创建一个元素：</p>
 <pre>
 var $container = document.$('#container');
 // 获取 id 为 container 的元素。这相当于 document.getElementById('container')。
@@ -161,37 +167,37 @@ $container.find('li').forEach(function($item) {
   <p>窗口、文档和元素对象都可能发生事件并产生事件对象，OurJS 提供了一套完整的事件管理机制，并对常见的事件做了兼容性处理。</p>
   <p>这三种类型的对象都有 on、off 和 fire 方法，并且它们的作用也完全一致：on 用来添加事件监听器，off 用来删除事件监听器，fire 用来触发一个事件。</p>
   <blockquote>
-    <p>注意：一些事件类型只有特定的 DOM 对象才支持，详情请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
+    <p>一些事件类型只有特定的 DOM 对象才支持，详情请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
   </blockquote>
 
   <h4>添加一个事件监听器</h4>
 <pre>
-window.on('resize', handler);
-// 在 handler 被调用时，this 的值为监听目标 window 对象。
+window.on('resize', listener);
+// 在 listener 被调用时，this 的值为监听目标 window 对象。
 </pre>
 
   <h4>添加多个事件监听器</h4>
-  <p>可以在一个 DOM 对象上为同一类型的事件添加任意个监听器，这可以通过多次调用 on 方法来完成。</p>
+  <p>可以在一个 DOM 对象上为同一类型的事件添加任意个监听器，这可以通过多次调用 on 方法来完成：</p>
 <pre>
-$element.on('click', handler1);
+$element.on('click', listener1);
 ...
-$element.on('click', handler2);
+$element.on('click', listener2);
 // 如果一个 DOM 对象的一类事件有多个监听器，那么当这类事件发生时，这些监听器被调用的顺序和它们被添加的顺序是一致的。
 </pre>
   <p>也可以使用相同的监听器来处理一个 DOM 对象上不同种类型的事件，使用逗号分割各事件名即可：</p>
 <pre>
-document.on('mouseenter, mouseleave', handler);
+document.on('mouseenter, mouseleave', listener);
 </pre>
 
   <h4>事件代理</h4>
   <p>
     事件代理是一个很重要的功能，OurJS 使用“代理选择符”对指定的元素代理事件监听。<br>
-    “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 是“接替”的意思，selector 可以为任意 CSS 选择符，它们合在一起表示“接替发生在<strong>以目标元素<sup>2</sup>为起点，能被 selector 选中的后代元素</strong>上的事件”，亦即为这些后代元素代理事件监听。
+    “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 是“接替”的意思，selector 可以为任意 CSS 选择符，它们合在一起表示“接替发生在<strong>以目标元素<sup>2</sup>为起点，能被 selector 选中的后代元素</strong>上的事件”，亦即为这些后代元素代理事件监听：
   </p>
 <pre>
-$element.on('mouseenter<strong>:relay(li.enabled)</strong>', handler);
+$element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
 // $element 元素将为其所有标签名为 li 且类名包含 enabled 的后代元素代理监听 mouseenter 事件。
-// 在 handler 被调用时，this 的值为被代理的 li 元素。
+// 在 listener 被调用时，this 的值为被代理的 li 元素。
 </pre>
   <ol class="comment">
     <li>这个语法参考自 MooTools。</li>
@@ -202,28 +208,28 @@ $element.on('mouseenter<strong>:relay(li.enabled)</strong>', handler);
     </li>
   </ol>
   <blockquote>
-    <p>注意：不是所有类型的事件都可以被代理，详情请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
+    <p>不是所有类型的事件都可以被代理，详情请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
   </blockquote>
 
   <h4>删除已添加的事件监听器</h4>
-  <p>要选择性的删除已添加的、特定的一个或多个监听器时，首先在添加这些监听器时应使用“标签”来对它们进行分类。<br>“事件类型”、“标签”和“代理选择符”的组合称为“事件名”，在调用 off 方法删除事件时就是以“事件名”为依据对指定的监听器进行删除的。</p>
+  <p>要选择性的删除已添加的、特定的一个或多个监听器时，首先在添加这些监听器时应使用“标签”来对它们进行分类。<br>“事件类型”、“标签”和“代理选择符”的组合称为“事件名”，在调用 off 方法删除事件时就是以“事件名”为依据对指定的监听器进行删除的：</p>
 <pre>
-$element.on('input', handler1).on('input<strong>.foo</strong>', handler2);
-// .foo 就是 handler2 的标签。handler1 没有指定标签。
+$element.on('input', listener1).on('input<strong>.foo</strong>', listener2);
+// .foo 就是 listener2 的标签。listener1 没有指定标签。
 ...
-$element.on('input', handler3);
+$element.on('input', listener3);
 ...
 $element.off('input');
-// 删除在 $element 上添加的所有名为“input”的监听器（handler1 和 handler3），此时名为“input.foo”的监听器 handler2 仍然生效。
+// 删除在 $element 上添加的所有名为“input”的监听器（listener1 和 listener3），此时名为“input.foo”的监听器 listener2 仍然生效。
 </pre>
   <p>可以同时设定“标签”和“代理选择符”，以便在必要时删除特定的监听器：</p>
 <pre>
-$element.on('click.foo:relay(a)', handler1);
+$element.on('click.foo:relay(a)', listener1);
 ...
-$element.on('<strong>click.bar:relay(a)</strong>', handler2);
+$element.on('<strong>click.bar:relay(a)</strong>', listener2);
 ...
 $element.off('<strong>click.bar:relay(a)</strong>');
-// 删除代理事件监听器 handler2。
+// 删除代理事件监听器 listener2。
 </pre>
   <p>OurJS 没有提供删除一个DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器名称，这个设计是为了避免监听器被误删<sup>2</sup>。</p>
   <ol class="comment">
@@ -232,11 +238,11 @@ $element.off('<strong>click.bar:relay(a)</strong>');
   </ol>
 
   <h4>触发某类事件</h4>
-  <p>使用 fire 方法来触发某类事件。</p>
+  <p>使用 fire 方法来触发某类事件：</p>
 <pre>
 window.fire('resize');
 </pre>
-  <p>触发某类事件时，仅会运行目标 DOM 对象上使用 OurJS 添加的监听器，而不会像用户通过特定的操作触发这个事件时，还会有其“默认行为”。</p>
+  <p>触发某类事件时，仅会运行目标 DOM 对象上使用 OurJS 添加的监听器，而不会像用户通过特定的操作触发这个事件时，还会有其“默认行为”：</p>
 <pre>
 $form.fire('submit');
 // 并不会让表单 $form 提交。如果要提交它，应调用它的 submit 方法，即 $form.submit()。
@@ -245,9 +251,117 @@ $form.fire('submit');
 
   <h4>事件对象</h4>
   <p>除了少数特殊事件（window 的 beforeunload 和 document 的 domready）外，其他所有事件的监听器均会被传入本次事件发生时所产生的事件对象。</p>
-  <p>所有事件对象都有其特定的一些属性，使用 fire 方法触发的事件产生的事件对象也不例外。</p>
-  <p>所有事件对象都有控制其传播和默认行为的方法。</p>
-  <p>关于事件的类型与属性的对应关系，请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a> 中的内容。</p>
+  <p>所有事件对象都有其特定的一些属性，使用 fire 方法触发的事件产生的事件对象也不例外：</p>
+<pre>
+document.on('mousewheel', function(e) {
+  if (e.shiftKey && e.wheelUp) {
+    ...
+  }
+});
+// 所有键盘和鼠标事件对象都有 shiftKey 属性，仅有 mousewheel 事件对象才有 wheelUp 属性。
+</pre>
+  <p>所有事件对象都有控制其传播和默认行为的方法：</p>
+<pre>
+$element.on('click', function(e) {
+  ...
+  e.stopPropagation();
+});
+// 阻止本次点击事件的传播。
+</pre>
+<pre>
+$element.on('click', function(e) {
+  ...
+  e.preventDefault();
+});
+// 阻止本次点击事件的默认行为。
+</pre>
+<pre>
+$element.on('click', function(e) {
+  ...
+  return false;
+});
+// 监听器返回 false 即代表调用了事件对象的 stopPropagation 和 preventDefault 方法。
+</pre>
+  <blockquote>
+    <p>关于事件的类型与属性的对应关系，请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a> 中的内容。</p>
+  </blockquote>
+
+  <h2>组件</h2>
+  <p>OurJS 中的“组件”是指能够提供特定功能的一类<strong>构造器</strong>对象，每一类组件都可以有多个实例共存。</p>
+  <p>所有组件都会提供一些实例方法和属性，以便对其实例进行操作和获取其当前的状态。所有组件的实例也都具备<strong>事件处理</strong>和<strong>选项设置</strong>的功能。</p>
+  <p>一些组件会依赖其他的组件，每个组件也都可以扩充为功能更强大的新组件。</p>
+  <blockquote>
+    <p>关于组件相关 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的右侧列的内容。</p>
+  </blockquote>
+
+  <h3>Ajax</h3>
+  <p>Ajax 功能是通过 Request 组件实现的。</p>
+  <p>Request 组件用于对一个指定的资源发起请求，并获取响应数据。每个 Request 的实例都对应一个资源，实例创建后可以重复使用：</p>
+<pre>
+var getUserinfo = new Request('path/to/userinfo', {
+  method: 'post',
+  contentType: 'application/json',
+  maxTime: 5000,
+})
+    .on('finish', function(e) {
+      ...
+    });
+...
+getUserinfo.send(userid);
+</pre>
+  <blockquote>
+    <p>关于 Request 组件的详细信息，请参考 <a href="../demos/request/" target="_blank" class="link">演示：Ajax</a> 中的内容。</p>
+  </blockquote>
+
+  <h3>动画效果</h3>
+  <p>动画效果可以使用 Animation 组件创建。</p>
+  <p>可以为 Animation 的实例添加多个动画剪辑，以实现复杂的动画效果和动画队列。</p>
+  <p>Animation 支持多种事件，还提供了灵活的控制手段，可以随时暂停播放或反向播放（退回原点）：</p>
+<pre>
+var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {
+  borderLeftWidth: 10,
+  backgroundColor: 'mediumorchid',
+  color: 'white'
+}), 0, 200, 'ease');
+$menu
+    .on('mouseenter', function() {
+      animation.play();
+    })
+    .on('mouseleave', function() {
+      animation.reverse();
+    });
+</pre>
+  <p>当动画开始播放时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。</p>
+  <p>如果页面中的多个动画同时处于播放状态，动画引擎将同频同步播放这些动画的每一帧，以减少浏览器 reflow 和 repaint 的次数，提高渲染效率，使动画能够更流畅的播放。</p>
+  <blockquote>
+    <p>关于 Animation 组件的详细信息，请参考 <a href="../demos/animation/" target="_blank" class="link">演示：动画</a> 中“使用 Animation 创建的高级动画”部分的内容。</p>
+  </blockquote>
+
+  <h3>其他组件</h3>
+  <p>OurJS 还提供了其他一些常用组件，如 Switcher、TabPanel、Slideshow、Dialog、Paginator 等。</p>
+  <p>开发者可以使用组件的构造器 Component 来创建新的组件类型，新创建的组件和预置的组件一样，也能为其实例提供事件处理和选项设置的功能。</p>
+<pre>
+var C = new Component(function(name) {
+  this.name = name;
+}, {
+  age: 30
+}, {
+  getDescription: function() {
+    return this.name + '(' + this.options.age + ')';
+  }
+});
+
+var x = new C('xxx');
+x.getDescription();
+// 输出 xxx(30)，选项 age 使用默认值 30。
+
+var y = new C('yyy', {age: 20});
+y.getDescription();
+// 输出 yyy(20)，选项 age 为 20。
+</pre>
+  <blockquote>
+    <p>Component 是<strong>组件</strong>的构造器，调用 new Component 可以得到一个<strong>组件</strong>（函数类型），而不是一个组件的实例。使用<strong>组件</strong>创建的对象才是组件的实例。</p>
+  </blockquote>
 
   <h2>使用 execute 方法执行代码块</h2>
   <p>
@@ -268,10 +382,6 @@ execute(function(<strong>$</strong>) {
 </pre>
   <p>事实上，OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是使用 OurJS 编写的代码最有特色的地方之一。</p>
   <p class="comment">最初设计这个方法的目的是为了在能使用 $ 这个变量名的同时避免与其他使用这个变量名的库冲突。</p>
-
-  <h2>组件</h2>
-  <p>...</p>
-  <p>关于组件相关 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的右侧列的内容。</p>
 
   <h2>模块和应用</h2>
   <p>...</p>
