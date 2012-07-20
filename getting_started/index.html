@@ -246,8 +246,8 @@ window.fire('resize');
 <pre>
 $form.fire('submit');
 // 并不会让表单 $form 提交。如果要提交它，应调用它的 submit 方法，即 $form.submit()。
-// 如果这样做了，submit 事件也会被触发。
 </pre>
+  <p>当需要一个事件执行其“默认行为”时，不应该使用 fire 方法，而应该调用与该事件类型同名的方法（如果有），如 click、focus、submit 等，调用这些方法时，对应的事件也会被触发。</p>
 
   <h4>事件对象</h4>
   <p>除了少数特殊事件（window 的 beforeunload 和 document 的 domready）外，其他所有事件的监听器均会被传入本次事件发生时所产生的事件对象。</p>
@@ -364,27 +364,38 @@ y.getDescription();
   </blockquote>
 
   <h2>使用 execute 方法执行代码块</h2>
-  <p>
-    上例使用了 <strong>document.$</strong> 来获取元素，这个方法还可以用来创建一个元素。<br>
-    建议使用 execute 方法执行一个代码块，这样可以减少全局变量的数量和避免不同代码块之间的变量名有冲突。<br>
-    另外在 execute 方法的第一个参数“代码块函数”被执行时，<strong>document.$</strong> 方法会作为参数传入，以便简化内部代码。<br>
-    它还可以通过设置第二个参数 waitingForDomReady 为 true 来确保这段代码在 DOM 树加载完成后再执行：
-  </p>
+  <p>通常，为了减少全局变量的数量和避免不同代码块之间的变量名有冲突，会使用一个匿名函数来执行一个相对独立的代码块：</p>
+<pre>
+(function() {
+  var localVariable = 'localVariable';
+  // 这个变量仅在本函数内有效。
+})();
+</pre>
+  <p>使用 execute 方法可以达到相同目的，除此之外还有以下好处：</p>
+  <p>函数 codeBlock 的第一个参数将被传入 document.$，因此可以通过在该函数的形参中写上一个 $，以便在函数内直接使用 $ 而不必担心与其他脚本库的 $ 冲突：</p>
 <pre>
 execute(function(<strong>$</strong>) {
   <strong>$</strong>('#container').addClass('selected');
+  // 在包含代码块的匿名函数使用 $ 代替 document.$，以便简化内部代码。
 });
 </pre>
+  <p>可选参数 waitingForDomReady 可以控制包含代码块的匿名函数的执行时机：</p>
 <pre>
 execute(function(<strong>$</strong>) {
   <strong>$</strong>('#test').prepend(<strong>$</strong>('&lt;span class="icon"&gt;&lt;/span&gt;'));
 }, <strong>true</strong>);
+// 包含代码块的匿名函数将在 DOM 树解析完成后执行。
 </pre>
-  <p>事实上，OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是使用 OurJS 编写的代码最有特色的地方之一。</p>
-  <p class="comment">最初设计这个方法的目的是为了在能使用 $ 这个变量名的同时避免与其他使用这个变量名的库冲突。</p>
+  <p>OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是 OurJS 的特色之一。</p>
 
   <h2>模块和应用</h2>
-  <p>...</p>
+  <p>“模块”和“应用”是面对复杂的项目时应该使用的策略。在 OurJS 中对它们的定义如下：</p>
+  <p>
+    “模块”即可分离的业务逻辑，将整个项目中相对独立的部分编写为一个模块以实现解耦。<br>
+    各模块之间相互不依赖，也不能通信。这种隔离的设计有利于各模块的独立开发和测试，同时也可以减少项目变更时某一部分代码的修改对其他部分造成的影响。
+  </p>
+  <p>“应用”是连接各“模块”的桥梁。“模块”只能与“应用”通信，反之亦然。可以同时存在多个“应用”，但需要注意在“应用”的代码中仅应处理各“模块”的信息，而不应该有其他业务逻辑。</p>
+  <p>关于“模块”和“应用”的例子，可以参考 ……</p>
 
 </div>
 </body>
