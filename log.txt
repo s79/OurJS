@@ -2,7 +2,11 @@
 >TODO IE9- window 的事件代理有兼容性问题，mouseenter/mouseleave 也不能在 window/document 上使用。
 
 >2012-07-23
-Validator
++Validator
+getPrevious -> getPreviousSibling
+getNext -> getNextSibling
+getFirst -> getFirstChild
+getLast -> getLastChild
 
 >2012-07-19
 Component 修改，使其像最初版本一样，能自动处理选项。

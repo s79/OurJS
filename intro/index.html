@@ -97,8 +97,8 @@ code strong { border: 1px solid #9acd32; background: #f8fff8; font-weight: norma
           <p class="comment">IE6 IE7 IE8 的事件模型与其他浏览器的不同，但现在可以通过 element.on/off/fire 方法实在各浏览器通用的事件处理函数的绑定/解除绑定/触发了。</p>
         </li>
         <li>
-          <p><code>var nextElement = element.<strong>getNext</strong>();</code></p>
-          <p class="comment">要获取一个元素的下一个相邻元素，在 Element Traversal Specification 中推荐的、指定获取元素类型节点的 nextElementSibling 属性仅在较新的浏览器中才支持，在 IE6 IE7 IE8 中只能通过该元素的 nextSibling 属性获取，不过这需要进一步判断，因为得到的可能是一个文本节点，但现在可以在所有浏览器上通过调用元素的 getNext 方法而达到相同的目的了。</p>
+          <p><code>var nextElement = element.<strong>getNextSibling</strong>();</code></p>
+          <p class="comment">要获取一个元素的下一个相邻元素，在 Element Traversal Specification 中推荐的、指定获取元素类型节点的 nextElementSibling 属性仅在较新的浏览器中才支持，在 IE6 IE7 IE8 中只能通过该元素的 nextSibling 属性获取，不过这需要进一步判断，因为得到的可能是一个文本节点，但现在可以在所有浏览器上通过调用元素的 getNextSibling 方法而达到相同的目的了。</p>
         </li>
         <li>
           <p><code>element.<strong>addClass</strong>('active').<strong>putBefore</strong>(anotherElement);</code></p>

@@ -18,16 +18,14 @@ execute(function($) {
    * @param {Object} rules 验证规则，格式为 {fieldName: rule, ...}。
    *   其中 fieldName 为要验证的表单域的名称，即表单内对应的 INPUT/SELECT/TEXTAREA 元素的 name 属性值。
    *   rule 是一个对象，其<strong>可选的</strong>各个属性的要求和含义如下：
-   *   {string} triggerEvent 触发本表单域的验证行为的事件名。
    *   {boolean} required 是否必填（必选）。
    *   {string} equals 指定该表单域的值应与哪个表单域的值一致，应指定一个本表单内的表单域的名称。
-   *   {number} minLength 限定最大长度。
-   *   {number} maxLength 限定最小长度。
-   *   {number} minItem 限定最少选择项（仅应在该表单域存在多个元素时使用）。
-   *   {number} maxItem 限定最多选择项（仅应在该表单域存在多个元素时使用）。
+   *   {number} minLength 当前表单域是一个文本控件时，限定输入文本的最小长度，否则限定选择项的最少数目。
+   *   {number} maxLength 当前表单域是一个文本控件时，限定输入文本的最大长度，否则限定选择项的最多数目。
    *   {Function} handler 用来对该表单域的值进行验证的函数，该函数被调用时 this 的值为对应的表单域元素或包含所有对应元素的数组。
    *   {Object} serverSide 包含两个属性：url 和 options，详细内容请参考 Request 组件。服务端应返回 'true' 或 'false'，如果条件不允许，请考虑使用 options.responseParser 对服务端响应数据进行处理。
-   *   {Function} onFocus 当该表单域对应的元素获得焦点时执行的回调。该函数被调用时传入该表单域的名称，其 this 值为该表单域。
+   *   {string} triggerEvent 触发本表单域的验证行为的事件名。
+   *   {Function} onFocus 当该表单域对应的元素获得焦点时执行的回调。该函数被调用时传入该表单域的名称，其 this 值为该表单域。建议仅在当前表单域是一个文本控件时启用。
    *   {Function} onSuccess 该表单域验证成功后的回调。该函数被调用时传入该表单域的名称，其 this 值为该表单域。
    *   {Function} onFailure 该表单域验证失败后的回调。该函数被调用时传入该表单域的名称，其 this 值为该表单域。
    *   实际进行验证的步骤与上述各验证规则（除三个回调除外的其余属性）的出现顺序是一致的，即先进行本地验证，最后进行服务端验证（如果有）。
@@ -77,37 +75,35 @@ execute(function($) {
   };
 
 //--------------------------------------------------[Validator.prototype.validate]
-  // 获取一个表单域的值。当这个表单域是一个多选下拉菜单，或者包含多个元素时，返回值（数组）的长度可能大于 1。
-  var getValues = function(field) {
-    var values = [];
+  // 获取一个表单域的值。当这个表单域是一个文本控件时，返回字符串结果（文本/密码框、隐藏域、多行文本输入控件），否则返回数组结果（下拉菜单、单/复选框或者表单域包含多个元素的情况）。
+  var getValue = function(field) {
+    var value = [];
     if (field.nodeType) {
       switch (field.type) {
         case 'select-one':
         case 'select-multiple':
           Array.from(field.options).forEach(function($option) {
             if ($option.selected) {
-              values.push($option.value);
+              value.push($option.value);
             }
           });
           break;
         case 'radio':
         case 'checkbox':
           if (field.checked) {
-            values.push(field.value);
+            value.push(field.value);
           }
           break;
         default:
-          if (field.value) {
-            values.push(field.value);
-          }
+          value = field.value;
           break;
       }
     } else {
       field.forEach(function(field) {
-        values = values.concat(getValues(field));
+        value = value.concat(getValue(field));
       });
     }
-    return values;
+    return value;
   };
 
   /**
@@ -123,13 +119,43 @@ execute(function($) {
 
     if (fieldName) {
       var field = validator.fields[fieldName];
-      var rule = validator.rules[fieldName];
       // 获得值。
-      var value = getValues(field);
+      var value = getValue(field);
       console.warn(fieldName, value);
+      var rules = validator.rules[fieldName];
+      if (rules.required) {
+        if (value.length === 0) {
+          result = false && result;
+        }
+      }
+      if (rules.equals) {
+        if (value !== getValue(validator.fields[rules.equals])) {
+          result = false && result;
+        }
+      }
+      if (rules.minLength) {
+        result = value.length >= rules.minLength && result;
+      }
+      if (rules.maxLength) {
+        result = value.length <= rules.maxLength && result;
+      }
+      if (rules.handler) {
+        result = rules.handler(value) && result;
+      }
+
+      if (result) {
+        if (rules.onSuccess) {
+          rules.onSuccess(fieldName);
+        }
+      } else {
+        if (rules.onFailure) {
+          rules.onFailure(fieldName);
+        }
+      }
+
     } else {
       Object.forEach(validator.rules, function(rule, fieldName) {
-        result = result && validator.validate(fieldName);
+        result = validator.validate(fieldName) && result;
       });
     }
 

@@ -32,7 +32,7 @@ execute(function($) {
 
     // 创建 DOM 结构。
     var $calendar = $('<div class="' + (className || 'calendar') + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>-</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
-    var $controlPanel = $calendar.getFirst();
+    var $controlPanel = $calendar.getFirstChild();
     var controls = $controlPanel.find('*');
     var $prevYear = controls[0];
     var $prevMonth = controls[1];
@@ -40,8 +40,8 @@ execute(function($) {
     var $month = controls[4];
     var $nextMonth = controls[5];
     var $nextYear = controls[6];
-    var $thead = $controlPanel.getNext().getFirst();
-    var $tbody = $thead.getNext();
+    var $thead = $controlPanel.getNextSibling().getFirstChild();
+    var $tbody = $thead.getNextSibling();
     // 创建月历头。
     var tr = $thead.insertRow(-1);
     for (var cell = 0; cell < 7; cell++) {

@@ -179,7 +179,7 @@
    *
    * 为达到“简单轻便”、“化繁为简”的目标，这里使用第三种实现方式，以使 API 有最好的一致性和最自然语法。
    * 为保持简单，不予提供跨 frame 的操作。实际上跨 frame 操作并不常见，通常也不建议这样做。必须这样做时，应在 frame 内也引入本脚本库，两侧通过事件通信。
-   * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 find、getNext 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
+   * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 find、getNextSibling 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
    */
 
   /**
@@ -869,10 +869,10 @@
    *
    * 扩展方法：
    *   Element.prototype.getParent
-   *   Element.prototype.getPrevious
-   *   Element.prototype.getNext
-   *   Element.prototype.getFirst
-   *   Element.prototype.getLast
+   *   Element.prototype.getPreviousSibling
+   *   Element.prototype.getNextSibling
+   *   Element.prototype.getFirstChild
+   *   Element.prototype.getLastChild
    *   Element.prototype.getChildren
    *   Element.prototype.getChildCount
    *
@@ -900,14 +900,14 @@
     return $(element);
   };
 
-//--------------------------------------------------[Element.prototype.getPrevious]
+//--------------------------------------------------[Element.prototype.getPreviousSibling]
   /**
    * 获取与本元素相邻的上一个元素。
-   * @name Element.prototype.getPrevious
+   * @name Element.prototype.getPreviousSibling
    * @function
    * @returns {Element} 与本元素相邻的上一个元素。
    */
-  Element.prototype.getPrevious = 'previousElementSibling' in html ? function() {
+  Element.prototype.getPreviousSibling = 'previousElementSibling' in html ? function() {
     return $(this.previousElementSibling);
   } : function() {
     var element = this;
@@ -916,14 +916,14 @@
     return $(element);
   };
 
-//--------------------------------------------------[Element.prototype.getNext]
+//--------------------------------------------------[Element.prototype.getNextSibling]
   /**
    * 获取与本元素相邻的下一个元素。
-   * @name Element.prototype.getNext
+   * @name Element.prototype.getNextSibling
    * @function
    * @returns {Element} 与本元素相邻的下一个元素。
    */
-  Element.prototype.getNext = 'nextElementSibling' in html ? function() {
+  Element.prototype.getNextSibling = 'nextElementSibling' in html ? function() {
     return $(this.nextElementSibling);
   } : function() {
     var element = this;
@@ -932,14 +932,14 @@
     return $(element);
   };
 
-//--------------------------------------------------[Element.prototype.getFirst]
+//--------------------------------------------------[Element.prototype.getFirstChild]
   /**
    * 获取本元素的第一个子元素。
-   * @name Element.prototype.getFirst
+   * @name Element.prototype.getFirstChild
    * @function
    * @returns {Element} 本元素的第一个子元素。
    */
-  Element.prototype.getFirst = 'firstElementChild' in html ? function() {
+  Element.prototype.getFirstChild = 'firstElementChild' in html ? function() {
     return $(this.firstElementChild);
   } : function() {
     var element = this.firstChild;
@@ -948,14 +948,14 @@
     return $(element);
   };
 
-//--------------------------------------------------[Element.prototype.getLast]
+//--------------------------------------------------[Element.prototype.getLastChild]
   /**
    * 获取本元素的最后一个子元素。
-   * @name Element.prototype.getLast
+   * @name Element.prototype.getLastChild
    * @function
    * @returns {Element} 本元素的最后一个子元素。
    */
-  Element.prototype.getLast = 'lastElementChild' in html ? function() {
+  Element.prototype.getLastChild = 'lastElementChild' in html ? function() {
     return $(this.lastElementChild);
   } : function() {
     var element = this.lastChild;
@@ -973,10 +973,10 @@
    */
   Element.prototype.getChildren = function() {
     var children = [];
-    var $element = this.getFirst();
+    var $element = this.getFirstChild();
     while ($element) {
       children.push($element);
-      $element = $element.getNext();
+      $element = $element.getNextSibling();
     }
     return children;
   };
