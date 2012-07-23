@@ -18,7 +18,10 @@ colgroup？
 
 >TODO: [LOW] Dialog -> Popup，Mask 没有独立存在的必要，但 Popup 可以选择是否带有 Mask。
 
->TODO: [LOW] fadeIn/fadeOut 逻辑合并；animation.stop 方法缺少恢复初始状态的功能（考虑到通过事件添加的非线性变换，此功能难以实现，暂建议在 playstart 事件发生时手动处理）。
+/*
+TODO: [LOW] fadeIn/fadeOut 逻辑合并；animation.stop 方法缺少恢复初始状态的功能（考虑到通过事件添加的非线性变换，此功能难以实现，暂建议在 playstart 事件发生时手动处理）。
+DONE: 已实现。
+*/
 
 /*
 TODO: 绑定事件时增加 :once 特性。

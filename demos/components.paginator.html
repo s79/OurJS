@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Paginator</title>
-<link rel="stylesheet" href="../docs/stylesheets/framework.css">
+<link rel="stylesheet" href="../stylesheets/framework.css">
 <script src="../dev.js"></script>
 <script src="../src/components/paginator.js"></script>
 <style>
@@ -34,7 +34,6 @@
     </div>
   </fieldset>
   <script>
-  var p;
   execute(function($) {
 //--------------------------------------------------[paginator]
     var $paginator = $('#paginator');
@@ -44,7 +43,7 @@
     var pageSize = 10;
     var totalPage = Math.ceil(totalRows / pageSize);
     var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 1, 1, totalPage);
-    p = new Paginator({
+    window.paginator = new Paginator({
       prev: controls[0],
       next: controls[1],
       pages: $pages

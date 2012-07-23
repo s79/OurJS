@@ -294,5 +294,10 @@ var manifest = {
     'Calendar.options',
     'Calendar.prototype.getElement',
     'Calendar.prototype.render'
+  ],
+  'Validator': [
+    'Validator',
+    'Validator.options',
+    'Validator.prototype.validate'
   ]
 };

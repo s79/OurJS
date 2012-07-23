@@ -84,9 +84,15 @@ execute(function($) {
 
     // 绑定激活标签页的事件。
     var $tabSample = tabs.getFirst();
+    var $tabContainer = $tabSample;
+    tabs.forEach(function($tab) {
+      while (!$tabContainer.contains($tab)) {
+        $tabContainer = $tabContainer.getParent();
+      }
+    });
     var delegate = ':relay(' + $tabSample.nodeName.toLowerCase() + ')';
     var timer;
-    $tabSample.getParent()
+    $tabContainer
         .on('click.tabPanel' + delegate, function() {
           if (tabs.contains(this)) {
             switcher.active(this);

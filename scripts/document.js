@@ -246,7 +246,8 @@ execute(function($) {
         'Slideshow',
         'Dialog',
         'Paginator',
-        'Calendar'
+        'Calendar',
+        'Validator'
       ]
           .forEach(function(name) {
             buildDocument(name, 'c');

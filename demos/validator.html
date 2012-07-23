@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Validator</title>
+<link rel="stylesheet" href="../stylesheets/framework.css">
+<script src="../dev.js"></script>
+<script src="../src/components/validator.js"></script>
+<style>
+
+</style>
+</head>
+<body>
+<div id="content">
+  <h1>Validator</h1>
+  <fieldset>
+    <legend>表单验证</legend>
+    <form id="form" action="http://www.lianzhong.com/" method="get">
+      <table>
+        <tr>
+          <td>姓名：</td>
+          <td><input name="name" type="text" value=""/></td>
+          <td>xxx</td>
+        </tr>
+        <tr>
+          <td>信箱：</td>
+          <td><input name="email" type="text"/></td>
+          <td>xxx</td>
+        </tr>
+        <tr>
+          <td>年龄：</td>
+          <td><input name="age" type="text" value="28周岁"/></td>
+          <td>xxx</td>
+        </tr>
+        <tr>
+          <td>密码：</td>
+          <td><input name="password" type="password"/></td>
+          <td>xxx</td>
+        </tr>
+        <tr>
+          <td>操作系统：</td>
+          <td>
+            <select name="os" size="3" multiple="multiple">
+              <option value="">选择您所用的操作系统</option>
+              <option value="Win98">Win98</option>
+              <option value="Win2k">Win2k</option>
+              <option value="WinXP">WinXP</option>
+            </select>
+          </td>
+          <td>xxx</td>
+        </tr>
+        <tr>
+          <td>所在省份：</td>
+          <td>
+            <input name="where" value="广东" type="radio"/>广东<input name="where" value="陕西" type="radio"/>陕西<input name="where" value="浙江" type="radio"/>浙江<input name="where" value="江西" type="radio"/>江西<br/>
+            <input name="where" value="运动" type="checkbox"/>运动<input name="where" value="上网" type="checkbox"/>上网<input name="where" value="听音乐" type="checkbox"/>听音乐<input name="where" value="看书" type="checkbox"/>看书<br/>
+            <input name="where" type="text"/>
+          </td>
+          <td>xxx</td>
+        </tr>
+        <tr>
+          <td>爱好：</td>
+          <td><input name="favorite" value="运动" type="checkbox"/>运动<input name="favorite" value="上网" type="checkbox"/>上网<input name="favorite" value="听音乐" type="checkbox"/>听音乐<input name="favorite" value="看书" type="checkbox"/>看书</td>
+          <td>xxx</td>
+        </tr>
+        <tr>
+          <td>自我介绍：</td>
+          <td><textarea name="description" rows="5" cols="25">全自动Ajax表单Powered by KongLong</textarea></td>
+          <td>xxx</td>
+        </tr>
+        <tr>
+          <td colspan="3"><input type="submit" value="确定提交"/></td>
+        </tr>
+      </table>
+    </form>
+  </fieldset>
+  <script>
+  execute(function($) {
+//--------------------------------------------------[validator]
+    window.validator = new Validator($('#form'), {
+      age: {
+        required: true
+      },
+      where: {
+        required: true
+      },
+      os: {
+        required: true
+      },
+      description: {
+        required: true
+      }
+    });
+
+    window.validator.validate();
+  });
+  </script>
+</div>
+</body>
+</html>

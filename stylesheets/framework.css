@@ -47,7 +47,6 @@ h3 { margin: 20px 0 10px; font-size: 16px; }
 h4,
 h5,
 h6 { margin: 10px 0 5px; font-size: 14px; }
-h2.heading { padding-left: 20px; border-bottom: 1px solid #898989; background: url(../images/heading.gif) no-repeat left center; }
 
 /* 列表 */
 ul,
@@ -113,8 +112,6 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 
 /* 内容 */
 div#content { width: 960px; min-height: 600px; margin: auto auto 42px; padding: 70px 20px 100px; overflow: hidden; color: #333; font-size: 14px; -height: 600px; -overflow: visible; }
-div#content.loaded { }
-#content .include_error { height: 500px; padding-top: 200px; color: crimson; font-weight: bold; font-size: 14px; text-align: center; }
 
 /* 页脚 */
 #footer { clear: both; min-width: 1000px; margin-top: -42px; padding: 10px 0; border-top: 1px solid gainsboro; overflow: hidden; background: #F3F3F3; color: #666; text-align: center; }
