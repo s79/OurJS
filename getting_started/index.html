@@ -87,10 +87,13 @@ var username = localStorage.getItem('username');
   </blockquote>
 
   <h2>获取、创建和处理 DOM 对象</h2>
-  <p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>、<strong>元素</strong>和<strong>事件</strong>四种类型。</p>
+  <p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>、<strong>元素</strong>和<strong>事件</strong>四种类型<sup>1</sup>。</p>
   <p>其中窗口和文档对象也是特殊的浏览器内置对象，和其他浏览器内置对象一样，它们在页面中也是唯一的实例，可以直接获取（即 window 和 document）而不能被创建。如果页面中有通过 frame 嵌入的另一个页面，那么这个被嵌入的页面有其自己的窗口和文档对象。</p>
   <p>元素对象会有多个实例，它们通常是以 DOM 树中的一个节点的形式存在，可以创建新的元素对象，也可以对它们进行多种形式的修改或删除。</p>
   <p>事件对象是在窗口、文档和元素对象发生事件时被自动创建的，它们会以参数的形式被传入对应的监听器，并可以在这个监听器中进行后续处理。</p>
+  <ol class="comment">
+    <li>OurJS 并没有针对除元素外的其他节点类型进行扩展，当必须处理这些类型时，使用原生 DOM 方法即可。</li>
+  </ol>
   <blockquote>
     <p>关于这些 DOM 相关 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的中间列的内容。</p>
   </blockquote>

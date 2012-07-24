@@ -13,7 +13,7 @@ col.value { width: 220px; }
 th { text-align: right; }
 th.submit { text-align: center; }
 textarea { resize: none; }
-
+span { display: inline-block; padding: 3px 5px; border-radius: 3px; font-size: 12px; line-height: 1; }
 span.success { border: 1px solid #D6E9C6; background: #DFF0D8; color: #468847; }
 span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
 </style>
@@ -71,12 +71,14 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
           <tr>
             <th>玩过的游戏：</th>
             <td>
-              <select name="games" size="5" multiple>
+              <select name="games" size="6" multiple>
                 <option value="pal">仙剑奇侠传</option>
-                <option value="sc">星际争霸</option>
-                <option value="wow">魔兽世界</option>
-                <option value="doom">毁灭战士</option>
-                <option value="quake">雷神之锤</option>
+                <option value="sc" selected>星际争霸</option>
+                <option value="wow" selected disabled>魔兽世界</option>
+                <optgroup label="id Software" disabled>
+                  <option value="doom" selected>毁灭战士</option>
+                  <option value="quake" selected>雷神之锤</option>
+                </optgroup>
               </select>
             </td>
             <td><span id="msg_games"></span></td>
@@ -94,20 +96,20 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
           <tr>
             <th>所在省份：</th>
             <td>
-              <input name="from" value="广东" type="radio">广东
+              <input name="from" value="广东" type="radio" checked disabled>广东
               <input name="from" value="湖南" type="radio">湖南
-              <input name="from" value="浙江" type="radio">浙江
+              <input name="from" value="浙江" type="radio" checked>浙江
               <input name="from" value="江苏" type="radio">江苏<br>
-              <input name="from" value="黑龙江" type="checkbox">黑龙江
-              <input name="from" value="吉林" type="checkbox">吉林
+              <input name="from" value="黑龙江" type="checkbox" checked disabled>黑龙江
+              <input name="from" value="吉林" type="checkbox" checked>吉林
               <input name="from" value="辽宁" type="checkbox">辽宁<br>
-              <input name="from" type="text">
+              <input name="from" type="text" value="地球" disabled>
             </td>
             <td><span id="msg_from"></span></td>
           </tr>
           <tr>
             <th>自我介绍：</th>
-            <td><textarea name="description" rows="5" cols="25"></textarea></td>
+            <td><textarea name="description" rows="5" cols="25" disabled>普通玩家</textarea></td>
             <td><span id="msg_description"></span></td>
           </tr>
           <tr>
@@ -121,6 +123,16 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
   </fieldset>
   <script>
   execute(function($) {
+    var $form = $('#form');
+    console.log($form.getFieldValue('age'));
+    console.log($form.getFieldValue('os'));
+    console.log($form.getFieldValue('games'));
+    console.log($form.getFieldValue('language'));
+    console.log($form.getFieldValue('from'));
+    console.log($form.getFieldValue('description'));
+
+    return;
+
     var success = function(fieldName) {
       var $msg = $('#msg_' + fieldName);
       $msg.className = 'success';

@@ -141,9 +141,9 @@
     });
   }
 
-//==================================================[Element 的浏览器差异处理]
+//==================================================[DOM 扩展 - 原型]
   /*
-   * 仅为 Element 扩展新特性，而不是所有的 Node 类型。
+   * 仅为元素扩展新特性，而不是所有的节点类型。
    *
    * 提供屏蔽浏览器差异的，针对元素操作的方法有以下三种方案：
    * 一、静态方法
@@ -182,21 +182,18 @@
    * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 find、getNextSibling 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
    */
 
+//--------------------------------------------------[Element.prototype]
   /**
    * 为无 Element 构造函数的浏览器创建 Element 对象，以确保在各浏览器中都可以通过 Element.prototype 为元素扩展新特性。
    * @name Element
    * @class
    */
 
-//--------------------------------------------------[Element.prototype]
   /**
    * 可以通过扩展本对象来为页面中的所有元素扩展新特性。
    * @name prototype
    * @memberOf Element
    * @type Object
-   * @description
-   *   注意：
-   *   受 IE6 IE7 实现方式的限制，扩展新特性应在获取元素之前进行，否则已获取的元素将无法访问新扩展的特性。
    * @example
    *   Element.prototype.getNodeName = function() {
    *     return this.nodeName;
@@ -204,17 +201,39 @@
    *   $(document.head).getNodeName();
    *   // HEAD
    */
-  var elementPrototype;
   if (!window.Element) {
-    window.Element = {
-      prototype: {}
-    };
-    elementPrototype = Element.prototype;
+    window.Element = {prototype: {}};
   }
 
+//--------------------------------------------------[HTMLFormElement.prototype]
+  /**
+   * 为无 HTMLFormElement 构造函数的浏览器创建 HTMLFormElement 对象，以确保在各浏览器中都可以通过 HTMLFormElement.prototype 为表单元素扩展新特性。
+   * @name HTMLFormElement
+   * @class
+   */
+
+  /**
+   * 可以通过扩展本对象来为页面中的所有表单元素扩展新特性。
+   * @name prototype
+   * @memberOf HTMLFormElement
+   * @type Object
+   * @example
+   *   HTMLFormElement.prototype.disableSubmit = function() {
+   *     return this.on('submit', function() {
+   *       return false;
+   *     });
+   *   };
+   */
+  if (!window.HTMLFormElement) {
+    window.HTMLFormElement = {prototype: {}};
+  }
+
+//==================================================[DOM 扩展 - 扩展新特性]
 //--------------------------------------------------[$ <内部方法>]
   // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值也可用于反向查找该元素的 key。
   var uid = 0;
+  var prototypeOfElement = Element.prototype;
+  var prototypeOfHTMLFormElement = HTMLFormElement.prototype;
 
   /**
    * 为一个元素扩展新特性，对于无 Element 构造函数的浏览器 (IE6 IE7) 将在该元素上直接附加这些新特性。
@@ -227,13 +246,21 @@
    *   注意：
    *   不能获取并扩展其他页面的 DOM 元素！
    */
-  var $ = elementPrototype ? function(element) {
+  var $ = navigator.isIElt8 ? function(element) {
     if (element && !element.uid) {
       element.uid = ++uid;
-      // Object.append(element, elementPrototype);
+      // Object.append(element, prototypeOfElement);
       // 使用以下方式附加新属性以降低开销。此处不必判断 hasOwnProperty，也无需考虑 hasDontEnumBug 的问题。
-      for (var key in elementPrototype) {
-        element[key] = elementPrototype[key];
+      var property;
+      for (property in prototypeOfElement) {
+        element[property] = prototypeOfElement[property];
+      }
+      switch (element.nodeName.toLowerCase()) {
+        case 'form':
+          for (property in prototypeOfHTMLFormElement) {
+            element[property] = prototypeOfHTMLFormElement[property];
+          }
+          break;
       }
     }
     return element;
@@ -2025,6 +2052,92 @@
       $element = $element === document ? window : $element.getParent() || $element === html && document || null;
     }
     return this;
+  };
+
+//==================================================[HTMLFormElement 扩展]
+  /*
+   * 为表单元素扩展新特性。
+   *
+   * 扩展方法：
+   *   HTMLFormElement.prototype.getFieldValue
+   *   HTMLFormElement.prototype.serialize
+   *   HTMLFormElement.prototype.setValidationRules
+   */
+
+  // 获得一个或一组控件的当前值，虽然 IE6 IE7 不支持 option 和 optgroup 元素的 disabled 属性，但使用本方法可以识别出这些情况。
+  var getCurrentValue = function(control) {
+    var value = [];
+    if (control.nodeType) {
+      switch (control.type) {
+        case 'select-one':
+        case 'select-multiple':
+          if (!control.disabled) {
+            Array.from(control.options).forEach(function(option) {
+              if (!option.disabled && !option.parentNode.disabled && option.selected) {
+                value.push(option.value);
+              }
+            });
+          }
+          break;
+        case 'radio':
+        case 'checkbox':
+          if (!control.disabled && control.checked) {
+            value.push(control.value);
+          }
+          break;
+        default:
+          value = control.disabled ? '' : control.value;
+          break;
+      }
+    } else {
+      Array.from(control).forEach(function(control) {
+        value = value.concat(getCurrentValue(control));
+      });
+    }
+    return value;
+  };
+
+//--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
+  /**
+   * 获取本表单内某个域的当前值。
+   * @name HTMLFormElement.prototype.getFieldValue
+   * @function
+   * @param {String} name 表单域的名称。
+   * @returns {string|Array} 表单域的当前值。
+   * @description
+   *   当这个表单域是一个文本控件时，返回字符串结果（文本、密码、多行文本输入控件和隐藏控件），否则返回数组结果（下拉选择、单选、复选控件或者此表单域包含多个元素）。
+   */
+  HTMLFormElement.prototype.getFieldValue = function(name) {
+    return getCurrentValue(this.elements[name]);
+  };
+
+//--------------------------------------------------[HTMLFormElement.prototype.setValidationRules]
+  /**
+   * 为本表单设置验证规则。
+   * @name HTMLFormElement.prototype.setValidationRules
+   * @function
+   * @param {Object} fieldRules 要验证的表单域及规则，格式为 {name: rules, ...}。
+   *   其中 name 为要验证的表单域的名称，即本表单元素内对应的 INPUT/SELECT/TEXTAREA 元素的 name 属性值。
+   *   rules 是一个对象，其<strong>可选的</strong>各个属性的要求和含义如下：
+   *   {string} triggerEvent 触发该表单域的验证行为的事件名，如省略则使用 change 事件。
+   *   {boolean} required 必填或必选项应设置为 true，否则应设置为 false 或省略。
+   *   {string} equals 指定该表单域的值应与哪个表单域的值一致，应指定一个本表单内的域的名称。省略为不限制。
+   *   {number} minLength 该表单域仅包含一个文本控件时，限定输入文本的最小长度，否则限定选择项的最少数目。省略为不限制。
+   *   {number} maxLength 该表单域仅包含一个文本控件时，限定输入文本的最大长度，否则限定选择项的最多数目。省略为不限制。
+   *   {Function} handler 用来对该表单域的值进行验证的函数，该函数被调用时传入该表单域的值，其 this 的值为本表单元素。省略为不限制。
+   *   {Object} serverSideVerify 包含两个属性：url 和 options，详细内容请参考 Request 组件。服务端应返回 'true' 或 'false'，如果条件不允许，应使用 options.responseParser 对服务端的响应数据进行处理。
+   *   进行验证的步骤为 required - equals - min/maxLength - handler - serverSideVerify。
+   * @param {Object} options 可选参数。
+   * @param {Function} options.onFocus 当该表单域包含的控件获得焦点时执行的回调。该函数被调用时传入该表单域的名称，其 this 的值为本表单元素。
+   * @param {Function} options.onFieldValidationStart
+   * @param {Function} options.onFieldValidationFinish
+   * @returns {HTMLFormElement} 本表单。
+   * @description
+   *   在要验证的表单被提交时会自动对所有已配置的规则进行验证。
+   */
+  HTMLFormElement.prototype.setValidationRules = function(fieldRules, options) {
+    var $form = this;
+    return $form;
   };
 
 //==================================================[document 扩展]
