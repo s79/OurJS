@@ -5,7 +5,6 @@
 <title>Validator</title>
 <link rel="stylesheet" href="../stylesheets/framework.css">
 <script src="../dev.js"></script>
-<script src="../src/components/validator.js"></script>
 <style>
 table { table-layout: fixed; width: 600px; }
 col.key { width: 100px; }
@@ -124,46 +123,28 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
   <script>
   execute(function($) {
     var $form = $('#form');
-    console.log($form.getFieldValue('age'));
-    console.log($form.getFieldValue('os'));
-    console.log($form.getFieldValue('games'));
-    console.log($form.getFieldValue('language'));
-    console.log($form.getFieldValue('from'));
-    console.log($form.getFieldValue('description'));
 
-    return;
+//    console.log($form.getFieldValue('age'));
+//    console.log($form.getFieldValue('os'));
+//    console.log($form.getFieldValue('games'));
+//    console.log($form.getFieldValue('language'));
+//    console.log($form.getFieldValue('from'));
+//    console.log($form.getFieldValue('description'));
 
-    var success = function(fieldName) {
-      var $msg = $('#msg_' + fieldName);
-      $msg.className = 'success';
-      $msg.innerHTML = 'V';
-    };
-    var failure = function(fieldName) {
-      var $msg = $('#msg_' + fieldName);
-      $msg.className = 'failure';
-      $msg.innerHTML = 'X';
-    };
-
-//--------------------------------------------------[validator]
-    window.validator = new Validator($('#form'), {
+    $form.setValidationRules({
       password: {
-        required: true,
-        onSuccess: success,
-        onFailure: failure
+        required: true
       },
       'password_confirm': {
+        triggerEventType: 'input',
         required: true,
-        equals: 'password',
-        onSuccess: success,
-        onFailure: failure
+        equals: 'password'
       },
       age: {
         required: true,
         handler: function(value) {
           return parseInt(value, 10) + '' === value && value >= 18 && value <= 80;
-        },
-        onSuccess: success,
-        onFailure: failure
+        }
       },
       from: {
         required: true
@@ -180,13 +161,16 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
       description: {
         required: true,
         minLength: 10,
-        maxLength: 200,
-        onSuccess: success,
-        onFailure: failure
+        maxLength: 200
+      }
+    }, {
+      onFieldValidationFinish: function(name, value, result) {
+        console.log(name, value, result);
+        var $msg = $('#msg_' + name);
+        $msg.className = result ? 'success' : 'failure';
+        $msg.innerHTML = result ? 'V' : 'X';
       }
     });
-
-    window.validator.validate();
   });
   </script>
 </div>

@@ -89,7 +89,7 @@
             type = 'function';
           } else {
             // 使用特性判断。
-            if ('nodeType' in value && 'nodeName' in value) {
+            if ('nodeType' in value) {
               type = 'object.Node';
             } else if (typeof value.length == 'number') {
               if ('navigator' in value) {

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><!-- comment -->
 <meta charset="utf-8">
 <title>lang-typeOf</title>
 <script src="../dev.js"></script>
@@ -66,7 +66,8 @@ var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Micr
   ['0', 0, 'number'],
   ['string', 'string', 'string'],
 
-  ['function() {}', function() {}, 'function'],
+  ['function() {}', function() {
+  }, 'function'],
   ['alert', alert, 'function'],
   ['XHR', XHR, 'function'],
   ['xhr', xhr, 'object.Object'],
@@ -81,29 +82,33 @@ var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Micr
   ['new SyntaxError()', new SyntaxError(), 'object.Error'],
   ['Math', Math, 'object.Math'],
   ['JSON', JSON, 'object.JSON'],
-  ['(function() {return arguments;})()', (function() {return arguments;})(), 'object.Arguments'],
+  ['(function() {return arguments;})()', (function() {
+    return arguments;
+  })(), 'object.Arguments'],
 
   ['window', window, 'object.Global'],
   ['document.getElementsByTagName(\'form\')[0]', document.getElementsByTagName('form')[0], 'object.Node'],
+  ['document.getElementsByTagName(\'th\')[0].firstChild', document.getElementsByTagName('th')[0].firstChild, 'object.Node'],
   ['document.head', document.head, 'object.Node'],
+  ['document.head.firstChild', document.head.firstChild, 'object.Node'],
   ['document.head.children', document.head.children, 'object.Collection'],
   ['{}', {}, 'object.Object']
 ].forEach(function(item) {
-  showResult(
-      item[0],
-      item[1] + '',
-      (function() {
-        try {
-          return Object.prototype.toString.call(item[1]);
-        } catch (e) {
-          return '';
-        }
-      })(),
-      typeof item[1],
-      item[2],
-      typeOf(item[1])
-  );
-});
+      showResult(
+          item[0],
+          item[1] + '',
+          (function() {
+            try {
+              return Object.prototype.toString.call(item[1]);
+            } catch (e) {
+              return '';
+            }
+          })(),
+          typeof item[1],
+          item[2],
+          typeOf(item[1])
+      );
+    });
 </script>
 </body>
 </html>
