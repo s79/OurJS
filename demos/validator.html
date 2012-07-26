@@ -5,6 +5,7 @@
 <title>Validator</title>
 <link rel="stylesheet" href="../stylesheets/framework.css">
 <script src="../dev.js"></script>
+<script src="../src/components/validator.js"></script>
 <style>
 table { table-layout: fixed; width: 600px; }
 col.key { width: 100px; }
@@ -122,7 +123,9 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
   </fieldset>
   <script>
   execute(function($) {
-    var $form = $('#form');
+    var $form = $('#form').on('submit', function() {
+      return false;
+    });
 
 //    console.log($form.getFieldValue('age'));
 //    console.log($form.getFieldValue('os'));
@@ -131,12 +134,27 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
 //    console.log($form.getFieldValue('from'));
 //    console.log($form.getFieldValue('description'));
 
-    $form.setValidationRules({
+    window.v = new Validator($form, {
+      name: {
+        required: true,
+        serverSideVerify: {
+          url: 'validator.asp',
+          options: {
+            useCache: false,
+            requestParser: function(data) {
+              return 'value=' + data;
+            },
+            responseParser: function(data) {
+              return {result: data.text === 'true'};
+            }
+          }
+        }
+      },
       password: {
         required: true
       },
       'password_confirm': {
-        triggerEventType: 'input',
+//        triggerEventType: 'input',
         required: true,
         equals: 'password'
       },
@@ -163,14 +181,20 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
         minLength: 10,
         maxLength: 200
       }
-    }, {
-      onFieldValidationFinish: function(name, value, result) {
-        console.log(name, value, result);
-        var $msg = $('#msg_' + name);
-        $msg.className = result ? 'success' : 'failure';
-        $msg.innerHTML = result ? 'V' : 'X';
-      }
-    });
+    })
+        .on('fieldvalidationstart', function(e) {
+          console.log('fieldvalidationstart', e.name, e.value);
+          var $msg = $('#msg_' + e.name);
+          $msg.className = '';
+          $msg.innerHTML = '...';
+        })
+        .
+        on('fieldvalidationfinish', function(e) {
+          console.log('fieldvalidationfinish', e.name, e.value, e.result);
+          var $msg = $('#msg_' + e.name);
+          $msg.className = e.result ? 'success' : 'failure';
+          $msg.innerHTML = e.result ? 'V' : 'X';
+        });
   });
   </script>
 </div>
