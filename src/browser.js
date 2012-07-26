@@ -91,7 +91,7 @@
             // 使用特性判断。
             if ('nodeType' in value) {
               type = 'object.Node';
-            } else if (typeof value.length == 'number') {
+            } else if (typeof value.length === 'number') {
               if ('navigator' in value) {
                 type = 'object.Global';
               } else if ('item' in value) {

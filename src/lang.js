@@ -43,7 +43,7 @@
     if (value == null) {
       throw new TypeError();
     }
-    if (!stringIsIndexable && typeof value == 'string') {
+    if (!stringIsIndexable && typeof value === 'string') {
       return value.split('');
     }
     return Object(value);
@@ -767,18 +767,23 @@
    */
   Array.from = function(arrayish) {
     var result = [];
-    var length;
-    var type = typeOf(arrayish);
-    if (type === 'object.Array') {
-      result = arrayish;
-    } else if (typeof (length = arrayish.length) !== 'number' || type === 'string' || type === 'function' || type === 'object.RegExp' || type === 'object.Global') {
-      result.push(arrayish);
-    } else {
-      var i = 0;
-      while (i < length) {
-        result[i] = arrayish[i];
-        i++;
-      }
+    switch (typeOf(arrayish)) {
+      case 'object.Array':
+        result = arrayish;
+        break;
+      case 'object.Arguments':
+      case 'object.Collection':
+      case 'object.Object':
+        var i = 0;
+        var length = arrayish.length;
+        while (i < length) {
+          result[i] = arrayish[i];
+          i++;
+        }
+        break;
+      default:
+        result.push(arrayish);
+        break;
     }
     return result;
   };

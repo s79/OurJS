@@ -334,12 +334,12 @@ function out(event) {
 }
 
 function enter(event) {
-  showMessage($(this.tagName == 'DIV' ? '#d52' : '#d53'), '|Enter:' + this.tagName);
+  showMessage($(this.tagName === 'DIV' ? '#d52' : '#d53'), '|Enter:' + this.tagName);
   console.log(event.type);
 }
 
 function leave(event) {
-  showMessage($(this.tagName == 'DIV' ? '#d52' : '#d53'), '|Leave:' + this.tagName);
+  showMessage($(this.tagName === 'DIV' ? '#d52' : '#d53'), '|Leave:' + this.tagName);
   console.log(event.type);
 }
 

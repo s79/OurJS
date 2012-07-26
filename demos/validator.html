@@ -13,9 +13,21 @@ col.value { width: 220px; }
 th { text-align: right; }
 th.submit { text-align: center; }
 textarea { resize: none; }
-span { display: inline-block; padding: 3px 5px; border-radius: 3px; font-size: 12px; line-height: 1; }
-span.success { border: 1px solid #D6E9C6; background: #DFF0D8; color: #468847; }
-span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
+p { float: left; margin: 0; padding: 3px 10px; border-radius: 2px; font-size: 12px; line-height: 1; }
+p.validating,
+p.hint { border: 1px solid #BCE8F1; background: #D9EDF7; color: #3A87AD; }
+p.valid { border: 1px solid #D6E9C6; background: #DFF0D8; color: #468847; }
+p.invalid { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
+td p { display: none; }
+td.hint p.hint,
+td.valid p.valid,
+td.validating p.validating,
+td.invalid p.invalid { display: block; }
+td.hint p.valid,
+td.hint p.validating,
+td.hint p.invalid,
+td.validating p.valid,
+td.validating p.invalid { display: none; }
 </style>
 </head>
 <body>
@@ -34,39 +46,64 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
           <tr>
             <th>姓名：</th>
             <td><input name="name" type="text" value=""></td>
-            <td><span id="msg_name"></span></td>
+            <td id="msg_name">
+              <p class="hint">请输入姓名</p>
+              <p class="validating">验证中……</p>
+              <p class="valid">√ 可以使用</p>
+              <p class="invalid">输入 ourjs 即可通过验证</p>
+            </td>
           </tr>
           <tr>
             <th>信箱：</th>
             <td><input name="email" type="text"></td>
-            <td><span id="msg_email"></span></td>
+            <td id="msg_email">
+              <p class="hint"></p>
+              <p class="valid">√</p>
+              <p class="invalid"></p>
+            </td>
           </tr>
           <tr>
             <th>年龄：</th>
             <td><input name="age" type="text" value="28"></td>
-            <td><span id="msg_age"></span></td>
+            <td id="msg_age">
+              <p class="hint">请输入年龄</p>
+              <p class="valid">√</p>
+              <p class="invalid">年龄应在 18 - 80 之间</p>
+            </td>
           </tr>
           <tr>
             <th>密码：</th>
             <td><input name="password" type="password"></td>
-            <td><span id="msg_password"></span></td>
+            <td id="msg_password">
+              <p class="hint">请输入密码</p>
+              <p class="valid">√</p>
+              <p class="invalid">必须输入密码</p>
+            </td>
           </tr>
           <tr>
             <th>重复密码：</th>
             <td><input name="password_confirm" type="password"></td>
-            <td><span id="msg_password_confirm"></span></td>
+            <td id="msg_password_confirm">
+              <p class="hint">请重复输入密码以确保您刚才没有输错</p>
+              <p class="valid">√</p>
+              <p class="invalid">两次输入的密码不一致</p>
+            </td>
           </tr>
           <tr>
             <th>操作系统：</th>
             <td>
               <select name="os">
+                <option value="" selected>请选择</option>
                 <option value="Win98">Win98</option>
                 <option value="WinXP">WinXP</option>
-                <option value="Win7" selected>Win7</option>
+                <option value="Win7">Win7</option>
                 <option value="MacOS">MacOS</option>
               </select>
             </td>
-            <td><span id="msg_os"></span></td>
+            <td id="msg_os">
+              <p class="valid">√</p>
+              <p class="invalid">此为必选项</p>
+            </td>
           </tr>
           <tr>
             <th>玩过的游戏：</th>
@@ -81,7 +118,9 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
                 </optgroup>
               </select>
             </td>
-            <td><span id="msg_games"></span></td>
+            <td id="msg_games">
+              <p class="valid">√</p>
+            </td>
           </tr>
           <tr>
             <th>语言能力：</th>
@@ -91,29 +130,47 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
               <input name="language" value="法语" type="checkbox">法语
               <input name="language" value="日语" type="checkbox">日语
             </td>
-            <td><span id="msg_language"></span></td>
+            <td id="msg_language">
+              <p class="valid">√</p>
+              <p class="invalid">请选择 2 - 3 项</p>
+            </td>
           </tr>
           <tr>
             <th>所在省份：</th>
             <td>
               <input name="from" value="广东" type="radio" checked disabled>广东
               <input name="from" value="湖南" type="radio">湖南
-              <input name="from" value="浙江" type="radio" checked>浙江
+              <input name="from" value="浙江" type="radio">浙江
               <input name="from" value="江苏" type="radio">江苏<br>
               <input name="from" value="黑龙江" type="checkbox" checked disabled>黑龙江
-              <input name="from" value="吉林" type="checkbox" checked>吉林
+              <input name="from" value="吉林" type="checkbox">吉林
               <input name="from" value="辽宁" type="checkbox">辽宁<br>
-              <input name="from" type="text" value="地球" disabled>
+              <select name="from">
+                <option value="">这里也能选</option>
+                <option value="河北">河北</option>
+                <option value="甘肃">甘肃</option>
+                <option value="陕西">陕西</option>
+              </select>
+              <input name="from" type="text" value="">
             </td>
-            <td><span id="msg_from"></span></td>
+            <td id="msg_from">
+              <p class="hint">多类型混合的表单域</p>
+              <p class="valid">√</p>
+              <p class="invalid">必选项（若已选定的控件被禁用则视为无效）</p>
+            </td>
           </tr>
           <tr>
             <th>自我介绍：</th>
-            <td><textarea name="description" rows="5" cols="25" disabled>普通玩家</textarea></td>
-            <td><span id="msg_description"></span></td>
+            <td><textarea name="description" rows="5" cols="25">普通玩家</textarea></td>
+            <td id="msg_description">
+              <p class="hint">请输入自我介绍</p>
+              <p class="valid">√</p>
+              <p class="invalid">自我介绍应限制在 10 - 200 字</p>
+            </td>
           </tr>
           <tr>
             <th colspan="3" class="submit">
+              <button type="reset">复位事件被阻止</button>
               <button type="submit">确定提交</button>
             </th>
           </tr>
@@ -123,9 +180,23 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
   </fieldset>
   <script>
   execute(function($) {
-    var $form = $('#form').on('submit', function() {
-      return false;
-    });
+    var textControls = ['text', 'password', 'textarea'];
+    var $form = $('#form')
+        .on('focusin, focusout', function(e) {
+          var $target = e.target;
+          var name = $target.name;
+          var controlType = name ? $target.type : undefined;
+          if (textControls.contains(controlType)) {
+            $('#msg_' + name)[e.type === 'focusin' ? 'addClass' : 'removeClass']('hint');
+          }
+        })
+        .on('reset', function() {
+          return false;
+        })
+        .on('submit', function() {
+          v.validate();
+          return false;
+        });
 
 //    console.log($form.getFieldValue('age'));
 //    console.log($form.getFieldValue('os'));
@@ -150,50 +221,44 @@ span.failure { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
           }
         }
       },
+      age: {
+        handler: function(value) {
+          return value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 80;
+        }
+      },
       password: {
+        triggerEventType: 'input',
         required: true
       },
       'password_confirm': {
-//        triggerEventType: 'input',
-        required: true,
+        triggerEventType: 'input',
         equals: 'password'
-      },
-      age: {
-        required: true,
-        handler: function(value) {
-          return parseInt(value, 10) + '' === value && value >= 18 && value <= 80;
-        }
-      },
-      from: {
-        required: true
       },
       os: {
         required: true
       },
       games: {
-        required: true
       },
       language: {
+        minLength: 2,
+        maxLength: 3
+      },
+      from: {
         required: true
       },
       description: {
-        required: true,
         minLength: 10,
         maxLength: 200
       }
     })
         .on('fieldvalidationstart', function(e) {
           console.log('fieldvalidationstart', e.name, e.value);
-          var $msg = $('#msg_' + e.name);
-          $msg.className = '';
-          $msg.innerHTML = '...';
+          $('#msg_' + e.name).addClass('validating');
         })
         .
         on('fieldvalidationfinish', function(e) {
           console.log('fieldvalidationfinish', e.name, e.value, e.result);
-          var $msg = $('#msg_' + e.name);
-          $msg.className = e.result ? 'success' : 'failure';
-          $msg.innerHTML = e.result ? 'V' : 'X';
+          $('#msg_' + e.name).removeClass('validating').removeClass('valid').removeClass('invalid').addClass(e.result ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
         });
   });
   </script>

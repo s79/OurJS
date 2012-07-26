@@ -14,6 +14,7 @@ execute(function($) {
     var result = true;
     var $form = validator.element;
     var rules = validator.validationRules[name];
+    var serverSideVerify = rules.serverSideVerify;
     validator.fire('fieldvalidationstart', {name: name, value: value});
     if (rules.required) {
       result = value.length > 0;
@@ -30,8 +31,7 @@ execute(function($) {
     if (result && rules.handler) {
       result = rules.handler.call($form, value);
     }
-    var serverSideVerify = rules.serverSideVerify;
-    if (serverSideVerify) {
+    if (result && serverSideVerify) {
       if (rules.lastRequest) {
         rules.lastRequest.off('finish').abort();
       }
@@ -63,9 +63,6 @@ execute(function($) {
    *   {Function} handler 用来对该表单域的值进行验证的函数，该函数被调用时传入该表单域的值，其 this 的值为本表单元素。省略为不限制。
    *   {Object} serverSideVerify 包含两个属性：url 和 options，详细内容请参考 Request 组件。服务端应返回 'true' 或 'false'，如果条件不允许，应使用 options.responseParser 对服务端的响应数据进行处理。
    *   进行验证的步骤为 required - equals - min/maxLength - handler - serverSideVerify。
-   * @fires controlfocus
-   *   {Element} control 获得焦点的控件。
-   *   要验证的表单域包含的控件获得焦点时触发。
    * @fires fieldvalidationstart
    *   {string} name 本次验证的表单域的名称。
    *   {string|Array} value 本次验证的表单域的值。
@@ -90,9 +87,27 @@ execute(function($) {
     validator.element = $form;
     validator.validationRules = validationRules;
     validator.fieldValues = {};
+    validator.validating = true;  // TODO
+    var test;
+
+    // 保存已通过验证的值。
+    validator
+        .on('fieldvalidationstart', function(e) {
+          delete this.fieldValues[e.name];
+        })
+        .on('fieldvalidationfinish', function(e) {
+          if (e.result) {
+            this.fieldValues[e.name] = e.value;
+          } else {
+            if (!test) {
+//              test = 1;
+              Array.from($form.elements[e.name]).getFirst().focus();
+            }
+          }
+        });
 
     // 绑定事件。
-    Object.forEach(validationRules, function(rules, name, validationRules) {
+    Object.forEach(validationRules, function(rules, name) {
       Array.from($form.elements[name]).forEach(function(control) {
         var $control = $(control);
         var triggerEventType = rules.triggerEventType || 'change';
@@ -125,32 +140,19 @@ execute(function($) {
    */
   Validator.prototype.validate = function() {
     var validator = this;
-    var result = true;
+    var $form = validator.element;
+    var validationRules = validator.validationRules;
+    var fieldValues = validator.fieldValues;
 
-    //      var counter = 0;
-    //      var allValidationIsPassed = true;
-    //      Object.forEach(validationRules, function(rules, name) {
-    //        ++counter;
-    //        onFieldValidationStart();
-    //        validate($form, $form.getFieldValue(name), rules, function(result) {
-    //          --counter;
-    //          allValidationIsPassed = result && allValidationIsPassed;
-    //          if (counter === 0 && allValidationIsPassed) {
-    //            console.log('$form.submit();');
-    //          }
-    //        });
-    //      });
-
-//    Object.forEach(fieldRules, function(rules, name) {
-//      Array.from($form.elements[name]).forEach(function(control) {
-//        $(control).on((rules.triggerEventType || 'change') + '.validation', function() {
-//          var value = $form.getFieldValue(name);
-//          validate($form, value, rules, function(result) {
-//            onFieldValidationFinish.call($form, name, value, result);
-//          });
-//        });
-//      });
-//    });
+//    var counter = 0;
+//    var allValidationIsPassed = true;
+    Object.forEach(validationRules, function(rules, name) {
+//      ++counter;
+      var value = $form.getFieldValue(name);
+      if (rules.equals || value !== fieldValues[name]) {
+        validate(validator, name, value);
+      }
+    });
 
     return validator;
   };

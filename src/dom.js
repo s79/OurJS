@@ -255,8 +255,8 @@
       for (property in prototypeOfElement) {
         element[property] = prototypeOfElement[property];
       }
-      switch (element.nodeName.toLowerCase()) {
-        case 'form':
+      switch (element.nodeName) {
+        case 'FORM':
           for (property in prototypeOfHTMLFormElement) {
             element[property] = prototypeOfHTMLFormElement[property];
           }
@@ -1553,7 +1553,7 @@
       dispatchers: {},
       setup: function($element) {
         $element.currentValue = $element.value;
-        addEventListener(document, 'selectionchange', this.dispatchers[$element.uid] = function(e) {
+        addEventListener(document, 'selectionchange', this.dispatchers[$element.uid] = function() {
           if ($element.currentValue !== $element.value) {
             $element.currentValue = $element.value;
             $element.fire('input');
@@ -1612,7 +1612,7 @@
             return function($target) {
               var tagName = simpleSelector.tagName;
               var className = simpleSelector.className;
-              return (tagName ? $target.nodeName.toLowerCase() === tagName : true) && (className ? $target.hasClass(className) : true);
+              return (tagName ? $target.nodeName === tagName : true) && (className ? $target.hasClass(className) : true);
             };
           } else {
             var elements = $element.find(selector);
@@ -1836,9 +1836,9 @@
           // 但是 IE9 的 INPUT[type=text|password] 和 TEXTAREA 在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。IE8 的 TEXTAREA 也有以上问题，因此需要添加辅助派发器。
           // 通过 keydown，cut 和 blur 事件能解决按键删除和剪切、菜单剪切、拖拽内容出去的问题，但不能解决菜单删除的问题。
           // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次调用监听器。
-          var nodeName = $element.nodeName.toLowerCase();
-          var nodeType = $element.type;
-          if (navigator.isIElt10 && (nodeName === 'textarea' || nodeName === 'input' && (nodeType === 'text' || nodeType === 'password'))) {
+          var nodeName = $element.nodeName;
+          var controlType = $element.type;
+          if (navigator.isIElt10 && (nodeName === 'TEXTAREA' || nodeName === 'INPUT' && (controlType === 'text' || controlType === 'password'))) {
             if (navigator.isIE9) {
               eventHelper.input.setup($element);
               dispatcher = function(e) {
@@ -1846,7 +1846,7 @@
                 dispatchEvent($element, handlers, new Event(e || window.event, type));
               };
               dispatcher.type = 'input';
-            } else if (navigator.isIE8 && nodeName === 'textarea') {
+            } else if (navigator.isIE8 && nodeName === 'TEXTAREA') {
               eventHelper.input.setup($element);
               dispatcher = function(e) {
                 if (e.propertyName === 'value' && $element.currentValue !== $element.value) {
@@ -1869,7 +1869,7 @@
           // TODO: 一些浏览器拖拽内容出去时有不触发事件的问题，目前尚未处理。
           // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
           // 需要添加辅助派发器。
-          if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
+          if (navigator.isIElt9 && $element.nodeName === 'INPUT' && ($element.type === 'checkbox' || $element.type === 'radio')) {
             eventHelper.change.setup($element);
             dispatcher = function(e) {
               var target = e.srcElement;
@@ -1895,9 +1895,9 @@
       handler.selector = selector;
       var match;
       if (match = selector.match(RE_SIMPLE_SELECTOR)) {
-        // 保存简单选择器（tagName 和 className 不可能同时为空）以在执行过滤时使用效率更高的方式。
+        // 保存简单选择器以在执行过滤时使用效率更高的方式。（tagName 必为字符串，className 可能为 undefined。）
         handler.simpleSelector = {
-          tagName: match[1] || '',
+          tagName: match[1].toUpperCase(),
           className: match[2] || ''
         };
       }
@@ -2001,7 +2001,7 @@
           break;
         case 'change':
           // 需要删除辅助派发器。
-          if (navigator.isIElt9 && $element.nodeName.toLowerCase() === 'input' && ($element.type === 'checkbox' || $element.type === 'radio')) {
+          if (navigator.isIElt9 && $element.nodeName === 'INPUT' && ($element.type === 'checkbox' || $element.type === 'radio')) {
             eventHelper.change.teardown($element);
           }
           removeEventListener($element, dispatcher.type, dispatcher);
@@ -2074,7 +2074,7 @@
         case 'select-multiple':
           if (!control.disabled) {
             Array.from(control.options).forEach(function(option) {
-              if (!option.disabled && !option.parentNode.disabled && option.selected) {
+              if (!option.disabled && !option.parentNode.disabled && option.selected && option.value) {
                 value.push(option.value);
               }
             });
@@ -2082,7 +2082,7 @@
           break;
         case 'radio':
         case 'checkbox':
-          if (!control.disabled && control.checked) {
+          if (!control.disabled && control.checked && control.value) {
             value.push(control.value);
           }
           break;
@@ -2092,7 +2092,10 @@
       }
     } else {
       control.forEach(function(control) {
-        value = value.concat(getCurrentValue(control));
+        var v = getCurrentValue(control);
+        if (v) {
+          value = value.concat(v);
+        }
       });
     }
     return value;
@@ -2105,7 +2108,8 @@
    * @param {String} name 表单域的名称。
    * @returns {string|Array} 表单域的当前值。
    * @description
-   *   当这个表单域是一个文本控件时，返回字符串结果（文本、密码、多行文本输入控件和隐藏控件），否则返回数组结果（下拉选择、单选、复选控件或者此表单域包含多个元素）。
+   *   当该表单域只包含一个文本控件（文本、密码、多行文本输入控件或隐藏控件）时，返回字符串，其他情况（该单域只包含一个下拉选择、单选、复选控件或者多个任意类型的控件时）返回数组。
+   *   当返回值是数组时，值为空字符串的选定项将被忽略。
    */
   HTMLFormElement.prototype.getFieldValue = function(name) {
     var control = this.elements[name];
