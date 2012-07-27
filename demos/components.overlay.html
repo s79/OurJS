@@ -2,8 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Mask</title>
-<link rel="stylesheet" href="example.css">
+<title>Overlay</title>
+<link rel="stylesheet" href="../stylesheets/framework.css">
 <script src="../dev.js"></script>
 <script src="../src/components/dialog.js"></script>
 <style>
@@ -12,7 +12,7 @@ select { width: 100px; background: orangered; }
 </style>
 </head>
 <body>
-<h1>Mask</h1>
+<h1>Overlay</h1>
 <h2 id="x" style="position: absolute; left: 1500px; top: 1500px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
 <select></select>
 <select></select>
@@ -29,16 +29,16 @@ select { width: 100px; background: orangered; }
     <em id="palceholder_B" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
   </p>
 </div>
-<button style="left: 100px; top: 100px;" onclick="bodyMask.behind($('#div'));">bodyMask 开</button>
-<button style="left: 250px; top: 100px;" onclick="bodyMask.behind();">bodyMask 关</button>
-<button style="left: 100px; top: 150px;" onclick="divMask.behind($('#palceholder_B'));">divMask 开</button>
-<button style="left: 250px; top: 150px;" onclick="divMask.behind();">divMask 关</button>
-<button style="left: 100px; top: 200px;" onclick="pMask.behind($('#palceholder_B'));">pMask 开</button>
-<button style="left: 250px; top: 200px;" onclick="pMask.behind();">pMask 关</button>
-<button style="left: 100px; top: 250px;" onclick="spanMask.behind($('#palceholder_A'));">spanMask 开</button>
-<button style="left: 250px; top: 250px;" onclick="spanMask.behind();">spanMask 关</button>
-<button style="left: 100px; top: 300px;" onclick="varMask.behind($('#palceholder_A'));">varMask 开</button>
-<button style="left: 250px; top: 300px;" onclick="varMask.behind();">varMask 关</button>
+<button style="left: 100px; top: 100px;" onclick="bodyOverlay.behind($('#div'));">bodyOverlay 开</button>
+<button style="left: 250px; top: 100px;" onclick="bodyOverlay.behind();">bodyOverlay 关</button>
+<button style="left: 100px; top: 150px;" onclick="divOverlay.behind($('#palceholder_B'));">divOverlay 开</button>
+<button style="left: 250px; top: 150px;" onclick="divOverlay.behind();">divOverlay 关</button>
+<button style="left: 100px; top: 200px;" onclick="pOverlay.behind($('#palceholder_B'));">pOverlay 开</button>
+<button style="left: 250px; top: 200px;" onclick="pOverlay.behind();">pOverlay 关</button>
+<button style="left: 100px; top: 250px;" onclick="spanOverlay.behind($('#palceholder_A'));">spanOverlay 开</button>
+<button style="left: 250px; top: 250px;" onclick="spanOverlay.behind();">spanOverlay 关</button>
+<button style="left: 100px; top: 300px;" onclick="varOverlay.behind($('#palceholder_A'));">varOverlay 开</button>
+<button style="left: 250px; top: 300px;" onclick="varOverlay.behind();">varOverlay 关</button>
 <button style="left: 175px; top: 350px;" onclick="$div.setStyle('position', 'fixed');">div.position=fixed</button>
 <button style="left: 175px; top: 400px;" onclick="$div.setStyle('position', 'absolute');">div.position=absolute</button>
 <button style="left: 175px; top: 450px;" onclick="$div.setStyle('display', 'block');">div.display=block</button>
@@ -46,20 +46,20 @@ select { width: 100px; background: orangered; }
 <button style="left: 175px; top: 550px;" onclick="$div.animate({left: 0, top: 0, backgroundColor: '#ff0000'}, {duration: 5000, onFinish: function(){console.log('finish');}}).fadeOut().fadeIn();">div.animate</button>
 <script>
 var $ = document.$;
-var bodyMask;
-var divMask;
-var pMask;
-var spanMask;
-var varMask;
+var bodyOverlay;
+var divOverlay;
+var pOverlay;
+var spanOverlay;
+var varOverlay;
 var $span;
 var $div;
 execute(function($) {
-//--------------------------------------------------[Mask]
-  bodyMask = new Mask(document.body, {effect: false});
-  pMask = new Mask($('#p'), {styles: {backgroundColor: 'gold', opacity: 1, zIndex: 100}});
-  divMask = new Mask($('#div'), {styles: {backgroundColor: 'cornflowerblue', opacity: 0.75, zIndex: 100}});
-  spanMask = new Mask($('#span'), {styles: {backgroundColor: 'orchid', opacity: 0.5, zIndex: 100}});
-  varMask = new Mask($('#var'), {styles: {backgroundColor: 'springgreen', opacity: 0.35, zIndex: 100}});
+//--------------------------------------------------[Overlay]
+  bodyOverlay = new Overlay(document.body, {effect: false});
+  pOverlay = new Overlay($('#p'), {overlayStyles: {backgroundColor: 'gold', opacity: 1, zIndex: 100}});
+  divOverlay = new Overlay($('#div'), {overlayStyles: {backgroundColor: 'cornflowerblue', opacity: 0.75, zIndex: 100}});
+  spanOverlay = new Overlay($('#span'), {overlayStyles: {backgroundColor: 'orchid', opacity: 0.5, zIndex: 100}});
+  varOverlay = new Overlay($('#var'), {overlayStyles: {backgroundColor: 'springgreen', opacity: 0.35, zIndex: 100}});
 
 //--------------------------------------------------[fix support]
   $span = $('#span').setStyle('opacity', .75);

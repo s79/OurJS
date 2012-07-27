@@ -9,7 +9,9 @@
 <style>
 table { table-layout: fixed; width: 600px; }
 col.key { width: 100px; }
-col.value { width: 220px; }
+col.value { width: 210px; }
+th,
+td { border-color: gainsboro; }
 th { text-align: right; }
 th.submit { text-align: center; }
 textarea { resize: none; }
@@ -44,10 +46,10 @@ td.validating p.invalid { display: none; }
         </colgroup>
         <tbody>
           <tr>
-            <th>姓名：</th>
-            <td><input name="name" type="text" value=""></td>
-            <td id="msg_name">
-              <p class="hint">请输入姓名</p>
+            <th>帐号：</th>
+            <td><input name="account" type="text" value=""></td>
+            <td>
+              <p class="hint">请输入 3 - 20 字的帐号名</p>
               <p class="validating">验证中……</p>
               <p class="valid">√ 可以使用</p>
               <p class="invalid">输入 ourjs 即可通过验证</p>
@@ -56,7 +58,7 @@ td.validating p.invalid { display: none; }
           <tr>
             <th>信箱：</th>
             <td><input name="email" type="text"></td>
-            <td id="msg_email">
+            <td>
               <p class="hint"></p>
               <p class="valid">√</p>
               <p class="invalid"></p>
@@ -65,7 +67,7 @@ td.validating p.invalid { display: none; }
           <tr>
             <th>年龄：</th>
             <td><input name="age" type="text" value="28"></td>
-            <td id="msg_age">
+            <td>
               <p class="hint">请输入年龄</p>
               <p class="valid">√</p>
               <p class="invalid">年龄应在 18 - 80 之间</p>
@@ -74,7 +76,7 @@ td.validating p.invalid { display: none; }
           <tr>
             <th>密码：</th>
             <td><input name="password" type="password"></td>
-            <td id="msg_password">
+            <td>
               <p class="hint">请输入密码</p>
               <p class="valid">√</p>
               <p class="invalid">必须输入密码</p>
@@ -83,7 +85,7 @@ td.validating p.invalid { display: none; }
           <tr>
             <th>重复密码：</th>
             <td><input name="password_confirm" type="password"></td>
-            <td id="msg_password_confirm">
+            <td>
               <p class="hint">请重复输入密码以确保您刚才没有输错</p>
               <p class="valid">√</p>
               <p class="invalid">两次输入的密码不一致</p>
@@ -100,7 +102,7 @@ td.validating p.invalid { display: none; }
                 <option value="MacOS">MacOS</option>
               </select>
             </td>
-            <td id="msg_os">
+            <td>
               <p class="valid">√</p>
               <p class="invalid">此为必选项</p>
             </td>
@@ -118,7 +120,7 @@ td.validating p.invalid { display: none; }
                 </optgroup>
               </select>
             </td>
-            <td id="msg_games">
+            <td>
               <p class="valid">√</p>
             </td>
           </tr>
@@ -130,7 +132,7 @@ td.validating p.invalid { display: none; }
               <input name="language" value="法语" type="checkbox">法语
               <input name="language" value="日语" type="checkbox">日语
             </td>
-            <td id="msg_language">
+            <td>
               <p class="valid">√</p>
               <p class="invalid">请选择 2 - 3 项</p>
             </td>
@@ -153,7 +155,7 @@ td.validating p.invalid { display: none; }
               </select>
               <input name="from" type="text" value="">
             </td>
-            <td id="msg_from">
+            <td>
               <p class="hint">多类型混合的表单域</p>
               <p class="valid">√</p>
               <p class="invalid">必选项（若已选定的控件被禁用则视为无效）</p>
@@ -162,10 +164,10 @@ td.validating p.invalid { display: none; }
           <tr>
             <th>自我介绍：</th>
             <td><textarea name="description" rows="5" cols="25">普通玩家</textarea></td>
-            <td id="msg_description">
-              <p class="hint">请输入自我介绍</p>
+            <td>
+              <p class="hint">请输入 10 - 100 字的自我介绍</p>
               <p class="valid">√</p>
-              <p class="invalid">自我介绍应限制在 10 - 200 字</p>
+              <p class="invalid">自我介绍应限制在 10 - 100 字</p>
             </td>
           </tr>
           <tr>
@@ -187,7 +189,7 @@ td.validating p.invalid { display: none; }
           var name = $target.name;
           var controlType = name ? $target.type : undefined;
           if (textControls.contains(controlType)) {
-            $('#msg_' + name)[e.type === 'focusin' ? 'addClass' : 'removeClass']('hint');
+            getMessageBox(name)[e.type === 'focusin' ? 'addClass' : 'removeClass']('hint');
           }
         })
         .on('reset', function() {
@@ -197,17 +199,17 @@ td.validating p.invalid { display: none; }
           v.validate();
           return false;
         });
-
-//    console.log($form.getFieldValue('age'));
-//    console.log($form.getFieldValue('os'));
-//    console.log($form.getFieldValue('games'));
-//    console.log($form.getFieldValue('language'));
-//    console.log($form.getFieldValue('from'));
-//    console.log($form.getFieldValue('description'));
+    var getMessageBox = function(name) {
+      var control = $form.elements[name];
+      control = control.nodeType ? control : control[0];
+      return control.getParent().getNextSibling();
+    };
 
     window.v = new Validator($form, {
-      name: {
+      account: {
         required: true,
+        minLength: 3,
+        maxLength: 20,
         serverSideVerify: {
           url: 'validator.asp',
           options: {
@@ -227,11 +229,9 @@ td.validating p.invalid { display: none; }
         }
       },
       password: {
-        triggerEventType: 'input',
         required: true
       },
       'password_confirm': {
-        triggerEventType: 'input',
         equals: 'password'
       },
       os: {
@@ -248,18 +248,26 @@ td.validating p.invalid { display: none; }
       },
       description: {
         minLength: 10,
-        maxLength: 200
+        maxLength: 100
       }
     })
-        .on('fieldvalidationstart', function(e) {
-          console.log('fieldvalidationstart', e.name, e.value);
-          $('#msg_' + e.name).addClass('validating');
+        .on('fieldvalidating', function(e) {
+          console.log('~', e.name, e.value, JSON.stringify(this.validatingFields));
+          getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
         })
         .
-        on('fieldvalidationfinish', function(e) {
-          console.log('fieldvalidationfinish', e.name, e.value, e.result);
-          $('#msg_' + e.name).removeClass('validating').removeClass('valid').removeClass('invalid').addClass(e.result ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
+        on('fieldvalidated', function(e) {
+          console.log('=', e.name, e.value, e.result, JSON.stringify(this.validatingFields));
+          getMessageBox(e.name).removeClass('valid, invalid, validating').addClass(e.result ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
         });
+
+//    console.log($form.getFieldValue('age'));
+//    console.log($form.getFieldValue('os'));
+//    console.log($form.getFieldValue('games'));
+//    console.log($form.getFieldValue('language'));
+//    console.log($form.getFieldValue('from'));
+//    console.log($form.getFieldValue('description'));
+
   });
   </script>
 </div>

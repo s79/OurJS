@@ -21,8 +21,8 @@
    *   Component
    */
 
+  var RE_SEPARATOR = /\s*,\s*/;
   var RE_EVENT_NAME = /^(\w+)(\.\w+)?$/;
-  var RE_EVENT_NAME_SEPARATOR = /\s*,\s*/;
 
   /**
    * 组件事件对象。
@@ -133,7 +133,7 @@
   Component.prototype.on = function(name, listener) {
     var component = this;
     if (name.contains(',')) {
-      name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
+      name.split(RE_SEPARATOR).forEach(function(name) {
         Component.prototype.on.call(component, name, listener);
       });
       return component;
@@ -156,7 +156,7 @@
   Component.prototype.off = function(name) {
     var component = this;
     if (name.contains(',')) {
-      name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
+      name.split(RE_SEPARATOR).forEach(function(name) {
         Component.prototype.off.call(component, name);
       });
       return component;

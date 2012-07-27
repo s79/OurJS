@@ -4,7 +4,7 @@
  * @version 20120310
  */
 execute(function($) {
-//==================================================[Mask]
+//==================================================[Overlay]
   /*
    * 创建一个覆盖指定元素的内容的遮掩层。
    * 遮掩层除视觉遮掩效果外，还能屏蔽鼠标和键盘对被遮掩区域的操作。
@@ -93,140 +93,134 @@ execute(function($) {
     }
   };
 
-//--------------------------------------------------[Mask Constructor]
+//--------------------------------------------------[Overlay Constructor]
   /**
    * 遮掩层。
-   * @name Mask
+   * @name Overlay
    * @function
    * @private
    * @param {Element} target 要遮掩的目标元素，当其值为 body 元素时，将覆盖整个视口。
-   * @param {Object} [options] 可选参数，这些参数的默认值保存在 Mask.options 中。
-   * @param {Object} options.maskAttributes 为遮掩层元素附加的属性。
-   * @param {Object} options.maskStyles 为遮掩层元素设置的样式。
+   * @param {Object} [options] 可选参数，这些参数的默认值保存在 Overlay.options 中。
+   * @param {Object} options.overlayStyles 为遮掩层元素设置的样式。
    * @param {boolean} options.effect 是否启用动画效果。
    * @description
    *   遮掩层仅供内部使用，且均为被动调用，因此未提供事件支持。
    */
-  var Mask = new Component(function(target) {
+  var Overlay = new Component(function(target) {
     this.target = $(target);
   });
 
-//--------------------------------------------------[Mask.options]
+//--------------------------------------------------[Overlay.options]
   /**
    * 默认选项。
-   * @name Mask.options
+   * @name Overlay.options
    * @private
    */
-  Mask.options = {
-    maskAttributes: {},
-    maskStyles: {backgroundColor: 'black', opacity: 0.2},
+  Overlay.options = {
+    overlayStyles: {backgroundColor: 'black', opacity: 0.2},
     effect: false
   };
 
-//--------------------------------------------------[Mask.prototype.behind]
+//--------------------------------------------------[Overlay.prototype.behind]
   /**
    * 调整遮掩层的纵向位置，或隐藏遮掩层。
-   * @name Mask.prototype.behind
+   * @name Overlay.prototype.behind
    * @function
    * @private
    * @param {Element} [element] 要将遮掩层置于其后的目标元素。如果省略此参数，则隐藏遮掩层。
-   * @returns {Object} Mask 对象。
+   * @returns {Object} Overlay 对象。
    */
-  Mask.prototype.behind = function(element) {
-    var mask = this;
+  Overlay.prototype.behind = function(element) {
+    var overlay = this;
     if (element) {
-      if (!mask.animation) {
-        var options = mask.options;
-        var $container = mask.target;
+      if (!overlay.animation) {
+        var options = overlay.options;
+        var $container = overlay.target;
         // 创建遮掩层元素。
-        var attributes = '';
-        Object.forEach(options.maskAttributes, function(attributeValue, attributeName) {
-          attributes += ' ' + attributeName + '="' + attributeValue + '"';
-        });
-        var $mask;
-        var resizeMaskElementForIE6;
+        var $overlay;
+        var resizeOverlayElementForIE6;
         if (navigator.isIE6) {
           // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
-          $mask = $('<div' + attributes + '><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').append($('<div></div>').setStyles(options.maskStyles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
+          $overlay = $('<div><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').append($('<div></div>').setStyles(options.overlayStyles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
           // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
           if ($container === document.body) {
-            resizeMaskElementForIE6 = function() {
-              mask.resize();
+            resizeOverlayElementForIE6 = function() {
+              overlay.resize();
             };
           }
         } else {
-          $mask = $('<div' + attributes + '></div>').setStyles(options.maskStyles);
+          $overlay = $('<div></div>').setStyles(options.overlayStyles);
         }
         // 确定遮掩层元素的样式并插入文档树。
-        $container.append($mask.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
-        mask.element = $mask;
+        $container.append($overlay.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
+        overlay.element = $overlay;
         // 动画效果。
-        mask.animation = new Animation()
+        overlay.animation = new Animation()
             .on('playstart', function() {
-              $mask.setStyle('display', 'block');
+              $overlay.setStyle('display', 'block');
               // 如果启用了动画效果则添加动画剪辑。
               if (options.effect) {
-                var originalOpacity = $mask.getStyle('opacity');
-                $mask.setStyle('opacity', 0);
-                this.addClip(Animation.createStyleRenderer($mask, {opacity: originalOpacity}), 0, 150, 'easeIn');
+                var originalOpacity = $overlay.getStyle('opacity');
+                $overlay.setStyle('opacity', 0);
+                this.addClip(Animation.createStyleRenderer($overlay, {opacity: originalOpacity}), 0, 150, 'easeIn');
               }
-              mask.resize();
-              if (resizeMaskElementForIE6) {
-                window.attachEvent('onresize', resizeMaskElementForIE6);
+              overlay.resize();
+              if (resizeOverlayElementForIE6) {
+                window.attachEvent('onresize', resizeOverlayElementForIE6);
               }
             })
             .on('reversefinish', function() {
-              $mask.remove();
-              delete mask.animation;
-              delete mask.element;
-              if (resizeMaskElementForIE6) {
-                window.detachEvent('onresize', resizeMaskElementForIE6);
+              $overlay.remove();
+              delete overlay.animation;
+              delete overlay.element;
+              if (resizeOverlayElementForIE6) {
+                window.detachEvent('onresize', resizeOverlayElementForIE6);
               }
             });
       }
-      mask.element.setStyle('zIndex', element.getStyle('zIndex') - 1);
-      freezeFocusArea({enable: element, disable: mask.target});
-      mask.animation.play();
+      overlay.element.setStyle('zIndex', element.getStyle('zIndex') - 1);
+      freezeFocusArea({enable: element, disable: overlay.target});
+      overlay.animation.play();
     } else {
       if (this.animation) {
         this.animation.reverse();
         freezeFocusArea();
       }
     }
-    return mask;
+    return overlay;
   };
 
-//--------------------------------------------------[Mask.prototype.resize]
+//--------------------------------------------------[Overlay.prototype.resize]
   /**
    * 调整遮掩层尺寸。
-   * @name Mask.prototype.resize
+   * @name Overlay.prototype.resize
    * @function
    * @private
-   * @returns {Object} Mask 对象。
+   * @returns {Object} Overlay 对象。
    */
-  Mask.prototype.resize = function() {
+  Overlay.prototype.resize = function() {
     if (this.element) {
-      var $mask = this.element;
+      var $overlay = this.element;
       var $target = this.target;
       if ($target === document.body) {
         // 遮掩 body 的情况。
         if (navigator.isIE6) {
           var clientSize = window.getClientSize();
-          // 刷新 display 以避免 IE6 的 $mask 元素内的两个 height 为 100% 的子元素在纵向改变窗口大小时高度不随 $mask 的变化而更新。
-          $mask.setStyles({left: 0, top: 0, width: clientSize.width, height: clientSize.height, display: 'none'}).setStyle('display', 'block');
+          // 刷新 display 以避免 IE6 的 $overlay 元素内的两个 height 为 100% 的子元素在纵向改变窗口大小时高度不随 $overlay 的变化而更新。
+          $overlay.setStyles({left: 0, top: 0, width: clientSize.width, height: clientSize.height, display: 'none'}).setStyle('display', 'block');
         } else {
-          $mask.setStyles({left: 0, right: 0, top: 0, bottom: 0});
+          $overlay.setStyles({left: 0, right: 0, top: 0, bottom: 0});
         }
       } else {
         // 其他情况统一处理。
-        $mask.setStyles({left: 0, top: 0, width: $target.clientWidth, height: $target.clientHeight});
+        $overlay.setStyles({left: 0, top: 0, width: $target.clientWidth, height: $target.clientHeight});
       }
     }
     return this;
   };
 
-//--------------------------------------------------[Mask]
-  window.Mask = Mask;
+//--------------------------------------------------[Overlay]
+  window.Overlay = Overlay;
 
 });
 
@@ -244,7 +238,7 @@ execute(function($) {
    *     stack: <Array dialogs> [
    *       dialog: <Object Dialog>
    *     ],
-   *     mask: <Object Mask>
+   *     overlay: <Object Overlay>
    *   }
    * };
    */
@@ -257,8 +251,7 @@ execute(function($) {
    * @constructor
    * @param {Element} element 要作为对话框显示的元素。
    * @param {Object} [options] 可选参数，这些参数的默认值保存在 Dialog.options 中。
-   * @param {Object} options.maskAttributes 为遮掩层元素附加的属性，默认为 {}。
-   * @param {Object} options.maskStyles 为遮掩层元素设置的样式，默认为 {backgroundColor: 'black', opacity: 0.2}。
+   * @param {Object} options.overlayStyles 为遮掩层元素设置的样式，默认为 {backgroundColor: 'black', opacity: 0.2}。
    * @param {number} options.offsetX 对话框的左边与其父元素的左边的横向差值。默认为 undefined，此时对话框的中心点在横向将与其父元素的中心点重合。
    * @param {number} options.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 undefined，此时对话框的中心点在纵向将与其父元素的中心点重合。
    * @param {boolean} options.effect 是否启用淡入淡出的动画效果，默认为 false。
@@ -321,9 +314,9 @@ execute(function($) {
 
     // 为对话框分组。
     var uid = $container.uid;
-    var group = groups[uid] || (groups[uid] = {stack: [], mask: new window.Mask($container, options)});
+    var group = groups[uid] || (groups[uid] = {stack: [], overlay: new window.Overlay($container, options)});
     var stack = group.stack;
-    var mask = group.mask;
+    var overlay = group.overlay;
 
     // 使用 Animation 建立对话框的操作序列。
     dialog.animation = new Animation()
@@ -349,7 +342,7 @@ execute(function($) {
             }
           }
           // 调整遮掩层。
-          mask.behind($dialog);
+          overlay.behind($dialog);
           // 仅父元素为 body 的对话框需要在改变窗口尺寸时重新调整位置（假设其他对话框的父元素的尺寸为固定）。
           if ($container === document.body) {
             window.on('resize.dialog' + $dialog.uid, navigator.isIE6 ? function() {
@@ -379,10 +372,10 @@ execute(function($) {
           stack.pop();
           if (stack.length) {
             // 如果上一层还有对话框，则调整遮掩层。
-            mask.behind(stack[stack.length - 1].element);
+            overlay.behind(stack[stack.length - 1].element);
           } else {
             // 如果是最底层对话框，则隐藏遮掩层。
-            mask.behind();
+            overlay.behind();
           }
           // 删除事件监听器。
           if ($container === document.body) {
@@ -399,10 +392,10 @@ execute(function($) {
           dialog.fire('closefinish');
         });
 
-    // 为本组件设置选项的同时，也为 mask 设置选项。
+    // 为本组件设置选项的同时，也为 overlay 设置选项。
     dialog.setOptions = function(options) {
       Component.prototype.setOptions.call(this, options);
-      mask.setOptions(options);
+      overlay.setOptions(options);
       return this;
     }
 
@@ -414,8 +407,7 @@ execute(function($) {
    * @name Dialog.options
    */
   Dialog.options = {
-    maskAttributes: {},
-    maskStyles: {backgroundColor: 'black', opacity: 0.2},
+    overlayStyles: {backgroundColor: 'black', opacity: 0.2},
     offsetX: undefined,
     offsetY: undefined,
     effect: false

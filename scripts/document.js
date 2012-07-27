@@ -232,6 +232,7 @@ execute(function($) {
         'window',
         'document',
         'Element',
+        'HTMLFormElement',
         'Event'
       ]
           .forEach(function(name) {
@@ -290,7 +291,7 @@ execute(function($) {
     };
     // 使用对话框实现。
     var deatilsPanel = new Dialog($deatilsPanel, {
-      maskStyles: {background: 'black', opacity: .05},
+      overlayStyles: {background: 'black', opacity: .05},
       offsetX: 0,
       offsetY: 0
     })

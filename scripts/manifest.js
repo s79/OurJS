@@ -146,8 +146,6 @@ var manifest = {
     'document.preloadImages'
   ],
   'Element': [
-    '#扩展属性/方法',
-    'Element.prototype',
     '#处理内容',
     'Element.prototype.innerText',
     'Element.prototype.outerText',
@@ -199,6 +197,10 @@ var manifest = {
     'Element.prototype.highlight',
     'Element.prototype.fadeIn',
     'Element.prototype.fadeOut'
+  ],
+  'HTMLFormElement': [
+    '#自定义扩展',
+    'HTMLFormElement.prototype.getFieldValue'
   ],
   'Event': [
     '#自定义扩展',
@@ -297,7 +299,6 @@ var manifest = {
   ],
   'Validator': [
     'Validator',
-    'Validator.options',
     'Validator.prototype.validate'
   ]
 };

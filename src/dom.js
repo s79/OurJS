@@ -7,6 +7,9 @@
   // 文档根元素。
   var html = document.documentElement;
 
+  // 参数分隔符。
+  var RE_SEPARATOR = /\s*,\s*/;
+
   // 将字符串从 Hyphenate 转换为 CamelCase。  // TODO: 所有用到此转换的部分考虑仅支持 Camel Case。
   var HYPHENATE_FIRST_LETTER = /-([a-z])/g;
   var hyphenateToCamelCase = function(string) {
@@ -141,7 +144,7 @@
     });
   }
 
-//==================================================[DOM 扩展 - 原型]
+//==================================================[DOM 扩展 - 构造器]
   /*
    * 仅为元素扩展新特性，而不是所有的节点类型。
    *
@@ -182,53 +185,27 @@
    * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 find、getNextSibling 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
    */
 
-//--------------------------------------------------[Element.prototype]
+//--------------------------------------------------[Element]
   /**
    * 为无 Element 构造函数的浏览器创建 Element 对象，以确保在各浏览器中都可以通过 Element.prototype 为元素扩展新特性。
    * @name Element
    * @class
    */
-
-  /**
-   * 可以通过扩展本对象来为页面中的所有元素扩展新特性。
-   * @name prototype
-   * @memberOf Element
-   * @type Object
-   * @example
-   *   Element.prototype.getNodeName = function() {
-   *     return this.nodeName;
-   *   };
-   *   $(document.head).getNodeName();
-   *   // HEAD
-   */
   if (!window.Element) {
     window.Element = {prototype: {}};
   }
 
-//--------------------------------------------------[HTMLFormElement.prototype]
+//--------------------------------------------------[HTMLFormElement]
   /**
    * 为无 HTMLFormElement 构造函数的浏览器创建 HTMLFormElement 对象，以确保在各浏览器中都可以通过 HTMLFormElement.prototype 为表单元素扩展新特性。
    * @name HTMLFormElement
    * @class
    */
-
-  /**
-   * 可以通过扩展本对象来为页面中的所有表单元素扩展新特性。
-   * @name prototype
-   * @memberOf HTMLFormElement
-   * @type Object
-   * @example
-   *   HTMLFormElement.prototype.disableSubmit = function() {
-   *     return this.on('submit', function() {
-   *       return false;
-   *     });
-   *   };
-   */
   if (!window.HTMLFormElement) {
     window.HTMLFormElement = {prototype: {}};
   }
 
-//==================================================[DOM 扩展 - 扩展新特性]
+//==================================================[DOM 扩展 - 内部方法]
 //--------------------------------------------------[$ <内部方法>]
   // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值也可用于反向查找该元素的 key。
   var uid = 0;
@@ -284,54 +261,89 @@
 
 //--------------------------------------------------[Element.prototype.hasClass]
   /**
-   * 判断本元素是否有指定的类名。
+   * 检查本元素是否有指定的类名。
    * @name Element.prototype.hasClass
    * @function
-   * @param {string} className 类名。
-   * @returns {boolean} 本元素是否有指定的类名。
+   * @param {string} className 类名，如果要同时指定多个类名，使用逗号将他们分开即可。
+   * @returns {boolean} 检查结果。
    */
   Element.prototype.hasClass = function(className) {
-    return (' ' + this.className.clean() + ' ').contains(' ' + className + ' ');
+    if (className.contains(',')) {
+      var classNames = className.split(RE_SEPARATOR);
+      var i = 0;
+      var length = classNames.length;
+      while (i < length) {
+        if (!this.hasClass(classNames[i++])) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return (' ' + this.className.clean() + ' ').contains(' ' + className.trim() + ' ');
+    }
   };
 
 //--------------------------------------------------[Element.prototype.addClass]
   /**
-   * 为本元素添加一个类名。
+   * 为本元素添加指定的类名。
    * @name Element.prototype.addClass
    * @function
-   * @param {string} className 类名。
+   * @param {string} className 类名，如果要同时指定多个类名，使用逗号将他们分开即可。
    * @returns {Element} 本元素。
    */
   Element.prototype.addClass = function(className) {
-    if (!this.hasClass(className)) {
-      this.className = (this.className + ' ' + className).clean();
+    var $element = this;
+    if (className.contains(',')) {
+      className.split(RE_SEPARATOR).forEach(function(className) {
+        $element.addClass(className);
+      });
+    } else {
+      if (!$element.hasClass(className)) {
+        $element.className = ($element.className + ' ' + className).clean();
+      }
     }
-    return this;
+    return $element;
   };
 
 //--------------------------------------------------[Element.prototype.removeClass]
   /**
-   * 为本元素删除一个类名。
+   * 为本元素删除指定的类名。
    * @name Element.prototype.removeClass
    * @function
-   * @param {string} className 类名。
+   * @param {string} className 类名，如果要同时指定多个类名，使用逗号将他们分开即可。
    * @returns {Element} 本元素。
    */
   Element.prototype.removeClass = function(className) {
-    this.className = (' ' + this.className.clean() + ' ').replace(' ' + className + ' ', ' ').trim();
-    return this;
+    var $element = this;
+    if (className.contains(',')) {
+      className.split(RE_SEPARATOR).forEach(function(className) {
+        $element.removeClass(className);
+      });
+    } else {
+      $element.className = (' ' + $element.className.clean() + ' ').replace(' ' + className.trim() + ' ', ' ').trim();
+    }
+    return $element;
   };
 
 //--------------------------------------------------[Element.prototype.toggleClass]
   /**
-   * 为本元素添加一个类名（如果本元素没有这个类名）或删除一个类名（如果本元素有这个类名）。
+   * 如果本元素没有指定的类名，则添加指定的类名，否则删除指定的类名。
    * @name Element.prototype.toggleClass
    * @function
-   * @param {string} className 类名。
+   * @param {string} className 类名，如果要同时指定多个类名，使用逗号将他们分开即可。
    * @returns {Element} 本元素。
    */
   Element.prototype.toggleClass = function(className) {
-    return this.hasClass(className) ? this.removeClass(className) : this.addClass(className);
+    var $element = this;
+    if (className.contains(',')) {
+      className.split(RE_SEPARATOR).forEach(function(className) {
+        $element.toggleClass(className);
+      });
+    } else {
+      $element[$element.hasClass(className) ? 'removeClass' : 'addClass'](className);
+    }
+    console.log($element.className);
+    return $element;
   };
 
 //==================================================[Element 扩展 - 处理样式]
@@ -1221,7 +1233,6 @@
   var eventPool = {};
 
   var RE_EVENT_NAME = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
-  var RE_EVENT_NAME_SEPARATOR = /\s*,\s*/;
   var RE_SIMPLE_SELECTOR = /^(\w*)(?:\.([\w\-]+))?$/;
   var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 4, 'change': 4, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
   var returnTrue = function() {
@@ -1712,7 +1723,7 @@
     var $element = this;
     // 同时为多个事件类型添加监听器。
     if (name.contains(',')) {
-      name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
+      name.split(RE_SEPARATOR).forEach(function(name) {
         // 允许 window/document.on 的多次调用。
         Element.prototype.on.call($element, name, listener);
       });
@@ -1939,7 +1950,7 @@
     var $element = this;
     // 同时删除该元素上的多个监听器。
     if (name.contains(',')) {
-      name.split(RE_EVENT_NAME_SEPARATOR).forEach(function(name) {
+      name.split(RE_SEPARATOR).forEach(function(name) {
         Element.prototype.off.call($element, name);
       });
       return $element;
@@ -2293,7 +2304,7 @@
    *   </ul>
    */
   document.on = function(name, listener) {
-    var filteredName = name.split(RE_EVENT_NAME_SEPARATOR)
+    var filteredName = name.split(RE_SEPARATOR)
         .filter(function(name) {
           if (name === 'domready') {
             domready.addListener(listener);
@@ -2445,7 +2456,7 @@
    *   </ul>
    */
   window.on = function(name, listener) {
-    var filteredName = name.split(RE_EVENT_NAME_SEPARATOR)
+    var filteredName = name.split(RE_SEPARATOR)
         .filter(function(name) {
           if (name === 'beforeunload') {
             window.onbeforeunload = function() {
@@ -2473,7 +2484,7 @@
    * @returns {Object} window 对象。
    */
   window.off = function(name) {
-    var filteredName = name.split(RE_EVENT_NAME_SEPARATOR)
+    var filteredName = name.split(RE_SEPARATOR)
         .filter(function(name) {
           if (name === 'beforeunload') {
             window.onbeforeunload = null;
