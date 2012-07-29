@@ -7,6 +7,8 @@
 <script src="../dev.js"></script>
 <script src="../src/components/validator.js"></script>
 <style>
+  /* 表单 */
+form { position: relative; }
 table { table-layout: fixed; width: 600px; }
 col.key { width: 100px; }
 col.value { width: 210px; }
@@ -15,12 +17,12 @@ td { border-color: gainsboro; }
 th { text-align: right; }
 th.submit { text-align: center; }
 textarea { resize: none; }
-p { float: left; margin: 0; padding: 3px 10px; border-radius: 2px; font-size: 12px; line-height: 1; }
+  /* 提示信息 */
 p.validating,
 p.hint { border: 1px solid #BCE8F1; background: #D9EDF7; color: #3A87AD; }
 p.valid { border: 1px solid #D6E9C6; background: #DFF0D8; color: #468847; }
 p.invalid { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
-td p { display: none; }
+td p { display: none; float: left; margin: 0; padding: 3px 10px; border-radius: 2px; font-size: 12px; line-height: 1; }
 td.hint p.hint,
 td.valid p.valid,
 td.validating p.validating,
@@ -30,6 +32,28 @@ td.hint p.validating,
 td.hint p.invalid,
 td.validating p.valid,
 td.validating p.invalid { display: none; }
+  /* 密码强度 */
+dl { margin: 2px 0; font-size: 12px; }
+dt { float: left; padding-right: 5px; font-weight: normal; }
+dd { float: left; padding: 0 10px; background: gainsboro; color: silver; }
+dl.weak .weak { background: orangered; }
+dl.medium .weak,
+dl.medium .medium { background: gold; }
+dl.strong dd { background: lime !important; }
+dl.weak .weak,
+dl.medium .medium,
+dl.strong .strong { color: #333; font-weight: bold; }
+  /* 日志 */
+#log { float: right; width: 345px; height: 500px; overflow-y: scroll; background: #252525; color: #8CC; font: 12px Consolas, 'Lucida Console', Courier, SimSun, monospace; }
+#log p { margin: 5px; line-height: 1; }
+#log em,
+#log strong { display: inline-block; margin-right: 2px; padding: 0 3px; border-radius: 8px; font-weight: bold; }
+#log em { background: dodgerblue; color: black; }
+#log strong { background: gold; color: black; }
+#log var { color: white; }
+#log dfn { display: inline-block; padding: 0 1px; border: 1px solid; border-radius: 3px; }
+#log dfn.true { color: greenyellow; }
+#log dfn.false { color: orangered; }
 </style>
 </head>
 <body>
@@ -38,6 +62,7 @@ td.validating p.invalid { display: none; }
   <fieldset>
     <legend>表单验证</legend>
     <form id="form" method="get" action="http://www.lianzhong.com/">
+      <div id="log"></div>
       <table>
         <colgroup>
           <col class="key">
@@ -75,7 +100,15 @@ td.validating p.invalid { display: none; }
           </tr>
           <tr>
             <th>密码：</th>
-            <td><input name="password" type="password"></td>
+            <td>
+              <input name="password" type="text">
+              <dl id="password_strength">
+                <dt>密码强度</dt>
+                <dd class="weak">弱</dd>
+                <dd class="medium">中</dd>
+                <dd class="strong">强</dd>
+              </dl>
+            </td>
             <td>
               <p class="hint">请输入密码</p>
               <p class="valid">√</p>
@@ -110,10 +143,13 @@ td.validating p.invalid { display: none; }
           <tr>
             <th>玩过的游戏：</th>
             <td>
-              <select name="games" size="6" multiple>
+              <select name="games" size="8" multiple>
                 <option value="pal">仙剑奇侠传</option>
-                <option value="sc" selected>星际争霸</option>
-                <option value="wow" selected disabled>魔兽世界</option>
+                <option value="tomb">古墓丽影</option>
+                <optgroup label="Blizzard">
+                  <option value="sc" selected>星际争霸</option>
+                  <option value="wow" selected disabled>魔兽世界</option>
+                </optgroup>
                 <optgroup label="id Software" disabled>
                   <option value="doom" selected>毁灭战士</option>
                   <option value="quake" selected>雷神之锤</option>
@@ -125,40 +161,38 @@ td.validating p.invalid { display: none; }
             </td>
           </tr>
           <tr>
-            <th>语言能力：</th>
+            <th>喜欢的颜色：</th>
             <td>
-              <input name="language" value="汉语" type="checkbox">汉语
-              <input name="language" value="英语" type="checkbox">英语
-              <input name="language" value="法语" type="checkbox">法语
-              <input name="language" value="日语" type="checkbox">日语
+              <input name="colors" value="红色" type="checkbox">红色
+              <input name="colors" value="绿色" type="checkbox">绿色
+              <input name="colors" value="蓝色" type="checkbox">蓝色
             </td>
             <td>
               <p class="valid">√</p>
-              <p class="invalid">请选择 2 - 3 项</p>
+              <p class="invalid">请选择 2 项</p>
             </td>
           </tr>
           <tr>
-            <th>所在省份：</th>
+            <th>喜欢的数字：</th>
             <td>
-              <input name="from" value="广东" type="radio" checked disabled>广东
-              <input name="from" value="湖南" type="radio">湖南
-              <input name="from" value="浙江" type="radio">浙江
-              <input name="from" value="江苏" type="radio">江苏<br>
-              <input name="from" value="黑龙江" type="checkbox" checked disabled>黑龙江
-              <input name="from" value="吉林" type="checkbox">吉林
-              <input name="from" value="辽宁" type="checkbox">辽宁<br>
-              <select name="from">
+              <input name="numbers" value="一" type="radio" checked disabled>一
+              <input name="numbers" value="二" type="radio">二
+              <input name="numbers" value="三" type="radio">三<br>
+              <input name="numbers" value="四" type="checkbox" checked disabled>四
+              <input name="numbers" value="五" type="checkbox">五
+              <input name="numbers" value="六" type="checkbox">六<br>
+              <select name="numbers" disabled>
                 <option value="">这里也能选</option>
-                <option value="河北">河北</option>
-                <option value="甘肃">甘肃</option>
-                <option value="陕西">陕西</option>
+                <option value="七" selected>七</option>
+                <option value="八">八</option>
+                <option value="九">九</option>
               </select>
-              <input name="from" type="text" value="">
+              <input name="numbers" type="text" value="">
             </td>
             <td>
               <p class="hint">多类型混合的表单域</p>
               <p class="valid">√</p>
-              <p class="invalid">必选项（若已选定的控件被禁用则视为无效）</p>
+              <p class="invalid">必选项（被禁用的控件选定了也无效）</p>
             </td>
           </tr>
           <tr>
@@ -182,6 +216,53 @@ td.validating p.invalid { display: none; }
   </fieldset>
   <script>
   execute(function($) {
+//--------------------------------------------------[输出日志]
+    var log = function() {
+      var $log = $('#log').on('dblclick', function() {
+        this.empty();
+      });
+      $log.setStyle('height', $log.getNextSibling().offsetHeight);
+      return function(message) {
+        $log.append($('<p>' + message + '</p>'));
+        $log.scrollTop = 2147483647;
+      };
+    }();
+
+//--------------------------------------------------[密码强度检测]
+    var RE_REPEATED_CHARACTERS = /(.)\1+/g;
+    var getPasswordStrengthScore = function(password) {
+      var score = 0;
+      // 以密码包含的，各字符类型所包含的字符种类之和作为底数。
+      var types = [0, 0, 0, 0];
+      var charCode;
+      var n = password.length;
+      while (n) {
+        charCode = password.charCodeAt(--n);
+        if (charCode >= 48 && charCode <= 57) {
+          types[0] = 10;
+        } else if (charCode >= 65 && charCode <= 90) {
+          types[1] = 26;
+        } else if (charCode >= 97 && charCode <= 122) {
+          types[2] = 26;
+        } else {
+          types[3] = 32;
+        }
+      }
+      var base = types[0] + types[1] + types[2] + types[3];
+      // 以密码长度作为指数。
+      var exponent = password.length;
+      var repeatedCharacters = password.match(RE_REPEATED_CHARACTERS);
+      if (repeatedCharacters) {
+        repeatedCharacters.forEach(function(match) {
+          // n 个连续字符按 1 + n * 0.2 个字符计算。
+          exponent -= (match.length - 1) * .8;
+        });
+      }
+      console.log(base, exponent);
+      return Math.floor(Math.pow(base, exponent));
+    };
+
+//--------------------------------------------------[表单验证]
     var textControls = ['text', 'password', 'textarea'];
     var $form = $('#form')
         .on('focusin, focusout', function(e) {
@@ -199,6 +280,18 @@ td.validating p.invalid { display: none; }
           v.validate();
           return false;
         });
+
+    // 中等强度密码参考分值，由 6 位包含小写字母和大写字母的字符组成，且其中没有连续的重复字符。
+    var mediumValue = Math.pow(52, 6);
+    // 高强度密码参考分值，由 8 位包含数字、小写字母、大写字母和标点符号的字符组成，且其中没有连续的重复字符。
+    var strongValue = Math.pow(94, 8);
+    var $passwordStrength = $('#password_strength');
+    $($form.elements.password).on('input', function(e) {
+      var score = getPasswordStrengthScore(this.value);
+      $passwordStrength.className = score >= strongValue ? 'strong' : (score >= mediumValue ? 'medium' : (score > 1 ? 'weak' : ''));
+      log(score);
+    });
+
     var getMessageBox = function(name) {
       var control = $form.elements[name];
       control = control.nodeType ? control : control[0];
@@ -239,11 +332,11 @@ td.validating p.invalid { display: none; }
       },
       games: {
       },
-      language: {
+      colors: {
         minLength: 2,
-        maxLength: 3
+        maxLength: 2
       },
-      from: {
+      numbers: {
         required: true
       },
       description: {
@@ -251,21 +344,26 @@ td.validating p.invalid { display: none; }
         maxLength: 100
       }
     })
+        .on('fieldvalidate', function(e) {
+          log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
+        })
         .on('fieldvalidating', function(e) {
-          console.log('~', e.name, e.value, JSON.stringify(this.validatingFields));
+          log('<em>=</em>' + e.name + ' <var>' + e.value + '</var>');
           getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
         })
-        .
-        on('fieldvalidated', function(e) {
-          console.log('=', e.name, e.value, e.result, JSON.stringify(this.validatingFields));
+        .on('fieldvalidated', function(e) {
+          log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + e.result + '">' + e.result + '</dfn>');
           getMessageBox(e.name).removeClass('valid, invalid, validating').addClass(e.result ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
+        })
+        .on('validate, validating, validated', function(e) {
+          log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
         });
 
 //    console.log($form.getFieldValue('age'));
 //    console.log($form.getFieldValue('os'));
 //    console.log($form.getFieldValue('games'));
-//    console.log($form.getFieldValue('language'));
-//    console.log($form.getFieldValue('from'));
+//    console.log($form.getFieldValue('colors'));
+//    console.log($form.getFieldValue('numbers'));
 //    console.log($form.getFieldValue('description'));
 
   });

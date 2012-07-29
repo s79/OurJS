@@ -2084,11 +2084,17 @@
         case 'select-one':
         case 'select-multiple':
           if (!control.disabled) {
-            Array.from(control.options).forEach(function(option) {
+            // 此处不能使用 Array.form(control.options).forEach(...)，原因见 Array.form 的注释。
+            var options = control.options;
+            var option;
+            var i = 0;
+            var length = options.length;
+            while (i < length) {
+              option = options[i++];
               if (!option.disabled && !option.parentNode.disabled && option.selected && option.value) {
                 value.push(option.value);
               }
-            });
+            }
           }
           break;
         case 'radio':

@@ -58,8 +58,8 @@
    * @description
    *   注意：
    *   一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
+   *   IE6 IE7 IE8 IE9 （TODO 测试 IE 10）中 SELECT.options === SELECT 为 true，因此 SELECT.options 将得到 'object.Node'，而不是预期的 'object.Collection'。
    *   IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
-
    * @example
    *   typeOf(document);
    *   // 'object.Node'

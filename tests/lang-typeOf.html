@@ -32,7 +32,11 @@ pre { margin: 0; padding: 10px; font: 12px Consolas, "Lucida Console", Courier; 
 var XHR = window.XMLHttpRequest ? XMLHttpRequest : ActiveXObject;
 var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
 </pre>
-<form></form>
+<form>
+  <select>
+    <option></option>
+  </select>
+</form>
 <script>
 (function() {
   var $tbody = document.getElementById('list');
@@ -92,6 +96,7 @@ var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Micr
   ['document.head', document.head, 'object.Node'],
   ['document.head.firstChild', document.head.firstChild, 'object.Node'],
   ['document.head.children', document.head.children, 'object.Collection'],
+  ['document.getElementsByTagName(\'select\')[0].options', document.getElementsByTagName('select')[0].options, 'object.Collection'],
   ['{}', {}, 'object.Object']
 ].forEach(function(item) {
       showResult(
