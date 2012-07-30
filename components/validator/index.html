@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <title>Validator</title>
-<link rel="stylesheet" href="../stylesheets/framework.css">
-<script src="../dev.js"></script>
-<script src="../src/components/validator.js"></script>
+<script src="../../our.js"></script>
+<script src="../../scripts/framework.js"></script>
+<script src="../../src/components/validator.js"></script>
 <style>
   /* 表单 */
 form { position: relative; }
@@ -58,10 +58,12 @@ dl.strong .strong { color: #333; font-weight: bold; }
 </head>
 <body>
 <div id="content">
-  <h1>Validator</h1>
+  <h1>表单验证</h1>
+
+  <h2>Validator</h2>
   <fieldset>
     <legend>表单验证</legend>
-    <form id="form" method="get" action="http://www.lianzhong.com/">
+    <form id="form" method="get" action="/">
       <div id="log"></div>
       <table>
         <colgroup>
@@ -77,25 +79,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
               <p class="hint">请输入 3 - 20 字的帐号名</p>
               <p class="validating">验证中……</p>
               <p class="valid">√ 可以使用</p>
-              <p class="invalid">输入 ourjs 即可通过验证</p>
-            </td>
-          </tr>
-          <tr>
-            <th>信箱：</th>
-            <td><input name="email" type="text"></td>
-            <td>
-              <p class="hint"></p>
-              <p class="valid">√</p>
-              <p class="invalid"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>年龄：</th>
-            <td><input name="age" type="text" value="28"></td>
-            <td>
-              <p class="hint">请输入年龄</p>
-              <p class="valid">√</p>
-              <p class="invalid">年龄应在 18 - 80 之间</p>
+              <p class="invalid">帐号应在 3 位以上</p>
             </td>
           </tr>
           <tr>
@@ -122,6 +106,24 @@ dl.strong .strong { color: #333; font-weight: bold; }
               <p class="hint">请重复输入密码以确保您刚才没有输错</p>
               <p class="valid">√</p>
               <p class="invalid">两次输入的密码不一致</p>
+            </td>
+          </tr>
+          <tr>
+            <th>EMail：</th>
+            <td><input name="email" type="text"></td>
+            <td>
+              <p class="hint">请输入您的 EMail 地址</p>
+              <p class="valid">√</p>
+              <p class="invalid">错误的 EMail 地址</p>
+            </td>
+          </tr>
+          <tr>
+            <th>年龄：</th>
+            <td><input name="age" type="text" value="28"></td>
+            <td>
+              <p class="hint">请输入年龄</p>
+              <p class="valid">√</p>
+              <p class="invalid">年龄应在 18 - 80 之间</p>
             </td>
           </tr>
           <tr>
@@ -199,9 +201,9 @@ dl.strong .strong { color: #333; font-weight: bold; }
             <th>自我介绍：</th>
             <td><textarea name="description" rows="5" cols="25">普通玩家</textarea></td>
             <td>
-              <p class="hint">请输入 10 - 100 字的自我介绍</p>
+              <p class="hint">请输入 20 字以内的自我介绍</p>
               <p class="valid">√</p>
-              <p class="invalid">自我介绍应限制在 10 - 100 字</p>
+              <p class="invalid">自我介绍应限制在 20 字以内</p>
             </td>
           </tr>
           <tr>
@@ -304,21 +306,17 @@ dl.strong .strong { color: #333; font-weight: bold; }
         minLength: 3,
         maxLength: 20,
         serverSideVerify: {
-          url: 'validator.asp',
+          url: 'validator.txt',
           options: {
             useCache: false,
+            minTime: 1000,
             requestParser: function(data) {
               return 'value=' + data;
             },
             responseParser: function(data) {
-              return {result: data.text === 'true'};
+              return {result: JSON.parse(data.text).result};
             }
           }
-        }
-      },
-      age: {
-        handler: function(value) {
-          return value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 80;
         }
       },
       password: {
@@ -326,6 +324,18 @@ dl.strong .strong { color: #333; font-weight: bold; }
       },
       'password_confirm': {
         equals: 'password'
+      },
+      email: {
+        handler: function(value) {
+          var atIndex = value.indexOf('@');
+          var dotIndex = value.indexOf('.');
+          return value.length === 0 || atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < value.length - 1;
+        }
+      },
+      age: {
+        handler: function(value) {
+          return value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 80;
+        }
       },
       os: {
         required: true
@@ -340,8 +350,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
         required: true
       },
       description: {
-        minLength: 10,
-        maxLength: 100
+        maxLength: 20
       }
     })
         .on('fieldvalidate', function(e) {
@@ -368,6 +377,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
 
   });
   </script>
+
 </div>
 </body>
 </html>

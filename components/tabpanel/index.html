@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TabPanel</title>
+<script src="../../our.js"></script>
+<script src="../../scripts/framework.js"></script>
+<script src="../../src/components/tabpanel.js"></script>
+<style>
+#test { position: relative; width: 400px; height: 300px; padding: 0; }
+#test .tab { float: left; width: 50px; height: 20px; margin-right: 2px; background: darkgray; color: black; font: 14px/20px Verdana; text-decoration: none; text-align: center; cursor: default; }
+#test .tab:hover { background: silver; }
+#test .panel { display: none; position: absolute; left: 0; top: 20px; width: 400px; height: 280px; background: gainsboro; line-height: 280px; text-align: center; }
+#test a.active,
+#test a.active:hover { color: black; background: gainsboro; }
+#test div.active { display: block; }
+</style>
+</head>
+<body>
+<div id="content">
+  <h1>标签面板（选项卡）</h1>
+
+  <h2>TabPanel</h2>
+  <div id="test">
+    <div>
+      <a href="javascript:void('tab_1');" class="tab">1</a>
+      <div class="panel">面板一</div>
+
+      <a href="javascript:void('tab_1');" class="tab">2</a>
+      <div class="panel">面板二</div>
+
+      <a href="javascript:void('tab_1');" class="tab">3</a>
+      <div class="panel">面板三</div>
+    </div>
+
+    <a href="javascript:void('tab_1');" class="tab">4</a>
+    <div class="panel">面板四</div>
+
+    <a href="javascript:void('tab_1');" class="tab">5</a>
+    <div class="panel">面板五</div>
+  </div>
+
+  <script>
+  execute(function($) {
+    var $test = $('#test');
+    window.t = new TabPanel({
+      tabs: $test.find('a'),
+      panels: $test.find('.panel')
+    }, {
+      hoverDelay: 200
+    }).active(0);
+  });
+  </script>
+
+</div>
+</body>
+</html>

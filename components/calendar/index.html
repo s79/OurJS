@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Calendar</title>
+<script src="../../our.js"></script>
+<script src="../../scripts/framework.js"></script>
+<script src="../../src/components/calendar.js"></script>
+<link rel="stylesheet" href="calendar.css">
+</head>
+<body>
+<div id="content">
+  <h1>月历 & 日期选择器</h1>
+
+  <h2>Calendar</h2>
+  <!-- 月历 { -->
+  <style>
+  #container { padding: 10px; }
+  #container .calendar { float: left; }
+  </style>
+  <fieldset>
+    <legend>月历，支持滚轮翻月，Shift + 滚轮翻年。</legend>
+    <div id="container"></div>
+  </fieldset>
+  <script>
+  execute(function($) {
+    window.calendar = new Calendar('calendar', {minDate: '2011-10-15', maxDate: '2012-06-30'});
+    $('#container').append(calendar.getElement());
+    calendar.render();
+  });
+  </script>
+  <!-- } 月历 -->
+
+  <!-- 日期选择器 { -->
+  <style>
+  .date_picker input { width: 100px; height: 20px; padding: 0 2px; border: 1px solid gainsboro; background: url(calendar.png) no-repeat right center; font-size: 13px; line-height: 20px; cursor: pointer; }
+  .date_picker .calendar { position: absolute; }
+  .date_picker .calendar td.prev_month.enabled:hover,
+  .date_picker .calendar td.next_month.enabled:hover { background: transparent; border-color: yellowgreen; }
+  .date_picker .calendar td.enabled:hover { background: greenyellow; border-color: yellowgreen; }
+  .date_picker .calendar td.prev_month.selected,
+  .date_picker .calendar td.next_month.selected,
+  .date_picker .calendar td.prev_month.selected:hover,
+  .date_picker .calendar td.next_month.selected:hover { background: transparent; border-color: maroon; }
+  .date_picker .calendar td.selected,
+  .date_picker .calendar td.selected:hover { background: #FF7B3A; border-color: maroon; font-weight: bold; text-decoration: underline; }
+  .date_picker .calendar td.today { font-weight: normal; text-decoration: none; }
+  .date_picker .calendar span.clear { left: 1px; width: 61px; }
+  .date_picker .calendar span.today { right: 1px; width: 61px; }
+  </style>
+  <fieldset>
+    <legend>日期选择器，范围 2000-01-01 ~ 2099-12-31，“今天”按钮可用。</legend>
+    <form class="date_picker">
+      <input type="text" value="" readonly data-type="date" data-min-date="2000-01-01" data-max-date="2099-12-31">
+    </form>
+  </fieldset>
+  <fieldset>
+    <legend>日期选择器，范围 2012-01-01 ~ 2012-05-31，“今天”按钮不可用。</legend>
+    <form class="date_picker">
+      <input type="text" value="" readonly data-type="date" data-min-date="2012-01-01" data-max-date="2012-05-31">
+    </form>
+  </fieldset>
+  <script>
+  execute(function($) {
+//==================================================[<Date Picker>]
+    /*
+     * 表单增强-日期选择器。
+     */
+
+//--------------------------------------------------[enableDatePicker]
+    /**
+     * 表单增强-日期选择器。
+     */
+    function enableDatePicker() {
+      // 依赖 Calendar 组件。
+      if (!Calendar) {
+        return;
+      }
+      // 创建 datePicker 对象。
+      window.datePicker = Object.append(new Calendar().on('cellUpdate', function(e) {
+        var $cell = e.cell;
+        var date = e.date;
+        $cell.title = date.format();
+        if ($cell.hasClass('disabled')) {
+          $cell.title += '(超出范围)';
+        }
+        if (this.selectedDate && this.selectedDate.getTime() === date.getTime()) {
+          $cell.addClass('selected');
+        }
+      }), {
+        target: null,
+        isShown: false,
+        show: function($target) {
+          if (!this.isShown) {
+            var $datePicker = this.getElement();
+            $datePicker.putAfter($target).setStyle('display', 'block');
+            var targetRect = $target.getClientRect();
+            var targetTop = targetRect.top;
+            var targetBottom = targetRect.bottom;
+            var targetHeight = targetRect.height;
+            var datePickerRect = $datePicker.getClientRect();
+            var datePickerheight = datePickerRect.height;
+            var pageOffsetY = window.getPageOffset().y;
+            var top = $target.offsetTop + targetHeight;
+            if ((targetBottom + datePickerheight) > (window.getClientSize().height + pageOffsetY) && (targetTop + datePickerheight) >= pageOffsetY) {
+              top -= datePickerheight + targetHeight;
+            }
+            $datePicker.setStyles({left: $datePicker.offsetLeft, top: top});
+            this.target = $target;
+            this.isShown = true;
+            this.fire('show');
+          }
+          return this;
+        },
+        hide: function() {
+          if (this.isShown) {
+            this.getElement().remove(true);
+            this.target = null;
+            this.isShown = false;
+            this.fire('hide');
+          }
+          return this;
+        },
+        setValue: function(value) {
+          if (this.isShown) {
+            if (this.target.value !== value) {
+              this.target.highlight('red', 'color').value = value;
+            }
+          }
+          return this;
+        },
+        clearValue: function() {
+          if (this.isShown) {
+            if (this.target.value !== '') {
+              this.target.highlight('whitesmoke').value = '';
+            }
+          }
+          return this;
+        }
+      });
+      // 绑定选择事件并阻止 $datePicker 内的 click 事件向外传播。
+      var $datePicker = datePicker.getElement()
+          .on('click:relay(.enabled)', function(e) {
+            datePicker.setValue(this.title);
+            datePicker.hide();
+            return false;
+          })
+          .on('click', function(e) {
+            return false;
+          });
+      // 添加“清除”和“今天”按钮。
+      var $clear = $('<span class="btn clear">清除</span>').on('click', function(e) {
+        datePicker.clearValue().hide();
+      });
+      var today;
+      var $today = $('<span class="btn today">今天</span>').on('click', function(e) {
+        datePicker.setValue(today.format()).hide();
+      });
+      var $additionalControls = $('<div></div>').append($clear).append($today);
+      $datePicker.append($additionalControls);
+      // 确定“清除”和“今天”按钮是否可用。
+      datePicker.on('show', function(e) {
+        var $target = this.target;
+        if ($target.value === '') {
+          $clear.addClass('disabled').title = '清除选定的日期(还没有选定日期）';
+        } else {
+          $clear.removeClass('disabled').title = '清除选定的日期';
+        }
+        today = Date.from(new Date().format());
+        if (today < Date.from($target.getData('minDate')) || today > Date.from($target.getData('maxDate'))) {
+          $today.addClass('disabled').title = '选择今天的日期(超出范围)';
+        } else {
+          $today.removeClass('disabled').title = '选择今天的日期';
+        }
+      });
+      // 激活 datePicker。
+      document.on('click', function(e) {
+        var doHide = false;
+        var $target = e.target;
+        if ($target === datePicker.target) {
+          datePicker.hide();
+        } else {
+          datePicker.hide();
+          if ($target.nodeName === 'INPUT' && $target.type === 'text' && $target.getData('type') === 'date') {
+            var selectedDate = $target.value;
+            datePicker.setOptions({minDate: $target.getData('minDate'), maxDate: $target.getData('maxDate')});
+            datePicker.selectedDate = selectedDate ? Date.from(selectedDate) : null;
+            datePicker.render(selectedDate ? selectedDate.slice(0, 7) : undefined).show($target);
+          }
+        }
+      });
+    }
+
+    enableDatePicker();
+
+  });
+  </script>
+  <!-- } 日期选择器 -->
+</div>
+
+</body>
+</html>

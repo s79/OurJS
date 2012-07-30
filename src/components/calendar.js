@@ -199,9 +199,6 @@ execute(function($) {
     var dayTexts = ['日', '一', '二', '三', '四', '五', '六'];
 
     // 输出月历头和月历体。
-    var y;
-    var m;
-    var d;
     var firstDayOfWeek = options.firstDayOfWeek;
     var startIndex = (new Date(showY, showM, 1).getDay() + 7 - firstDayOfWeek) % 7 || 7;
     var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
@@ -212,9 +209,6 @@ execute(function($) {
     });
     elements.bodyCells.forEach(function($cell, index) {
       var date = new Date(showY, showM, index - startIndex + 1);
-      y = date.getFullYear();
-      m = date.getMonth();
-      d = date.getDate();
       // 星期几。
       $cell.className = dayNames[date.getDay()];
       // 日期区间。
@@ -232,7 +226,7 @@ execute(function($) {
         $cell.addClass('today');
       }
       // 输出日期。
-      $cell.innerText = d;
+      $cell.innerText = date.getDate();
       // 是否超出范围。
       if (date < minDate || date > maxDate) {
         $cell.addClass('disabled');

@@ -3,11 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>Animation</title>
-<link rel="stylesheet" href="/stylesheets/common.css">
-<link rel="stylesheet" href="../../stylesheets/prettify.css">
 <script src="../../our.js"></script>
-<script src="/scripts/common.js"></script>
+<script src="../../scripts/framework.js"></script>
 <script src="../../scripts/prettify.js"></script>
+<link rel="stylesheet" href="../../stylesheets/prettify.css">
 <style>
 h2 { margin: 50px 0 20px; }
 </style>
@@ -191,10 +190,9 @@ execute(function($) {
   execute(function($) {
     var $e = $('#e_f_1');
     var i = 0;
-    $('#e_f_1_in').on('mouseover', function() {
+    $('#e_f_1_in').on('click', function() {
       $e.fadeIn({
         duration: 2500,
-        timingFunction: 'bounceIn',
         onStart: function() {
           console.log('Fade in start.');
         },
@@ -203,7 +201,7 @@ execute(function($) {
         }
       });
     });
-    $('#e_f_1_out').on('mouseover', function() {
+    $('#e_f_1_out').on('click', function() {
       $e.fadeOut({
         duration: 500,
         onStart: function() {

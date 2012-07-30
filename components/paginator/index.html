@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <title>Paginator</title>
-<link rel="stylesheet" href="../stylesheets/framework.css">
-<script src="../dev.js"></script>
-<script src="../src/components/paginator.js"></script>
+<script src="../../our.js"></script>
+<script src="../../scripts/framework.js"></script>
+<script src="../../src/components/paginator.js"></script>
 <style>
-#log { width: 100px; height: 30px; margin: 60px auto 0; color: orangered; font-weight: bold; font-size: 20px; text-align: center; }
+#log { width: 100px; height: 30px; margin: 20px auto 0; color: orangered; font-weight: bold; font-size: 20px; text-align: center; }
 #paginator { margin: 10px auto 100px; font-size: 12px; line-height: 14px; text-align: center; }
 #paginator a { display: inline-block; margin: 2px; padding: 2px 5px; border: 1px solid silver; background: gainsboro; color: black; text-decoration: none; }
 #paginator a.prev,
@@ -23,9 +23,15 @@
 </head>
 <body>
 <div id="content">
-  <h1>Paginator</h1>
+  <h1>分页导航条</h1>
+
+  <h2>Paginator</h2>
   <fieldset>
     <legend>分页导航条</legend>
+    <form id="switch_mode">
+      <label><input id="client" name="mode" type="radio" value="client" checked>客户端翻页（使用 Ajax 处理信息）</label><br>
+      <label><input id="server" name="mode" type="radio" value="server">服务端翻页</label>
+    </form>
     <div id="log"></div>
     <div id="paginator">
       <a href="javascript:void('prev');" title="上一页" class="prev">‹</a>
@@ -35,6 +41,17 @@
   </fieldset>
   <script>
   execute(function($) {
+    // TODO: 基于数据的行为管理。
+    var $form = $('#switch_mode');
+    var mode = localStorage.getItem('component_paginator_mode') || 'client';
+    var saveMode = function() {
+      mode = $form.getFieldValue('mode').getFirst();
+      localStorage.setItem('component_paginator_mode', mode);
+    };
+    $('#' + mode).checked = true;
+    $('#client').on('change', saveMode);
+    $('#server').on('change', saveMode);
+
 //--------------------------------------------------[paginator]
     var $paginator = $('#paginator');
     var controls = $paginator.find('a');
@@ -49,15 +66,27 @@
       pages: $pages
     })
         .on('turn', function(e) {
-          $('#log').highlight().innerText = e.number;
-//        location.search = 'page=' + e.number;
-          this.render(e.number, totalPage);
+          $('#log').morph({}, {
+            duration: 500,
+            onStart: function() {
+              this.innerText = 'Loading...';
+            },
+            onFinish: function() {
+              if (mode === 'client') {
+                this.highlight().innerText = e.number;
+                paginator.render(e.number, totalPage);
+              } else {
+                location.search = 'page=' + e.number;
+              }
+            }
+          });
         })
         .on('render', function(e) {
         })
         .render(currentPage, totalPage);
   });
   </script>
+
 </div>
 </body>
 </html>
