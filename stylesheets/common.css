@@ -91,6 +91,11 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 /* LOGO */
 #logo { float: left; width: 150px; height: 36px; margin: 0; background: url(../images/logo.png) no-repeat left center; }
 #logo span { display: none; }
+/* GitHub */
+#github { float: right; margin: 0; padding: 5px 20px 0; border: none; background: none; }
+#github a { display: block; width: 139px; height: 25px; background: url(../images/github.png) no-repeat left top; }
+#github a:hover { background-position: left bottom; }
+#github span { display: none; }
 /* 主菜单 */
 #menu { float: left; padding: 0; }
 #menu li { float: left; list-style: none; height: 36px; border-right: 1px solid gainsboro; }
@@ -116,3 +121,5 @@ div#content { width: 960px; min-height: 600px; margin: auto auto 42px; padding: 
 /* 页脚 */
 #footer { clear: both; min-width: 1000px; margin-top: -42px; padding: 10px 0; border-top: 1px solid gainsboro; overflow: hidden; background: #F3F3F3; color: #666; text-align: center; }
 #footer span { font-size: 12px; }
+#footer a:link,
+#footer a:visited { color: #102197; }

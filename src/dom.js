@@ -2084,7 +2084,7 @@
         case 'select-one':
         case 'select-multiple':
           if (!control.disabled) {
-            // 此处不能使用 Array.form(control.options).forEach(...)，原因见 Array.form 的注释。
+            // 此处不能使用 Array.from(control.options).forEach(...)，原因见 typeOf 的注释。
             var options = control.options;
             var option;
             var i = 0;

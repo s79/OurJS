@@ -87,7 +87,7 @@ execute(function($) {
   ];
 
   // 注入页头及菜单容器。
-  $(document.body).prepend($('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><ul id="menu"></ul></div></div>'));
+  $(document.body).prepend($('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS"><span>OurJS on GitHub</span></a></h2><ul id="menu"></ul></div></div>'));
   if (navigator.isIE6) {
     $('#header').setStyle('position', 'fixed');
   }
@@ -145,6 +145,6 @@ execute(function($) {
       });
 
   // 注入页脚。
-  $(document.body).append($('<div id="footer"><span>&copy;2010-2012 Sun DG. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>'));
+  $(document.body).append($('<div id="footer"><span>©2012 <a href="https://github.com/s79">s79</a>. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>'));
 
 }, true);
