@@ -110,7 +110,7 @@ execute(function($) {
   $menu.find('ul').forEach(function($ul) {
     var $li = $ul.getParent();
     if ($li.getParent() !== $menu) {
-      $li.addClass('folder');
+      $li.getFirstChild().addClass('folder');
     }
   });
 
