@@ -8,7 +8,7 @@
 (area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)-参考。
 colgroup？
 
->TODO: Mask 升级，支持移动设备浏览器的特殊视口。
+>TODO: Overlay 升级，支持移动设备浏览器的特殊视口。
 
 >TODO: 表单序列化。
 
@@ -16,36 +16,26 @@ colgroup？
 
 >TODO: SWFObject
 
->TODO: [LOW] Dialog -> Popup，Mask 没有独立存在的必要，但 Popup 可以选择是否带有 Mask。
+>TODO: [LOW] Dialog -> Popup，Overlay 没有独立存在的必要，但 Popup 可以选择是否带有 Overlay。
 
 /*
 TODO: [LOW] fadeIn/fadeOut 逻辑合并；animation.stop 方法缺少恢复初始状态的功能（考虑到通过事件添加的非线性变换，此功能难以实现，暂建议在 playstart 事件发生时手动处理）。
 DONE: 已实现。
-*/
 
-/*
 TODO: 绑定事件时增加 :once 特性。
-DONE: 以上取消，它使 API 变的复杂。可以通过 label 来手动实现 once 或者 twice 之类的功能。
-*/
+DONE: 以上取消，它使 API 变复杂。可以通过 label 来手动实现 once 或者 twice 之类的功能。
 
-/*
 TODO: components 的 options 参数，应区分为“可改写”和“不可改写”两种，“不可改写”的不要附加在实例上。
 DONE: 以上取消，太复杂。
       现在的方式是将选项保存到实例的 options 属性内。既然叫做“选项”，就应该让它们都可以改写，并且能在特定的时机生效。
-*/
 
-/*
 TODO: 事件部分 fire 参数由 type 改为 name。
 DONE: 不会实施这个修改，这会把事情变复杂。如果需要触发特定的一些监听器，应该为它们单独指定 type。
-*/
 
-/*
 TODO: Animation 继续参考 CSS3 Transition，增加 delay 参数，并对外暴露 timingFunction。
       [low] 添加反向动画支持。
 DONE: Animation 已使用新的思路设计，上述内容全部可以实现。
-*/
 
-/*
 TODO: 以下命令不符合预期，应考虑加入 deffered 类型。
       或者加入在调用 stopAnimation 也会触发的 onComplete 回调，这样就可以在 onComplete 里加入状态处理的代码，而在 onFinish 中加入其他（如动画队列）代码。
       bodyMask.show().hide().show().hide().show().hide().show();
@@ -72,9 +62,6 @@ Modules 即可分离的业务逻辑，各自独立，不会互相依赖，也不
 只有 Application 可以与 Modules 通信。
 只有 Modules 可以与 Application 通信。
 
-[Components]
-Components 提供默认选项和类似 window/document/Element 对象的事件机制。
-
 [inherit]
 extends 只能逐级继承，应使用原型链。
 implement 可以并行实现多个“接口”（实际也应用各构造器），应使用原型拷贝。
@@ -82,10 +69,6 @@ implement 可以并行实现多个“接口”（实际也应用各构造器）�
 [API 风格]
 可选参数不再强制为一个 options，必要时应归类以保持同类方法的参数含义相同。
 
-#http://www.slideshare.net/Dmitry.Baranovskiy/your-javascript-library
-Everything should be made as simple as possible, but no simpler.
-
-#http://blog.sina.com.cn/s/blog_523491650100eivg.html
 简单、自然、完整、一致、易扩展。
 
 API必须要提供充分的功能，以供调用者完成自己的任务。
@@ -96,3 +79,6 @@ API应该从调用者的角度来进行设计。
 好的API绝不推卸责任，把自己该做的事情留给别人。
 在实现API之前，就应该把API文档化。
 好的API应当符合工效学。
+
+#http://www.slideshare.net/Dmitry.Baranovskiy/your-javascript-library
+Everything should be made as simple as possible, but no simpler.
