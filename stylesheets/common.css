@@ -73,7 +73,7 @@ td { padding: 2px 5px; border: 1px solid silver; font-size: 14px; }
 th { background: whitesmoke; }
 
 /* 代码 */
-pre { margin: 10px 0; padding: 5px; border: 1px solid #EEE8AA; border-radius: 2px; background: #FFFFE1; color: #333; white-space: pre-wrap; word-wrap: break-word; }
+pre { margin: 10px 0; padding: 5px 10px; border: 1px solid #EEE8AA; border-radius: 3px; background: #FFFFE1; color: #333; white-space: pre-wrap; word-wrap: break-word; }
 
 /* 备注 */
 blockquote { margin: 10px 0; padding: 0 10px; border: 1px dotted #888; background-image: url(../images/bg_comment.png); color: #333; font-size: 12px; }

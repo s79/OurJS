@@ -538,7 +538,7 @@
   cookie.removeItem = function(key, options) {
     options = options || {};
     options.expires = new Date(0);
-    this.set(key, '', options);
+    this.setItem(key, '', options);
   };
 
 //==================================================[localStorage 补缺]
