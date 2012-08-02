@@ -1,6 +1,5 @@
-//==================================================[页头页脚]
 execute(function($) {
-  // 菜单数据。
+//--------------------------------------------------[菜单数据]
   var menuData = [
     {
       text: '简介',
@@ -86,7 +85,7 @@ execute(function($) {
     }
   ];
 
-  // 注入页头及菜单容器。
+//--------------------------------------------------[页头]
   $(document.body).prepend($('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS"><span>OurJS on GitHub</span></a></h2><ul id="menu"></ul></div></div>'));
   if (navigator.isIE6) {
     $('#header').setStyle('position', 'fixed');
@@ -144,7 +143,72 @@ execute(function($) {
         }
       });
 
-  // 注入页脚。
+//--------------------------------------------------[页脚]
   $(document.body).append($('<div id="footer"><span>©2012 <a href="https://github.com/s79">s79</a>. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>'));
+
+//--------------------------------------------------[书签]
+  document.on('click:relay(a)', function() {
+    var href = this.href;
+    if (href.contains('#')) {
+      var $target = $(href.slice(href.indexOf('#')));
+      if ($target) {
+        var scrollTop = window.getPageOffset().y;
+        var top = $target.getClientRect().top + scrollTop;
+        new Animation()
+            .addClip(
+            Animation.createBasicRenderer(function(x, y) {
+              window.scrollTo(0, scrollTop + ((top - 50) - scrollTop) * y);
+            }), 0, 200, 'easeInOut')
+            .on('playfinish', function() {
+              $target.highlight('yellow', 'backgroundColor', {duration: 1000})
+            })
+            .play();
+        return false;
+      }
+    }
+  });
+
+//--------------------------------------------------[提纲]
+  var $content = $('#content');
+
+  if ($content.getData('outline') === 'enabled') {
+    // 创建“显示提纲”按钮。
+    var $outline = $('<div id="outline"><a href="javascript:void(\'shownOutline\');" class="control">提纲</a><div><ul></ul></div></div>');
+    $(document.body).append($outline.setStyle('position', 'fixed'));
+
+    // 注入提纲。
+    var $outlineList = $outline.getLastChild().getFirstChild();
+    // 若标题没有 id 则为其指定一个 id，注意此 id 与标题的位置有关，因此不宜作为书签使用。
+    var uid = 12960;
+    $content.find('h1, h2 ,h3, dt').forEach(function($heading) {
+      if (!$heading.id) {
+        $heading.id = (uid++).toString(36);
+      }
+      $outlineList.append($('<li class="' + $heading.nodeName.toLowerCase() + '"><a href="#' + $heading.id + '">' + $heading.innerText + '</a></li>'));
+    });
+
+    // 定位及显示。
+    window
+        .on('resize', function() {
+          var viewportSize = window.getClientSize();
+          var viewportWidth = viewportSize.width;
+          var viewportHeight = viewportSize.height;
+          if (viewportWidth < 1110 || viewportHeight < 300) {
+            $outline.setStyle('display', 'none');
+          } else {
+            $outline.setStyles({display: 'block', left: $content.getClientRect().right + 10, top: Math.floor(Math.min(viewportHeight / 3, 120))});
+            $outlineList.setStyle('height', Math.limit(viewportHeight - 200, 160, 600));
+          }
+        })
+        .fire('resize');
+    $outline
+        .on('mouseenter', function() {
+          this.addClass('shown');
+        })
+        .on('mouseleave', function() {
+          this.removeClass('shown');
+        });
+
+  }
 
 }, true);

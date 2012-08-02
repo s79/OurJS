@@ -342,7 +342,6 @@
     } else {
       $element[$element.hasClass(className) ? 'removeClass' : 'addClass'](className);
     }
-    console.log($element.className);
     return $element;
   };
 
