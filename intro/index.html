@@ -8,9 +8,12 @@
 <script src="../scripts/prettify.js"></script>
 <link rel="stylesheet" href="../stylesheets/prettify.css">
 <style>
+h3 strong { color: #BE1D2C; }
 ul ul { color: #666; font-size: 12px; }
 ul ul p { margin-bottom: 0; }
 ul ul pre { margin-top: 5px; border-color: silver; background-color: #F8F8F8; }
+#outline .h3 a,
+#outline .h3 a:visited { color: #333; }
 </style>
 <script>
 execute(function($) {
@@ -24,6 +27,7 @@ execute(function($) {
 </head>
 <body>
 <div id="content" data-outline="enabled">
+  <!--
   <h1>选择开发框架或类库</h1>
   <p>现在，JavaScript 的使用人群已经非常广，它在 WEB 开发中有着无可替代的位置，为简化开发而设计的各种框架<sup>1</sup>或类库<sup>2</sup>也层出不穷。</p>
   <p>在着手一个项目时，怎样选择合适的框架或类库，是一个值得考虑的问题。如果你正面临这个选择，不妨从以下三点进行考量：</p>
@@ -58,6 +62,7 @@ execute(function($) {
     <li>“框架”是指面向 WEB 应用的开发平台，通常会提供浏览器兼容性问题的解决方案、扩展语言功能、约定框架自身的扩展方法、提供梳理应用逻辑的模式等。在一个 WEB 应用里，应该只使用一种框架。</li>
     <li>“类库”是指为解决某一方面的问题而设计的工具集，它们是不依赖于任何框架的。在一个 WEB 应用里，可以使用多种类库。</li>
   </ol>
+  -->
 
   <h1>OurJS 简介</h1>
   <p>OurJS 是一个适用于 WEB 开发的 JavaScript 框架，它能让开发者使用可预期的 API 自由的编程，写出具备良好的兼容性、可读性和扩展性的代码。</p>
@@ -68,22 +73,58 @@ execute(function($) {
     </p>
   </blockquote>
 
-  <h2>OurJS 的设计思路</h2>
-  <h3>化繁为简</h3>
+  <h2>设计思想</h2>
+  <h3><strong>化繁为简</strong><span> —— OurJS 致力于将繁琐的事情变得简单。</span></h3>
   <ul>
     <li>
-      OurJS 不会把简单问题复杂化，不引入除 JS 和 DOM 范畴外的新概念，避免使用容易被误会的包装对象——如果你抬起头来就可以看见月亮，又何必去爬树？
+      <p class="referral">不创造 JS 和 DOM 范畴之外的概念。</p>
+      <p class="comment">它们本身就在不断地创造新概念，OurJS 不会再添乱。</p>
+    </li>
+    <li>
+      <p class="referral">不模拟其他语言的“类”和“继承”的机制。</p>
+      <p class="comment">JS 的作用域链和原型链特性已足够实用，没必要以蹩脚的方式去效仿其他语言的“类”和“继承”。</p>
+    </li>
+    <li>
+      <p class="referral">没有“命名空间”。</p>
+      <p class="comment">OurJS 本身没有，但提供了方法去创建，必要时开发者可以在编写应用时使用。</p>
+    </li>
+    <li>
+      <p class="referral">避免使用包装对象。</p>
+      <p class="comment">因此不必去关注原始对象与包装对象的区别，也不会出现误用的情况。要操作一个对象，直接调用它的方法或属性即可。</p>
+    </li>
+    <li>
+      <p class="referral">面对一种需求只提供一种方式。</p>
+      <p class="comment">
+        当某个需求可以通过灵活的使用某个已有功能，或清晰的组合多个功能实现时，则不会提供另一个新的功能。<br>
+        比如要把元素 A 插入到元素 B 的前边，使用 A.putAfater(B) 即可实现，因此没有提供 B.someMethod(A) 这样的方法。
+      </p>
+    </li>
+    <li>
+      <p class="referral">让旧浏览器能尽可能多的使用新的标准 API。</p>
+      <p class="comment">这样可以减少 OurJS 的自定义 API 的数量。</p>
+    </li>
+    <li>
+      <p class="referral">预置功能齐全的“组件”以简化开发。</p>
+      <p class="comment">这些组件的粒度适当，灵活可控，可以很方便的解决常见的需求。</p>
+    </li>
+    <li>
+      <p class="referral">提供“模块-应用”机制来梳理复杂的逻辑。</p>
+      <p class="comment">各模块可以独立进行开发和测试，应用做的事情就是将各模块拼装起来。</p>
     </li>
   </ul>
   <blockquote>
     <p>
+      "Entities should not be multiplied unnecessarily." -- Occam's Razor<br>
+      “如无必要，勿增实体。” —— 奥卡姆 剃刀定律
+    </p>
+    <p>
       "Everything should be made as simple as possible, but no simpler." -- Albert Einstein<br>
-      “任何事情都应该尽可能的做到简单，简单到极致。”—— 爱因斯坦
+      “任何事情都应该尽可能的做到简单，简单到极致。” —— 爱因斯坦
     </p>
   </blockquote>
 
-  <h2>OurJS 的特点</h2>
-  <h3 id="feature.1">功能完善 —— 提供覆盖面广、粒度恰当的功能，可以通过灵活的配置和组合来实现 WEB 开发中的绝大多数需求。</h3>
+  <h2>特点</h2>
+  <h3 id="feature.1">功能完善 —— 提供的功能覆盖面广、细节完善，可灵活配置与组合，能实现 WEB 开发中的绝大多数需求。</h3>
   <ul>
     <li>
       <p>OurJS 通过<strong>扩展</strong> JS 内置对象、浏览器内置对象、DOM 对象，<strong>封装</strong>组件，<strong>模块化管理</strong>代码等方式，提供了丰富的功能。</p>
@@ -93,16 +134,10 @@ execute(function($) {
       <ul>
         <li>
           <p>
-            当某个需求可以通过灵活使用某个已有功能，或可以清晰的通过组合多个功能实现时，则不会提供另一个新的功能，以保持 API 的简洁。<br>
-            比如要把元素 A 插入到元素 B 的前边，使用 A.putAfater(B) 即可实现，因此没有提供 B.someMethod(A) 这样的方法。
-          </p>
-        </li>
-        <li>
-          <p>
             Request 组件设计为每发送一个请求就必然会收到一个响应，即便本次请求超时、或本次请求被取消的情况下也是如此。其内置的被动事件只有 start 和 finish 两个。<br>
             在请求结束时可以在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中显示的提示信息隐藏。<br>
-            在实际应用中，响应状态码是 200 的情况未必代表“操作成功”，或者说一个操作未必只有“成功”和“失败”、“超时”这三种状态，因此大多数库中预置的这些类型的事件或回调是不合适的，反而束缚了开发者。<br>
-            而使用 OurJS 提供的 Request 组件对一次请求结果的详细判断可以通过 finish 事件的监听器中传入的事件对象进行处理，或者使用 responseParser 进行预处理，必要时开发者还可以根据情况添加自定义事件 success、failure、timeout 等。<br>
+            在实际应用中，响应状态码是 200 的情况未必代表“操作成功”，或者说一个操作未必只有“成功”和“失败”、“超时”这三种状态，因此大多数库中预置的这些类型的事件或回调是不合适的，反而束缚了我们。<br>
+            而使用 OurJS 提供的 Request 组件对一次请求结果的详细判断可以通过 finish 事件的监听器中传入的事件对象进行处理，或者使用 responseParser 进行预处理，必要时还可以根据情况添加自定义事件 success、failure、timeout 等。<br>
             如果在本项目中与服务端的数据交互格式有明确的约定，那么可以将上述处理设置到 Request 组件的默认选项内，以实现本项目定制版的异步交互组件。
           </p>
         </li>
@@ -122,7 +157,7 @@ execute(function($) {
     <li>
       <p>
         对于一些在新的规范（草案）中定义的，或已成为事实标准的特性，在尚未支持的浏览器上通过技术手段予以<strong>补缺</strong>。<br>
-        这些 API 的语法是原生的，也是最自然的。使用它们时，开发者可以像面对最新的浏览器一样编写代码。
+        这些 API 的语法是原生的，使用它们时，可以像面对最新的浏览器一样编写代码。
       </p>
       <ul>
         <li>
@@ -142,7 +177,7 @@ execute(function($) {
     <li>
       <p>
         对于有规范支持但无法通过技术手段实现补缺的，或者无规范支持仅为方便使用而提供的特性，以<strong>扩展</strong>的方式提供。<br>
-        设计这些扩展的 API 时均参考了原生 API 的语法，语义明确，并具备“自注释”的特点。
+        设计这些扩展的 API 时均参考了原生 API 的语法，语义明确，流畅自然。
       </p>
       <ul>
         <li>
@@ -167,7 +202,7 @@ element.<strong>on</strong>('click', function(e) {...});
     </li>
   </ul>
 
-  <h3>风格一致 —— 功能上有共同点的 API 也有共同的风格，便于记忆，并可以通过熟悉的 API 推测出其他 API 的用法。</h3>
+  <h3>风格一致 —— 功能上有共同点的 API 在风格上也一致，便于理解和记忆。</h3>
   <ul>
     <li>
       <p>不同对象的同类方法的名称一致，同名参数的含义也基本一致。</p>
@@ -222,7 +257,7 @@ element.<strong>on</strong>('click', function(e) {...});
           <p>所有组件都可以通过 on、off 和 fire 方法来处理事件。</p>
         </li>
         <li>
-          <p>执行每个组件的实例方法时，都会触发一个同名事件。</p>
+          <p>执行每个组件的实例方法时，都会“主动触发”一个同名的事件，并会在随后根据情况“被动触发”表示处理过程或结果的事件。</p>
         </li>
       </ul>
     </li>
@@ -238,27 +273,39 @@ element.<strong>on</strong>('click', function(e) {...});
       <p class="referral">OurJS 有组件构造器，要添加新的组件，使用组件构造器即可创建出和现有组件具有相同特性的新组件。</p>
       <p class="comment">
         要扩展已有的组件，使用 Component 提供的事件机制来添加新的事件（可以为组件添加任意多的自定义事件类型），并在对应的监听器中进行必要的处理即可。<br>
-        OurJS 没有提供“继承”的机制，这是为了避免引入不必要且不严密的概念而将简单问题复杂化。当一个组件依赖另一个时，使用“组合”的方式会更加灵活可控（具体的实施方式可以参考 TabPanel 和 Slideshow 的源码）。
+        OurJS 没有提供“继承”机制，当一个组件依赖另一个时，可以使用“组合”的方式进行灵活的扩展（具体的实施方式可以参考 TabPanel 和 Slideshow 的源码）。
       </p>
     </li>
     <li>
-      <p class="referral">面对复杂的需求，OurJS 提供了“模块-应用”机制来化繁为简。使用这个机制来编写的应用，在需要扩展其功能时，为其添加新的模块，并添加新的应用函数来处理新的逻辑即可。</p>
+      <p class="referral">在需要扩展应用的功能时，为其添加新的模块，并添加新的应用函数来处理新的逻辑即可。</p>
       <p class="comment">这样做可以避免新增的逻辑影响以前的代码，并且只对新模块进行单独的测试即可。<br>灵活使用模块-应用机制，可以游刃有余的应对频繁改动的项目。</p>
     </li>
   </ul>
 
-  <h2>OurJS 的要求和限制</h2>
+  <h2>要求和限制</h2>
   <h3>OurJS 会强制浏览器运行在“标准模式”下。</h3>
-  <p>这样可以确保开发者编写出规范的代码，并获得更好的兼容性、发挥浏览器的最大功效。</p>
-  <p>当浏览器工作在非标准模式下时，开发者将收到一条警告信息。</p>
+  <ul>
+    <li>
+      <p>这样可以确保开发者写出规范的代码，并获得更好的兼容性、发挥浏览器的最大功效。</p>
+    </li>
+    <li>
+      <p>当浏览器工作在非标准模式下时，开发者将收到一条警告信息。</p>
+    </li>
+  </ul>
 
   <h3>OurJS 只可以和非侵入式设计的类库共存。</h3>
-  <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此能够独立解决大部分需求。</p>
-  <p>当必须引入其他的类库以满足特定需求时，要注意：OurJS 使用了侵入式设计<sup>1</sup>，因此不能和其他使用同样方式设计的类库共存<sup>2</sup>。</p>
+  <ul>
+    <li>
+      <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此能够独立解决大部分需求。</p>
+    </li>
+    <li>
+      <p>当必须引入其他的类库以满足特定需求时，要注意：OurJS 使用了侵入式设计<sup>1</sup>，因此不能和其他使用同样方式设计的类库共存<sup>2</sup>。</p>
+    </li>
+  </ul>
   <ol class="comment">
     <li>
       JavaScript 框架提供 API 的风格有三种：静态方法、包装对象和原型扩展。<br>
-      为了提供<strong>自然的语法</strong>，并保持 <strong>API 的一致性</strong>，OurJS 优先使用了“原型扩展”这种方式。<br>
+      为了提供<strong>流畅自然的语法</strong>，并保持 <strong>API 的一致性</strong>，OurJS 优先使用了“原型扩展”这种方式。<br>
       一些无法使用“原型扩展”的功能使用“静态方法”提供，如 Object.append，Date.from 等。<br>
       只有事件对象使用了“包装对象”方式，这是因为在处理浏览器兼容性问题时必须修改某些属性，而它们中的一部分在原生 DOM 事件对象中是只读的。
     </li>
