@@ -797,7 +797,7 @@
    * @description
    *   注意：
    *   Chrome 在 dataset 中不存在名称为 key 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
-   * @see http://www.w3.org/TR/2011/WD-html5-20110525/elements.html#embedding-custom-non-visible-data-with-the-data-attributes
+   * @see http://www.w3.org/TR/html5/global-attributes.html#embedding-custom-non-visible-data-with-the-data-attributes
    */
   Element.prototype.getData = 'dataset' in html ? function(key) {
     return this.dataset[key] || undefined;
@@ -915,7 +915,7 @@
    *   Element.prototype.getChildCount
    *
    * 参考：
-   *   http://dev.w3.org/2006/webapi/ElementTraversal/publish/ElementTraversal.html#interface-elementTraversal
+   *   http://www.w3.org/TR/ElementTraversal/#interface-elementTraversal
    *   http://www.quirksmode.org/dom/w3c_core.html
    *   http://w3help.org/zh-cn/causes/SD9003
    */
@@ -1203,8 +1203,7 @@
    * 参考：
    *   http://jquery.com/
    *   http://www.quirksmode.org/dom/w3c_events.html
-   *   http://www.w3.org/TR/2011/WD-DOM-Level-3-Events-20110531/#events-module
-   *   http://www.w3.org/TR/2003/WD-DOM-Level-3-Events-20030331/ecma-script-binding.html
+   *   http://www.w3.org/TR/DOM-Level-3-Events/#events-module
    */
 
   // 已绑定的事件池。
@@ -2030,17 +2029,23 @@
 
 //--------------------------------------------------[Element.prototype.fire]
   /**
-   * 触发本元素的某类事件，运行相关的事件监听器。
+   * 触发本元素的某类事件。
    * @name Element.prototype.fire
    * @function
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    *   data 的属性会被追加到事件对象中，但名称为 originalEvent 的属性除外。
    * @returns {Element} 本元素。
+   * @description
+   *   调用本方法触发的事件，其默认行为将被阻止。
+   *   当需要一个事件执行其默认行为时，不应该使用本方法，而应该调用与该事件类型同名的方法（如果有），如 click、focus、submit 等，调用这些方法时，对应的事件也会被触发。
    */
   Element.prototype.fire = function(type, data) {
     var item;
     var handlers;
+    // 由于以下几点，本实现不使用浏览器自身的事件触发方式，因此也不会执行默认行为：
+    // 1. IE6 IE7 IE8 的 fireEvent 无法执行默认行为，并且 window 对象也没有提供 fireEvent 方法。
+    // 2. 在标准浏览器中使用 dispatchEvent 派发的 'submit' 事件，也无法执行默认行为，但 'click' 事件却可以。
     var dummyEvent = {
       // 使用空字符串作为虚拟事件的标识符。
       type: '',
@@ -2051,6 +2056,7 @@
     };
     // 避免事件对象的 originalEvent 属性被参数 data 的同名属性覆盖。
     var event = Object.append(new Event(dummyEvent, type), data || {}, {blackList: ['originalEvent']});
+    // 模拟事件的冒泡传播。
     var $element = this;
     while ($element) {
       if (handlers = (item = eventPool[$element.uid]) && item[type]) {

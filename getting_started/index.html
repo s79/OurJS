@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="../stylesheets/prettify.css">
 <style>
 ul.downloads { list-style: none; padding-left: 1em; }
+em { font-style: normal; text-decoration: underline; }
 </style>
 <script>
 execute(function($) {
@@ -21,7 +22,7 @@ execute(function($) {
 </script>
 </head>
 <body>
-<div id="content">
+<div id="content" data-outline="enabled">
   <h1>OurJS 入门指南</h1>
 
   <h2>使用和下载</h2>
@@ -45,10 +46,11 @@ execute(function($) {
     <li><a href="../src/components/dialog.js" target="_blank" class="link">Dialog</a> 模态对话框</li>
     <li><a href="../src/components/paginator.js" target="_blank" class="link">Paginator</a> 分页导航条</li>
     <li><a href="../src/components/calendar.js" target="_blank" class="link">Calendar</a> 月历</li>
+    <li><a href="../src/components/validator.js" target="_blank" class="link">Validator</a> 表单验证</li>
   </ul>
 
   <h2>处理 JS 内置对象</h2>
-  <p>OurJS 为了增强 JavaScript 的处理能力，为各种内置对象提供了很多扩展方法。调用这些方法时，和调用它们的原生方法一样方便：</p>
+  <p>OurJS 为了增强 JavaScript 的处理能力，为各种内置对象提供了多种扩展方法。调用这些方法时，和调用它们的原生方法一样方便：</p>
 <pre>
 var list = [0, 1, 2, 3, 4];
 list.reverse().getLast();
@@ -59,8 +61,8 @@ Object.append(defaultOptions, newOptions, {whiteList: Object.keys(defaultOptions
 // 让 newOptions 覆盖 defaultOptions 的同名属性。
 </pre>
 <pre>
-var day = Date.from('2012-06-25 12:00:00', 'YYYY-MM-DD hh:mm:ss').getDay();
-// day 的值为 1，2012年6月25日是星期一。
+var day = Date.from('2010-03-17 20:23:00', 'YYYY-MM-DD hh:mm:ss').getDay();
+// day 的值为 3，2010年3月17日是星期三。
 </pre>
   <blockquote>
     <p>关于这些 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的左侧列上方大写字母开头的部分。</p>
@@ -88,10 +90,10 @@ var username = localStorage.getItem('username');
   <h2>获取、创建和处理 DOM 对象</h2>
   <p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>、<strong>元素</strong>和<strong>事件</strong>四种类型<sup>1</sup>。</p>
   <p>其中窗口和文档对象也是特殊的浏览器内置对象，和其他浏览器内置对象一样，它们在页面中也是唯一的实例，可以直接获取（即 window 和 document）而不能被创建。如果页面中有通过 frame 嵌入的另一个页面，那么这个被嵌入的页面有其自己的窗口和文档对象。</p>
-  <p>元素对象会有多个实例，它们通常是以 DOM 树中的一个节点的形式存在，可以创建新的元素对象，也可以对它们进行多种形式的修改或删除。</p>
+  <p>元素对象会有多个实例，它们通常是以 DOM 树中的一个节点的形式存在，可以创建新的元素对象，也可以对它们进行修改或删除。</p>
   <p>事件对象是在窗口、文档和元素对象发生事件时被自动创建的，它们会以参数的形式被传入对应的监听器，并可以在这个监听器中进行后续处理。</p>
   <ol class="comment">
-    <li>OurJS 并没有针对除元素外的其他节点类型进行扩展，当必须处理这些类型时，使用原生 DOM 方法即可。</li>
+    <li>OurJS 并没有针对除文档和元素外的其他节点类型进行扩展，因为极少需要直接操作这些类型的数据。当必须处理这些类型时，使用原生 DOM 方法即可。</li>
   </ol>
   <blockquote>
     <p>关于这些 DOM 相关 API 的详细信息，请参考 <a href="../docs/api.html" target="_blank" class="link">API 参考</a> 的中间列的内容。</p>
@@ -122,11 +124,11 @@ var $container = document.$('#container');
 var $message = document.$('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd&gt;&lt;/dd&gt;&lt;/dl&gt;');
 // 创建一个 dl 元素。虽然每次只能创建一个元素，但这个元素可以包含任意多的后代元素。
 </pre>
-  <p>像很多库一样，OurJS 也可以使用 $ 来代替 document.$，以简化代码。具体做法请参考下文“<strong>使用 execute 方法执行代码块</strong>”一节中的内容。</p>
+  <p>像很多库一样，OurJS 也可以使用 $ 来代替 document.$，以简化编码。具体做法请参考下文“<strong>使用 execute 方法执行代码块</strong>”一节中的内容。</p>
   <blockquote>
     <p>
       从本节开始，你会发现一些变量以 $ 开头，如上边两个例子中的 $container 和 $message，OurJS 的所有演示代码（也包括源码）中都会使用这样的方式来标识一个元素对象，以使代码更易读。<br>
-      实际开发中，在为元素类型的变量命名时（注意不是属性名），也建议这么做。
+      实际开发中，在为元素类型的变量或形参命名时（注意不是属性名），也建议这么做。
     </p>
   </blockquote>
 
@@ -137,7 +139,7 @@ var $message = document.$('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd
 if ($input.offsetWidth) {
   $input.addClass('active').focus();
 }
-// addClass 是为处理元素的类添加的扩展方法。
+// addClass 是为处理元素的类而添加的扩展方法。
 </pre>
   <p>
     上一节中提到，OurJS 提供的获取和创建元素的 API document.$ 每次只能获取或创建一个元素。<br>
@@ -152,7 +154,7 @@ $container.find('li').forEach(function($item) {
 </pre>
   <p>
     这点和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路：<br>
-    恰当的设计可以避免很多需要“批量操作元素”的场景。如通过修改某个恰当的元素节点的 class 名称，来改变这个 DOM 树分支的“状态”，并配合 CSS 来达到目的<sup>2</sup>。
+    恰当的设计可以避免很多需要“批量操作元素”的场景。如通过修改某个元素的 class 属性来改变这个 DOM 树分支的“状态”，再配合 CSS 来达到目的<sup>2</sup>。
   </p>
   <ol class="comment">
     <li>
@@ -160,14 +162,14 @@ $container.find('li').forEach(function($item) {
       而只针对单一元素进行操作则更加严谨和高效，能杜绝不易察觉的误操作，并避开了提供针对元素集合进行操作的 API 时会面临的“get first set all”还是“get all set all”的两难抉择。
     </li>
     <li>
-      这样做的好处是能够以最清晰的代码逻辑来处理更复杂的情况。<br>
+      这样做的好处是能够以最清晰的代码逻辑来处理复杂的情况 —— 并不是所有的事情都要由 JS 来做。<br>
       如上例，可以修改为 <code>$container.addClass('selected');</code> 并在 CSS 中加入 <code>.selected li { color: silver; font-style: italic; }</code> 来达到相同目的。
     </li>
   </ol>
 
   <h3>处理事件</h3>
-  <p>窗口、文档和元素对象都可能发生事件并产生事件对象，OurJS 提供了一套完整的事件管理机制，并对常见的事件做了兼容性处理。</p>
-  <p>这三种类型的对象都有 on、off 和 fire 方法，并且它们的作用也完全一致：on 用来添加事件监听器，off 用来删除事件监听器，fire 用来触发一个事件。</p>
+  <p>OurJS 提供了一套完整的事件管理机制，并对常见的事件做了兼容性处理。</p>
+  <p>窗口、文档和元素对象都可能发生事件并产生事件对象，它们都有 on、off 和 fire 方法来添加事件监听器、删除事件监听器和触发一个事件。</p>
   <blockquote>
     <p>一些事件类型只有特定的 DOM 对象才支持，详情请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
   </blockquote>
@@ -194,7 +196,7 @@ document.on('mouseenter, mouseleave', listener);
   <h4>事件代理</h4>
   <p>
     事件代理是一个很重要的功能，OurJS 使用“代理选择符”对指定的元素代理事件监听。<br>
-    “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 是“接替”的意思，selector 可以为任意 CSS 选择符，它们合在一起表示“接替发生在<strong>以目标元素<sup>2</sup>为起点，能被 selector 选中的后代元素</strong>上的事件”，亦即为这些后代元素代理事件监听：
+    “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 表示“接替”，selector 可以为任意 CSS 选择符，它们合在一起表示“接替<em>以目标元素为起点，能被 selector 选中的后代元素</em>来处理传播到<em>这些元素</em>的事件”，亦即为这些后代元素代理事件监听：
   </p>
 <pre>
 $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
@@ -203,18 +205,13 @@ $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
 </pre>
   <ol class="comment">
     <li>这个语法参考自 MooTools。</li>
-    <li>
-      应避免让 window 和 document 对象为其他元素代理事件监听，以免在 IE 低版本中遇到兼容性问题。<br>
-      由于这个原因，本小节中使用了“元素”一词来代替“DOM 对象”，以明确事件代理的这一特殊情况。<br>
-      要对整个页面范围内的元素进行选择性代理时，可以将监听器添加到 HTML 或 BODY 元素上。
-    </li>
   </ol>
   <blockquote>
     <p>不是所有类型的事件都可以被代理，详情请参考 <a href="../docs/events.html" target="_blank" class="link">DOM 事件列表</a>。</p>
   </blockquote>
 
   <h4>删除已添加的事件监听器</h4>
-  <p>要选择性的删除已添加的、特定的一个或多个监听器时，首先在添加这些监听器时应使用“标签”来对它们进行分类。<br>“事件类型”、“标签”和“代理选择符”的组合称为“事件名”，在调用 off 方法删除事件时就是以“事件名”为依据对指定的监听器进行删除的：</p>
+  <p>要选择性的删除已添加的、特定的一个或多个监听器时，首先在添加这些监听器时应使用“标签”来对它们进行标记。<br>“事件类型”、“标签”和“代理选择符”的组合称为“事件名”，在调用 off 方法删除事件时就是以“事件名”为依据对指定的监听器进行删除的：</p>
 <pre>
 $element.on('input', listener1).on('input<strong>.foo</strong>', listener2);
 // .foo 就是 listener2 的标签。listener1 没有指定标签。
@@ -224,7 +221,7 @@ $element.on('input', listener3);
 $element.off('input');
 // 删除在 $element 上添加的所有名为“input”的监听器（listener1 和 listener3），此时名为“input.foo”的监听器 listener2 仍然生效。
 </pre>
-  <p>可以同时设定“标签”和“代理选择符”，以便在必要时删除特定的监听器：</p>
+  <p>可以同时设定“标签”和“代理选择符”，“标签”在前，“代理选择符”在后：</p>
 <pre>
 $element.on('click.foo:relay(a)', listener1);
 ...
@@ -233,9 +230,9 @@ $element.on('<strong>click.bar:relay(a)</strong>', listener2);
 $element.off('<strong>click.bar:relay(a)</strong>');
 // 删除代理事件监听器 listener2。
 </pre>
-  <p>OurJS 没有提供删除一个DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器名称，这个设计是为了避免监听器被误删<sup>2</sup>。</p>
+  <p>OurJS 没有提直接供删除一个DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器名称，这个设计是为了避免监听器被误删<sup>2</sup>。</p>
   <ol class="comment">
-    <li>特殊情况是：在调用一个元素的 replace 或 remove 方法时，可以通过参数指定是否清除相应元素的所有类型的所有事件监听器。</li>
+    <li>在调用一个元素的 replace 或 remove 方法时，可以通过设置参数 keepListeners 为 false 来清除为该元素添加的所有事件监听器。</li>
     <li>要避免一个监听器被误删，应为其指定一个具有明确含义的“标签”，并确保整个应用中不会有其他地方在为这个元素添加事件监听器时使用这个“标签”。</li>
   </ol>
 
@@ -374,11 +371,11 @@ y.getDescription();
 })();
 </pre>
   <p>使用 execute 方法可以达到相同目的，除此之外还有以下好处：</p>
-  <p>函数 codeBlock 的第一个参数将被传入 document.$，因此可以通过在该函数的形参中写上一个 $，以便在函数内直接使用 $ 而不必担心与其他脚本库的 $ 冲突：</p>
+  <p>函数 codeBlock 被调用时，将传入 document.$ 作为参数，因此可以通过在该函数的形参中写上一个 $，以便在函数内直接使用 $ 而不必担心与其他脚本库的 $ 冲突：</p>
 <pre>
 execute(function(<strong>$</strong>) {
   <strong>$</strong>('#container').addClass('selected');
-  // 在包含代码块的匿名函数使用 $ 代替 document.$，以便简化内部代码。
+  // 在包含代码块的匿名函数使用 $ 代替 document.$，以简化编码。
 });
 </pre>
   <p>可选参数 waitingForDomReady 可以控制包含代码块的匿名函数的执行时机：</p>
@@ -388,7 +385,7 @@ execute(function(<strong>$</strong>) {
 }, <strong>true</strong>);
 // 包含代码块的匿名函数将在 DOM 树解析完成后执行。
 </pre>
-  <p>OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是 OurJS 的特色之一。</p>
+  <p>OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是 OurJS 的一个明显特点。</p>
 
   <h2>模块和应用</h2>
   <p>“模块”和“应用”是面对复杂的项目时应该使用的策略。在 OurJS 中对它们的定义如下：</p>

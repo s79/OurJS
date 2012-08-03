@@ -188,6 +188,7 @@ execute(function($) {
     });
 
     // 定位及显示。
+    var heightProperty = navigator.isIE6 ? 'height' : 'maxHeight';
     window
         .on('resize', function() {
           var viewportSize = window.getClientSize();
@@ -197,7 +198,7 @@ execute(function($) {
             $outline.setStyle('display', 'none');
           } else {
             $outline.setStyles({display: 'block', left: $content.getClientRect().right + 10, top: Math.floor(Math.min(viewportHeight / 3, 120))});
-            $outlineList.setStyle('height', Math.limit(viewportHeight - 200, 160, 600));
+            $outlineList.setStyle(heightProperty, viewportHeight - 150);
           }
         })
         .fire('resize');

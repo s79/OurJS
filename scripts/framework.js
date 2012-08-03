@@ -1,7 +1,7 @@
 (function() {
   var commonCss = '/stylesheets/common.css';
   var commonJs = '/scripts/common.js';
-  if (location.host.indexOf('s79') === 0) {
+  if (location.pathname.indexOf('OurJS') === 1) {
     commonCss = '/OurJS' + commonCss;
     commonJs = '/OurJS' + commonJs;
   }
