@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Validator</title>
-<script src="../../our.js"></script>
+<script src="../../dev.js"></script>
 <script src="../../scripts/framework.js"></script>
 <script src="../../src/components/validator.js"></script>
 <style>
@@ -43,17 +43,6 @@ dl.strong dd { background: lime !important; }
 dl.weak .weak,
 dl.medium .medium,
 dl.strong .strong { color: #333; font-weight: bold; }
-  /* 日志 */
-#log { float: right; width: 345px; height: 500px; overflow-y: scroll; background: #252525; color: #8CC; font: 12px Consolas, 'Lucida Console', Courier, SimSun, monospace; }
-#log p { margin: 5px; line-height: 1; }
-#log em,
-#log strong { display: inline-block; margin-right: 2px; padding: 0 3px; border-radius: 8px; font-weight: bold; }
-#log em { background: dodgerblue; color: black; }
-#log strong { background: gold; color: black; }
-#log var { color: white; }
-#log dfn { display: inline-block; padding: 0 1px; border: 1px solid; border-radius: 3px; }
-#log dfn.true { color: greenyellow; }
-#log dfn.false { color: orangered; }
 </style>
 </head>
 <body>
@@ -64,8 +53,13 @@ dl.strong .strong { color: #333; font-weight: bold; }
   <fieldset>
     <legend>表单验证</legend>
     <form id="form" method="get" action="/">
-      <div id="log"></div>
-      <table>
+      <script src="../../scripts/log.js"></script>
+      <script>
+      execute(function($) {
+        $('#log').setStyles({float: 'right', width: 345, height: $('#form_table').offsetHeight});
+      }, true);
+      </script>
+      <table id="form_table">
         <colgroup>
           <col class="key">
           <col class="value">
@@ -218,18 +212,6 @@ dl.strong .strong { color: #333; font-weight: bold; }
   </fieldset>
   <script>
   execute(function($) {
-//--------------------------------------------------[输出日志]
-    var log = function() {
-      var $log = $('#log').on('dblclick', function() {
-        this.empty();
-      });
-      $log.setStyle('height', $log.getNextSibling().offsetHeight);
-      return function(message) {
-        $log.append($('<p>' + message + '</p>'));
-        $log.scrollTop = 2147483647;
-      };
-    }();
-
 //--------------------------------------------------[密码强度检测]
     var RE_REPEATED_CHARACTERS = /(.)\1+/g;
     var getPasswordStrengthScore = function(password) {
@@ -260,7 +242,6 @@ dl.strong .strong { color: #333; font-weight: bold; }
           exponent -= (match.length - 1) * .8;
         });
       }
-      console.log(base, exponent);
       return Math.floor(Math.pow(base, exponent));
     };
 
@@ -368,12 +349,12 @@ dl.strong .strong { color: #333; font-weight: bold; }
           log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
         });
 
-//    console.log($form.getFieldValue('age'));
-//    console.log($form.getFieldValue('os'));
-//    console.log($form.getFieldValue('games'));
-//    console.log($form.getFieldValue('colors'));
-//    console.log($form.getFieldValue('numbers'));
-//    console.log($form.getFieldValue('description'));
+    log('age: <var>' + $form.getFieldValue('age') + '</var>');
+    log('os: <var>' + $form.getFieldValue('os') + '</var>');
+    log('games: <var>' + $form.getFieldValue('games') + '</var>');
+    log('colors: <var>' + $form.getFieldValue('colors') + '</var>');
+    log('numbers: <var>' + $form.getFieldValue('numbers') + '</var>');
+    log('description: <var>' + $form.getFieldValue('description') + '</var>');
 
   });
   </script>

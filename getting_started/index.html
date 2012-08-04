@@ -175,6 +175,7 @@ $container.find('li').forEach(function($item) {
   </blockquote>
 
   <h4>添加一个事件监听器</h4>
+  <p>使用 on 方法来添加事件监听器：</p>
 <pre>
 window.on('resize', listener);
 // 在 listener 被调用时，this 的值为监听目标 window 对象。
@@ -241,12 +242,12 @@ $element.off('<strong>click.bar:relay(a)</strong>');
 <pre>
 window.fire('resize');
 </pre>
-  <p>触发某类事件时，仅会运行目标 DOM 对象上使用 OurJS 添加的监听器，而不会像用户通过特定的操作触发这个事件时，还会有其“默认行为”：</p>
+  <p>调用 fire 方法时，仅会运行目标 DOM 对象上使用 OurJS 添加的监听器，并且其默认行为也将被阻止：</p>
 <pre>
-$form.fire('submit');
-// 并不会让表单 $form 提交。如果要提交它，应调用它的 submit 方法，即 $form.submit()。
+$a.fire('click');
+// 并不会让浏览器跳转到 $a 链接的目标地址。如果要跳转，应调用它的 click 方法，即 $a.click()。
 </pre>
-  <p>当需要一个事件执行其“默认行为”时，不应该使用 fire 方法，而应该调用与该事件类型同名的方法（如果有），如 click、focus、submit 等，调用这些方法时，对应的事件也会被触发。</p>
+  <p>当需要一个元素执行某种行为时，不应该使用 fire 方法，而应该直接调用对应的方法，如 click、select、submit 等。</p>
 
   <h4>事件对象</h4>
   <p>除了少数特殊事件（window 的 beforeunload 和 document 的 domready）外，其他所有事件的监听器均会被传入本次事件发生时所产生的事件对象。</p>

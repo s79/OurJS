@@ -89,7 +89,7 @@
       }
     }
     $output.value += output + '\n';
-    $output.scrollTop = 2147483647;
+    $output.scrollTop += 10000;
     return undefined;
   }
 

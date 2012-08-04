@@ -169,10 +169,10 @@ execute(function($) {
       c: $('#column_c')
     };
     // 同时生成索引文档和细节文档，side 参数仅供索引文档使用。
-    var buildDocument = function(name, side) {
+    var buildDocument = function(side, name, isBuiltIn) {
       // 本类对象的标题。
-      var $indexFieldset = $('<fieldset><legend><a href="#' + name.toLowerCase() + '"><dfn>' + name + '</dfn></a></legend></fieldset>');
-      var $detailsDiv = $('<div id="' + name.toLowerCase() + '"><h1><dfn>' + name + '</dfn></h1></div>');
+      var $indexFieldset = $('<fieldset><legend><a href="#' + name.toLowerCase() + '"><dfn>' + name + '</dfn></a>' + (isBuiltIn ? '' : '<span>(可选)</span>') + '</legend></fieldset>');
+      var $detailsDiv = $('<div id="' + name.toLowerCase() + '" class="details"><h1><dfn>' + name + '</dfn></h1></div>');
       if (!manifest[name]) {
         return;
       }
@@ -226,7 +226,7 @@ execute(function($) {
         'localStorage'
       ]
           .forEach(function(name) {
-            buildDocument(name, 'a');
+            buildDocument('a', name, true);
           });
       [
         'window',
@@ -236,13 +236,18 @@ execute(function($) {
         'Event'
       ]
           .forEach(function(name) {
-            buildDocument(name, 'b');
+            buildDocument('b', name, true);
           });
       [
         'Component',
         'Request',
         'Animation',
-        'Switcher',
+        'Switcher'
+      ]
+          .forEach(function(name) {
+            buildDocument('c', name, true);
+          });
+      [
         'TabPanel',
         'Slideshow',
         'Dialog',
@@ -251,7 +256,7 @@ execute(function($) {
         'Validator'
       ]
           .forEach(function(name) {
-            buildDocument(name, 'c');
+            buildDocument('c', name, false);
           });
     });
 
@@ -263,6 +268,7 @@ execute(function($) {
   var $content = $('#content');
   var $deatilsPanel = $('#details_container');
   var $detailsClose = $('#details_close');
+  var $currentDetails = null;
 
   declareModule('details', function(listen, notify) {
 //--------------------------------------------------[细节层]
@@ -289,14 +295,14 @@ execute(function($) {
       });
       deatilsPanel.setOptions({offsetX: pinnedOffsetX});
     };
+
     // 使用对话框实现。
     var deatilsPanel = new Dialog($deatilsPanel, {
       overlayStyles: {background: 'black', opacity: .05},
       offsetX: 0,
       offsetY: 0
     })
-        .on('open',
-        function() {
+        .on('open', function() {
           // 按下 ESC 键或点击细节层外即关闭细节层。
           $html.on('keydown.deatilsPanel, mousedown.deatilsPanel', function(e) {
             if (e.isMouseEvent && !$deatilsPanel.contains(e.target) || e.which === 27) {
@@ -306,8 +312,7 @@ execute(function($) {
           // 调整窗口尺寸的同时调整细节层的尺寸。
           window.on('resize.deatilsPanel', adjustDeatilsPanel);
         })
-        .on('close',
-        function() {
+        .on('close', function() {
           if (!navigator.isIE6) {
             $header.setStyle('right', 0);
           }
@@ -316,6 +321,7 @@ execute(function($) {
           $html.off('keydown.deatilsPanel, mousedown.deatilsPanel');
           window.off('resize.deatilsPanel');
         });
+
     // 打开/关闭细节层，包裹对话框的方法。
     var detailsLayer = {
       open: function() {
@@ -331,7 +337,10 @@ execute(function($) {
           window.scrollTo(0, offsetY);
           // 打开时的向左移动的效果。
           var detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
-          $deatilsPanel.setStyles({left: detailsPanelLeft + 30, opacity: 0}).morph({left: detailsPanelLeft, opacity: 1}, {duration: 150});
+          $deatilsPanel.setStyles({left: detailsPanelLeft + 30, opacity: 0}).morph({left: detailsPanelLeft, opacity: 1}, {duration: 150, onStart: function() {
+            // 显示当前细节内容。
+            $currentDetails.addClass('current');
+          }});
         }
       },
       close: function() {
@@ -340,6 +349,9 @@ execute(function($) {
           // 关闭时的向右移动的效果。
           var detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
           $deatilsPanel.morph({left: detailsPanelLeft + 15, opacity: 0}, {transition: 'easeIn', duration: 150, onFinish: function() {
+            // 取消当前细节内容。
+            $currentDetails.removeClass('current');
+            $currentDetails = null;
             var offsetY = window.getPageOffset().y;
             deatilsPanel.close();
             window.scrollTo(0, offsetY);
@@ -348,6 +360,7 @@ execute(function($) {
       },
       isOpen: false
     };
+
     // 点击关闭按钮关闭细节层。
     $detailsClose.on('click', function() {
       detailsLayer.close();
@@ -355,7 +368,8 @@ execute(function($) {
     });
 
 //--------------------------------------------------[打开细节层]
-    listen('show', function() {
+    listen('show', function($target) {
+      $currentDetails = $target.hasClass('details') ? $target : $target.getParent();
       detailsLayer.open();
     });
 
@@ -368,10 +382,10 @@ execute(function($) {
 
     // 点击 API 条目，进入细节页的对应位置。
     $content.on('click:relay(a)', function() {
-      notify('details.show');
       var href = this.href;
       var id = href.slice(href.indexOf('#'));
       var $target = $(id);
+      notify('details.show', $target);
       var scrollTop = $deatilsPanel.scrollTop;
       var top = $target.getClientRect().top + scrollTop;
       $deatilsPanel.scrollTop = scrollTop + ((top - 50) - scrollTop);

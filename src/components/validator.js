@@ -159,7 +159,6 @@ execute(function($) {
       Object.forEach(validator.status, function(result, name) {
         if (result === undefined) {
           validatingFields += name + ' ';
-          console.warn('本域验证中', name, result);
         } else {
           allCompletedValidationsPassed = allCompletedValidationsPassed && result;
         }

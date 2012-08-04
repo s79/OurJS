@@ -7,6 +7,7 @@ fieldset { display: block; margin-bottom: 5px; padding: 5px; border: 1px solid #
 fieldset:hover { border-color: gray; }
 legend { padding: 2px 5px; font-weight: bold; font-size: 14px; line-height: 14px; }
 legend dfn { color: steelblue; }
+legend span { margin-left: 5px; font-weight: normal; color: gray; }
 h2 { margin: 0; border-bottom: 1px solid #D5DFE5; background: transparent; color: seagreen; font-weight: normal; font-size: 12px; }
 dl { margin: 5px 0; padding-left: 2px; border-left: 2px solid white; font-size: 12px; color: #666; }
 dt { margin: 0; font-weight: normal; font-size: 12px; }
@@ -17,14 +18,8 @@ samp { color: gray; font-style: italic; }
 dfn { color: steelblue; }
 var { color: sienna; font-style: italic; }
 
-.column { clear: right; float: left; width: 310px; padding: 5px; cursor: default; }
-.column h1 { margin: 0; background: gray; color: white; font-size: 14px; }
-.constructor { border-left: 2px solid red; }
-.static { border-left: 2px solid limegreen; }
-.instance { border-left: 2px solid mediumorchid; }
-.show_short_description dd { display: block; }
-
 #content { height: auto; }
+
 #cutline { margin: 20px; overflow: hidden; }
 #cutline ul { float: right; padding-left: 70px; }
 #cutline li { margin: 2px 0; font-size: 12px; }
@@ -36,9 +31,18 @@ var { color: sienna; font-style: italic; }
 #cutline li.option label { margin-left: 2px; }
 #cutline li.option label:hover { color: #102197; }
 
+.column { clear: right; float: left; width: 310px; padding: 5px; cursor: default; }
+.column h1 { margin: 0; background: gray; color: white; font-size: 14px; }
+.constructor { border-left: 2px solid red; }
+.static { border-left: 2px solid limegreen; }
+.instance { border-left: 2px solid mediumorchid; }
+.show_short_description dd { display: block; }
+
+.details { display: none; }
+.current { display: block; }
 /* --------------------------------------------------[Details] */
 /* layers */
-#details_container { display: none; position: fixed; z-index: 2000; background: white; border-left: 1px solid dimgray; box-shadow: 0 0 10px black; overflow-x: hidden; overflow-y: auto; }
+#details_container { display: none; position: fixed; z-index: 2000; background: white; border-left: 1px solid dimgray; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); overflow-x: hidden; overflow-y: auto; }
 #details { width: 900px; padding: 40px 0 100px 20px; background: white; color: #333; font-size: 14px; }
 #details_close { position: absolute; left: 0; top: 16px; width: 16px; height: 16px; background: url(../images/close.png) no-repeat 0 0; overflow: hidden; cursor: default; }
 #details_close:hover { background-position: -16px 0; }

@@ -2037,15 +2037,12 @@
    *   data 的属性会被追加到事件对象中，但名称为 originalEvent 的属性除外。
    * @returns {Element} 本元素。
    * @description
-   *   调用本方法触发的事件，其默认行为将被阻止。
-   *   当需要一个事件执行其默认行为时，不应该使用本方法，而应该调用与该事件类型同名的方法（如果有），如 click、focus、submit 等，调用这些方法时，对应的事件也会被触发。
+   *   调用本方法时，仅会运行本元素上使用 on 方法添加的此类事件的监听器，并且其默认行为也将被阻止（因为这个事件并不是由用户的操作触发的）。
+   *   如果需要执行某种行为，可以直接在目标元素上调用对应的方法，如 click、select、submit 等，注意这样做可能会触发多个事件。
    */
   Element.prototype.fire = function(type, data) {
     var item;
     var handlers;
-    // 由于以下几点，本实现不使用浏览器自身的事件触发方式，因此也不会执行默认行为：
-    // 1. IE6 IE7 IE8 的 fireEvent 无法执行默认行为，并且 window 对象也没有提供 fireEvent 方法。
-    // 2. 在标准浏览器中使用 dispatchEvent 派发的 'submit' 事件，也无法执行默认行为，但 'click' 事件却可以。
     var dummyEvent = {
       // 使用空字符串作为虚拟事件的标识符。
       type: '',
