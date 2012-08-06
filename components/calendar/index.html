@@ -100,9 +100,8 @@
             var targetHeight = targetRect.height;
             var datePickerRect = $datePicker.getClientRect();
             var datePickerheight = datePickerRect.height;
-            var pageOffsetY = window.getPageOffset().y;
             var top = $target.offsetTop + targetHeight;
-            if ((targetBottom + datePickerheight) > (window.getClientSize().height + pageOffsetY) && (targetTop + datePickerheight) >= pageOffsetY) {
+            if (targetBottom > window.getClientSize().height - datePickerheight && targetTop >= datePickerheight) {
               top -= datePickerheight + targetHeight;
             }
             $datePicker.setStyles({left: $datePicker.offsetLeft, top: top});

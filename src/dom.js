@@ -1578,26 +1578,23 @@
   var dispatchEvent = function($element, handlers, event, isTriggered) {
     var delegateCount = handlers.delegateCount;
     var $target = delegateCount ? event.target : $element;
-    var filters = {};
-    var needsBubble;
     var handler;
     var selector;
-    var from;
-    var to;
+    var filters = {};
+    var i;
+    var length;
     while ($target) {
-      if ($target !== $element) {
-        // 代理监听器。
-        needsBubble = true;
-        from = 0;
-        to = delegateCount;
-      } else {
+      if ($target === $element) {
         // 普通监听器。
-        needsBubble = false;
-        from = delegateCount;
-        to = handlers.length;
+        i = delegateCount;
+        length = handlers.length;
+      } else {
+        // 代理监听器。
+        i = 0;
+        length = delegateCount;
       }
-      while (from < to) {
-        handler = handlers[from];
+      while (i < length) {
+        handler = handlers[i++];
         selector = handler.selector;
         // 如果是代理事件监听，则过滤出符合条件的元素。
         if (!selector || (filters[selector] || (filters[selector] = function(simpleSelector) {
@@ -1625,13 +1622,13 @@
             }
           }
         }
-        from++;
       }
-      if (event.isPropagationStopped() || !needsBubble) {
+      // 普通监听器调用完毕或事件传播被阻止时，不必继续传播事件。
+      if ($target === $element || event.isPropagationStopped()) {
         break;
       }
-      // 代理监听器需要向上传播事件。
-      $target = $target === document ? window : $target.getParent() || $target === html && document || null;
+      // 正在调用代理监听器且事件传播进行中时，需要向上传播事件。
+      $target = $target.getParent() || $target === html && $element;
     }
     // 返回 event 对象以用于 fire 方法中事件的传递及复合事件的处理。
     return event;
@@ -1729,7 +1726,8 @@
             dispatcher = function(e) {
               dispatchEvent($element, handlers, new Event(e || window.event, type), function(event) {
                 var $relatedTarget = event.relatedTarget;
-                return !$relatedTarget || !this.contains($relatedTarget);
+                // 加入 this.contains 的判断，避免 window 和一些浏览器的 document 对象调用出错。
+                return !$relatedTarget || this.contains && !this.contains($relatedTarget);
               });
             };
             dispatcher.type = type === 'mouseenter' ? 'mouseover' : 'mouseout';

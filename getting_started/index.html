@@ -204,6 +204,7 @@ $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
 // $element 元素将为其所有标签名为 li 且类名包含 enabled 的后代元素代理监听 mouseenter 事件。
 // 在 listener 被调用时，this 的值为被代理的 li 元素。
 </pre>
+  <p>在 IE6 IE7 IE8 中，发生在元素对象上的事件如果可以传递，则只能传递到 document 对象，而不会传递到 window 对象，因此不要让 window 对象为某些元素代理事件监听，以保持兼容。</p>
   <ol class="comment">
     <li>这个语法参考自 MooTools。</li>
   </ol>
