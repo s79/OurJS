@@ -143,6 +143,7 @@ var manifest = {
     'document.off',
     'document.fire',
     '#自定义扩展',
+    'document.addStyleRules',
     'document.preloadImages'
   ],
   'Element': [

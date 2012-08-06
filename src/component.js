@@ -132,16 +132,12 @@
    */
   Component.prototype.on = function(name, listener) {
     var component = this;
-    if (name.contains(',')) {
-      name.split(RE_SEPARATOR).forEach(function(name) {
-        Component.prototype.on.call(component, name, listener);
-      });
-      return component;
-    }
     var events = component.events;
-    var type = parseEventName(name).type;
-    var handlers = events[type] || (events[type] = []);
-    handlers.push({name: name, listener: listener});
+    name.split(RE_SEPARATOR).forEach(function(name) {
+      var type = parseEventName(name).type;
+      var handlers = events[type] || (events[type] = []);
+      handlers.push({name: name, listener: listener});
+    });
     return component;
   };
 
@@ -155,31 +151,26 @@
    */
   Component.prototype.off = function(name) {
     var component = this;
-    if (name.contains(',')) {
-      name.split(RE_SEPARATOR).forEach(function(name) {
-        Component.prototype.off.call(component, name);
-      });
-      return component;
-    }
     var events = component.events;
-    var type = parseEventName(name).type;
-    var handlers = events[type];
-    if (!handlers) {
-      return component;
-    }
-    var i = 0;
-    var handler;
-    while (i < handlers.length) {
-      handler = handlers[i];
-      if (handler.name === name) {
-        handlers.splice(i, 1);
-      } else {
-        i++;
+    name.split(RE_SEPARATOR).forEach(function(name) {
+      var type = parseEventName(name).type;
+      var handlers = events[type];
+      if (handlers) {
+        var i = 0;
+        var handler;
+        while (i < handlers.length) {
+          handler = handlers[i];
+          if (handler.name === name) {
+            handlers.splice(i, 1);
+          } else {
+            i++;
+          }
+        }
+        if (handlers.length === 0) {
+          delete events[type];
+        }
       }
-    }
-    if (handlers.length === 0) {
-      delete events[type];
-    }
+    });
     return component;
   };
 
