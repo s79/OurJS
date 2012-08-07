@@ -34,7 +34,7 @@
   <!-- 日期选择器 { -->
   <style>
   .date_picker input { width: 100px; height: 20px; padding: 0 2px; border: 1px solid gainsboro; background: url(calendar.png) no-repeat right center; font-size: 13px; line-height: 20px; cursor: pointer; }
-  .date_picker .calendar { position: absolute; }
+  .date_picker .calendar { display: none; position: absolute; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); }
   .date_picker .calendar td.prev_month.enabled:hover,
   .date_picker .calendar td.next_month.enabled:hover { background: transparent; border-color: yellowgreen; }
   .date_picker .calendar td.enabled:hover { background: greenyellow; border-color: yellowgreen; }
@@ -92,31 +92,45 @@
         isShown: false,
         show: function($target) {
           if (!this.isShown) {
-            var $datePicker = this.getElement();
-            $datePicker.putAfter($target).setStyle('display', 'block');
-            var targetRect = $target.getClientRect();
-            var targetTop = targetRect.top;
-            var targetBottom = targetRect.bottom;
-            var targetHeight = targetRect.height;
-            var datePickerRect = $datePicker.getClientRect();
-            var datePickerheight = datePickerRect.height;
-            var top = $target.offsetTop + targetHeight;
-            if (targetBottom > window.getClientSize().height - datePickerheight && targetTop >= datePickerheight) {
-              top -= datePickerheight + targetHeight;
-            }
-            $datePicker.setStyles({left: $datePicker.offsetLeft, top: top});
+            $datePicker.putAfter($target).setStyles({display: 'block', left: 0, top: 0});
             this.target = $target;
             this.isShown = true;
+            this.reposition();
+            window.on('scroll.datepicker, resize.datepicker', navigator.isIE6 ? function() {
+              setTimeout(function() {
+                datePicker.reposition();
+              }, 0);
+            } : function() {
+              datePicker.reposition();
+            });
             this.fire('show');
           }
           return this;
         },
         hide: function() {
           if (this.isShown) {
-            this.getElement().remove(true);
+            // 不改变节点位置，以免 IE9- 的单元格中 :hover 样式残留。
+            $datePicker.setStyle('display', 'none')/*.remove(true)*/;
             this.target = null;
             this.isShown = false;
+            window.off('scroll.datepicker, resize.datepicker');
             this.fire('hide');
+          }
+          return this;
+        },
+        reposition: function() {
+          if (this.isShown) {
+            var targetClientRect = this.target.getClientRect();
+            var datePickerClientRect = $datePicker.getClientRect();
+            var datePickerheight = datePickerClientRect.height;
+            var currentX = datePickerClientRect.left;
+            var currentY = datePickerClientRect.top;
+            var expectedX = targetClientRect.left;
+            var expectedY = targetClientRect.bottom;
+            if (expectedY + datePickerheight > window.getClientSize().height && targetClientRect.top >= datePickerheight) {
+              expectedY -= datePickerheight + targetClientRect.height;
+            }
+            $datePicker.setStyles({left: parseInt($datePicker.getStyle('left'), 10) + expectedX - currentX, top: parseInt($datePicker.getStyle('top'), 10) + expectedY - currentY});
           }
           return this;
         },
@@ -149,11 +163,15 @@
           });
       // 添加“清除”和“今天”按钮。
       var $clear = $('<span class="btn clear">清除</span>').on('click', function(e) {
-        datePicker.clearValue().hide();
+        if (!this.hasClass('disabled')) {
+          datePicker.clearValue().hide();
+        }
       });
       var today;
       var $today = $('<span class="btn today">今天</span>').on('click', function(e) {
-        datePicker.setValue(today.format()).hide();
+        if (!this.hasClass('disabled')) {
+          datePicker.setValue(today.format()).hide();
+        }
       });
       var $additionalControls = $('<div></div>').append($clear).append($today);
       $datePicker.append($additionalControls);

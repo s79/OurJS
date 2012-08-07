@@ -592,11 +592,13 @@
 
 //--------------------------------------------------[Number.isInteger]
   /**
-   * 检查提供的值是否为整数。
+   * 检查提供的值是否为 IEEE-754 双精度整数。
    * @name Number.isInteger
    * @function
    * @param {*} value 提供的值。
    * @returns {boolean} 检查结果。
+   * @description
+   *   取值范围在 ±Math.pow(2, 53) 之间。
    * @example
    *   Number.isInteger(9007199254740992);
    *   // false
@@ -936,7 +938,6 @@
   var timeZoneOffset = new Date().getTimezoneOffset() * 60000;
   Date.from = function(string, pattern, isUTC) {
     pattern = pattern || 'YYYY-MM-DD';
-
     // 从 string 中参考 pattern 解析出日期数据。
     var extractedData = {};
     var match;
@@ -1034,9 +1035,12 @@
       TZD: (toUTC || timezoneOffset === 0) ? 'Z' : (timezoneOffsetSign + timezoneOffsetHours + ':' + timezoneOffsetMinutes)
     };
 
-    return pattern.replace(RE_DATE_KEYS, function(key) {
+    var date = pattern.replace(RE_DATE_KEYS, function(key) {
       return keys[key];
     });
+    // IE6 IE7 IE8 的 replace 方法会修改正则表达式对象的 lastIndex 属性，并不会在替换结束后将其恢复为 0，此处手动恢复为 0，以免 Date.from 方法中再次使用此正则表达式时出错。
+    RE_DATE_KEYS.lastIndex = 0;
+    return date;
 
   };
 

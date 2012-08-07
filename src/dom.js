@@ -12,7 +12,8 @@
   // 参数分隔符。
   var RE_SEPARATOR = /\s*,\s*/;
 
-  // 将字符串从 Hyphenate 转换为 CamelCase。  // TODO: 所有用到此转换的部分考虑仅支持 Camel Case。
+  // 将字符串从 Hyphenate 转换为 CamelCase。
+  // 目前没有用到此转换函数。
   var HYPHENATE_FIRST_LETTER = /-([a-z])/g;
   var hyphenateToCamelCase = function(string) {
     return string.replace(HYPHENATE_FIRST_LETTER, function(_, letter) {
@@ -20,7 +21,7 @@
     });
   };
 
-  // 将字符串从 Hyphenate 转换为 CamelCase。
+  // 将字符串从 CamelCase 转换为 Hyphenate。
   var CAMEL_CASE_FIRST_LETTER = /[A-Z]/g;
   var camelCaseToHyphenate = function(string) {
     return string.replace(CAMEL_CASE_FIRST_LETTER, function(letter) {
@@ -599,7 +600,7 @@
         break;
       default:
         // 仅 IE6 有 specialCSSPropertyGetter，因此放在此处处理。
-        value = specialCSSPropertyGetter[name] ? specialCSSPropertyGetter[name](this.element) : this.currentStyle[hyphenateToCamelCase(name)];
+        value = specialCSSPropertyGetter[name] ? specialCSSPropertyGetter[name](this.element) : this.currentStyle[name];
     }
     return value || '';
   };
@@ -617,7 +618,7 @@
    * 获取本元素的“计算后的样式”中某个特性的值。
    * @name Element.prototype.getStyle
    * @function
-   * @param {string} propertyName 特性名，支持 camel case 和 hyphenate 格式。
+   * @param {string} propertyName 特性名，仅支持 camel case 格式。
    * @returns {string} 对应的特性值，如果获取的是长度值，其单位未必是 px，可能是其定义时的单位。
    * @description
    *   注意：
@@ -650,7 +651,7 @@
    * 为本元素设置一条行内样式声明。
    * @name Element.prototype.setStyle
    * @function
-   * @param {string} propertyName 特性名，支持 camel case 和 hyphenate 格式。
+   * @param {string} propertyName 特性名，仅支持 camel case 格式。
    * @param {number|string} propertyValue 特性值，若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
    * @returns {Element} 本元素。
    * @description
@@ -659,17 +660,14 @@
    *   可以设置复合属性的值。
    */
   Element.prototype.setStyle = function(propertyName, propertyValue) {
-    propertyName = hyphenateToCamelCase(propertyName);
-    if (typeof propertyValue === 'number' && isFinite(propertyValue)) {
-      propertyValue += numericValues.hasOwnProperty(propertyName) ? '' : 'px';
+    if (Number.isFinite(propertyValue) && !numericValues[propertyName]) {
+      propertyValue = Math.floor(propertyValue) + 'px';
     }
-    if (typeof propertyValue === 'string') {
-      var setSpecialCSSProperty = specialCSSPropertySetter[propertyName];
-      if (setSpecialCSSProperty) {
-        setSpecialCSSProperty(this, propertyValue);
-      } else {
-        this.style[propertyName] = propertyValue;
-      }
+    var setSpecialCSSProperty = specialCSSPropertySetter[propertyName];
+    if (setSpecialCSSProperty) {
+      setSpecialCSSProperty(this, propertyValue);
+    } else {
+      this.style[propertyName] = propertyValue;
     }
     return this;
   };
@@ -2102,6 +2100,7 @@
    *   document.on
    *   document.off
    *   document.fire
+   *   document.addStyleRules
    *   document.preloadImages
    */
 
@@ -2148,7 +2147,7 @@
    *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 append 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
    *   </ul>
    *   在创建元素时，如果包含 table，建议写上 tbody 以确保结构严谨。举例如下：
-   *   $('&lt;div&gt;&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;');
+   *   document.$('&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;');
    *   当参数为一个元素的 id 时，会返回扩展后的、与指定 id 相匹配的元素。
    *   当参数本身即为一个元素时，会返回扩展后的该元素。
    *   当参数为其他情况时（包括 document 和 window）均返回 null。
@@ -2311,7 +2310,7 @@
    * 添加样式规则。
    * @name document.addStyleRules
    * @function
-   * @param {Array} rules 样式规则数组，其中每一项为一条规则。
+   * @param {Array} rules 包含样式规则的数组，其中每一项为一条规则。
    */
   document.addStyleRules = function(rules) {
     var styleSheets = document.styleSheets;
