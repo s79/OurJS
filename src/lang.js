@@ -5,14 +5,14 @@
  */
 (function() {
   // 内置对象的原型方法。
-  var HAS_OWN_PROPERTY = Object.prototype.hasOwnProperty;
-  var TO_STRING = Object.prototype.toString;
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
+  var toString = Object.prototype.toString;
 
   // 空白字符。
   var WHITESPACES = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF';
 
   // 日期标识符。
-  var RE_DATE_KEYS = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
+  var dateFormatPattern = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
 
   // 辅助解决遍历 bug。
   // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
@@ -93,7 +93,7 @@
       }
       var keys = [];
       for (var name in object) {
-        if (HAS_OWN_PROPERTY.call(object, name)) {
+        if (hasOwnProperty.call(object, name)) {
           keys.push(name);
         }
       }
@@ -101,7 +101,7 @@
         var i = 0;
         while (i < DONT_ENUM_PROPERTIES_LENGTH) {
           var dontEnumProperty = DONT_ENUM_PROPERTIES[i];
-          if (HAS_OWN_PROPERTY.call(object, dontEnumProperty)) {
+          if (hasOwnProperty.call(object, dontEnumProperty)) {
             keys.push(dontEnumProperty);
           }
           i++;
@@ -126,7 +126,7 @@
    */
   if (!Array.isArray) {
     Array.isArray = function(value) {
-      return TO_STRING.call(value) === '[object Array]';
+      return toString.call(value) === '[object Array]';
     };
   }
 
@@ -425,10 +425,10 @@
    * @see http://es5.github.com/#x15.5.4.20
    */
   if (!String.prototype.trim || WHITESPACES.trim()) {
-    var RE_START_WHITESPACES = new RegExp('^[' + WHITESPACES + ']+');
-    var RE_END_WHITESPACES = new RegExp('[' + WHITESPACES + ']+$');
+    var startWhitespacesPattern = new RegExp('^[' + WHITESPACES + ']+');
+    var endWhitespacesPattern = new RegExp('[' + WHITESPACES + ']+$');
     String.prototype.trim = function() {
-      return String(this).replace(RE_START_WHITESPACES, '').replace(RE_END_WHITESPACES, '');
+      return String(this).replace(startWhitespacesPattern, '').replace(endWhitespacesPattern, '');
     };
   }
 
@@ -656,7 +656,7 @@
    */
   Object.forEach = function(object, callback, thisObject) {
     for (var key in object) {
-      if (HAS_OWN_PROPERTY.call(object, key)) {
+      if (hasOwnProperty.call(object, key)) {
         callback.call(thisObject, object[key], key, object);
       }
     }
@@ -664,7 +664,7 @@
       var i = 0;
       while (i < DONT_ENUM_PROPERTIES_LENGTH) {
         var dontEnumProperty = DONT_ENUM_PROPERTIES[i];
-        if (HAS_OWN_PROPERTY.call(object, dontEnumProperty)) {
+        if (hasOwnProperty.call(object, dontEnumProperty)) {
           callback.call(thisObject, object[dontEnumProperty], dontEnumProperty, object);
         }
         i++;
@@ -843,9 +843,9 @@
    *   ' a b  c   d    e     f      g       '.clean();
    *   // 'a b c d e f g'
    */
-  var RE_WHITESPACES = new RegExp('[' + WHITESPACES + ']+', 'g');
+  var whitespacesPattern = new RegExp('[' + WHITESPACES + ']+', 'g');
   String.prototype.clean = function() {
-    return this.replace(RE_WHITESPACES, ' ').trim();
+    return this.replace(whitespacesPattern, ' ').trim();
   };
 
 //--------------------------------------------------[Number.prototype.padZero]
@@ -921,7 +921,7 @@
    *     <tr><td>时区</td><td>当地时区</td></tr>
    *   </table>
    *   注意：未检查字符串内包含数据的有效性，若数据异常，将得不到预期的日期值。
-   * @param {string} [pattern] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。格式请参考 Date.prototype.format 的同名参数。
+   * @param {string} [format] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。格式请参考 Date.prototype.format 的同名参数。
    * @param {boolean} [isUTC] 字符串是否为世界标准时间。
    *   当 isUTC 与 string 中已存在的 TZD 标识冲突时，isUTC 将被忽略。
    * @returns {Date} 转换后的日期。
@@ -936,9 +936,9 @@
    *   // "Wed Feb 29 2012 16:00:00 GMT+0800"
    */
   var timeZoneOffset = new Date().getTimezoneOffset() * 60000;
-  Date.from = function(string, pattern, isUTC) {
-    pattern = pattern || 'YYYY-MM-DD';
-    // 从 string 中参考 pattern 解析出日期数据。
+  Date.from = function(string, format, isUTC) {
+    format = format || 'YYYY-MM-DD';
+    // 从 string 中参考 format 解析出日期数据。
     var extractedData = {};
     var match;
     var index;
@@ -947,7 +947,7 @@
     var start;
     var currentCorrectedValue;
     var totalCorrectedValue = 0;
-    while (match = RE_DATE_KEYS.exec(pattern)) {
+    while (match = dateFormatPattern.exec(format)) {
       key = match[0];
       index = match.index;
       start = index + totalCorrectedValue;
@@ -987,7 +987,7 @@
    * 将日期格式化为字符串。
    * @name Date.prototype.format
    * @function
-   * @param {string} [pattern] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。
+   * @param {string} [format] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。
    *   各标志符及其含义：
    *   <table>
    *     <tr><th>字符</th><th>含义</th></tr>
@@ -1016,8 +1016,8 @@
    * @see http://en.wikipedia.org/wiki/ISO_8601
    * @see http://blog.stevenlevithan.com/archives/date-time-format
    */
-  Date.prototype.format = function(pattern, toUTC) {
-    pattern = pattern || 'YYYY-MM-DD';
+  Date.prototype.format = function(format, toUTC) {
+    format = format || 'YYYY-MM-DD';
 
     var get = toUTC ? 'getUTC' : 'get';
     var timezoneOffset = this.getTimezoneOffset();
@@ -1035,11 +1035,11 @@
       TZD: (toUTC || timezoneOffset === 0) ? 'Z' : (timezoneOffsetSign + timezoneOffsetHours + ':' + timezoneOffsetMinutes)
     };
 
-    var date = pattern.replace(RE_DATE_KEYS, function(key) {
+    var date = format.replace(dateFormatPattern, function(key) {
       return keys[key];
     });
-    // IE6 IE7 IE8 的 replace 方法会修改正则表达式对象的 lastIndex 属性，并不会在替换结束后将其恢复为 0，此处手动恢复为 0，以免 Date.from 方法中再次使用此正则表达式时出错。
-    RE_DATE_KEYS.lastIndex = 0;
+    // IE6 IE7 IE8 的 replace 方法会修改正则表达式对象的 lastIndex 属性，此处手动恢复为 0，以免执行 Date.from(new Date().format()) 时出错。
+    dateFormatPattern.lastIndex = 0;
     return date;
 
   };
@@ -1053,9 +1053,9 @@
    * @returns {string} 编码后的字符串。
    * @see http://prototypejs.org/
    */
-  var RE_REGULAR_EXPRESSION_METACHARACTERS = /([.*+?^=!:${}()|[\]\/\\])/g;
+  var regularExpressionMetacharactersPattern = /([.*+?^=!:${}()|[\]\/\\])/g;
   RegExp.escape = function(string) {
-    return (string + '').replace(RE_REGULAR_EXPRESSION_METACHARACTERS, '\\$1');
+    return (string + '').replace(regularExpressionMetacharactersPattern, '\\$1');
   };
 
 })();

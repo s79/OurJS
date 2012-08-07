@@ -44,11 +44,11 @@
   };
 
   // 获取响应头信息。
-  var RE_HEADERS = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg;
+  var headersPattern = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg;
   var getHeaders = function(rawHeaders) {
     var headers = {};
     var match;
-    while (match = RE_HEADERS.exec(rawHeaders)) {
+    while (match = headersPattern.exec(rawHeaders)) {
       headers[match[1]] = match[2];
     }
     return headers;

@@ -52,6 +52,7 @@
    */
 
   var $ = document.$;
+  var separator = /\s*,\s*/;
 
   // 保存各模块接收到的消息的处理器。
   /*
@@ -77,8 +78,6 @@
   applicationMessageHandlerPool.cache = {};
 
 //--------------------------------------------------[declareModule]
-  var VALID_MODULE_ID = /^\w+$/;
-
   /**
    * 声明模块。
    * @name declareModule
@@ -88,8 +87,9 @@
    * @param {Function} moduleFunction 模块函数。
    * @param {boolean} [waitingForDomReady] 设置为 true 则在 DOM 树加载完成后再执行模块函数，否则立即执行。
    */
+  var validModuleIdPattern = /^\w+$/;
   window.declareModule = function(id, moduleFunction, waitingForDomReady) {
-    if (!VALID_MODULE_ID.test(id)) {
+    if (!validModuleIdPattern.test(id)) {
       throw new Error('[declareModule] 非法 id: ' + id);
     }
 
@@ -165,7 +165,7 @@
      */
     var listen = function(name, handler) {
       if (name.contains(',')) {
-        var names = name.split(/,\s*/);
+        var names = name.split(separator);
         var dataReceived = [];
         names.forEach(function(name, index, names) {
           listen(name, function(data) {

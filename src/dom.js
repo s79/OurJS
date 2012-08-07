@@ -10,21 +10,20 @@
   var html = document.documentElement;
 
   // 参数分隔符。
-  var RE_SEPARATOR = /\s*,\s*/;
+  var separator = /\s*,\s*/;
 
   // 将字符串从 Hyphenate 转换为 CamelCase。
-  // 目前没有用到此转换函数。
-  var HYPHENATE_FIRST_LETTER = /-([a-z])/g;
-  var hyphenateToCamelCase = function(string) {
-    return string.replace(HYPHENATE_FIRST_LETTER, function(_, letter) {
-      return letter.toUpperCase();
-    });
-  };
+  //  var hyphenateFirstLetterPattern = /-([a-z])/g;
+  //  var hyphenateToCamelCase = function(string) {
+  //    return string.replace(hyphenateFirstLetterPattern, function(_, letter) {
+  //      return letter.toUpperCase();
+  //    });
+  //  };
 
   // 将字符串从 CamelCase 转换为 Hyphenate。
-  var CAMEL_CASE_FIRST_LETTER = /[A-Z]/g;
+  var camelCaseFirstLetterPattern = /[A-Z]/g;
   var camelCaseToHyphenate = function(string) {
-    return string.replace(CAMEL_CASE_FIRST_LETTER, function(letter) {
+    return string.replace(camelCaseFirstLetterPattern, function(letter) {
       return '-' + letter.toLowerCase();
     });
   };
@@ -115,9 +114,9 @@
    *   getter 在处理空标签及特殊字符时，各浏览器行为不一致。
    */
   if (!('outerHTML' in document.head)) {
-    var RE_EMPTY_ELEMENT = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
+    var emptyElementPattern = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
     var isEmptyElement = function(nodeName) {
-      return RE_EMPTY_ELEMENT.test(nodeName);
+      return emptyElementPattern.test(nodeName);
     };
 
     HTMLElement.prototype.__defineGetter__('outerHTML', function() {
@@ -210,11 +209,6 @@
 
 //==================================================[DOM 扩展 - 内部方法]
 //--------------------------------------------------[$ <内部方法>]
-  // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值也可用于反向查找该元素的 key。
-  var uid = 0;
-  var prototypeOfElement = Element.prototype;
-  var prototypeOfHTMLFormElement = HTMLFormElement.prototype;
-
   /**
    * 为一个元素扩展新特性，对于无 Element 构造函数的浏览器 (IE6 IE7) 将在该元素上直接附加这些新特性。
    * @name $
@@ -226,6 +220,10 @@
    *   注意：
    *   不能获取并扩展其他页面的 DOM 元素！
    */
+  // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值将作为该元素的 key 使用。
+  var uid = 0;
+  var prototypeOfElement = Element.prototype;
+  var prototypeOfHTMLFormElement = HTMLFormElement.prototype;
   var $ = navigator.isIElt8 ? function(element) {
     if (element && !element.uid) {
       element.uid = ++uid;
@@ -272,7 +270,7 @@
    */
   Element.prototype.hasClass = function(className) {
     var elementClassName = ' ' + this.className.clean() + ' ';
-    return className.split(RE_SEPARATOR).every(function(className) {
+    return className.split(separator).every(function(className) {
       return elementClassName.contains(' ' + className.trim() + ' ');
     });
   };
@@ -287,7 +285,7 @@
    */
   Element.prototype.addClass = function(className) {
     var $element = this;
-    className.split(RE_SEPARATOR).forEach(function(className) {
+    className.split(separator).forEach(function(className) {
       if (!$element.hasClass(className)) {
         $element.className = ($element.className + ' ' + className).clean();
       }
@@ -306,7 +304,7 @@
   Element.prototype.removeClass = function(className) {
     var $element = this;
     var elementClassName = ' ' + $element.className.clean() + ' ';
-    className.split(RE_SEPARATOR).forEach(function(className) {
+    className.split(separator).forEach(function(className) {
       elementClassName = elementClassName.replace(' ' + className.trim() + ' ', ' ');
     });
     $element.className = elementClassName.trim();
@@ -323,7 +321,7 @@
    */
   Element.prototype.toggleClass = function(className) {
     var $element = this;
-    className.split(RE_SEPARATOR).forEach(function(className) {
+    className.split(separator).forEach(function(className) {
       $element[$element.hasClass(className) ? 'removeClass' : 'addClass'](className);
     });
     return $element;
@@ -763,9 +761,9 @@
    *   Element.prototype.removeData
    */
 
-  var VALID_NAME = /^[a-z][a-zA-Z]*$/;
+  var validNamePattern = /^[a-z][a-zA-Z]*$/;
   var parseDataKey = function(key) {
-    return VALID_NAME.test(key) ? 'data-' + camelCaseToHyphenate(key) : '';
+    return validNamePattern.test(key) ? 'data-' + camelCaseToHyphenate(key) : '';
   };
 
 //--------------------------------------------------[Element.prototype.getData]
@@ -1212,8 +1210,6 @@
   var eventPool = {};
 //  window.p = eventPool;  // TODO For test.
 
-  var RE_EVENT_NAME = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
-  var RE_SIMPLE_SELECTOR = /^(\w*)(?:\.([\w\-]+))?$/;
   var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 4, 'change': 4, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
   var returnTrue = function() {
     return true;
@@ -1509,10 +1505,11 @@
   });
 
   // 解析事件名称。
+  var eventNamePattern = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
   var parseEventName = function(eventName) {
     var result = {};
     var match;
-    if (eventName && (match = eventName.match(RE_EVENT_NAME))) {
+    if (eventName && (match = eventName.match(eventNamePattern))) {
       result.type = match[1];
       result.label = match[2] || '';
       result.selector = match[3] || '';
@@ -1683,13 +1680,14 @@
    * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
    */
+  var simpleSelectorPattern = /^(\w*)(?:\.([\w\-]+))?$/;
   Element.prototype.on = function(name, listener) {
     // 自动扩展本元素，以便于在控制台进行调试。
     var $element = $(this);
     var uid = $element.uid;
     var item = eventPool[uid] || (eventPool[uid] = {});
     // 同时为多个事件类型添加监听器。
-    name.split(RE_SEPARATOR).forEach(function(name) {
+    name.split(separator).forEach(function(name) {
       // 取出事件类型和选择符。
       var eventName = parseEventName(name);
       var type = eventName.type;
@@ -1866,7 +1864,7 @@
         // 代理监听器。
         handler.selector = selector;
         var match;
-        if (match = selector.match(RE_SIMPLE_SELECTOR)) {
+        if (match = selector.match(simpleSelectorPattern)) {
           // 保存简单选择器以在执行过滤时使用效率更高的方式。（tagName 必为字符串，className 可能为 undefined。）
           handler.simpleSelector = {
             tagName: match[1].toUpperCase(),
@@ -1911,7 +1909,7 @@
       return $element;
     }
     // 同时删除该元素上的多个监听器。
-    name.split(RE_SEPARATOR).forEach(function(name) {
+    name.split(separator).forEach(function(name) {
       // 取出事件类型。
       var type = parseEventName(name).type;
       // 尝试获取对应的处理器组，以删除处理器。
@@ -2033,7 +2031,6 @@
    *   HTMLFormElement.prototype.setValidationRules
    */
 
-//--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
   // 获得一个或一组控件的当前值，虽然 IE6 IE7 不支持 option 和 optgroup 元素的 disabled 属性，但使用本方法可以识别出这些情况。
   var getCurrentValue = function(control) {
     var value = [];
@@ -2076,6 +2073,7 @@
     return value;
   };
 
+//--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
   /**
    * 获取本表单内某个域的当前值。
    * @name HTMLFormElement.prototype.getFieldValue
@@ -2113,25 +2111,6 @@
   document.uid = 'document';
 
 //--------------------------------------------------[document.$]
-  var RE_TAG_NAME = /^<(\w+)/;
-
-  var wrappers = {
-    area: [1, '<map>', '</map>'],
-    legend: [1, '<fieldset>', '</fieldset>'],
-    option: [1, '<select>', '</select>'],
-    tbody: [1, '<table><tbody></tbody>', '</table>'],
-    tr: [2, '<table><tbody>', '</tbody></table>'],
-    td: [3, '<table><tbody><tr>', '</tr></tbody></table>'],
-    col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>']
-  };
-  wrappers.optgroup = wrappers.option;
-  wrappers.thead = wrappers.tfoot = wrappers.colgroup = wrappers.caption = wrappers.tbody;
-  wrappers.th = wrappers.td;
-  if (navigator.isIElt9) {
-    // IE6 IE7 IE8 对 link style script 元素的特殊处理。
-    wrappers.link = wrappers.style = wrappers.script = [1, '#<div>', '</div>'];
-  }
-
   /**
    * 根据指定的参数获取/创建一个元素，并对其进行扩展。
    * @name document.$
@@ -2155,12 +2134,31 @@
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
    */
+  var tagNamePattern = /^<(\w+)/;
+
+  var wrappers = {
+    area: [1, '<map>', '</map>'],
+    legend: [1, '<fieldset>', '</fieldset>'],
+    option: [1, '<select>', '</select>'],
+    tbody: [1, '<table><tbody></tbody>', '</table>'],
+    tr: [2, '<table><tbody>', '</tbody></table>'],
+    td: [3, '<table><tbody><tr>', '</tr></tbody></table>'],
+    col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>']
+  };
+  wrappers.optgroup = wrappers.option;
+  wrappers.thead = wrappers.tfoot = wrappers.colgroup = wrappers.caption = wrappers.tbody;
+  wrappers.th = wrappers.td;
+  if (navigator.isIElt9) {
+    // IE6 IE7 IE8 对 link style script 元素的特殊处理。
+    wrappers.link = wrappers.style = wrappers.script = [1, '#<div>', '</div>'];
+  }
+
   document.$ = function(e) {
     var element = null;
     switch (typeof e) {
       case 'string':
         if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
-          var wrapper = wrappers[(RE_TAG_NAME.exec(e) || ['', ''])[1].toLowerCase()] || [0, '', ''];
+          var wrapper = wrappers[(tagNamePattern.exec(e) || ['', ''])[1].toLowerCase()] || [0, '', ''];
           var depth = wrapper[0] + 1;
           var div = document.createElement('div');
           element = div;
@@ -2183,6 +2181,21 @@
   };
 
 //--------------------------------------------------[document.on]
+  /**
+   * 为 document 添加事件监听器。
+   * @name document.on
+   * @function
+   * @param {string} name 事件名称，格式请参考 Element.prototype.on 的同名参数。
+   * @param {Function} listener 事件监听器，细节请参考 Element.prototype.on 的同名参数。
+   * @returns {Object} document 对象。
+   * @description
+   *   特殊事件：domready
+   *   <ul>
+   *     <li>在文档可用时触发，只能添加监听器，不能删除监听器，因此不能使用标签。</li>
+   *     <li>不会有事件对象作为参数传入监听器。</li>
+   *     <li>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。</li>
+   *   </ul>
+   */
   var domready = function() {
     // 保存 domready 事件的监听器。
     var listeners = [];
@@ -2253,23 +2266,8 @@
 
   }();
 
-  /**
-   * 为 document 添加事件监听器。
-   * @name document.on
-   * @function
-   * @param {string} name 事件名称，格式请参考 Element.prototype.on 的同名参数。
-   * @param {Function} listener 事件监听器，细节请参考 Element.prototype.on 的同名参数。
-   * @returns {Object} document 对象。
-   * @description
-   *   特殊事件：domready
-   *   <ul>
-   *     <li>在文档可用时触发，只能添加监听器，不能删除监听器，因此不能使用标签。</li>
-   *     <li>不会有事件对象作为参数传入监听器。</li>
-   *     <li>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。</li>
-   *   </ul>
-   */
   document.on = function(name, listener) {
-    var filteredName = name.split(RE_SEPARATOR)
+    var filteredName = name.split(separator)
         .filter(function(name) {
           if (name === 'domready') {
             domready.addListener(listener);
@@ -2326,7 +2324,7 @@
         var rBraceIndex = rule.indexOf('}');
         var selectors = rule.slice(0, lBraceIndex);
         var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
-        selectors.split(RE_SEPARATOR).forEach(function(selector) {
+        selectors.split(separator).forEach(function(selector) {
           styleSheet.addRule(selector, declarations);
         });
       }
@@ -2449,7 +2447,7 @@
    *   </ul>
    */
   window.on = function(name, listener) {
-    var filteredName = name.split(RE_SEPARATOR)
+    var filteredName = name.split(separator)
         .filter(function(name) {
           if (name === 'beforeunload') {
             window.onbeforeunload = function() {
@@ -2477,7 +2475,7 @@
    * @returns {Object} window 对象。
    */
   window.off = function(name) {
-    var filteredName = name.split(RE_SEPARATOR)
+    var filteredName = name.split(separator)
         .filter(function(name) {
           if (name === 'beforeunload') {
             window.onbeforeunload = null;

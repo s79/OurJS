@@ -212,7 +212,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
     var logger = new Logger($('#log').setStyles({float: 'right', width: 345, height: $('#form_table').offsetHeight}));
 
 //--------------------------------------------------[密码强度检测]
-    var RE_REPEATED_CHARACTERS = /(.)\1+/g;
+    var repeatedCharactersPattern = /(.)\1+/g;
     var getPasswordStrengthScore = function(password) {
       var score = 0;
       // 以密码包含的，各字符类型所包含的字符种类之和作为底数。
@@ -234,7 +234,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
       var base = types[0] + types[1] + types[2] + types[3];
       // 以密码长度作为指数。
       var exponent = password.length;
-      var repeatedCharacters = password.match(RE_REPEATED_CHARACTERS);
+      var repeatedCharacters = password.match(repeatedCharactersPattern);
       if (repeatedCharacters) {
         repeatedCharacters.forEach(function(match) {
           // n 个连续字符按 1 + n * 0.2 个字符计算。

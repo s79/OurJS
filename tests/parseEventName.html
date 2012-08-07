@@ -40,11 +40,11 @@ execute(function($) {
 });
 
 //--------------------------------------------------[parseEventName]
-var RE_EVENT_NAME = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
+var eventNamePattern = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
 var parseEventName = function(eventName) {
   var result = {};
   var match;
-  if (eventName && (match = eventName.match(RE_EVENT_NAME))) {
+  if (eventName && (match = eventName.match(eventNamePattern))) {
     result.type = match[1];
     result.label = match[2] || '';
     result.selector = match[3] || '';

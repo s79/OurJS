@@ -21,8 +21,7 @@
    *   Component
    */
 
-  var RE_SEPARATOR = /\s*,\s*/;
-  var RE_EVENT_NAME = /^(\w+)(\.\w+)?$/;
+  var separator = /\s*,\s*/;
 
   /**
    * 组件事件对象。
@@ -38,10 +37,11 @@
   }
 
   // 解析事件名称。
+  var eventNamePattern = /^(\w+)(\.\w+)?$/;
   var parseEventName = function(eventName) {
     var result = {};
     var match;
-    if (eventName && (match = eventName.match(RE_EVENT_NAME))) {
+    if (eventName && (match = eventName.match(eventNamePattern))) {
       result.type = match[1];
       result.label = match[2] || '';
     }
@@ -133,7 +133,7 @@
   Component.prototype.on = function(name, listener) {
     var component = this;
     var events = component.events;
-    name.split(RE_SEPARATOR).forEach(function(name) {
+    name.split(separator).forEach(function(name) {
       var type = parseEventName(name).type;
       var handlers = events[type] || (events[type] = []);
       handlers.push({name: name, listener: listener});
@@ -152,7 +152,7 @@
   Component.prototype.off = function(name) {
     var component = this;
     var events = component.events;
-    name.split(RE_SEPARATOR).forEach(function(name) {
+    name.split(separator).forEach(function(name) {
       var type = parseEventName(name).type;
       var handlers = events[type];
       if (handlers) {

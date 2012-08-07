@@ -66,10 +66,10 @@ execute(function($) {
     };
 
 //--------------------------------------------------[getShortDescription]
-    var RE_SHORT_DESCRIPTION = /<p>(.*?)<\/p>/;
+    var shortDescriptionPattern = /<p>(.*?)<\/p>/;
     var getShortDescription = function(symbol) {
       var shortDescription = '-';
-      var match = symbol.description.match(RE_SHORT_DESCRIPTION);
+      var match = symbol.description.match(shortDescriptionPattern);
       if (match) {
         shortDescription = match[1];
       }

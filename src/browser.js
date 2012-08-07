@@ -21,13 +21,6 @@
    */
 
 //--------------------------------------------------[typeOf]
-  var types = {};
-  ['Boolean', 'Number', 'String', 'Array', 'Date', 'RegExp', 'Error', 'Math', 'JSON', 'Arguments'].forEach(function(type) {
-    types['[object ' + type + ']'] = 'object.' + type;
-  });
-  var TO_STRING = Object.prototype.toString;
-  var RE_FUNCTION = /^\s+function .+\s+\[native code\]\s+\}\s+$/;
-
   /**
    * 判断提供的值的数据类型，比 typeof 运算符返回的结果更明确（将对结果为 'object' 的情况进行更细致的区分）。
    * @name typeOf
@@ -66,6 +59,12 @@
    * @see http://mootools.net/
    * @see http://jquery.com/
    */
+  var types = {};
+  ['Boolean', 'Number', 'String', 'Array', 'Date', 'RegExp', 'Error', 'Math', 'JSON', 'Arguments'].forEach(function(type) {
+    types['[object ' + type + ']'] = 'object.' + type;
+  });
+  var toString = Object.prototype.toString;
+  var nativeFunctionPattern = /^\s+function .+\s+\[native code\]\s+\}\s+$/;
   window.typeOf = function(value) {
     var type = typeof value;
     if (type === 'function' && typeof value.item === 'function') {
@@ -77,7 +76,7 @@
         type = 'null';
       } else {
         // 使用 Object.prototype.toString 判断。
-        type = types[TO_STRING.call(value)] || 'object.Object';
+        type = types[toString.call(value)] || 'object.Object';
         if (type === 'object.Object') {
           // 转化为字符串判断。
           var string = value + '';
@@ -85,7 +84,7 @@
             type = 'object.Global';
           } else if (string === '[object JSON]') {
             type = 'object.JSON';
-          } else if (RE_FUNCTION.test(string)) {
+          } else if (nativeFunctionPattern.test(string)) {
             type = 'function';
           } else {
             // 使用特性判断。
