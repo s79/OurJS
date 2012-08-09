@@ -144,6 +144,7 @@ var manifest = {
     'document.fire',
     '#自定义扩展',
     'document.addStyleRules',
+    'document.loadScript',
     'document.preloadImages'
   ],
   'Element': [

@@ -444,14 +444,12 @@
       } else {
         $element.style.setExpression('top', '(document && (document.documentElement.scrollTop + document.documentElement.clientHeight - this.offsetHeight - (parseInt(this.currentStyle.marginTop, 10) || 0) - (parseInt(this.currentStyle.marginBottom, 10) || 0)) - ' + bottom + ') + "px"');
       }
-//      console.log('*** setExpressions: ' + $element.uid + ': ' + left + '/' + right + '/' + top + '/' + bottom + ' ***');
     };
 
     // 删除 CSS 表达式。
     var removeExpressions = function($element) {
       $element.style.removeExpression('left');
       $element.style.removeExpression('top');
-//      console.log('*** removeExpressions: uid = ' + $element.uid + ' ***');
     };
 
     // IE6 设置 position 特性时的特殊处理。
@@ -480,7 +478,6 @@
           if (isNaN(fixedData.top.usedValue) && isNaN(fixedData.bottom.usedValue)) {
             fixedData.top.usedValue = document.documentElement.scrollTop + $element.getClientRect().top - (parseInt($element.currentStyle.marginTop, 10) || 0);
           }
-//          console.log(JSON.stringify(fixedData));
           // 如果元素已被渲染（暂不考虑祖先级元素未被渲染的情况），启用表达式。
           if ($element.currentStyle.display !== 'none') {
             fixedData.enabled = true;
@@ -510,7 +507,6 @@
       }
       // 设置样式。
       $element.style.position = propertyValue;
-//      console.log('ie6FixedPositionedElementCount: ' + ie6FixedPositionedElementCount);
     };
 
     // IE6 获取 position 特性时的特殊处理。
@@ -2099,6 +2095,7 @@
    *   document.off
    *   document.fire
    *   document.addStyleRules
+   *   document.loadScript
    *   document.preloadImages
    */
 
@@ -2329,6 +2326,38 @@
         });
       }
     });
+  };
+
+//--------------------------------------------------[document.loadScript]
+  /**
+   * 加载脚本。
+   * @name document.loadScript
+   * @function
+   * @param {string} url 脚本文件的路径。
+   * @param {Object} [options] 可选参数。
+   * @param {string} options.charset 脚本文件的字符集。
+   * @param {Function} options.onLoad 加载完毕后的回调。
+   *   该函数被调用时 this 的值为加载本脚本时创建的 script 元素。
+   */
+  document.loadScript = function(url, options) {
+    options = options || {};
+    var head = document.head;
+    var script = document.createElement('script');
+    if (options.charset) {
+      script.charset = options.charset;
+    }
+    script.src = url;
+    script.onload = script.onreadystatechange = function() {
+      if (!this.readyState || this.readyState === 'loaded' || this.readyState === 'complete') {
+        this.onload = this.onreadystatechange = null;
+        head.removeChild(script);
+        if (options.onLoad) {
+          options.onLoad.call(this);
+        }
+      }
+    };
+    // http://bugs.jquery.com/ticket/2709
+    head.insertBefore(script, head.firstChild);
   };
 
 //--------------------------------------------------[document.preloadImages]
