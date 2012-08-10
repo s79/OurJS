@@ -1,5 +1,5 @@
 /**
- * @fileOverview OurJA API data generator.
+ * @fileOverview OurJS API data generator.
  * @author sundongguo@gmail.com
  * @version 20120320
  */

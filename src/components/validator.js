@@ -3,6 +3,7 @@
  * @author sundongguo@gmail.com
  * @version 20120723
  */
+
 execute(function($) {
 //==================================================[Validator]
   /*

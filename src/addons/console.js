@@ -1,12 +1,14 @@
 /*!
  * Console for IE6.
+ */
+
+/**
+ * @fileOverview 控制台补缺。
  * @author sundongguo@gmail.com
  * @version 20120309
  *          20111108 + fixed + localStorage
  */
-/**
- * @fileOverview 插件 - 控制台 - console
- */
+
 (function() {
 //==================================================[控制台]
   /*
@@ -20,7 +22,6 @@
     return;
   }
 
-  // 避免 $ 被覆盖。
   var $ = document.$;
 
 //--------------------------------------------------[console.xxx]

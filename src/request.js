@@ -3,6 +3,7 @@
  * @author sundongguo@gmail.com
  * @version 20120208
  */
+
 // TODO: jQuery - ticket #5280: Internet Explorer will keep connections alive if we don't abort on unload
 (function() {
 //==================================================[Request]

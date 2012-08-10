@@ -1,8 +1,9 @@
 /**
- * @fileOverview 执行代码块的便捷方法。
+ * @fileOverview 执行代码块。
  * @author sundongguo@gmail.com
  * @version 20120405
  */
+
 (function() {
 //==================================================[执行代码块]
   /*

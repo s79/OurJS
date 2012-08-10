@@ -1,8 +1,9 @@
 /**
- * @fileOverview 提供 DOM 对象的补缺及扩展。
+ * @fileOverview DOM 对象补缺及扩展。
  * @author sundongguo@gmail.com
  * @version 20111115
  */
+
 (function() {
   // 内部变量。
   var window = this;

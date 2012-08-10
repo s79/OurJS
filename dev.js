@@ -15,13 +15,13 @@
     '<script src="/framework/src/request.js"></script>',
     '<script src="/framework/src/modularization.js"></script>',
     '<script src="/framework/src/execute.js"></script>',
-    '<script src="/framework/src/plugins/sizzle.js"></script>'
+    '<script src="/framework/src/integrated/sizzle.js"></script>'
   ];
   if (!window.JSON) {
-    scripts.push('<script src="/framework/src/plugins/json2.js"></script>');
+    scripts.push('<script src="/framework/src/integrated/json2.js"></script>');
   }
   if (document.documentElement.currentStyle && !document.documentElement.currentStyle.minWidth) {
-    scripts.push('<script src="/framework/src/plugins/console.js"></script>');
+    scripts.push('<script src="/framework/src/integrated/console.js"></script>');
   }
   document.write(scripts.join('\n'));
 })();

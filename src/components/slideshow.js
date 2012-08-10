@@ -3,6 +3,7 @@
  * @author sundongguo@gmail.com
  * @version 20120709
  */
+
 execute(function($) {
 //==================================================[Slideshow]
   /*

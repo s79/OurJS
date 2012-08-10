@@ -7,7 +7,7 @@
  */
 
 /**
- * @fileOverview 插件 - CSS 选择器 - Sizzle
+ * @fileOverview 提供 CSS 选择器的支持。
  */
 
 (function(window, undefined) {

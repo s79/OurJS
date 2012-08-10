@@ -1,8 +1,9 @@
 /**
- * @fileOverview 提供 JavaScript 原生对象的补缺及扩展。
+ * @fileOverview JavaScript 原生对象补缺及扩展。
  * @version 20111101
  * @author: sundongguo@gmail.com
  */
+
 (function() {
   // 内置对象的原型方法。
   var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -768,26 +769,27 @@
    * @returns {Array} 转化后的数组。
    */
   Array.from = function(arrayish) {
-    var result = [];
     switch (typeOf(arrayish)) {
       case 'object.Array':
-        result = arrayish;
-        break;
+        return arrayish;
       case 'object.Arguments':
       case 'object.Collection':
       case 'object.Object':
         var i = 0;
         var length = arrayish.length;
-        while (i < length) {
-          result[i] = arrayish[i];
-          i++;
+        if (typeof length === 'number') {
+          var result = [];
+          while (i < length) {
+            if (arrayish.hasOwnProperty(i)) {
+              result[i] = arrayish[i];
+            }
+            i++;
+          }
+          result.length = length;
+          return result;
         }
-        break;
-      default:
-        result.push(arrayish);
-        break;
     }
-    return result;
+    return [arrayish];
   };
 
 //--------------------------------------------------[Array.prototype.contains]

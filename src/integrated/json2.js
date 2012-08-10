@@ -7,7 +7,7 @@
  */
 
 /**
- * @fileOverview 插件 - JSON 补缺 - json2
+ * @fileOverview 提供 JSON 对象的补缺。
  */
 
 /*

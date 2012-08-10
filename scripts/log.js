@@ -3,6 +3,7 @@
  * @author sundongguo@gmail.com
  * @version 20120806
  */
+
 execute(function($) {
 //==================================================[Logger]
   var styleRulesInjected = false;

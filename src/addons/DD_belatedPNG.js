@@ -6,9 +6,11 @@
  *  Version: 0.0.8a
  *  Licensed under the MIT License: http://dillerdesign.com/experiment/DD_belatedPNG/#license
  */
+
 /**
- * @fileOverview 插件 - IE6 PNG alpha 透明修复 & 启用背景图片缓存 - DD_belatedPNG
+ * @fileOverview IE6 PNG alpha 透明修复 & 启用背景图片缓存。
  */
+
 (function() {
 //==================================================[IE6 PNG alpha 透明修复 & 启用背景图片缓存]
   /*

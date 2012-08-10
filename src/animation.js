@@ -3,6 +3,7 @@
  * @author sundongguo@gmail.com
  * @version 20120412
  */
+
 (function() {
 //==================================================[Animation]
   /*
