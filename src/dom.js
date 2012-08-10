@@ -1622,8 +1622,6 @@
       // 正在调用代理监听器且事件传播进行中时，需要向上传播事件。
       $target = $target.getParent() || $target === html && $element;
     }
-    // 返回 event 对象以用于 fire 方法中事件的传递及复合事件的处理。
-    return event;
   };
 
   // 删除在目标元素上绑定的所有监听器。
@@ -1986,7 +1984,7 @@
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    *   data 的属性会被追加到事件对象中，但名称为 originalEvent 的属性除外。
-   * @returns {Element} 本元素。
+   * @returns {Object} 事件对象。
    * @description
    *   调用本方法时，仅会运行本元素上使用 on 方法添加的此类事件的监听器，并且其默认行为也将被阻止（因为这个事件并不是由用户的操作触发的）。
    *   如果需要执行某种行为，可以直接在目标元素上调用对应的方法，如 click、select、submit 等，注意这样做可能会触发多个事件。
@@ -2008,14 +2006,14 @@
     var $element = this;
     while ($element) {
       if (handlers = (item = eventPool[$element.uid]) && item[type]) {
-        event = dispatchEvent($element, handlers, event);
+        dispatchEvent($element, handlers, event);
       }
       if (!event.bubbles || event.isPropagationStopped() || $element === window) {
         break;
       }
       $element = $element === document ? window : $element.getParent() || $element === html && document || null;
     }
-    return this;
+    return event;
   };
 
 //==================================================[HTMLFormElement 扩展]

@@ -182,18 +182,18 @@
    * @function
    * @param {String} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
-   * @returns {Object} 本组件。
+   * @returns {Object} 事件对象。
    */
   Component.prototype.fire = function(type, data) {
     var component = this;
+    var event = Object.append(new ComponentEvent(type, component), data || {});
     var handlers = component.events[type];
     if (handlers) {
-      var event = Object.append(new ComponentEvent(type, component), data || {});
       handlers.forEach(function(handler) {
         handler.listener.call(component, event);
       });
     }
-    return component;
+    return event;
   };
 
 //--------------------------------------------------[Component]

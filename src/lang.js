@@ -780,7 +780,7 @@
         if (typeof length === 'number') {
           var result = [];
           while (i < length) {
-            if (arrayish.hasOwnProperty(i)) {
+            if (!arrayish.hasOwnProperty || arrayish.hasOwnProperty(i)) {
               result[i] = arrayish[i];
             }
             i++;

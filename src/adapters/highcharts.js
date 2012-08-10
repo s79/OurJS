@@ -58,7 +58,8 @@ execute(function($) {
      * Executes a provided function once per array element.
      */
     each: function(arr, fn) {
-      arr.forEach(fn);
+      // IE9- 有时会传入 Collection。
+      Array.from(arr).forEach(fn);
     },
 
     /**
@@ -103,6 +104,10 @@ execute(function($) {
         if (!el.events) {
           el.events = {};
         }
+        // 自定义对象的 events 可能被 Highcharts 占用，且对应的 key 的类型为 function，OurJS 需要数组，因此先将名称进行转义。
+        if (typeof el.events[type] === 'function') {
+          type = '_' + type + '_';
+        }
         Component.prototype.on.call(el, type, fn);
       }
     },
@@ -125,6 +130,10 @@ execute(function($) {
           el.events = {};
         }
         if (type) {
+          if (typeof el.events[type] === 'function') {
+            delete el.events[type];
+            type = '_' + type + '_';
+          }
           Component.prototype.off.call(el, type);
         } else {
           el.events = {};
@@ -143,16 +152,26 @@ execute(function($) {
         };
         defaultFunction = null;
       };
+      var event;
       if (el.fire) {
-        el.fire(type, eventArguments);
+        event = el.fire(type, eventArguments);
       } else {
         if (!el.events) {
           el.events = {};
         }
-        Component.prototype.fire.call(el, type, eventArguments);
+        if (typeof el.events[type] === 'function') {
+          var originalType = type;
+          type = '_' + type + '_';
+        }
+        event = Component.prototype.fire.call(el, type, eventArguments);
+        if (originalType) {
+          if (el.events[originalType].call(el, event) === false) {
+            event.preventDefault();
+          }
+        }
       }
       if (defaultFunction) {
-        defaultFunction(type);
+        defaultFunction(event);
       }
     },
 
