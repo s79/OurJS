@@ -619,7 +619,7 @@
 
     var isFadeInMode = fadeMode === 'fadeIn';
     var inverseFadeMode = isFadeInMode ? 'fadeOut' : 'fadeIn';
-    options = Object.append({duration: 200, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
+    options = Object.mixin({duration: 200, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
     var onStart = function(event) {
       options.onStart.call($element, event);
     };
@@ -689,7 +689,7 @@
    */
   Element.prototype.morph = function(styles, options) {
     var $element = this;
-    options = Object.append({duration: 400, timingFunction: 'ease', onStart: empty, onFinish: empty}, options || {});
+    options = Object.mixin({duration: 400, timingFunction: 'ease', onStart: empty, onFinish: empty}, options || {});
     var list = getAnimationList($element);
     if (list.morph) {
       list.morph.pause();
@@ -729,7 +729,7 @@
     var $element = this;
     color = color || 'yellow';
     property = property || 'backgroundColor';
-    options = Object.append({duration: 500, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
+    options = Object.mixin({duration: 500, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
     var originalColor;
     var list = getAnimationList($element);
     if (list.highlight) {

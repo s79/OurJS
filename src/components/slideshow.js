@@ -69,13 +69,13 @@ execute(function($) {
           if (activeSlide) {
             switch (options.switchMode) {
               case 'normal':
-                $slideContainer.append(activeSlide);
+                $slideContainer.appendChild(activeSlide);
                 break;
               case 'fading':
-                $slideContainer.append(activeSlide.setStyle('opacity', 0).morph({opacity: 1}));
+                $slideContainer.appendChild(activeSlide.setStyle('opacity', 0).morph({opacity: 1}));
                 break;
               case 'turning':
-                $slideContainer.append(activeSlide.setStyle('opacity', 0).setStyles(($clicked ? $clicked === $next : activeIndex > inactiveIndex) ? {left: slideWidth} : {left: -slideWidth}).morph({left: 0, opacity: 1}));
+                $slideContainer.appendChild(activeSlide.setStyle('opacity', 0).setStyles(($clicked ? $clicked === $next : activeIndex > inactiveIndex) ? {left: slideWidth} : {left: -slideWidth}).morph({left: 0, opacity: 1}));
                 break;
             }
           }

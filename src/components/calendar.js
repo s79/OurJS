@@ -50,7 +50,7 @@ execute(function($) {
     }
     // 创建月历体。
     for (var row = 0; row < 6; row++) {
-      $tbody.append(tr.cloneNode(true));
+      $tbody.appendChild(tr.cloneNode(true));
     }
 
     // 保存属性。

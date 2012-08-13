@@ -321,7 +321,7 @@
    * @type boolean
    */
 
-  Object.append(navigator, function() {
+  Object.mixin(navigator, function() {
     // 从 navigator.userAgent 中分离信息。
     var engine = 'Unknown';
     var name = 'Unknown';
@@ -442,7 +442,7 @@
    *   // {a:'ok', b:['100', '128']}
    * @see http://w3help.org/zh-cn/causes/HD9001
    */
-  Object.append(location, function() {
+  Object.mixin(location, function() {
     // 查找并保存页面参数。
     var parameters = {};
     var searchString = location.search.slice(1);

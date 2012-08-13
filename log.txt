@@ -1,5 +1,10 @@
 ﻿>TODO 动画支持复合属性。
 
+>2012-08-13
+Object.append -> Object.mixin
+-Element.prototype.append
+Element.prototype.prepend -> Element.prototype.prependChild
+
 >2012-08-10
 dispatchEvent 不再返回 event 对象；fire 方法不再返回调用本方法的对象，而是返回 event 对象。
 

@@ -632,7 +632,7 @@
    * 扩展方法：
    *   Object.forEach
    *   Object.clone
-   *   Object.append
+   *   Object.mixin
    *   Array.from
    *   Array.prototype.contains
    *   Array.prototype.getFirst
@@ -705,47 +705,45 @@
     return cloning;
   };
 
-//--------------------------------------------------[Object.append]
+//--------------------------------------------------[Object.mixin]
   /**
-   * 为一个对象追加另一个对象自身（不包含原型链）的 properties。
-   * @name Object.append
+   * 将源对象（不包含原型链）上的 properties 添加到目标对象中。
+   * @name Object.mixin
    * @function
-   * @param {Object} original 原始对象。
-   * @param {Object} appending 追加对象，其 properties 会被复制到 original 中。
-   * @param {Object} [filter] 过滤要复制的 appending 的 properties 的名单。
-   * @param {Array} filter.whiteList 仅在 appending 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 original 中。
-   * @param {Array} filter.blackList 如果 appending 中的 key 包含于 blackList，则对应的 property 不会被复制到 original 中。
-   *   如果 blackList 与 whiteList 有重复元素，则 whiteList 中的该元素将被忽略。
-   * @returns {Object} 追加后的 original 对象。
+   * @param {Object} destination 目标对象。
+   * @param {Object} source 源对象，其 properties 会被复制到 destination 中。
+   * @param {Object} [filter] 过滤要添加的 source 中的 properties 的名单。
+   * @param {Array} filter.whiteList 仅当 source 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 destination 中。
+   * @param {Array} filter.blackList 如果 source 中的 key 包含于 blackList，则对应的 property 不会被复制到 destination 中。
+   *   如果 blackList 与 whiteList 有重复的值，则 whiteList 中的将被忽略。
+   * @returns {Object} 目标对象。
    * @description
-   *   appending 中的 property 会覆盖 original 中的同名 property。
+   *   source 中的 property 会覆盖 destination 中的同名 property。
    *   <table>
-   *     <tr><th>original (before)</th><th>appending</th><th>original (after)</th></tr>
+   *     <tr><th>destination (before)</th><th>source</th><th>destination (after)</th></tr>
    *     <tr><td>a: 'a.0'</td><td></td><td>a: 'a.0'</td></tr>
    *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td>b: 'b.1'</td></tr>
    *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.1'</td></tr>
    *   </table>
    * @example
-   *   var original = {a: 'a.0'};
-   *   var appending = {b: 'b.1'};
-   *   JSON.stringify(Object.append(original, appending));
+   *   var destination = {a: 'a.0'};
+   *   var source = {b: 'b.1'};
+   *   JSON.stringify(Object.mixin(destination, source));
    *   // {"a":"a.0","b":"b.1"}
    * @example
-   *   var original = {a: 'a.0', b: 'b.0', c: 'c.0'};
-   *   var appending = {a: 'a.1', b: 'b.1', c: 'c.1'};
-   *   JSON.stringify(Object.append(original, appending, {whiteList: ['a', 'b']}));
+   *   JSON.stringify(Object.mixin({a: 'a.0', b: 'b.0', c: 'c.0'}, {a: 'a.1', b: 'b.1', c: 'c.1'}, {whiteList: ['a', 'b']}));
    *   // {"a":"a.1","b":"b.1","c":"c.0"}
-   *   JSON.stringify(Object.append(original, appending, {whiteList: ['a', 'b'], blackList: ['b', 'c']}));
+   *   JSON.stringify(Object.mixin({a: 'a.0', b: 'b.0', c: 'c.0'}, {a: 'a.1', b: 'b.1', c: 'c.1'}, {whiteList: ['a', 'b'], blackList: ['b', 'c']}));
    *   // {"a":"a.1","b":"b.0","c":"c.0"}
    * */
-  Object.append = function(original, appending, filter) {
-    var keys = Object.keys(appending);
+  Object.mixin = function(destination, source, filter) {
+    var keys = Object.keys(source);
     if (filter) {
       var whiteList = filter.whiteList;
       var blackList = filter.blackList;
       if (whiteList) {
-        keys = whiteList.filter(function(item) {
-          return keys.contains(item);
+        keys = keys.filter(function(item) {
+          return whiteList.contains(item);
         });
       }
       if (blackList) {
@@ -755,9 +753,9 @@
       }
     }
     keys.forEach(function(item) {
-      original[item] = appending[item];
+      destination[item] = source[item];
     });
-    return original;
+    return destination;
   };
 
 //--------------------------------------------------[Array.from]
@@ -978,7 +976,7 @@
     }
 
     // 缺失的值使用以下默认值代替。
-    var dateValues = Object.append({YYYY: 2012, MM: 0, DD: 1, hh: 0, mm: 0, ss: 0, s: 0, TZD: isUTC ? 0 : timeZoneOffset}, extractedData);
+    var dateValues = Object.mixin({YYYY: 2012, MM: 0, DD: 1, hh: 0, mm: 0, ss: 0, s: 0, TZD: isUTC ? 0 : timeZoneOffset}, extractedData);
 
     // 转换为日期类型。
     return new Date(Date.UTC(dateValues['YYYY'], dateValues['MM'], dateValues['DD'], dateValues['hh'], dateValues['mm'], dateValues['ss'], dateValues['s']) + dateValues['TZD']);

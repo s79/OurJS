@@ -57,7 +57,7 @@ list.reverse().getLast();
 // list 反转后的最后一个元素是 0。
 </pre>
 <pre>
-Object.append(defaultOptions, newOptions, {whiteList: Object.keys(defaultOptions)});
+Object.mixin(defaultOptions, newOptions, {whiteList: Object.keys(defaultOptions)});
 // 让 newOptions 覆盖 defaultOptions 的同名属性。
 </pre>
 <pre>
@@ -383,7 +383,7 @@ execute(function(<strong>$</strong>) {
   <p>可选参数 waitingForDomReady 可以控制包含代码块的匿名函数的执行时机：</p>
 <pre>
 execute(function(<strong>$</strong>) {
-  <strong>$</strong>('#test').prepend(<strong>$</strong>('&lt;span class="icon"&gt;&lt;/span&gt;'));
+  <strong>$</strong>('#test').prependChild(<strong>$</strong>('&lt;span class="icon"&gt;&lt;/span&gt;'));
 }, <strong>true</strong>);
 // 包含代码块的匿名函数将在 DOM 树解析完成后执行。
 </pre>

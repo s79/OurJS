@@ -16,7 +16,7 @@ var manifest = {
     '#自定义扩展',
     'Object.forEach',
     'Object.clone',
-    'Object.append'
+    'Object.mixin'
   ],
   'Array': [
     '#ES5',
@@ -182,8 +182,7 @@ var manifest = {
     'Element.prototype.getChildren',
     'Element.prototype.getChildCount',
     '#修改文档树',
-    'Element.prototype.append',
-    'Element.prototype.prepend',
+    'Element.prototype.prependChild',
     'Element.prototype.putBefore',
     'Element.prototype.putAfter',
     'Element.prototype.replace',

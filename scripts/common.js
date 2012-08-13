@@ -86,7 +86,7 @@ execute(function($) {
   ];
 
 //--------------------------------------------------[页头]
-  $(document.body).prepend($('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS"><span>OurJS on GitHub</span></a></h2><ul id="menu"></ul></div></div>'));
+  $(document.body).prependChild($('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS"><span>OurJS on GitHub</span></a></h2><ul id="menu"></ul></div></div>'));
   if (navigator.isIE6) {
     $('#header').setStyle('position', 'fixed');
   }
@@ -144,7 +144,7 @@ execute(function($) {
       });
 
 //--------------------------------------------------[页脚]
-  $(document.body).append($('<div id="footer"><span>©2012 <a href="https://github.com/s79">s79</a>. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>'));
+  $(document.body).appendChild($('<div id="footer"><span>©2012 <a href="https://github.com/s79">s79</a>. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>'));
 
 //--------------------------------------------------[书签]
   document.on('click:relay(a)', function() {
@@ -174,7 +174,7 @@ execute(function($) {
   if ($content.getData('outline') === 'enabled') {
     // 创建“显示提纲”按钮。
     var $outline = $('<div id="outline"><a href="javascript:void(\'shownOutline\');" class="control">提纲</a><div><ul></ul></div></div>');
-    $(document.body).append($outline.setStyle('position', 'fixed'));
+    $(document.body).appendChild($outline.setStyle('position', 'fixed'));
 
     // 注入提纲。
     var $outlineList = $outline.getLastChild().getFirstChild();
@@ -184,7 +184,7 @@ execute(function($) {
       if (!$heading.id) {
         $heading.id = (uid++).toString(36);
       }
-      $outlineList.append($('<li class="' + $heading.nodeName.toLowerCase() + '"><a href="#' + $heading.id + '">' + $heading.innerText + '</a></li>'));
+      $outlineList.appendChild($('<li class="' + $heading.nodeName.toLowerCase() + '"><a href="#' + $heading.id + '">' + $heading.innerText + '</a></li>'));
     });
 
     // 定位及显示。

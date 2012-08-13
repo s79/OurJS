@@ -3,7 +3,7 @@ kbd,
 samp { font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
 a:link,
 a:visited { color: #666; }
-fieldset { display: block; margin-bottom: 5px; padding: 5px; border: 1px solid #A6AEB3; border-radius: 5px; }
+fieldset { display: block; margin-top: 0; padding: 5px; border: 1px solid #A6AEB3; border-radius: 5px; }
 fieldset:hover { border-color: gray; }
 legend { padding: 2px 5px; font-weight: bold; font-size: 14px; line-height: 14px; }
 legend dfn { color: steelblue; }
@@ -20,7 +20,7 @@ var { color: sienna; font-style: italic; }
 
 #content { height: auto; }
 
-#cutline { margin: 20px; overflow: hidden; }
+#cutline { margin: 10px; overflow: hidden; }
 #cutline ul { float: right; padding-left: 70px; }
 #cutline li { margin: 2px 0; font-size: 12px; }
 #cutline li.constructor,
@@ -32,7 +32,7 @@ var { color: sienna; font-style: italic; }
 #cutline li.option label:hover { color: #102197; }
 
 .column { clear: right; float: left; width: 310px; padding: 5px; cursor: default; }
-.column h1 { margin: 0; background: gray; color: white; font-size: 14px; }
+.column h1 { margin: 0 0 10px; background: gray; color: white; font-size: 14px; }
 .constructor { border-left: 2px solid red; }
 .static { border-left: 2px solid limegreen; }
 .instance { border-left: 2px solid mediumorchid; }

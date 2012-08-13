@@ -87,7 +87,7 @@
     Component.prototype = this;
     // 将 prototype 的属性追加到原型中。
     if (prototype) {
-      Object.append(Component.prototype, prototype);
+      Object.mixin(Component.prototype, prototype);
     }
     // 重新设定 constructor 属性。
     Component.prototype.constructor = Component;
@@ -111,7 +111,7 @@
    *   </ul>
    */
   Component.prototype.setOptions = function(options) {
-    Object.append(this.options, options || {}, {whiteList: Object.keys(this.options)});
+    Object.mixin(this.options, options || {}, {whiteList: Object.keys(this.options)});
     return this;
   };
 
@@ -186,7 +186,7 @@
    */
   Component.prototype.fire = function(type, data) {
     var component = this;
-    var event = Object.append(new ComponentEvent(type, component), data || {});
+    var event = Object.mixin(new ComponentEvent(type, component), data || {});
     var handlers = component.events[type];
     if (handlers) {
       handlers.forEach(function(handler) {

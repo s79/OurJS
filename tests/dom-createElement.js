@@ -1,1 +1,1 @@
-document.$(document.body).prepend(document.$('<h1>╫е╠╬╪стьмЙ╠о</h1>'));
+document.$(document.body).prependChild(document.$('<h1>О©╫е╠О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫</h1>'));

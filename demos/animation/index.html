@@ -375,22 +375,22 @@ execute(function($) {
     var duration = animation.duration;
     animation.clips.forEach(function(clip, index) {
       var color = getRandomColor();
-      $number.append($('<div style="height: 12px;">' + (index + 1) + '</div>'));
-      $type.append($('<div style="height: 12px;">' + clip.type + '</div>'));
+      $number.appendChild($('<div style="height: 12px;">' + (index + 1) + '</div>'));
+      $type.appendChild($('<div style="height: 12px;">' + clip.type + '</div>'));
       var $clipPanlel = $('<div style="width: ' + clip.duration / duration * length + 'px; height: 12px; margin-left: ' + clip.delay / duration * length + 'px; background: ' + color + '; overflow: hidden;"></div>');
-      $timeline.append($clipPanlel);
+      $timeline.appendChild($clipPanlel);
       if (!$clipPanlel.offsetWidth) {
         $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
       }
       $clipPanlel.on('click', function() {
         for (var i = 0; i < 299; i++) {
-          $('#canvas').append($('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>'));
+          $('#canvas').appendChild($('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>'));
         }
       });
 
     });
     var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5);
-    $timeline.append($time);
+    $timeline.appendChild($time);
     animation.addClip(Animation.createStyleRenderer($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
       $time.setStyle('left', 0);
     });
@@ -472,7 +472,7 @@ execute(function($) {
           Animation.createBasicRenderer(function(x, y) {
             x = Math.floor(x * 299);
             y = Math.floor(y * 299);
-            $canvas.append($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
+            $canvas.appendChild($('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>'));
           }), 0, 2500, this.innerText)
           .play();
     });

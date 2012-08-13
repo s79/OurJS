@@ -228,7 +228,7 @@
   var $ = navigator.isIElt8 ? function(element) {
     if (element && !element.uid) {
       element.uid = ++uid;
-      // Object.append(element, prototypeOfElement);
+      // Object.mixin(element, prototypeOfElement);
       // 使用以下方式附加新属性以降低开销。此处不必判断 hasOwnProperty，也无需考虑 hasDontEnumBug 的问题。
       var property;
       for (property in prototypeOfElement) {
@@ -1021,8 +1021,7 @@
    * 对元素在文档树中的位置的操作。
    *
    * 扩展方法：
-   *   Element.prototype.append
-   *   Element.prototype.prepend
+   *   Element.prototype.prependChild
    *   Element.prototype.putBefore
    *   Element.prototype.putAfter
    *   Element.prototype.replace
@@ -1031,28 +1030,15 @@
    *   Element.prototype.clone  // TODO: pending。
    */
 
-//--------------------------------------------------[Element.prototype.append]
-  /**
-   * 将目标元素追加为本元素的最后一个子元素。
-   * @name Element.prototype.append
-   * @function
-   * @param {Element} target 目标元素。
-   * @returns {Element} 本元素。
-   */
-  Element.prototype.append = function(target) {
-    this.appendChild(target);
-    return this;
-  };
-
-//--------------------------------------------------[Element.prototype.prepend]
+//--------------------------------------------------[Element.prototype.prependChild]
   /**
    * 将目标元素追加为本元素的第一个子元素。
-   * @name Element.prototype.prepend
+   * @name Element.prototype.prependChild
    * @function
    * @param {Element} target 目标元素。
    * @returns {Element} 本元素。
    */
-  Element.prototype.prepend = function(target) {
+  Element.prototype.prependChild = function(target) {
     this.insertBefore(target, this.firstChild);
     return this;
   };
@@ -1442,7 +1428,7 @@
    * @type number
    */
 
-  Object.append(Event.prototype, {
+  Object.mixin(Event.prototype, {
     /**
      * 阻止事件的传递，被阻止传递的事件将不会向其他元素传递。
      * @name Event.prototype.stopPropagation
@@ -1736,7 +1722,10 @@
             var dragstart = function(e) {
               var event = new Event(e || window.event, 'mousedragstart');
               event.offsetX = event.offsetY = 0;
-              if (!event.leftButton || dispatchEvent($element, dragHandlers.mousedragstart, event).isDefaultPrevented()) {
+              if (event.leftButton) {
+                dispatchEvent($element, dragHandlers.mousedragstart, event);
+              }
+              if (event.isDefaultPrevented()) {
                 return;
               }
               var $target = event.target;
@@ -2001,7 +1990,7 @@
       preventDefault: returnTrue
     };
     // 避免事件对象的 originalEvent 属性被参数 data 的同名属性覆盖。
-    var event = Object.append(new Event(dummyEvent, type), data || {}, {blackList: ['originalEvent']});
+    var event = Object.mixin(new Event(dummyEvent, type), data || {}, {blackList: ['originalEvent']});
     // 模拟事件的冒泡传播。
     var $element = this;
     while ($element) {
@@ -2119,7 +2108,7 @@
    *   <ul>
    *     <li>忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。</li>
    *     <li>修改“IE 添加多余的 tbody 元素”的问题的解决方案，在 wrappers 里预置一个 tbody 即可。</li>
-   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 append 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
+   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 appendChild 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
    *   </ul>
    *   在创建元素时，如果包含 table，建议写上 tbody 以确保结构严谨。举例如下：
    *   document.$('&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;');
