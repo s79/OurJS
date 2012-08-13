@@ -285,7 +285,7 @@ execute(function($) {
     var scrollbarWidth = function() {
       var $outer = $('<div></div>').setStyles({position: 'absolute', top: 0, left: -10000, width: 100, height: 100, overflow: 'scroll'});
       var $inner = $('<div></div>').setStyles({height: 200});
-      $(document.body).appendChild($outer.appendChild($inner));
+      $(document.body).appendChild($outer).appendChild($inner);
       var width = 100 - $inner.offsetWidth;
       $outer.remove();
       return width;

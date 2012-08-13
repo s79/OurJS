@@ -1036,11 +1036,10 @@
    * @name Element.prototype.prependChild
    * @function
    * @param {Element} target 目标元素。
-   * @returns {Element} 本元素。
+   * @returns {Element} 目标元素。
    */
   Element.prototype.prependChild = function(target) {
-    this.insertBefore(target, this.firstChild);
-    return this;
+    return $(this.insertBefore(target, this.firstChild));
   };
 
 //--------------------------------------------------[Element.prototype.putBefore]
