@@ -1,1 +1,1 @@
-document.$(document.body).prependChild(document.$('<h1>ï¿½Å±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</h1>'));
+document.$(document.body).prependChild(document.$('<h1>ÖÐÎÄ×Ö·û</h1>'));

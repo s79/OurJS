@@ -1039,7 +1039,8 @@
    * @returns {Element} 目标元素。
    */
   Element.prototype.prependChild = function(target) {
-    return $(this.insertBefore(target, this.firstChild));
+    var $target = $(target);
+    return this.insertBefore($target, this.firstChild);
   };
 
 //--------------------------------------------------[Element.prototype.putBefore]
@@ -1051,9 +1052,10 @@
    * @returns {Element} 本元素。
    */
   Element.prototype.putBefore = function(target) {
-    var $parent = $(target).getParent();
+    var $target = $(target);
+    var $parent = $target.getParent();
     if ($parent) {
-      $parent.insertBefore(this, target);
+      $parent.insertBefore(this, $target);
     }
     return this;
   };
@@ -1067,9 +1069,10 @@
    * @returns {Element} 本元素。
    */
   Element.prototype.putAfter = function(target) {
-    var $parent = $(target).getParent();
+    var $target = $(target);
+    var $parent = $target.getParent();
     if ($parent) {
-      $parent.insertBefore(this, target.nextSibling);
+      $parent.insertBefore(this, $target.nextSibling);
     }
     return this;
   };
@@ -1081,7 +1084,7 @@
    * @function
    * @param {Element} target 目标元素。
    * @param {boolean} [keepListeners] 是否保留目标元素及后代元素上绑定的所有事件监听器。
-   * @returns {Element} 本元素。
+   * @returns {Element} 目标元素。
    */
   Element.prototype.replace = function(target, keepListeners) {
     var $target = $(target);
@@ -1092,7 +1095,7 @@
       }
       $parent.replaceChild($target, this);
     }
-    return this;
+    return $target;
   };
 
 //--------------------------------------------------[Element.prototype.remove]
@@ -1723,8 +1726,10 @@
               event.offsetX = event.offsetY = 0;
               if (event.leftButton) {
                 dispatchEvent($element, dragHandlers.mousedragstart, event);
-              }
-              if (event.isDefaultPrevented()) {
+                if (event.isDefaultPrevented()) {
+                  return;
+                }
+              } else {
                 return;
               }
               var $target = event.target;

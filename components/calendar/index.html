@@ -173,7 +173,9 @@
           datePicker.setValue(today.format()).hide();
         }
       });
-      var $additionalControls = $('<div></div>').appendChild($clear).appendChild($today);
+      var $additionalControls = $('<div></div>');
+      $additionalControls.appendChild($clear);
+      $additionalControls.appendChild($today);
       $datePicker.appendChild($additionalControls);
       // 确定“清除”和“今天”按钮是否可用。
       datePicker.on('show', function(e) {

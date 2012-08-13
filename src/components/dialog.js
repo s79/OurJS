@@ -75,7 +75,8 @@ execute(function($) {
             $after.focus();
           }
         });
-        $enable.prependChild($before).appendChild($after);
+        $enable.prependChild($before);
+        $enable.appendChild($after);
         $after.fire('focus');
         $enabled = $enable;
         $disabled = $disable;
