@@ -68,10 +68,9 @@ function ff(e) {
 }
 
 function leak() {
-  var $e = $('<a href="javascript:alert(0);"><h1>This is a <span>test</span>.</h1></a>');
-  document.body.appendChild($e);
-  $e.longString = new Array(1000).join('abcdefghijklmnopqrstuvwxyz');
-  return $e;
+  return $('<a href="javascript:alert(0);"><h1>This is a <span>test</span>.</h1></a>')
+      .insertTo(document.body)
+      .longString = new Array(1000).join('abcdefghijklmnopqrstuvwxyz');
 }
 
 for (var i = 0; i < 100; i++) {

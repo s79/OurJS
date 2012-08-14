@@ -9,14 +9,14 @@
 <h1>$</h1>
 <script>
 execute(function($) {
-  document.body.appendChild($('<link rel="stylesheet" href="dom-createElement.css">'));
-  document.body.appendChild($('<style>body{color: crimson;}</style>'));
-//document.body.appendChild($('<script src="dom-createElement.js" defer></' + 'script>'));
-  document.body.appendChild($('<script src="dom-createElement.js"></' + 'script>'));
-//  document.body.appendChild($('<script defer>alert("innerScript");<' + '/script>'));
-  document.body.appendChild($('<h1>test<var>var</var>text<del>del</del>text</h1>'));
-  document.body.appendChild($('<div style="white-space: pre;"> test<div>  jQuery</div>   text  <div>    del  </div></div>'));
-  document.body.appendChild($('<>'));
+  $('<link rel="stylesheet" href="dom-createElement.css">').insertTo(document.body);
+  $('<style>body{color: crimson;}</style>').insertTo(document.body);
+//$('<script src="dom-createElement.js" defer></' + 'script>').insertTo(document.body);
+  $('<script src="dom-createElement.js"></' + 'script>').insertTo(document.body);
+//  $('<script defer>alert("innerScript");<' + '/script>').insertTo(document.body);
+  $('<h1>test<var>var</var>text<del>del</del>text</h1>').insertTo(document.body);
+  $('<div style="white-space: pre;"> test<div>  jQuery</div>   text  <div>    del  </div></div>').insertTo(document.body);
+  $('<>').insertTo(document.body);
   var elementTest = {
     area: $('<area shape="rect" coords="0,0,82,126" href="">'),
     legend: $('<legend>~legend~</legend>'),

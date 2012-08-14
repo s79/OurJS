@@ -383,7 +383,7 @@ execute(function(<strong>$</strong>) {
   <p>可选参数 waitingForDomReady 可以控制包含代码块的匿名函数的执行时机：</p>
 <pre>
 execute(function(<strong>$</strong>) {
-  <strong>$</strong>('#test').prependChild(<strong>$</strong>('&lt;span class="icon"&gt;&lt;/span&gt;'));
+  <strong>$</strong>('&lt;span class="icon"&gt;&lt;/span&gt;').insertTo(<strong>$</strong>('#test'), 'top');
 }, <strong>true</strong>);
 // 包含代码块的匿名函数将在 DOM 树解析完成后执行。
 </pre>

@@ -188,28 +188,28 @@ execute(function($) {
       manifest[name].forEach(function(name) {
         if (name.startsWith('#')) {
           comment = name.slice(1);
-          $indexFieldset.appendChild($('<h2>' + comment + '</h2>'));
+          $('<h2>' + comment + '</h2>').insertTo($indexFieldset);
         } else {
           var symbol = apiData[name];
           var category = getCategory(symbol);
           // 语法和说明。
-          $indexFieldset.appendChild($('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>'));
+          $('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>').insertTo($indexFieldset);
           // 详细信息。
           var groupName = symbol ? (symbol.isFunction ? (symbol.isConstructor ? 'constructor' : 'methods') : 'properties') : '';
           if (groupName && groupName !== lastGroupName) {
-            $detailsDiv.appendChild($(group[groupName]));
+            $(group[groupName]).insertTo($detailsDiv);
           }
-          $detailsDiv.appendChild($('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>'));
+          $('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>').insertTo($detailsDiv);
           lastGroupName = groupName;
         }
       });
-      $('#details').appendChild($detailsDiv);
-      $container.appendChild($indexFieldset);
+      $detailsDiv.insertTo($('#details'));
+      $indexFieldset.insertTo($container);
     };
 
 //--------------------------------------------------[列出名单中的指定内容]
     listen('build', function() {
-      indexColumns.a.appendChild($('<h1>JS 语言扩展</h1>'));
+      $('<h1>JS 语言扩展</h1>').insertTo(indexColumns.a);
       [
         'Global',
         'Object',
@@ -225,7 +225,7 @@ execute(function($) {
           .forEach(function(name) {
             buildDocument(indexColumns.a, name, true);
           });
-      indexColumns.a.appendChild($('<h1>浏览器内置对象扩展</h1>'));
+      $('<h1>浏览器内置对象扩展</h1>').insertTo(indexColumns.a);
       [
         'navigator',
         'location',
@@ -235,7 +235,7 @@ execute(function($) {
           .forEach(function(name) {
             buildDocument(indexColumns.a, name, true);
           });
-      indexColumns.b.appendChild($('<h1>DOM 扩展</h1>'));
+      $('<h1>DOM 扩展</h1>').insertTo(indexColumns.b);
       [
         'window',
         'document',
@@ -246,7 +246,7 @@ execute(function($) {
           .forEach(function(name) {
             buildDocument(indexColumns.b, name, true);
           });
-      indexColumns.c.appendChild($('<h1>组件</h1>'));
+      $('<h1>组件</h1>').insertTo(indexColumns.c);
       [
         'Component',
         'Request',
@@ -285,7 +285,7 @@ execute(function($) {
     var scrollbarWidth = function() {
       var $outer = $('<div></div>').setStyles({position: 'absolute', top: 0, left: -10000, width: 100, height: 100, overflow: 'scroll'});
       var $inner = $('<div></div>').setStyles({height: 200});
-      $(document.body).appendChild($outer).appendChild($inner);
+      $inner.insertTo($outer.insertTo(document.body));
       var width = 100 - $inner.offsetWidth;
       $outer.remove();
       return width;

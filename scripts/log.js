@@ -44,7 +44,7 @@ execute(function($) {
    * @returns {Object} Logger 对象。
    */
   Logger.prototype.log = function(message) {
-    this.element.appendChild($('<p>' + message + '</p>'));
+    $('<p>' + message + '</p>').insertTo(this.element);
     this.element.scrollTop += 10000;
     return this;
   };

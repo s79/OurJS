@@ -75,9 +75,8 @@ execute(function($) {
             $after.focus();
           }
         });
-        $enable.prependChild($before);
-        $enable.appendChild($after);
-        $after.fire('focus');
+        $before.insertTo($enable, 'top');
+        $after.insertTo($enable, 'bottom').fire('focus');
         $enabled = $enable;
         $disabled = $disable;
       }
@@ -143,7 +142,8 @@ execute(function($) {
         var resizeOverlayElementForIE6;
         if (navigator.isIE6) {
           // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
-          $overlay = $('<div><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>').appendChild($('<div></div>').setStyles(options.overlayStyles).setStyles({position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'}));
+          $overlay = $('<div><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>');
+          $('<div></div>').setStyles(Object.mixin(options.overlayStyles, {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'})).insertTo($overlay);
           // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
           if ($container === document.body) {
             resizeOverlayElementForIE6 = function() {
@@ -154,7 +154,7 @@ execute(function($) {
           $overlay = $('<div></div>').setStyles(options.overlayStyles);
         }
         // 确定遮掩层元素的样式并插入文档树。
-        $container.appendChild($overlay.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}));
+        $overlay.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}).insertTo($container);
         overlay.element = $overlay;
         // 动画效果。
         overlay.animation = new Animation()

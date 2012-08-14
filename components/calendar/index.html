@@ -25,7 +25,7 @@
   <script>
   execute(function($) {
     window.calendar = new Calendar('calendar', {minDate: '2011-10-15', maxDate: '2012-06-30'});
-    $('#container').appendChild(calendar.getElement());
+    calendar.getElement().insertTo($('#container'));
     calendar.render();
   });
   </script>
@@ -92,7 +92,7 @@
         isShown: false,
         show: function($target) {
           if (!this.isShown) {
-            $datePicker.putAfter($target).setStyles({display: 'block', left: 0, top: 0});
+            $datePicker.setStyles({display: 'block', left: 0, top: 0}).insertTo($target, 'after');
             this.target = $target;
             this.isShown = true;
             this.reposition();
@@ -162,21 +162,23 @@
             return false;
           });
       // 添加“清除”和“今天”按钮。
-      var $clear = $('<span class="btn clear">清除</span>').on('click', function(e) {
-        if (!this.hasClass('disabled')) {
-          datePicker.clearValue().hide();
-        }
-      });
       var today;
-      var $today = $('<span class="btn today">今天</span>').on('click', function(e) {
-        if (!this.hasClass('disabled')) {
-          datePicker.setValue(today.format()).hide();
-        }
-      });
       var $additionalControls = $('<div></div>');
-      $additionalControls.appendChild($clear);
-      $additionalControls.appendChild($today);
-      $datePicker.appendChild($additionalControls);
+      var $clear = $('<span class="btn clear">清除</span>')
+          .on('click', function(e) {
+            if (!this.hasClass('disabled')) {
+              datePicker.clearValue().hide();
+            }
+          })
+          .insertTo($additionalControls);
+      var $today = $('<span class="btn today">今天</span>')
+          .on('click', function(e) {
+            if (!this.hasClass('disabled')) {
+              datePicker.setValue(today.format()).hide();
+            }
+          })
+          .insertTo($additionalControls);
+      $additionalControls.insertTo($datePicker);
       // 确定“清除”和“今天”按钮是否可用。
       datePicker.on('show', function(e) {
         var $target = this.target;

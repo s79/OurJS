@@ -33,14 +33,14 @@
   var $console = $('<form action="" style="display:none; position:absolute; right:0; bottom:0; width:1000px; margin:0; padding:0;">' +
       '<textarea id="console_output" readonly style="display:block; width:100%; height:120px; margin:0 0 -3px; border:1px solid gray; background:#252525; color:#9ACD32; font:12px Consolas, \'Lucida Console\', Courier, SimSun, monospace;"></textarea>' +
       '<input id="console_input" type="text" style="display:block; width:100%; margin:0; border:1px solid gray; background:#252525; color:#F5F5F5; font:12px Consolas, \'Lucida Console\', Courier, SimSun, monospace;">' +
-      '</form>');
-  document.head.appendChild($console);
+      '</form>')
+      .insertTo(document.head);
   var $input = $('#console_input');
   var $output = $('#console_output');
   $output.value = '';
-  var $script = document.createElement('div');
+  var scriptContainer = document.createElement('div');
   // 必须插入文档，否则脚本执行后的结果将丢失。
-  document.documentElement.firstChild.appendChild($script);
+  document.documentElement.firstChild.appendChild(scriptContainer);
 
   // 命令输入。
   $console.attachEvent('onsubmit', function() {
@@ -48,7 +48,7 @@
     $input.value = '';
     historyIndex = history.push(code);
     log('>> ' + code);
-    $script.innerHTML = '#<script defer>try { window.__result__ = eval("' + code + '"); } catch(e) { window.__result__ = "Error: " + e.message; }</script>';
+    scriptContainer.innerHTML = '#<script defer>try { window.__result__ = eval("' + code + '"); } catch(e) { window.__result__ = "Error: " + e.message; }</script>';
     var result = window.__result__;
     // 以下写法 IE6 会有作用域问题。
     /*
@@ -135,7 +135,7 @@
   window.attachEvent('onload', function() {
     // 更新文档树及数据。
     var $body = $(document.body);
-    $body.appendChild($console.setStyle('position', 'fixed'));
+    $console.setStyle('position', 'fixed').insertTo($body);
     bodyPaddingBottom = parseInt($body.getStyle('paddingBottom'), 10) || 0;
     // 启用打开/关闭控制台的快捷键 F12。
     document.attachEvent('onkeydown', function(e) {

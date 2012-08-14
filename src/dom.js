@@ -1021,58 +1021,54 @@
    * 对元素在文档树中的位置的操作。
    *
    * 扩展方法：
-   *   Element.prototype.prependChild
-   *   Element.prototype.putBefore
-   *   Element.prototype.putAfter
+   *   Element.prototype.insertTo
    *   Element.prototype.replace
    *   Element.prototype.remove
    *   Element.prototype.empty
    *   Element.prototype.clone  // TODO: pending。
    */
 
-//--------------------------------------------------[Element.prototype.prependChild]
+//--------------------------------------------------[Element.prototype.insertTo]
   /**
-   * 将目标元素追加为本元素的第一个子元素。
-   * @name Element.prototype.prependChild
+   * 将本元素插入到目标元素的指定位置。
+   * @name Element.prototype.insertTo
    * @function
    * @param {Element} target 目标元素。
-   * @returns {Element} 目标元素。
-   */
-  Element.prototype.prependChild = function(target) {
-    var $target = $(target);
-    return this.insertBefore($target, this.firstChild);
-  };
-
-//--------------------------------------------------[Element.prototype.putBefore]
-  /**
-   * 将本元素放到目标元素之前。
-   * @name Element.prototype.putBefore
-   * @function
-   * @param {Element} target 目标元素。
+   * @param {string} [position] 要插入的位置，可选值请参考下表。
+   *   <table>
+   *     <tr><th>可选值</th><th>含义</th></tr>
+   *     <tr><td><dfn>before</dfn></td><td>将本元素插入到目标元素之前。</td></tr>
+   *     <tr><td><dfn>after</dfn></td><td>将本元素插入到目标元素之后。</td></tr>
+   *     <tr><td><dfn>top</dfn></td><td>将本元素插入到目标元素之内并作为其第一个子元素。</td></tr>
+   *     <tr><td><dfn>bottom</dfn></td><td>将本元素插入到目标元素之内并作为其最后一个子元素。</td></tr>
+   *   </table>
+   *   如果该参数被省略，则使用 <dfn>bottom</dfn> 作为默认值。
    * @returns {Element} 本元素。
    */
-  Element.prototype.putBefore = function(target) {
-    var $target = $(target);
-    var $parent = $target.getParent();
-    if ($parent) {
-      $parent.insertBefore(this, $target);
+  Element.prototype.insertTo = function(target, position) {
+    var parent;
+    if (arguments.length === 1) {
+      position = 'bottom';
     }
-    return this;
-  };
-
-//--------------------------------------------------[Element.prototype.putAfter]
-  /**
-   * 将本元素放到目标元素之后。
-   * @name Element.prototype.putAfter
-   * @function
-   * @param {Element} target 目标元素。
-   * @returns {Element} 本元素。
-   */
-  Element.prototype.putAfter = function(target) {
-    var $target = $(target);
-    var $parent = $target.getParent();
-    if ($parent) {
-      $parent.insertBefore(this, $target.nextSibling);
+    switch (position) {
+      case 'before':
+        if (parent = target.parentNode) {
+          parent.insertBefore(this, target);
+        }
+        break;
+      case 'after':
+        if (parent = target.parentNode) {
+          parent.insertBefore(this, target.nextSibling);
+        }
+        break;
+      case 'top':
+        target.insertBefore(this, target.firstChild);
+        break;
+      case 'bottom':
+        target.appendChild(this);
+        break;
+      default:
+        throw new Error('Invalid position "' + position + '"');
     }
     return this;
   };
@@ -1637,8 +1633,8 @@
    *   使用逗号分割多个事件名称，即可同时为多个事件注册同一个监听器。
    *   对于为不保证所有浏览器均可以冒泡的事件类型指定了代理监听的情况，会给出警告信息。
    *   <table>
-   *     <tr><th></th><th>是否必选</th><th>详细描述</th></tr>
-   *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型</td></tr>
+   *     <tr><th>组成部分</th><th>是否必选</th><th>详细描述</th></tr>
+   *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型。</td></tr>
    *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>给事件类型加上标签，以便调用 off 方法时精确匹配要删除的事件监听器。<br>不打算删除的事件监听器没有必要指定标签。</td></tr>
    *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
    *   </table>
@@ -2048,7 +2044,6 @@
           break;
         default:
           value = control.disabled ? '' : control.value;
-          break;
       }
     } else {
       control.forEach(function(control) {
@@ -2112,9 +2107,9 @@
    *   <ul>
    *     <li>忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。</li>
    *     <li>修改“IE 添加多余的 tbody 元素”的问题的解决方案，在 wrappers 里预置一个 tbody 即可。</li>
-   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装 appendChild 等方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，会提供专门的方法，不应该使用本方法。</li>
+   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装追加元素的相关方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法，而不应该使用本方法。</li>
    *   </ul>
-   *   在创建元素时，如果包含 table，建议写上 tbody 以确保结构严谨。举例如下：
+   *   在创建元素时，如果包含 table，建议写上 tbody。举例如下：
    *   document.$('&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;');
    *   当参数为一个元素的 id 时，会返回扩展后的、与指定 id 相匹配的元素。
    *   当参数本身即为一个元素时，会返回扩展后的该元素。

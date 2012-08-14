@@ -1,1 +1,1 @@
-document.$(document.body).prependChild(document.$('<h1>中文字符</h1>'));
+document.$('<h1>中文字符</h1>').insertTo(document.body, 'top');
