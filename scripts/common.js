@@ -14,6 +14,10 @@ execute(function($) {
       url: '/OurJS/demos/',
       submenu: [
         {
+          text: 'DOM',
+          url: '/OurJS/demos/dom/'
+        },
+        {
           text: '事件',
           url: '/OurJS/demos/event/'
         },

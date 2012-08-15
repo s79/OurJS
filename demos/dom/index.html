@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>dom</title>
+<script src="../../our.js"></script>
+<script src="../../scripts/framework.js"></script>
+<style>
+fieldset { display: inline-block; width: 460px; margin: 0 5px 10px 0; *display: inline; }
+div.simples { float: left; width: 160px; height: 80px; background: gold; }
+div.targets_container { float: right; height: 120px; }
+div.targets { overflow: hidden; background: mediumseagreen; zoom: 1; }
+div.simple,
+div.target { width: 150px; height: 20px; margin: 5px; line-height: 20px; text-align: center; }
+div.simple { background: tomato; }
+div.target { background: gainsboro; }
+blockquote { clear: both; margin: 0; padding: 10px; border: 1px solid gainsboro; }
+button { padding: 3px 5px; }
+button samp { padding: 0 2px; border-radius: 3px; }
+samp.target { background: mediumseagreen; }
+samp.sample { background: tomato; }
+samp.simples { background: gold; }
+</style>
+</head>
+<body>
+<div id="content">
+  <h1>DOM 操作</h1>
+
+  <h2>修改位置或内容</h2>
+
+  <!-- insertTo { -->
+  <fieldset>
+    <legend>insertTo - 将本元素插入到目标元素的指定位置。</legend>
+    <div class="simples">
+      <div id="i_sample" class="simple">$sample</div>
+    </div>
+    <div class="targets_container">
+      <div id="i_target" class="targets">
+        <div class="target"></div>
+        <div class="target"></div>
+        <div class="target"></div>
+      </div>
+    </div>
+    <blockquote id="i_controls">
+      <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="target">$target</samp>, 'before');</code></button>
+      <br>
+      <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="target">$target</samp>, 'top');</code></button>
+      <br>
+      <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="target">$target</samp>, 'bottom');</code></button>
+      <br>
+      <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="target">$target</samp>, 'after');</code></button>
+      <br>
+      <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="simples">$container</samp>);</code></button>
+      <br>
+    </blockquote>
+  </fieldset>
+  <script>
+  execute(function($) {
+    var $sample = $('#i_sample');
+    var $target = $('#i_target');
+    var $container = $sample.getParent();
+    $('#i_controls').on('click:relay(button)', function() {
+      eval(this.innerText);
+    });
+  });
+  </script>
+  <!-- } insertTo -->
+
+  <br>
+
+  <!-- swap { -->
+  <fieldset>
+    <legend>swap - 交换本元素目标元素的位置。</legend>
+    <div class="simples">
+      <div id="s_sample" class="simple">$sample</div>
+    </div>
+    <div class="targets_container">
+      <div id="s_target" class="targets">
+        <div class="target">$targetA</div>
+        <div class="target">$targetB</div>
+        <div class="target">$targetC</div>
+      </div>
+    </div>
+    <blockquote id="s_controls">
+      <button><code><samp class="sample">$sample</samp>.swap(<samp class="target">$targetA</samp>);</code></button>
+      <br>
+      <button><code><samp class="sample">$sample</samp>.swap(<samp class="target">$targetB</samp>);</code></button>
+      <br>
+      <button><code><samp class="sample">$sample</samp>.swap(<samp class="target">$targetC</samp>);</code></button>
+      <br>
+    </blockquote>
+  </fieldset>
+  <script>
+  execute(function($) {
+    window.$ = $;
+    var $sample = $('#s_sample');
+    var targets = $('#s_target').getChildren();
+    var $targetA = targets[0];
+    var $targetB = targets[1];
+    var $targetC = targets[2];
+    $('#s_controls').on('click:relay(button)', function() {
+      eval(this.innerText);
+    });
+  });
+  </script>
+  <!-- } swap -->
+
+  <!-- replace { -->
+  <fieldset>
+    <legend>replace - 使用本元素替换目标元素。</legend>
+    <div class="simples">
+      <div id="r_sample" class="simple">$sample</div>
+    </div>
+    <div class="targets_container">
+      <div id="r_target" class="targets">
+        <div class="target">$targetA</div>
+        <div class="target">$targetB</div>
+        <div class="target">$targetC</div>
+      </div>
+    </div>
+    <blockquote id="r_controls">
+      <button><code><samp class="sample">$sample</samp>.replace(<samp class="target">$targetA</samp>);</code></button>
+      <br>
+      <button><code><samp class="sample">$sample</samp>.replace(<samp class="target">$targetB</samp>);</code></button>
+      <br>
+      <button><code><samp class="sample">$sample</samp>.replace(<samp class="target">$targetC</samp>);</code></button>
+      <br>
+    </blockquote>
+  </fieldset>
+  <script>
+  execute(function($) {
+    window.$ = $;
+    var $sample = $('#r_sample');
+    var targets = $('#r_target').getChildren();
+    var $targetA = targets[0];
+    var $targetB = targets[1];
+    var $targetC = targets[2];
+    $('#r_controls').on('click:relay(button)', function() {
+      eval(this.innerText);
+    });
+  });
+  </script>
+  <!-- } replace -->
+
+</div>
+</body>
+</html>

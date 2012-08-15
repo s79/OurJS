@@ -69,9 +69,11 @@ execute(function($) {
     var shortDescriptionPattern = /<p>(.*?)<\/p>/;
     var getShortDescription = function(symbol) {
       var shortDescription = '-';
-      var match = symbol.description.match(shortDescriptionPattern);
-      if (match) {
-        shortDescription = match[1];
+      if (symbol) {
+        var match = symbol.description.match(shortDescriptionPattern);
+        if (match) {
+          shortDescription = match[1];
+        }
       }
       return shortDescription;
     };

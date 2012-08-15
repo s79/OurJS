@@ -35,13 +35,15 @@
    *
    * 补缺属性：
    *   document.head
+   *   HTMLElement.prototype.outerHTML
    *   HTMLElement.prototype.innerText
    *   HTMLElement.prototype.outerText
-   *   HTMLElement.prototype.outerHTML
+   *   HTMLElement.prototype.insertAdjacentText
+   *   HTMLElement.prototype.insertAdjacentElement
    */
 
 //--------------------------------------------------[document.head]
-  // 为 IE6 IE7 IE8 的 document 增加 head 属性。
+  // 为 IE6 IE7 IE8 添加 document.head 属性。
   /**
    * 获取文档的 head 元素。
    * @name head
@@ -61,49 +63,6 @@
     document.head = html.firstChild;
   }
 
-//--------------------------------------------------[HTMLElement.prototype.innerText]
-  // 为 Firefox 添加 HTMLElement.prototype.innerText 属性。
-  /**
-   * 获取/设置本元素内的文本信息。
-   * @name Element.prototype.innerText
-   * @type string
-   * @description
-   *   注意：
-   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
-   */
-  if (!('innerText' in document.head)) {
-    HTMLElement.prototype.__defineGetter__('innerText', function() {
-      return this.textContent;
-    });
-    HTMLElement.prototype.__defineSetter__('innerText', function(text) {
-      this.textContent = text;
-      return text;
-    });
-  }
-
-//--------------------------------------------------[HTMLElement.prototype.outerText]
-  // 为 Firefox 添加 HTMLElement.prototype.outerText 属性。
-  /**
-   * 获取本元素内的文本信息，或使用文本信息替换本元素。
-   * @name Element.prototype.outerText
-   * @type string
-   * @description
-   *   注意：
-   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
-   *   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
-   *   与 innerText 不同，如果设置一个元素的 outerText，那么设置的字符串将作为文本节点替换本元素在文档树中的位置。
-   */
-  if (!('outerText' in document.head)) {
-    HTMLElement.prototype.__defineGetter__('outerText', function() {
-      return this.textContent;
-    });
-    HTMLElement.prototype.__defineSetter__('outerText', function(text) {
-      var textNode = this.ownerDocument.createTextNode(text);
-      this.parentNode.replaceChild(textNode, this);
-      return text;
-    });
-  }
-
 //--------------------------------------------------[HTMLElement.prototype.outerHTML]
   // 为 Firefox 添加 HTMLElement.prototype.outerHTML 属性。
   /**
@@ -114,7 +73,7 @@
    *   注意：
    *   getter 在处理空标签及特殊字符时，各浏览器行为不一致。
    */
-  if (!('outerHTML' in document.head)) {
+  if (!('outerHTML' in html)) {
     var emptyElementPattern = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
     var isEmptyElement = function(nodeName) {
       return emptyElementPattern.test(nodeName);
@@ -145,6 +104,124 @@
       this.parentNode.replaceChild(range.createContextualFragment(html), this);
       return html;
     });
+  }
+
+//--------------------------------------------------[HTMLElement.prototype.innerText]
+  // 为 Firefox 添加 HTMLElement.prototype.innerText 属性。
+  /**
+   * 获取/设置本元素内的文本信息。
+   * @name Element.prototype.innerText
+   * @type string
+   * @description
+   *   注意：
+   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+   */
+  if (!('innerText' in html)) {
+    HTMLElement.prototype.__defineGetter__('innerText', function() {
+      return this.textContent;
+    });
+    HTMLElement.prototype.__defineSetter__('innerText', function(text) {
+      this.textContent = text;
+      return text;
+    });
+  }
+
+//--------------------------------------------------[HTMLElement.prototype.outerText]
+  // 为 Firefox 添加 HTMLElement.prototype.outerText 属性。
+  /**
+   * 获取本元素内的文本信息，或使用文本信息替换本元素。
+   * @name Element.prototype.outerText
+   * @type string
+   * @description
+   *   注意：
+   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+   *   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
+   *   与 innerText 不同，如果设置一个元素的 outerText，那么设置的字符串将作为文本节点替换本元素在文档树中的位置。
+   */
+  if (!('outerText' in html)) {
+    HTMLElement.prototype.__defineGetter__('outerText', function() {
+      return this.textContent;
+    });
+    HTMLElement.prototype.__defineSetter__('outerText', function(text) {
+      var textNode = this.ownerDocument.createTextNode(text);
+      this.parentNode.replaceChild(textNode, this);
+      return text;
+    });
+  }
+
+//--------------------------------------------------[HTMLElement.prototype.insertAdjacentText]
+  // 为 Firefox 添加 HTMLElement.prototype.insertAdjacentText 属性。
+  /**
+   * 在本元素的指定位置插入文本。
+   * @name Element.prototype.insertAdjacentText
+   * @function
+   * @param {string} position 要插入的位置，可选值请参考下表。
+   *   <table>
+   *     <tr><th>可选值</th><th>含义</th></tr>
+   *     <tr><td><dfn>beforebegin</dfn></td><td>将文本插入到本元素之前。</td></tr>
+   *     <tr><td><dfn>afterbegin</dfn></td><td>将文本插入到本元素的第一个子元素之前。</td></tr>
+   *     <tr><td><dfn>beforeend</dfn></td><td>将文本插入到本元素的最后一个子元素之后。</td></tr>
+   *     <tr><td><dfn>afterend</dfn></td><td>将文本插入到本元素之后。</td></tr>
+   *   </table>
+   * @param {Element} text 文本。
+   */
+  if (!('insertAdjacentText' in html)) {
+    HTMLElement.prototype.insertAdjacentText = function(position, text) {
+      switch (position.toLowerCase()) {
+        case 'beforebegin':
+        case 'afterbegin':
+        case 'beforeend':
+        case 'afterend':
+          this.insertAdjacentElement(position, this.ownerDocument.createTextNode(text));
+          break;
+        default:
+          throw new Error('Invalid position "' + position + '"');
+      }
+    };
+  }
+
+//--------------------------------------------------[HTMLElement.prototype.insertAdjacentElement]
+  // 为 Firefox 添加 HTMLElement.prototype.insertAdjacentElement 属性。
+  /**
+   * 在本元素的指定位置插入目标元素。
+   * @name Element.prototype.insertAdjacentElement
+   * @function
+   * @param {string} position 要插入的位置，可选值请参考下表。
+   *   <table>
+   *     <tr><th>可选值</th><th>含义</th></tr>
+   *     <tr><td><dfn>beforebegin</dfn></td><td>将目标元素插入到本元素之前。</td></tr>
+   *     <tr><td><dfn>afterbegin</dfn></td><td>将目标元素插入到本元素的第一个子元素之前。</td></tr>
+   *     <tr><td><dfn>beforeend</dfn></td><td>将目标元素插入到本元素的最后一个子元素之后。</td></tr>
+   *     <tr><td><dfn>afterend</dfn></td><td>将目标元素插入到本元素之后。</td></tr>
+   *   </table>
+   * @param {Element} target 目标元素。
+   * @returns {Element} 目标元素。
+   */
+  if (!('insertAdjacentElement' in html)) {
+    HTMLElement.prototype.insertAdjacentElement = function(position, target) {
+      var parent;
+      switch (position.toLowerCase()) {
+        case 'beforebegin':
+          if (parent = this.parentNode) {
+            parent.insertBefore(target, this);
+          }
+          break;
+        case 'afterbegin':
+          this.insertBefore(target, this.firstChild);
+          break;
+        case 'beforeend':
+          this.appendChild(target);
+          break;
+        case 'afterend':
+          if (parent = this.parentNode) {
+            parent.insertBefore(target, this.nextSibling);
+          }
+          break;
+        default:
+          throw new Error('Invalid position "' + position + '"');
+      }
+      return target;
+    };
   }
 
 //==================================================[DOM 扩展 - 构造器]
@@ -682,72 +759,6 @@
     return this;
   };
 
-//==================================================[Element 扩展 - 获取位置及尺寸]
-  /*
-   * 获取元素在视口的位置及尺寸。
-   *
-   * 扩展方法：
-   *   Element.prototype.getClientRect
-   */
-
-//--------------------------------------------------[Element.prototype.getClientRect]
-  /*
-   * —— 2009 年的测试结果 (body's direction = ltr) ——
-   * 测试浏览器：IE6 IE7 IE8 FF3 Safari4 Chrome2 Opera9。
-   *
-   * 浏览器        compatMode  [+html.border,+body.border]  [+html.border,-body.border]  [-html.border,+body.border]  [-html.border,-body.border]
-   * IE6 IE7 IE8  BackCompat        +body.clientLeft             +body.clientLeft             +body.clientLeft             +body.clientLeft
-   * Others       BackCompat              准确
-   * IE6 IE7      CSS1Compat        +html.clientLeft             +html.clientLeft             +html.clientLeft             +html.clientLeft
-   * Others       CSS1Compat              准确
-   *
-   * 根据上表可知，只有 IE8 以下会出现问题。
-   * 混杂模式下，IE6 IE7 IE8 减去 body.clientLeft 的值即可得到准确结果。
-   * body.clientLeft 的值取决于 body 的 border 属性，如果未设置 body 的 border 属性，则 body 会继承 html 的 border 属性。如果 html 的 border 也未设置，则 html 的 border 默认值为 medium，计算出来是 2px。
-   * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
-   * html.clientLeft 在 IE6 中取决于 html 的 border 属性，而在 IE7 中的值则始终为 2px。
-   */
-
-  /**
-   * 获取本元素的 border-box 在视口中的坐标。
-   * @name Element.prototype.getClientRect
-   * @function
-   * @returns {Object} 包含位置（left、right、top、bottom）及尺寸（width、height）的对象，所有属性值均为 number 类型，单位为像素。
-   * @description
-   *   注意：
-   *   不考虑非标准模式。
-   *   标准模式下 IE7(IE9 模拟) 的 body 的计算样式 direction: rtl 时，如果 html 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
-   */
-  Element.prototype.getClientRect = navigator.isIElt8 ? function() {
-    var clientRect = this.getBoundingClientRect();
-    var left = clientRect.left - html.clientLeft;
-    var top = clientRect.top - html.clientTop;
-    var width = this.offsetWidth;
-    var height = this.offsetHeight;
-    return {
-      left: left,
-      right: left + width,
-      top: top,
-      bottom: top + height,
-      width: width,
-      height: height
-    };
-  } : function() {
-    var clientRect = this.getBoundingClientRect();
-    if ('width' in clientRect) {
-      return clientRect;
-    } else {
-      return {
-        left: clientRect.left,
-        right: clientRect.right,
-        top: clientRect.top,
-        bottom: clientRect.bottom,
-        width: this.offsetWidth,
-        height: this.offsetHeight
-      };
-    }
-  };
-
 //==================================================[Element 扩展 - 处理自定义数据]
   /*
    * 获取/添加/删除元素的自定义数据。
@@ -819,6 +830,72 @@
     return this;
   };
 
+//==================================================[Element 扩展 - 获取坐标信息]
+  /*
+   * 获取元素在视口中的坐标信息。
+   *
+   * 扩展方法：
+   *   Element.prototype.getClientRect
+   */
+
+//--------------------------------------------------[Element.prototype.getClientRect]
+  /*
+   * —— 2009 年的测试结果 (body's direction = ltr) ——
+   * 测试浏览器：IE6 IE7 IE8 FF3 Safari4 Chrome2 Opera9。
+   *
+   * 浏览器        compatMode  [+html.border,+body.border]  [+html.border,-body.border]  [-html.border,+body.border]  [-html.border,-body.border]
+   * IE6 IE7 IE8  BackCompat        +body.clientLeft             +body.clientLeft             +body.clientLeft             +body.clientLeft
+   * Others       BackCompat              准确
+   * IE6 IE7      CSS1Compat        +html.clientLeft             +html.clientLeft             +html.clientLeft             +html.clientLeft
+   * Others       CSS1Compat              准确
+   *
+   * 根据上表可知，只有 IE8 以下会出现问题。
+   * 混杂模式下，IE6 IE7 IE8 减去 body.clientLeft 的值即可得到准确结果。
+   * body.clientLeft 的值取决于 body 的 border 属性，如果未设置 body 的 border 属性，则 body 会继承 html 的 border 属性。如果 html 的 border 也未设置，则 html 的 border 默认值为 medium，计算出来是 2px。
+   * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
+   * html.clientLeft 在 IE6 中取决于 html 的 border 属性，而在 IE7 中的值则始终为 2px。
+   */
+
+  /**
+   * 获取本元素的 border-box 在视口中的坐标信息。
+   * @name Element.prototype.getClientRect
+   * @function
+   * @returns {Object} 包含位置（left、right、top、bottom）及尺寸（width、height）的对象，所有属性值均为 number 类型，单位为像素。
+   * @description
+   *   注意：
+   *   不考虑非标准模式。
+   *   标准模式下 IE7(IE9 模拟) 的 body 的计算样式 direction: rtl 时，如果 html 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
+   */
+  Element.prototype.getClientRect = navigator.isIElt8 ? function() {
+    var clientRect = this.getBoundingClientRect();
+    var left = clientRect.left - html.clientLeft;
+    var top = clientRect.top - html.clientTop;
+    var width = this.offsetWidth;
+    var height = this.offsetHeight;
+    return {
+      left: left,
+      right: left + width,
+      top: top,
+      bottom: top + height,
+      width: width,
+      height: height
+    };
+  } : function() {
+    var clientRect = this.getBoundingClientRect();
+    if ('width' in clientRect) {
+      return clientRect;
+    } else {
+      return {
+        left: clientRect.left,
+        right: clientRect.right,
+        top: clientRect.top,
+        bottom: clientRect.bottom,
+        width: this.offsetWidth,
+        height: this.offsetHeight
+      };
+    }
+  };
+
 //==================================================[Element 扩展 - 比较位置关系]
   /*
    * 比较两个元素在文档树中的位置关系。
@@ -877,9 +954,9 @@
     };
   }
 
-//==================================================[Element 扩展 - 遍历文档树]
+//==================================================[Element 扩展 - 获取相关元素]
   /*
-   * 获取文档树中与目标元素相关的元素。
+   * 获取相关的元素。
    *
    * 扩展方法：
    *   Element.prototype.getParent
@@ -1016,9 +1093,9 @@
     return count;
   };
 
-//==================================================[Element 扩展 - 修改文档树]
+//==================================================[Element 扩展 - 修改位置或内容]
   /*
-   * 对元素在文档树中的位置的操作。
+   * 修改元素的位置或内容。
    *
    * 扩展方法：
    *   Element.prototype.insertTo
@@ -1038,37 +1115,55 @@
    *   <table>
    *     <tr><th>可选值</th><th>含义</th></tr>
    *     <tr><td><dfn>before</dfn></td><td>将本元素插入到目标元素之前。</td></tr>
+   *     <tr><td><dfn>top</dfn></td><td>将本元素插入到目标元素的第一个子元素之前。</td></tr>
+   *     <tr><td><dfn>bottom</dfn></td><td>将本元素插入到目标元素的最后一个子元素之后。</td></tr>
    *     <tr><td><dfn>after</dfn></td><td>将本元素插入到目标元素之后。</td></tr>
-   *     <tr><td><dfn>top</dfn></td><td>将本元素插入到目标元素之内并作为其第一个子元素。</td></tr>
-   *     <tr><td><dfn>bottom</dfn></td><td>将本元素插入到目标元素之内并作为其最后一个子元素。</td></tr>
    *   </table>
    *   如果该参数被省略，则使用 <dfn>bottom</dfn> 作为默认值。
    * @returns {Element} 本元素。
    */
   Element.prototype.insertTo = function(target, position) {
-    var parent;
-    if (arguments.length === 1) {
-      position = 'bottom';
-    }
-    switch (position) {
+    position = position || 'bottom';
+    switch (position.toLowerCase()) {
       case 'before':
-        if (parent = target.parentNode) {
-          parent.insertBefore(this, target);
-        }
-        break;
-      case 'after':
-        if (parent = target.parentNode) {
-          parent.insertBefore(this, target.nextSibling);
-        }
+        position = 'beforebegin';
         break;
       case 'top':
-        target.insertBefore(this, target.firstChild);
+        position = 'afterbegin';
         break;
       case 'bottom':
-        target.appendChild(this);
+        position = 'beforeend';
+        break;
+      case 'after':
+        position = 'afterend';
         break;
       default:
         throw new Error('Invalid position "' + position + '"');
+    }
+    return target.insertAdjacentElement(position, this);
+  };
+
+//--------------------------------------------------[Element.prototype.swap]
+  /**
+   * 交换本元素目标元素的位置。
+   * @name Element.prototype.swap
+   * @function
+   * @param {Element} target 目标元素。
+   * @returns {Element} 本元素。
+   */
+  Element.prototype.swap = 'swapNode' in html ? function(target) {
+    return this.swapNode(target);
+  } : function(target) {
+    var targetParent = target.parentNode;
+    var thisParent = this.parentNode;
+    var thisNextSibling = this.nextSibling;
+    if (targetParent) {
+      targetParent.replaceChild(this, target);
+    } else {
+      this.remove(true);
+    }
+    if (thisParent) {
+      thisParent.insertBefore(target, thisNextSibling);
     }
     return this;
   };
@@ -1080,7 +1175,7 @@
    * @function
    * @param {Element} target 目标元素。
    * @param {boolean} [keepListeners] 是否保留目标元素及后代元素上绑定的所有事件监听器。
-   * @returns {Element} 目标元素。
+   * @returns {Element} 本元素。
    */
   Element.prototype.replace = function(target, keepListeners) {
     var $target = $(target);
@@ -1089,9 +1184,9 @@
       if (!keepListeners) {
         Array.from(removeAllListeners($target).getElementsByTagName('*')).forEach(removeAllListeners);
       }
-      $parent.replaceChild($target, this);
+      $parent.replaceChild(this, $target);
     }
-    return $target;
+    return this;
   };
 
 //--------------------------------------------------[Element.prototype.remove]
