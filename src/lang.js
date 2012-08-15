@@ -42,7 +42,7 @@
   var stringIsIndexable = 'x'[0] === 'x';
   var toObject = function(value) {
     if (value == null) {
-      throw new TypeError();
+      throw new TypeError('toObject');
     }
     if (!stringIsIndexable && typeof value === 'string') {
       return value.split('');
@@ -56,6 +56,7 @@
    *
    * 补缺方法：
    *   Object.keys
+   *   Function.prototype.bind
    *   Array.isArray
    *   Array.prototype.forEach
    *   Array.prototype.map
@@ -109,6 +110,55 @@
         }
       }
       return keys;
+    };
+  }
+
+//--------------------------------------------------[Function.prototype.bind]
+  /**
+   * 生成一个 this 及其参数均被绑定到指定的值的新函数。
+   * @name Function.prototype.bind
+   * @function
+   * @param {Object} thisObject 绑定到本函数的 this 的值。
+   * @param {*} [arg1] 绑定到本函数的第一个参数的值。
+   * @param {*} [arg2] 绑定到本函数的第二个参数的值。
+   * @param {*} […] 绑定到本函数的第 n 个参数的值。
+   * @returns {Function} 绑定后的新函数。
+   * @example
+   *   var counter = {
+   *     symbol: '$',
+   *     count: function(rate, number) {
+   *       return this.symbol + rate * number;
+   *     }
+   *   };
+   *   counter.count(0.157, 1000);
+   *   // $157
+   *   var simplifiedCount = counter.count.bind({symbol: '￥'}, 6.362);
+   *   simplifiedCount(500);
+   *   // ￥3181
+   * @see http://es5.github.com/#x15.3.4.5
+   * @see https://developer.mozilla.org/en/docs/JavaScript/Reference/Global_Objects/Function/bind
+   */
+  if (!Function.prototype.bind) {
+    var slice = Array.prototype.slice;
+    Function.prototype.bind = function bind(thisObject) {
+      var target = this;
+      if (typeof target !== 'function') {
+        throw new TypeError('Bind must be called on a function');
+      }
+      var boundArguments = slice.call(arguments, 1);
+      var boundFunction = function() {
+        if (this instanceof boundFunction) {
+          var TempConstructor = function() {
+          };
+          TempConstructor.prototype = target.prototype;
+          var selfObject = new TempConstructor;
+          var result = target.apply(selfObject, boundArguments.concat(slice.call(arguments)));
+          return (Object(result) === result) ? result : selfObject;
+        } else {
+          return target.apply(thisObject, boundArguments.concat(slice.call(arguments)));
+        }
+      };
+      return boundFunction;
     };
   }
 

@@ -18,6 +18,10 @@ var manifest = {
     'Object.clone',
     'Object.mixin'
   ],
+  'Function': [
+    '#ES5',
+    'Function.prototype.bind'
+  ],
   'Array': [
     '#ES5',
     'Array.isArray',

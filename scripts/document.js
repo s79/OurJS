@@ -215,6 +215,7 @@ execute(function($) {
       [
         'Global',
         'Object',
+        'Function',
         'Array',
         'String',
         'Boolean',
