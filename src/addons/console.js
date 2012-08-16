@@ -40,7 +40,7 @@
   $output.value = '';
   var scriptContainer = document.createElement('div');
   // 必须插入文档，否则脚本执行后的结果将丢失。
-  document.documentElement.firstChild.appendChild(scriptContainer);
+  document.head.appendChild(scriptContainer);
 
   // 命令输入。
   $console.attachEvent('onsubmit', function() {

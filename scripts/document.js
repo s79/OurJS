@@ -60,7 +60,7 @@ execute(function($) {
           ).join('') + ']'.repeat(optionalCount) + ')';
         }
       } else {
-        syntax = '<em>' + name + '</em> *';
+        syntax = '<samp>' + name + '</samp> *';
       }
       return syntax;
     };

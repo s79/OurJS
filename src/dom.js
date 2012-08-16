@@ -1093,6 +1093,96 @@
     return count;
   };
 
+//==================================================[Element 扩展 - 克隆元素]
+  /*
+   * 克隆本元素。
+   *
+   * 扩展方法：
+   *   Element.prototype.clone
+   */
+
+//--------------------------------------------------[Element.prototype.clone]
+  /**
+   * 克隆本元素。
+   * @name Element.prototype.clone
+   * @function
+   * @param {boolean} [recursive] 是否进行深克隆。
+   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上绑定的所有事件监听器。
+   * @returns {Element} 克隆后的元素。
+   * @description
+   *   如果本元素有 id 属性，需注意克隆元素的 id 属性将与之有相同的值，必要时应进一步处理。
+   *   不要克隆包含脚本的元素，以免出现兼容性问题。
+   *   不要克隆包含样式表的元素，以免最终样式不符合预期。
+   * @see http://jquery.com/
+   * @see http://mootools.net/
+   * @see http://w3help.org/zh-cn/causes/SD9029
+   */
+  Element.prototype.clone = function(recursive, keepListeners) {
+    var clonedElement = this.cloneNode(recursive);
+    var originalElements = [this];
+    var clonedElements = [clonedElement];
+    if (recursive) {
+      originalElements = originalElements.concat(Array.from(this.getElementsByTagName('*')));
+      clonedElements = clonedElements.concat(Array.from(clonedElement.getElementsByTagName('*')));
+    }
+    originalElements.forEach(function(original, index) {
+      var cloned = clonedElements[index];
+      // http://bugs.jquery.com/ticket/9587
+      if (cloned) {
+        // 为 IE6 IE7 IE8 清除已绑定的事件及 uid 属性。
+        if (navigator.isIElt9) {
+          cloned.clearAttributes();
+          cloned.mergeAttributes(original);
+          cloned.removeAttribute('uid');
+        }
+        // 进一步处理。
+        switch (cloned.nodeName) {
+          case 'OBJECT':
+            // IE6 IE7 IE8 无法克隆使用 classid 来标识内容类型的 object 元素的子元素。IE9 还有另外的问题：
+            // http://bugs.jquery.com/ticket/10324
+            cloned.outerHTML = original.outerHTML;
+            break;
+          case 'INPUT':
+          case 'TEXTAREA':
+            // 修复未被正确克隆的状态。
+            if (cloned.type === 'radio' || cloned.type === 'checkbox') {
+              // IE6 IE7 状态为 checked 的元素必须同时设置 defaultChecked = true 才能被选中。
+              if (navigator.isIElt8) {
+                cloned.defaultChecked = cloned.checked = original.checked;
+//                setTimeout(function() {
+//                  cloned.defaultChecked = original.defaultChecked;
+//                }, 0);
+              } else {
+                cloned.defaultChecked = original.defaultChecked;
+                cloned.checked = original.checked;
+              }
+            }
+            cloned.defaultValue = original.defaultValue;
+            cloned.value = original.value;
+            break;
+          case 'OPTION':
+            // 修复未被正确克隆的状态。
+            cloned.defaultSelected = original.defaultSelected;
+            cloned.selected = original.selected;
+            break;
+        }
+        // 处理事件。
+        if (keepListeners) {
+          var item = eventPool[original.uid];
+          if (item) {
+            var $cloned = $(cloned);
+            Object.forEach(item, function(handlers) {
+              handlers.forEach(function(handler) {
+                $cloned.on(handler.name, handler.listener);
+              });
+            });
+          }
+        }
+      }
+    });
+    return $(clonedElement);
+  };
+
 //==================================================[Element 扩展 - 修改位置或内容]
   /*
    * 修改元素的位置或内容。
@@ -1102,7 +1192,6 @@
    *   Element.prototype.replace
    *   Element.prototype.remove
    *   Element.prototype.empty
-   *   Element.prototype.clone  // TODO: pending。
    */
 
 //--------------------------------------------------[Element.prototype.insertTo]
@@ -1284,7 +1373,7 @@
    * };
    */
   var eventPool = {};
-//  window.p = eventPool;  // TODO For test.
+//  window.p = eventPool;  // TODO: For test.
 
   var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 4, 'change': 4, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
   var returnTrue = function() {
@@ -1347,8 +1436,8 @@
           this.pageX = this.clientX + pageOffset.x;
           this.pageY = this.clientY + pageOffset.y;
         }
-        // 按键。
-        if ('which' in e) {  // TODO: mousemove 时 which 总为 1。
+        // 按键。非按键类事件（以及 contextmenu 事件）的按键值在各浏览器中有差异。
+        if ('which' in e) {
           var which = e.which;
           this.leftButton = which === 1;
           this.middleButton = which === 2;
@@ -2292,7 +2381,7 @@
     var dispatchEvent = function() {
       // IE6 IE7 IE8 可能调用两次。
       if (listeners) {
-        // 参考：http://bugs.jquery.com/ticket/5443
+        // http://bugs.jquery.com/ticket/5443
         if (document.body) {
           listeners.forEach(callListener);
           listeners = null;
@@ -2323,7 +2412,7 @@
       };
       document.attachEvent('onreadystatechange', dispatcher);
       window.attachEvent('onload', dispatcher);
-      // 参考：http://javascript.nwbox.com/IEContentLoaded/
+      // http://javascript.nwbox.com/IEContentLoaded/
       if (window == top && html.doScroll) {
         (function doScrollCheck() {
           try {
