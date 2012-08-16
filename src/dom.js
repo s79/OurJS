@@ -1129,13 +1129,15 @@
       var cloned = clonedElements[index];
       // http://bugs.jquery.com/ticket/9587
       if (cloned) {
-        // 为 IE6 IE7 IE8 清除已绑定的事件及 uid 属性。
+        // 在 IE6 IE7 IE8 中使用 cloneNode 克隆的节点，会将本元素上使用 attachEvent 添加的事件监听器也一并克隆。
+        // 并且在克隆元素上调用 detachEvent 删除这些监听器时，本元素上的监听器也将被一并删除。
+        // 使用以下方法为 IE6 IE7 IE8 清除已绑定的事件监听器，并清除可能存在的 uid 属性。
         if (navigator.isIElt9) {
           cloned.clearAttributes();
           cloned.mergeAttributes(original);
           cloned.removeAttribute('uid');
         }
-        // 进一步处理。
+        // 针对特定元素的处理。
         switch (cloned.nodeName) {
           case 'OBJECT':
             // IE6 IE7 IE8 无法克隆使用 classid 来标识内容类型的 object 元素的子元素。IE9 还有另外的问题：
@@ -1144,26 +1146,14 @@
             break;
           case 'INPUT':
           case 'TEXTAREA':
-            // 修复未被正确克隆的状态。
+            // 一些表单元素的状态可能未被正确克隆，克隆的表单元素将以这些元素的默认状态为当前状态。
             if (cloned.type === 'radio' || cloned.type === 'checkbox') {
-              // IE6 IE7 状态为 checked 的元素必须同时设置 defaultChecked = true 才能被选中。
-              if (navigator.isIElt8) {
-                cloned.defaultChecked = cloned.checked = original.checked;
-//                setTimeout(function() {
-//                  cloned.defaultChecked = original.defaultChecked;
-//                }, 0);
-              } else {
-                cloned.defaultChecked = original.defaultChecked;
-                cloned.checked = original.checked;
-              }
+              cloned.checked = cloned.defaultChecked = original.defaultChecked;
             }
-            cloned.defaultValue = original.defaultValue;
-            cloned.value = original.value;
+            cloned.value = cloned.defaultValue = original.defaultValue;
             break;
           case 'OPTION':
-            // 修复未被正确克隆的状态。
-            cloned.defaultSelected = original.defaultSelected;
-            cloned.selected = original.selected;
+            cloned.selected = cloned.defaultSelected = original.defaultSelected;
             break;
         }
         // 处理事件。

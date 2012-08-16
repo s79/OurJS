@@ -3,8 +3,47 @@
 <head>
 <meta charset="utf-8">
 <title>colors</title>
-<link rel="stylesheet" href="example.css">
+<link rel="stylesheet" href="../stylesheets/common.css">
 <script src="../dev.js"></script>
+<script>
+var wordsSeparatorsPattern = /(-|_)+/g;
+var collapseWordsSeparators = function(string) {
+  return string
+      .replace(wordsSeparatorsPattern, function() {
+        return ' ';
+      })
+      .clean();
+};
+
+var wordsSeparatorPattern = /\s(\w)/g;
+var toCamelCase = function(string) {
+  var result = collapseWordsSeparators(string).replace(wordsSeparatorPattern, function(_, letter) {
+    return letter.toUpperCase();
+  });
+  return result.charAt(0).toLowerCase() + result.slice(1);
+};
+var toCapitalize = function(string) {
+  var result = toCamelCase(string);
+  return result.charAt(0).toUpperCase() + result.slice(1);
+};
+var hyphenate = function(string) {
+  return collapseWordsSeparators(string).replace(/ /g, '-').toLowerCase();
+};
+
+[
+  'This is Our JS',
+  'margin left is -20 px',
+  'background-color is backgroundColor',
+  '-----a-----is__  __not_____b--  --'
+]
+    .forEach(function(string) {
+      console.warn(string);
+      console.log(collapseWordsSeparators(string));
+      console.log(toCamelCase(string));
+      console.log(toCapitalize(string));
+      console.log(hyphenate(string));
+    });
+</script>
 <style>
 div { width: 720px; }
 span { float: left; width: 100px; height: 100px; margin: 10px; font: 12px/100px Verdana; white-space: nowrap; text-align: center; }

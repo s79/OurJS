@@ -7,9 +7,11 @@
 <script src="../../scripts/framework.js"></script>
 <style>
 fieldset { display: inline-block; width: 460px; margin: 0 5px 10px 0; *display: inline; }
-.clone_event_test span { display: inline-block; height: 20px; padding: 0 5px; background: yellowgreen; font-size: 12px; line-height: 20px; text-align: center; vertical-align: bottom; }
+
+.clone_event_test span { display: inline-block; height: 20px; padding: 0 5px; background: yellowgreen; font-size: 12px; line-height: 20px; text-align: center; vertical-align: bottom; cursor: default; }
 .clone_test { color: white; }
 textarea { width: 120px; resize: none; }
+
 div.simples { float: left; width: 160px; height: 80px; background: gold; }
 div.targets_container { float: right; }
 div.targets { width: 160px; overflow: hidden; background: mediumseagreen; }
@@ -39,8 +41,8 @@ samp.simples { background: gold; }
         <td style="width: 400px;">
           <!-- 克隆源 { -->
           <div id="c_sample">
-            <!-- 这是注释 -->
-            这是普通文本
+            <!-- 注释也会被克隆 -->
+            克隆的表单元素将以这些元素的默认状态为当前状态
             <div id="c_event" class="clone_event_test">
               <span>这些元素添加了事件监听器</span>
               <span>监听器也可以被克隆</span>
@@ -56,7 +58,7 @@ samp.simples { background: gold; }
               <input type="checkbox" checked>
               <input type="checkbox">
               <input type="checkbox" disabled>
-              <input type="text" value="clone"><br>
+              <input id="c_data" type="text" value="clone"><br>
               <input name="state" type="radio" checked>
               <input name="state" type="radio">
               <input name="state" type="radio" disabled>
@@ -85,10 +87,10 @@ samp.simples { background: gold; }
   execute(function($) {
     $('#c_event')
         .on('mouseenter', function() {
-          this.setStyle('background', 'black');
+          this.setStyle('color', 'maroon');
         })
         .on('mouseleave', function() {
-          this.setStyle('background', 'transparent');
+          this.setStyle('color', '#333');
         })
         .on('mouseover:relay(span)', function() {
           this.setStyle('backgroundColor', 'orchid');
@@ -101,6 +103,11 @@ samp.simples { background: gold; }
         })
         .on('mouseout:relay(span)', function() {
           this.removeClass('clone_test');
+        });
+    var $data = $('#c_data')
+        .setData('value', 'data-value')
+        .on('click', function() {
+          this.value = this.getData('value') + ' (uid=' + this.uid + ')';
         });
     var $sample = $('#c_sample');
     var $target = $('#c_target');
