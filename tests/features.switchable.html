@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Switchable</title>
+<link rel="stylesheet" href="../stylesheets/common.css">
+<script src="../dev.js"></script>
+<style>
+span { float: left; width: 100px; height: 100px; margin: 10px; background: yellowgreen; font: 14px/100px Verdana; text-align: center; }
+.active { background: greenyellow; }
+</style>
+</head>
+<body>
+<h1>Switchable</h1>
+<fieldset>
+  <legend>点击一个方块将之设置为“活动”状态，点击空白处取消活动方块。</legend>
+  <span>〇</span>
+  <span>一</span>
+  <span>二</span>
+  <span>三</span>
+  <span>四</span>
+  <p id="message" style="clear: both;"></p>
+</fieldset>
+<script>
+(function() {
+//==================================================[添加特性]
+  /*
+   * 为构造函数或对象添加特性。
+   */
+
+//--------------------------------------------------[Function.addFeatures]
+  /**
+   * 为构造函数添加特性。
+   * @name Object.addFeatures
+   * @function
+   * @param {Function|Object} target 目标构造函数。
+   * @param {Array} features 要添加的特性。
+   * @returns {Function|Object} 已添加指定特性的新构造函数。
+   */
+  Function.addFeatures = function(target, features) {
+    // 获取原构造函数。
+    target = target.originalConstructor || target;
+    // 在原构造函数上保存已添加的特性列表。
+    var allFeatures = target.features = (target.features || []).concat(features);
+    // 创建新构造函数。
+    var extendedConstructor = function() {
+      var instance = this;
+      allFeatures.forEach(function(feature) {
+        feature.call(instance);
+      });
+      target.apply(instance, arguments);
+    };
+    extendedConstructor.prototype = target.prototype;
+    features.forEach(function(feature) {
+      Object.mixin(extendedConstructor.prototype, feature.prototype);
+    });
+    extendedConstructor.originalConstructor = target;
+    // 返回新构造函数。
+    return extendedConstructor;
+  };
+
+//--------------------------------------------------[Object.addFeatures]
+  /**
+   * 为对象添加特性。
+   * @name Object.addFeatures
+   * @function
+   * @param {Object} target 目标对象。
+   * @param {Array} features 要添加的特性。
+   * @returns {Object} 目标对象。
+   */
+  Object.addFeatures = function(target, features) {
+    features.forEach(function(feature) {
+      feature.call(target);
+      Object.mixin(target, feature.prototype);
+    });
+    return target;
+  };
+
+//==================================================[Switchable]
+  /*
+   * 特性 - 可切换项。
+   *
+   * 提供实例属性：
+   *   items
+   *
+   * 提供原型方法：
+   *   spliceItems
+   *   activate
+   */
+
+//--------------------------------------------------[Switchable Constructor]
+  /**
+   * 为构造函数或对象提供可在预设的一组项之间进行切换的特性。
+   * @name Switchable
+   * @constructor
+   * @description
+   *   该特性提供属性 items，它是一个特殊的数组：
+   *   <ul>
+   *     <li>该数组包含的各项必须是引用类型的值，且不能有重复（需要开发者自行控制）。</li>
+   *     <li>items.activeItem 的值即当前的“活动项”。</li>
+   *     <li>items.onChange 为当 items 的内容发生变化时的回调，该函数被调用时 this 的值为 items。</li>
+   *     <li>items.onActiveItemChange 为当“活动项”发生变化时的回调，该函数被调用时 this 的值为 items。</li>
+   *   </ul>
+   */
+  var empty = function() {
+  };
+  var Switchable = function() {
+    var items = [];
+    items.activeItem = undefined;
+    items.onChange = empty;
+    items.onActiveItemChange = empty;
+    this.items = items;
+  };
+
+//--------------------------------------------------[Switchable.prototype.spliceItems]
+  /**
+   * 在 items 指定的位置移除 n 项，并在此位置插入新的项。
+   * @name Switchable.prototype.spliceItems
+   * @function
+   * @param {number} startIndex 指定从数组中移除项的开始位置。
+   * @param {number} deleteCount 要移除的项的个数。
+   * @param {Array} [newItems] 要插入的新项。
+   * @returns {Object} 调用本方法的对象。
+   */
+  Switchable.prototype.spliceItems = function(startIndex, deleteCount, newItems) {
+    var items = this.items;
+    Array.prototype.splice.apply(items, [startIndex, deleteCount].concat(newItems || []));
+    if (startIndex || deleteCount || newItems) {
+      items.onChange();
+      this.activate(items.activeItem);
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Switchable.prototype.activate]
+  /**
+   * 激活一个“活动项”，并取消当前的“活动项”。
+   * @name Switchable.prototype.activate
+   * @function
+   * @param {Object|number} value 要激活的“活动项”或其在 items 中的索引值。
+   *   如果指定的值为不在 items 中的对象，或为一个不在有效范索引围内的数字，则取消“活动项”。
+   * @returns {Object} 调用本方法的对象。
+   * @description
+   *   如果指定的“活动项”与当前的“活动项”相同，则调用此方法无效。
+   */
+  Switchable.prototype.activate = function(value) {
+    var items = this.items;
+    var activeItem;
+    var lastActiveItem = items.activeItem;
+    if (typeof value === 'number') {
+      activeItem = items[value];
+    } else {
+      activeItem = items.contains(value) ? value : undefined;
+    }
+    if (activeItem !== lastActiveItem) {
+      items.activeItem = activeItem;
+      items.onActiveItemChange({
+        activeItem: activeItem,
+        inactiveItem: lastActiveItem
+      });
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Switchable]
+  window.Switchable = Switchable;
+
+})();
+
+//--------------------------------------------------[switchable]
+
+//  == Function.addFeatures ==
+var F2 = function() {
+  this.name = 'f2';
+};
+F2.prototype.getName = function() {
+  return this.name;
+};
+
+var S = Function.addFeatures(function(num) {
+  this.num = num;
+}, [Switchable]);
+S.prototype.getNum = function() {
+  return this.num;
+};
+S = Function.addFeatures(S, [F2]);
+
+window.s = new S(100);
+
+//  == Object.addFeatures ==
+//  window.s = new Boolean(false);
+//  Object.addFeatures(s, [Switchable]);
+
+execute(function($) {
+  var $message = $('#message');
+  s.spliceItems(0, 0, $(document.body).find('span'));
+  s.items.onChange = function() {
+    console.warn(this.activeItem, this.length);
+  };
+  s.items.onActiveItemChange = function(e) {
+    console.log('onActiveItemChange:' + e.inactiveItem + '->' + e.activeItem);
+    if (e.activeItem) {
+      e.activeItem.addClass('active');
+    }
+    if (e.inactiveItem) {
+      e.inactiveItem.removeClass('active');
+    }
+    $message.innerText = this.indexOf(e.inactiveItem) + ' » ' + this.indexOf(e.activeItem);
+  };
+  s.activate(2);
+
+  document.on('click', function(e) {
+    s.activate(e.target);
+  });
+
+});
+</script>
+</body>
+</html>

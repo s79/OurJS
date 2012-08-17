@@ -1,5 +1,17 @@
 ﻿>TODO 动画支持复合属性。
 
+>TODO
+将 Component 构造器拆分为以下两个特性，他们可以应用到函数或对象上：
+Configurable [options/setOptions]
+Observable [events/on/off/fire]
+另外将 Switcher 组件修改为以下特性：
+Switchable [switchableItems/active]
+以后考虑添加的有：
+Chainable [...]
+使用 Object.addFeature(object, feature) 来为函数或对象添加特性。
+为函数添加特性后，使用该函数作为构造器创建的对象都将具备对应的能力。
+为对象添加特性后，该对象即具备对应的能力。
+
 >2012-08-16
 +clone
 

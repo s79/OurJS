@@ -73,8 +73,12 @@ execute(function($) {
   <h3><strong>化繁为简</strong></h3>
   <ul>
     <li>
-      <p class="referral">不创造 JS 和 DOM 范畴之外的概念。</p>
-      <p class="comment">它们本身就在不断地创造新概念，OurJS 不会再添乱。</p>
+      <p class="referral">让旧浏览器能尽可能多的使用新的标准 API。</p>
+      <p class="comment">这样可以减少 OurJS 的自定义 API 的数量。</p>
+    </li>
+    <li>
+      <p class="referral">没有“命名空间”。</p>
+      <p class="comment">OurJS 本身没有，但提供了方法去创建，必要时开发者可以在编写应用时使用。</p>
     </li>
     <li>
       <p class="referral">不模拟其他语言的“类”和“继承”的机制。</p>
@@ -83,23 +87,8 @@ execute(function($) {
       </p>
     </li>
     <li>
-      <p class="referral">没有“命名空间”。</p>
-      <p class="comment">OurJS 本身没有，但提供了方法去创建，必要时开发者可以在编写应用时使用。</p>
-    </li>
-    <li>
       <p class="referral">避免使用包装对象。</p>
       <p class="comment">因此不必去关注原始对象与包装对象的区别，也不会出现误用的情况。要操作一个对象，直接调用它的方法或属性即可。</p>
-    </li>
-    <li>
-      <p class="referral">面对一种需求只提供一种方式。</p>
-      <p class="comment">
-        当某个需求可以通过灵活的使用某个已有功能，或清晰的组合多个功能实现时，则不会提供另一个新的功能。<br>
-        比如要把元素 A 插入到元素 B 的前边，使用 A.putAfater(B) 即可实现，因此没有提供 B.someMethod(A) 这样的方法。
-      </p>
-    </li>
-    <li>
-      <p class="referral">让旧浏览器能尽可能多的使用新的标准 API。</p>
-      <p class="comment">这样可以减少 OurJS 的自定义 API 的数量。</p>
     </li>
     <li>
       <p class="referral">为常用的功能提供“组件”以简化开发。</p>
