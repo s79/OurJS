@@ -108,7 +108,7 @@ execute(function($) {
         if (typeof el.events[type] === 'function') {
           type = '_' + type + '_';
         }
-        Component.prototype.on.call(el, type, fn);
+        Observable.prototype.on.call(el, type, fn);
       }
     },
 
@@ -134,7 +134,7 @@ execute(function($) {
             delete el.events[type];
             type = '_' + type + '_';
           }
-          Component.prototype.off.call(el, type);
+          Observable.prototype.off.call(el, type);
         } else {
           el.events = {};
         }
@@ -163,7 +163,7 @@ execute(function($) {
           var originalType = type;
           type = '_' + type + '_';
         }
-        event = Component.prototype.fire.call(el, type, eventArguments);
+        event = Observable.prototype.fire.call(el, type, eventArguments);
         if (originalType) {
           if (el.events[originalType].call(el, event) === false) {
             event.preventDefault();
