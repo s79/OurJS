@@ -204,7 +204,7 @@
           datePicker.hide();
           if ($target.nodeName === 'INPUT' && $target.type === 'text' && $target.getData('type') === 'date') {
             var selectedDate = $target.value;
-            datePicker.setOptions({minDate: $target.getData('minDate'), maxDate: $target.getData('maxDate')});
+            datePicker.setConfig({minDate: $target.getData('minDate'), maxDate: $target.getData('maxDate')});
             datePicker.selectedDate = selectedDate ? Date.from(selectedDate) : null;
             datePicker.render(selectedDate ? selectedDate.slice(0, 7) : undefined).show($target);
           }

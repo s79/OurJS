@@ -10,16 +10,16 @@
    * 特性 - 可配置的。
    *
    * 提供实例属性：
-   *   options
-   *   <Object options> {
+   *   config
+   *   <Object config> {
    *     key: value
    *   }
    *
    * 提供静态方法：
-   *   enable
+   *   applyTo
    *
    * 提供原型方法：
-   *   setOptions
+   *   setConfig
    */
 
 //--------------------------------------------------[Configurable Constructor]
@@ -27,37 +27,37 @@
    * 创建一个对象，该对象将具备可配置的特性。
    * @name Configurable
    * @constructor
-   * @param {Object} defaultOptions 默认选项。
+   * @param {Object} defaultConfig 默认配置。
    */
-  var Configurable = function(defaultOptions) {
-    this.options = defaultOptions;
+  var Configurable = function(defaultConfig) {
+    this.config = defaultConfig;
   };
 
-//--------------------------------------------------[Configurable.enable]
+//--------------------------------------------------[Configurable.applyTo]
   /**
-   * 为目标对象启用可配置的特性。
-   * @name Configurable.enable
+   * 将可配置的特性应用到目标对象。
+   * @name Configurable.applyTo
    * @function
    * @param {Object} target 目标对象。
    * @returns {Object} 目标对象。
    */
-  Configurable.enable = function(target, defaultOptions) {
-    this.call(target, defaultOptions);
+  Configurable.applyTo = function(target, defaultConfig) {
+    this.call(target, defaultConfig);
     Object.mixin(target, this.prototype);
     return target;
   };
 
-//--------------------------------------------------[Configurable.prototype.setOptions]
+//--------------------------------------------------[Configurable.prototype.setConfig]
   /**
-   * 为本对象设置选项。
-   * @name Configurable.prototype.setOptions
+   * 为本对象指定配置。
+   * @name Configurable.prototype.setConfig
    * @function
-   * @param {Object} options 新的选项。新的选项用于覆盖旧的选项，因此旧选项中原本不存在的属性不会被设置。
-   * @returns {Object} 本对象的当前选项。
+   * @param {Object} config 新配置，用于覆盖旧配置，因此旧配置中原本不存在的属性不会被添加。
+   * @returns {Object} 本对象的当前配置。
    */
-  Configurable.prototype.setOptions = function(options) {
-    Object.mixin(this.options, options || {}, {whiteList: Object.keys(this.options)});
-    return this.options;
+  Configurable.prototype.setConfig = function(config) {
+    Object.mixin(this.config, config || {}, {whiteList: Object.keys(this.config)});
+    return this.config;
   };
 
 //--------------------------------------------------[Configurable]
@@ -79,7 +79,7 @@
    *   };
    *
    * 提供静态方法：
-   *   enable
+   *   applyTo
    *
    * 提供原型方法：
    *   on
@@ -113,15 +113,15 @@
     this.events = {};
   };
 
-//--------------------------------------------------[Observable.enable]
+//--------------------------------------------------[Observable.applyTo]
   /**
-   * 为目标对象启用可观察的特性。
-   * @name Observable.enable
+   * 将可观察的特性应用到目标对象。
+   * @name Observable.applyTo
    * @function
    * @param {Object} target 目标对象。
    * @returns {Object} 目标对象。
    */
-  Observable.enable = function(target) {
+  Observable.applyTo = function(target) {
     this.call(target);
     Object.mixin(target, this.prototype);
     return target;

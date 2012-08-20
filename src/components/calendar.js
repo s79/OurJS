@@ -16,10 +16,10 @@ execute(function($) {
    * @name Calendar
    * @constructor
    * @param {string} [className] 创建的最外层 DOM 元素的类名，默认为 'calendar'。
-   * @param {Object} [options] 可选参数，这些参数的默认值保存在 Calendar.options 中。
-   * @param {number} options.firstDayOfWeek 指定每周的第一天是星期几，取值范围为 0 - 6，默认为 0，即星期日。
-   * @param {string} options.minDate 最小日期，格式为 YYYY-MM-DD，默认为 1900-01-01。
-   * @param {string} options.maxDate 最大日期，格式为 YYYY-MM-DD，默认为 2100-12-31。
+   * @param {Object} [config] 配置信息。
+   * @param {number} config.firstDayOfWeek 指定每周的第一天是星期几，取值范围为 0 - 6，默认为 0，即星期日。
+   * @param {string} config.minDate 最小日期，格式为 YYYY-MM-DD，默认为 1900-01-01。
+   * @param {string} config.maxDate 最大日期，格式为 YYYY-MM-DD，默认为 2100-12-31。
    * @fires render
    *   {string} renderedMonth 渲染的月份，格式为 YYYY-MM 的字符串。
    *   调用 render 方法后触发。
@@ -28,11 +28,11 @@ execute(function($) {
    *   {Date} date 已更新的日期。
    *   日期单元格更新后触发，每次调用 render 方法时，每个日期单元格都会更新一次。
    */
-  var Calendar = new Component(function(className, options) {
+  var Calendar = new Component(function(className, config) {
     var calendar = this;
 
-    // 设置选项。
-    calendar.setOptions(options);
+    // 指定配置。
+    calendar.setConfig(config);
 
     // 创建 DOM 结构。
     var $calendar = $('<div class="' + (className || 'calendar') + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>-</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');
@@ -125,12 +125,12 @@ execute(function($) {
 
   });
 
-//--------------------------------------------------[Calendar.options]
+//--------------------------------------------------[Calendar.config]
   /**
-   * 默认选项。
-   * @name Calendar.options
+   * 默认配置。
+   * @name Calendar.config
    */
-  Calendar.options = {
+  Calendar.config = {
     firstDayOfWeek: 0,
     minDate: '1900-01-01',
     maxDate: '2100-12-31'
@@ -158,12 +158,12 @@ execute(function($) {
    */
   Calendar.prototype.render = function(month) {
     var calendar = this;
-    var options = calendar.options;
+    var config = calendar.config;
     var elements = calendar.elements;
 
     // 获取最大、最小、要显示的年和月。
-    var minDate = Date.from(options.minDate);
-    var maxDate = Date.from(options.maxDate);
+    var minDate = Date.from(config.minDate);
+    var maxDate = Date.from(config.maxDate);
     var showDate = new Date(Math.limit((month ? Date.from(month, 'YYYY-MM') : (calendar.renderedMonth ? Date.from(calendar.renderedMonth, 'YYYY-MM') : new Date())).getTime(), minDate.getTime(), maxDate.getTime()));
     var minY = minDate.getFullYear();
     var maxY = maxDate.getFullYear();
@@ -203,7 +203,7 @@ execute(function($) {
     var dayTexts = ['日', '一', '二', '三', '四', '五', '六'];
 
     // 输出月历头和月历体。
-    var firstDayOfWeek = options.firstDayOfWeek;
+    var firstDayOfWeek = config.firstDayOfWeek;
     var startIndex = (new Date(showY, showM, 1).getDay() + 7 - firstDayOfWeek) % 7 || 7;
     var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
     var today = Date.from(new Date().format()).getTime();

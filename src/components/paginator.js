@@ -19,11 +19,11 @@ execute(function($) {
    * @param {Element} elements.prev “上一页”按钮。
    * @param {Element} elements.next “下一页”按钮。
    * @param {Element} elements.pages 页码的容器，用于容纳每次渲染后生成的页码元素。
-   * @param {Object} [options] 可选参数。
-   * @param {number} options.edgeEntries 在导航条的两端显示的最多页码数量，默认为 1。
-   * @param {number} options.sideEntries 在当前页码的两侧显示的最多页码数量，默认为 2。
-   * @param {string} options.disabledClassName 为禁用的翻页按钮添加的类名，默认为 'disabled'。
-   * @param {string} options.currentClassName 为当前页码添加的类名，默认为 'current'。
+   * @param {Object} [config] 配置信息。
+   * @param {number} config.edgeEntries 在导航条的两端显示的最多页码数量，默认为 1。
+   * @param {number} config.sideEntries 在当前页码的两侧显示的最多页码数量，默认为 2。
+   * @param {string} config.disabledClassName 为禁用的翻页按钮添加的类名，默认为 'disabled'。
+   * @param {string} config.currentClassName 为当前页码添加的类名，默认为 'current'。
    * @fires turn
    *   {number} number 目标页码。
    *   成功调用 turn 方法后触发。
@@ -32,11 +32,11 @@ execute(function($) {
    *   {number} totalPage 总页数。
    *   成功调用 render 方法后触发。
    */
-  var Paginator = new Component(function(elements, options) {
+  var Paginator = new Component(function(elements, config) {
     var paginator = this;
 
-    // 获取选项。
-    options = paginator.setOptions(options);
+    // 获取配置信息。
+    config = paginator.setConfig(config);
 
     // 保存属性。
     paginator.elements = elements;
@@ -46,12 +46,12 @@ execute(function($) {
 
     // 翻到上一页/下一页。
     elements.prev.on('click', function() {
-      if (!this.hasClass(options.disabledClassName)) {
+      if (!this.hasClass(config.disabledClassName)) {
         paginator.turn(paginator.targetPage - 1);
       }
     });
     elements.next.on('click', function() {
-      if (!this.hasClass(options.disabledClassName)) {
+      if (!this.hasClass(config.disabledClassName)) {
         paginator.turn(paginator.targetPage + 1);
       }
     });
@@ -63,12 +63,12 @@ execute(function($) {
 
   });
 
-//--------------------------------------------------[Paginator.options]
+//--------------------------------------------------[Paginator.config]
   /**
-   * 默认选项。
-   * @name Paginator.options
+   * 默认配置。
+   * @name Paginator.config
    */
-  Paginator.options = {
+  Paginator.config = {
     edgeEntries: 1,
     sideEntries: 2,
     disabledClassName: 'disabled',
@@ -108,15 +108,15 @@ execute(function($) {
   Paginator.prototype.render = function(currentPage, totalPage) {
     if (currentPage !== this.currentPage || totalPage !== this.totalPage) {
       var elements = this.elements;
-      var options = this.options;
+      var config = this.config;
 
       // 更新 currentPage 和 totalPage。
       this.targetPage = this.currentPage = currentPage = Math.limit(currentPage, 1, totalPage);
       this.totalPage = totalPage;
 
       // 生成页码 items。
-      var edgeEntries = options.edgeEntries;
-      var sideEntries = options.sideEntries;
+      var edgeEntries = config.edgeEntries;
+      var sideEntries = config.sideEntries;
       var ranges = {left: {}, middle: {}, right: {}};
       ranges.left.min = 1;
       ranges.left.max = Math.min(edgeEntries, totalPage);
@@ -151,8 +151,8 @@ execute(function($) {
       }
 
       // 渲染导航条。
-      var disabledClassName = options.disabledClassName;
-      var currentClassName = options.currentClassName;
+      var disabledClassName = config.disabledClassName;
+      var currentClassName = config.currentClassName;
       elements.prev[currentPage === 1 ? 'addClass' : 'removeClass'](disabledClassName);
       elements.next[currentPage === totalPage ? 'addClass' : 'removeClass'](disabledClassName);
       elements.pages.innerHTML = items.map(function(number) {

@@ -5,6 +5,8 @@
 将 Component 构造器提供的处理选项和事件的特性拆分为 Configurable 和 Observable，他们可以通过 enable 方法在任何对象上启用。
 Component 构造器不再自动处理 options 参数。
 增加 Switcher.prototype.spliceItems 方法。
+options -> config
+setOptions -> setConfig
 
 >2012-08-16
 +clone

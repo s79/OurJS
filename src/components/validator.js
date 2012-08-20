@@ -49,7 +49,7 @@ execute(function($) {
       if (rules.lastRequest) {
         rules.lastRequest.off('finish').abort();
       }
-      rules.lastRequest = new Request(serverSideVerify.url, serverSideVerify.options)
+      rules.lastRequest = new Request(serverSideVerify.url, serverSideVerify.config)
           .on('start', function() {
             validator.fire('fieldvalidating', {name: name, value: value});
           })
@@ -77,7 +77,7 @@ execute(function($) {
    *   {number} minLength 当该表单域只包含一个文本控件时，限定输入文本的最小长度，否则限定选择项的最少数目。省略为不限制。
    *   {number} maxLength 当该表单域只包含一个文本控件时，限定输入文本的最大长度，否则限定选择项的最多数目。省略为不限制。
    *   {Function} handler 用来对该表单域的值进行验证的函数，该函数被调用时传入该表单域的值，其 this 的值为本表单元素。省略为不限制。
-   *   {Object} serverSideVerify 包含两个属性：url 和 options，详细内容请参考 Request 组件。注意利用 options.requestParser 和 options.responseParser 对请求和响应数据进行预处理。该表单域的值将被作为参数传入 send 方法，finish 事件对象的 result 属性值即为验证结果。
+   *   {Object} serverSideVerify 包含两个属性：url 和 config，详细内容请参考 Request 组件。注意利用 config.requestParser 和 config.responseParser 对请求和响应数据进行预处理。该表单域的值将被作为参数传入 send 方法，finish 事件对象的 result 属性值即为验证结果。
    *   进行验证的步骤为 required - equals - min/maxLength - handler - serverSideVerify。
    * @fires fieldvalidate
    *   {string} name 本次验证的表单域的名称。

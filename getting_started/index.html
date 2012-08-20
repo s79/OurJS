@@ -57,8 +57,8 @@ list.reverse().getLast();
 // list 反转后的最后一个元素是 0。
 </pre>
 <pre>
-Object.mixin(defaultOptions, newOptions, {whiteList: Object.keys(defaultOptions)});
-// 让 newOptions 覆盖 defaultOptions 的同名属性。
+Object.mixin(defaultConfig, newConfig, {whiteList: Object.keys(defaultConfig)});
+// 让 newConfig 覆盖 defaultConfig 的同名属性。
 </pre>
 <pre>
 var day = Date.from('2010-03-17 20:23:00', 'YYYY-MM-DD hh:mm:ss').getDay();
@@ -348,7 +348,7 @@ var C = new Component(function(name) {
   age: 30
 }, {
   getDescription: function() {
-    return this.name + '(' + this.options.age + ')';
+    return this.name + '(' + this.config.age + ')';
   }
 });
 

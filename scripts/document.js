@@ -88,7 +88,7 @@ execute(function($) {
       return symbol && symbol.parameters.length ?
           '<dl><dt>参数：</dt><dd><table>' + symbol.parameters.map(
               function(parameter) {
-                return '<tr><td><kbd>&lt;' + parameter.type + '&gt;</kbd></td><td><dfn>' + parameter.name.replace('options.', '<var>options.</var>') + (parameter.isOptional ? '<em>Optional</em>' : '') + '</dfn></td><td>' + parameter.description + '</td></tr>';
+                return '<tr><td><kbd>&lt;' + parameter.type + '&gt;</kbd></td><td><dfn>' + parameter.name.replace('config.', '<var>config.</var>') + (parameter.isOptional ? '<em>Optional</em>' : '') + '</dfn></td><td>' + parameter.description + '</td></tr>';
               }
           ).join('') + '</table></dd></dl>' :
           '';
@@ -313,7 +313,7 @@ execute(function($) {
       $detailsClose.setStyles({
         left: Math.max(710 - 20, clientSize.width - pinnedOffsetX - 55)
       });
-      deatilsPanel.setOptions({offsetX: pinnedOffsetX});
+      deatilsPanel.setConfig({offsetX: pinnedOffsetX});
     };
 
     // 使用对话框实现。

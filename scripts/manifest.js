@@ -248,17 +248,17 @@ var manifest = {
   'Configurable': [
     '#可配置的',
     'Configurable',
-    '#为对象启用此特性',
-    'Configurable.enable',
-    '#启用此特性的对象即具备处理选项的能力',
-    'Configurable.prototype.setOptions'
+    '#将此特性应用到目标对象',
+    'Configurable.applyTo',
+    '#拥有此特性的对象即具备指定配置的能力',
+    'Configurable.prototype.setConfig'
   ],
   'Observable': [
     '#可观察的',
     'Observable',
-    '#为对象启用此特性',
-    'Observable.enable',
-    '#启用此特性的对象即具备处理事件的能力',
+    '#将此特性应用到目标对象',
+    'Observable.applyTo',
+    '#拥有此特性的对象即具备处理事件的能力',
     'Observable.prototype.on',
     'Observable.prototype.off',
     'Observable.prototype.fire'
@@ -279,7 +279,7 @@ var manifest = {
   ],
   'Request': [
     'Request',
-    'Request.options',
+    'Request.config',
     'Request.prototype.send',
     'Request.prototype.abort'
   ],
@@ -290,30 +290,30 @@ var manifest = {
   ],
   'TabPanel': [
     'TabPanel',
-    'TabPanel.options',
+    'TabPanel.config',
     'TabPanel.prototype.activate'
   ],
   'Slideshow': [
     'Slideshow',
-    'Slideshow.options',
+    'Slideshow.config',
     'Slideshow.prototype.show'
   ],
   'Dialog': [
     'Dialog',
-    'Dialog.options',
+    'Dialog.config',
     'Dialog.prototype.open',
     'Dialog.prototype.close',
     'Dialog.prototype.reposition'
   ],
   'Paginator': [
     'Paginator',
-    'Paginator.options',
+    'Paginator.config',
     'Paginator.prototype.turn',
     'Paginator.prototype.render'
   ],
   'Calendar': [
     'Calendar',
-    'Calendar.options',
+    'Calendar.config',
     'Calendar.prototype.getElement',
     'Calendar.prototype.render'
   ],

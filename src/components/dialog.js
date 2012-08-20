@@ -101,24 +101,24 @@ execute(function($) {
    * @function
    * @private
    * @param {Element} target 要遮掩的目标元素，当其值为 body 元素时，将覆盖整个视口。
-   * @param {Object} [options] 可选参数，这些参数的默认值保存在 Overlay.options 中。
-   * @param {Object} options.overlayStyles 为遮掩层元素设置的样式。
-   * @param {boolean} options.effect 是否启用动画效果。
+   * @param {Object} [config] 配置信息。
+   * @param {Object} config.overlayStyles 为遮掩层元素设置的样式。
+   * @param {boolean} config.effect 是否启用动画效果。
    * @description
    *   遮掩层仅供内部使用，且均为被动调用，因此未提供事件支持。
    */
-  var Overlay = new Component(function(target, options) {
-    this.setOptions(options);
+  var Overlay = new Component(function(target, config) {
+    this.setConfig(config);
     this.target = $(target);
   });
 
-//--------------------------------------------------[Overlay.options]
+//--------------------------------------------------[Overlay.config]
   /**
-   * 默认选项。
-   * @name Overlay.options
+   * 默认配置。
+   * @name Overlay.config
    * @private
    */
-  Overlay.options = {
+  Overlay.config = {
     overlayStyles: {backgroundColor: 'black', opacity: 0.2},
     effect: false
   };
@@ -136,7 +136,7 @@ execute(function($) {
     var overlay = this;
     if (element) {
       if (!overlay.animation) {
-        var options = overlay.options;
+        var config = overlay.config;
         var $container = overlay.target;
         // 创建遮掩层元素。
         var $overlay;
@@ -144,7 +144,7 @@ execute(function($) {
         if (navigator.isIE6) {
           // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
           $overlay = $('<div><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>');
-          $('<div></div>').setStyles(Object.mixin(options.overlayStyles, {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'})).insertTo($overlay);
+          $('<div></div>').setStyles(Object.mixin(config.overlayStyles, {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'})).insertTo($overlay);
           // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
           if ($container === document.body) {
             resizeOverlayElementForIE6 = function() {
@@ -152,7 +152,7 @@ execute(function($) {
             };
           }
         } else {
-          $overlay = $('<div></div>').setStyles(options.overlayStyles);
+          $overlay = $('<div></div>').setStyles(config.overlayStyles);
         }
         // 确定遮掩层元素的样式并插入文档树。
         $overlay.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}).insertTo($container);
@@ -162,7 +162,7 @@ execute(function($) {
             .on('playstart', function() {
               $overlay.setStyle('display', 'block');
               // 如果启用了动画效果则添加动画剪辑。
-              if (options.effect) {
+              if (config.effect) {
                 var originalOpacity = $overlay.getStyle('opacity');
                 $overlay.setStyle('opacity', 0);
                 this.addClip(Animation.createStyleRenderer($overlay, {opacity: originalOpacity}), 0, 150, 'easeIn');
@@ -253,11 +253,11 @@ execute(function($) {
    * @name Dialog
    * @constructor
    * @param {Element} element 要作为对话框显示的元素。
-   * @param {Object} [options] 可选参数，这些参数的默认值保存在 Dialog.options 中。
-   * @param {Object} options.overlayStyles 为遮掩层元素设置的样式，默认为 {backgroundColor: 'black', opacity: 0.2}。
-   * @param {number} options.offsetX 对话框的左边与其父元素的左边的横向差值。默认为 undefined，此时对话框的中心点在横向将与其父元素的中心点重合。
-   * @param {number} options.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 undefined，此时对话框的中心点在纵向将与其父元素的中心点重合。
-   * @param {boolean} options.effect 是否启用淡入淡出的动画效果，默认为 false。
+   * @param {Object} [config] 配置信息。
+   * @param {Object} config.overlayStyles 为遮掩层元素设置的样式，默认为 {backgroundColor: 'black', opacity: 0.2}。
+   * @param {number} config.offsetX 对话框的左边与其父元素的左边的横向差值。默认为 undefined，此时对话框的中心点在横向将与其父元素的中心点重合。
+   * @param {number} config.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 undefined，此时对话框的中心点在纵向将与其父元素的中心点重合。
+   * @param {boolean} config.effect 是否启用淡入淡出的动画效果，默认为 false。
    *   在 IE6 IE7 IE8 应关闭，否则动画使用的透明滤镜可能和 PNG 透明修复脚本冲突，或者因透明滤镜重叠而导致显示异常。
    * @fires open
    *   成功调用 open 方法后触发。
@@ -286,11 +286,11 @@ execute(function($) {
    *     <li>如果对话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
    *   </ul>
    */
-  var Dialog = new Component(function(element, options) {
+  var Dialog = new Component(function(element, config) {
     var dialog = this;
 
-    // 获取选项。
-    options = dialog.setOptions(options);
+    // 获取配置信息。
+    config = dialog.setConfig(config);
 
     // 保存属性。
     // 对话框的初始状态为关闭、隐藏状态。
@@ -317,7 +317,7 @@ execute(function($) {
 
     // 为对话框分组。
     var uid = $container.uid;
-    var group = groups[uid] || (groups[uid] = {stack: [], overlay: new window.Overlay($container, options)});
+    var group = groups[uid] || (groups[uid] = {stack: [], overlay: new window.Overlay($container, config)});
     var stack = group.stack;
     var overlay = group.overlay;
 
@@ -331,7 +331,7 @@ execute(function($) {
           // 初始化对话框状态。
           $dialog.setStyle('display', 'block');
           // 如果启用了动画效果则添加动画剪辑，否则清理动画剪辑。
-          if (options.effect) {
+          if (config.effect) {
             if (this.clips.length === 0) {
               this.originalOpacity = $dialog.getStyle('opacity');
               $dialog.setStyle('opacity', 0);
@@ -395,21 +395,21 @@ execute(function($) {
           dialog.fire('closefinish');
         });
 
-    // 为本组件设置选项的同时，也为 overlay 设置选项。
-    dialog.setOptions = function(options) {
-      Configurable.prototype.setOptions.call(this, options);
-      overlay.setOptions(options);
-      return this.options;
+    // 为本组件指定配置的同时，也为 overlay 指定配置。
+    dialog.setConfig = function(config) {
+      Configurable.prototype.setConfig.call(this, config);
+      overlay.setConfig(config);
+      return this.config;
     }
 
   });
 
-//--------------------------------------------------[Dialog.options]
+//--------------------------------------------------[Dialog.config]
   /**
-   * 默认选项。
-   * @name Dialog.options
+   * 默认配置。
+   * @name Dialog.config
    */
-  Dialog.options = {
+  Dialog.config = {
     overlayStyles: {backgroundColor: 'black', opacity: 0.2},
     offsetX: undefined,
     offsetY: undefined,
@@ -455,7 +455,7 @@ execute(function($) {
    */
   Dialog.prototype.reposition = function() {
     if (this.isOpen) {
-      var options = this.options;
+      var config = this.config;
       var $dialog = this.element;
       var $container = $dialog.getParent();
       var isFixedPositioned = this.isFixedPositioned;
@@ -478,8 +478,8 @@ execute(function($) {
       } else {
         containerClientRect = $container.getClientRect();
       }
-      expectedX = containerClientRect.left + (Number.isFinite(options.offsetX) ? options.offsetX : (containerClientRect.width - currentWidth) / 2);
-      expectedY = containerClientRect.top + (Number.isFinite(options.offsetY) ? options.offsetY : (containerClientRect.height - currentHeight) / 2);
+      expectedX = containerClientRect.left + (Number.isFinite(config.offsetX) ? config.offsetX : (containerClientRect.width - currentWidth) / 2);
+      expectedY = containerClientRect.top + (Number.isFinite(config.offsetY) ? config.offsetY : (containerClientRect.height - currentHeight) / 2);
       // 确保固定定位的对话框显示在视口内。
       if (isFixedPositioned) {
         var leftLimit = 0;

@@ -18,9 +18,9 @@ execute(function($) {
    * @param {Object} elements 相关元素。
    * @param {Array} elements.tabs 包含所有“标签”的数组。组成“标签”的各元素的标签名应该一致，并且有共同的父元素。
    * @param {Array} elements.panels 包含所有“面板”的数组，应确保 panels 的数量和 tabs 的数量一致。
-   * @param {Object} [options] 可选参数。
-   * @param {string} options.activeClassName 为激活的“标签”和“面板”添加的类名，默认为 'active'。
-   * @param {number} options.hoverDelay 以毫秒为单位的“标签”鼠标悬停激活延时，默认为 undefined，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
+   * @param {Object} [config] 配置信息。
+   * @param {string} config.activeClassName 为激活的“标签”和“面板”添加的类名，默认为 'active'。
+   * @param {number} config.hoverDelay 以毫秒为单位的“标签”鼠标悬停激活延时，默认为 undefined，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
    * @fires activate
    *   {Element} activeTab 当前的激活的“标签”。
    *   {Element} activePanel 当前的激活的“面板”。
@@ -33,11 +33,11 @@ execute(function($) {
    *   一个“标签”和一个“面板”组成一组“标签面板”。
    *   同一时刻最多只有一组“标签面板”被激活。
    */
-  var TabPanel = new Component(function(elements, options) {
+  var TabPanel = new Component(function(elements, config) {
     var tabPanel = this;
 
-    // 获取选项。
-    options = tabPanel.setOptions(options);
+    // 获取配置信息。
+    config = tabPanel.setConfig(config);
 
     // 保存属性。
     tabPanel.elements = elements;
@@ -52,7 +52,7 @@ execute(function($) {
       var activePanel = tabPanel.activePanel = activeTab ? panels[tabs.indexOf(activeTab)] : null;
       var inactiveTab = event.inactiveItem;
       var inactivePanel = inactiveTab ? panels[tabs.indexOf(inactiveTab)] : null;
-      var className = options.activeClassName;
+      var className = config.activeClassName;
       if (activeTab && activePanel) {
         activeTab.addClass(className);
         activePanel.addClass(className);
@@ -86,27 +86,27 @@ execute(function($) {
           }
         })
         .on('mouseenter.tabPanel' + delegate, function() {
-          if (Number.isFinite(options.hoverDelay) && tabs.contains(this)) {
+          if (Number.isFinite(config.hoverDelay) && tabs.contains(this)) {
             var $tab = this;
             timer = setTimeout(function() {
               switcher.activate($tab);
-            }, options.hoverDelay);
+            }, config.hoverDelay);
           }
         })
         .on('mouseleave.tabPanel' + delegate, function() {
-          if (Number.isFinite(options.hoverDelay) && tabs.contains(this)) {
+          if (Number.isFinite(config.hoverDelay) && tabs.contains(this)) {
             clearTimeout(timer);
           }
         });
 
   });
 
-//--------------------------------------------------[TabPanel.options]
+//--------------------------------------------------[TabPanel.config]
   /**
-   * 默认选项。
-   * @name TabPanel.options
+   * 默认配置。
+   * @name TabPanel.config
    */
-  TabPanel.options = {
+  TabPanel.config = {
     activeClassName: 'active',
     hoverDelay: undefined
   };
