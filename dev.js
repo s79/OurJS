@@ -10,9 +10,11 @@
     '<script src="/framework/src/lang.js"></script>',
     '<script src="/framework/src/browser.js"></script>',
     '<script src="/framework/src/dom.js"></script>',
+    '<script src="/framework/src/features.js"></script>',
     '<script src="/framework/src/component.js"></script>',
     '<script src="/framework/src/animation.js"></script>',
     '<script src="/framework/src/request.js"></script>',
+    '<script src="/framework/src/switcher.js"></script>',
     '<script src="/framework/src/modularization.js"></script>',
     '<script src="/framework/src/execute.js"></script>',
     '<script src="/framework/src/integrated/sizzle.js"></script>'

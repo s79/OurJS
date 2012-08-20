@@ -1,16 +1,10 @@
 ﻿>TODO 动画支持复合属性。
+>TODO 为 IE6 IE7 的 localStorage 提供可配置的存储路径。
 
->TODO
-将 Component 构造器拆分为以下两个特性，他们可以应用到函数或对象上：
-Configurable [options/setOptions]
-Observable [events/on/off/fire]
-另外将 Switcher 组件修改为以下特性：
-Switchable [switchableItems/active]
-以后考虑添加的有：
-Chainable [...]
-使用 Object.addFeature(object, feature) 来为函数或对象添加特性。
-为函数添加特性后，使用该函数作为构造器创建的对象都将具备对应的能力。
-为对象添加特性后，该对象即具备对应的能力。
+>2012-08-20
+将 Component 构造器提供的处理选项和事件的特性拆分为 Configurable 和 Observable，他们可以通过 enable 方法在任何对象上启用。
+Component 构造器不再自动处理 options 参数。
+增加 Switcher.prototype.spliceItems 方法。
 
 >2012-08-16
 +clone

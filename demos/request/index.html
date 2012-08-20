@@ -12,7 +12,7 @@
 
   <h2>Request</h2>
   <textarea id="output" style="display: block; width: 800px; height: 300px; border: 1px solid gray; background: #252525; color: #8CC; font: 12px Consolas, 'Lucida Console', Courier, SimSun, monospace;"></textarea>
-  <button id="send1">send1</button>
+  <button id="send1">send1 x 5 times</button>
   <button id="abort1">abort1</button>
   <br>
   <button id="send2">send2</button>
@@ -30,11 +30,8 @@
 
     var times = 0;
 
-    window.request1 = new Request('data.asp', {
-      method: 'post',
-      contentType: 'application/json',
-      useCache: true,
-      async: true,
+    window.request1 = new Request('data.txt', {
+      useCache: false,
       minTime: 400,
       maxTime: 600,
       requestParser: function(data) {
@@ -55,6 +52,8 @@
             if (times === 1 || times === 3) {
               this.abort();
             }
+          } else {
+            times = 0;
           }
         });
 

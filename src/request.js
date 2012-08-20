@@ -176,9 +176,10 @@
    * @fires abort
    *   成功调用 abort 方法后触发。
    */
-  var Request = new Component(function(url) {
+  var Request = new Component(function(url, options) {
     this.xhr = getXHRObject();
     this.url = url;
+    this.setOptions(options);
   });
 
 //--------------------------------------------------[Request.options]

@@ -28,24 +28,21 @@ execute(function($) {
    * @fires show
    *   {Element} activeSlide 当前的激活的“幻灯片”。
    *   {Element} activePointer 当前的激活的“指示器”。
-   *   {number} activeIndex 当前的激活的“指示器”和“幻灯片”在 pointers 和 slides 中的索引。
    *   {Element} inactiveSlide 上一个激活的“幻灯片”。
    *   {Element} inactivePointer 上一个激活的“指示器”。
-   *   {number} inactiveIndex 上一个激活的“指示器”和“幻灯片”在 pointers 和 slides 中的索引。
    *   成功调用 show 方法后触发。
    * @requires TabPanel
    */
-  var Slideshow = new Component(function(elements) {
+  var Slideshow = new Component(function(elements, options) {
     var slideshow = this;
 
     // 获取选项。
-    var options = slideshow.options;
+    options = slideshow.setOptions(options);
 
     // 保存属性。
     slideshow.elements = elements;
     slideshow.activeSlide = null;
     slideshow.activePointer = null;
-    slideshow.activeIndex = -1;
 
     // 使用 TabPanel 实现幻灯片播放器。
     var slides = elements.slides;
@@ -56,16 +53,11 @@ execute(function($) {
     var $clicked = null;
     var currentIndex = -1;
     slideshow.tabPanel = new TabPanel({tabs: pointers, panels: slides}, options)
-        .on('active', function(event) {
-          var activeSlide = event.activePanel;
-          var activePointer = event.activeTab;
-          var activeIndex = event.activeIndex;
-          var inactiveIndex = event.inactiveIndex;
-          // 保存状态。
-          slideshow.activeSlide = activeSlide;
-          slideshow.activePointer = activePointer;
-          slideshow.activeIndex = activeIndex;
-          // 切换幻灯片。
+        .on('activate', function(event) {
+          var activeSlide = slideshow.activeSlide = event.activePanel;
+          var activePointer = slideshow.activePointer = event.activeTab;
+          var activeIndex = slides.indexOf(activeSlide);
+          var inactiveIndex = slides.indexOf(event.inactivePanel);
           if (activeSlide) {
             switch (options.switchMode) {
               case 'normal':
@@ -80,18 +72,15 @@ execute(function($) {
             }
           }
           $clicked = null;
-          currentIndex = this.activeIndex;
-          // 触发事件。
+          currentIndex = activeIndex;
           slideshow.fire('show', {
             activeSlide: activeSlide,
             activePointer: activePointer,
-            activeIndex: activeIndex,
             inactiveSlide: event.inactivePanel,
-            inactivePointer: event.inactiveTab,
-            inactiveIndex: inactiveIndex
+            inactivePointer: event.inactiveTab
           });
         })
-        .active(0);
+        .activate(0);
 
     // 播放上一张/下一张。
     var $prev = elements.prev;
@@ -138,9 +127,9 @@ execute(function($) {
 
     // 为本组件设置选项的同时，也为 tabPanel 设置选项。
     slideshow.setOptions = function(options) {
-      Component.prototype.setOptions.call(this, options);
+      Configurable.prototype.setOptions.call(this, options);
       this.tabPanel.setOptions(options);
-      return this;
+      return this.options;
     }
 
   });
@@ -168,7 +157,7 @@ execute(function($) {
    *   如果要显示的“幻灯片”与当前显示的“幻灯片”相同，则调用此方法无效。
    */
   Slideshow.prototype.show = function(value) {
-    this.tabPanel.active(value);
+    this.tabPanel.activate(value);
     return this;
   };
 

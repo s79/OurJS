@@ -32,11 +32,11 @@ execute(function($) {
    *   {number} totalPage 总页数。
    *   成功调用 render 方法后触发。
    */
-  var Paginator = new Component(function(elements) {
+  var Paginator = new Component(function(elements, options) {
     var paginator = this;
 
     // 获取选项。
-    var options = paginator.options;
+    options = paginator.setOptions(options);
 
     // 保存属性。
     paginator.elements = elements;

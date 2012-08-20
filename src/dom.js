@@ -2047,7 +2047,8 @@
    * 删除本元素上已添加的事件监听器。
    * @name Element.prototype.off
    * @function
-   * @param {string} name 事件名称。本元素上绑定的所有名称与 name 匹配的监听器都将被删除。使用逗号分割多个事件名称，即可同时删除多种名称的事件监听器。
+   * @param {string} name 事件名称。本元素上绑定的所有名称与 name 匹配的监听器都将被删除。
+   *   使用逗号分割多个事件名称，即可同时删除多种名称的事件监听器。
    * @returns {Element} 本元素。
    * @example
    *   $('#test').off('click');

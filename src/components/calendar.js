@@ -28,8 +28,11 @@ execute(function($) {
    *   {Date} date 已更新的日期。
    *   日期单元格更新后触发，每次调用 render 方法时，每个日期单元格都会更新一次。
    */
-  var Calendar = new Component(function(className) {
+  var Calendar = new Component(function(className, options) {
     var calendar = this;
+
+    // 设置选项。
+    calendar.setOptions(options);
 
     // 创建 DOM 结构。
     var $calendar = $('<div class="' + (className || 'calendar') + '"><div><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span><span>-</span><span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><table><thead></thead><tbody></tbody></table></div>');

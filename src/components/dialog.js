@@ -107,7 +107,8 @@ execute(function($) {
    * @description
    *   遮掩层仅供内部使用，且均为被动调用，因此未提供事件支持。
    */
-  var Overlay = new Component(function(target) {
+  var Overlay = new Component(function(target, options) {
+    this.setOptions(options);
     this.target = $(target);
   });
 
@@ -285,11 +286,11 @@ execute(function($) {
    *     <li>如果对话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
    *   </ul>
    */
-  var Dialog = new Component(function(element) {
+  var Dialog = new Component(function(element, options) {
     var dialog = this;
 
     // 获取选项。
-    var options = dialog.options;
+    options = dialog.setOptions(options);
 
     // 保存属性。
     // 对话框的初始状态为关闭、隐藏状态。
@@ -396,9 +397,9 @@ execute(function($) {
 
     // 为本组件设置选项的同时，也为 overlay 设置选项。
     dialog.setOptions = function(options) {
-      Component.prototype.setOptions.call(this, options);
+      Configurable.prototype.setOptions.call(this, options);
       overlay.setOptions(options);
-      return this;
+      return this.options;
     }
 
   });

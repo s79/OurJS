@@ -249,11 +249,19 @@ execute(function($) {
           .forEach(function(name) {
             buildDocument(indexColumns.b, name, true);
           });
+      $('<h1>特性</h1>').insertTo(indexColumns.c);
+      [
+        'Configurable',
+        'Observable'
+      ]
+          .forEach(function(name) {
+            buildDocument(indexColumns.c, name, true);
+          });
       $('<h1>组件</h1>').insertTo(indexColumns.c);
       [
         'Component',
-        'Request',
         'Animation',
+        'Request',
         'Switcher'
       ]
           .forEach(function(name) {

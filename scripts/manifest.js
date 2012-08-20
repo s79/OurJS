@@ -245,21 +245,27 @@ var manifest = {
     'Event.prototype.preventDefault',
     'Event.prototype.stopImmediatePropagation'
   ],
-  'Component': [
-    '#创建组件',
-    'Component',
-    '#处理选项',
-    'Component.prototype.setOptions',
-    '#处理事件',
-    'Component.prototype.on',
-    'Component.prototype.off',
-    'Component.prototype.fire'
+  'Configurable': [
+    '#可配置的',
+    'Configurable',
+    '#为对象启用此特性',
+    'Configurable.enable',
+    '#启用此特性的对象即具备处理选项的能力',
+    'Configurable.prototype.setOptions'
   ],
-  'Request': [
-    'Request',
-    'Request.options',
-    'Request.prototype.send',
-    'Request.prototype.abort'
+  'Observable': [
+    '#可观察的',
+    'Observable',
+    '#为对象启用此特性',
+    'Observable.enable',
+    '#启用此特性的对象即具备处理事件的能力',
+    'Observable.prototype.on',
+    'Observable.prototype.off',
+    'Observable.prototype.fire'
+  ],
+  'Component': [
+    '#创建组件构造器',
+    'Component'
   ],
   'Animation': [
     'Animation',
@@ -271,9 +277,16 @@ var manifest = {
     'Animation.createBasicRenderer',
     'Animation.createStyleRenderer'
   ],
+  'Request': [
+    'Request',
+    'Request.options',
+    'Request.prototype.send',
+    'Request.prototype.abort'
+  ],
   'Switcher': [
     'Switcher',
-    'Switcher.prototype.active'
+    'Switcher.prototype.spliceItems',
+    'Switcher.prototype.activate'
   ],
   'TabPanel': [
     'TabPanel',
