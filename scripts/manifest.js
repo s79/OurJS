@@ -291,7 +291,7 @@ var manifest = {
   'TabPanel': [
     'TabPanel',
     'TabPanel.options',
-    'TabPanel.prototype.active'
+    'TabPanel.prototype.activate'
   ],
   'Slideshow': [
     'Slideshow',
