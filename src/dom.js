@@ -14,12 +14,12 @@
   var separator = /\s*,\s*/;
 
   // 将字符串从 Hyphenate 转换为 CamelCase。
-  //  var hyphenateFirstLetterPattern = /-([a-z])/g;
-  //  var hyphenateToCamelCase = function(string) {
-  //    return string.replace(hyphenateFirstLetterPattern, function(_, letter) {
-  //      return letter.toUpperCase();
-  //    });
-  //  };
+  var hyphenateFirstLetterPattern = /-([a-z])/g;
+  var hyphenateToCamelCase = function(string) {
+    return string.replace(hyphenateFirstLetterPattern, function(_, letter) {
+      return letter.toUpperCase();
+    });
+  };
 
   // 将字符串从 CamelCase 转换为 Hyphenate。
   var camelCaseFirstLetterPattern = /[A-Z]/g;
@@ -663,7 +663,7 @@
 
   CurrentStyle.prototype.getPropertyValue = function(name) {
     var value;
-    switch (name) {
+    switch (name = hyphenateToCamelCase(name)) {
       case 'float':
         value = this.currentStyle.styleFloat;
         break;

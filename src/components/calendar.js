@@ -31,7 +31,7 @@ execute(function($) {
   var Calendar = new Component(function(className, config) {
     var calendar = this;
 
-    // 指定配置。
+    // 更改配置。
     calendar.setConfig(config);
 
     // 创建 DOM 结构。

@@ -250,7 +250,7 @@ var manifest = {
     'Configurable',
     '#将此特性应用到目标对象',
     'Configurable.applyTo',
-    '#拥有此特性的对象即具备指定配置的能力',
+    '#具备此特性的对象即具备更改配置的能力',
     'Configurable.prototype.setConfig'
   ],
   'Observable': [
@@ -258,7 +258,7 @@ var manifest = {
     'Observable',
     '#将此特性应用到目标对象',
     'Observable.applyTo',
-    '#拥有此特性的对象即具备处理事件的能力',
+    '#具备此特性的对象即具备处理事件的能力',
     'Observable.prototype.on',
     'Observable.prototype.off',
     'Observable.prototype.fire'

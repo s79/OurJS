@@ -1,5 +1,7 @@
 ﻿>TODO 动画支持复合属性。
 >TODO 为 IE6 IE7 的 localStorage 提供可配置的存储路径。
+>Validator 可指定强制验证的 fieldName
+>Dialog 提供静态方法以提高易用性
 
 >2012-08-20
 将 Component 构造器提供的处理选项和事件的特性拆分为 Configurable 和 Observable，他们可以通过 enable 方法在任何对象上启用。

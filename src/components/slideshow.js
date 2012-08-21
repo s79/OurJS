@@ -125,7 +125,7 @@ execute(function($) {
         })
         .fire('mouseleave');
 
-    // 为本组件指定配置的同时，也为 tabPanel 指定配置。
+    // 同时更改 slideshow 和 tabPanel 的配置。
     slideshow.setConfig = function(config) {
       Configurable.prototype.setConfig.call(this, config);
       this.tabPanel.setConfig(config);

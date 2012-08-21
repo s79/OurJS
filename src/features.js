@@ -28,6 +28,9 @@
    * @name Configurable
    * @constructor
    * @param {Object} defaultConfig 默认配置。
+   * @description
+   *   具备此特性的对象即具备更改配置的能力。
+   *   本特性只能在更改配置时保证配置信息的有效性（无法在配置数据中增加默认配置中不存在的项），开发者应设计可以使更改后的配置能够即时生效的逻辑。
    */
   var Configurable = function(defaultConfig) {
     this.config = defaultConfig;
@@ -49,7 +52,7 @@
 
 //--------------------------------------------------[Configurable.prototype.setConfig]
   /**
-   * 为本对象指定配置。
+   * 为本对象更改配置。
    * @name Configurable.prototype.setConfig
    * @function
    * @param {Object} config 新配置，用于覆盖旧配置，因此旧配置中原本不存在的属性不会被添加。
@@ -108,6 +111,8 @@
    * 创建一个对象，该对象将具备可观察的特性。
    * @name Observable
    * @constructor
+   * @description
+   *   具备此特性的对象即具备处理事件的能力。
    */
   var Observable = function() {
     this.events = {};

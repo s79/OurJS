@@ -395,7 +395,7 @@ execute(function($) {
           dialog.fire('closefinish');
         });
 
-    // 为本组件指定配置的同时，也为 overlay 指定配置。
+    // 同时更改 dialog 和 overlay 的配置。
     dialog.setConfig = function(config) {
       Configurable.prototype.setConfig.call(this, config);
       overlay.setConfig(config);
