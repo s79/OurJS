@@ -3,12 +3,14 @@ kbd,
 samp { font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
 a:link,
 a:visited { color: #666; }
-fieldset { display: block; margin-top: 0; padding: 5px; border: 1px solid #A6AEB3; border-radius: 5px; }
-fieldset:hover { border-color: gray; }
+fieldset { display: block; margin-top: 0; padding: 5px; border: 1px solid #AAA; border-radius: 5px; }
+fieldset:hover { border-color: #888; }
+fieldset.optional { border-color: #DDD; }
+fieldset.optional:hover { border-color: #BBB; }
 legend { padding: 2px 5px; font-weight: bold; font-size: 14px; line-height: 14px; }
 legend dfn { color: steelblue; }
 legend span { margin-left: 5px; font-weight: normal; color: gray; }
-h2 { margin: 0; border-bottom: 1px solid #D5DFE5; background: transparent; color: seagreen; font-weight: normal; font-size: 12px; }
+h2 { margin: 0; border-bottom: 1px solid #EEE; background: transparent; color: seagreen; font-weight: normal; font-size: 12px; }
 dl { margin: 5px 0; padding-left: 2px; border-left: 2px solid white; font-size: 12px; color: #666; }
 dt { margin: 0; font-weight: normal; font-size: 12px; }
 dd { display: none; margin: 0; padding-left: 0; }

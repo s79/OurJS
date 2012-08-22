@@ -173,7 +173,7 @@ execute(function($) {
     // 同时生成索引文档和细节文档，side 参数仅供索引文档使用。
     var buildDocument = function($container, name, isBuiltIn) {
       // 本类对象的标题。
-      var $indexFieldset = $('<fieldset><legend><a href="#' + name.toLowerCase() + '"><dfn>' + name + '</dfn></a>' + (isBuiltIn ? '' : '<span>(可选)</span>') + '</legend></fieldset>');
+      var $indexFieldset = $('<fieldset' + (isBuiltIn ? '' : ' class="optional"') + '><legend><a href="#' + name.toLowerCase() + '"><dfn>' + name + '</dfn></a>' + (isBuiltIn ? '' : '<span>(可选)</span>') + '</legend></fieldset>');
       var $detailsDiv = $('<div id="' + name.toLowerCase() + '" class="details"><h1><dfn>' + name + '</dfn></h1></div>');
       if (!manifest[name]) {
         return;

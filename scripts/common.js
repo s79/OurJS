@@ -14,6 +14,14 @@ execute(function($) {
       url: '/OurJS/demos/',
       submenu: [
         {
+          text: '浏览器信息',
+          url: '/OurJS/demos/navigator/'
+        },
+        {
+          text: '存储',
+          url: '/OurJS/demos/storage/'
+        },
+        {
           text: 'DOM',
           url: '/OurJS/demos/dom/'
         },
@@ -28,14 +36,6 @@ execute(function($) {
         {
           text: 'Ajax',
           url: '/OurJS/demos/request/'
-        },
-        {
-          text: '存储',
-          url: '/OurJS/demos/storage/'
-        },
-        {
-          text: '浏览器信息',
-          url: '/OurJS/demos/navigator/'
         }
       ]
     },
@@ -44,11 +44,11 @@ execute(function($) {
       url: '/OurJS/components/',
       submenu: [
         {
-          text: '标签面板',
+          text: '多页标签面板',
           url: '/OurJS/components/tabpanel/'
         },
         {
-          text: '幻灯片播放',
+          text: '幻灯片播放器',
           url: '/OurJS/components/slideshow/'
         },
         {
@@ -64,7 +64,7 @@ execute(function($) {
           url: '/OurJS/components/calendar/'
         },
         {
-          text: '表单验证',
+          text: '表单验证器',
           url: '/OurJS/components/validator/'
         }
       ]

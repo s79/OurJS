@@ -1,5 +1,5 @@
 /**
- * @fileOverview 组件 - 表单验证。
+ * @fileOverview 组件 - 表单验证器。
  * @author sundongguo@gmail.com
  * @version 20120723
  */
@@ -65,7 +65,7 @@ execute(function($) {
 
 //--------------------------------------------------[Validator Constructor]
   /**
-   * 表单验证。
+   * 表单验证器。
    * @name Validator
    * @constructor
    * @param {Element} element 要验证的表单元素。
