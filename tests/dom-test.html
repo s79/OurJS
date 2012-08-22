@@ -3,18 +3,14 @@
 <head>
 <meta charset="utf-8">
 <title>dom-test</title>
-<script src=".references/jquery-1.7.1.js"></script>
-<script src="/framework/dev.js"></script>
-<style>
-#y { position: absolute; left: 10%; top: 0; border: 1px dotted black; opacity: .25; filter: progid:DXImageTransform.Microsoft.MotionBlur(strength = 50); zoom: 1; }
-div { float: right; }
-h1 { float: left; }
-</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="../dev.js"></script>
 </head>
 
 text_before
 <!-- test -->
 text_after
+
 <script>
 //alert(document.body.previousSibling.tagName);
 //Chrome Firefox Safari 此时的 document.body 未定义。
@@ -22,91 +18,101 @@ text_after
 
 <body>
 
-<h1>TEST</h1>
-
-<div id="x" class="  a
+<h1 id="x" class="  a
 a
 a
 b
      b
      b
-     c   d" style="filter: progid:DXImageTransform.Microsoft.MotionBlur(strength=50); zoom: 1;">
-<!-- comment -->
-  THIS IS <span>A</span> TEST
-<!-- comment -->
-</div>
+     c   d" style="float: left; filter: progid:DXImageTransform.Microsoft.MotionBlur(strength=50); zoom: 1;">
+  (#x)
+  <!-- comment -->
+  SOME DOM <em>METHODS</em> TEST
+  <!-- comment -->
+</h1>
 
-<h1 id="y" style="filter: alpha(opacity = 25);" data-my-data="Yes, it is!" data-A="I'm A.">this is a test</h1>
+<div id="y" style="float: right; position: absolute; right: 10%; top: 0; z-index: 79; border: 1px dotted black; opacity: .25; filter: alpha(opacity = 25) progid:DXImageTransform.Microsoft.MotionBlur(strength = 50); zoom: 1;" data-my-data="myData" data-A="a">(#y) heading_one</div>
 
-<pre id="output" style="position: absolute; left: 0; top: 100px; font: 12px Consolas;"></pre>
 
 <script>
 var $ = document.$;
-console.log($);
-
-var $output = $('#output');
-function log(message) {
-  $output.innerHTML += message + '<br>';
+//--------------------------------------------------[log]
+/**
+ * 日志输出。
+ * @name log
+ * @function
+ * @param {string} label 标签。
+ * @param {string} ourjs OurJS 执行的结果。
+ * @param {string} jquery jQuery 执行的结果。
+ */
+var $log = $('<table style="position: absolute; left: 10px; top: 150px; border: 1px solid silver; background: whitesmoke; font: 12px Consolas;"><tbody></tbody></table>').insertTo(document.body).getFirstChild();
+function log(label, ourjs, jquery) {
+  var $tr = $log.insertRow(-1);
+  var $td;
+  $td = $tr.insertCell(-1);
+  $td.innerText = label;
+  $td = $tr.insertCell(-1);
+  $td.innerText = ourjs;
+  $td = $tr.insertCell(-1);
+  $td.innerText = jquery;
 }
 
-log('x.float: ' + $('#x').getStyle('float'));
-log('x.float: ' + (jQuery('#x').css('float')));
-log(' ----- ');
-log('x.opacity: ' + $('#x').getStyle('opacity'));
-log('x.opacity: ' + jQuery('#x').css('opacity'));
-log(' ----- ');
-log('x.zoom: ' + $('#x').getStyle('zoom'));
-log('x.zoom: ' + jQuery('#x').css('zoom'));
-log(' ----- ');
-log('y.float: ' + $('#y').getStyle('float'));
-log('y.float: ' + jQuery('#y').css('float'));
-log(' ----- ');
-log('y.opacity: ' + $('#y').getStyle('opacity'));
-log('y.opacity: ' + jQuery('#y').css('opacity'));
-log(' ----- ');
-log('y.border-right-style: ' + $('#y').getStyle('border-right-style'));
-log('y.border-right-style: ' + jQuery('#y').css('border-right-style'));
+log('=取值=', '=OurJS=', '=jQuery=');
+log('x.float:', $('#x').getStyle('float'), jQuery('#x').css('float'));
+log('x.opacity:', $('#x').getStyle('opacity'), jQuery('#x').css('opacity'));
+log('x.zoom:', $('#x').getStyle('zoom'), jQuery('#x').css('zoom'));
+log('y.float:', $('#y').getStyle('float'), jQuery('#y').css('float'));
+log('y.opacity:', $('#y').getStyle('opacity'), jQuery('#y').css('opacity'));
+log('y.zIndex:', $('#y').getStyle('zIndex'), jQuery('#y').css('zIndex'));
+log('y.borderRightStyle:', $('#y').getStyle('borderRightStyle'), jQuery('#y').css('borderRightStyle'));
 
-console.log('innerText=', 'innerText' in document.head);
-console.log('outerText=', 'outerText' in document.head);
-console.log('outerHTML=', 'outerHTML' in document.head);
+//--------------------------------------------------[assert]
+/**
+ * 断言输出。
+ * @name assert
+ * @function
+ * @param {string} expression 表达式，结果为 true 显示为绿色，false 显示为红色。
+ * @param {boolean} [ignoreResult] 忽略表达式结果，输出不着色。
+ */
+document.addStyleRules([
+  'p { margin: 2px; padding: 2px; }',
+  'p.true { background-color: #DFF0D8; color: #468847; }',
+  'p.false { background-color: #F2DEDE; color: #B94A48; }'
+]);
+var $assert = $('<div style="position: absolute; left: 400px; top: 150px; border: 1px solid silver; background: whitesmoke; font: 12px Consolas;"></div>').insertTo(document.body);
+function assert(expression, ignoreResult) {
+  var result = eval(expression);
+  $('<p></p>').addClass(ignoreResult ? '' : result + '').insertTo($assert).innerHTML = expression;
+}
 
 var $html = $(document.documentElement);
+var $head = $(document.head);
 var $body = $(document.body);
+assert('\'innerText\' in $head');
+assert('\'outerText\' in $head');
+assert('\'outerHTML\' in $head');
+
 var $x = $('#x');
 var $y = $('#y');
-console.log('$html.isAncestorOf($body)=', $html.isAncestorOf($body));
-console.log('$body.isAncestorOf($x)=', $body.isAncestorOf($x));
-console.log('$y.isAncestorOf($html)=', $y.isAncestorOf($html));
-console.log('$x.isAncestorOf($y)=', $x.isAncestorOf($y));
-console.log('$x.isAncestorOf($x)=', $x.isAncestorOf($x));
+assert('$html.contains($body)');
+assert('$body.contains($x)');
+assert('$x.contains($x)');
+assert('!$y.contains($html)');
+assert('!$x.contains($y)');
 
-//alert(document.body.innerText);
-//x.style.fontFamily = 'Arial';
-$x.setStyle('font-family','Arial');
+assert('$y.getData(\'MyData\') === undefined');
+assert('$y.getData(\'myData\') === \'myData\'');
+assert('$y.getData(\'A\') === undefined');
+assert('$y.getData(\'a\') === \'a\'');
+assert('$y.removeData(\'MyData\')', true);
+assert('$y.getData(\'myData\') === \'myData\'');
+assert('$y.removeData(\'myData\')', true);
+assert('$y.getData(\'myData\') === undefined');
+assert('$y.setData(\'whatData\', \'WHAT?\')', true);
+assert('$y.getData(\'whatData\') === \'WHAT?\'');
 
-console.log(1, $y.getData('MyData'));
-console.log(2, $y.getData('myData'));
-console.log(3, $y.getData('A'));
-console.log(4, $y.getData('a'));
-$y.removeData('MyData');
-console.log(5, $y.getData('myData'));
-$y.removeData('myData');
-console.log(6, $y.getData('myData'));
-$y.setData('whatData', 'WHAT?');
-console.log(7, $y.getData('whatData'));
-
-
-/* This test will be true in all browsers.
-var test = document.createElement('var');
-alert(test.ownerDocument === window.document);
-*/
-
-
-jQuery('#x').mousedown(function(e) {
-  console.log(e.which);
-});
-
+// This test will be true in all browsers.
+assert('document.createElement(\'var\').ownerDocument === window.document');
 </script>
 </body>
 </html>

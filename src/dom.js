@@ -14,12 +14,12 @@
   var separator = /\s*,\s*/;
 
   // 将字符串从 Hyphenate 转换为 CamelCase。
-  var hyphenateFirstLetterPattern = /-([a-z])/g;
-  var hyphenateToCamelCase = function(string) {
-    return string.replace(hyphenateFirstLetterPattern, function(_, letter) {
-      return letter.toUpperCase();
-    });
-  };
+//  var hyphenateFirstLetterPattern = /-([a-z])/g;
+//  var hyphenateToCamelCase = function(string) {
+//    return string.replace(hyphenateFirstLetterPattern, function(_, letter) {
+//      return letter.toUpperCase();
+//    });
+//  };
 
   // 将字符串从 CamelCase 转换为 Hyphenate。
   var camelCaseFirstLetterPattern = /[A-Z]/g;
@@ -428,6 +428,16 @@
     zoom: true
   };
 
+  // 获取特殊 CSS 特性的值，只有 IE6 IE7 IE8 需要。
+  var specialCSSPropertyGetter = {
+    'float': function($element) {
+      return $element.currentStyle.styleFloat;
+    },
+    'opacity': function($element) {
+      return $element.filters['alpha'] ? $element.filters['alpha'].opacity / 100 + '' : '1';
+    }
+  };
+
   // 设置特殊 CSS 特性的值。
   var specialCSSPropertySetter = 'getComputedStyle' in window ? {
     'float': function($element, propertyValue) {
@@ -451,9 +461,6 @@
     }
   };
 
-  // 获取特殊 CSS 特性的值。
-  var specialCSSPropertyGetter = {};
-
   // 修复 IE6 不支持 position: fixed 的问题。
   //
   // 注意：
@@ -464,7 +471,7 @@
   // 处理流程：
   //   position 的修改 = 启用/禁用修复，如果已启用修复，并且 display 不是 none，则同时启用表达式。
   //   display 的修改 = 如果已启用修复，则启用/禁用表达式。
-  //   left/right/top/bottom 的修改 = 如果已启用修复，则调整值。如果已启用表达式，则更新表达式。
+  //   left/right/top/bottom 的修改 = 如果已启用修复，则调整 specifiedValue。如果已启用表达式，则更新表达式。
   //   由于 IE6 设置为 position: absolute 的元素的 right bottom 定位与 body 元素的 position 有关，并且表现怪异，因此设置表达式时仍使用 left top 实现。
   //   这样处理的附加好处是不必在每次更新表达式时启用/禁用设置在 right bottom 上的表达式。
   //
@@ -530,6 +537,11 @@
       $element.style.removeExpression('top');
     };
 
+    // IE6 获取 position 特性时的特殊处理。
+    specialCSSPropertyGetter.position = function($element) {
+      return ie6FixedPositionedElements[$element.uid] ? 'fixed' : $element.currentStyle.position;
+    };
+
     // IE6 设置 position 特性时的特殊处理。
     specialCSSPropertySetter.position = function($element, propertyValue) {
       var uid = $element.uid;
@@ -587,11 +599,6 @@
       $element.style.position = propertyValue;
     };
 
-    // IE6 获取 position 特性时的特殊处理。
-    specialCSSPropertyGetter.position = function($element) {
-      return ie6FixedPositionedElements[$element.uid] ? 'fixed' : $element.currentStyle.position;
-    };
-
     // IE6 设置 display 特性时的特殊处理。
     specialCSSPropertySetter.display = function($element, propertyValue) {
       var fixedData = ie6FixedPositionedElements[$element.uid];
@@ -613,6 +620,12 @@
       }
       // 设置样式。
       $element.style.display = propertyValue;
+    };
+
+    // IE6 获取 left/right/top/bottom 特性时的特殊处理。
+    var getOffset = function($element, propertyName) {
+      var fixedData = ie6FixedPositionedElements[$element.uid];
+      return fixedData ? fixedData[propertyName].specifiedValue : $element.currentStyle[propertyName];
     };
 
     // IE6 设置 left/right/top/bottom 特性时的特殊处理。
@@ -638,52 +651,16 @@
       }
     };
 
-    // IE6 获取 left/right/top/bottom 特性时的特殊处理。
-    var getOffset = function($element, propertyName) {
-      var fixedData = ie6FixedPositionedElements[$element.uid];
-      return fixedData ? fixedData[propertyName].specifiedValue : $element.currentStyle[propertyName];
-    };
-
     ['left', 'right', 'top', 'bottom'].forEach(function(side) {
-      specialCSSPropertySetter[side] = function($element, propertyValue) {
-        setOffset($element, side, propertyValue);
-      };
       specialCSSPropertyGetter[side] = function($element) {
         return getOffset($element, side);
+      };
+      specialCSSPropertySetter[side] = function($element, propertyValue) {
+        setOffset($element, side, propertyValue);
       };
     });
 
   }
-
-  // 为不支持 getComputedStyle 的浏览器 (IE6 IE7 IE8) 提供的 CurrentStyle 类，并模拟 CSSStyleDeclaration 对象的 getPropertyValue 方法。
-  function CurrentStyle($element) {
-    this.element = $element;
-    this.currentStyle = $element.currentStyle;
-  }
-
-  CurrentStyle.prototype.getPropertyValue = function(name) {
-    var value;
-    switch (name = hyphenateToCamelCase(name)) {
-      case 'float':
-        value = this.currentStyle.styleFloat;
-        break;
-      case 'opacity':
-        value = this.element.filters['alpha'] && this.element.filters['alpha'].opacity / 100 + '' || '1';
-        break;
-      default:
-        // 仅 IE6 有 specialCSSPropertyGetter，因此放在此处处理。
-        value = specialCSSPropertyGetter[name] ? specialCSSPropertyGetter[name](this.element) : this.currentStyle[name];
-    }
-    return value || '';
-  };
-
-  // 获取元素的“计算后的样式”。
-  // 实际上各浏览器返回的“计算后的样式”中各特性的值未必是 CSS 规范中描述的 computed values，而可能是 used/actual values。
-  var getComputedStyle = 'getComputedStyle' in window ? function($element) {
-    return window.getComputedStyle($element, null);
-  } : function($element) {
-    return new CurrentStyle($element);
-  };
 
 //--------------------------------------------------[Element.prototype.getStyle]
   /**
@@ -693,12 +670,16 @@
    * @param {string} propertyName 特性名，仅支持 camel case 格式。
    * @returns {string} 对应的特性值，如果获取的是长度值，其单位未必是 px，可能是其定义时的单位。
    * @description
+   *   实际上各浏览器返回的“计算后的样式”中各特性的值未必是 CSS 规范中描述的 computed values，而可能是 used/actual values。
    *   注意：
    *   不要尝试获取复合属性的值，它们存在兼容性问题。
    *   不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
    */
-  Element.prototype.getStyle = function(propertyName) {
-    return getComputedStyle(this).getPropertyValue(camelCaseToHyphenate(propertyName));
+  Element.prototype.getStyle = 'getComputedStyle' in window ? function(propertyName) {
+    return window.getComputedStyle(this, null).getPropertyValue(camelCaseToHyphenate(propertyName)) || '';
+  } : function(propertyName) {
+    var getSpecialCSSProperty = specialCSSPropertyGetter[propertyName];
+    return (getSpecialCSSProperty ? getSpecialCSSProperty(this) : this.currentStyle[propertyName]) || '';
   };
 
 //--------------------------------------------------[Element.prototype.getStyles]
@@ -710,10 +691,10 @@
    * @returns {Object} 包含一组特性值的，格式为 {propertyName: propertyValue, ...} 的对象。
    */
   Element.prototype.getStyles = function(propertyNames) {
+    var element = this;
     var styles = {};
-    var computedStyle = getComputedStyle(this);
     propertyNames.forEach(function(propertyName) {
-      styles[propertyName] = computedStyle.getPropertyValue(camelCaseToHyphenate(propertyName));
+      styles[propertyName] = element.getStyle(propertyName);
     });
     return styles;
   };
