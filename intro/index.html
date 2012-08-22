@@ -114,7 +114,7 @@ execute(function($) {
   <h3 id="feature.1">功能完善 —— 提供的功能覆盖面广、细节完善，可灵活配置与组合，能实现 WEB 开发中的绝大多数需求。</h3>
   <ul>
     <li>
-      <p>OurJS 通过<strong>扩展</strong> JS 内置对象、浏览器内置对象、DOM 对象，为对象添加<strong>新特性</strong>，<strong>封装</strong>组件，<strong>模块化管理</strong>代码等方式，提供了丰富的功能。</p>
+      <p>OurJS 通过扩展 JS 内置对象、浏览器内置对象、DOM 对象，提供可应用到任意对象的新特性，封装常用的功能组件，模块化管理代码等方式，提供了丰富的功能。</p>
     </li>
     <li>
       <p>每个功能都经过长期实践，其行为和细节更完善，其设计粒度更符合常见的应用场景。</p>
@@ -183,7 +183,7 @@ element.<strong>on</strong>('click', function(e) {...});
         </li>
         <li>
           <p>OurJS 还提供了一些虽然目前尚无规范支持，但却很实用的方法，如将一个 NodeList 对象（或其他任意数据类型）转化为数组：</p>
-          <pre>Array.<strong>from</strong>(element.getElementsByTagName('select')).forEach(function(item){...});</pre>
+          <pre>Array.<strong>from</strong>($form.elements.favorites).forEach(function(control){...});</pre>
         </li>
       </ul>
     </li>
@@ -209,9 +209,9 @@ element.<strong>on</strong>('click', function(e) {...});
         </li>
         <li>
           <p>
-            DOM 对象和具备 Observable 特性的对象（如所有的组件对象）处理事件的方法均为 on、off 和 fire。<br>
+            DOM 对象和具备 Observable 特性的对象（如所有组件的实例）处理事件的方法均为 on、off 和 fire。<br>
             它们的 name 参数格式略有不同，因为 DOM 事件可以传递，因此有“代理”的概念。<br>
-            它们的 listener 参数的含义和作用则完全一致，并且当 listener 被调用时，this 的值也均为监听的目标对象。
+            它们的 listener 参数的含义和作用则完全一致，并且当 listener 被调用时，this 的值也均为被监听的对象。
           </p>
         </li>
       </ul>
@@ -222,7 +222,7 @@ element.<strong>on</strong>('click', function(e) {...});
         <li>
           <p>
             所有组件的构造器都有一个 config 属性，这是该组件的默认配置。<br>
-            修改 config 属性即可更改此类组件的默认配置，若 config 为空对象则表示该组件没有可配置项。使用这种方式指定的配置对后续创建的组件均生效。
+            修改 config 属性即可更改该组件的默认配置，若 config 为空对象则表示该组件没有可配置项。使用这种方式指定的配置对后续创建的实例均生效。
           </p>
           <pre>Request.<strong>config</strong>.method = 'post';</pre>
         </li>
@@ -241,7 +241,7 @@ element.<strong>on</strong>('click', function(e) {...});
           <pre>request.<strong>setConfig({headers: {uid: 12345}})</strong>;</pre>
         </li>
         <li>
-          <p>所有组件都可以通过 on、off 和 fire 方法来处理事件。</p>
+          <p>所有组件的实例都可以通过 on、off 和 fire 方法来处理事件。</p>
         </li>
         <li>
           <p>执行每个组件的实例方法时，都会“主动触发”一个同名的事件，并会在随后根据情况同步或异步的“被动触发”表示处理过程或结果的事件。</p>
@@ -259,7 +259,7 @@ element.<strong>on</strong>('click', function(e) {...});
     <li>
       <p class="referral">OurJS 有组件构造器，要添加新的组件，使用组件构造器即可创建出和现有的组件具有相同特性的新组件。</p>
       <p class="comment">
-        要扩展已有的组件，使用 Component 提供的事件机制来添加新的事件（可以为组件添加任意多的自定义事件类型），并在对应的监听器中进行必要的处理即可。<br>
+        Component 提供的事件机制可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。<br>
         OurJS 没有提供“继承”机制，当一个组件依赖另一个时，可以使用更灵活的“组合”方式进行扩展（具体实施方式可以参考 TabPanel 和 Slideshow 的源码）。
       </p>
     </li>
@@ -283,9 +283,6 @@ element.<strong>on</strong>('click', function(e) {...});
 
   <h3>OurJS 只可以和非侵入式设计的框架或类库共存。</h3>
   <ul>
-    <li>
-      <p>OurJS 具备完善的功能，也提供了基于组件形式的扩展，因此能够独立解决大部分需求。</p>
-    </li>
     <li>
       <p>当必须引入其他的框架<sup>1</sup>或类库<sup>2</sup>以满足特定需求时，要注意：OurJS 使用了侵入式设计<sup>3</sup>，因此不能和其他使用同样方式设计的框架共存<sup>4</sup>。</p>
     </li>
