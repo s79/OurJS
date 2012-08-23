@@ -569,17 +569,15 @@
    * @name localStorage
    * @namespace
    * @description
-   *   注意：
    *   在不支持 localStorage 的浏览器中，会使用路径 '/favicon.ico' 来创建启用 userData 的元素。
    *   当上述路径不存在时 (404)，服务端应避免返回包含脚本的页面，以免出现预料外的异常。
+   *   若出现了异常，且无法控制服务端的 404 页面时，可以在本段脚本执行之前定义一个全局变量 userDataPath 并为其指定一个本域内确定存在的路径。
    */
   var localStorage = {};
   window.localStorage = localStorage;
 
   // 用来保存 userData 的元素。
   var userDataElement;
-  // 指定存储路径。
-  var USER_DATA_PATH = '/favicon.ico';
   // 指定一个固定的 userData 存储文件名。
   var USER_DATA_FILE_NAME = 'localStorage';
   // 尝试使用跨路径的 userData 访问。
@@ -587,11 +585,10 @@
     // 使用同步方式在当前域的指定存储路径创建一个文档，以确保对 userData 操作的代码能够同步执行。
     var hiddenDocument = new ActiveXObject('htmlfile');
     hiddenDocument.open();
-    hiddenDocument.write('<iframe id="root_path" src="' + USER_DATA_PATH + '"></frame>');
+    hiddenDocument.write('<iframe id="frame" src="' + (window.userDataPath || '/favicon.ico') + '"></iframe>');
     hiddenDocument.close();
-    // 关键：IE6 IE7 IE8 允许在 document 上插入元素。
-    var userDataOwnerDocument = hiddenDocument.getElementById('root_path').contentWindow.document;
-    // 创建绑定了 userData 行为的元素。
+    // IE6 IE7 IE8 允许在 document 上插入元素。
+    var userDataOwnerDocument = hiddenDocument.getElementById('frame').contentWindow.document;
     userDataElement = userDataOwnerDocument.createElement('var');
     userDataOwnerDocument.appendChild(userDataElement);
   } catch (e) {

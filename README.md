@@ -32,7 +32,7 @@ OurJS 只可以和非侵入式设计的框架或类库共存。
 
 <table>
   <tr>
-    <th>描述</th><td>文件名</td>
+    <th>描述</th><th>文件名</th>
   </tr>
   <tr>
     <td>Integrated</td><td>integrated\sizzle.js<br>integrated\json2.js</td>
