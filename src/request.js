@@ -152,7 +152,7 @@
    * @param {Function} config.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为空字符串。
    *   原始请求数据无特殊要求。
    *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 start 事件对象的 data 属性。
-   *   该函数被调用时 this 的值为本组件。
+   *   该函数被调用时 this 的值为本组件的实例对象。
    * @param {Function} config.responseParser 响应数据解析器，传入响应数据，该函数应返回解析后的对象数据，默认无特殊处理。
    *   原始响应数据中包含以下属性：
    *   {number} responseData.status 状态码。
@@ -161,7 +161,7 @@
    *   {string} responseData.text 响应文本。
    *   {XMLDocument} responseData.xml 响应 XML 文档。
    *   解析后的响应数据无特殊要求，但要注意，解析后的数据对象的属性将被追加到 finish 事件对象中。
-   *   该函数被调用时 this 的值为本组件。
+   *   该函数被调用时 this 的值为本组件的实例对象。
    * @fires send
    *   {Object} event.data 要发送的数据。
    *   成功调用 send 方法后，解析请求数据前触发。

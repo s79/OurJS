@@ -23,46 +23,46 @@ execute(function($) {
 </head>
 <body>
 <div id="content" data-outline="enabled">
-  <h1>OurJS 入门指南</h1>
+<h1>OurJS 入门指南</h1>
 
-  <h2>使用和下载</h2>
-  <h3>使用方式</h3>
-  <p>要使用 OurJS，只需要在页面中引入 our.js 即可：</p>
+<h2>使用和下载</h2>
+<h3>使用方式</h3>
+<p>要使用 OurJS，只需要在页面中引入 our.js 即可：</p>
 <pre>
 &lt;script src="path/to/our.js"&gt;&lt;/script&gt;
 </pre>
-  <p>如果还需要使用组件，组件的脚本也要引入。如需要使用 TabPanel 组件：</p>
+<p>如果还需要使用组件，组件的脚本也要引入。如需要使用 TabPanel 组件：</p>
 <pre>
 &lt;script src="path/to/our.js"&gt;&lt;/script&gt;
 &lt;script src="path/to/tabpanel.js"&gt;&lt;/script&gt;
 </pre>
-  <blockquote>
-    <p class="common">脚本文件的具体路径取决于项目的目录设置。</p>
-  </blockquote>
+<blockquote>
+  <p class="common">脚本文件的具体路径取决于项目的目录设置。</p>
+</blockquote>
 
-  <h3>下载地址</h3>
-  <p>要下载 OurJS，请<a href="../our.js" target="_blank" class="link">点击此处</a>。</p>
-  <p>OurJS 内置的组件只有 Animation、Request、Switcher 三个，其他可选组件的下载地址：</p>
-  <ul class="downloads">
-    <li><a href="../src/components/tabpanel.js" target="_blank" class="link">TabPanel</a> 多页标签面板</li>
-    <li><a href="../src/components/slideshow.js" target="_blank" class="link">Slideshow</a> 幻灯片播放器</li>
-    <li><a href="../src/components/dialog.js" target="_blank" class="link">Dialog</a> 模态对话框</li>
-    <li><a href="../src/components/paginator.js" target="_blank" class="link">Paginator</a> 分页导航条</li>
-    <li><a href="../src/components/calendar.js" target="_blank" class="link">Calendar</a> 月历</li>
-    <li><a href="../src/components/validator.js" target="_blank" class="link">Validator</a> 表单验证器</li>
-  </ul>
-  <p>OurJS 还提供了可选的插件，以满足特定的需求：</p>
-  <ul class="downloads">
-    <li><a href="../src/addons/DD_belatedPNG.js" target="_blank" class="link">DD_belatedPNG.js</a> IE6 PNG 图片的 alpha 透明修复插件</li>
-    <li><a href="../src/addons/console.js" target="_blank" class="link">console.js</a> IE6 控制台</li>
-  </ul>
-  <p>对于一些功能库，OurJS 也提供了适配器：</p>
-  <ul class="downloads">
-    <li><a href="../src/adapters/highcharts.js" target="_blank" class="link">highcharts.js</a> 图表库 HighCharts 的 OurJS 适配器</li>
-  </ul>
+<h3>下载地址</h3>
+<p>要下载 OurJS，请<a href="../our.js" target="_blank" class="link">点击此处</a>。</p>
+<p>OurJS 内置的组件只有 Animation、Request、Switcher 三个，其他可选组件的下载地址：</p>
+<ul class="downloads">
+  <li><a href="../src/components/tabpanel.js" target="_blank" class="link">TabPanel</a> 多页标签面板</li>
+  <li><a href="../src/components/slideshow.js" target="_blank" class="link">Slideshow</a> 幻灯片播放器</li>
+  <li><a href="../src/components/dialog.js" target="_blank" class="link">Dialog</a> 模态对话框</li>
+  <li><a href="../src/components/paginator.js" target="_blank" class="link">Paginator</a> 分页导航条</li>
+  <li><a href="../src/components/calendar.js" target="_blank" class="link">Calendar</a> 月历</li>
+  <li><a href="../src/components/validator.js" target="_blank" class="link">Validator</a> 表单验证器</li>
+</ul>
+<p>OurJS 还提供了可选的插件，以满足特定的需求：</p>
+<ul class="downloads">
+  <li><a href="../src/addons/DD_belatedPNG.js" target="_blank" class="link">DD_belatedPNG.js</a> IE6 PNG 图片的 alpha 透明修复插件</li>
+  <li><a href="../src/addons/console.js" target="_blank" class="link">console.js</a> IE6 控制台</li>
+</ul>
+<p>对于一些功能库，OurJS 也提供了适配器：</p>
+<ul class="downloads">
+  <li><a href="../src/adapters/highcharts.js" target="_blank" class="link">highcharts.js</a> 图表库 HighCharts 的 OurJS 适配器</li>
+</ul>
 
-  <h2>处理 JS 内置对象</h2>
-  <p>OurJS 为了增强 JavaScript 的处理能力，为各种内置对象提供了多种扩展方法。调用这些方法时，和调用它们的原生方法一样方便：</p>
+<h2>处理 JS 内置对象</h2>
+<p>OurJS 为了增强 JavaScript 的处理能力，为各种内置对象提供了多种扩展方法。调用这些方法时，和调用它们的原生方法一样方便：</p>
 <pre>
 var list = [0, 1, 2, 3, 4];
 list.reverse().getLast();
@@ -76,13 +76,13 @@ Object.mixin(defaultConfig, newConfig, {whiteList: Object.keys(defaultConfig)});
 var day = Date.from('2010-03-17 20:23:00', 'YYYY-MM-DD hh:mm:ss').getDay();
 // day 的值为 3，2010年3月17日是星期三。
 </pre>
-  <blockquote>
-    <p>JS 内置对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 左列的《JS 语言扩展》部分。</p>
-  </blockquote>
+<blockquote>
+  <p>JS 内置对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 左列的《JS 语言扩展》部分。</p>
+</blockquote>
 
-  <h2>处理浏览器内置对象</h2>
-  <p>浏览器的内置对象是指与浏览器或当前文档相关的对象，它们都是唯一的实例，不能被创建（它们的构造器是对开发者隐藏的）。</p>
-  <p>OurJS 为常用的浏览器内置对象也提供了扩展方法或属性：</p>
+<h2>处理浏览器内置对象</h2>
+<p>浏览器的内置对象是指与浏览器或当前文档相关的对象，它们都是唯一的实例，不能被创建（它们的构造器是对开发者隐藏的）。</p>
+<p>OurJS 为常用的浏览器内置对象也提供了扩展方法或属性：</p>
 <pre>
 if (navigator.isChrome) ...
 // OurJS 为 navigator 对象扩展了一些列的属性，用于判断当前的浏览器类型。
@@ -95,25 +95,25 @@ var targetId = location.parameters.id || 1;
 var username = localStorage.getItem('username');
 // IE6 IE7 中原本是不支持 localStorage 的，但 OurJS 对它们进行了增强，使其可以像现代浏览器一样支持本地存储（可以跨路径）。
 </pre>
-  <blockquote>
-    <p>相关演示请参考 <a href="../demos/navigator/" target="_blank" class="link">演示 - 浏览器信息</a> 和 <a href="../demos/storage/" target="_blank" class="link">演示 - 存储</a>。</p>
-  </blockquote>
-  <blockquote>
-    <p>浏览器内置对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 左列的《浏览器内置对象扩展》部分。</p>
-  </blockquote>
+<blockquote>
+  <p>相关演示请参考 <a href="../demos/navigator/" target="_blank" class="link">演示 - 浏览器信息</a> 和 <a href="../demos/storage/" target="_blank" class="link">演示 - 存储</a>。</p>
+</blockquote>
+<blockquote>
+  <p>浏览器内置对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 左列的《浏览器内置对象扩展》部分。</p>
+</blockquote>
 
-  <h2>获取、创建和处理 DOM 对象</h2>
-  <p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>、<strong>元素</strong>和<strong>事件</strong>四种类型<sup>1</sup>。</p>
-  <p>其中窗口和文档对象也是特殊的浏览器内置对象，和其他浏览器内置对象一样，它们在页面中也是唯一的实例，可以通过访问 window 和 document 来直接获取<sup>2</sup>。</p>
-  <p>元素对象有多个实例，它们通常都是 DOM 树上的节点。可以创建新的元素对象，也可以对现有的元素对象进行修改或删除。</p>
-  <p>事件对象是在窗口、文档和元素对象发生事件时被自动创建的。它们会以参数的形式被传入对应的监听器，并可以在这个监听器中进行后续处理。</p>
-  <ol class="comment">
-    <li>OurJS 并没有针对除文档和元素外的其他节点类型进行扩展，因为极少需要直接操作这些类型的数据。当必须处理这些类型时，使用原生 DOM 方法即可。</li>
-    <li>如果页面中有通过 frame 嵌入的另一个页面，那么这个被嵌入的页面有其自己的窗口和文档对象。</li>
-  </ol>
+<h2>获取、创建和处理 DOM 对象</h2>
+<p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>、<strong>元素</strong>和<strong>事件</strong>四种类型<sup>1</sup>。</p>
+<p>其中窗口和文档对象也是特殊的浏览器内置对象，和其他浏览器内置对象一样，它们在页面中也是唯一的实例，可以通过访问 window 和 document 来直接获取<sup>2</sup>。</p>
+<p>元素对象有多个实例，它们通常都是 DOM 树上的节点。可以创建新的元素对象，也可以对现有的元素对象进行修改或删除。</p>
+<p>事件对象是在窗口、文档和元素对象发生事件时被自动创建的。它们会以参数的形式被传入对应的监听器，并可以在这个监听器中进行后续处理。</p>
+<ol class="comment">
+  <li>OurJS 并没有针对除文档和元素外的其他节点类型进行扩展，因为极少需要直接操作这些类型的数据。当必须处理这些类型时，使用原生 DOM 方法即可。</li>
+  <li>如果页面中有通过 frame 嵌入的另一个页面，那么这个被嵌入的页面有其自己的窗口和文档对象。</li>
+</ol>
 
-  <h3>为窗口对象扩充的方法</h3>
-  <p>可以通过调用 OurJS 在窗口对象上扩展的几个与视口有关的方法，来获取视口的相关信息：</p>
+<h3>为窗口对象扩充的方法</h3>
+<p>可以通过调用 OurJS 在窗口对象上扩展的几个与视口有关的方法，来获取视口的相关信息：</p>
 <pre>
 var width = window.getClientSize().width;
 // 获取视口可视区域的宽度。
@@ -127,8 +127,8 @@ var pageOffset = window.getPageOffset();
 // 获取视口的滚动偏移量。
 </pre>
 
-  <h3>为文档对象扩充的方法</h3>
-  <p>可以通过 document.$ 来获取和创建元素。使用这个方法每次只能获取或创建一个元素：</p>
+<h3>为文档对象扩充的方法</h3>
+<p>可以通过 document.$ 来获取和创建元素。使用这个方法每次只能获取或创建一个元素：</p>
 <pre>
 var $container = document.$('#container');
 // 获取 id 为 container 的元素。这相当于 document.getElementById('container')。
@@ -137,39 +137,39 @@ var $container = document.$('#container');
 var $message = document.$('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd&gt;&lt;/dd&gt;&lt;/dl&gt;');
 // 创建一个 dl 元素。虽然每次只能创建一个元素，但这个元素可以包含任意多的后代元素。
 </pre>
-  <p>像很多库一样，OurJS 也可以使用 $ 来代替 document.$，以简化编码。具体做法请参考下文“<strong>使用 execute 方法执行代码块</strong>”一节中的内容。</p>
-  <blockquote>
-    <p>
-      从本节开始，你会发现一些变量以 $ 开头，如上边两个例子中的 $container 和 $message，OurJS 的所有演示代码（也包括源码）中都会使用这样的方式来标识一个元素对象，以使代码更易读。<br>
-      实际开发中，在为元素类型的变量或形参命名时（不包括属性名），也建议这么做。
-    </p>
-  </blockquote>
+<p>像很多库一样，OurJS 也可以使用 $ 来代替 document.$，以简化编码。具体做法请参考下文“<strong>使用 execute 方法执行代码块</strong>”一节中的内容。</p>
+<blockquote>
+  <p>
+    从本节开始，你会发现一些变量以 $ 开头，如上边两个例子中的 $container 和 $message，OurJS 的所有演示代码（也包括源码）中都会使用这样的方式来标识一个元素对象，以使代码更易读。<br>
+    实际开发中，在为元素类型的变量或形参命名时（不包括属性名），也建议这么做。
+  </p>
+</blockquote>
 
-  <h3>为元素对象扩充的方法</h3>
-  <p>OurJS 为元素类型的对象扩展了很多方法，如处理类和样式、获取位置和尺寸、获取相关元素、修改内容或位置等。</p>
-  <p>调用为元素扩展的方法时，也和调用它们的原生方法或属性一样方便：</p>
+<h3>为元素对象扩充的方法</h3>
+<p>OurJS 为元素类型的对象扩展了很多方法，如处理类和样式、获取位置和尺寸、获取相关元素、修改内容或位置等。</p>
+<p>调用为元素扩展的方法时，也和调用它们的原生方法或属性一样方便：</p>
 <pre>
 if ($input.offsetWidth) {
   $input.addClass('active').focus();
 }
 // addClass 是为处理元素的类而添加的扩展方法。
 </pre>
-  <blockquote>
-    <p>相关演示请参考 <a href="../demos/dom/" target="_blank" class="link">演示 - DOM</a>。</p>
-  </blockquote>
-  <p>
-    上一节中提到，OurJS 提供的获取和创建元素的 API document.$ 每次只能获取或创建一个元素。<br>
-    OurJS 在处理元素时，所有相关的 API 也都是针对单个元素进行的。
-  </p>
-  <p>虽然可以通过调用一个元素的 find 或 getChildren 方法来获取一批元素（实际是一个数组），但 OurJS 并没有提供“批量操作元素”的方法<sup>1</sup>。如果一定要对一批元素进行操作，则需要遍历这些元素，并对其中的每一个单独进行操作：</p>
+<blockquote>
+  <p>相关演示请参考 <a href="../demos/dom/" target="_blank" class="link">演示 - DOM</a>。</p>
+</blockquote>
+<p>
+  上一节中提到，OurJS 提供的获取和创建元素的 API document.$ 每次只能获取或创建一个元素。<br>
+  OurJS 在处理元素时，所有相关的 API 也都是针对单个元素进行的。
+</p>
+<p>虽然可以通过调用一个元素的 find 或 getChildren 方法来获取一批元素（实际是一个数组），但 OurJS 并没有提供“批量操作元素”的方法<sup>1</sup>。如果一定要对一批元素进行操作，则需要遍历这些元素，并对其中的每一个单独进行操作：</p>
 <pre>
 $container.find('li').forEach(function($item) {
   $item.setStyles({color: 'silver', font-style: 'italic'}));
 });
 // 修改 id 为“container”的元素的所有后代 li 元素的样式。
 </pre>
-  <p>这点和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路 —— 恰当的设计可以避免很多需要“批量操作元素”的场景。</p>
-  <p>如上例可以修改为：</p>
+<p>这点和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路 —— 恰当的设计可以避免很多需要“批量操作元素”的场景。</p>
+<p>如上例可以修改为：</p>
 <pre>
 &lt;style&gt;
 .selected li { color: silver; font-style: italic; }
@@ -179,60 +179,60 @@ $container.find('li').forEach(function($item) {
 $container.addClass('selected');
 &lt;/script&gt;
 </pre>
-  <p>通过修改 $container 的 class 属性来改变这个 DOM 树分支的“状态”，再配合 CSS 来达到目的<sup>2</sup>。</p>
-  <ol class="comment">
-    <li>
-      OurJS 不提倡对元素批量进行操作。批量操作会降低代码的可控性，还可能带来性能问题。<br>
-      而只针对单一元素进行操作则更加严谨和高效，能杜绝不易察觉的误操作，并避开了提供针对元素集合进行操作的 API 时会面临的“get first set all”还是“get all set all”的两难抉择。
-    </li>
-    <li>
-      并不是所有的事情都要由 JS 来做。修改恰当的节点，并配合 CSS 的层叠特性，即可以最精简和清晰的逻辑来达到目的。<br>
-      越是复杂的需求，就应该越少去直接更改样式，修改文档树上相关节点的位置和状态是更好的方式。<br>
-      关于这种方式，请参考 <a href="../components/validator/" target="_blank" class="link">“UI 组件 - 表单验证器”</a> 中对于各种信息的切换的处理方式。
-    </li>
-  </ol>
+<p>即通过修改 $container 的 class 属性来改变这个 DOM 树分支的“状态”，再配合 CSS 来达到目的<sup>2</sup>。</p>
+<ol class="comment">
+  <li>
+    OurJS 不提倡对元素批量进行操作。批量操作会降低代码的可控性，还可能带来性能问题。<br>
+    而只针对单一元素进行操作则更加严谨和高效，能杜绝不易察觉的误操作，并避开了提供针对元素集合进行操作的 API 时会面临的“get first set all”还是“get all set all”的两难抉择。<br>
+    越是复杂的需求，就应该越少去批量的操作元素，修改文档树上相关节点的位置和状态是更好的方式。
+  </li>
+  <li>
+    并不是所有的事情都要由 JS 来做。修改恰当的节点，并配合 CSS 的层叠特性，即可以最精简和清晰的逻辑来达到目的。<br>
+    类似的例子见 <a href="../components/validator/" target="_blank" class="link">“UI 组件 - 表单验证器”</a> 中对于各种信息的切换的处理方式。
+  </li>
+</ol>
 
-  <h3>处理事件</h3>
-  <p>OurJS 提供了一套完整的事件管理机制，并对常见的事件做了兼容性处理。</p>
-  <p>窗口、文档和元素对象都可能发生事件并产生事件对象，它们都有 on、off 和 fire 方法来添加事件监听器、删除事件监听器和触发一个事件。</p>
+<h3>处理事件</h3>
+<p>OurJS 提供了一套完整的事件管理机制，对常见的事件做了兼容性处理，并提供了一些可以简化组件开发的自定义事件。</p>
+<p>窗口、文档和元素对象都可能发生事件并产生事件对象，它们都有 on、off 和 fire 方法来添加事件监听器、删除事件监听器和触发一个事件。</p>
 
-  <h4>添加一个事件监听器</h4>
-  <p>使用 on 方法来添加事件监听器：</p>
+<h4>添加一个事件监听器</h4>
+<p>使用 on 方法来添加事件监听器：</p>
 <pre>
 window.on('resize', listener);
-// 在 listener 被调用时，this 的值为监听目标 window 对象。
+// 在 listener 被调用时，this 的值为被监听的 window 对象。
 </pre>
 
-  <h4>添加多个事件监听器</h4>
-  <p>可以在一个 DOM 对象上为同一类型的事件添加任意个监听器，这可以通过多次调用 on 方法来完成：</p>
+<h4>添加多个事件监听器</h4>
+<p>可以在一个 DOM 对象上为同一类型的事件添加任意个监听器，这可以通过多次调用 on 方法来完成：</p>
 <pre>
 $element.on('click', listener1);
 ...
 $element.on('click', listener2);
 // 如果一个 DOM 对象的一类事件有多个监听器，那么当这类事件发生时，这些监听器被调用的顺序和它们被添加的顺序是一致的。
 </pre>
-  <p>也可以使用相同的监听器来处理一个 DOM 对象上不同种类型的事件，使用逗号分割各事件名即可：</p>
+<p>也可以使用相同的监听器来处理一个 DOM 对象上不同种类型的事件，使用逗号分割各事件名即可：</p>
 <pre>
 document.on('mouseenter, mouseleave', listener);
 </pre>
 
-  <h4>事件代理</h4>
-  <p>
-    事件代理是一个很重要的功能，OurJS 使用“代理选择符”对指定的元素代理事件监听。<br>
-    “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 表示“接替”，selector 可以为任意 CSS 选择符，它们合在一起表示“接替<em>以目标元素为起点，能被 selector 选中的后代元素</em>来处理传播到<em>这些元素</em>的事件”，亦即为这些后代元素代理事件监听：
-  </p>
+<h4>事件代理</h4>
+<p>
+  事件代理是一个很重要的功能，OurJS 可以在为一个元素添加监听器时，使用“代理选择符”来对指定的后代元素代理事件监听。<br>
+  “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 表示“接替”，selector 可以为任意 CSS 选择符，它们合在一起表示“接替<em>以目标元素为起点，能被 selector 选中的后代元素</em>来处理传播到<em>这些元素</em>的事件”，亦即为这些后代元素代理事件监听：
+</p>
 <pre>
 $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
 // $element 元素将为其所有标签名为 li 且类名包含 enabled 的后代元素代理监听 mouseenter 事件。
-// 在 listener 被调用时，this 的值为被代理的 li 元素。
+// 在 listener 被调用时，this 的值为被代理监听的 li 元素。
 </pre>
-  <p>在 IE6 IE7 IE8 中，发生在元素对象上的事件如果可以传递，则只能传递到 document 对象，而不会传递到 window 对象，因此不要让 window 对象为某些元素代理事件监听，以保持兼容。</p>
-  <ol class="comment">
-    <li>这个语法参考自 MooTools。</li>
-  </ol>
+<p>在 IE6 IE7 IE8 中，发生在元素对象上的事件如果可以传递，则只能传递到 document 对象，而不会传递到 window 对象，因此不要让 window 对象为其他元素代理事件监听，以保持兼容。</p>
+<ol class="comment">
+  <li>这个语法参考自 MooTools。</li>
+</ol>
 
-  <h4>删除已添加的事件监听器</h4>
-  <p>要选择性的删除已添加的、特定的一个或多个监听器时，首先在添加这些监听器时应使用“标签”来对它们进行标记。<br>“事件类型”、“标签”和“代理选择符”的组合称为“事件名”，在调用 off 方法删除事件时就是以“事件名”为依据对指定的监听器进行删除的：</p>
+<h4>删除已添加的事件监听器</h4>
+<p>要选择性的删除已添加的、特定的一个或多个监听器时，首先在添加这些监听器时应使用“标签”来对它们进行标记。<br>“事件类型”、“标签”和“代理选择符”的组合称为“事件名”，在调用 off 方法删除事件时就是以“事件名”为依据对指定的监听器进行删除的：</p>
 <pre>
 $element.on('input', listener1).on('input<strong>.foo</strong>', listener2);
 // .foo 就是 listener2 的标签。listener1 没有指定标签。
@@ -242,7 +242,7 @@ $element.on('input', listener3);
 $element.off('input');
 // 删除在 $element 上添加的所有名为“input”的监听器（listener1 和 listener3），此时名为“input.foo”的监听器 listener2 仍然生效。
 </pre>
-  <p>可以同时设定“标签”和“代理选择符”，“标签”在前，“代理选择符”在后：</p>
+<p>可以同时设定“标签”和“代理选择符”，注意“标签”在前，“代理选择符”在后：</p>
 <pre>
 $element.on('click.foo:relay(a)', listener1);
 ...
@@ -251,27 +251,36 @@ $element.on('<strong>click.bar:relay(a)</strong>', listener2);
 $element.off('<strong>click.bar:relay(a)</strong>');
 // 删除代理事件监听器 listener2。
 </pre>
-  <p>OurJS 没有提直接供删除一个DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器名称，这个设计是为了避免监听器被误删<sup>2</sup>。</p>
-  <ol class="comment">
-    <li>在调用一个元素的 replace 或 remove 方法时，可以通过设置参数 keepListeners 为 false 来清除为该元素添加的所有事件监听器。</li>
-    <li>要避免一个监听器被误删，应为其指定一个具有明确含义的“标签”，并确保整个应用中不会有其他地方在为这个元素添加事件监听器时使用这个“标签”。</li>
-  </ol>
+<p>OurJS 没有提直接供删除一个DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器名称，这个设计是为了避免监听器被误删<sup>2</sup>。</p>
+<ol class="comment">
+  <li>在调用一个元素的 replace 或 remove 方法时，可以通过设置参数 keepListeners 为 false 来清除为该元素添加的所有事件监听器。</li>
+  <li>要避免一个监听器被误删，应为其指定一个具有明确含义的“标签”，并确保整个应用中不会有其他地方在为这个元素添加事件监听器时使用这个“标签”。</li>
+</ol>
 
-  <h4>触发某类事件</h4>
-  <p>使用 fire 方法来触发某类事件：</p>
+<h4>触发某类事件</h4>
+<p>使用 fire 方法来触发某类事件：</p>
 <pre>
 window.fire('resize');
 </pre>
-  <p>调用 fire 方法时，仅会运行目标 DOM 对象上使用 OurJS 添加的监听器，并且其默认行为也将被阻止：</p>
+<p>调用 fire 方法时，仅会运行目标 DOM 对象上使用 OurJS 添加的监听器，并且其默认行为也将被阻止：</p>
 <pre>
 $a.fire('click');
 // 并不会让浏览器跳转到 $a 链接的目标地址。如果要跳转，应调用它的 click 方法，即 $a.click()。
 </pre>
-  <p>当需要一个元素执行某种行为时，不应该使用 fire 方法，而应该直接调用对应的方法，如 click、select、submit 等。</p>
+<p>
+  当需要一个元素执行某种行为时，不应该使用 fire 方法，而应该直接调用对应的方法，如 click、select、submit 等。<br>
+  大部分此类方法在调用后，也会触发同名事件<sup>1</sup>。
+</p>
+<ol class="comment">
+  <li>
+    目前在所有浏览器中，调用 submit 方法都不会触发 submit 事件，这是为了兼容旧页面而特地设计的特征。<br>
+    在目前互联网上存在的页面中，大量页面都在表单对象的 onsubmit 属性上添加了验证表单域的函数，并在函数中直接阻止事件对象的默认行为，当验证通过时再调用 submit 方法来提交表单（而不是在验证失败时阻止事件对象的默认行为），如果此时再触发 submit 事件，在这些页面上就会导致死循环。
+  </li>
+</ol>
 
-  <h4>事件对象</h4>
-  <p>除了少数特殊事件（window 的 beforeunload 和 document 的 domready）外，其他所有事件的监听器均会被传入本次事件发生时所产生的事件对象。</p>
-  <p>所有事件对象都有其特定的一些属性，使用 fire 方法触发的事件产生的事件对象也不例外：</p>
+<h4>事件对象</h4>
+<p>除了少数特殊事件（window 的 beforeunload 和 document 的 domready）外，其他所有事件的监听器均会被传入本次事件发生时所产生的事件对象。</p>
+<p>所有事件对象都有其特定的一些属性，使用 fire 方法触发的事件产生的事件对象也不例外：</p>
 <pre>
 document.on('mousewheel', function(e) {
   if (e.shiftKey && e.wheelUp) {
@@ -280,7 +289,7 @@ document.on('mousewheel', function(e) {
 });
 // 所有键盘和鼠标事件对象都有 shiftKey 属性，仅有 mousewheel 事件对象才有 wheelUp 属性。
 </pre>
-  <p>所有事件对象都有控制其传播和默认行为的方法：</p>
+<p>所有事件对象都有控制其传播和默认行为的方法：</p>
 <pre>
 $element.on('click', function(e) {
   ...
@@ -302,86 +311,194 @@ $element.on('click', function(e) {
 });
 // 监听器返回 false 即代表调用了事件对象的 stopPropagation 和 preventDefault 方法。
 </pre>
-  <blockquote>
-    <p>相关演示请参考 <a href="../demos/event/" target="_blank" class="link">演示 - 事件</a>。</p>
-  </blockquote>
-  <blockquote>
-    <p>一些事件类型只有特定的 DOM 对象才支持，并且不是所有类型的事件都可以被代理。关于 DOM 事件的类型与特征的对应关系，请查阅 <a href="../docs/events.html" target="_blank" class="link">参考文档 - DOM 事件列表</a>。</p>
-  </blockquote>
+<p>另外，OurJS 还为事件对象扩展了 DOM3 引入的一些新方法，如当一个被监听对象有多个监听器时，在一个监听器中调用 event.stopImmediatePropagation() 方法即可阻止事件传递到后续监听器中。</p>
+<blockquote>
+  <p>相关演示请参考 <a href="../demos/event/" target="_blank" class="link">演示 - 事件</a>。</p>
+</blockquote>
+<blockquote>
+  <p>一些事件类型只有特定的 DOM 对象才支持，并且不是所有类型的事件都可以被代理。关于 DOM 事件的类型与特征的对应关系，请查阅 <a href="../docs/events.html" target="_blank" class="link">参考文档 - DOM 事件列表</a>。</p>
+</blockquote>
 
-  <blockquote>
-    <p>DOM 对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 中列的《DOM 扩展》部分。</p>
-  </blockquote>
+<blockquote>
+  <p>DOM 对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 中列的《DOM 扩展》部分。</p>
+</blockquote>
 
-  <h2>组件</h2>
-  <p>OurJS 中的组件是指能够提供某种特定功能的一类对象，每种组件都可以有多个实例共存。</p>
-  <p>一些组件会依赖其他的组件，每个组件也都可以扩充为功能更强大的新组件。</p>
-  <p>所有组件的实例都具备“可配置”和“可观察”的特性。</p>
+<h2>特性</h2>
+<p>“特性”是指可以应用于任意对象上的功能，目前包括“可配置”和“可观察”两种。</p>
 
-  <h4>更改配置</h4>
-  <ul>
-    <li>
-      <p>
-        所有组件的构造器都有一个 config 属性，这是该组件的默认配置。<br>
-        修改 config 属性即可更改该组件的默认配置，若 config 为空对象则表示该组件没有可配置项。使用这种方式指定的配置对后续创建的实例均生效。
-      </p>
-      <pre>Request.<strong>config</strong>.method = 'post';</pre>
-    </li>
-    <li>
-      <p>
-        所有组件的构造器都有一个 config 参数，用于在创建实例时指定配置（没有可配置项的组件除外）。<br>
-        通过 config 参数指定的配置仅对本次创建的实例生效。
-      </p>
-      <pre>var request = new Request('/product/getfriends', <strong>{method: 'get'}</strong>);</pre>
-    </li>
-    <li>
-      <p>
-        所有组件的实例都有 setConfig 方法，可以为该实例更改配置。<br>
-        更改后的配置将在该实例上直接生效。
-      </p>
-      <pre>request.<strong>setConfig({headers: {uid: 12345}})</strong>;</pre>
-    </li>
-  </ul>
-
-  <h4>处理事件</h4>
-  <ul>
-    <li>
-      <p>所有组件的实例都可以通过 on、off 和 fire 方法来处理事件。</p>
-    </li>
-    <li>
-      <p>执行每个组件的实例方法时，都会“主动触发”一个同名的事件，并会在随后根据情况同步或异步的“被动触发”表示处理过程或结果的事件。</p>
-    </li>
-  </ul>
-
-  <h3>创建组件</h3>
-  <p>开发者可以使用组件的构造器 Component<sup>1</sup> 来创建新组件：</p>
+<h3>可配置 - Configurable</h3>
+<p>具备此特性的对象，即拥有更改配置的能力。</p>
+<p>
+  此特性将提供 config 属性用于保存配置信息，并提供 setConfig 方法来更改配置。<br>
+  setConfig 方法仅能限制修改指定的配置，是否能让配置实时生效取决于内部的实现逻辑。
+</p>
+<p>可以使用 Configurable 直接创建一个具备“可配置”特性的对象：</p>
 <pre>
-var C = new Component(function(name) {
-  this.name = name;
+var configurable = new Configurable({start: 1, data: [0, 1, 2]});
+configurable.setConfig({start: 5, foo: 'bar'});
+// setConfig 方法只能以新配置覆盖旧配置，因此 foo 的设置无效。
+configurable.config.start
+// 5
+configurable.config.foo
+// undefined
+</pre>
+<p>或者将此特性应用于一个已经存在的对象：</p>
+<pre>
+var object = {colors: ['red', 'green']};
+Configurable.applyTo(object, {activeIndex: 0});
+object.showColor = function() {
+  alert(this.colors[this.config.activeIndex]);
+};
+object.showColor();
+// red;
+object.setConfig({activeIndex: 1});
+object.showColor();
+// green;
+</pre>
+<p>“可配置”特性目前主要应用于组件的实例对象上（此特性是被自动应用的），以统一管理组件的配置信息，增强代码的可读性。</p>
+<p>当需要应用在其他情况下时，应注意提供可以让使用 setConfig 更改的新配置可以自动生效的逻辑，以符合“可配置”的本意。</p>
+
+<h3>可观察 - Observable</h3>
+<p>具备此特性的对象，即拥有处理事件的能力。</p>
+<p>
+  此特性将提供 events 属性用于保存事件相关的信息，并提供 on/off/fire 方法来处理事件。<br>
+  这几个方法与 DOM 对象处理事件的同名方法用途基本一致。
+</p>
+<p>与 DOM 的事件机制相比，Observable 提供的事件机制有以下几点区别：</p>
+<ol>
+  <li>事件对象的创建方式不同。DOM 事件是在特定的行为发生时由浏览器自动创建的，而在 Observable 提供的事件机制下，事件对象需要通过主动调用 fire 方法来创建。</li>
+  <li>事件对象的传播机制不同。一些 DOM 事件可以在 DOM 树中传递，因此这些 DOM 事件是“可代理”的，而 Observable 提供的事件机制没有此特性，因此 Observable 提供的 on 方法不像 DOM 对象的 on 方法那样可以使用“代理选择符”。</li>
+  <li>两者的事件对象的属性和方法不同。Observable 提供的事件对象默认只有 type 和 target 两个属性，但可以通过 fire 方法附加其他自定义属性。</li>
+</ol>
+<p>可以使用 Observable 直接创建一个具备“可观察”特性的对象：</p>
+<pre>
+var observable = new Observable();
+observable.on('foo', function(e) {
+  alert('本监听器稍后会被删除！');
+});
+observable.on('foo.hasLabel', function(e) {
+  alert('事件类型为 ' + e.type + '，数据为 ' + e.data + '。');
+});
+// 添加了两个类型为“foo”的监听器，其中一个设置了标签。
+observable.off('foo');
+// 删除名为“foo”的监听器，名为“foo.hasLabel”的监听器仍然生效。
+observable.fire('foo', {data: 'bar'});
+// 名为“foo.hasLabel”的监听器被触发，弹出提示“事件类型为 foo，数据为 bar。”
+</pre>
+<p>或者将此特性应用于一个已经存在的对象：</p>
+<pre>
+var object = {colors: ['red', 'green']};
+Observable.applyTo(object);
+object.add = function(color) {
+  this.colors.push(color);
+  this.fire('add', {value: color});
+};
+object.on('add', function(e) {
+  alert('添加了一个新颜色：' + e.value + '。');
+});
+object.add('blue');
+// 弹出提示“添加了一个新颜色：blue。”
+</pre>
+<p>“可观察”特性目前也是主要应用于组件的实例对象上（此特性是被自动应用的），以统一管理组件的信息交互。</p>
+
+<h2>组件</h2>
+<p>“组件”是指提供某种特定功能的一类构造器对象，每种组件都可以有多个实例共存。</p>
+<p>一些组件会依赖其他的组件，每个组件也都可以扩充为功能更强大的新组件。</p>
+<p>所有组件的实例都具备“可配置”和“可观察”的特性。</p>
+
+<h4>更改配置</h4>
+<p>
+  有可配置项的组件的构造器都有一个 config 属性，这是该组件的默认配置。<br>
+  修改 config 属性即可更改该组件的默认配置，若 config 为空对象则表示该组件没有可配置项。使用这种方式指定的配置对后续创建的实例均生效。
+</p>
+<pre>Request.<strong>config</strong>.method = 'post';</pre>
+<p>
+  在创建组件的实例时，可以通过指定 config 参数来更改默认配置（没有可配置项的组件除外）。<br>
+  通过 config 参数指定的配置仅对本次创建的实例生效。
+</p>
+<pre>var request = new Request('/product/getfriends', <strong>{method: 'get'}</strong>);</pre>
+<p>
+  所有组件的实例都有 setConfig 方法，可以为该实例更改配置。<br>
+  更改后的配置将在该实例上直接生效。
+</p>
+<pre>request.<strong>setConfig({headers: {uid: 12345}})</strong>;</pre>
+
+<h4>处理事件</h4>
+<ul>
+  <li>
+    <p>所有组件的实例都可以通过 on、off 和 fire 方法来处理事件。每个实例都可以处理任意多类型的事件，每一类事件都可以添加任意多的监听器。</p>
+  </li>
+  <li>
+    <p>执行每个组件的实例方法时，都会“主动触发”一个同名的事件，并会在随后根据情况同步或异步的“被动触发”表示处理过程或结果的事件。</p>
+  </li>
+</ul>
+
+<h3>创建组件</h3>
+<p>开发者可以使用组件构造器 Component 来创建新组件：</p>
+<pre>
+var EmployeeFinder = new Component(function(company, config) {
+  this.company = company;
+  this.setConfig(config);
 }, {
-  age: 30
+  requirements: []
 }, {
-  getDescription: function() {
-    return this.name + '(' + this.config.age + ')';
+  find: function(employees) {
+    var requirements = this.config.requirements;
+    var result = employees.filter(function(employee) {
+      return requirements.every(function(requirement) {
+        return employee.abilities.contains(requirement);
+      });
+    });
+    this.fire('find');
+    if (result.length) {
+      this.fire('found', {result: result});
+    } else {
+      this.fire('notfound');
+    }
   }
 });
 
-var x = new C('xxx');
-x.getDescription();
-// 输出 xxx(30)，选项 age 使用默认值 30。
+var employees = [
+  {name: '张三', abilities: ['HTML', 'PHP', 'AS']},
+  {name: '李四', abilities: ['HTML', 'CSS', 'JS']},
+  {name: '王五', abilities: ['JAVA', 'MYSQL']}
+];
 
-var y = new C('yyy', {age: 20});
-y.getDescription();
-// 输出 yyy(20)，选项 age 为 20。
+var finder = new EmployeeFinder('有家公司', {requirements: ['HTML']})
+    .on('find', function() {
+      alert('正在为“' + this.company + '”查找符合条件的员工……');
+    })
+    .on('found', function(e) {
+      alert('找到以下 ' + e.result.length + ' 名员工：' + JSON.stringify(e.result, ['name']) + '。');
+    })
+    .on('notfound', function(e) {
+      alert('没有找到。');
+    });
+
+finder.find(employees);
+// 弹出提示“正在为“有家公司”查找符合条件的员工……”，“找到以下 2 名员工：[{"name":"张三"},{"name":"李四"}]。”。
+
+finder.setConfig({requirements: ['HTML', 'JS']});
+finder.find(employees);
+// 弹出提示“正在为“有家公司”查找符合条件的员工……”，“找到以下 1 名员工：[{"name":"李四"}]。”。
+
+finder.setConfig({requirements: ['AS', 'JS']});
+finder.find(employees);
+// 弹出提示“正在为“有家公司”查找符合条件的员工……”，“没有找到。”。
 </pre>
-  <ol class="comment">
-    <li>Component 是<strong>组件</strong>的构造器，调用 new Component 可以得到一个<strong>组件</strong>（函数类型），而不是一个组件的实例。使用<strong>组件</strong>创建的对象才是组件的实例。</li>
-  </ol>
+<p>Component 是<strong>组件</strong>的构造器，调用 new Component 可以得到一个<strong>组件</strong>（函数类型），而不是一个组件的实例。使用<strong>组件</strong>创建的对象才是组件的实例。</p>
+<p>创建新组件时，有以下两点需要注意，以确保新组件和其他组件有一致的行为：</p>
+<ol>
+  <li>如果新组件有可配置项，应保证在调用实例的 setConfig 方法更改配置后，新配置会自动生效（至少应该在下一次访问配置信息时生效）。</li>
+  <li>成功调用每个组件的实例方法时，都应该“主动触发”一个同名的事件。</li>
+</ol>
 
-  <h3>动画效果</h3>
-  <p>动画效果可以使用 Animation 组件创建。</p>
-  <p>可以为 Animation 的实例添加多个动画剪辑，以实现复杂的动画效果和动画队列。</p>
-  <p>Animation 支持多种事件，还提供了灵活的控制手段，可以随时暂停播放或反向播放（退回原点）：</p>
+<h3>动画效果</h3>
+<p>动画效果可以使用 Animation 组件创建。</p>
+<p>
+  可以为 Animation 的实例添加多个动画剪辑，以实现复杂的动画效果和动画队列。<br>
+  Animation 支持多种事件，还提供了灵活的控制手段，可以随时暂停播放或反向播放（退回原点）：
+</p>
 <pre>
 var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {
   borderLeftWidth: 10,
@@ -396,20 +513,16 @@ $menu
       animation.reverse();
     });
 </pre>
-  <p>
-    Animation 组件可以通过添加多个动画剪辑来实现复杂的动画效果和动画队列。该组件支持多种事件并提供了多种控制手段，用户可以随时暂停、停止或反向播放动画。<br>
-    Animation 的动画引擎使用了“同频同步”的方式来同时播放多个动画，这种方式可以降低浏览器的资源消耗，使动画播放的更流畅。<br>
-    Animation 还封装了常见的针对某一个元素的补间动画，并以 Element.prototype.morph/highlight/fadeIn/fadeOut 等形式提供了快捷的 API。
-  </p>
-  <p>当动画开始播放时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。</p>
-  <p>如果页面中的多个动画同时处于播放状态，动画引擎将同频同步播放这些动画的每一帧，以减少浏览器 reflow 和 repaint 的次数，提高渲染效率，使动画能够更流畅的播放。</p>
-  <blockquote>
-    <p>关于 Animation 组件的详细信息，请参考 <a href="../demos/animation/" target="_blank" class="link">演示：动画</a> 中“使用 Animation 创建的高级动画”部分的内容。</p>
-  </blockquote>
+<p>当动画开始播放时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。</p>
+<p>如果页面中的多个动画同时处于播放状态，动画引擎将同频同步播放这些动画的每一帧，以减少浏览器 reflow 和 repaint 的次数，提高渲染效率，使动画能够更流畅的播放。</p>
+<p>Animation 还封装了常见的针对某一个元素的补间动画，并以 Element.prototype.morph/highlight/fadeIn/fadeOut 等形式提供了快捷的 API。</p>
+<blockquote>
+  <p>相关演示请参考 <a href="../demos/animation/" target="_blank" class="link">演示 - 动画</a>。</p>
+</blockquote>
 
-  <h3>Ajax</h3>
-  <p>Ajax 功能是通过 Request 组件实现的。</p>
-  <p>Request 组件用于对一个指定的资源发起请求，并获取响应数据。每个 Request 的实例都对应一个资源，实例创建后可以重复使用：</p>
+<h3>Ajax</h3>
+<p>Ajax 功能是通过 Request 组件实现的。</p>
+<p>Request 组件用于对一个指定的资源发起请求，并获取响应数据。每个 Request 的实例都对应一个资源，实例创建后可以重复使用：</p>
 <pre>
 var getUserinfo = new Request('path/to/userinfo', {
   method: 'post',
@@ -422,59 +535,75 @@ var getUserinfo = new Request('path/to/userinfo', {
 ...
 getUserinfo.send(userid);
 </pre>
-  <p>
-    从数据交互的角度看，一次请求有“成功”、“失败”、“超时”三种状态，因此大多数库中预置了这些类型的事件或回调。<br>
-    从应用的角度看，对一个资源的请求结果未必只有以上三种状态，响应状态码是 200 的情况未必代表“操作成功”。<br>
-    因此 Request 组件设计为每发送一个请求就必然会收到一个响应，发送请求后，无论何种情况（本次请求超时或被取消）均会触发 finish 事件。这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。<br>
-    在 finish 事件的监听器中可以根据传入的事件对象进行后续处理，或者使用 responseParser 进行预处理，必要时还可以根据情况添加自定义事件 success、failure、timeout 等。<br>
-    如果在本项目中与服务端的数据交互格式有明确的约定，那么可以将上述处理设置到 Request 组件的默认配置中，以实现本项目定制版的异步交互组件。
-  </p>
-  <blockquote>
-    <p>关于 Request 组件的详细信息，请参考 <a href="../demos/request/" target="_blank" class="link">演示：Ajax</a> 中的内容。</p>
-  </blockquote>
+<p>从数据交互的角度看，一次请求有“成功”、“失败”、“超时”三种状态，因此大多数库中都预置了这些类型的事件或回调。</p>
+<p>
+  从应用的角度看，对一个资源的请求结果未必只有以上三种状态，响应状态码是 200 的情况未必代表“操作成功”。<br>
+  因此 Request 组件设计为每发送一个请求就必然会收到一个响应，发送请求后，无论何种情况（本次请求超时或被取消）均会触发 finish 事件。这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
+</p>
+<p>在 finish 事件的监听器中可以根据传入的事件对象进行后续处理，或者使用 responseParser 进行预处理，必要时还可以根据情况添加自定义事件，如 success、failure、timeout 等。</p>
+<p>如果在当前项目中与服务端的数据交互格式有明确的约定，那么可以将通用的处理逻辑设置到 Request 组件的默认配置中，以实现为该项目定制的异步交互组件。</p>
+<blockquote>
+  <p>相关演示请参考 <a href="../demos/request/" target="_blank" class="link">演示 - Ajax</a>。</p>
+</blockquote>
 
-  <h3>状态切换</h3>
+<h3>切换器</h3>
+<p>Switcher 组件可提供切换的功能，即在一个数组中，确保同一时刻最多只有一个元素是“活动”的。</p>
+<p>简单举例如下：</p>
+<pre>
+var switcher = new Switcher([[0], [1], [2], [3]])
+    .on('activate', function(e) {
+      alert(e.inactiveItem + ' » ' + e.activeItem);
+    });
 
-  <h3>其他可选组件</h3>
-  <p>OurJS 还提供了其他一些常用组件，如 Switcher、TabPanel、Slideshow、Dialog、Paginator 等。</p>
+switcher.activate(2);
+// 弹出提示“null » 2”。
+switcher.activate(3);
+// 弹出提示“2 » 3”。
+switcher.activate(8);
+// 弹出提示“3 » null”。
+</pre>
+<p>这个功能在 WEB 前端的 UI 组件里经常会用到，因此 Switcher 通常都是在其他组件内被创建，并将其功能“组合”需要的地方。</p>
 
-  <blockquote>
-    <p>组件的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 右列的《组件》部分。</p>
-  </blockquote>
+<h3>其他可选组件</h3>
+<p>OurJS 提供的可选组件还有 Switcher、TabPanel、Slideshow、Dialog、Paginator 等。相关的演示请参考主菜单“UI 组件”下的内容。</p>
 
-  <h2>使用 execute 方法执行代码块</h2>
-  <p>通常，为了减少全局变量的数量和避免不同代码块之间的变量名有冲突，会使用一个匿名函数来执行一个相对独立的代码块：</p>
+<blockquote>
+  <p>组件的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 右列的《组件》部分。</p>
+</blockquote>
+
+<h2>使用 execute 方法执行代码块</h2>
+<p>通常，为了减少全局变量的数量和避免不同代码块之间的变量名有冲突，会使用一个匿名函数来执行一个相对独立的代码块：</p>
 <pre>
 (function() {
   var localVariable = 'localVariable';
   // 这个变量仅在本函数内有效。
 })();
 </pre>
-  <p>使用 execute 方法可以达到相同目的，除此之外还有以下好处：</p>
-  <p>函数 codeBlock 被调用时，将传入 document.$ 作为参数，因此可以通过在该函数的形参中写上一个 $，以便在函数内直接使用 $ 而不必担心与其他脚本库的 $ 冲突：</p>
+<p>使用 execute 方法可以达到相同目的，除此之外还有以下好处：</p>
+<p>函数 codeBlock 被调用时，将传入 document.$ 作为参数，因此可以通过在该函数的形参中写上一个 $，以便在函数内直接使用 $ 而不必担心与其他脚本库的 $ 冲突：</p>
 <pre>
 execute(function(<strong>$</strong>) {
   <strong>$</strong>('#container').addClass('selected');
   // 在包含代码块的匿名函数使用 $ 代替 document.$，以简化编码。
 });
 </pre>
-  <p>可选参数 waitingForDomReady 可以控制包含代码块的匿名函数的执行时机：</p>
+<p>可选参数 waitingForDomReady 可以控制包含代码块的匿名函数的执行时机：</p>
 <pre>
 execute(function(<strong>$</strong>) {
   <strong>$</strong>('&lt;span class="icon"&gt;&lt;/span&gt;').insertTo(<strong>$</strong>('#test'), 'top');
 }, <strong>true</strong>);
 // 包含代码块的匿名函数将在 DOM 树解析完成后执行。
 </pre>
-  <p>OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是 OurJS 的一个明显特点。</p>
+<p>OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是 OurJS 的一个明显特点。</p>
 
-  <h2>模块和应用</h2>
-  <p>“模块”和“应用”是面对复杂的项目时应该使用的策略。在 OurJS 中对它们的定义如下：</p>
-  <p>
-    “模块”即可分离的业务逻辑，将整个项目中相对独立的部分编写为一个模块以实现解耦。<br>
-    各模块之间相互不依赖，也不能通信。这种隔离的设计有利于各模块的独立开发和测试，同时也可以减少项目变更时某一部分代码的修改对其他部分造成的影响。
-  </p>
-  <p>“应用”是连接各“模块”的桥梁。“模块”只能与“应用”通信，反之亦然。可以同时存在多个“应用”，但需要注意在“应用”的代码中仅应处理各“模块”的信息，而不应该有其他业务逻辑。</p>
-  <p>关于“模块”和“应用”的例子，可以参考 ……</p>
+<h2>模块和应用</h2>
+<p>“模块”和“应用”是面对复杂的项目时应该使用的策略。在 OurJS 中对它们的定义如下：</p>
+<p>
+  “模块”即可分离的业务逻辑，将整个项目中相对独立的部分编写为一个模块以实现解耦。<br>
+  各模块之间相互不依赖，也不能通信。这种隔离的设计有利于各模块的独立开发和测试，同时也可以减少项目变更时某一部分代码的修改对其他部分造成的影响。
+</p>
+<p>“应用”是连接各“模块”的桥梁。“模块”只能与“应用”通信，反之亦然。可以同时存在多个“应用”，但需要注意在“应用”的代码中仅应处理各“模块”的信息，而不应该有其他业务逻辑。</p>
+<p>关于“模块”和“应用”的例子，可以参考主菜单“参考文档 - API 参考”页内的脚本。</p>
 
 </div>
 </body>

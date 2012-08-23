@@ -264,7 +264,7 @@ var manifest = {
     'Observable.prototype.fire'
   ],
   'Component': [
-    '#创建组件构造器',
+    '#组件构造器',
     'Component'
   ],
   'Animation': [

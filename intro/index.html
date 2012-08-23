@@ -114,7 +114,7 @@ execute(function($) {
   <h3 id="feature.1">功能完善 —— 提供的功能覆盖面广、细节完善，可以满足 WEB 开发中的绝大多数需求。</h3>
   <ul>
     <li>
-      <p>OurJS 通过扩展 JS 内置对象、浏览器内置对象、DOM 对象，提供可应用到任意对象的新特性，封装常用的功能组件，模块化管理代码等方式，提供了丰富的功能。</p>
+      <p>OurJS 通过<strong>扩展</strong> JS 内置对象、浏览器内置对象、DOM 对象，提供附加<strong>特性</strong>，封装功能<strong>组件</strong>，<strong>模块化</strong>管理代码等方式，提供了丰富的功能。</p>
     </li>
     <li>
       <p>每个功能都经过长期实践，其行为和细节更完善，其设计粒度更符合常见的应用场景。</p>
@@ -202,7 +202,7 @@ element.<strong>on</strong>('click', function(e) {...});
       <p>所有组件都具备更改配置和处理事件的能力。</p>
       <ul>
         <li>
-          <p>所有组件都可以通过修改构造器的 config 属性、创建实例时指定 config 参数或直接调用实例的 setConfig 方法来更改配置。</p>
+          <p>所有组件都可以通过修改其 config 属性、创建实例时指定 config 参数或直接调用实例的 setConfig 方法来更改配置。</p>
         </li>
         <li>
           <p>所有组件的实例都可以通过 on、off 和 fire 方法来处理事件。</p>
@@ -221,7 +221,7 @@ element.<strong>on</strong>('click', function(e) {...});
       <p class="comment">OurJS 并没有提供特别的方法来做这件事情，使用 JS 固有的方式，可以让代码更加简单易读。</p>
     </li>
     <li>
-      <p class="referral">OurJS 有组件构造器，要添加新的组件，使用组件构造器即可创建出和现有的组件具有相同特性的新组件。</p>
+      <p class="referral">OurJS 提供了组件构造器，要添加新的组件，使用组件构造器即可创建出和现有的组件具有相同特性的新组件。</p>
       <p class="comment">
         Component 提供的事件机制可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。<br>
         OurJS 没有提供“继承”机制，当一个组件依赖另一个时，可以使用更灵活的“组合”方式进行扩展（具体实施方式可以参考 TabPanel 和 Slideshow 的源码）。
