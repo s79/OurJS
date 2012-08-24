@@ -2,28 +2,24 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>event</title>
-<script src="../../dev.js"></script>
+<title>事件</title>
+<script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
 <style>
-fieldset { display: inline; float: left; width: 460px; height: 200px; margin-right: 8px; }
-button { padding: 3px 5px; overflow: visible; }
+fieldset { display: inline-block; width: 460px; margin: 0 5px 10px 0; *display: inline; }
+div.log { padding: 5px; background: khaki; border: 1px solid goldenrod; overflow: auto; line-height: 1.2; }
+blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
+cite,
+dfn,
+kbd,
+samp,
+var { float: left; display: block; width: 100px; height: 30px; margin: 5px; background: gainsboro; line-height: 30px; text-align: center; cursor: default; }
+
 .debug { float: right; width: 160px; height: 160px; margin: 0 5px; background: gold; overflow: auto; line-height: 1.2; }
 #scroll { float: left; width: 100px; height: 160px; background: #9acd32; font: bold 14px/160px Verdana; text-align: center; }
-#div { height: 150px; background: whitesmoke; }
 #mouse { height: 180px; background: crimson; }
-#div code,
-#div samp,
-#div kbd,
-#div var,
-#div span,
-#mouse code,
-#mouse samp,
-#mouse kbd,
-#mouse var,
-#mouse span { float: left; display: block; width: 100px; height: 30px; margin: 5px; background: #c0c0c0; line-height: 30px; text-align: center; cursor: default; }
 #div p,
-#mouse p { clear: both; height: 30px; margin: 5px; background: #8fbc8b; font: 12px/30px Verdana; text-align: center; cursor: default; }
+#mouse p { clear: both; height: 30px; margin: 5px; background: darkseagreen; font: 12px/30px Verdana; text-align: center; cursor: default; }
 #mouse div { height: 20px; background: #ffd711; line-height: 20px; cursor: default; }
 #container { position: relative; height: 150px; background: #f5f5f5; }
 #drag { position: absolute; left: 0; top: 0; width: 160px; height: 120px; padding: 3px; border: 2px solid lightsteelblue; background: lightsteelblue; cursor: default; }
@@ -34,6 +30,35 @@ button { padding: 3px 5px; overflow: visible; }
 <body>
 <div id="content">
   <h1>事件</h1>
+
+  <h2>事件传播</h2>
+  <!-- 事件传播 { -->
+  <fieldset>
+    <legend>点击以下各元素，事件传播</legend>
+    <div class="log"></div>
+    <div id="div" style="margin-top: 5px; border: 1px solid black; background: whitesmoke;">
+      <cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><samp>samp</samp><var>var</var>
+      <p id="p">p</p></div>
+    <blockquote>
+      <button id="button">取消以上P元素的冒泡</button>
+    </blockquote>
+  </fieldset>
+  <script>
+  execute(function($) {
+
+    $('#div').on('click', function(e) {
+      console.log('触发元素 > 捕获元素 = ' + e.target.nodeName + ' > ' + this.nodeName);
+    });
+
+    $('#button').on('click', function(event) {
+      $('#p').on('click', function(event) {
+        event.stopPropagation();
+//    return false;
+      });
+    });
+  });
+  </script>
+  <!-- } 事件传播 -->
 
   <h2>Event</h2>
   <!-- 多监听器添加及删除 -->
@@ -98,12 +123,6 @@ button { padding: 3px 5px; overflow: visible; }
     <div id="scroll">鼠标滚动</div>
     <div id="d21" class="debug"></div>
     <div id="d22" class="debug"></div>
-  </fieldset>
-  <!-- 事件传播 -->
-  <fieldset>
-    <legend>事件传播</legend>
-    <div id="div"><code>code</code><samp>samp</samp><kbd>kbd</kbd><var>var</var><span>span</span><p id="p">p</p></div>
-    <button id="button">取消以上P元素的冒泡</button>
   </fieldset>
   <!-- 拖动事件 { -->
   <fieldset>
@@ -190,7 +209,8 @@ button { padding: 3px 5px; overflow: visible; }
       <div id="d51"></div>
       <div id="d52"></div>
       <div id="d53"></div>
-      <code>code</code><samp>samp</samp><kbd>kbd</kbd><var id="var">var</var><span>span</span><p id="inner">p</p></div>
+      <cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><samp>samp</samp><var>var</var>
+      <p id="inner">p</p></div>
   </fieldset>
 
   <script>
@@ -206,7 +226,7 @@ button { padding: 3px 5px; overflow: visible; }
   }
 
   function onClick2() {
-    $d1.innerHTML += this.tagName + '<br>';
+    $d1.innerHTML += this.nodeName + '<br>';
   }
 
   function onClick3() {
@@ -303,18 +323,6 @@ button { padding: 3px 5px; overflow: visible; }
       })
       .off('mousedown.two, mousedown.three');
 
-  //--------------------------------------------------[事件传播]
-  $('#div').on('click', function(event) {
-    console.log('触发元素 > 捕获元素 = ' + event.target.tagName + ' > ' + this.tagName);
-  });
-
-  $('#button').on('click', function(event) {
-    $('#p').on('click', function(event) {
-      event.stopPropagation();
-//    return false;
-    });
-  });
-
   //--------------------------------------------------[鼠标进入、离开]
   var $d51 = $('#d51');
   var $mouse = $('#mouse');
@@ -337,12 +345,12 @@ button { padding: 3px 5px; overflow: visible; }
   }
 
   function enter(event) {
-    showMessage($(this.tagName === 'DIV' ? '#d52' : '#d53'), '|Enter:' + this.tagName);
+    showMessage($(this.nodeName === 'DIV' ? '#d52' : '#d53'), '|Enter:' + this.nodeName);
     console.log(event.type);
   }
 
   function leave(event) {
-    showMessage($(this.tagName === 'DIV' ? '#d52' : '#d53'), '|Leave:' + this.tagName);
+    showMessage($(this.nodeName === 'DIV' ? '#d52' : '#d53'), '|Leave:' + this.nodeName);
     console.log(event.type);
   }
 
@@ -381,13 +389,13 @@ button { padding: 3px 5px; overflow: visible; }
 
   /*
    document.on('focusin focusout', function(event) {
-   console.log(event, event.type, event.target.outerHTML, this.tagName);
+   console.log(event, event.type, event.target.outerHTML, this.nodeName);
    }, function() {
-   return this.tagName === 'FIELDSET' && !this.id;
+   return this.nodeName === 'FIELDSET' && !this.id;
    });
    */
   //jQuery(document).delegate('fieldset', 'focusin', function(event) {
-  //  console.log(event.type, event.target.outerHTML, this.tagName);
+  //  console.log(event.type, event.target.outerHTML, this.nodeName);
   //});
 
   $b1.getParent()

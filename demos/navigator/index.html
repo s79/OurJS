@@ -2,40 +2,27 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>navigator</title>
+<title>浏览器信息</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
 <style>
-fieldset { clear: both; }
-col { width: 100px; }
-col.name { width: 200px; }
-pre { clear: both; }
+td { padding: 2px 10px; }
+td.key { text-align: right; }
 </style>
 </head>
 <body>
 <div id="content">
   <h1>浏览器信息</h1>
 
-  <h2>navigator</h2>
+  <h2>在 navigator 上扩展的属性</h2>
   <fieldset>
-    <legend>navigator.*</legend>
+    <legend>navigator.* 是根据浏览器特性判断得到的结果。</legend>
     <table>
-      <colgroup>
-        <col class="name">
-        <col class="value">
-      </colgroup>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-      <tbody id="list">
-      </tbody>
+      <tbody id="list"></tbody>
     </table>
   </fieldset>
   <fieldset>
-    <legend>navigator.userAgent & navigator.userAgentInfo.*</legend>
+    <legend>navigator.userAgentInfo.* 是从 UA 中得到的结果。</legend>
     <pre id="ua_info"></pre>
   </fieldset>
   <script>
@@ -48,6 +35,7 @@ pre { clear: both; }
       var value = navigator[key];
       $tr = $table.insertRow(-1);
       $td = $tr.insertCell(-1);
+      $td.className = 'key';
       $td.innerHTML = key;
       $td = $tr.insertCell(-1);
       $td.innerHTML = value;
@@ -58,20 +46,6 @@ pre { clear: both; }
 
     // navigator.userAgent 和 navigator.userAgentInfo.* 预览。
     $('#ua_info').innerHTML = navigator.userAgent + '<br>' + JSON.stringify(navigator.userAgentInfo);
-
-  });
-  </script>
-
-  <h2>location.parameters</h2>
-  <fieldset>
-    <legend>location.parameters</legend>
-    <p><a href="?a=1&b=2&b=3&b=4&c=5" title="a=1&b=2&b=3&b=4&c=5">点击此处为本页添加查询字符</a></p>
-    <p id="parameters"></p>
-  </fieldset>
-  <script>
-  execute(function($) {
-    // location.parameters 预览。
-    $('#parameters').innerHTML = JSON.stringify(location.parameters);
 
   });
   </script>

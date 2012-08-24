@@ -22,7 +22,7 @@ execute(function($) {
           url: '/OurJS/demos/storage/'
         },
         {
-          text: 'DOM',
+          text: 'DOM 操作',
           url: '/OurJS/demos/dom/'
         },
         {
