@@ -477,8 +477,7 @@
    * @name cookie
    * @namespace
    */
-  var cookie = {};
-  window.cookie = cookie;
+  var cookie = window.cookie = {};
 
 //--------------------------------------------------[cookie.getItem]
   /**
@@ -504,7 +503,7 @@
    * @param {string} options.path 限定生效的路径，默认为当前路径。
    * @param {string} options.domain 限定生效的域名，默认为当前域名。
    * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
-   * @param {Date} options.expires 过期时间。
+   * @param {string|Date} options.expires 过期时间，如果是字符串类型，其格式应符合 Date.from 方法 string 参数的要求，转换格式为 'YYYY-MM-DD hh:mm:ss'。
    */
   cookie.setItem = function(key, value, options) {
     options = options || {};
@@ -519,7 +518,7 @@
       item += '; secure';
     }
     if (options.expires) {
-      item += '; expires=' + options.expires.toUTCString();
+      item += '; expires=' + (typeof options.expires === 'string' ? Date.from(options.expires, 'YYYY-MM-DD hh:mm:ss') : options.expires).toUTCString();
     }
     document.cookie = item;
   };
@@ -573,30 +572,22 @@
    *   当上述路径不存在时 (404)，服务端应避免返回包含脚本的页面，以免出现预料外的异常。
    *   若出现了异常，且无法控制服务端的 404 页面时，可以在本段脚本执行之前定义一个全局变量 userDataPath 并为其指定一个本域内确定存在的路径。
    */
-  var localStorage = {};
-  window.localStorage = localStorage;
+  var localStorage = window.localStorage = {};
 
-  // 用来保存 userData 的元素。
-  var userDataElement;
   // 指定一个固定的 userData 存储文件名。
-  var USER_DATA_FILE_NAME = 'localStorage';
-  // 尝试使用跨路径的 userData 访问。
-  try {
-    // 使用同步方式在当前域的指定存储路径创建一个文档，以确保对 userData 操作的代码能够同步执行。
-    var hiddenDocument = new ActiveXObject('htmlfile');
-    hiddenDocument.open();
-    hiddenDocument.write('<iframe id="frame" src="' + (window.userDataPath || '/favicon.ico') + '"></iframe>');
-    hiddenDocument.close();
-    // IE6 IE7 IE8 允许在 document 上插入元素。
-    var userDataOwnerDocument = hiddenDocument.getElementById('frame').contentWindow.document;
-    userDataElement = userDataOwnerDocument.createElement('var');
-    userDataOwnerDocument.appendChild(userDataElement);
-  } catch (e) {
-    // 若创建失败，则仅实现不能跨路径的 userData 访问。
-    userDataElement = document.documentElement;
-  }
-  // 添加行为。
-  userDataElement.addBehavior('#default#userData');
+  var STORE_NAME = 'localStorage';
+
+  // 在当前域的根路径创建一个文档，并在此文档中创建用来保存 userData 的元素。IE6 IE7 IE8 允许在 document 上插入元素，可以确保代码的同步执行。
+  var storeElement;
+  var getStoreElement = function() {
+    if (!storeElement) {
+      var storeDocument = document.appendChild(document.createElement('<iframe src="/favicon.ico" style="display: none;"></iframe>')).contentWindow.document;
+      storeElement = storeDocument.createElement('var');
+      storeDocument.appendChild(storeElement);
+      storeElement.addBehavior('#default#userData');
+    }
+    return storeElement;
+  };
 
 //--------------------------------------------------[localStorage.getItem]
   /**
@@ -607,8 +598,9 @@
    * @returns {string} 数据值。
    */
   localStorage.getItem = function(key) {
-    userDataElement.load(USER_DATA_FILE_NAME);
-    return userDataElement.getAttribute(key);
+    var store = getStoreElement();
+    store.load(STORE_NAME);
+    return store.getAttribute(key);
   };
 
 //--------------------------------------------------[localStorage.setItem]
@@ -624,9 +616,10 @@
    *   可以使用中文 key。
    */
   localStorage.setItem = function(key, value) {
-    userDataElement.load(USER_DATA_FILE_NAME);
-    userDataElement.setAttribute(key, value);
-    userDataElement.save(USER_DATA_FILE_NAME);
+    var store = getStoreElement();
+    store.load(STORE_NAME);
+    store.setAttribute(key, value);
+    store.save(STORE_NAME);
   };
 
 //--------------------------------------------------[localStorage.removeItem]
@@ -637,9 +630,10 @@
    * @param {string} key 数据名。
    */
   localStorage.removeItem = function(key) {
-    userDataElement.load(USER_DATA_FILE_NAME);
-    userDataElement.removeAttribute(key);
-    userDataElement.save(USER_DATA_FILE_NAME);
+    var store = getStoreElement();
+    store.load(STORE_NAME);
+    store.removeAttribute(key);
+    store.save(STORE_NAME);
   };
 
 //--------------------------------------------------[localStorage.clear]
@@ -649,14 +643,13 @@
    * @function
    */
   localStorage.clear = function() {
-    var attributes = userDataElement.XMLDocument.documentElement.attributes;
-    userDataElement.load(USER_DATA_FILE_NAME);
-    var index = 0;
-    var attribute;
-    while (attribute = attributes[index++]) {
-      userDataElement.removeAttribute(attribute.name);
-    }
-    userDataElement.save(USER_DATA_FILE_NAME);
+    var store = getStoreElement();
+    var attributes = Array.from(store.XMLDocument.documentElement.attributes);
+    store.load(STORE_NAME);
+    attributes.forEach(function(attribute) {
+      store.removeAttribute(attribute.name);
+    });
+    store.save(STORE_NAME);
   };
 
 })();

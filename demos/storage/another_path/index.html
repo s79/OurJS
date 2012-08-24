@@ -4,24 +4,23 @@
 <meta charset="utf-8">
 <title>localStorage</title>
 <link rel="stylesheet" href="../../../stylesheets/common.css">
-<script>var userDataPath = '../user_data.html';</script>
 <script src="../../../our.js"></script>
 <style>
-body { padding: 10px; background: whitesmoke; }
+body { padding: 10px; background: #FFFFE1; }
 h1 { margin-bottom: 10px; background: gold; font: bold 14px "Microsoft Yahei"; text-align: center; }
-table th { width: 50px; text-align: left; }
-table td { text-align: right; }
-input { width: 100px; padding: 2px; border: 1px solid #c0c0c0; line-height: 1; }
-button { font-size: 12px; }
 fieldset { display: inline-block; width: 200px; margin: 5px; }
+table th { width: 50px; text-align: left; }
+input { width: 100px; padding: 2px; border: 1px solid silver; line-height: 1; }
+blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; text-align: center; }
+button { font-size: 12px; }
 </style>
 </head>
 <body>
-<!-- localStorage { -->
 <div>
+  <!-- localStorage { -->
   <h1>这是另一个路径下的页面（IE6 IE7 可跨路径）</h1>
   <fieldset>
-    <legend>setItem</legend>
+    <legend>localStorage.setItem</legend>
     <form id="form_local_storage_set">
       <table>
         <tbody>
@@ -33,17 +32,15 @@ fieldset { display: inline-block; width: 200px; margin: 5px; }
             <th>value:</th>
             <td><input name="value" type="text" value=""></td>
           </tr>
-          <tr>
-            <td colspan="2">
-              <button id="local_storage_set" type="button">localStorage.setItem</button>
-            </td>
-          </tr>
         </tbody>
       </table>
     </form>
+    <blockquote>
+      <button id="local_storage_set" type="button">setItem</button>
+    </blockquote>
   </fieldset>
   <fieldset>
-    <legend>getItem</legend>
+    <legend>localStorage.getItem</legend>
     <form id="form_local_storage_get">
       <table>
         <tbody>
@@ -55,46 +52,32 @@ fieldset { display: inline-block; width: 200px; margin: 5px; }
             <th>value:</th>
             <td><input name="value" type="text" value="" disabled></td>
           </tr>
-          <tr>
-            <td colspan="2">
-              <button id="local_storage_get" type="button">localStorage.getItem</button>
-            </td>
-          </tr>
         </tbody>
       </table>
     </form>
+    <blockquote>
+      <button id="local_storage_get" type="button">getItem</button>
+    </blockquote>
   </fieldset>
   <fieldset>
-    <legend>removeItem</legend>
+    <legend>localStorage.removeItem</legend>
     <form id="form_local_storage_remove">
       <table>
-        <tbody>
-          <tr>
-            <th>key:</th>
-            <td><input name="key" type="text" value=""></td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <button id="local_storage_remove" type="button">localStorage.removeItem</button>
-            </td>
-          </tr>
-        </tbody>
+        <tr>
+          <th>key:</th>
+          <td><input name="key" type="text" value=""></td>
+        </tr>
       </table>
     </form>
+    <blockquote>
+      <button id="local_storage_remove" type="button">removeItem</button>
+    </blockquote>
   </fieldset>
   <fieldset>
-    <legend>clear</legend>
-    <form id="form_local_storage_clear">
-      <table>
-        <tbody>
-          <tr>
-            <td>
-              <button id="local_storage_clear" type="button">localStorage.clear</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
+    <legend>localStorage.clear</legend>
+    <blockquote>
+      <button id="local_storage_clear" type="button">clear</button>
+    </blockquote>
   </fieldset>
   <script>
   execute(function($) {
@@ -117,9 +100,10 @@ fieldset { display: inline-block; width: 200px; margin: 5px; }
     $('#local_storage_clear').on('click', function() {
       localStorage.clear();
     });
+
   });
   </script>
+  <!-- } localStorage -->
 </div>
-<!-- } localStorage -->
 </body>
 </html>

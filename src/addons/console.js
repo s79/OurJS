@@ -48,7 +48,7 @@
     $input.value = '';
     historyIndex = history.push(code);
     log('>> ' + code);
-    scriptContainer.innerHTML = '#<script defer>try { window.__result__ = eval("' + code + '"); } catch(e) { window.__result__ = "Error: " + e.message; }</script>';
+    scriptContainer.innerHTML = '#<script defer>try { window.__result__ = eval("' + code.replace(/(['"\\])/g, '\\$1') + '"); } catch(e) { window.__result__ = "Error: " + e.message; }</script>';
     var result = window.__result__;
     // 以下写法 IE6 会有作用域问题。
     /*

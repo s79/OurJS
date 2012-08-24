@@ -1,6 +1,9 @@
 ﻿>TODO 动画支持复合属性。
 >Validator 可指定强制验证的 fieldName
 
+>2012-08-24
+简化 localStorage 的实现。
+
 >2012-08-23
 修改文档，明确“组件”一词的含义。
 为 IE6 IE7 的 localStorage 提供可配置的存储路径。

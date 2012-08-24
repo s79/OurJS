@@ -3,17 +3,15 @@
 <head>
 <meta charset="utf-8">
 <title>cookie & localStorage</title>
-<script>var userDataPath = 'user_data.html';</script>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
 <style>
-h2 { margin: 50px 0 20px; }
-textarea { width: 600px; height: 100px; background: #f5f5f5; border: 1px solid #c0c0c0; resize: none; }
-table th { width: 50px; text-align: left; }
-table td { text-align: right; }
-input { width: 100px; padding: 2px; border: 1px solid #c0c0c0; line-height: 1; }
-button { font-size: 12px; }
 fieldset { display: inline-block; width: 200px; margin: 5px; }
+textarea { width: 900px; height: 100px; background: whitesmoke; border: 1px solid silver; resize: none; }
+table th { width: 50px; text-align: left; }
+input { width: 100px; padding: 2px; border: 1px solid silver; line-height: 1; }
+blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; text-align: center; }
+button { font-size: 12px; }
 iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
 </style>
 </head>
@@ -28,45 +26,41 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
     <textarea id="cookie_value" readonly></textarea>
   </fieldset>
   <fieldset>
-    <legend>setItem</legend>
+    <legend>cookie.setItem</legend>
     <form id="form_cookie_set">
       <table>
-        <tbody>
-          <tr>
-            <th>name:</th>
-            <td><input name="name" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>value:</th>
-            <td><input name="value" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>path:</th>
-            <td><input name="path" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>domain:</th>
-            <td><input name="domain" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>secure:</th>
-            <td><input name="secure" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>days:</th>
-            <td><input name="days" type="text" value="" title="输入数字（天数），将自动转换为 expires。"></td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <button id="cookie_set" type="button">cookie.setItem</button>
-            </td>
-          </tr>
-        </tbody>
+        <tr>
+          <th>name:</th>
+          <td><input name="name" type="text" value=""></td>
+        </tr>
+        <tr>
+          <th>value:</th>
+          <td><input name="value" type="text" value=""></td>
+        </tr>
+        <tr>
+          <th>path:</th>
+          <td><input name="path" type="text" value=""></td>
+        </tr>
+        <tr>
+          <th>domain:</th>
+          <td><input name="domain" type="text" value=""></td>
+        </tr>
+        <tr>
+          <th>secure:</th>
+          <td><input name="secure" type="text" value=""></td>
+        </tr>
+        <tr>
+          <th>expires:</th>
+          <td><input name="expires" type="text" value="" title="YYYY-MM-DD hh:mm:ss (本地时间)"></td>
+        </tr>
       </table>
     </form>
+    <blockquote>
+      <button id="cookie_set" type="button">setItem</button>
+    </blockquote>
   </fieldset>
   <fieldset>
-    <legend>getItem</legend>
+    <legend>cookie.getItem</legend>
     <form id="form_cookie_get">
       <table>
         <tbody>
@@ -78,17 +72,15 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
             <th>value:</th>
             <td><input name="value" type="text" value="" disabled></td>
           </tr>
-          <tr>
-            <td colspan="2">
-              <button id="cookie_get" type="button">cookie.getItem</button>
-            </td>
-          </tr>
         </tbody>
       </table>
     </form>
+    <blockquote>
+      <button id="cookie_get" type="button">getItem</button>
+    </blockquote>
   </fieldset>
   <fieldset>
-    <legend>removeItem</legend>
+    <legend>cookie.removeItem</legend>
     <form id="form_cookie_remove">
       <table>
         <tbody>
@@ -108,14 +100,12 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
             <th>secure:</th>
             <td><input name="secure" type="text" value=""></td>
           </tr>
-          <tr>
-            <td colspan="2">
-              <button id="cookie_remove" type="button">cookie.removeItem</button>
-            </td>
-          </tr>
         </tbody>
       </table>
     </form>
+    <blockquote>
+      <button id="cookie_remove" type="button">removeItem</button>
+    </blockquote>
   </fieldset>
   <script>
   execute(function($) {
@@ -125,8 +115,7 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
 
     $('#cookie_set').on('click', function() {
       var $form = $('#form_cookie_set');
-      var expires = $form.days.value ? new Date(Date.now() + Number.toInteger($form.days.value) * 86400000) : null;
-      cookie.setItem($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: expires});
+      cookie.setItem($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: $form.expires.value});
       showAllCookies();
     });
 
@@ -152,7 +141,7 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
   <!-- localStorage { -->
   <h2>localStorage</h2>
   <fieldset>
-    <legend>setItem</legend>
+    <legend>localStorage.setItem</legend>
     <form id="form_local_storage_set">
       <table>
         <tbody>
@@ -164,17 +153,15 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
             <th>value:</th>
             <td><input name="value" type="text" value=""></td>
           </tr>
-          <tr>
-            <td colspan="2">
-              <button id="local_storage_set" type="button">localStorage.setItem</button>
-            </td>
-          </tr>
         </tbody>
       </table>
     </form>
+    <blockquote>
+      <button id="local_storage_set" type="button">setItem</button>
+    </blockquote>
   </fieldset>
   <fieldset>
-    <legend>getItem</legend>
+    <legend>localStorage.getItem</legend>
     <form id="form_local_storage_get">
       <table>
         <tbody>
@@ -186,46 +173,32 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
             <th>value:</th>
             <td><input name="value" type="text" value="" disabled></td>
           </tr>
-          <tr>
-            <td colspan="2">
-              <button id="local_storage_get" type="button">localStorage.getItem</button>
-            </td>
-          </tr>
         </tbody>
       </table>
     </form>
+    <blockquote>
+      <button id="local_storage_get" type="button">getItem</button>
+    </blockquote>
   </fieldset>
   <fieldset>
-    <legend>removeItem</legend>
+    <legend>localStorage.removeItem</legend>
     <form id="form_local_storage_remove">
       <table>
-        <tbody>
-          <tr>
-            <th>key:</th>
-            <td><input name="key" type="text" value=""></td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <button id="local_storage_remove" type="button">localStorage.removeItem</button>
-            </td>
-          </tr>
-        </tbody>
+        <tr>
+          <th>key:</th>
+          <td><input name="key" type="text" value=""></td>
+        </tr>
       </table>
     </form>
+    <blockquote>
+      <button id="local_storage_remove" type="button">removeItem</button>
+    </blockquote>
   </fieldset>
   <fieldset>
-    <legend>clear</legend>
-    <form id="form_local_storage_clear">
-      <table>
-        <tbody>
-          <tr>
-            <td>
-              <button id="local_storage_clear" type="button">localStorage.clear</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
+    <legend>localStorage.clear</legend>
+    <blockquote>
+      <button id="local_storage_clear" type="button">clear</button>
+    </blockquote>
   </fieldset>
   <script>
   execute(function($) {
@@ -251,7 +224,7 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
 
   });
   </script>
-  <iframe src="another_path/" width="500" height="300" frameborder="0"></iframe>
+  <iframe src="another_path/" width="500" height="300" frameborder="no" scrolling="no"></iframe>
   <!-- } localStorage -->
 
 </div>
