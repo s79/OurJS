@@ -2234,12 +2234,12 @@
    *
    * 扩展方法：
    *   document.$
-   *   document.on
-   *   document.off
-   *   document.fire
    *   document.addStyleRules
    *   document.loadScript
    *   document.preloadImages
+   *   document.on
+   *   document.off
+   *   document.fire
    */
 
   /**
@@ -2318,6 +2318,79 @@
         break;
     }
     return $(element);
+  };
+
+//--------------------------------------------------[document.addStyleRules]
+  /**
+   * 添加样式规则。
+   * @name document.addStyleRules
+   * @function
+   * @param {Array} rules 包含样式规则的数组，其中每一项为一条规则。
+   */
+  document.addStyleRules = function(rules) {
+    var styleSheets = document.styleSheets;
+    if (styleSheets.length === 0) {
+      document.head.appendChild(document.createElement('style'));
+    }
+    var styleSheet = styleSheets[styleSheets.length - 1];
+    rules.forEach(function(rule) {
+      if (styleSheet.insertRule) {
+        styleSheet.insertRule(rule, styleSheet.cssRules.length);
+      } else {
+        var lBraceIndex = rule.indexOf('{');
+        var rBraceIndex = rule.indexOf('}');
+        var selectors = rule.slice(0, lBraceIndex);
+        var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
+        selectors.split(separator).forEach(function(selector) {
+          styleSheet.addRule(selector, declarations);
+        });
+      }
+    });
+  };
+
+//--------------------------------------------------[document.loadScript]
+  /**
+   * 加载脚本。
+   * @name document.loadScript
+   * @function
+   * @param {string} url 脚本文件的路径。
+   * @param {Object} [options] 可选参数。
+   * @param {string} options.charset 脚本文件的字符集。
+   * @param {Function} options.onLoad 加载完毕后的回调。
+   *   该函数被调用时 this 的值为加载本脚本时创建的 script 元素。
+   */
+  document.loadScript = function(url, options) {
+    options = options || {};
+    var head = document.head;
+    var script = document.createElement('script');
+    if (options.charset) {
+      script.charset = options.charset;
+    }
+    script.src = url;
+    script.onload = script.onreadystatechange = function() {
+      if (!this.readyState || this.readyState === 'loaded' || this.readyState === 'complete') {
+        this.onload = this.onreadystatechange = null;
+        head.removeChild(script);
+        if (options.onLoad) {
+          options.onLoad.call(this);
+        }
+      }
+    };
+    // http://bugs.jquery.com/ticket/2709
+    head.insertBefore(script, head.firstChild);
+  };
+
+//--------------------------------------------------[document.preloadImages]
+  /**
+   * 预加载图片。
+   * @name document.preloadImages
+   * @function
+   * @param {Array} urlArray 包含需预加载的图片路径的数组。
+   */
+  document.preloadImages = function(urlArray) {
+    urlArray.forEach(function(url) {
+      new Image().src = url;
+    });
   };
 
 //--------------------------------------------------[document.on]
@@ -2443,89 +2516,16 @@
    */
   document.fire = Element.prototype.fire;
 
-//--------------------------------------------------[document.addStyleRules]
-  /**
-   * 添加样式规则。
-   * @name document.addStyleRules
-   * @function
-   * @param {Array} rules 包含样式规则的数组，其中每一项为一条规则。
-   */
-  document.addStyleRules = function(rules) {
-    var styleSheets = document.styleSheets;
-    if (styleSheets.length === 0) {
-      document.head.appendChild(document.createElement('style'));
-    }
-    var styleSheet = styleSheets[styleSheets.length - 1];
-    rules.forEach(function(rule) {
-      if (styleSheet.insertRule) {
-        styleSheet.insertRule(rule, styleSheet.cssRules.length);
-      } else {
-        var lBraceIndex = rule.indexOf('{');
-        var rBraceIndex = rule.indexOf('}');
-        var selectors = rule.slice(0, lBraceIndex);
-        var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
-        selectors.split(separator).forEach(function(selector) {
-          styleSheet.addRule(selector, declarations);
-        });
-      }
-    });
-  };
-
-//--------------------------------------------------[document.loadScript]
-  /**
-   * 加载脚本。
-   * @name document.loadScript
-   * @function
-   * @param {string} url 脚本文件的路径。
-   * @param {Object} [options] 可选参数。
-   * @param {string} options.charset 脚本文件的字符集。
-   * @param {Function} options.onLoad 加载完毕后的回调。
-   *   该函数被调用时 this 的值为加载本脚本时创建的 script 元素。
-   */
-  document.loadScript = function(url, options) {
-    options = options || {};
-    var head = document.head;
-    var script = document.createElement('script');
-    if (options.charset) {
-      script.charset = options.charset;
-    }
-    script.src = url;
-    script.onload = script.onreadystatechange = function() {
-      if (!this.readyState || this.readyState === 'loaded' || this.readyState === 'complete') {
-        this.onload = this.onreadystatechange = null;
-        head.removeChild(script);
-        if (options.onLoad) {
-          options.onLoad.call(this);
-        }
-      }
-    };
-    // http://bugs.jquery.com/ticket/2709
-    head.insertBefore(script, head.firstChild);
-  };
-
-//--------------------------------------------------[document.preloadImages]
-  /**
-   * 预加载图片。
-   * @name document.preloadImages
-   * @function
-   * @param {Array} urlArray 包含需预加载的图片路径的数组。
-   */
-  document.preloadImages = function(urlArray) {
-    urlArray.forEach(function(url) {
-      new Image().src = url;
-    });
-  };
-
 //==================================================[window 扩展]
   /*
    * 为 window 扩展新特性，除与视口相关的方法外，还提供与 Element 类似的事件机制。
    * 前三个是与视口相关的方法，在 document.body 解析后方可用。
    *
    * 扩展方法：
+   *   window.$
    *   window.getClientSize
    *   window.getScrollSize
    *   window.getPageOffset
-   *   window.$
    *   window.on
    *   window.off
    *   window.fire
@@ -2538,6 +2538,15 @@
    */
 
   window.uid = 'window';
+
+//--------------------------------------------------[window.$]
+  /*
+   * 将全局作用域的 $ 作为 document.$ 的别名，以便于书写代码。
+   * @name window.$
+   * @function
+   */
+  // 移除 window.$，推荐使用 execute 方法封装代码块，并使用其参数中的 $ 来代替 window.$ 的便利性。
+  // window.$ = document.$;
 
 //--------------------------------------------------[window.getClientSize]
   /**
@@ -2591,15 +2600,6 @@
       y: html.scrollTop || body.scrollTop
     };
   };
-
-//--------------------------------------------------[window.$]
-  /*
-   * 将全局作用域的 $ 作为 document.$ 的别名，以便于书写代码。
-   * @name window.$
-   * @function
-   */
-  // 移除 window.$，推荐使用 execute 方法封装代码块，并使用其参数中的 $ 来代替 window.$ 的便利性。
-  // window.$ = document.$;
 
 //--------------------------------------------------[window.on]
   /**

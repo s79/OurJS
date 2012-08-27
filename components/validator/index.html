@@ -5,8 +5,8 @@
 <title>Validator</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../scripts/log.js"></script>
 <script src="../../src/components/validator.js"></script>
+<script src="../../src/addons/logger.js"></script>
 <style>
   /* 表单 */
 form { position: relative; }
@@ -54,7 +54,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
   <fieldset>
     <legend>表单验证器</legend>
     <form id="form" method="get" action="/">
-      <div id="log"></div>
+      <div id="logger"></div>
       <table id="form_table">
         <colgroup>
           <col class="key">
@@ -155,9 +155,9 @@ dl.strong .strong { color: #333; font-weight: bold; }
           <tr>
             <th>喜欢的颜色：</th>
             <td>
-              <input name="colors" value="红色" type="checkbox">红色
-              <input name="colors" value="绿色" type="checkbox">绿色
-              <input name="colors" value="蓝色" type="checkbox">蓝色
+              <label><input name="colors" value="红色" type="checkbox">红色</label>
+              <label><input name="colors" value="绿色" type="checkbox">绿色</label>
+              <label><input name="colors" value="蓝色" type="checkbox">蓝色</label>
             </td>
             <td>
               <p class="valid">√</p>
@@ -167,12 +167,12 @@ dl.strong .strong { color: #333; font-weight: bold; }
           <tr>
             <th>喜欢的数字：</th>
             <td>
-              <input name="numbers" value="一" type="radio" checked disabled>一
-              <input name="numbers" value="二" type="radio">二
-              <input name="numbers" value="三" type="radio">三<br>
-              <input name="numbers" value="四" type="checkbox" checked disabled>四
-              <input name="numbers" value="五" type="checkbox">五
-              <input name="numbers" value="六" type="checkbox">六<br>
+              <label><input name="numbers" value="一" type="radio" checked disabled>一</label>
+              <label><input name="numbers" value="二" type="radio">二</label>
+              <label><input name="numbers" value="三" type="radio">三</label><br>
+              <label><input name="numbers" value="四" type="checkbox" checked disabled>四</label>
+              <label><input name="numbers" value="五" type="checkbox">五</label>
+              <label><input name="numbers" value="六" type="checkbox">六</label><br>
               <select name="numbers" disabled>
                 <option value="">这里也能选</option>
                 <option value="七" selected>七</option>
@@ -209,7 +209,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
   <script>
   execute(function($) {
 //--------------------------------------------------[输出日志]
-    var logger = new Logger($('#log').setStyles({float: 'right', width: 345, height: $('#form_table').offsetHeight}));
+    var logger = new Logger($('#logger').setStyles({float: 'right', width: 343, height: $('#form_table').offsetHeight - 2}), true);
 
 //--------------------------------------------------[密码强度检测]
     var repeatedCharactersPattern = /(.)\1+/g;
@@ -277,7 +277,11 @@ dl.strong .strong { color: #333; font-weight: bold; }
     var getMessageBox = function(name) {
       var control = $form.elements[name];
       control = control.nodeType ? control : control[0];
-      return control.getParent().getNextSibling();
+      var $parent = control;
+      while ($parent && $parent.nodeName !== 'TD') {
+        $parent = $parent.getParent();
+      }
+      return $parent.getNextSibling();
     };
 
     var validator = new Validator($form, {

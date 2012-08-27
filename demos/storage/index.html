@@ -5,9 +5,9 @@
 <title>存储</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
+<script src="../../src/addons/logger.js"></script>
 <style>
 fieldset { display: inline-block; width: 200px; margin: 5px; }
-textarea { width: 900px; height: 100px; background: whitesmoke; border: 1px solid silver; resize: none; }
 table th { width: 50px; text-align: left; }
 input { width: 100px; padding: 2px; border: 1px solid silver; line-height: 1; }
 blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; text-align: center; }
@@ -21,8 +21,8 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
   <!-- cookie { -->
   <h2>对 cookie 的操作</h2>
   <fieldset style="display: block; width: auto;">
-    <legend>当前可见的 cookie 列表。</legend>
-    <textarea id="cookie_value" readonly></textarea>
+    <legend>当前可见的 cookie</legend>
+    <div id="cookie_logger" style="width: 936px; min-height: 100px;"></div>
   </fieldset>
   <fieldset>
     <legend>cookie.setItem</legend>
@@ -108,8 +108,14 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
   </fieldset>
   <script>
   execute(function($) {
+    var cookieLogger = new Logger($('#cookie_logger'));
+
     function showAllCookies() {
-      $('#cookie_value').value = document.cookie;
+      cookieLogger.clear();
+      document.cookie.split(/\s*;\s*/).forEach(function(item) {
+        var seperatorIndex = item.indexOf('=');
+        cookieLogger.log('<em>' + item.slice(0, seperatorIndex) + '</em>' + item.slice(seperatorIndex + 1));
+      });
     }
 
     $('#cookie_set').on('click', function() {

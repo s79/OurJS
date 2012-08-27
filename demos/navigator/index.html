@@ -5,9 +5,8 @@
 <title>浏览器信息</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
+<script src="../../src/addons/logger.js"></script>
 <style>
-td { padding: 2px 10px; }
-td.key { text-align: right; }
 </style>
 </head>
 <body>
@@ -16,36 +15,26 @@ td.key { text-align: right; }
 
   <h2>在 navigator 上扩展的属性</h2>
   <fieldset>
-    <legend>navigator.* 是根据浏览器特性判断得到的结果。</legend>
-    <table>
-      <tbody id="list"></tbody>
-    </table>
+    <legend>navigator.* 是根据浏览器特性判断得到的结果</legend>
+    <div id="navigator"></div>
   </fieldset>
   <fieldset>
-    <legend>navigator.userAgentInfo.* 是从 UA 中得到的结果。</legend>
-    <pre id="ua_info"></pre>
+    <legend>navigator.userAgentInfo.* 是从 UA 中得到的结果</legend>
+    <div id="ua_info"></div>
   </fieldset>
   <script>
   execute(function($) {
     // navigator.* 预览。
-    var $table = document.getElementById('list');
-    var $tr;
-    var $td;
+    var navigatorLogger = new Logger($('#navigator'));
     ['inStandardsMode', 'isIE10', 'isIElt10', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'].forEach(function(key) {
       var value = navigator[key];
-      $tr = $table.insertRow(-1);
-      $td = $tr.insertCell(-1);
-      $td.className = 'key';
-      $td.innerHTML = key;
-      $td = $tr.insertCell(-1);
-      $td.innerHTML = value;
-      if (value === true) {
-        $td.style.backgroundColor = 'greenyellow';
-      }
+      navigatorLogger.list('<p style="text-align: right;">' + key + ':</p>', '<p' + (value ? ' style="background: greenyellow; color: black;"' : '') + '>' + value + '</p>');
     });
 
     // navigator.userAgent 和 navigator.userAgentInfo.* 预览。
-    $('#ua_info').innerHTML = navigator.userAgent + '<br>' + JSON.stringify(navigator.userAgentInfo);
+    var uaInfoLogger = new Logger($('#ua_info'));
+    uaInfoLogger.log('<var>' + navigator.userAgent + '</var>');
+    uaInfoLogger.log(JSON.stringify(navigator.userAgentInfo));
 
   });
   </script>

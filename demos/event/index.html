@@ -5,21 +5,22 @@
 <title>事件</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
+<script src="../../src/addons/logger.js"></script>
 <style>
-fieldset { display: inline-block; width: 460px; margin: 0 5px 10px 0; *display: inline; }
-div.log { padding: 5px; background: khaki; border: 1px solid goldenrod; overflow: auto; line-height: 1.2; }
 blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
-cite,
-dfn,
-kbd,
-samp,
-var { float: left; display: block; width: 100px; height: 30px; margin: 5px; background: gainsboro; line-height: 30px; text-align: center; cursor: default; }
+button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
+.container { border: 2px solid crimson; background: whitesmoke; }
+.container abbr,
+.container cite,
+.container dfn,
+.container kbd,
+.container var { float: left; display: block; width: 100px; height: 30px; margin: 5px; background: gainsboro; line-height: 30px; text-align: center; cursor: default; }
+.container p { clear: both; height: 30px; margin: 5px; background: darkseagreen; font: 12px/30px Verdana; text-align: center; cursor: default; }
 
 .debug { float: right; width: 160px; height: 160px; margin: 0 5px; background: gold; overflow: auto; line-height: 1.2; }
 #scroll { float: left; width: 100px; height: 160px; background: #9acd32; font: bold 14px/160px Verdana; text-align: center; }
 #mouse { height: 180px; background: crimson; }
 #div p,
-#mouse p { clear: both; height: 30px; margin: 5px; background: darkseagreen; font: 12px/30px Verdana; text-align: center; cursor: default; }
 #mouse div { height: 20px; background: #ffd711; line-height: 20px; cursor: default; }
 #container { position: relative; height: 150px; background: #f5f5f5; }
 #drag { position: absolute; left: 0; top: 0; width: 160px; height: 120px; padding: 3px; border: 2px solid lightsteelblue; background: lightsteelblue; cursor: default; }
@@ -31,70 +32,70 @@ var { float: left; display: block; width: 100px; height: 30px; margin: 5px; back
 <div id="content">
   <h1>事件</h1>
 
-  <h2>事件传播</h2>
-  <!-- 事件传播 { -->
+  <h2>添加和删除事件监听器</h2>
+
+  <!-- 多监听器添加及删除 { -->
   <fieldset>
-    <legend>点击以下各元素，事件传播</legend>
-    <div class="log"></div>
-    <div id="div" style="margin-top: 5px; border: 1px solid black; background: whitesmoke;">
-      <cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><samp>samp</samp><var>var</var>
-      <p id="p">p</p></div>
-    <blockquote>
-      <button id="button">取消以上P元素的冒泡</button>
-    </blockquote>
+    <legend>多监听器添加及删除</legend>
+    <div id="on_off_logger" style="float: right; width: 400px;"></div>
+    <div style="float: left; width: 540px;">
+      <button id="foo">foo</button>
+      <button id="bar"><samp>bar</samp></button>
+      <blockquote>
+        <button id="add">为 <samp>bar</samp> 添加监听器 logId 和 logHtml</button>
+        <br>
+        <button id="remove_log_id">解除 <samp>bar</samp> 的监听器 logId</button>
+        <br>
+        <button id="remove_log_html">解除 <samp>bar</samp> 的监听器 logHtml</button>
+      </blockquote>
+    </div>
   </fieldset>
   <script>
   execute(function($) {
+    var $logger = $('#on_off_logger');
+    var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
-    $('#div').on('click', function(e) {
-      console.log('触发元素 > 捕获元素 = ' + e.target.nodeName + ' > ' + this.nodeName);
+    var logId = function() {
+      logger.log('<em>logId</em>' + this.id);
+    };
+    var logHtml = function() {
+      logger.log('<em>logHtml</em>' + this.innerHTML);
+    };
+
+    $('#foo')
+        .on('click', logId)
+        .on('click', logHtml);
+    $('#add').on('click', function() {
+      $('#bar')
+          .on('click', logId)
+          .on('click.html', logHtml);
+      logger.log('已为“bar”添加监听器<strong>logId</strong>和<strong>logHtml</strong>。');
     });
 
-    $('#button').on('click', function(event) {
-      $('#p').on('click', function(event) {
-        event.stopPropagation();
-//    return false;
-      });
+    $('#remove_log_id').on('click', function() {
+      $('#bar').off('click', logId);
+      logger.log('已删除“bar”的所有<strong>logId</strong>监听器。');
     });
-  });
-  </script>
-  <!-- } 事件传播 -->
+    $('#remove_log_html').on('click', function() {
+      $('#bar').off('click.html', logHtml);
+      logger.log('已删除“bar”的所有<strong>logHtml</strong>监听器。');
+    });
 
-  <h2>Event</h2>
-  <!-- 多监听器添加及删除 -->
-  <fieldset id="focusin">
-    <legend>多监听器添加及删除</legend>
-    <div id="d1" class="debug"></div>
-    <button id="b1">按钮一</button>
-    <br>
-    <button id="b2">按钮二</button>
-    <button id="b3">解除按钮二的所有监听器</button>
-    <br>
-    <button id="b4">清除信息 + 按钮二加一个监听器</button>
-    <br>
-    <input id="c1" type="checkBox" value="checkbox1">
-    <input id="c2" type="checkBox" value="checkbox2">
-    <input id="r1" name="r1" type="Radio" value="111">
-    <input id="r2" name="r1" type="Radio" value="222">
-    <input id="t1" type="text" value="input">
-    <textarea id="t2"></textarea>
-  </fieldset>
-  <script>
-  var $ = document.$;
-
-  $('#t1').on('input', function() {
-    console.log('#t1: ' + this.value);
-  });
-  $('#t2').on('input', function() {
-    console.log('#t2: ' + this.value);
   });
 
-  $('#focusin').find('input').forEach(function(item) {
-//  item.on('change', function(e) {
-//    console.log('::change::', e.target.value);
-//  });
-  });
+  //  <br>
+  //  <input id="c1" type="checkBox" value="checkbox1">
+  //  <input id="c2" type="checkBox" value="checkbox2">
+  //  <input id="r1" name="r1" type="Radio" value="111">
+  //  <input id="r2" name="r1" type="Radio" value="222">
+  //  <input id="t1" type="text" value="input">
+  //  <textarea id="t2"></textarea>
 
+  //    $('#focusin').find('input').forEach(function(item) {
+  //      //  item.on('change', function(e) {
+  //      //    console.log('::change::', e.target.value);
+  //      //  });
+  //    });
   //document.on('click', function(e) {
   //  console.log('--click--', e.target.value);
   //});
@@ -117,6 +118,67 @@ var { float: left; display: block; width: 100px; height: 30px; margin: 5px; back
    console.log('--select--', e.target.value);
    });*/
   </script>
+  <!-- } 多监听器添加及删除 -->
+
+  <h2>事件传播</h2>
+
+  <!-- 事件传播 { -->
+  <fieldset>
+    <legend>红色边框的元素上添加了 click 事件监听器</legend>
+    <div id="propagation_logger" style="float: right; width: 400px;"></div>
+    <div style="float: left; width: 540px;">
+      <div id="propagation" class="container">
+        <abbr>abbr</abbr><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><var>var</var>
+        <p id="propagation_stop">p</p>
+      </div>
+      <blockquote>
+        <label><input id="stop_propagation" type="checkbox" style="vertical-align: text-bottom;">取消以上P元素的事件传播</label>
+      </blockquote>
+    </div>
+  </fieldset>
+  <script>
+  execute(function($) {
+    var $logger = $('#propagation_logger');
+    var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
+
+    $('#propagation').on('click', function(e) {
+      logger.log('<strong>' + e.target.nodeName + '</strong> » <em>' + this.nodeName + '</em>');
+    });
+
+    $('#propagation_stop').on('click', function(e) {
+      if ($('#stop_propagation').checked) {
+        e.stopPropagation();
+      }
+    });
+
+  });
+  </script>
+  <!-- } 事件传播 -->
+
+  <h2>事件代理</h2>
+
+  <!-- 事件代理 { -->
+  <fieldset>
+    <legend>红色边框的元素为其所有标签名为 DFN 的子元素代理监听 mouseenter 和 mouseleave 事件</legend>
+    <div id="relay" class="container">
+      <abbr>abbr</abbr><dfn>dfn</dfn><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><dfn><strong>dfn</strong></dfn><var>var</var><dfn><strong>dfn</strong></dfn>
+    </div>
+  </fieldset>
+  <script>
+  execute(function($) {
+    $('#relay')
+        .on('mouseenter:relay(dfn)', function() {
+          this.morph({width: 150}).highlight();
+        })
+        .on('mouseleave:relay(dfn)', function() {
+          this.morph({width: 100}).highlight('red', 'color');
+        });
+  });
+  </script>
+  <!-- } 事件代理 -->
+
+  <h2>兼容各常见事件类型</h2>
+
   <!-- 鼠标滚动、移动、按键及键盘按键 -->
   <fieldset>
     <legend>鼠标滚动、移动、按键及键盘按键</legend>
@@ -139,6 +201,7 @@ var { float: left; display: block; width: 100px; height: 30px; margin: 5px; back
     <button id="clear">解除以上蓝方块代理</button>
   </fieldset>
   <script>
+  var $ = document.$;
   //--------------------------------------------------[拖动事件]
   var $container = $('#container');
   var $drag = $('#drag');
@@ -214,44 +277,6 @@ var { float: left; display: block; width: 100px; height: 30px; margin: 5px; back
   </fieldset>
 
   <script>
-  //--------------------------------------------------[多监听器添加及删除]
-  var $d1 = $('#d1');
-  var $b1 = $('#b1');
-  var $b2 = $('#b2');
-  var $b3 = $('#b3');
-  var $b4 = $('#b4');
-
-  function onClick1() {
-    $d1.innerHTML += this.id + '<br>';
-  }
-
-  function onClick2() {
-    $d1.innerHTML += this.nodeName + '<br>';
-  }
-
-  function onClick3() {
-    $d1.innerHTML += this.innerHTML + '<br>';
-  }
-
-  $b1.on('click', onClick1)
-      .on('click', onClick2)
-      .on('click', onClick3);
-  $b2.on('click', onClick1)
-      .on('click', onClick2)
-      .on('click', onClick3);
-  $b3.on('click', function() {
-    $b2.off('click', onClick1)
-        .off('click', onClick2)
-        .off('click', onClick3);
-    $d1.innerHTML += '【按钮二】监听器已解除<br>';
-    $d1.innerHTML += '鼠标滚动的监听器已解除<br>';
-
-    $scroll.off('mousewheel', wheel);
-  });
-  $b4.on('click', function() {
-    $d1.innerHTML = '';
-    $b2.on('click', onClick1);
-  });
   //--------------------------------------------------[鼠标滚动、坐标、按键及键盘按键]
   var $d21 = $('#d21');
   var $d22 = $('#d22');
@@ -398,13 +423,13 @@ var { float: left; display: block; width: 100px; height: 30px; margin: 5px; back
   //  console.log(event.type, event.target.outerHTML, this.nodeName);
   //});
 
-  $b1.getParent()
-      .on('focusin', function(e) {
-        this.addClass('focusin');
-      })
-      .on('focusout', function(e) {
-        this.removeClass('focusin');
-      });
+  //  $b1.getParent()
+  //      .on('focusin', function(e) {
+  //        this.addClass('focusin');
+  //      })
+  //      .on('focusout', function(e) {
+  //        this.removeClass('focusin');
+  //      });
 
   $(document.body).on('foo.bar', function(e) {
     console.log(e);
