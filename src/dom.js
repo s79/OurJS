@@ -1413,11 +1413,13 @@
           this.leftButton = which === 1;
           this.middleButton = which === 2;
           this.rightButton = which === 3;
+          this.which = which;
         } else {
           var button = e.button;
           this.leftButton = !!(button & 1);
           this.middleButton = !!(button & 4);
           this.rightButton = !!(button & 2);
+          this.which = this.leftButton ? 1 : this.middleButton ? 2 : this.rightButton ? 3 : 0;
         }
       } else {
         this.which = e.which || e.charCode || e.keyCode || 0;

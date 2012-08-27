@@ -9,16 +9,22 @@
 <style>
 blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
-.container { border: 2px solid crimson; background: whitesmoke; }
-.container abbr,
+.container { padding: 5px 0 5px 5px; border: 2px solid crimson; background: whitesmoke; *zoom: 1; }
+.container bdo,
 .container cite,
 .container dfn,
 .container kbd,
-.container var { float: left; display: block; width: 100px; height: 30px; margin: 5px; background: gainsboro; line-height: 30px; text-align: center; cursor: default; }
-.container p { clear: both; height: 30px; margin: 5px; background: darkseagreen; font: 12px/30px Verdana; text-align: center; cursor: default; }
+.container span,
+.container var { float: left; display: block; width: 100px; height: 30px; margin: 0 5px 5px 0; background: gainsboro; line-height: 30px; text-align: center; cursor: default; -display: inline; }
+.container p { clear: both; height: 30px; margin: 0 5px 0 0; background: darkseagreen; font: 12px/30px Verdana; text-align: center; cursor: default; }
+dl { float: left; width: 220px; margin: 0 5px; border: 1px solid silver; background: #252525; color: #8CC; -display: inline; }
+dt { height: 16px; padding: 5px; border-bottom: 1px solid silver; background: whitesmoke; color: #333; text-align: center; line-height: 16px; }
+dd { height: 128px; padding: 5px; line-height: 1; }
+dd p { margin: 2px; padding: 2px; }
+dd em { display: inline-block; padding: 0 1px; border: 1px solid; border-radius: 3px; }
+dd em.true { color: #A5C261; }
+dd em.false { color: #FF6767; }
 
-.debug { float: right; width: 160px; height: 160px; margin: 0 5px; background: gold; overflow: auto; line-height: 1.2; }
-#scroll { float: left; width: 100px; height: 160px; background: #9acd32; font: bold 14px/160px Verdana; text-align: center; }
 #mouse { height: 180px; background: crimson; }
 #div p,
 #mouse div { height: 20px; background: #ffd711; line-height: 20px; cursor: default; }
@@ -37,16 +43,16 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
   <!-- 多监听器添加及删除 { -->
   <fieldset>
     <legend>多监听器添加及删除</legend>
-    <div id="on_off_logger" style="float: right; width: 400px;"></div>
-    <div style="float: left; width: 540px;">
-      <button id="foo">foo</button>
-      <button id="bar"><samp>bar</samp></button>
+    <div id="on_off_logger" style="float: right; width: 407px;"></div>
+    <div style="float: left; width: 534px;">
+      <button id="foo"><samp style="background: mediumseagreen;">~foo~</samp></button>
+      <button id="bar"><samp>-bar-</samp></button>
       <blockquote>
-        <button id="add">为 <samp>bar</samp> 添加监听器 logId 和 logHtml</button>
+        <button id="add">为<samp>bar</samp>添加监听器 logId 和 logText</button>
         <br>
-        <button id="remove_log_id">解除 <samp>bar</samp> 的监听器 logId</button>
+        <button id="remove_log_id">解除<samp>bar</samp>的监听器 logId</button>
         <br>
-        <button id="remove_log_html">解除 <samp>bar</samp> 的监听器 logHtml</button>
+        <button id="remove_log_html">解除<samp>bar</samp>的监听器 logText</button>
       </blockquote>
     </div>
   </fieldset>
@@ -58,18 +64,18 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
     var logId = function() {
       logger.log('<em>logId</em>' + this.id);
     };
-    var logHtml = function() {
-      logger.log('<em>logHtml</em>' + this.innerHTML);
+    var logText = function() {
+      logger.log('<em>logText</em>' + this.innerText);
     };
 
     $('#foo')
         .on('click', logId)
-        .on('click', logHtml);
+        .on('click', logText);
     $('#add').on('click', function() {
       $('#bar')
           .on('click', logId)
-          .on('click.html', logHtml);
-      logger.log('已为“bar”添加监听器<strong>logId</strong>和<strong>logHtml</strong>。');
+          .on('click.html', logText);
+      logger.log('已为“bar”添加监听器<strong>logId</strong>和<strong>logText</strong>。');
     });
 
     $('#remove_log_id').on('click', function() {
@@ -77,46 +83,11 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
       logger.log('已删除“bar”的所有<strong>logId</strong>监听器。');
     });
     $('#remove_log_html').on('click', function() {
-      $('#bar').off('click.html', logHtml);
-      logger.log('已删除“bar”的所有<strong>logHtml</strong>监听器。');
+      $('#bar').off('click.html', logText);
+      logger.log('已删除“bar”的所有<strong>logText</strong>监听器。');
     });
 
   });
-
-  //  <br>
-  //  <input id="c1" type="checkBox" value="checkbox1">
-  //  <input id="c2" type="checkBox" value="checkbox2">
-  //  <input id="r1" name="r1" type="Radio" value="111">
-  //  <input id="r2" name="r1" type="Radio" value="222">
-  //  <input id="t1" type="text" value="input">
-  //  <textarea id="t2"></textarea>
-
-  //    $('#focusin').find('input').forEach(function(item) {
-  //      //  item.on('change', function(e) {
-  //      //    console.log('::change::', e.target.value);
-  //      //  });
-  //    });
-  //document.on('click', function(e) {
-  //  console.log('--click--', e.target.value);
-  //});
-  //jQuery('#r1').on('change', function(e) {
-  //  console.log('::change::', e.target.value);
-  //});
-  //jQuery('#r2').on('change', function(e) {
-  //  console.log('::change::', e.target.value);
-  //});
-  //jQuery('#r2').off('click');
-  //jQuery(document).on('click', function(e) {
-  //  console.log('--click--', e.target.value);
-  //});
-  /* select IE9- 会在鼠标拖拽选择时频繁触发，并且不冒泡。
-
-   $('#i2').on('select', function(e) {
-   console.log('::select::', e.target.value);
-   });
-   window.on('select', function(e) {
-   console.log('--select--', e.target.value);
-   });*/
   </script>
   <!-- } 多监听器添加及删除 -->
 
@@ -125,14 +96,14 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
   <!-- 事件传播 { -->
   <fieldset>
     <legend>红色边框的元素上添加了 click 事件监听器</legend>
-    <div id="propagation_logger" style="float: right; width: 400px;"></div>
-    <div style="float: left; width: 540px;">
+    <div id="propagation_logger" style="float: right; width: 407px;"></div>
+    <div style="float: left; width: 534px;">
       <div id="propagation" class="container">
-        <abbr>abbr</abbr><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><var>var</var>
+        <bdo>bdo</bdo><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><span>span</span><var>var</var>
         <p id="propagation_stop">p</p>
       </div>
       <blockquote>
-        <label><input id="stop_propagation" type="checkbox" style="vertical-align: text-bottom;">取消以上P元素的事件传播</label>
+        <label><input id="stop_propagation" type="checkbox" style="vertical-align: text-bottom;"> 取消以上P元素的事件传播</label>
       </blockquote>
     </div>
   </fieldset>
@@ -159,9 +130,9 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
 
   <!-- 事件代理 { -->
   <fieldset>
-    <legend>红色边框的元素为其所有标签名为 DFN 的子元素代理监听 mouseenter 和 mouseleave 事件</legend>
-    <div id="relay" class="container">
-      <abbr>abbr</abbr><dfn>dfn</dfn><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><dfn><strong>dfn</strong></dfn><var>var</var><dfn><strong>dfn</strong></dfn>
+    <legend>红色边框的元素为其所有标签名为 DFN 的后代元素代理监听 mouseenter 和 mouseleave 事件</legend>
+    <div id="relay" class="container" style="padding-bottom: 0; *padding-bottom: 5px;">
+      <bdo>bdo</bdo><dfn><strong>dfn</strong></dfn><cite>cite</cite><dfn><em>dfn</em></dfn><kbd>kbd</kbd><dfn><sup>dfn</sup></dfn><span>span</span><dfn><sub>dfn</sub></dfn>
     </div>
   </fieldset>
   <script>
@@ -177,15 +148,119 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
   </script>
   <!-- } 事件代理 -->
 
-  <h2>兼容各常见事件类型</h2>
+  <h2>事件对象的属性</h2>
 
-  <!-- 鼠标滚动、移动、按键及键盘按键 -->
+  <!-- 事件对象的属性 { -->
   <fieldset>
-    <legend>鼠标滚动、移动、按键及键盘按键</legend>
-    <div id="scroll">鼠标滚动</div>
-    <div id="d21" class="debug"></div>
-    <div id="d22" class="debug"></div>
+    <legend>不同类型的事件对象有不同的属性</legend>
+    <dl>
+      <dt>鼠标滚轮事件特有的属性</dt>
+      <dd id="mouse_wheel"></dd>
+    </dl>
+    <dl>
+      <dt>鼠标事件特有的属性</dt>
+      <dd id="mouse_move"></dd>
+    </dl>
+    <dl>
+      <dt>鼠标按键事件特有的属性</dt>
+      <dd id="mouse_press"></dd>
+    </dl>
+    <dl>
+      <dt>鼠标和键盘事件共有的属性</dt>
+      <dd id="key_press"></dd>
+    </dl>
   </fieldset>
+  <script>
+  execute(function($) {
+    var getText = function(event, properties) {
+      var text = '';
+      properties.forEach(function(property) {
+        var value = event[property];
+        if (typeof value === 'boolean') {
+          value = '<em class="' + value + '">' + value + '</em>';
+        }
+        text += '<p>' + property + ': ' + value + '</p>';
+      });
+      return text;
+    };
+
+    $('#mouse_wheel').on('mousewheel', function(e) {
+      this.innerHTML = getText(e, 'wheelUp wheelDown'.split(' '));
+      // IE8 会自动 preventDefault，因此建议加上，以确保各浏览器中行为一致。
+      e.preventDefault();
+    });
+
+    document
+        .on('mousemove', function(e) {
+          $('#mouse_move').innerHTML = getText(e, 'clientX clientY screenX screenY pageX pageY'.split(' '));
+        })
+        .on('mousedown', function(e) {
+          $('#mouse_press').innerHTML = getText(e, 'leftButton middleButton rightButton'.split(' '));
+        })
+        .on('mousemove, mousedown, keypress', function(e) {
+          $('#key_press').innerHTML = getText(e, 'which ctrlKey altKey shiftKey metaKey'.split(' '));
+        });
+
+    // 测试。
+    $('#mouse_press').on('mouseover', function() {
+      this.fire('mousedown', {leftButton: '此时的属性值是由 fire 方法传递过来的。', middleButton: '系统事件并未触发。', rightButton: '区别方式见 API 文档。'});
+    });
+
+  });
+  </script>
+  <!-- } 事件对象的属性 -->
+
+  <h2>事件的兼容处理</h2>
+
+  <!-- focusin/focusout/input/change { -->
+  <fieldset>
+    <legend>focusin/focusout/input/change</legend>
+    <div id="form_logger" style="float: right; width: 407px;"></div>
+    <div style="float: left; width: 534px;">
+      <div id="form_events" style="padding: 5px; border: 1px solid silver; background: whitesmoke;">
+        <input type="checkbox" value="checkbox_1" checked>
+        <input type="checkbox" value="checkbox_2">
+        <input type="checkbox" value="checkbox_3"><br>
+        <input name="state" type="radio" value="radio_1" checked>
+        <input name="state" type="radio" value="radio_2">
+        <input name="state" type="radio" value="radio_3"><br>
+        <input type="text" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
+        <input type="password" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
+        <textarea class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;"></textarea>
+      </div>
+      <blockquote>
+        <label><input id="disable_focus_logging" type="checkbox" style="vertical-align: text-bottom;"> 输出 focusin/focusout 的日志信息</label>
+      </blockquote>
+    </div>
+  </fieldset>
+  <script>
+  execute(function($) {
+    var $logger = $('#form_logger');
+    var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
+
+    var $formEvents = $('#form_events');
+    $formEvents.on('focusin, focusout', function(e) {
+      if ($('#disable_focus_logging').checked) {
+        logger.log('<strong>' + e.type + '</strong>');
+      }
+      this.morph({backgroundColor: e.type === 'focusin' ? 'gold' : 'whitesmoke'})
+    });
+    $formEvents.find('input[type=checkbox], input[type=radio]').forEach(function($control) {
+      $control.on('change', function(e) {
+        logger.log('<strong>' + e.type + '</strong>' + this.nodeName + ' value=<var>' + this.value + '</var> checked=<var>' + this.checked + '</var>');
+      });
+    });
+    $formEvents.find('input[type=text], input[type=password], textarea').forEach(function($control) {
+      $control.on('input', function(e) {
+        logger.log('<strong>' + e.type + '</strong>' + this.type + ' value=<var>' + this.value + '</var>');
+      });
+    });
+
+  });
+  </script>
+  <!-- } focusin/focusout/input/change -->
+
+
   <!-- 拖动事件 { -->
   <fieldset>
     <legend>拖动事件</legend>
@@ -277,76 +352,7 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
   </fieldset>
 
   <script>
-  //--------------------------------------------------[鼠标滚动、坐标、按键及键盘按键]
-  var $d21 = $('#d21');
-  var $d22 = $('#d22');
-  var $scroll = $('#scroll');
 
-  function wheel(event) {
-    this.innerHTML = event.wheelUp ? '↑鼠标滚动↑' : (event.wheelDown ? '↓鼠标滚动↓' : '-鼠标滚动-');
-    // IE8 会自动 preventDefault，因此建议加上，以确保各浏览器中行为一致。
-    event.preventDefault();
-  }
-  function wheel2(event) {
-    console.log(event, event.type + ':' + event.wheelUp + ':' + event.wheelDown);
-  }
-  $scroll.on('mousewheel', wheel);
-  $scroll.on('mousewheel', wheel2);
-
-  var mousePositions = 'clientX clientY screenX screenY pageX pageY'.split(' ');
-  document.on('mousemove, mousedown', function(event) {
-    var text = '<strong>鼠标坐标</strong><br>';
-    mousePositions.forEach(function(item) {
-      text += item + ':' + event[item] + '<br>';
-    });
-    $d21.innerHTML = text;
-  });
-
-  function t(e) {
-    e = e || window.event;
-    e.customType = '~customType~';
-    console.log(e.customType);
-  }
-  //document.addEventListener ? document.addEventListener('mousemove', t, false) : document.attachEvent('onmousemove', t);
-
-  function mouseButtonChange(event) {
-    var text = '<strong>鼠标按键</strong><br>';
-    'leftButton middleButton rightButton'.split(' ').forEach(function(item) {
-      text += item + ':' + event[item] + '<br>';
-    });
-    $d22.innerHTML = text;
-  }
-  document.on('mousedown', mouseButtonChange);
-
-  var keys = 'which ctrlKey altKey shiftKey metaKey'.split(' ');
-  function keyChange(event) {
-    var text = '<strong>键盘按键</strong><br>';
-    keys.forEach(function(item) {
-      text += item + ':' + event[item] + '<br>';
-    });
-    $d22.innerHTML = text;
-    var e = event.originalEvent;
-//  console.log(e.keyCode + ':' + e.charCode + ':' + e.which);
-  }
-  //document.on('keyup', keyChange);
-  //document.on('keydown', keyChange);
-  document.on('keydown', keyChange);
-
-  //--------------------------------------------------[on/off/fire 测试]
-  $('#d22')
-      .on('mouseover', function() {
-        this.fire('mousedown', {leftButton: '此时的属性值是由 fire 方法传递过来的。', middleButton: '系统事件并未触发。', rightButton: '区别方式见 API 文档。'});
-      })
-      .on('mousedown.one', function(e) {
-        e.preventDefault();
-      })
-      .on('mousedown.two', function(e) {
-        e.stopPropagation();
-      })
-      .on('mousedown.three', function(e) {
-        e.stopImmediatePropagation();
-      })
-      .off('mousedown.two, mousedown.three');
 
   //--------------------------------------------------[鼠标进入、离开]
   var $d51 = $('#d51');
@@ -385,67 +391,18 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
   $mouse.on('mouseleave', leave);
   $inner.on('mouseenter', enter);
   $inner.on('mouseleave', leave);
-  //jQuery($mouse).on('mouseover', over);
-  //jQuery($mouse).on('mouseout', out);
-  //jQuery($mouse).on('mouseenter', enter);
-  //jQuery($mouse).on('mouseleave', leave);
-  //jQuery($inner).on('mouseenter', enter);
-  //jQuery($inner).on('mouseleave', leave);
-
-  function F() {
-    return this.getStyle('float') === 'left';
-  }
-  function E1() {
-    this.setStyle('text-decoration', 'line-through');
-  }
-  function L1() {
-    this.setStyle('text-decoration', 'none');
-  }
-  function E2() {
-    this.setStyle('color', 'white');
-  }
-  function L2() {
-    this.setStyle('color', 'black');
-  }
-  //$mouse.on('mouseenter', E1, F);
-  //$mouse.on('mouseleave', L1, F);
-  //$mouse.on('mouseenter', E2, F);
-  //$mouse.on('mouseleave', L2, F);
 
   /*
-   document.on('focusin focusout', function(event) {
-   console.log(event, event.type, event.target.outerHTML, this.nodeName);
-   }, function() {
-   return this.nodeName === 'FIELDSET' && !this.id;
-   });
-   */
-  //jQuery(document).delegate('fieldset', 'focusin', function(event) {
-  //  console.log(event.type, event.target.outerHTML, this.nodeName);
-  //});
-
-  //  $b1.getParent()
-  //      .on('focusin', function(e) {
-  //        this.addClass('focusin');
-  //      })
-  //      .on('focusout', function(e) {
-  //        this.removeClass('focusin');
-  //      });
-
-  $(document.body).on('foo.bar', function(e) {
-    console.log(e);
-//  e.stopPropagation();
-  });
-
-  /*
-   window.on('beforeunload', function() {
-   return 'NONONO!';
-   });
-   */
-
-  /*
-   window.on('click keydown mouseover', function() {
-   console.log(this);
-   });
+   .on('mousedown.one', function(e) {
+   e.preventDefault();
+   })
+   .on('mousedown.two', function(e) {
+   e.stopPropagation();
+   })
+   .on('mousedown.three', function(e) {
+   e.stopImmediatePropagation();
+   })
+   .off('mousedown.two, mousedown.three');
    */
   </script>
 
