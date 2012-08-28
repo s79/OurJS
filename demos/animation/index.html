@@ -127,32 +127,58 @@ samp.sample { background: gold; }
     <button id="e_f_1_in">fadeIn()</button>
     <button id="e_f_1_out">fadeOut()</button>
   </fieldset>
-  <div id="X" style="width:960px; height: 10px; background: lime;"></div>
+  <div style="width: 500px; height: 12px; border: 1px solid gray;">
+    <div id="opacity_value" style="height: 12px; background: yellowgreen;"></div>
+  </div>
   <script>
   execute(function($) {
     var $e = $('#e_f_1');
+    var $x = $('#opacity_value');
+
+    var timer;
+    var drawX = function() {
+      $x.setStyle('width', $e.getStyle('opacity') * 500);
+    };
+    var startDrawX = function() {
+      if (!timer) {
+        timer = setInterval(drawX, 16);
+      }
+      drawX();
+    };
+    var stopDrawX = function() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      drawX();
+    };
+
     var i = 0;
     $('#e_f_1_in').on('mouseover', function() {
       $e.fadeIn({
         duration: 2500,
-        timingFunction: 'easeOutIn',
+        timingFunction: 'bounceIn',
         onStart: function() {
           console.log('Fade in start.');
+          startDrawX();
         },
         onFinish: function() {
           console.log('Fade in finish.');
+          stopDrawX();
         }
       });
     });
     $('#e_f_1_out').on('mouseover', function() {
       $e.fadeOut({
         duration: 1000,
-        timingFunction: 'cubicBezier(.25,1.25,.75,-0.25)',
+        timingFunction: 'ease',
         onStart: function() {
           console.log('Fade out start.');
+          startDrawX();
         },
         onFinish: function() {
           console.log('Fade out finish.');
+          stopDrawX();
         }
       });
     });

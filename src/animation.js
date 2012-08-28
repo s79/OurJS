@@ -709,7 +709,7 @@
    * @param {string} [mode] 模式，默认为 'toggle'。
    *   <table>
    *     <tr><th>可选值</th><th>含义</th></tr>
-   *     <tr><td><dfn>toggle</dfn></td><td>如果本元素的 display 为 none 则为淡入模式，否则为淡出模式。</td></tr>
+   *     <tr><td><dfn>toggle</dfn></td><td>如果本元素的动画播放列表中已经存在一个 fade 动画，则使用与这个已存在的动画相反的模式。<br>否则若本元素的 display 为 none 则为淡入模式，display 不为 none 则为淡出模式。</td></tr>
    *     <tr><td><dfn>in</dfn></td><td>淡入模式。</td></tr>
    *     <tr><td><dfn>out</dfn></td><td>淡出模式。</td></tr>
    *   </table>
@@ -722,16 +722,20 @@
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
-   *   如果本元素的动画播放列表中已经存在一个 fade 动画，则停止旧的，播放新的。否则若本元素的 display 不为 none 则不能播放淡入动画，display 为 none 则不能播放淡出动画。
+   *   如果本元素的动画播放列表中已经存在一个 fade 动画，则停止旧的，播放新的。这种情况下新动画的播放时间会小于设定的时间（具体取决于旧动画已播放的百分比）。
+   *   否则若本元素的 display 不为 none 则不能播放淡入动画，display 为 none 则不能播放淡出动画。
    */
   Element.prototype.fade = function(mode, options) {
     var $element = this;
     var list = getAnimationList($element);
     var prevFade = list.fade;
+    // 根据当前已有的信息确定本次调用应为 fade in 模式还是 fade out 模式。
+    var shouldBeFadeInMode = prevFade ? !prevFade.isFadeInMode : $element.getStyle('display') === 'none';
+    // 实际为 fade in 模式还是 fade out 模式。
     var isFadeInMode;
     switch ((mode || 'toggle').toLowerCase()) {
       case 'toggle':
-        isFadeInMode = prevFade ? !prevFade.isFadeInMode : $element.getStyle('display') === 'none';
+        isFadeInMode = shouldBeFadeInMode;
         break;
       case 'in':
         isFadeInMode = true;
@@ -742,48 +746,41 @@
       default:
         throw new Error('Invalid mode "' + mode + '"');
     }
-    if (prevFade || isFadeInMode === ($element.getStyle('display') === 'none')) {
+    // 检查是否可以播放 fade 动画。
+    if (prevFade || isFadeInMode === shouldBeFadeInMode) {
       options = Object.mixin({duration: 200, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
       var originalOpacity;
       var percentageNeedsPlay;
       if (prevFade) {
         originalOpacity = prevFade.originalOpacity;
-        var percentagePrevFadeNeedsPlay = prevFade.percentageNeedsPlay;
-        var percentagePrevFadePlayed = prevFade.timePoint / prevFade.duration || 1;  // TODO
-        if (isFadeInMode === prevFade.isFadeInMode) {
-          percentageNeedsPlay = percentagePrevFadeNeedsPlay * (1 - percentagePrevFadePlayed);
-        } else {
-          percentageNeedsPlay = 1 - percentagePrevFadeNeedsPlay * (1 - percentagePrevFadePlayed);
-        }
+        // 新动画与旧动画的方向相同：需要播放的百分比 = 旧动画要播完的百分比 * 旧动画未播完的百分比。
+        // 新动画与旧动画的方向相反：需要播放的百分比 = 1 - 旧动画要播完的百分比 * 旧动画未播完的百分比。
+        percentageNeedsPlay = Math.abs((isFadeInMode === prevFade.isFadeInMode ? 0 : 1) - prevFade.percentageNeedsPlay * (1 - (prevFade.timePoint / prevFade.duration || 1)));
+        // 停止播放旧动画。
         prevFade.pause();
       } else {
         originalOpacity = $element.getStyle('opacity');
         percentageNeedsPlay = 1;
+        // 如果是 fade in 则将透明度设置为 0。
         if (isFadeInMode) {
           $element.setStyles({display: 'block', opacity: 0});
         }
       }
-      list.fade = new Animation().addClip(Animation.createStyleRenderer($element, {opacity: isFadeInMode ? originalOpacity : 0}), 0, options.duration * percentageNeedsPlay, options.timingFunction);
-      console.warn(percentageNeedsPlay);// TODO: for test.
-      var $x = document.$('#X');
-      list.fade.on('step', function() {// TODO: for test.
-        $x.setStyle('width', $element.getStyle('opacity') * 920);
-      });
-      if (!isFadeInMode) {
-        list.fade.on('playfinish', function() {
-          $element.setStyles({display: 'none', opacity: originalOpacity});
-        });
-      }
-      list.fade
-          .on('play', function(event) {
+      list.fade = new Animation()
+          .addClip(Animation.createStyleRenderer($element, {opacity: isFadeInMode ? originalOpacity : 0}), 0, options.duration * percentageNeedsPlay, options.timingFunction)
+          .on('playstart', function(event) {
             options.onStart.call($element, event);
           })
           .on('playfinish', function(event) {
             delete list.fade;
+            // 如果是 fade out 则在播放完毕后恢复原始透明度。
+            if (!isFadeInMode) {
+              $element.setStyles({display: 'none', opacity: originalOpacity});
+            }
             options.onFinish.call($element, event);
           });
-      list.fade.originalOpacity = originalOpacity;
       list.fade.isFadeInMode = isFadeInMode;
+      list.fade.originalOpacity = originalOpacity;
       list.fade.percentageNeedsPlay = percentageNeedsPlay;
       list.fade.play();
     }
