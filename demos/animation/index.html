@@ -2,70 +2,54 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Animation</title>
-<script src="../../our.js"></script>
+<title>动画</title>
+<script src="../../dev.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../scripts/prettify.js"></script>
-<link rel="stylesheet" href="../../stylesheets/prettify.css">
+<script src="../../src/addons/logger.js"></script>
 <style>
-h2 { margin: 50px 0 20px; }
+ul.list { margin: 10px 0; padding: 0; list-style: none; }
+blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
+button samp { padding: 0 5px; border-radius: 3px; }
+samp.sample { background: gold; }
 </style>
-<script>
-execute(function($) {
-  // 自动显示相关代码。
-  var $body = $(document.body);
-  var scripts = $body.find('script');
-  var pres = $body.find('pre');
-  scripts.forEach(function($script, index) {
-    var $pre = pres[index];
-    if ($pre) {
-      var codes = $script.text.split(/\n/);
-      $pre.innerText = codes.slice(2, codes.length - 2)
-          .map(function(line) {
-            return line.slice(2);
-          })
-          .join('\n');
-    }
-  });
-
-  // 代码高亮。
-  $(document.body).find('pre').forEach(function($pre) {
-    $pre.addClass('prettyprint');
-  });
-  prettyPrint();
-
-}, true);
-</script>
 </head>
 <body>
 <div id="content">
   <h1>在 Element.prototype 上提供的简单动画</h1>
-  <p>简单动画的特点：</p>
+  <p class="referral">简单动画的特点：</p>
   <ul>
-    <li>调用方便，可以满足大部分需要。</li>
-    <li>每次运行是以元素的当前状态为起点，比较灵活。</li>
-    <li>动画比较简单，不能精细的控制。</li>
+    <li>调用方便，可以满足大部分简单的需要。</li>
+    <li>每次运行是以元素的当前状态为起点，动画比较简单，不能精细的控制。</li>
+    <li>相同的动画效果可以合并。</li>
   </ul>
 
-  <h2>element.morph</h2>
-  <p>可以为数字值、长度值、颜色值设置渐变。</p>
-  <h3>如果本元素的动画播放列表中已经存在一个 morph 动画，则停止旧的，播放新的。</h3>
-  <!-- e_m_1 { -->
+  <h2>渐变动画</h2>
+  <ul class="list">
+    <li>可以为数字值、长度值、颜色值设置渐变。</li>
+    <li>如果本元素的动画播放列表中已经存在一个 morph 动画，则停止旧的，播放新的。</li>
+    <li>被停止的动画的 onFinish 回调不会执行。</li>
+  </ul>
+  <!-- morph { -->
   <fieldset>
-    <legend>被停止的动画的 onFinish 回调不会执行。</legend>
-    <div id="e_m_1" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
-    <button id="e_m_1_go">morph</button>
+    <legend>Element.prototype.morph</legend>
+    <div id="sample_morph" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
+    <blockquote>
+      <button id="run_morph"><samp class="sample">element</samp>.morph(...);</button>
+    </blockquote>
   </fieldset>
-  <pre></pre>
   <script>
   execute(function($) {
-    $('#e_m_1_go').on('click', function() {
-      $('#e_m_1').morph({
-        width: '+=100', // 可以使用相对长度。
-        borderLeftWidth: '10px', // 长度值目前仅支持像素单位。
+    $('#run_morph').on('click', function() {
+      $('#sample_morph').morph({
+        // 可以使用相对长度。
+        width: '+=100',
+        borderLeftWidth: '+=10',
         borderLeftColor: '#808080',
-        fontSize: 35, // 可以省略 'px'，直接使用数字。
-        lineHeight: 80, // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置。
+        // 长度值目前仅支持像素单位，可以省略 'px'，直接使用数字。
+        fontSize: 35,
+        // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置。
+        lineHeight: 80,
+        // 颜色值可以使用颜色名称。
         backgroundColor: 'tomato',
         color: '#FFF',
         opacity: .75
@@ -91,13 +75,17 @@ execute(function($) {
     });
   });
   </script>
-  <!-- } e_m_1 -->
+  <!-- } morph -->
 
-  <h2>element.highlight</h2>
-  <h3>如果本元素的动画播放列表中已经存在一个 highlight 动画，则停止旧的，播放新的。</h3>
-  <!-- e_h_1 { -->
+  <h2>高亮动画</h2>
+  <ul class="list">
+    <li>如果本元素的动画播放列表中已经存在一个 highlight 动画，则停止旧的，播放新的。</li>
+    <li>虽然高亮动画使用了不同的属性，但在连续播放时，旧的动画也将被停止。</li>
+    <li>被停止的动画的 onFinish 回调不会执行。</li>
+  </ul>
+  <!-- highlight { -->
   <fieldset>
-    <legend>被停止的动画的 onFinish 回调不会执行。</legend>
+    <legend>Element.prototype.highlight</legend>
     <div id="e_h_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
     <button id="e_h_1_red">highlight-red</button>
     <button id="e_h_1_green">highlight-green</button>
@@ -123,53 +111,7 @@ execute(function($) {
     });
   });
   </script>
-  <!-- } e_h_1 -->
-  <!-- e_h_2 { -->
-  <fieldset>
-    <legend>虽然高亮动画使用了不同的属性，但在连续播放时，旧的动画也将被停止。</legend>
-    <div id="e_h_2" style="width: 160px; height: 80px; background: gold; font-weight: bold; font-size: 20px; line-height: 80px; text-align: center;"></div>
-    <button id="e_h_2_go">highlight</button>
-  </fieldset>
-  <pre></pre>
-  <script>
-  execute(function($) {
-    $('#e_h_2_go').on('click', function() {
-      $('#e_h_2')
-        // 高亮一，被停止，onFinish 回调没机会执行。
-          .highlight('red', 'color', {
-            duration: 200,
-            onFinish: function() {
-              this.innerText += '1';
-            }
-          })
-        // 高亮二，被停止，onFinish 回调没机会执行。
-          .highlight('red', 'color', {
-            duration: 500,
-            onFinish: function() {
-              this.innerText += '2';
-            }
-          })
-          .morph({
-            width: '+=20'
-          })
-        // 高亮三，被停止，onFinish 回调没机会执行。
-          .highlight('yellow', 'backgroundColor', {
-            duration: 200,
-            onFinish: function() {
-              this.innerText += '3';
-            }
-          })
-        // 高亮四，如果播放完毕之前没有再次点击按钮，onFinish 回调会执行。
-          .highlight('yellow', 'backgroundColor', {
-            duration: 500,
-            onFinish: function() {
-              this.innerText += '4';
-            }
-          });
-    });
-  });
-  </script>
-  <!-- } e_h_2 -->
+  <!-- } highlight -->
 
   <h2>element.fadeIn/fadeOut</h2>
   <h3>如果本元素的动画播放列表中已经存在一个相同的 fadeIn/fadeOut 动画，则反向播放前者，并删除前者的 onFinish 回调，执行后者的 onStart 回调，并在反向播放结束时执行后者的 onFinish 回调。</h3>
@@ -185,14 +127,15 @@ execute(function($) {
     <button id="e_f_1_in">fadeIn()</button>
     <button id="e_f_1_out">fadeOut()</button>
   </fieldset>
-  <pre></pre>
+  <div id="X" style="width:960px; height: 10px; background: lime;"></div>
   <script>
   execute(function($) {
     var $e = $('#e_f_1');
     var i = 0;
-    $('#e_f_1_in').on('click', function() {
+    $('#e_f_1_in').on('mouseover', function() {
       $e.fadeIn({
         duration: 2500,
+        timingFunction: 'easeOutIn',
         onStart: function() {
           console.log('Fade in start.');
         },
@@ -201,9 +144,10 @@ execute(function($) {
         }
       });
     });
-    $('#e_f_1_out').on('click', function() {
+    $('#e_f_1_out').on('mouseover', function() {
       $e.fadeOut({
-        duration: 500,
+        duration: 1000,
+        timingFunction: 'cubicBezier(.25,1.25,.75,-0.25)',
         onStart: function() {
           console.log('Fade out start.');
         },
@@ -216,11 +160,11 @@ execute(function($) {
   </script>
   <!-- } e_f_1 -->
 
-  <h1 style="margin-top: 100px;">使用 Animation 创建的高级动画</h1>
-  <p>高级动画的特点：</p>
+  <h2 style="margin-top: 100px;">使用 Animation 创建的高级动画</h2>
+  <p class="referral">高级动画的特点：</p>
   <ul>
-    <li>支持多个动画剪辑，并可以动态添加/删除动画剪辑。</li>
-    <li>提供了更灵活的控制手段，可以暂停、反向播放。</li>
+    <li>支持多个动画剪辑，能实现复杂的动画效果和动画队列。</li>
+    <li>创建时即确定起始和结束状态，可以精确控制，如暂停播放、反向播放（退回原点）。</li>
     <li>支持多种事件。</li>
   </ul>
 

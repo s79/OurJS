@@ -28,9 +28,9 @@
         '.logger em { background: dodgerblue; }',
         '.logger var, .logger dfn { font-style: normal; }',
         '.logger var { color: white; }',
-        '.logger dfn { display: inline-block; padding: 0 1px; border: 1px solid; border-radius: 3px; }',
-        '.logger .true { color: #A5C261; }',
-        '.logger .false { color: #FF6767; }',
+        '.logger dfn { display: inline-block; padding: 0 1px; font-style: italic; font-weight: bold; text-decoration: underline; }',
+        '.logger .true { color: yellowgreen; }',
+        '.logger .false { color: tomato; }',
         '.logger .true em { background: #A5C261; }',
         '.logger .false em { background: orangered; }'
       ]);
@@ -57,12 +57,16 @@
             logger.clear();
           })
           .insertTo(container);
+      var timer;
       $container
           .on('mouseenter', function() {
+            clearTimeout(timer);
             logger.clearButton.fadeIn();
           })
           .on('mouseleave', function() {
-            logger.clearButton.fadeOut();
+            timer = setTimeout(function() {
+              logger.clearButton.fadeOut();
+            }, 1000);
           });
     }
     injectedStyleRules();

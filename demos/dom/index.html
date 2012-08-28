@@ -12,7 +12,7 @@ textarea { width: 120px; resize: none; }
 .clone_test { color: white; }
 
 fieldset { display: inline-block; width: 460px; margin: 0 5px 10px 0; *display: inline; }
-div.simples { float: left; width: 160px; height: 80px; background: gold; }
+div.samples { float: left; width: 160px; height: 80px; background: gold; }
 div.targets_container { float: right; }
 div.targets { width: 160px; overflow: hidden; background: mediumseagreen; }
 div.simple,
@@ -23,7 +23,7 @@ blockquote { margin: 120px 0 0; padding: 10px; border: 1px solid gainsboro; }
 button samp { padding: 0 5px; border-radius: 3px; }
 samp.target { background: mediumseagreen; }
 samp.sample { background: tomato; }
-samp.simples { background: gold; }
+samp.samples { background: gold; }
 </style>
 </head>
 <body>
@@ -125,7 +125,7 @@ samp.simples { background: gold; }
   <!-- insertTo { -->
   <fieldset>
     <legend>insertTo - 将本元素插入到目标元素的指定位置</legend>
-    <div class="simples">
+    <div class="samples">
       <div id="i_sample" class="simple">$sample</div>
     </div>
     <div class="targets_container">
@@ -144,7 +144,7 @@ samp.simples { background: gold; }
       <br>
       <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="target">$target</samp>, 'after');</code></button>
       <br>
-      <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="simples">$container</samp>);</code></button>
+      <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="samples">$container</samp>);</code></button>
       <br>
     </blockquote>
   </fieldset>
@@ -165,7 +165,7 @@ samp.simples { background: gold; }
   <!-- swap { -->
   <fieldset>
     <legend>swap - 交换本元素目标元素的位置</legend>
-    <div class="simples">
+    <div class="samples">
       <div id="s_sample" class="simple">$sample</div>
     </div>
     <div class="targets_container">
@@ -202,7 +202,7 @@ samp.simples { background: gold; }
   <!-- replace { -->
   <fieldset>
     <legend>replace - 使用本元素替换目标元素</legend>
-    <div class="simples">
+    <div class="samples">
       <div id="r_sample" class="simple">$sample</div>
     </div>
     <div class="targets_container">

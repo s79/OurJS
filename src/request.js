@@ -241,7 +241,7 @@
       requestData = '';
     }
     if (!config.useCache) {
-      url += (url.contains('?') ? '&' : '?') + ++uid;
+      url += (url.contains('?') ? '&' : '?') + '_=' + ++uid;
     }
     // http://bugs.jquery.com/ticket/2865
     if (config.username) {

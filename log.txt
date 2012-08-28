@@ -1,6 +1,13 @@
 ﻿>TODO 动画支持复合属性。
 >Validator 可指定强制验证的 fieldName
 
+>2012-08-28
+合并 fadeIn 和 fadeOut 为 fade。
+演示文档。
+
+>2012-08-27
+log -> logger
+
 >2012-08-24
 简化 localStorage 的实现。
 

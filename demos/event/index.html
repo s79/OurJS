@@ -17,21 +17,14 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
 .container span,
 .container var { float: left; display: block; width: 100px; height: 30px; margin: 0 5px 5px 0; background: gainsboro; line-height: 30px; text-align: center; cursor: default; -display: inline; }
 .container p { clear: both; height: 30px; margin: 0 5px 0 0; background: darkseagreen; font: 12px/30px Verdana; text-align: center; cursor: default; }
-dl { float: left; width: 220px; margin: 0 5px; border: 1px solid silver; background: #252525; color: #8CC; -display: inline; }
+.dragging { border-color: dodgerblue !important; }
+dl { float: left; width: 210px; margin: 0 5px 5px 0; border: 1px solid silver; background: #252525; color: #8CC; -display: inline; *margin-bottom: 0; }
 dt { height: 16px; padding: 5px; border-bottom: 1px solid silver; background: whitesmoke; color: #333; text-align: center; line-height: 16px; }
-dd { height: 128px; padding: 5px; line-height: 1; }
+dd { height: 128px; padding: 5px; font: 12px/12px Consolas, 'Lucida Console', Courier, SimSun, monospace; }
 dd p { margin: 2px; padding: 2px; }
-dd em { display: inline-block; padding: 0 1px; border: 1px solid; border-radius: 3px; }
-dd em.true { color: #A5C261; }
-dd em.false { color: #FF6767; }
-
-#mouse { height: 180px; background: crimson; }
-#div p,
-#mouse div { height: 20px; background: #ffd711; line-height: 20px; cursor: default; }
-#container { position: relative; height: 150px; background: #f5f5f5; }
-#drag { position: absolute; left: 0; top: 0; width: 160px; height: 120px; padding: 3px; border: 2px solid lightsteelblue; background: lightsteelblue; cursor: default; }
-#drag.dragging { border-color: dodgerblue; }
-.focusin { background: silver; }
+dd em { display: inline-block; padding: 0 1px; font-weight: bold; text-decoration: underline; border-radius: 3px; }
+dd em.true { color: yellowgreen; }
+dd em.false { color: tomato; }
 </style>
 </head>
 <body>
@@ -40,7 +33,7 @@ dd em.false { color: #FF6767; }
 
   <h2>添加和删除事件监听器</h2>
 
-  <!-- 多监听器添加及删除 { -->
+  <!-- on/off { -->
   <fieldset>
     <legend>多监听器添加及删除</legend>
     <div id="on_off_logger" style="float: right; width: 407px;"></div>
@@ -62,10 +55,10 @@ dd em.false { color: #FF6767; }
     var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
     var logId = function() {
-      logger.log('<em>logId</em>' + this.id);
+      logger.log('<strong>logId</strong>' + this.id);
     };
     var logText = function() {
-      logger.log('<em>logText</em>' + this.innerText);
+      logger.log('<strong>logText</strong>' + this.innerText);
     };
 
     $('#foo')
@@ -75,140 +68,21 @@ dd em.false { color: #FF6767; }
       $('#bar')
           .on('click', logId)
           .on('click.html', logText);
-      logger.log('已为“bar”添加监听器<strong>logId</strong>和<strong>logText</strong>。');
+      logger.log('已为“bar”添加监听器<em>logId</em>和<em>logText</em>。');
     });
 
     $('#remove_log_id').on('click', function() {
       $('#bar').off('click', logId);
-      logger.log('已删除“bar”的所有<strong>logId</strong>监听器。');
+      logger.log('已删除“bar”的所有<em>logId</em>监听器。');
     });
     $('#remove_log_html').on('click', function() {
       $('#bar').off('click.html', logText);
-      logger.log('已删除“bar”的所有<strong>logText</strong>监听器。');
+      logger.log('已删除“bar”的所有<em>logText</em>监听器。');
     });
 
   });
   </script>
-  <!-- } 多监听器添加及删除 -->
-
-  <h2>事件传播</h2>
-
-  <!-- 事件传播 { -->
-  <fieldset>
-    <legend>红色边框的元素上添加了 click 事件监听器</legend>
-    <div id="propagation_logger" style="float: right; width: 407px;"></div>
-    <div style="float: left; width: 534px;">
-      <div id="propagation" class="container">
-        <bdo>bdo</bdo><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><span>span</span><var>var</var>
-        <p id="propagation_stop">p</p>
-      </div>
-      <blockquote>
-        <label><input id="stop_propagation" type="checkbox" style="vertical-align: text-bottom;"> 取消以上P元素的事件传播</label>
-      </blockquote>
-    </div>
-  </fieldset>
-  <script>
-  execute(function($) {
-    var $logger = $('#propagation_logger');
-    var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
-
-    $('#propagation').on('click', function(e) {
-      logger.log('<strong>' + e.target.nodeName + '</strong> » <em>' + this.nodeName + '</em>');
-    });
-
-    $('#propagation_stop').on('click', function(e) {
-      if ($('#stop_propagation').checked) {
-        e.stopPropagation();
-      }
-    });
-
-  });
-  </script>
-  <!-- } 事件传播 -->
-
-  <h2>事件代理</h2>
-
-  <!-- 事件代理 { -->
-  <fieldset>
-    <legend>红色边框的元素为其所有标签名为 DFN 的后代元素代理监听 mouseenter 和 mouseleave 事件</legend>
-    <div id="relay" class="container" style="padding-bottom: 0; *padding-bottom: 5px;">
-      <bdo>bdo</bdo><dfn><strong>dfn</strong></dfn><cite>cite</cite><dfn><em>dfn</em></dfn><kbd>kbd</kbd><dfn><sup>dfn</sup></dfn><span>span</span><dfn><sub>dfn</sub></dfn>
-    </div>
-  </fieldset>
-  <script>
-  execute(function($) {
-    $('#relay')
-        .on('mouseenter:relay(dfn)', function() {
-          this.morph({width: 150}).highlight();
-        })
-        .on('mouseleave:relay(dfn)', function() {
-          this.morph({width: 100}).highlight('red', 'color');
-        });
-  });
-  </script>
-  <!-- } 事件代理 -->
-
-  <h2>事件对象的属性</h2>
-
-  <!-- 事件对象的属性 { -->
-  <fieldset>
-    <legend>不同类型的事件对象有不同的属性</legend>
-    <dl>
-      <dt>鼠标滚轮事件特有的属性</dt>
-      <dd id="mouse_wheel"></dd>
-    </dl>
-    <dl>
-      <dt>鼠标事件特有的属性</dt>
-      <dd id="mouse_move"></dd>
-    </dl>
-    <dl>
-      <dt>鼠标按键事件特有的属性</dt>
-      <dd id="mouse_press"></dd>
-    </dl>
-    <dl>
-      <dt>鼠标和键盘事件共有的属性</dt>
-      <dd id="key_press"></dd>
-    </dl>
-  </fieldset>
-  <script>
-  execute(function($) {
-    var getText = function(event, properties) {
-      var text = '';
-      properties.forEach(function(property) {
-        var value = event[property];
-        if (typeof value === 'boolean') {
-          value = '<em class="' + value + '">' + value + '</em>';
-        }
-        text += '<p>' + property + ': ' + value + '</p>';
-      });
-      return text;
-    };
-
-    $('#mouse_wheel').on('mousewheel', function(e) {
-      this.innerHTML = getText(e, 'wheelUp wheelDown'.split(' '));
-      // IE8 会自动 preventDefault，因此建议加上，以确保各浏览器中行为一致。
-      e.preventDefault();
-    });
-
-    document
-        .on('mousemove', function(e) {
-          $('#mouse_move').innerHTML = getText(e, 'clientX clientY screenX screenY pageX pageY'.split(' '));
-        })
-        .on('mousedown', function(e) {
-          $('#mouse_press').innerHTML = getText(e, 'leftButton middleButton rightButton'.split(' '));
-        })
-        .on('mousemove, mousedown, keypress', function(e) {
-          $('#key_press').innerHTML = getText(e, 'which ctrlKey altKey shiftKey metaKey'.split(' '));
-        });
-
-    // 测试。
-    $('#mouse_press').on('mouseover', function() {
-      this.fire('mousedown', {leftButton: '此时的属性值是由 fire 方法传递过来的。', middleButton: '系统事件并未触发。', rightButton: '区别方式见 API 文档。'});
-    });
-
-  });
-  </script>
-  <!-- } 事件对象的属性 -->
+  <!-- } on/off -->
 
   <h2>事件的兼容处理</h2>
 
@@ -240,7 +114,7 @@ dd em.false { color: #FF6767; }
 
     var $formEvents = $('#form_events');
     $formEvents.on('focusin, focusout', function(e) {
-      if ($('#disable_focus_logging').checked) {
+      if ($disableFocusLogging.checked) {
         logger.log('<strong>' + e.type + '</strong>');
       }
       this.morph({backgroundColor: e.type === 'focusin' ? 'gold' : 'whitesmoke'})
@@ -256,155 +130,347 @@ dd em.false { color: #FF6767; }
       });
     });
 
+    var $disableFocusLogging = $('#disable_focus_logging').on('change', function(e) {
+      logger.log('输出 focusin/focusout 的日志信息 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+    });
+
   });
   </script>
   <!-- } focusin/focusout/input/change -->
 
-
-  <!-- 拖动事件 { -->
+  <!-- mouseenter/mouseleave { -->
   <fieldset>
-    <legend>拖动事件</legend>
-    <div id="container">
-      <div id="drag">
-        <div id="d41" class="draggable">Draggable</div>
-        <div id="d42" class="draggable">Draggable</div>
-        <div id="i_gray">[灰]</div>
-        <div id="i_blue">[蓝]</div>
+    <legend>mouseenter/mouseleave</legend>
+    <div id="hover_logger" style="float: right; width: 200px;"></div>
+    <div id="over_logger" style="float: right; width: 200px; margin-right: 5px; display: inline;"></div>
+    <div style="float: left; width: 534px;">
+      <div id="hover_outer" class="container" style="border-color: darkseagreen;">
+        <bdo>bdo</bdo><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><span>span</span><var>var</var>
+        <p id="hover_inner">p</p>
       </div>
     </div>
-    <button id="freez">解除以上蓝方块拖动</button>
-    <button id="clear">解除以上蓝方块代理</button>
   </fieldset>
   <script>
-  var $ = document.$;
-  //--------------------------------------------------[拖动事件]
-  var $container = $('#container');
-  var $drag = $('#drag');
+  execute(function($) {
+    var $overLogger = $('#over_logger');
+    var $hoverLogger = $('#hover_logger');
+    var height = $overLogger.getNextSibling().offsetHeight - 2;
+    var overLogger = new Logger($overLogger.setStyle('height', height), true);
+    var hoverLogger = new Logger($hoverLogger.setStyle('height', height), true);
 
-  // 自身。
-  var currentX = 0;
-  var currentY = 0;
-  var maxX = $container.offsetWidth - $drag.offsetWidth;
-  var maxY = $container.offsetHeight - $drag.offsetHeight;
-  $drag.on('mousedragstart.f', function() {
-    currentX = $drag.offsetLeft;
-    currentY = $drag.offsetTop;
-    this.addClass('mousedragging');
-  })
-      .on('mousedrag.f', function(e) {
-        var x = Math.max(Math.min(currentX + e.offsetX, maxX), 0);
-        var y = Math.max(Math.min(currentY + e.offsetY, maxY), 0);
-        this.setStyles({left: x + 'px', top: y + 'px'});
-        $('#i_blue').innerHTML = '[蓝]' + x + ':' + y;
-      })
-      .on('mousedragend.f', function(e) {
-        this.removeClass('mousedragging');
-      });
-  $container.on('mousedrag', function(e) {
-    $('#i_gray').innerHTML = '[灰]' + e.offsetX + ':' + e.offsetY;
+    $('#hover_outer')
+        .on('mouseover, mouseout', function(e) {
+          overLogger.log('<em>' + e.type + '</em>' + e.target.nodeName);
+        })
+        .on('mouseenter, mouseleave', function(e) {
+          hoverLogger.log('<strong>' + e.type + '</strong>' + e.target.nodeName);
+        });
+    $('#hover_inner')
+        .on('mouseenter, mouseleave', function(e) {
+          hoverLogger.log('<strong>' + e.type + '</strong>' + e.target.nodeName);
+        });
+
   });
-
-  // 代理。
-  $drag.on('mousedragstart.c:relay(.draggable)', function(e) {
-    this.setStyle('background', 'greenyellow').innerHTML = 'START';
-//    return false;
-  })
-      .on('mousedrag.c:relay(.draggable)', function(e) {
-        this.innerHTML = e.offsetX + ':' + e.offsetY;
-      })
-      .on('mousedragend.c:relay(.draggable)', function(e) {
-        this.setStyle('background', 'transparent').innerHTML = 'END';
-      });
-
-  // 解除。
-  $('#freez').on('click', function() {
-    $drag.off('mousedragstart.f, mousedrag.f, mousedragend.f');
-  });
-
-  $('#clear').on('click', function() {
-    $drag.off('mousedragstart.c:relay(.draggable), mousedrag.c:relay(.draggable), mousedragend.c:relay(.draggable)');
-  });
-
-  /*
-   $drag.on('mousedragstart', function(e) {
-   console.log('::dragstart::', e.target, e.offsetX, e.offsetY);
-   })
-   .on('mousedrag', function(e) {
-   console.log('::drag::', e.offsetX, e.offsetY);
-   })
-   .on('mousedragend', function(e) {
-   console.log('::dragend::', e.offsetX, e.offsetY);
-   });
-   */
-
   </script>
-  <!-- } 拖动事件 -->
+  <!-- } mouseenter/mouseleave -->
 
-  <!-- 鼠标进入、离开 -->
+  <!-- mousedragstart/mousedrag/mousedragend { -->
   <fieldset>
-    <legend>鼠标进入、离开</legend>
-    <div id="mouse">
-      <div id="d51"></div>
-      <div id="d52"></div>
-      <div id="d53"></div>
-      <cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><samp>samp</samp><var>var</var>
-      <p id="inner">p</p></div>
+    <legend>自定义事件 mousedragstart/mousedrag/mousedragend</legend>
+    <div id="container" style="position: relative; height: 160px; border: 2px solid lightslategray; background: whitesmoke;">
+      <div id="drag" style="position: absolute; left: 0; top: 0; width: 160px; height: 100px; padding: 3px; border: 2px solid lightsteelblue; background: lightsteelblue; cursor: default;">
+        <div id="handle_1" class="draggable">Draggable</div>
+        <div id="handle_2" class="draggable">Draggable</div>
+        <div id="msg_blue">[蓝.坐标]</div>
+        <div id="msg_gray">[灰.偏移]</div>
+      </div>
+    </div>
+    <blockquote>
+      <button id="freez">解除以上蓝方块拖动</button>
+      <button id="clear">解除以上蓝方块代理</button>
+    </blockquote>
   </fieldset>
-
   <script>
+  execute(function($) {
+    var $container = $('#container');
+    var $drag = $('#drag');
 
+    // 自身。
+    var currentX = 0;
+    var currentY = 0;
+    var maxX = $container.clientWidth - $drag.offsetWidth;
+    var maxY = $container.clientHeight - $drag.offsetHeight;
+    $drag
+        .on('mousedragstart', function() {
+          currentX = $drag.offsetLeft;
+          currentY = $drag.offsetTop;
+          this.addClass('dragging');
+        })
+        .on('mousedrag', function(e) {
+          var x = Math.limit(currentX + e.offsetX, 0, maxX);
+          var y = Math.limit(currentY + e.offsetY, 0, maxY);
+          this.setStyles({left: x, top: y});
+          $('#msg_blue').innerHTML = '[蓝.坐标]' + x + ':' + y;
+        })
+        .on('mousedragend', function(e) {
+          this.removeClass('dragging');
+        });
+    $container.on('mousedrag', function(e) {
+      $('#msg_gray').innerHTML = '[灰.偏移]' + e.offsetX + ':' + e.offsetY;
+    });
 
-  //--------------------------------------------------[鼠标进入、离开]
-  var $d51 = $('#d51');
-  var $mouse = $('#mouse');
-  var $inner = $('#inner');
+    // 代理。
+    $drag
+        .on('mousedragstart:relay(.draggable)', function(e) {
+          this.setStyle('background', 'greenyellow').innerHTML = 'START';
+//          return false;
+        })
+        .on('mousedrag:relay(.draggable)', function(e) {
+          this.innerHTML = e.offsetX + ':' + e.offsetY;
+        })
+        .on('mousedragend:relay(.draggable)', function(e) {
+          this.setStyle('background', 'transparent').innerHTML = 'END';
+        });
 
-  function showMessage($target, message) {
-    if ($target.innerHTML.length + message.length > 60) {
-      $target.innerHTML = '';
-    }
-    $target.innerHTML += message;
-  }
+    // 解除。
+    $('#freez').on('click', function() {
+      $drag.off('mousedragstart, mousedrag, mousedragend');
+      this.disabled = true;
+    });
+    $('#clear').on('click', function() {
+      $drag.off('mousedragstart:relay(.draggable), mousedrag:relay(.draggable), mousedragend:relay(.draggable)');
+      this.disabled = true;
+    });
 
-  function over(event) {
-    showMessage($d51, '|Over');
-    console.log(event.originalEvent);
-  }
-
-  function out(event) {
-    showMessage($d51, '|Out');
-  }
-
-  function enter(event) {
-    showMessage($(this.nodeName === 'DIV' ? '#d52' : '#d53'), '|Enter:' + this.nodeName);
-    console.log(event.type);
-  }
-
-  function leave(event) {
-    showMessage($(this.nodeName === 'DIV' ? '#d52' : '#d53'), '|Leave:' + this.nodeName);
-    console.log(event.type);
-  }
-
-  $mouse.on('mouseover', over);
-  $mouse.on('mouseout', out);
-  $mouse.on('mouseenter', enter);
-  $mouse.on('mouseleave', leave);
-  $inner.on('mouseenter', enter);
-  $inner.on('mouseleave', leave);
-
-  /*
-   .on('mousedown.one', function(e) {
-   e.preventDefault();
-   })
-   .on('mousedown.two', function(e) {
-   e.stopPropagation();
-   })
-   .on('mousedown.three', function(e) {
-   e.stopImmediatePropagation();
-   })
-   .off('mousedown.two, mousedown.three');
-   */
+  });
   </script>
+  <!-- } mousedragstart/mousedrag/mousedragend -->
+
+  <h2>事件的默认行为</h2>
+
+  <!-- preventDefault { -->
+  <fieldset>
+    <legend>阻止事件的默认行为</legend>
+    <div id="prevent_default_logger" style="float: right; width: 407px;"></div>
+    <div style="float: left; width: 534px;">
+      <a id="prevent_default_link" href="javascript:alert('链接被点击');">测试链接</a>
+      <blockquote>
+        <label><input id="prevent_default" type="checkbox" style="vertical-align: text-bottom;"> 阻止测试链接的默认行为（浏览器将不会执行 href 中指定的内容）</label>
+      </blockquote>
+    </div>
+  </fieldset>
+  <script>
+  execute(function($) {
+    var $logger = $('#prevent_default_logger');
+    var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
+
+    $('#prevent_default_link')
+        .on('click', function(e) {
+          if ($preventDefault.checked) {
+            e.preventDefault();
+          }
+        })
+        .on('click', function(e) {
+          logger.log('无论默认行为是否被阻止，监听器都能正常工作。');
+        });
+
+    var $preventDefault = $('#prevent_default').on('change', function(e) {
+      logger.log('阻止测试链接的默认行为 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+    });
+
+  });
+  </script>
+  <!-- } preventDefault -->
+
+  <h2>事件的传播</h2>
+
+  <!-- stopPropagation { -->
+  <fieldset>
+    <legend>红色边框的元素上添加了 click 事件监听器</legend>
+    <div id="propagation_logger" style="float: right; width: 407px;"></div>
+    <div style="float: left; width: 534px;">
+      <div id="propagation" class="container">
+        <bdo>bdo</bdo><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><span>span</span><var>var</var>
+        <p id="propagation_stop">p</p>
+      </div>
+      <blockquote>
+        <label><input id="stop_propagation" type="checkbox" style="vertical-align: text-bottom;"> 取消 P 元素的事件传播</label>
+      </blockquote>
+    </div>
+  </fieldset>
+  <script>
+  execute(function($) {
+    var $logger = $('#propagation_logger');
+    var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
+
+    $('#propagation').on('click', function(e) {
+      logger.log('<strong>' + e.target.nodeName + '</strong> » <em>' + this.nodeName + '</em>');
+    });
+
+    $('#propagation_stop').on('click', function(e) {
+      if ($stopPropagation.checked) {
+        e.stopPropagation();
+      }
+    });
+
+    var $stopPropagation = $('#stop_propagation').on('change', function(e) {
+      logger.log('取消 P 元素的事件传播 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+    });
+
+  });
+  </script>
+  <!-- } stopPropagation -->
+
+  <!-- stopImmediatePropagation { -->
+  <fieldset>
+    <legend>立即停止事件的传播</legend>
+    <div id="stop_immediate_propagation_logger" style="float: right; width: 407px;"></div>
+    <div style="float: left; width: 534px;">
+      <button id="stop_immediate_propagation_button" style="height: 100px;">本按钮绑定了三个事件监听器</button>
+      <blockquote>
+        <label><input id="stop_immediate_propagation" type="checkbox" style="vertical-align: text-bottom;"> 在第一个事件监听器中立即阻止事件的传播（后续的监听器将不会被执行）</label>
+      </blockquote>
+    </div>
+  </fieldset>
+  <script>
+  execute(function($) {
+    var $logger = $('#stop_immediate_propagation_logger');
+    var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
+
+    $('#stop_immediate_propagation_button')
+        .on('click', function(e) {
+          if ($stopImmediatePropagation.checked) {
+            e.stopImmediatePropagation();
+          }
+          logger.log('<strong>' + e.type + '</strong>第一个监听器已运行。');
+        })
+        .on('click', function(e) {
+          logger.log('<strong>' + e.type + '</strong>第二个监听器已运行。');
+        })
+        .on('click', function(e) {
+          logger.log('<strong>' + e.type + '</strong>第三个监听器已运行。');
+        });
+
+    var $stopImmediatePropagation = $('#stop_immediate_propagation').on('change', function(e) {
+      logger.log('在第一个事件监听器中立即阻止事件的传播 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+    });
+  });
+  </script>
+  <!-- } stopImmediatePropagation -->
+
+  <h2>事件代理</h2>
+
+  <!-- delegate { -->
+  <fieldset>
+    <legend>红色边框的元素为其所有标签名为 DFN 的后代元素代理监听 mouseenter 和 mouseleave 事件</legend>
+    <div id="relay" class="container" style="padding-bottom: 0; *padding-bottom: 5px;">
+      <bdo>bdo</bdo><dfn><strong>dfn</strong></dfn><cite>cite</cite><dfn><em>dfn</em></dfn><kbd>kbd</kbd><dfn><sup>dfn</sup></dfn><span>span</span><dfn><sub>dfn</sub></dfn>
+    </div>
+  </fieldset>
+  <script>
+  execute(function($) {
+    $('#relay')
+        .on('mouseenter:relay(dfn)', function() {
+          this.morph({width: 150}).highlight();
+        })
+        .on('mouseleave:relay(dfn)', function() {
+          this.morph({width: 100}).highlight('red', 'color');
+        });
+  });
+  </script>
+  <!-- } delegate -->
+
+  <h2>事件对象的属性</h2>
+
+  <!-- properties { -->
+  <fieldset>
+    <legend>不同类型的事件对象有不同的属性</legend>
+    <dl>
+      <dt>鼠标和键盘事件共有的属性</dt>
+      <dd id="keyboard_mouse"></dd>
+    </dl>
+    <dl>
+      <dt>鼠标事件特有的属性</dt>
+      <dd id="mouse"></dd>
+    </dl>
+    <dl>
+      <dt>鼠标按键事件特有的属性</dt>
+      <dd id="mouse_press"></dd>
+    </dl>
+    <dl style="margin-right: 0;">
+      <dt>鼠标滚轮事件特有的属性</dt>
+      <dd id="mouse_wheel"></dd>
+    </dl>
+    <blockquote style="clear: both;">
+      <button id="fier_event">一秒钟后触发一个自定义的 mousedown 事件</button>
+      <span id="timer" style="display: inline-block; width: 0; height: 5px; overflow: hidden; vertical-align: bottom;"></span>
+    </blockquote>
+  </fieldset>
+  <script>
+  execute(function($) {
+    var getText = function(event, properties) {
+      var text = '';
+      properties.forEach(function(property) {
+        var value = event[property];
+        if (typeof value === 'boolean') {
+          value = '<em class="' + value + '">' + value + '</em>';
+        }
+        text += '<p>' + property + ': ' + value + '</p>';
+      });
+      return text;
+    };
+
+    document
+        .on('mousemove, mousedown, keydown', function(e) {
+          $('#keyboard_mouse').innerHTML = getText(e, 'which ctrlKey altKey shiftKey metaKey'.split(' '));
+        })
+        .on('mousemove, mousedown', function(e) {
+          $('#mouse').innerHTML = getText(e, 'clientX clientY screenX screenY pageX pageY'.split(' '));
+        })
+        .on('mousedown', function(e) {
+          $('#mouse_press').innerHTML = getText(e, 'leftButton middleButton rightButton'.split(' '));
+        });
+
+    $('#mouse_wheel').on('mousewheel', function(e) {
+      this.innerHTML = getText(e, 'wheelUp wheelDown'.split(' '));
+      // IE8 会自动 preventDefault，因此建议加上以下这句，以确保各浏览器中行为一致。
+      e.preventDefault();
+    });
+
+    var $fireEvent = $('#fier_event');
+    var $timer = $('#timer');
+    $fireEvent.on('click', function() {
+      $fireEvent.disabled = true;
+      $timer
+          .setStyles({width: 538, backgroundColor: 'lime'})
+          .morph({width: 0, backgroundColor: 'red'}, {
+            duration: 1000,
+            timingFunction: 'linear',
+            onFinish: function() {
+              $fireEvent.disabled = false;
+              document.fire('mousedown', {
+                which: 1024,
+                ctrlKey: '恭',
+                altKey: '喜',
+                shiftKey: '发',
+                metaKey: '财',
+                clientX: '礼',
+                clientY: '乐',
+                screenX: '射',
+                screenY: '御',
+                pageX: '书',
+                pageY: '数',
+                leftButton: '这些属性值是由 fire 方法传递过来的。',
+                middleButton: '系统事件并未触发。',
+                rightButton: '区别方式见 API 文档。'
+              });
+            }
+          });
+    });
+
+  });
+  </script>
+  <!-- } properties -->
 
 </div>
 </body>

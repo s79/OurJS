@@ -608,66 +608,6 @@
     return animationLists[uid] || (animationLists[uid] = {});
   };
 
-  // 供 fadeIn/fadeOut 公用的方法。
-  var fade = function($element, fadeMode, options) {
-    var list = getAnimationList($element);
-
-    // 若列表中已有一个相同模式的 fade 动画正在播放，视为不符合播放条件。
-    if (list[fadeMode]) {
-      return $element;
-    }
-
-    var isFadeInMode = fadeMode === 'fadeIn';
-    var inverseFadeMode = isFadeInMode ? 'fadeOut' : 'fadeIn';
-    options = Object.mixin({duration: 200, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
-    var onStart = function(event) {
-      options.onStart.call($element, event);
-    };
-    var onFinish = function(event) {
-      delete list[fadeMode];
-      options.onFinish.call($element, event);
-    };
-
-    // 若列表中已有一个相反模式的 fade 动画正在播放，则将其重用为本次指定的模式，并重新绑定其回调函数，将其反向播放。
-    if (list[inverseFadeMode]) {
-      var prevFadeAnimation = list[inverseFadeMode].off('play.callback, playfinish.callback, reverse.callback, reversefinish.callback');
-      list[fadeMode] = prevFadeAnimation;
-      delete list[inverseFadeMode];
-      if (prevFadeAnimation.originalFadeMode === fadeMode) {
-        prevFadeAnimation.on('play.callback', onStart).on('playfinish.callback', onFinish).play();
-      } else {
-        prevFadeAnimation.on('reverse.callback', onStart).on('reversefinish.callback', onFinish).reverse();
-      }
-      return $element;
-    }
-
-    // 正常情况，若符合播放条件，则创建动画并开始播放。
-    var displayIsNone = $element.getStyle('display') === 'none';
-    if (isFadeInMode ? displayIsNone : !displayIsNone) {
-      var originalOpacity = $element.getStyle('opacity');
-      var makeElementTransparent = function() {
-        $element.setStyles({display: 'block', opacity: 0});
-      };
-      var hideElement = function() {
-        $element.setStyles({display: 'none', opacity: originalOpacity});
-      };
-      var animation = new Animation().addClip(Animation.createBasicRenderer(function(x, y) {
-        $element.setStyle('opacity', (originalOpacity * (isFadeInMode ? y : 1 - y)).toFixed(2));
-      }), 0, options.duration, options.timingFunction);
-      if (isFadeInMode) {
-        animation.on('playstart', makeElementTransparent).on('reversefinish', hideElement);
-      } else {
-        animation.on('reversestart', makeElementTransparent).on('playfinish', hideElement);
-      }
-      animation.originalFadeMode = fadeMode;
-      list[fadeMode] = animation.on('play.callback', onStart).on('playfinish.callback', onFinish);
-      list[fadeMode].play();
-    }
-
-    return $element;
-
-  };
-
 //--------------------------------------------------[Element.prototype.morph]
   /**
    * 让本元素播放一个渐变动画。
@@ -761,6 +701,95 @@
     return $element;
   };
 
+//--------------------------------------------------[Element.prototype.fade]
+  /**
+   * 让本元素播放一个淡入或淡出动画。
+   * @name Element.prototype.fade
+   * @function
+   * @param {string} [mode] 模式，默认为 'toggle'。
+   *   <table>
+   *     <tr><th>可选值</th><th>含义</th></tr>
+   *     <tr><td><dfn>toggle</dfn></td><td>如果本元素的 display 为 none 则为淡入模式，否则为淡出模式。</td></tr>
+   *     <tr><td><dfn>in</dfn></td><td>淡入模式。</td></tr>
+   *     <tr><td><dfn>out</dfn></td><td>淡出模式。</td></tr>
+   *   </table>
+   * @param {Object} [options] 动画选项。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
+   * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
+   * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
+   * @returns {Element} 本元素。
+   * @description
+   *   如果本元素的动画播放列表中已经存在一个 fade 动画，则停止旧的，播放新的。否则若本元素的 display 不为 none 则不能播放淡入动画，display 为 none 则不能播放淡出动画。
+   */
+  Element.prototype.fade = function(mode, options) {
+    var $element = this;
+    var list = getAnimationList($element);
+    var prevFade = list.fade;
+    var isFadeInMode;
+    switch ((mode || 'toggle').toLowerCase()) {
+      case 'toggle':
+        isFadeInMode = prevFade ? !prevFade.isFadeInMode : $element.getStyle('display') === 'none';
+        break;
+      case 'in':
+        isFadeInMode = true;
+        break;
+      case 'out':
+        isFadeInMode = false;
+        break;
+      default:
+        throw new Error('Invalid mode "' + mode + '"');
+    }
+    if (prevFade || isFadeInMode === ($element.getStyle('display') === 'none')) {
+      options = Object.mixin({duration: 200, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
+      var originalOpacity;
+      var percentageNeedsPlay;
+      if (prevFade) {
+        originalOpacity = prevFade.originalOpacity;
+        var percentagePrevFadeNeedsPlay = prevFade.percentageNeedsPlay;
+        var percentagePrevFadePlayed = prevFade.timePoint / prevFade.duration || 1;  // TODO
+        if (isFadeInMode === prevFade.isFadeInMode) {
+          percentageNeedsPlay = percentagePrevFadeNeedsPlay * (1 - percentagePrevFadePlayed);
+        } else {
+          percentageNeedsPlay = 1 - percentagePrevFadeNeedsPlay * (1 - percentagePrevFadePlayed);
+        }
+        prevFade.pause();
+      } else {
+        originalOpacity = $element.getStyle('opacity');
+        percentageNeedsPlay = 1;
+        if (isFadeInMode) {
+          $element.setStyles({display: 'block', opacity: 0});
+        }
+      }
+      list.fade = new Animation().addClip(Animation.createStyleRenderer($element, {opacity: isFadeInMode ? originalOpacity : 0}), 0, options.duration * percentageNeedsPlay, options.timingFunction);
+      console.warn(percentageNeedsPlay);// TODO: for test.
+      var $x = document.$('#X');
+      list.fade.on('step', function() {// TODO: for test.
+        $x.setStyle('width', $element.getStyle('opacity') * 920);
+      });
+      if (!isFadeInMode) {
+        list.fade.on('playfinish', function() {
+          $element.setStyles({display: 'none', opacity: originalOpacity});
+        });
+      }
+      list.fade
+          .on('play', function(event) {
+            options.onStart.call($element, event);
+          })
+          .on('playfinish', function(event) {
+            delete list.fade;
+            options.onFinish.call($element, event);
+          });
+      list.fade.originalOpacity = originalOpacity;
+      list.fade.isFadeInMode = isFadeInMode;
+      list.fade.percentageNeedsPlay = percentageNeedsPlay;
+      list.fade.play();
+    }
+    return $element;
+  };
+
 //--------------------------------------------------[Element.prototype.fadeIn]
   /**
    * 让本元素播放一个淡入动画。
@@ -779,7 +808,7 @@
    *   如果本元素的动画播放列表中已经存在一个 fadeOut 动画，则反向播放前者，并删除前者的 onFinish 回调，执行后者的 onStart 回调，并在反向播放结束时执行后者的 onFinish 回调。
    */
   Element.prototype.fadeIn = function(options) {
-    fade(this, 'fadeIn', options);
+    this.fade('in', options);
     return this;
   };
 
@@ -801,7 +830,7 @@
    *   如果本元素的动画播放列表中已经存在一个 fadeIn 动画，则反向播放前者，并删除前者的 onFinish 回调，执行后者的 onStart 回调，并在反向播放结束时执行后者的 onFinish 回调。
    */
   Element.prototype.fadeOut = function(options) {
-    fade(this, 'fadeOut', options);
+    this.fade('out', options);
     return this;
   };
 
