@@ -112,13 +112,13 @@ execute(function($) {
     var timer;
     $container
         .on('mouseenter', function() {
-          $prev.fadeIn();
-          $next.fadeIn();
+          $prev.fade('in');
+          $next.fade('in');
           clearInterval(timer);
         })
         .on('mouseleave', function() {
-          $prev.fadeOut();
-          $next.fadeOut();
+          $prev.fade('out');
+          $next.fade('out');
           timer = setInterval(function() {
             $next.fire('click');
           }, config.interval);

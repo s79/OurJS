@@ -114,7 +114,7 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
       cookieLogger.clear();
       document.cookie.split(/\s*;\s*/).forEach(function(item) {
         var seperatorIndex = item.indexOf('=');
-        cookieLogger.log('<em>' + item.slice(0, seperatorIndex) + '</em>' + item.slice(seperatorIndex + 1));
+        cookieLogger.log('<strong>' + item.slice(0, seperatorIndex) + '</strong>' + item.slice(seperatorIndex + 1));
       });
     }
 

@@ -2,35 +2,36 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Request</title>
+<title>Ajax</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
+<script src="../../src/addons/logger.js"></script>
+<style>
+blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
+</style>
 </head>
 <body>
 <div id="content">
   <h1>Ajax</h1>
 
   <h2>Request</h2>
-  <textarea id="output" style="display: block; width: 800px; height: 300px; border: 1px solid gray; background: #252525; color: #8CC; font: 12px Consolas, 'Lucida Console', Courier, SimSun, monospace;"></textarea>
-  <button id="send1">send1 x 5 times</button>
-  <button id="abort1">abort1</button>
-  <br>
-  <button id="send2">send2</button>
-  <button id="abort2">abort2</button>
+  <fieldset>
+    <legend>使用 Request 对象进行异步请求</legend>
+    <div id="logger" style="height: 350px;"></div>
+    <blockquote>
+      <button id="send_txt">send (data.txt) x 5 times</button>
+      <button id="abort_txt">abort (data.txt)</button>
+      <br>
+      <button id="send_xml">send (data.xml)</button>
+      <button id="abort_xml">abort (data.xml)</button>
+    </blockquote>
+  </fieldset>
   <script>
   execute(function($) {
-    var log = function() {
-      var $output = $('#output');
-      $output.value = '';
-      return function(message) {
-        $output.value += message + '\n';
-        $output.scrollTop = 2147483647;
-      };
-    }();
+    var logger = new Logger($('#logger'), true);
 
     var times = 0;
-
-    window.request1 = new Request('data.txt', {
+    var requestTXT = new Request('data.txt', {
       useCache: false,
       minTime: 400,
       maxTime: 600,
@@ -39,12 +40,10 @@
       }
     })
         .on('start', function(e) {
-          log('>> START(1) ' + e.data);
+          logger.log('<strong>start</strong>' + e.data);
         })
         .on('finish', function(e) {
-//        var message = 'request1: ' + JSON.stringify(e);
-          var message = e.status + ':' + e.statusText + ' ' + e.text;
-          log(message);
+          logger.log('<strong>finish</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
         })
         .on('finish', function(e) {
           if (times++ < 5) {
@@ -56,37 +55,30 @@
             times = 0;
           }
         });
+    $('#send_txt').on('click', function() {
+      requestTXT.send('{"type": "wait", "orderByTime": "true", "pageSize": 10, "pageIndex": 1}');
+    });
+    $('#abort_txt').on('click', function() {
+      requestTXT.abort();
+    });
 
-    window.request2 = new Request('data.xml', {
+    var requestXML = new Request('data.xml', {
       method: 'get',
       useCache: true,
       minTime: 500,
       maxTime: 600
     })
         .on('start', function(e) {
-          log('>> START(2) ' + e.data);
+          logger.log('<em>start</em>' + e.data);
         })
         .on('finish', function(e) {
-          var message = 'request2: ' + e.status + ' ' + e.statusText + ' ' + (e.xml && e.xml.documentElement.nodeName);
-          log(message);
+          logger.log('<em>finish</em>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
         });
-
-    var $send1 = $('#send1');
-    var $abort1 = $('#abort1');
-    $send1.on('click', function() {
-      request1.send('{"type": "wait", "orderByTime": "true", "pageSize": 10, "pageIndex": 1}');
+    $('#send_xml').on('click', function() {
+      requestXML.send();
     });
-    $abort1.on('click', function() {
-      request1.abort();
-    });
-
-    var $send2 = $('#send2');
-    var $abort2 = $('#abort2');
-    $send2.on('click', function() {
-      request2.send();
-    });
-    $abort2.on('click', function() {
-      request2.abort();
+    $('#abort_xml').on('click', function() {
+      requestXML.abort();
     });
 
   });

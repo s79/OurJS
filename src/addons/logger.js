@@ -20,8 +20,8 @@
         '.logger div.output { height: 100%; overflow-y: auto; color: #8CC; font: 12px/12px Consolas, "Lucida Console", Courier, SimSun, monospace; white-space: pre-wrap; word-wrap: break-word; }',
         '.logger a { display: none; position: absolute; right: -1px; bottom: -18px; padding: 2px 5px; background: whitesmoke; border: 1px solid silver; border-radius: 0 0 2px 2px; color: black; text-decoration: none; font-size: 12px; line-height: 12px; }',
         '.logger a:hover { background: white; }',
-        '.logger table { border-collapse: sperate; border-spacing: 2px; }',
-        '.logger td { padding: 0; border: none; font-size: 12px; }',
+        '.logger table { border-collapse: sperate; border-spacing: 2px; margin: 2px; }',
+        '.logger td { padding: 2px; border: none; font-size: 12px; }',
         '.logger p { margin: 2px; padding: 2px; }',
         '.logger strong, .logger em { display: inline-block; margin-right: 2px; padding: 0 3px; border-radius: 8px; color: black; font-weight: bold; }',
         '.logger strong { background: gold; }',
@@ -61,11 +61,11 @@
       $container
           .on('mouseenter', function() {
             clearTimeout(timer);
-            logger.clearButton.fadeIn();
+            logger.clearButton.fade('in');
           })
           .on('mouseleave', function() {
             timer = setTimeout(function() {
-              logger.clearButton.fadeOut();
+              logger.clearButton.fade('out');
             }, 1000);
           });
     }
@@ -110,6 +110,8 @@
    * @param {string} […] 本组列表的第 n 项，可以包含 HTML 标记。
    * @function
    * @returns {Object} Logger 对象。
+   * @description
+   *   如果一个值是布尔类型，则自动为其着色。
    */
   Logger.prototype.list = function() {
     var lastChild = this.outputElement.getLastChild();
@@ -120,6 +122,9 @@
     var tr = tbody.insertRow(-1);
     var td;
     Array.from(arguments).forEach(function(item) {
+      if (typeof item === 'boolean') {
+        item = '<dfn class="' + item + '">' + item + '</dfn>';
+      }
       td = tr.insertCell(-1);
       td.innerHTML = item;
     });

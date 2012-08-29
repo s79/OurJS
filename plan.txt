@@ -1,6 +1,8 @@
 ﻿--------------------------------------------------[TODO]
 >TODO: [HIGH] 加入 .resources 目录中的 Utilities Cookie placeholder 页码 Include CSS插入 省略号等。
 
+>TODO: 加入 slide scroll 动画后全项目搜索 fade 关键字，在相应位置补齐对应的说明。
+
 >TODO: include (from site.js)
 
 >TODO: 添加白名单。

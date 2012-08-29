@@ -497,7 +497,7 @@ finder.find(employees);
 <p>动画效果可以使用 Animation 组件创建。</p>
 <p>
   可以为 Animation 的实例添加多个动画剪辑，以实现复杂的动画效果和动画队列。<br>
-  Animation 支持多种事件，还提供了灵活的控制手段，可以随时暂停播放或反向播放（退回原点）：
+  Animation 支持多种事件，还提供了灵活的控制手段，可以随时暂停或倒放：
 </p>
 <pre>
 var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {
@@ -515,7 +515,7 @@ $menu
 </pre>
 <p>当动画开始播放时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。</p>
 <p>如果页面中的多个动画同时处于播放状态，动画引擎将同频同步播放这些动画的每一帧，以减少浏览器 reflow 和 repaint 的次数，提高渲染效率，使动画能够更流畅的播放。</p>
-<p>Animation 还封装了常见的针对某一个元素的补间动画，并以 Element.prototype.morph/highlight/fadeIn/fadeOut 等形式提供了快捷的 API。</p>
+<p>Animation 还封装了常见的针对某一个元素的补间动画，并以 Element.prototype.morph/highlight/fade 等形式提供了快捷的 API。</p>
 <blockquote>
   <p>相关演示请参考 <a href="../demos/animation/" target="_blank" class="link">演示 - 动画</a>。</p>
 </blockquote>

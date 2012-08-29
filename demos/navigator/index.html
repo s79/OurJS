@@ -16,23 +16,23 @@
   <h2>在 navigator 上扩展的属性</h2>
   <fieldset>
     <legend>navigator.* 是根据浏览器特性判断得到的结果</legend>
-    <div id="navigator"></div>
+    <div id="navigator_logger"></div>
   </fieldset>
   <fieldset>
     <legend>navigator.userAgentInfo.* 是从 UA 中得到的结果</legend>
-    <div id="ua_info"></div>
+    <div id="ua_info_logger"></div>
   </fieldset>
   <script>
   execute(function($) {
     // navigator.* 预览。
-    var navigatorLogger = new Logger($('#navigator'));
+    var navigatorLogger = new Logger($('#navigator_logger'));
     ['inStandardsMode', 'isIE10', 'isIElt10', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'].forEach(function(key) {
       var value = navigator[key];
-      navigatorLogger.list('<p style="text-align: right;">' + key + ':</p>', '<p' + (value ? ' style="background: greenyellow; color: black;"' : '') + '>' + value + '</p>');
+      navigatorLogger.list('<div style="text-align: right;">' + key + ':</div>', value);
     });
 
     // navigator.userAgent 和 navigator.userAgentInfo.* 预览。
-    var uaInfoLogger = new Logger($('#ua_info'));
+    var uaInfoLogger = new Logger($('#ua_info_logger'));
     uaInfoLogger.log('<var>' + navigator.userAgent + '</var>');
     uaInfoLogger.log(JSON.stringify(navigator.userAgentInfo));
 

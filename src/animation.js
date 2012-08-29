@@ -20,7 +20,7 @@
    *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。
    *   传入函数的参数 x 为时间点，y 为偏移量，它们的值都将从 0 趋向于 1。
    *   在动画在进行中时，执行动画对象的 stop 方法即可停止的继续调用，但也会阻止事件 end 的触发。
-   *   调用 reverse 可以反向播放，但要注意，反向播放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
+   *   调用 reverse 可以倒放，但要注意，倒放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
    *   播放一个动画时，调用 play 或 reverse 方法后即同步播放对应方向的首帧，中间帧及末帧由引擎异步播放。
    *   如果一个动画剪辑的持续时间为 0，则 play 时传入的 x 值为 1，reverse 时传入的 x 值为 0。
    *
@@ -28,7 +28,7 @@
    *   当需要定制一个可以精确控制的动画时，建议使用 Animation，Animation 对象中的 Clip 会记录动画创建时的状态，而且不仅可以正向播放，还可以随时回退到起点。
    *   否则应使用 Element 实例上的对应简化动画方法，这些简化方法每次调用都会自动创建新的 Animation 对象，而不保留之前的状态，这样就可以随时以目标元素最新的状态作为起点来播放动画。
    *   一个明显的差异是为不同类型的样式渐变动画设置相同的相对长度的变化值：
-   *   在直接使用 Animation 的情况下，无论如何播放/反向播放，目标元素将始终在起点/终点之间渐变。
+   *   在直接使用 Animation 的情况下，无论如何播放/倒放，目标元素将始终在起点/终点之间渐变。
    *   在使用 Element.prototype.morph 方法时，传入同样的参数，多次播放时，目标元素将以上一次的终点作为起点，开始渐变。
    */
 
@@ -266,11 +266,11 @@
    * @fires playfinish
    *   正向播放结束后（渲染整个动画的最后一帧之后）触发。
    * @fires reverse
-   *   成功调用 reverse 方法后，反向播放开始前触发。
+   *   成功调用 reverse 方法后，倒放开始前触发。
    * @fires reversestart
-   *   反向播放开始前（渲染整个动画的第一帧之前）触发。
+   *   倒放开始前（渲染整个动画的第一帧之前）触发。
    * @fires reversefinish
-   *   反向播放结束后（渲染整个动画的最后一帧之后）触发。
+   *   倒放结束后（渲染整个动画的最后一帧之后）触发。
    * @fires step
    *   渲染动画的每一帧之后触发。
    * @fires pause
@@ -347,7 +347,7 @@
       if (!animation.timestamp && (animation.status === PLAYING || animation.status === REVERSING)) {
         var timePoint = animation.timePoint;
         var duration = animation.duration;
-        // 每次播放/反向播放时的首帧同步播放。
+        // 每次播放/倒放时的首帧同步播放。
         playAnimation(animation, timePoint/* ? timePoint : (isPlayMethod ? 0 : duration)*/, isPlayMethod);
         // 如果尚有未播放的帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
         if (isPlayMethod ? timePoint !== duration : timePoint !== 0) {
@@ -360,12 +360,12 @@
 
 //--------------------------------------------------[Animation.prototype.reverse]
   /**
-   * 反向播放动画。
+   * 倒放动画。
    * @name Animation.prototype.reverse
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   如果当前动画正在反向播放中，或时间点已到达起点，则调用此方法无效。
+   *   如果当前动画正在倒放中，或时间点已到达起点，则调用此方法无效。
    */
   Animation.prototype.reverse = function() {
     return this.play(INTERNAL_IDENTIFIER_REVERSE);
@@ -378,7 +378,7 @@
    * @function
    * @returns {Object} Animation 对象。
    * @description
-   *   仅在动画处于“播放”或“反向播放”状态时，调用此方法才有效。
+   *   仅在动画处于“播放”或“倒放”状态时，调用此方法才有效。
    */
   Animation.prototype.pause = function() {
     var animation = this;
@@ -592,9 +592,8 @@
    *
    * 扩展方法：
    *   Element.prototype.morph
-   *   Element.prototype.fadeIn
-   *   Element.prototype.fadeOut
    *   Element.prototype.highlight
+   *   Element.prototype.fade
    */
 
   // 空函数。
@@ -614,7 +613,7 @@
    * @name Element.prototype.morph
    * @function
    * @param {Object} styles 目标样式，元素将向指定的目标样式渐变。目标样式包含一条或多条要设置的样式声明，与 setStyles 的参数的差异如下：
-   *   1. 不能使用复合属性。  // TODO: 待支持。
+   *   1. 不能使用复合属性。
    *   2. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
    * @param {Object} [options] 动画选项。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
@@ -631,10 +630,11 @@
     var $element = this;
     options = Object.mixin({duration: 400, timingFunction: 'ease', onStart: empty, onFinish: empty}, options || {});
     var list = getAnimationList($element);
-    if (list.morph) {
-      list.morph.pause();
+    var prevMorph = list.morph;
+    if (prevMorph) {
+      prevMorph.pause();
     }
-    list.morph = new Animation()
+    var morph = list.morph = new Animation()
         .addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction)
         .on('playstart', function(event) {
           options.onStart.call($element, event);
@@ -643,7 +643,7 @@
           delete list.morph;
           options.onFinish.call($element, event);
         });
-    list.morph.play();
+    morph.play();
     return $element;
   };
 
@@ -672,12 +672,13 @@
     options = Object.mixin({duration: 500, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
     var originalColor;
     var list = getAnimationList($element);
-    if (list.highlight) {
-      var prevHighlight = list.highlight.pause();
-      if (property === prevHighlight.highlightProperty) {
+    var prevHighlight = list.highlight;
+    if (prevHighlight) {
+      prevHighlight.pause();
+      if (property === prevHighlight.property) {
         originalColor = prevHighlight.originalColor;
       } else {
-        $element.setStyle(prevHighlight.highlightProperty, prevHighlight.originalColor);
+        $element.setStyle(prevHighlight.property, prevHighlight.originalColor);
       }
     }
     if (!originalColor) {
@@ -685,7 +686,7 @@
     }
     var styles = {};
     styles[property] = originalColor;
-    list.highlight = new Animation()
+    var highlight = list.highlight = new Animation()
         .on('playstart', function(event) {
           $element.setStyle(property, color);
           this.addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction);
@@ -695,9 +696,9 @@
           delete list.highlight;
           options.onFinish.call($element, event);
         });
-    list.highlight.originalColor = originalColor;
-    list.highlight.highlightProperty = property;
-    list.highlight.play();
+    highlight.originalColor = originalColor;
+    highlight.property = property;
+    highlight.play();
     return $element;
   };
 
@@ -766,7 +767,7 @@
           $element.setStyles({display: 'block', opacity: 0});
         }
       }
-      list.fade = new Animation()
+      var fade = list.fade = new Animation()
           .addClip(Animation.createStyleRenderer($element, {opacity: isFadeInMode ? originalOpacity : 0}), 0, options.duration * percentageNeedsPlay, options.timingFunction)
           .on('playstart', function(event) {
             options.onStart.call($element, event);
@@ -779,56 +780,12 @@
             }
             options.onFinish.call($element, event);
           });
-      list.fade.isFadeInMode = isFadeInMode;
-      list.fade.originalOpacity = originalOpacity;
-      list.fade.percentageNeedsPlay = percentageNeedsPlay;
-      list.fade.play();
+      fade.isFadeInMode = isFadeInMode;
+      fade.originalOpacity = originalOpacity;
+      fade.percentageNeedsPlay = percentageNeedsPlay;
+      fade.play();
     }
     return $element;
-  };
-
-//--------------------------------------------------[Element.prototype.fadeIn]
-  /**
-   * 让本元素播放一个淡入动画。
-   * @name Element.prototype.fadeIn
-   * @function
-   * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
-   * @param {Function} options.onStart 播放开始时的回调。
-   *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
-   *   该函数被调用时 this 的值为本元素。
-   * @returns {Element} 本元素。
-   * @description
-   *   display 不为 none 的元素不能播放淡入动画。
-   *   如果本元素的动画播放列表中已经存在一个 fadeOut 动画，则反向播放前者，并删除前者的 onFinish 回调，执行后者的 onStart 回调，并在反向播放结束时执行后者的 onFinish 回调。
-   */
-  Element.prototype.fadeIn = function(options) {
-    this.fade('in', options);
-    return this;
-  };
-
-//--------------------------------------------------[Element.prototype.fadeOut]
-  /**
-   * 让本元素播放一个淡出动画。
-   * @name Element.prototype.fadeOut
-   * @function
-   * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
-   * @param {Function} options.onStart 播放开始时的回调。
-   *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
-   *   该函数被调用时 this 的值为本元素。
-   * @returns {Element} 本元素。
-   * @description
-   *   display 为 none 的元素不能播放淡出动画。
-   *   如果本元素的动画播放列表中已经存在一个 fadeIn 动画，则反向播放前者，并删除前者的 onFinish 回调，执行后者的 onStart 回调，并在反向播放结束时执行后者的 onFinish 回调。
-   */
-  Element.prototype.fadeOut = function(options) {
-    this.fade('out', options);
-    return this;
   };
 
 })();

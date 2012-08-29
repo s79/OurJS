@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Overlay</title>
-<link rel="stylesheet" href="../stylesheets/framework.css">
+<link rel="stylesheet" href="../stylesheets/common.css">
 <script src="../dev.js"></script>
 <script src="../src/components/dialog.js"></script>
 <style>
@@ -43,7 +43,7 @@ select { width: 100px; background: orangered; }
 <button style="left: 175px; top: 400px;" onclick="$div.setStyle('position', 'absolute');">div.position=absolute</button>
 <button style="left: 175px; top: 450px;" onclick="$div.setStyle('display', 'block');">div.display=block</button>
 <button style="left: 175px; top: 500px;" onclick="$div.setStyle('display', 'none');">div.display=none</button>
-<button style="left: 175px; top: 550px;" onclick="$div.animate({left: 0, top: 0, backgroundColor: '#ff0000'}, {duration: 5000, onFinish: function(){console.log('finish');}}).fadeOut().fadeIn();">div.animate</button>
+<button style="left: 175px; top: 550px;" onclick="$div.morph({left: 0, top: 0, backgroundColor: '#ff0000'}, {duration: 5000, onFinish: function(){this.fade('out', {onFinish: function() {this.fade('in');}});}});">div.animate</button>
 <script>
 var $ = document.$;
 var bodyOverlay;

@@ -129,7 +129,7 @@ execute(function($) {
           if (isIE6) {
             $ul.setStyle('display', 'block');
           } else {
-            $ul.fadeIn();
+            $ul.fade('in');
           }
         }
       })
@@ -142,7 +142,7 @@ execute(function($) {
           if (isIE6) {
             $ul.setStyle('display', 'none');
           } else {
-            $ul.fadeOut();
+            $ul.fade('out');
           }
         }
       });

@@ -202,8 +202,7 @@ var manifest = {
     '#动画效果',
     'Element.prototype.morph',
     'Element.prototype.highlight',
-    'Element.prototype.fadeIn',
-    'Element.prototype.fadeOut'
+    'Element.prototype.fade'
   ],
   'HTMLFormElement': [
     '#自定义扩展',

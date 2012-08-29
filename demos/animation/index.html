@@ -3,468 +3,537 @@
 <head>
 <meta charset="utf-8">
 <title>动画</title>
-<script src="../../dev.js"></script>
+<script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
 <script src="../../src/addons/logger.js"></script>
 <style>
-ul.list { margin: 10px 0; padding: 0; list-style: none; }
+.demo { float: left; width: 534px; }
+.logger { float: right; width: 407px; }
+div.notice { margin: 30px 0; padding: 5px; border: 1px solid #EEE8AA; border-radius: 2px; background-color: #FFFFE1; }
+div.notice p { margin: 0; }
+div.notice ul { list-style: circle; }
 blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
-button samp { padding: 0 5px; border-radius: 3px; }
-samp.sample { background: gold; }
 </style>
 </head>
 <body>
 <div id="content">
-  <h1>在 Element.prototype 上提供的简单动画</h1>
-  <p class="referral">简单动画的特点：</p>
+<h1>在 Element.prototype 上提供的动画</h1>
+<div class="notice">
+  <p>特点：</p>
   <ul>
-    <li>调用方便，可以满足大部分简单的需要。</li>
-    <li>每次运行是以元素的当前状态为起点，动画比较简单，不能精细的控制。</li>
-    <li>相同的动画效果可以合并。</li>
+    <li>关注点是当前元素，即只能改变当前元素的样式。</li>
+    <li>每次运行都是以元素的当前状态为起点。</li>
+    <li>同类动画效果可以合并。</li>
   </ul>
+</div>
 
-  <h2>渐变动画</h2>
-  <ul class="list">
-    <li>可以为数字值、长度值、颜色值设置渐变。</li>
-    <li>如果本元素的动画播放列表中已经存在一个 morph 动画，则停止旧的，播放新的。</li>
-    <li>被停止的动画的 onFinish 回调不会执行。</li>
-  </ul>
-  <!-- morph { -->
-  <fieldset>
-    <legend>Element.prototype.morph</legend>
-    <div id="sample_morph" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
+<h2>渐变动画</h2>
+<ul>
+  <li>可以为数字值、长度值、颜色值设置渐变。</li>
+  <li>如果本元素的动画播放列表中已经存在一个 morph 动画，则停止旧的，播放新的。</li>
+</ul>
+<!-- morph { -->
+<fieldset>
+  <legend>Element.prototype.morph</legend>
+  <div id="morph_logger" class="logger"></div>
+  <div class="demo">
+    <div id="morph_sample" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
     <blockquote>
-      <button id="run_morph"><samp class="sample">element</samp>.morph(...);</button>
+      <button id="morph">morph(...)</button>
     </blockquote>
-  </fieldset>
-  <script>
-  execute(function($) {
-    $('#run_morph').on('click', function() {
-      $('#sample_morph').morph({
-        // 可以使用相对长度。
-        width: '+=100',
-        borderLeftWidth: '+=10',
-        borderLeftColor: '#808080',
-        // 长度值目前仅支持像素单位，可以省略 'px'，直接使用数字。
-        fontSize: 35,
-        // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置。
-        lineHeight: 80,
-        // 颜色值可以使用颜色名称。
-        backgroundColor: 'tomato',
-        color: '#FFF',
-        opacity: .75
-      }, {
-        duration: 1000,
-        timingFunction: 'bounceIn',
-        onFinish: function() {
-          this.morph({
-            width: 160,
-            borderLeftWidth: 0,
-            borderLeftColor: '#808080',
-            fontSize: 20,
-            backgroundColor: 'gold',
-            color: 'black',
-            opacity: 1
-          }, {
-            onFinish: function() {
-              this.highlight('aqua').innerText = '0';
-            }
-          });
-        }
-      }).innerText++;
+  </div>
+</fieldset>
+<script>
+execute(function($) {
+  var $logger = $('#morph_logger');
+  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
+
+  var $sample = $('#morph_sample');
+  $('#morph').on('click', function() {
+    $sample.morph({
+      // 可以使用相对长度。
+      width: '+=100',
+      borderLeftWidth: '+=10',
+      borderLeftColor: '#808080',
+      // 长度值目前仅支持像素单位，可以省略 'px'，直接使用数字。
+      fontSize: 35,
+      // lineHeight 这个属性也仅支持像素单位，因此省略 'px' 的数字也不会当作数字值来设置。
+      lineHeight: 80,
+      // 颜色值可以使用颜色名称。
+      backgroundColor: 'tomato',
+      color: '#FFF',
+      opacity: .75
+    }, {
+      duration: 1000,
+      timingFunction: 'bounceIn',
+      onStart: function() {
+        logger.log('<strong>onStart</strong>(' + (++this.innerText) + ')');
+      },
+      onFinish: function() {
+        logger.log('<strong>onFinish</strong>');
+        logger.log('回退动画开始播放。');
+        this.morph({
+          width: 160,
+          borderLeftWidth: 0,
+          borderLeftColor: '#808080',
+          fontSize: 20,
+          backgroundColor: 'gold',
+          color: 'black',
+          opacity: 1
+        }, {
+          onStart: function() {
+            logger.log('<em>onStart</em>(回退)');
+          },
+          onFinish: function() {
+            logger.log('<em>onFinish</em>(回退)');
+            this.highlight('aqua').innerText = '0';
+          }
+        });
+      }
     });
   });
-  </script>
-  <!-- } morph -->
 
-  <h2>高亮动画</h2>
-  <ul class="list">
-    <li>如果本元素的动画播放列表中已经存在一个 highlight 动画，则停止旧的，播放新的。</li>
-    <li>虽然高亮动画使用了不同的属性，但在连续播放时，旧的动画也将被停止。</li>
-    <li>被停止的动画的 onFinish 回调不会执行。</li>
-  </ul>
-  <!-- highlight { -->
-  <fieldset>
-    <legend>Element.prototype.highlight</legend>
-    <div id="e_h_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
-    <button id="e_h_1_red">highlight-red</button>
-    <button id="e_h_1_green">highlight-green</button>
-  </fieldset>
-  <pre></pre>
-  <script>
-  execute(function($) {
-    var $target = $('#e_h_1');
-    $('#e_h_1_red').on('click', function() {
-      $target.highlight('orangered', 'backgroundColor', {
-        onFinish: function() {
-          this.innerText += 'R';
-          this.highlight();
-        }
-      });
-    });
-    $('#e_h_1_green').on('click', function() {
-      $target.highlight('greenyellow', 'backgroundColor', {
-        onFinish: function() {
-          this.innerText += 'G';
-        }
-      });
+});
+</script>
+<!-- } morph -->
+
+<h2>高亮动画</h2>
+<ul>
+  <li>如果本元素的动画播放列表中已经存在一个 highlight 动画，则停止旧的，播放新的。</li>
+  <li>虽然高亮动画使用了不同的属性，但在连续播放时，旧的动画也将被停止。</li>
+</ul>
+<!-- highlight { -->
+<fieldset>
+  <legend>Element.prototype.highlight</legend>
+  <div id="highlight_logger" class="logger"></div>
+  <div class="demo">
+    <div id="highlight_sample" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
+    <blockquote>
+      <button id="highlight_red">highlight('orangered')</button>
+      <button id="highlight_green">highlight('greenyellow')</button>
+    </blockquote>
+  </div>
+</fieldset>
+<script>
+execute(function($) {
+  var $logger = $('#highlight_logger');
+  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
+
+  var $sample = $('#highlight_sample');
+  $('#highlight_red').on('click', function() {
+    $sample.highlight('orangered', 'backgroundColor', {
+      onStart: function() {
+        logger.log('<strong>onStart</strong>(orangered)');
+      },
+      onFinish: function() {
+        this.innerText = 'R';
+        logger.log('<strong>onFinish</strong>(orangered)');
+      }
     });
   });
-  </script>
-  <!-- } highlight -->
 
-  <h2>element.fadeIn/fadeOut</h2>
-  <h3>如果本元素的动画播放列表中已经存在一个相同的 fadeIn/fadeOut 动画，则反向播放前者，并删除前者的 onFinish 回调，执行后者的 onStart 回调，并在反向播放结束时执行后者的 onFinish 回调。</h3>
-  <!-- e_f_1 { -->
-  <fieldset>
-    <legend>display 不为 none 的元素不能播放淡入动画。display 为 none 的元素不能播放淡出动画。</legend>
+  $('#highlight_green').on('click', function() {
+    $sample.highlight('greenyellow', 'backgroundColor', {
+      onStart: function() {
+        logger.log('<em>onStart</em>(greenyellow)');
+      },
+      onFinish: function() {
+        this.innerText = 'G';
+        logger.log('<em>onFinish</em>(greenyellow)');
+      }
+    });
+  });
+
+});
+</script>
+<!-- } highlight -->
+
+<h2>淡入淡出</h2>
+<ul>
+  <li>如果本元素的动画播放列表中已经存在一个 fade 动画，则停止旧的，播放新的。<br>这种情况下新动画的播放时间会小于设定的时间（具体取决于旧动画已播放的百分比）。</li>
+  <li>否则若本元素的 display 不为 none 则不能播放淡入动画，display 为 none 则不能播放淡出动画。</li>
+</ul>
+<!-- fade { -->
+<fieldset>
+  <legend>Element.prototype.fade</legend>
+  <div id="fade_logger" class="logger"></div>
+  <div class="demo">
     <div style="height: 88px;">
       <div style="float: left; padding: 2px; border: 2px solid black;">
-        <div id="e_f_1" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
+        <div id="fade_sample" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
       </div>
-      <span>&lArr;黑色方块会自动收缩（IE9 有渲染错误）</span>
     </div>
-    <button id="e_f_1_in">fadeIn()</button>
-    <button id="e_f_1_out">fadeOut()</button>
-  </fieldset>
-  <div style="width: 500px; height: 12px; border: 1px solid gray;">
-    <div id="opacity_value" style="height: 12px; background: yellowgreen;"></div>
+    <div style="float: right; width: 100px; height: 16px; margin-top: -11px; border-radius: 2px 2px 0 0; background: silver; font-size: 12px; line-height: 16px; text-align: center; cursor: help;" title="辅助查看透明度的当前值">透明度指示条</div>
+    <div style="margin-top:5px; height: 10px; border: 1px solid gray; overflow: hidden;">
+      <div id="opacity_value" style="height: 10px; background: yellowgreen;"></div>
+    </div>
+    <blockquote>
+      <button id="fade_in">fade('in')</button>
+      <button id="fade_out">fade('out')</button>
+      <button id="fade_toggle">fade('toggle')</button>
+    </blockquote>
   </div>
-  <script>
-  execute(function($) {
-    var $e = $('#e_f_1');
-    var $x = $('#opacity_value');
+</fieldset>
+<script>
+execute(function($) {
+  var $logger = $('#fade_logger');
+  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
-    var timer;
-    var drawX = function() {
-      $x.setStyle('width', $e.getStyle('opacity') * 500);
-    };
-    var startDrawX = function() {
-      if (!timer) {
-        timer = setInterval(drawX, 16);
-      }
-      drawX();
-    };
-    var stopDrawX = function() {
-      if (timer) {
-        clearInterval(timer);
-        timer = null;
-      }
-      drawX();
-    };
+  var $sample = $('#fade_sample');
+  var $pointer = $('#opacity_value');
 
-    var i = 0;
-    $('#e_f_1_in').on('mouseover', function() {
-      $e.fadeIn({
-        duration: 2500,
-        timingFunction: 'bounceIn',
-        onStart: function() {
-          console.log('Fade in start.');
-          startDrawX();
-        },
-        onFinish: function() {
-          console.log('Fade in finish.');
-          stopDrawX();
-        }
-      });
-    });
-    $('#e_f_1_out').on('mouseover', function() {
-      $e.fadeOut({
-        duration: 1000,
-        timingFunction: 'ease',
-        onStart: function() {
-          console.log('Fade out start.');
-          startDrawX();
-        },
-        onFinish: function() {
-          console.log('Fade out finish.');
-          stopDrawX();
-        }
-      });
+  var timer;
+  var update = function() {
+    // 隐藏时 opacity 会被恢复为原始值，但在指示条上以 0 值显示。
+    $pointer.setStyle('width', $sample.offsetWidth ? ($sample.getStyle('opacity') * 100 + '%') : 0);
+  };
+  var startUpdate = function() {
+    update();
+    if (!timer) {
+      timer = setInterval(update, 16);
+    }
+  };
+  var stopUpdate = function() {
+    update();
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  };
+
+  $('#fade_in').on('click', function() {
+    $sample.fade('in', {
+      duration: 1500,
+      timingFunction: 'bounceIn',
+      onStart: function() {
+        logger.log('<strong>onStart</strong>fade(\'in\')');
+        startUpdate();
+      },
+      onFinish: function() {
+        logger.log('<strong>onFinish</strong>fade(\'in\')');
+        stopUpdate();
+      }
     });
   });
-  </script>
-  <!-- } e_f_1 -->
 
-  <h2 style="margin-top: 100px;">使用 Animation 创建的高级动画</h2>
-  <p class="referral">高级动画的特点：</p>
+  $('#fade_out').on('click', function() {
+    $sample.fade('out', {
+      duration: 750,
+      timingFunction: 'cubicBezier(.25,1.25,.75,-0.25)',
+      onStart: function() {
+        logger.log('<strong>onStart</strong>fade(\'out\')');
+        startUpdate();
+      },
+      onFinish: function() {
+        logger.log('<strong>onFinish</strong>fade(\'out\')');
+        stopUpdate();
+      }
+    });
+  });
+
+  $('#fade_toggle').on('click', function() {
+    $sample.fade('toggle', {
+      duration: 1000,
+      timingFunction: 'ease',
+      onStart: function() {
+        logger.log('<em>onStart</em>fade(\'toggle\')');
+        startUpdate();
+      },
+      onFinish: function() {
+        logger.log('<em>onFinish</em>fade(\'toggle\')');
+        stopUpdate();
+      }
+    });
+  });
+
+});
+</script>
+<!-- } fade -->
+
+<h1 style="margin-top: 100px;">使用 Animation 创建的动画</h1>
+<div class="notice">
+  <p>特点：</p>
   <ul>
-    <li>支持多个动画剪辑，能实现复杂的动画效果和动画队列。</li>
-    <li>创建时即确定起始和结束状态，可以精确控制，如暂停播放、反向播放（退回原点）。</li>
-    <li>支持多种事件。</li>
+    <li>关注点是动画效果，可以改变多个元素的样式。</li>
+    <li>创建时即确定起始和结束状态，可以精确控制，如暂停和倒放。</li>
+    <li>支持多个动画剪辑，支持多种事件，能实现复杂的动画效果和动画队列。</li>
   </ul>
+</div>
 
-  <h2>Animation</h2>
-  <!-- a_1 { -->
-  <style>
-  #a_1 { list-style: none; padding: 0; cursor: default; }
-  #a_1 li { width: 200px; height: 30px; margin: 2px 0; padding-left: 10px; border-left: 0 solid white; background: mediumseagreen; line-height: 30px; }
-  </style>
-  <fieldset>
-    <legend>可以正向播放，也可以反向播放。</legend>
-    <ul id="a_1">
+<h2>Animation</h2>
+<!-- play/reverse { -->
+<style>
+#sample_menu { list-style: none; padding: 0; cursor: default; }
+#sample_menu li { width: 200px; height: 30px; margin: 2px 0; padding-left: 10px; border-left: 0 solid white; background: mediumseagreen; line-height: 30px; }
+</style>
+<fieldset>
+  <legend>播放过程中可以随时倒放</legend>
+  <div id="menu_logger" class="logger"></div>
+  <div class="demo">
+    <ul id="sample_menu">
       <li>菜单一</li>
       <li>菜单二</li>
       <li>菜单三</li>
       <li>菜单四</li>
       <li>菜单五</li>
     </ul>
-  </fieldset>
-  <pre></pre>
-  <script>
-  execute(function($) {
-    $('#a_1').getChildren().forEach(function($menu) {
-      var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
-      $menu
-          .on('mouseenter', function() {
-            animation.play();
-          })
-          .on('mouseleave', function() {
-            animation.reverse();
-          });
-    });
-  });
-  </script>
-  <!-- } a_1 -->
+  </div>
+</fieldset>
+<script>
+execute(function($) {
+  var $logger = $('#menu_logger');
+  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
-  <!-- a_2 { -->
-  <style>
-  #container { position: relative; width: 200px; height: 50px; margin: auto; }
-  #layer { display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; border: 0 solid greenyellow; background: silver; color: red; font: 12px/20px Verdana; text-align: center; overflow: hidden; }
-  #layer.italic { font-style: italic; }
-  #panel { position: relative; width: 500px; margin: auto; }
-  #panel #number,
-  #panel #type { position: absolute; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; }
-  #panel #number { left: 0; text-align: right; }
-  #panel #type { right: 0; text-align: left; }
-  #panel #timeline { position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left; }
-  </style>
-  <fieldset style="position: relative; text-align: center;">
-    <legend style="text-align: left;">支持多个影片剪辑、多种动作及事件。</legend>
-    <div id="container">
-      <div id="layer"></div>
-    </div>
-    <div id="panel">
-      <div id="number"></div>
-      <div id="type"></div>
-      <div id="timeline"></div>
-    </div>
-    <button id="reverse2">reverse</button>
-    <button id="pause2">pause</button>
-    <button id="play2">play</button>
-    <button id="stop2">stop</button>
-    <p>键盘左 = reverse，键盘下 = pause，键盘右 = play，键盘上 = stop。</p>
-    <p>点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
-  </fieldset>
-  <script>
-  execute(function($) {
-//--------------------------------------------------[animation]
-    var $layer = $('#layer').setStyle('opacity', 0);
-    window.animation = new Animation()
-        .addClip(Animation.createStyleRenderer($layer, {opacity: 1}), 0, 700, 'easeOut')
-        .addClip(
-        Animation.createStyleRenderer($layer, {
-          backgroundColor: 'steelblue',
-          borderTopColor: 'silver',
-          borderRightColor: 'dimgray',
-          borderBottomColor: 'dimgray',
-          borderLeftColor: 'silver'
-        }), 600, 400)
-        .addClip(
-        Animation.createStyleRenderer($layer, {
-          left: '-=150',
-          width: '+=300',
-          borderWidth: 10
-        }), 400, 200, 'cubicBezier(.6,0,.6,1.35)')
-        .addClip(
-        Animation.createBasicRenderer(function(x, y) {
-          console.log(x, y);
-          $layer.toggleClass('italic');
-        }), 500, 0, 'linear')
-        .addClip(
-        Animation.createStyleRenderer($layer, {
-          top: '-=150',
-          height: '+=100',
-          color: 'yellow',
-          fontSize: 50,
-          lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
-        }), 0, 1000, 'cubicBezier(.2,1,.8,0)')
-        .on('play', function() {
-          $layer.innerHTML = 'PLAY';
-          console.log('PLAY');
-//        this.stop();
+  $('#sample_menu').getChildren().forEach(function($menu) {
+    var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
+    $menu
+        .on('mouseenter', function() {
+          animation.play();
+          logger.log('<strong>play</strong>' + this.innerText);
         })
-        .on('playstart', function() {
-          $layer.setStyle('display', 'block').innerHTML = 'PLAYSTART';
-          console.log('PLAYSTART');
-//        this.reverse();
-        })
-        .on('playfinish', function() {
-          $layer.innerHTML = 'PLAYFINISH';
-          console.log('PLAYFINISH');
-//        this.reverse();
-        })
-        .on('reverse', function() {
-          $layer.innerHTML = 'REVERSE';
-          console.log('REVERSE');
-//        this.play();
-        })
-        .on('reversestart', function() {
-          $layer.innerHTML = 'REVERSESTART';
-          console.log('REVERSESTART');
-//        this.pause();
-        })
-        .on('reversefinish', function() {
-          $layer.innerHTML = 'REVERSEFINISH';
-          console.log('REVERSEFINISH');
-//        this.play();
-        })
-        .on('step', function() {
-//        console.log('STEP', this.timePoint);
-        })
-        .on('pause', function() {
-          $layer.innerHTML = 'PAUSE';
-          console.log('PAUSE');
-//        this.play();
-        })
-        .on('stop', function() {
-          $layer.innerHTML = 'STOP';
-          console.log('STOP');
-//        this.play();
+        .on('mouseleave', function() {
+          animation.reverse();
+          logger.log('<em>reverse</em>' + this.innerText);
         });
+  });
 
-//--------------------------------------------------[panel]
-    function getRandomColor() {
-      return 'rgb(' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ')';
-    }
+});
+</script>
+<!-- } play/reverse -->
 
-    var $number = $('#number');
-    var $type = $('#type');
-    var $timeline = $('#timeline');
-    var length = $timeline.clientWidth;
-    var duration = animation.duration;
-    animation.clips.forEach(function(clip, index) {
-      var color = getRandomColor();
-      $('<div style="height: 12px;">' + (index + 1) + '</div>').insertTo($number);
-      $('<div style="height: 12px;">' + clip.type + '</div>').insertTo($type);
-      var $clipPanlel = $('<div style="width: ' + clip.duration / duration * length + 'px; height: 12px; margin-left: ' + clip.delay / duration * length + 'px; background: ' + color + '; overflow: hidden;"></div>').insertTo($timeline);
-      if (!$clipPanlel.offsetWidth) {
-        $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
-      }
-      $clipPanlel.on('click', function() {
-        for (var i = 0; i < 299; i++) {
-          $('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>').insertTo($('#canvas'));
-        }
+<!-- complex { -->
+<fieldset style="position: relative;">
+  <legend style="text-align: left;">支持多个影片剪辑和多种事件</legend>
+  <div id="complex_logger" class="logger"></div>
+  <div class="demo" style="text-align: center;">
+    <div style="position: relative; width: 200px; height: 50px; margin: auto;">
+      <div id="foo" style="display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; border: 0 solid greenyellow; background: silver; color: red; font: 12px/20px Verdana; text-align: center; overflow: hidden;">FOO</div>
+      <div id="bar" style="position: absolute; left: 0; top: 45px; width: 200px; height: 5px; background: gray;"></div>
+    </div>
+    <div style="position: relative; width: 500px; margin: auto;">
+      <div id="number" style="position: absolute; left: 0; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; text-align: right;"></div>
+      <div id="type" style="position: absolute; right: 0; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; text-align: left;"></div>
+      <div id="timeline" style="position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left;"></div>
+    </div>
+    <p>键盘左 = reverse，键盘下 = pause，键盘右 = play，键盘上 = stop。<br>点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
+    <blockquote id="animation_controls">
+      <button>reverse</button>
+      <button>pause</button>
+      <button>play</button>
+      <button>stop</button>
+    </blockquote>
+  </div>
+</fieldset>
+<script>
+execute(function($) {
+//--------------------------------------------------[animation]
+  var $foo = $('#foo').setStyle('opacity', 0);
+  var $bar = $('#bar').setStyle('opacity', 0);
+  window.animation = new Animation()
+      .addClip(Animation.createStyleRenderer($foo, {opacity: 1}), 0, 700, 'easeOut')
+      .addClip(
+      Animation.createStyleRenderer($foo, {
+        backgroundColor: 'steelblue',
+        borderTopColor: 'silver',
+        borderRightColor: 'dimgray',
+        borderBottomColor: 'dimgray',
+        borderLeftColor: 'silver'
+      }), 600, 400)
+      .addClip(
+      Animation.createStyleRenderer($foo, {
+        left: '-=160',
+        width: '+=300',
+        borderWidth: 10
+      }), 300, 400, 'cubicBezier(.6,0,.6,1.35)')
+      .addClip(
+      Animation.createBasicRenderer(function(x, y) {
+        logger.log('x=<var>' + x + '</var> y=<var>' + y + '</var>');
+      }), 500, 0, 'linear')
+      .addClip(
+      Animation.createStyleRenderer($foo, {
+        top: '-=150',
+        height: '+=100',
+        color: 'yellow',
+        fontSize: 50,
+        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
+      }), 0, 1000, 'cubicBezier(.6,0,.6,1.35)')
+      .addClip(
+      Animation.createStyleRenderer($bar, {
+        backgroundColor: 'gold',
+        opacity: 1
+      }), 0, 500, 'ease')
+      .addClip(
+      Animation.createStyleRenderer($bar, {
+        top: 20,
+        left: '-=160',
+        width: 520,
+        height: 15,
+        backgroundColor: 'crimson'
+      }), 700, 300, 'ease')
+      .on('play', function() {
+        logger.log('<strong>play</strong>');
+//        this.stop();
+      })
+      .on('playstart', function() {
+        $foo.setStyle('display', 'block');
+        logger.log('<strong>playstart</strong>');
+//        this.reverse();
+      })
+      .on('playfinish', function() {
+        logger.log('<strong>playfinish</strong>');
+//        this.reverse();
+      })
+      .on('reverse', function() {
+        logger.log('<strong>reverse</strong>');
+//        this.play();
+      })
+      .on('reversestart', function() {
+        logger.log('<strong>reversestart</strong>');
+//        this.pause();
+      })
+      .on('reversefinish', function() {
+        logger.log('<strong>reversefinish</strong>');
+//        this.play();
+      })
+      .on('step', function() {
+//        logger.log('<strong>step</strong>');
+      })
+      .on('pause', function() {
+        logger.log('<strong>pause</strong>');
+//        this.play();
+      })
+      .on('stop', function() {
+        logger.log('<strong>stop</strong>');
+//        this.play();
       });
 
+//--------------------------------------------------[panel]
+  var getRandomColor = function() {
+    return 'rgb(' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ', ' + Math.randomRange(0, 255) + ')';
+  };
+  var $number = $('#number');
+  var $type = $('#type');
+  var $timeline = $('#timeline');
+  var length = $timeline.clientWidth;
+  var duration = animation.duration;
+  animation.clips.forEach(function(clip, index) {
+    var color = getRandomColor();
+    $('<div style="height: 12px;">' + (index + 1) + '</div>').insertTo($number);
+    $('<div style="height: 12px;">' + clip.type + '</div>').insertTo($type);
+    var $clipPanlel = $('<div style="width: ' + clip.duration / duration * length + 'px; height: 12px; margin-left: ' + clip.delay / duration * length + 'px; background: ' + color + '; overflow: hidden;"></div>').insertTo($timeline);
+    if (!$clipPanlel.offsetWidth) {
+      $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
+    }
+    $clipPanlel.on('click', function() {
+      for (var i = 0; i < 299; i++) {
+        $('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>').insertTo($('#canvas'));
+      }
     });
-    var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5).insertTo($timeline);
-    animation.addClip(Animation.createStyleRenderer($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
-      $time.setStyle('left', 0);
-    });
+  });
+  var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5).insertTo($timeline);
+  animation.addClip(Animation.createStyleRenderer($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
+    $time.setStyle('left', 0);
+  });
 
 //--------------------------------------------------[controls]
-    document.on('keydown', function(e) {
-      switch (e.which) {
-        case 37:
-          animation.reverse();
-          return false;
-        case 38:
-          animation.stop();
-          return false;
-        case 39:
-          animation.play();
-          return false;
-        case 40:
-          animation.pause();
-          return false;
-      }
-    });
-    $('#play2').on('click', function() {
-      animation.play();
-    });
-    $('#reverse2').on('click', function() {
-      animation.reverse();
-    });
-    $('#pause2').on('click', function() {
-      animation.pause();
-    });
-    $('#stop2').on('click', function() {
-      animation.stop();
-    });
-
-  });
-  </script>
-  <!-- a_2 { -->
-
-  <!-- a_3 { -->
-  <style>
-  #canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; background: black; }
-  #canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
-  .triggers button { width: 100px; }
-  </style>
-  <fieldset id="timing_functions" style="text-align: center;">
-    <legend style="text-align: left;">100% 兼容 CSS3 transition-timing-function 的控速函数。</legend>
-    <div id="canvas"></div>
-    <p>点击 = 清除，Ctrl + 点击 = 一起画，Shift + 点击 = 分别画。</p>
-    <p class="triggers">
-      <button style="background-color: white;">linear</button>
-      <button style="background-color: silver;">bounceIn</button>
-      <button style="background-color: gold;">bounceOut</button>
-      <br>
-      <button style="background-color: orangered;">ease</button>
-      <br>
-      <button style="background-color: greenyellow;;">easeIn</button>
-      <button style="background-color: cornflowerblue;">easeOut</button>
-      <br>
-      <button style="background-color: springgreen;">easeInOut</button>
-      <button style="background-color: orchid;">easeOutIn</button>
-      <br>
-      <button style="background-color: tomato; width: 200px;">cubicBezier(.6,0,.6,1.35)</button>
-      <button style="background-color: yellowgreen; width: 200px;">cubicBezier(.4,-0.35,.4,1)</button>
-      <br>
-      <button style="background-color: steelblue; width: 250px;">cubicBezier(.5,.29,.23,-0.58)</button>
-      <button style="background-color: mediumseagreen; width: 250px;">cubicBezier(.25,1.25,.75,-0.25)</button>
-      <br>
-    </p>
-  </fieldset>
-  <script>
-  execute(function($) {
-//--------------------------------------------------[timingFunctions]
-    var $timingFunctions = $('#timing_functions');
-    var $canvas = $('#canvas');
-    $timingFunctions.on('click:relay(button)', function(e) {
-      var color = this.getStyle('backgroundColor');
-      new Animation()
-          .addClip(
-          Animation.createBasicRenderer(function(x, y) {
-            x = Math.floor(x * 299);
-            y = Math.floor(y * 299);
-            $('<div style="left: ' + x + 'px; bottom: ' + y + 'px; background-color: ' + color + '"></div>').insertTo($canvas);
-          }), 0, 2500, this.innerText)
-          .play();
-    });
-    $canvas.on('click', function(e) {
-      if (e.shiftKey) {
-        $timingFunctions.find('button').forEach(function($button, index) {
-          setTimeout(function() {
-            $button.fire('click');
-          }, index * 100);
-        });
+  document.on('keydown', function(e) {
+    switch (e.which) {
+      case 37:
+        animation.reverse();
         return false;
-      }
-      if (e.ctrlKey) {
-        $timingFunctions.find('button').forEach(function($button) {
+      case 38:
+        animation.stop();
+        return false;
+      case 39:
+        animation.play();
+        return false;
+      case 40:
+        animation.pause();
+        return false;
+    }
+  });
+  $('#animation_controls').on('click:relay(button)', function() {
+    logger.log('<em>' + this.innerText + '</em>');
+    animation[this.innerText]();
+  });
+
+//--------------------------------------------------[logger]
+  var $logger = $('#complex_logger');
+  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
+
+});
+</script>
+<!-- complex { -->
+
+<!-- timing_functions { -->
+<style>
+#canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; border: 1px solid silver; background: #252525; }
+#canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
+#timing_controls button { width: 100px; font-size: 12px; padding: 3px 5px; }
+</style>
+<fieldset style="text-align: center;">
+  <legend style="text-align: left;">100% 兼容 CSS3 transition-timing-function 的控速函数</legend>
+  <div id="canvas"></div>
+  <p>点击 = 清除，Ctrl + 点击 = 一起画，Shift + 点击 = 分别画。</p>
+  <blockquote id="timing_controls">
+    <button style="background-color: white;">linear</button>
+    <button style="background-color: silver;">bounceIn</button>
+    <button style="background-color: gold;">bounceOut</button>
+    <br>
+    <button style="background-color: orangered;">ease</button>
+    <br>
+    <button style="background-color: greenyellow;;">easeIn</button>
+    <button style="background-color: cornflowerblue;">easeOut</button>
+    <br>
+    <button style="background-color: springgreen;">easeInOut</button>
+    <button style="background-color: orchid;">easeOutIn</button>
+    <br>
+    <button style="background-color: tomato; width: 200px;">cubicBezier(.6,0,.6,1.35)</button>
+    <button style="background-color: yellowgreen; width: 200px;">cubicBezier(.4,-0.35,.4,1)</button>
+    <br>
+    <button style="background-color: steelblue; width: 250px;">cubicBezier(.5,.29,.23,-0.58)</button>
+    <button style="background-color: mediumseagreen; width: 250px;">cubicBezier(.25,1.25,.75,-0.25)</button>
+    <br>
+  </blockquote>
+</fieldset>
+<script>
+execute(function($) {
+  var $canvas = $('#canvas');
+  var $controls = $('#timing_controls');
+  var buttons = $controls.find('button');
+
+  $controls.on('click:relay(button)', function(e) {
+    var color = this.getStyle('backgroundColor');
+    new Animation()
+        .addClip(
+        Animation.createBasicRenderer(function(x, y) {
+          x = Math.floor(x * 299);
+          y = Math.floor(y * 299);
+          $('<div></div>').setStyles({left: x, bottom: y, backgroundColor: color}).insertTo($canvas);
+        }), 0, 2500, this.innerText)
+        .play();
+  });
+
+  $canvas.on('click', function(e) {
+    if (e.shiftKey) {
+      buttons.forEach(function($button, index) {
+        setTimeout(function() {
           $button.fire('click');
-        });
-        return false;
-      }
+        }, index * 100);
+      });
+    } else if (e.ctrlKey) {
+      buttons.forEach(function($button) {
+        $button.fire('click');
+      });
+    } else {
       this.empty();
-      return false;
-    });
+    }
+    return false;
   });
-  </script>
-  <!-- } a_3 -->
+
+});
+</script>
+<!-- } timing_functions -->
 
 </div>
 </body>
