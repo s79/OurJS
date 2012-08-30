@@ -788,4 +788,42 @@
     return $element;
   };
 
+//--------------------------------------------------[Element.prototype.cancelAnimation]
+  /**
+   * 取消本元素正在播放的动画。
+   * @name Element.prototype.cancelAnimation
+   * @function
+   * @param {string} [type1] 要停止的第一种动画类型。
+   * @param {string} [type2] 要停止的第二种动画类型。
+   * @param {string} […] 要停止的第 n 种动画类型。
+   * @returns {Element} 本元素。
+   * @description
+   *   如果省略参数，则取消本元素所有正在播放的动画。
+   *   对于 morph 类型的动画，会在当前帧停止。
+   *   对于 highlight 类型的动画，会恢复到动画播放前的状态。
+   *   对于 fade 类型的动画，会跳过补间帧直接完成显示/隐藏。
+   */
+  Element.prototype.cancelAnimation = function() {
+    var $element = this;
+    var types = Array.from(arguments);
+    var list = getAnimationList($element);
+    Object.forEach(list, function(animation, type) {
+      if (types.length === 0 || types.contains(type)) {
+        animation.pause();
+        delete list[type];
+        switch (type) {
+          case 'morph':
+            break;
+          case 'highlight':
+            $element.setStyle(animation.property, animation.originalColor);
+            break;
+          case 'fade':
+            $element.setStyles({display: animation.isFadeInMode ? '' : 'none', opacity: animation.originalOpacity});
+            break;
+        }
+      }
+    });
+    return $element;
+  };
+
 })();

@@ -202,7 +202,8 @@ var manifest = {
     '#动画效果',
     'Element.prototype.morph',
     'Element.prototype.highlight',
-    'Element.prototype.fade'
+    'Element.prototype.fade',
+    'Element.prototype.cancelAnimation'
   ],
   'HTMLFormElement': [
     '#自定义扩展',
