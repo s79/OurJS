@@ -818,7 +818,7 @@
             $element.setStyle(animation.property, animation.originalColor);
             break;
           case 'fade':
-            $element.setStyles({display: animation.isFadeInMode ? '' : 'none', opacity: animation.originalOpacity});
+            $element.setStyles({display: animation.isFadeInMode ? 'block' : 'none', opacity: animation.originalOpacity});
             break;
         }
       }
