@@ -27,7 +27,6 @@ execute(function($) {
    *   {Element} inactiveTab 上一个激活的“标签”。
    *   {Element} inactivePanel 上一个激活的“面板”。
    *   成功调用 activate 方法后触发。
-   * @requires Switcher
    * @description
    *   “标签”和“面板”必须按顺序一一对应，保存在参数 tabs 和 panels 中。
    *   一个“标签”和一个“面板”组成一组“标签面板”。

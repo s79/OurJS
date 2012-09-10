@@ -2081,11 +2081,11 @@
           case 'mousedrag':
           case 'mousedragend':
             // 必须在这组关联事件的最后一个监听器被删除后才清理派发器。
-            var listenersCount = 0;
+            var listenerCount = 0;
             eventHelper[type].related.forEach(function(type) {
-              listenersCount += item[type].length;
+              listenerCount += item[type].length;
             });
-            if (listenersCount) {
+            if (listenerCount) {
               return;
             }
             removeEventListener($element, dispatcher.type, dispatcher);

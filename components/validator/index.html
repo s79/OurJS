@@ -298,7 +298,13 @@ dl.strong .strong { color: #333; font-weight: bold; }
               return 'value=' + data;
             },
             responseParser: function(data) {
-              return {result: JSON.parse(data.text).result};
+              var status = 5;
+              var statusText = '帐号已存在';
+              if (JSON.parse(data.text).result === true) {
+                status = 0;
+                statusText = '验证通过';
+              }
+              return {status: status, statusText: statusText};
             }
           }
         }
@@ -310,15 +316,27 @@ dl.strong .strong { color: #333; font-weight: bold; }
         equals: 'password'
       },
       email: {
-        handler: function(value) {
+        formatVerify: function(value) {
           var atIndex = value.indexOf('@');
           var dotIndex = value.indexOf('.');
-          return value.length === 0 || atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < value.length - 1;
+          var status = 5;
+          var statusText = '格式不正确';
+          if (value.length === 0 || atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < value.length - 1) {
+            status = 0;
+            statusText = '验证通过';
+          }
+          return {status: status, statusText: statusText};
         }
       },
       age: {
-        handler: function(value) {
-          return value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 80;
+        formatVerify: function(value) {
+          var status = 5;
+          var statusText = '格式不正确';
+          if (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 80) {
+            status = 0;
+            statusText = '验证通过';
+          }
+          return {status: status, statusText: statusText};
         }
       },
       os: {
@@ -345,8 +363,8 @@ dl.strong .strong { color: #333; font-weight: bold; }
           getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
         })
         .on('fieldvalidated', function(e) {
-          logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + e.result + '">' + e.result + '</dfn>');
-          getMessageBox(e.name).removeClass('valid, invalid, validating').addClass(e.result ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
+          logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + (e.status === 0) + '">' + e.status + ': ' + e.statusText + '</dfn>');
+          getMessageBox(e.name).removeClass('valid, invalid, validating').addClass(e.status === 0 ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
         })
         .on('validate, validating, validated', function(e) {
           logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
