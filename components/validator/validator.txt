@@ -1,1 +1,1 @@
-{"result": true}
+{"errorMessage": "账号已存在"}

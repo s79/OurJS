@@ -199,7 +199,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
           <tr>
             <th colspan="3" class="submit">
               <button type="reset">复位事件被阻止</button>
-              <button type="submit">确定提交</button>
+              <button id="btn_submit" type="submit">确定提交</button>
             </th>
           </tr>
         </tbody>
@@ -260,6 +260,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
           return false;
         })
         .on('submit', function() {
+          $('#btn_submit').focus();
           validator.validate();
           return false;
         });
@@ -289,7 +290,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
         required: true,
         minLength: 3,
         maxLength: 20,
-        serverSideVerify: {
+        serverSide: {
           url: 'validator.txt',
           config: {
             useCache: false,
@@ -298,13 +299,8 @@ dl.strong .strong { color: #333; font-weight: bold; }
               return 'value=' + data;
             },
             responseParser: function(data) {
-              var status = 5;
-              var statusText = '帐号已存在';
-              if (JSON.parse(data.text).result === true) {
-                status = 0;
-                statusText = '验证通过';
-              }
-              return {status: status, statusText: statusText};
+              var value = $('#form').elements.account.value;
+              return {errorMessage: value.startsWith('our') ? '' : JSON.parse(data.text).errorMessage};
             }
           }
         }
@@ -316,31 +312,16 @@ dl.strong .strong { color: #333; font-weight: bold; }
         equals: 'password'
       },
       email: {
-        formatVerify: function(value) {
+        format: function(value) {
           var atIndex = value.indexOf('@');
           var dotIndex = value.indexOf('.');
-          var status = 5;
-          var statusText = '格式不正确';
-          if (value.length === 0 || atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < value.length - 1) {
-            status = 0;
-            statusText = '验证通过';
-          }
-          return {status: status, statusText: statusText};
+          return (value.length === 0 || atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < value.length - 1) ? '' : '格式不正确';
         }
       },
       age: {
-        formatVerify: function(value) {
-          var status = 5;
-          var statusText = '格式不正确';
-          if (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 80) {
-            status = 0;
-            statusText = '验证通过';
-          }
-          return {status: status, statusText: statusText};
+        format: function(value) {
+          return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 80) ? '' : '格式不正确';
         }
-      },
-      os: {
-        required: true
       },
       games: {
       },
@@ -359,12 +340,20 @@ dl.strong .strong { color: #333; font-weight: bold; }
           logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
         })
         .on('fieldvalidating', function(e) {
-          logger.log('<em>=</em>' + e.name + ' <var>' + e.value + '</var>');
           getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
+          logger.log('<em>=</em>' + e.name + ' <var>' + e.value + '</var>');
         })
         .on('fieldvalidated', function(e) {
-          logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + (e.status === 0) + '">' + e.status + ': ' + e.statusText + '</dfn>');
-          getMessageBox(e.name).removeClass('valid, invalid, validating').addClass(e.status === 0 ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
+          var passed = !e.errorMessage;
+          var $td = getMessageBox(e.name);
+          $td.removeClass('valid, invalid, validating').addClass(passed ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
+          switch (e.name) {
+            case 'account':
+              if (e.value.length >= 3 && !passed) {
+                $td.find('.invalid').getFirst().innerText = e.errorMessage + '（以 our 开头即可通过验证）';
+              }
+          }
+          logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + passed + '">' + (e.errorMessage || 'passed') + '</dfn>');
         })
         .on('validate, validating, validated', function(e) {
           logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));

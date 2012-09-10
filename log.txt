@@ -2,6 +2,10 @@
 >TODO Animation.createStyleRenderer 在首帧才收集样式。
 >Validator 可指定强制验证的 fieldName
 
+>2012-09-10
+更新 Sizzle 版本。
+更新 Validator。
+
 >2012-08-30
 +Element.prototype.cancelAnimation
 
