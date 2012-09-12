@@ -69,7 +69,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
               <p class="hint">请输入 3 - 20 字的帐号名</p>
               <p class="validating">验证中……</p>
               <p class="valid">√ 可以使用</p>
-              <p class="invalid">帐号应在 3 位以上</p>
+              <p class="invalid"></p>
             </td>
           </tr>
           <tr>
@@ -86,7 +86,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
             <td>
               <p class="hint">请输入密码</p>
               <p class="valid">√</p>
-              <p class="invalid">必须输入密码</p>
+              <p class="invalid"></p>
             </td>
           </tr>
           <tr>
@@ -95,7 +95,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
             <td>
               <p class="hint">请重复输入密码以确保您刚才没有输错</p>
               <p class="valid">√</p>
-              <p class="invalid">两次输入的密码不一致</p>
+              <p class="invalid"></p>
             </td>
           </tr>
           <tr>
@@ -104,7 +104,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
             <td>
               <p class="hint">请输入您的 EMail 地址</p>
               <p class="valid">√</p>
-              <p class="invalid">错误的 EMail 地址</p>
+              <p class="invalid"></p>
             </td>
           </tr>
           <tr>
@@ -113,7 +113,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
             <td>
               <p class="hint">请输入年龄</p>
               <p class="valid">√</p>
-              <p class="invalid">年龄应在 18 - 80 之间</p>
+              <p class="invalid"></p>
             </td>
           </tr>
           <tr>
@@ -129,7 +129,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
             </td>
             <td>
               <p class="valid">√</p>
-              <p class="invalid">此为必选项</p>
+              <p class="invalid"></p>
             </td>
           </tr>
           <tr>
@@ -161,7 +161,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
             </td>
             <td>
               <p class="valid">√</p>
-              <p class="invalid">请选择 2 项</p>
+              <p class="invalid"></p>
             </td>
           </tr>
           <tr>
@@ -184,7 +184,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
             <td>
               <p class="hint">多类型混合的表单域</p>
               <p class="valid">√</p>
-              <p class="invalid">必选项（被禁用的控件选定了也无效）</p>
+              <p class="invalid"></p>
             </td>
           </tr>
           <tr>
@@ -193,12 +193,13 @@ dl.strong .strong { color: #333; font-weight: bold; }
             <td>
               <p class="hint">请输入 20 字以内的自我介绍</p>
               <p class="valid">√</p>
-              <p class="invalid">自我介绍应限制在 20 字以内</p>
+              <p class="invalid"></p>
             </td>
           </tr>
           <tr>
             <th colspan="3" class="submit">
-              <button type="reset">复位事件被阻止</button>
+              <button type="reset">表单复位事件被阻止</button>
+              <button id="btn_reset" type="button">复位验证器</button>
               <button id="btn_submit" type="submit">确定提交</button>
             </th>
           </tr>
@@ -245,9 +246,8 @@ dl.strong .strong { color: #333; font-weight: bold; }
     };
 
 //--------------------------------------------------[表单验证]
-    var $form = $('#form');
     var textControls = ['text', 'password', 'textarea'];
-    $form
+    var $form = $('#form')
         .on('focusin, focusout', function(e) {
           var $target = e.target;
           var name = $target.name;
@@ -256,13 +256,12 @@ dl.strong .strong { color: #333; font-weight: bold; }
             getMessageBox(name)[e.type === 'focusin' ? 'addClass' : 'removeClass']('hint');
           }
         })
-        .on('reset', function() {
+        .on('reset, submit', function() {
           return false;
         })
         .on('submit', function() {
           $('#btn_submit').focus();
           validator.validate();
-          return false;
         });
 
     // 中等强度密码参考分值，由 6 位包含小写字母和大写字母的字符组成，且其中没有连续的重复字符。
@@ -285,12 +284,12 @@ dl.strong .strong { color: #333; font-weight: bold; }
       return $parent.getNextSibling();
     };
 
-    var validator = new Validator($form, {
+    window.validator = new Validator($form, {
       account: {
-        required: true,
-        minLength: 3,
-        maxLength: 20,
-        serverSide: {
+        required: [true, '请输入帐号'],
+        minLength: [3, '帐号应在 3 位以上'],
+        maxLength: [20, '帐号应在 20 位以内'],
+        remote: {
           url: 'validator.txt',
           config: {
             useCache: false,
@@ -300,43 +299,43 @@ dl.strong .strong { color: #333; font-weight: bold; }
             },
             responseParser: function(data) {
               var value = $('#form').elements.account.value;
-              return {errorMessage: value.startsWith('our') ? '' : JSON.parse(data.text).errorMessage};
+              return {errorMessage: value.startsWith('our') ? '' : JSON.parse(data.text).errorMessage + '（以 our 开头即可通过验证）'};
             }
           }
         }
       },
       password: {
-        required: true
+        required: [true, '请输入密码']
       },
       'password_confirm': {
-        equals: 'password'
+        equals: ['password', '两次输入的密码不一致']
       },
       email: {
-        format: function(value) {
-          var atIndex = value.indexOf('@');
-          var dotIndex = value.indexOf('.');
-          return (value.length === 0 || atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < value.length - 1) ? '' : '格式不正确';
-        }
+        type: ['email', '错误的 EMail 地址']
       },
       age: {
-        format: function(value) {
-          return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 80) ? '' : '格式不正确';
+        type: ['number', '年龄只能在 18 - 28 之间'],
+        custom: function(value) {
+          return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
         }
       },
       games: {
       },
       colors: {
-        minLength: 2,
-        maxLength: 2
+        minLength: [2, '请选择 2 项'],
+        maxLength: [2, '请选择 2 项']
       },
       numbers: {
-        required: true
+        required: [true, '必选项（被禁用的控件选定了也无效）']
       },
       description: {
-        maxLength: 20
+        maxLength: [20, '自我介绍应限制在 20 字以内'],
+        custom: function(value) {
+          return value.contains(' ') ? '不能包含空格' : '';
+        }
       }
     })
-        .on('fieldvalidate', function(e) {
+        .on('validatefield', function(e) {
           logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
         })
         .on('fieldvalidating', function(e) {
@@ -347,11 +346,8 @@ dl.strong .strong { color: #333; font-weight: bold; }
           var passed = !e.errorMessage;
           var $td = getMessageBox(e.name);
           $td.removeClass('valid, invalid, validating').addClass(passed ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
-          switch (e.name) {
-            case 'account':
-              if (e.value.length >= 3 && !passed) {
-                $td.find('.invalid').getFirst().innerText = e.errorMessage + '（以 our 开头即可通过验证）';
-              }
+          if (!passed) {
+            $td.find('.invalid')[0].innerText = e.errorMessage;
           }
           logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + passed + '">' + (e.errorMessage || 'passed') + '</dfn>');
         })
@@ -359,6 +355,9 @@ dl.strong .strong { color: #333; font-weight: bold; }
           logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
         });
 
+    $('#btn_reset').on('click', function() {
+      validator.reset();
+    });
     /*
      logger.log('age: <var>' + $form.getFieldValue('age') + '</var>');
      logger.log('os: <var>' + $form.getFieldValue('os') + '</var>');

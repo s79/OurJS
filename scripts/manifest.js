@@ -319,6 +319,8 @@ var manifest = {
   ],
   'Validator': [
     'Validator',
-    'Validator.prototype.validate'
+    'Validator.prototype.validateField',
+    'Validator.prototype.validate',
+    'Validator.prototype.reset'
   ]
 };

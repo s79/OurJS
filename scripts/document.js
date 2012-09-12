@@ -84,11 +84,12 @@ execute(function($) {
     };
 
 //--------------------------------------------------[getParameters]
+    var objectKeyPattern = /\.(\w+)/;
     var getParameters = function(symbol) {
       return symbol && symbol.parameters.length ?
           '<dl><dt>参数：</dt><dd><table>' + symbol.parameters.map(
               function(parameter) {
-                return '<tr><td><kbd>&lt;' + parameter.type + '&gt;</kbd></td><td><dfn>' + parameter.name.replace('config.', '<var>config.</var>') + (parameter.isOptional ? '<em>Optional</em>' : '') + '</dfn></td><td>' + parameter.description + '</td></tr>';
+                return '<tr><td><kbd>&lt;' + parameter.type + '&gt;</kbd></td><td><var>' + parameter.name.replace(objectKeyPattern, '.<dfn>$1</dfn>') + (parameter.isOptional ? '<em>Optional</em>' : '') + '</var></td><td>' + parameter.description + '</td></tr>';
               }
           ).join('') + '</table></dd></dl>' :
           '';

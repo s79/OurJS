@@ -83,7 +83,7 @@ var { color: sienna; font-style: italic; }
 #details td { padding: 0 5px; border: none; vertical-align: top; }
 
 #details blockquote table,
-#details table table { margin: 10px 0; }
+#details table table { margin: 10px 0; background: white; }
 #details blockquote table tr:nth-child(even),
 #details table table tr:nth-child(even) { background: transparent; }
 #details blockquote th,
@@ -95,8 +95,12 @@ var { color: sienna; font-style: italic; }
 #details table dl { margin: 0; }
 #details table dd { padding: 0; }
 #details table kbd,
-#details table dfn { display: inline-block; margin: 10px 0; }
+#details table dfn,
+#details table var { display: inline-block; margin: 10px 0; }
+#details table var dfn,
 #details table table kbd,
 #details table table dfn,
+#details table table var,
 #details table p kbd,
-#details table p dfn { display: inline; margin: 0; }
+#details table p dfn,
+#details table p var { display: inline; margin: 0; }
