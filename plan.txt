@@ -1,9 +1,9 @@
 ﻿--------------------------------------------------[TODO]
->TODO: [HIGH] 加入 .resources 目录中的 Utilities Cookie placeholder 页码 Include CSS插入 省略号等。
-
->TODO: 加入 slide scroll 动画后全项目搜索 fade 关键字，在相应位置补齐对应的说明。
+>TODO: 加入 .resources 目录中的 Utilities placeholder 省略号等。
 
 >TODO: include (from site.js)
+
+>TODO: 加入 slide scroll 动画后全项目搜索 fade 关键字，在相应位置补齐对应的说明。
 
 >TODO: 添加白名单。
 && !(/^(?:object|embed)$/i).test(el.tagName)
@@ -18,7 +18,6 @@ colgroup？
 
 >TODO: SWFObject
 
->TODO: [LOW] Dialog -> Popup，Overlay 没有独立存在的必要，但 Popup 可以选择是否带有 Overlay。
 
 /*
 TODO: [LOW] fadeIn/fadeOut 逻辑合并；animation.stop 方法缺少恢复初始状态的功能（考虑到通过事件添加的非线性变换，此功能难以实现，暂建议在 playstart 事件发生时手动处理）。

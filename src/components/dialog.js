@@ -138,6 +138,7 @@ execute(function($) {
       if (!overlay.animation) {
         var config = overlay.config;
         var $container = overlay.target;
+        var containerIsBody = $container === document.body;
         // 创建遮掩层元素。
         var $overlay;
         var resizeOverlayElementForIE6;
@@ -146,7 +147,7 @@ execute(function($) {
           $overlay = $('<div><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>');
           $('<div></div>').setStyles(Object.mixin(config.overlayStyles, {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'})).insertTo($overlay);
           // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
-          if ($container === document.body) {
+          if (containerIsBody) {
             resizeOverlayElementForIE6 = function() {
               overlay.resize();
             };
@@ -155,7 +156,7 @@ execute(function($) {
           $overlay = $('<div></div>').setStyles(config.overlayStyles);
         }
         // 确定遮掩层元素的样式并插入文档树。
-        $overlay.setStyles({display: 'none', position: $container === document.body ? 'fixed' : 'absolute'}).insertTo($container);
+        $overlay.setStyles({display: 'none', position: containerIsBody ? 'fixed' : 'absolute'}).insertTo($container);
         overlay.element = $overlay;
         // 动画效果。
         overlay.animation = new Animation()
@@ -303,14 +304,15 @@ execute(function($) {
     }
     // 确定对话框元素的定位方式。
     var $container = $dialog.getParent();
-    if ($container === document.body && $dialog.getStyle('position') === 'fixed') {
+    var containerIsBody = $container === document.body;
+    if (containerIsBody && $dialog.getStyle('position') === 'fixed') {
       $dialog.setStyle('position', 'fixed');
       dialog.isFixedPositioned = true;
     } else {
       $dialog.setStyle('position', 'absolute');
       dialog.isFixedPositioned = false;
       // $container 必须创建 stacking context。
-      if ($container.getStyle('position') === 'static') {
+      if (!containerIsBody && $container.getStyle('position') === 'static') {
         $container.setStyle('position', 'relative');
       }
     }
@@ -319,7 +321,7 @@ execute(function($) {
     var uid = $container.uid;
     var group = groups[uid] || (groups[uid] = {stack: [], overlay: new window.Overlay($container, config)});
     var stack = group.stack;
-    var overlay = group.overlay;
+    var overlay = dialog.overlay = group.overlay;
 
     // 使用 Animation 建立对话框的操作序列。
     dialog.animation = new Animation()
@@ -347,7 +349,7 @@ execute(function($) {
           // 调整遮掩层。
           overlay.behind($dialog);
           // 仅父元素为 body 的对话框需要在改变窗口尺寸时重新调整位置（假设其他对话框的父元素的尺寸为固定）。
-          if ($container === document.body) {
+          if (containerIsBody) {
             window.on('resize.dialog' + $dialog.uid, navigator.isIE6 ? function() {
               // 避免 IE6 的固定定位计算错误。
               setTimeout(function() {
@@ -381,7 +383,7 @@ execute(function($) {
             overlay.behind();
           }
           // 删除事件监听器。
-          if ($container === document.body) {
+          if (containerIsBody) {
             window.off('resize.dialog' + $dialog.uid);
           }
           // 恢复对话框状态。

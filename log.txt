@@ -1,6 +1,16 @@
-﻿>TODO 动画支持复合属性。
->TODO Animation.createStyleRenderer 在首帧才收集样式。
->Validator 可指定强制验证的 fieldName
+﻿>[LOW]动画支持复合属性。
+>[LOW]Animation.createStyleRenderer 在首帧才收集样式。
+>[LOW]避免多次 fix 同一个同类型的 DOM 事件对象。
+>Dialog -> Popup，Overlay 没有独立存在的必要，但 Popup 可以选择是否带有 Overlay。
+>IE6 打开图片缓存挪到 browser.js 中。
+
+将 UI 组件逐步替换为以 component 元素直接植入 HTML 代码的形式。原因如下：
+1. 之前构造器形式的 UI 组件均至少依赖一个已经存在于文档树中的元素，且几乎不会出现将一个元素作为多个 UI 组件的“源”使用的情况。
+   修改后的 UI 组件更紧凑，更易于使用。（可以将其看作 input 元素的不同类型。）
+2. 取消 Configurable 特性，默认选项仍然提供，只是不可再修改。实际上 UI 组件在目前的应用中也从未使用过 setConfig 方法。
+3. Observable 特性仍以 DOM 事件的方式提供，但需要考虑 fire 方法产生的 DOM 事件对象是否有必要在 DOM 树中传播。
+4. 注意修改时要避免 UI 组件的实例方法与 Element.prototype 中的方法名称冲突。
+5. 需要考虑：各种 html 修改、克隆操作，应如何处理这些特殊元素？replace 掉？重新解析？
 
 >2012-09-10
 更新 Sizzle 版本。
@@ -217,7 +227,7 @@ Fx.base -> Fx.custom
 对于异步事件，仍与以前的方式一致，明确各关联事件触发的时序。
 
 >2012-06-26
-去掉 Dialog 的浏览器仅用动画的判断，将相关注释写入代码，启用动画与否由用户在应用中控制。
+去掉 Dialog 的浏览器禁用动画的判断，将相关注释写入代码，启用动画与否由用户在应用中控制。
 Date.from
 
 >2012-06-24
