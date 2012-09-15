@@ -577,17 +577,25 @@
   // 指定一个固定的 userData 存储文件名。
   var STORE_NAME = 'localStorage';
 
-  // 在当前域的根路径创建一个文档，并在此文档中创建用来保存 userData 的元素。IE6 IE7 IE8 允许在 document 上插入元素，可以确保代码的同步执行。
+  // 用来保存 userData 的元素。
   var storeElement;
-  var getStoreElement = function() {
-    if (!storeElement) {
-      var storeDocument = document.appendChild(document.createElement('<iframe src="/favicon.ico" style="display: none;"></iframe>')).contentWindow.document;
-      storeElement = storeDocument.createElement('var');
-      storeDocument.appendChild(storeElement);
-      storeElement.addBehavior('#default#userData');
-    }
-    return storeElement;
-  };
+
+  // 在当前域的根路径创建一个文档，并在此文档中创建用来保存 userData 的元素。
+  try {
+    // 使用这种方式（而不是在当前文档内直接插入 iframe 元素）可以避免在 IE6 的应用代码中调用 document.write 时出现“已终止操作”的异常。
+    var storeContainerDocument = new ActiveXObject('htmlfile');
+    storeContainerDocument.open();
+    storeContainerDocument.write('<iframe id="store" src="/favicon.ico"></iframe>');
+    storeContainerDocument.close();
+    // IE6 IE7 IE8 允许在 document 上插入元素，可以确保代码的同步执行。
+    var storeDocument = storeContainerDocument.getElementById('store').contentWindow.document;
+    storeElement = storeDocument.appendChild(storeDocument.createElement('var'));
+  } catch (e) {
+    // 若创建失败，则仅实现不能跨路径的 userData 访问。
+    storeElement = document.documentElement;
+  }
+  // 添加行为。
+  storeElement.addBehavior('#default#userData');
 
 //--------------------------------------------------[localStorage.getItem]
   /**
@@ -598,9 +606,8 @@
    * @returns {string} 数据值。
    */
   localStorage.getItem = function(key) {
-    var store = getStoreElement();
-    store.load(STORE_NAME);
-    return store.getAttribute(key);
+    storeElement.load(STORE_NAME);
+    return storeElement.getAttribute(key);
   };
 
 //--------------------------------------------------[localStorage.setItem]
@@ -616,10 +623,9 @@
    *   可以使用中文 key。
    */
   localStorage.setItem = function(key, value) {
-    var store = getStoreElement();
-    store.load(STORE_NAME);
-    store.setAttribute(key, value);
-    store.save(STORE_NAME);
+    storeElement.load(STORE_NAME);
+    storeElement.setAttribute(key, value);
+    storeElement.save(STORE_NAME);
   };
 
 //--------------------------------------------------[localStorage.removeItem]
@@ -630,10 +636,9 @@
    * @param {string} key 数据名。
    */
   localStorage.removeItem = function(key) {
-    var store = getStoreElement();
-    store.load(STORE_NAME);
-    store.removeAttribute(key);
-    store.save(STORE_NAME);
+    storeElement.load(STORE_NAME);
+    storeElement.removeAttribute(key);
+    storeElement.save(STORE_NAME);
   };
 
 //--------------------------------------------------[localStorage.clear]
@@ -643,13 +648,12 @@
    * @function
    */
   localStorage.clear = function() {
-    var store = getStoreElement();
-    var attributes = Array.from(store.XMLDocument.documentElement.attributes);
-    store.load(STORE_NAME);
+    var attributes = Array.from(storeElement.XMLDocument.documentElement.attributes);
+    storeElement.load(STORE_NAME);
     attributes.forEach(function(attribute) {
-      store.removeAttribute(attribute.name);
+      storeElement.removeAttribute(attribute.name);
     });
-    store.save(STORE_NAME);
+    storeElement.save(STORE_NAME);
   };
 
 })();
