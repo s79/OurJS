@@ -31,7 +31,7 @@
 
   // 创建必需的 DOM 对象。
   var $console = $('<form action="" style="display:none; position:absolute; right:0; bottom:0; width:1000px; margin:0; padding:0;">' +
-      '<textarea id="console_output" readonly style="display:block; width:100%; height:120px; margin:0 0 -3px; border:1px solid gray; background:#252525; color:#9ACD32; font:12px Consolas, \'Lucida Console\', Courier, SimSun, monospace;"></textarea>' +
+      '<textarea id="console_output" readonly style="display:block; width:100%; height:120px; margin:0 0 -3px; border:1px solid gray; background:#252525; color:#A4C639; font:12px Consolas, \'Lucida Console\', Courier, SimSun, monospace;"></textarea>' +
       '<input id="console_input" type="text" style="display:block; width:100%; margin:0; border:1px solid gray; background:#252525; color:#F5F5F5; font:12px Consolas, \'Lucida Console\', Courier, SimSun, monospace;">' +
       '</form>')
       .insertTo(document.head);
