@@ -1344,7 +1344,6 @@
    * };
    */
   var eventPool = {};
-//  window.p = eventPool;  // TODO: For test.
 
   var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 4, 'change': 4, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
   var returnTrue = function() {
@@ -1365,7 +1364,10 @@
    *   在一些需要获取浏览器提供的真实事件属性时，可以通过事件对象的 originalEvent.type 属性来辨别事件的真实类型，由上述 fire 方法生成的事件对象的对应属性为空字符串。
    */
   function Event(e, type) {
-    // 保存原始 event 对象。
+    if (!e) {
+      e = window.event;
+    }
+    // 保存原始事件对象。
     this.originalEvent = e;
     // 事件类型，这时候的 type 就是调用 on 时使用的事件类型。
     this.type = type;
@@ -1389,10 +1391,10 @@
     this.timeStamp = e.timeStamp || Date.now();
     // 鼠标和键盘事件，由 fire 方法传递过来的模拟事件对象没有以下信息。
     if (this.isMouseEvent || this.isKeyboardEvent) {
-      this.ctrlKey = !!e.ctrlKey;
-      this.altKey = !!e.altKey;
-      this.shiftKey = !!e.shiftKey;
-      this.metaKey = !!e.metaKey;
+      this.ctrlKey = e.ctrlKey;
+      this.altKey = e.altKey;
+      this.shiftKey = e.shiftKey;
+      this.metaKey = e.metaKey;
       if (this.isMouseEvent) {
         // 坐标。
         this.clientX = e.clientX || 0;
@@ -1834,7 +1836,7 @@
       if (!handlers.dispatcher) {
         // 普通事件使用默认的派发器。
         var dispatcher = function(e) {
-          dispatchEvent($element, handlers, new Event(e || window.event, type));
+          dispatchEvent($element, handlers, new Event(e, type));
         };
         dispatcher.type = type;
         dispatcher.useCapture = false;
@@ -1843,9 +1845,9 @@
           case 'mousewheel':
             // 鼠标滚轮事件，Firefox 的事件类型为 DOMMouseScroll。
             dispatcher = function(e) {
-              e = e || window.event;
               var event = new Event(e, type);
-              var wheel = 'wheelDelta' in e ? -e.wheelDelta : e.detail || 0;
+              var originalEvent = event.originalEvent;
+              var wheel = 'wheelDelta' in originalEvent ? -originalEvent.wheelDelta : originalEvent.detail || 0;
               event.wheelUp = wheel < 0;
               event.wheelDown = wheel > 0;
               dispatchEvent($element, handlers, event);
@@ -1856,7 +1858,7 @@
           case 'mouseleave':
             // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
             dispatcher = function(e) {
-              dispatchEvent($element, handlers, new Event(e || window.event, type), function(event) {
+              dispatchEvent($element, handlers, new Event(e, type), function(event) {
                 var $relatedTarget = event.relatedTarget;
                 // 加入 this.contains 的判断，避免 window 和一些浏览器的 document 对象调用出错。
                 return !$relatedTarget || this.contains && !this.contains($relatedTarget);
@@ -1874,56 +1876,51 @@
             // 注意：应避免在拖拽进行时删除本组事件的监听器，否则可能导致拖拽动作无法正常完成。
             var dragHandlers = {};
             var dragState = null;
-            var dragstart = function(e) {
-              var event = new Event(e || window.event, 'mousedragstart');
-              event.offsetX = event.offsetY = 0;
+            var dragStart = function(e) {
+              var event = new Event(e, 'mousedragstart');
               if (event.leftButton) {
+                event.offsetX = event.offsetY = 0;
                 dispatchEvent($element, dragHandlers.mousedragstart, event);
-                if (event.isDefaultPrevented()) {
-                  return;
+                if (!event.isDefaultPrevented()) {
+                  var $target = event.target;
+                  if ($target.setCapture) {
+                    $target.setCapture();
+                  }
+                  event.preventDefault();
+                  dragState = {target: $target, startX: event.pageX, startY: event.pageY};
+                  dragState.lastEvent = event;
+                  setTimeout(function() {
+                    addEventListener(document, 'mousemove', drag);
+                    addEventListener(document, 'mousedown', dragEnd);
+                    addEventListener(document, 'mouseup', dragEnd);
+                    addEventListener(window, 'blur', dragEnd);
+                  }, 0);
                 }
-              } else {
-                return;
               }
-              var $target = event.target;
-              if ($target.setCapture) {
-                $target.setCapture();
-              }
-              event.preventDefault();
-              dragState = {target: $target, startX: event.pageX, startY: event.pageY};
-              dragState.lastEvent = event;
-              addEventListener(document, 'mousemove', drag);
-              addEventListener(document, 'mousedown', dragend);
-              addEventListener(document, 'mouseup', dragend);
-              addEventListener(window, 'blur', dragend);
             };
             var drag = function(e) {
-              var event = new Event(e || window.event, 'mousedrag');
+              var event = new Event(e, 'mousedrag');
               event.target = dragState.target;
               event.offsetX = event.pageX - dragState.startX;
               event.offsetY = event.pageY - dragState.startY;
               dispatchEvent($element, dragHandlers.mousedrag, event);
               dragState.lastEvent = event;
             };
-            var dragend = function(e) {
-              var event = new Event(e || window.event, 'mousedragend');
-              if (e.type === 'mousedown' && event.leftButton) {
-                return;
-              }
+            var dragEnd = function(e) {
               var $target = dragState.target;
               if ($target.releaseCapture) {
                 $target.releaseCapture();
               }
-              event = dragState.lastEvent;
+              var event = dragState.lastEvent;
               event.type = 'mousedragend';
               dispatchEvent($element, dragHandlers.mousedragend, event);
               dragState = null;
               removeEventListener(document, 'mousemove', drag);
-              removeEventListener(document, 'mousedown', dragend);
-              removeEventListener(document, 'mouseup', dragend);
-              removeEventListener(window, 'blur', dragend);
+              removeEventListener(document, 'mousedown', dragEnd);
+              removeEventListener(document, 'mouseup', dragEnd);
+              removeEventListener(window, 'blur', dragEnd);
             };
-            dispatcher = dragstart;
+            dispatcher = dragStart;
             dispatcher.type = 'mousedown';
             dragHandlers[type] = handlers;
             // HACK：这三个关联事件有相同的派发器和各自的处理器组，此处分别创建另外两个关联事件的项和处理器组。
@@ -1954,7 +1951,7 @@
                 eventHelper.input.setup($element);
                 dispatcher = function(e) {
                   $element.currentValue = $element.value;
-                  dispatchEvent($element, handlers, new Event(e || window.event, type));
+                  dispatchEvent($element, handlers, new Event(e, type));
                 };
                 dispatcher.type = 'input';
               } else if (navigator.isIE8 && nodeName === 'TEXTAREA') {
@@ -1962,14 +1959,14 @@
                 dispatcher = function(e) {
                   if (e.propertyName === 'value' && $element.currentValue !== $element.value) {
                     $element.currentValue = $element.value;
-                    dispatchEvent($element, handlers, new Event(e || window.event, type));
+                    dispatchEvent($element, handlers, new Event(e, type));
                   }
                 };
                 dispatcher.type = 'propertychange';
               } else {
                 dispatcher = function(e) {
                   if (e.propertyName === 'value') {
-                    dispatchEvent($element, handlers, new Event(e || window.event, type));
+                    dispatchEvent($element, handlers, new Event(e, type));
                   }
                 };
                 dispatcher.type = 'propertychange';
@@ -1986,7 +1983,7 @@
                 var target = e.srcElement;
                 if (target.changed) {
                   target.changed = false;
-                  dispatchEvent($element, handlers, new Event(e || window.event, type));
+                  dispatchEvent($element, handlers, new Event(e, type));
                 }
               };
               dispatcher.type = 'click';

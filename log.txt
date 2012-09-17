@@ -1,6 +1,5 @@
 ﻿>[LOW]动画支持复合属性。
 >[LOW]Animation.createStyleRenderer 在首帧才收集样式。
->[LOW]避免多次 fix 同一个同类型的 DOM 事件对象。
 >Dialog -> Popup，Overlay 没有独立存在的必要，但 Popup 可以选择是否带有 Overlay。
 >IE 自动填充未触发 change 事件。
 
