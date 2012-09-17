@@ -374,6 +374,10 @@
           isIE7 = true;
         } else {
           isIE6 = true;
+          try {
+            document.execCommand('BackgroundImageCache', false, true);
+          } catch (e) {
+          }
         }
       }
       isIElt8 = isIE7 || isIE6;
@@ -568,9 +572,8 @@
    * @name localStorage
    * @namespace
    * @description
-   *   在不支持 localStorage 的浏览器中，会使用路径 '/favicon.ico' 来创建启用 userData 的元素。
-   *   当上述路径不存在时 (404)，服务端应避免返回包含脚本的页面，以免出现预料外的异常。
-   *   若出现了异常，且无法控制服务端的 404 页面时，可以在本段脚本执行之前定义一个全局变量 userDataPath 并为其指定一个本域内确定存在的路径。
+   *   在不支持 localStorage 的浏览器中，会使用路径 '/favicon.ico' 来创建启用 userData 的元素。应保证上述路径存在，以免出现预料外的异常。
+   *   userData 的尺寸限制为每文件 128KB，每域 1024KB；受限站点每文件 64KB，每域 640KB。
    */
   var localStorage = window.localStorage = {};
 
