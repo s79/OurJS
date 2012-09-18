@@ -5,10 +5,8 @@
 
 >TODO: 加入 slide scroll 动画后全项目搜索 fade 关键字，在相应位置补齐对应的说明。
 
->TODO: 添加白名单。
+>TODO: $ 添加白名单。
 && !(/^(?:object|embed)$/i).test(el.tagName)
-(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)-参考。
-colgroup？
 
 >TODO: Overlay 升级，支持移动设备浏览器的特殊视口。
 

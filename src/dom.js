@@ -65,7 +65,8 @@
 
 //--------------------------------------------------[HTMLElement.prototype.outerHTML]
   // 为 Firefox 添加 HTMLElement.prototype.outerHTML 属性。
-  /**
+  // Firefox 11.0 开始支持 outerHTML 了。
+  /*
    * 获取/设置本元素（包含后代节点在内）的序列化字符串。
    * @name Element.prototype.outerHTML
    * @type string
@@ -73,38 +74,38 @@
    *   注意：
    *   getter 在处理空标签及特殊字符时，各浏览器行为不一致。
    */
-  if (!('outerHTML' in html)) {
-    var emptyElementPattern = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
-    var isEmptyElement = function(nodeName) {
-      return emptyElementPattern.test(nodeName);
-    };
-
-    HTMLElement.prototype.__defineGetter__('outerHTML', function() {
-      var nodeName = this.nodeName.toLowerCase();
-      var html = '<' + nodeName;
-      var attributes = this.attributes;
-      var i = 0;
-      var length = attributes.length;
-      while (i < length) {
-        if (attributes[i].specified) {
-          html += ' ' + attributes[i].name + '="' + attributes[i].value + '"';
-        }
-        i++;
-      }
-      if (isEmptyElement(nodeName)) {
-        html += '>';
-      } else {
-        html += '>' + this.innerHTML + '</' + nodeName + '>';
-      }
-      return html;
-    });
-    HTMLElement.prototype.__defineSetter__('outerHTML', function(html) {
-      var range = this.ownerDocument.createRange();
-      range.setStartBefore(this);
-      this.parentNode.replaceChild(range.createContextualFragment(html), this);
-      return html;
-    });
-  }
+//  if (!('outerHTML' in html)) {
+//    var emptyElementPattern = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
+//    var isEmptyElement = function(nodeName) {
+//      return emptyElementPattern.test(nodeName);
+//    };
+//
+//    HTMLElement.prototype.__defineGetter__('outerHTML', function() {
+//      var nodeName = this.nodeName.toLowerCase();
+//      var html = '<' + nodeName;
+//      var attributes = this.attributes;
+//      var attribute;
+//      var i = 0;
+//      while (attribute = attributes[i++]) {
+//        if (attribute.specified) {
+//          html += ' ' + attribute.name + '="' + attribute.value + '"';
+//        }
+//        i++;
+//      }
+//      if (isEmptyElement(nodeName)) {
+//        html += '>';
+//      } else {
+//        html += '>' + this.innerHTML + '</' + nodeName + '>';
+//      }
+//      return html;
+//    });
+//    HTMLElement.prototype.__defineSetter__('outerHTML', function(html) {
+//      var range = this.ownerDocument.createRange();
+//      range.setStartBefore(this);
+//      this.parentNode.replaceChild(range.createContextualFragment(html), this);
+//      return html;
+//    });
+//  }
 
 //--------------------------------------------------[HTMLElement.prototype.innerText]
   // 为 Firefox 添加 HTMLElement.prototype.innerText 属性。
@@ -2170,67 +2171,69 @@
    *   HTMLFormElement.prototype.setValidationRules
    */
 
-  // 获得一个或一组控件的当前值。
+  // 获取一个或一组控件的当前值，并对下列不一致的情况（*）作统一化处理。
   // 如果为 select-one 类型：
-  //   最后一个设置了 selected 的 option 认为有效。
-  //   设置了 disabled 的 option 认为无效。
-  //   若没有明确设置 selected 的 option，则认为第一个未设置 disabled 的 option 有效。
-  //     IE6 IE7 不支持 option 和 optgroup 元素的 disabled，参考 http://w3help.org/zh-cn/causes/HF3013。
-  //     Safari 5.1.7 不会寻找第一个未设置 disabled 的 option，其默认 selectedIndex 永远为 0，value 则为第一个 option 的 value，但提交的时候并不会将这个值提交（认为这个 select 不是 successful control）。
-  //     Opera 12.02 会在所有 option 都设置了 disabled 的情况下，将第一个 option 元素的 value 提交。
+  //   取最后一个设置了 selected 的 option 值。
+  //   若该 option 设置了 disabled 则认为本控件无有效值（虽然此时可以取到该控件的 selectedIndex 和 value 值）。
+  //     * IE6 IE7 不支持 option 和 optgroup 元素的 disabled 属性（http://w3help.org/zh-cn/causes/HF3013）。
+  //   若没有设置了 selected 的 option，则取第一个未设置 disabled 的 option 值。
+  //     * Safari 5.1.7 在上述情况发生时，其 selectedIndex 仍为 0，并且认为本控件无有效值。
+  //     ! IE6 IE7 不支持 option 的 disabled 属性，所以其 selectedIndex 将为 0，并且不支持 hasAttribute 方法，因此无法修复本差异。
+  //   若所有的 option 都设置了 disabled，则其 selectedIndex 为 -1，并且认为本控件无有效值。
+  //     * 仅 Firefox 14.0.1 和 Opera 12.02 在上述情况发生时会将其 selectedIndex 设置为 -1，但后者会将第一个 option 元素的 value 作为有效值提交。
+  //     * 其他浏览器则将其 selectedIndex 设置为 0，但认为本控件无有效值。
   // 如果为 select-multiple 类型：
-  //   若没有 option 指定 selected，则认为没有默认选中项，selectedIndex 为 -1，value 为空（多选情况下的 selectedIndex 和 value 无实际意义）。
+  //   若没有设置了 selected 的 option，则认为没有默认选中项，selectedIndex 为 -1，本控件无有效值（多选情况下的 selectedIndex 和 value 无实际意义）。
   //   所有设置了 selected 的 option 认为有效。
   //   所有设置了 disabled 的 option 认为无效。
-  // 使用本方法可以识别出上述情况，并作统一化处理。
   var getCurrentValue = function(control) {
-    var value = [];
+    var value = '';
     if (control.nodeType) {
       switch (control.type) {
+        case 'radio':
+        case 'checkbox':
+          if (control.checked && !control.disabled) {
+            value = control.value;
+          }
+          break;
         case 'select-one':
         case 'select-multiple':
           if (!control.disabled) {
-            // 此处不能使用 Array.from(control.options).forEach(...)，原因见 typeOf 的注释。
+            // 不能使用 Array.from(control.options).forEach(...)，原因见 typeOf 的注释。
             var options = control.options;
             var option;
             var i = 0;
-            var length = options.length;
             if (control.type === 'select-one') {
               var selectedIndex = control.selectedIndex;
-              if (selectedIndex < 0) {
-                selectedIndex = 0;
-              }
-              if (navigator.isSafari && selectedIndex === 0 && options[0].getAttribute('selected') === null) {
-                while (++i < length) {
-                  option = options[i];
-                  if (option.disabled || option.parentNode.disabled) {
-                    continue;
+              if (navigator.isSafari && selectedIndex === 0 && !options[0].hasAttribute('selected')) {
+                while (option = options[++i]) {
+                  if (!option.disabled && !option.parentNode.disabled) {
+                    selectedIndex = i;
+                    break;
                   }
-                  selectedIndex = i;
                 }
               }
-              value = options[selectedIndex].value;
+              if (selectedIndex > 0 && !options[selectedIndex].disabled) {
+                value = options[selectedIndex].value;
+              }
             } else {
-              while (i < length) {
-                option = options[i++];
-                if (!option.disabled && !option.parentNode.disabled && option.selected && option.value) {
+              value = [];
+              while (option = options[i++]) {
+                if (option.selected && !option.disabled && !option.parentNode.disabled) {
                   value.push(option.value);
                 }
               }
             }
           }
           break;
-        case 'radio':
-        case 'checkbox':
-          if (!control.disabled && control.checked && control.value) {
-            value.push(control.value);
-          }
-          break;
         default:
-          value = control.disabled ? '' : control.value;
+          if (!control.disabled) {
+            value = control.value;
+          }
       }
     } else {
-      control.forEach(function(control) {
+      value = [];
+      Array.from(control).forEach(function(control) {
         var v = getCurrentValue(control);
         if (v) {
           value = value.concat(v);
@@ -2248,12 +2251,16 @@
    * @param {String} name 表单域的名称。
    * @returns {string|Array} 表单域的当前值。
    * @description
-   *   当该表单域只包含一个文本、密码、多行文本、单选下拉框、单选框或隐藏控件时，返回字符串，其他情况（该单域只包含一个多选下拉框、复选框控件或者多个任意类型的控件时）返回数组。
-   *   当返回值是数组时，值为空字符串的选定项将被忽略。
+   *   当该表单域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
+   *   其他情况（该表单域只包含一个 select-multiple 类型的控件或者多个任意类型的控件时）返回数组，值为空字符串的项不会被加入数组。
+   * @see http://www.w3.org/TR/REC-html40/interact/forms.html#successful-controls
    */
   HTMLFormElement.prototype.getFieldValue = function(name) {
     var control = this.elements[name];
-    return getCurrentValue(control.nodeType ? control : Array.from(control));
+    if (!control) {
+      throw new Error('Invalid field name "' + name + '"');
+    }
+    return getCurrentValue(control);
   };
 
 //==================================================[document 扩展]
