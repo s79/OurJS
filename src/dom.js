@@ -2170,7 +2170,19 @@
    *   HTMLFormElement.prototype.setValidationRules
    */
 
-  // 获得一个或一组控件的当前值，虽然 IE6 IE7 不支持 option 和 optgroup 元素的 disabled 属性，但使用本方法可以识别出这些情况。
+  // 获得一个或一组控件的当前值。
+  // 如果为 select-one 类型：
+  //   最后一个设置了 selected 的 option 认为有效。
+  //   设置了 disabled 的 option 认为无效。
+  //   若没有明确设置 selected 的 option，则认为第一个未设置 disabled 的 option 有效。
+  //     IE6 IE7 不支持 option 和 optgroup 元素的 disabled，参考 http://w3help.org/zh-cn/causes/HF3013。
+  //     Safari 5.1.7 不会寻找第一个未设置 disabled 的 option，其默认 selectedIndex 永远为 0，value 则为第一个 option 的 value，但提交的时候并不会将这个值提交（认为这个 select 不是 successful control）。
+  //     Opera 12.02 会在所有 option 都设置了 disabled 的情况下，将第一个 option 元素的 value 提交。
+  // 如果为 select-multiple 类型：
+  //   若没有 option 指定 selected，则认为没有默认选中项，selectedIndex 为 -1，value 为空（多选情况下的 selectedIndex 和 value 无实际意义）。
+  //   所有设置了 selected 的 option 认为有效。
+  //   所有设置了 disabled 的 option 认为无效。
+  // 使用本方法可以识别出上述情况，并作统一化处理。
   var getCurrentValue = function(control) {
     var value = [];
     if (control.nodeType) {
@@ -2183,10 +2195,27 @@
             var option;
             var i = 0;
             var length = options.length;
-            while (i < length) {
-              option = options[i++];
-              if (!option.disabled && !option.parentNode.disabled && option.selected && option.value) {
-                value.push(option.value);
+            if (control.type === 'select-one') {
+              var selectedIndex = control.selectedIndex;
+              if (selectedIndex < 0) {
+                selectedIndex = 0;
+              }
+              if (navigator.isSafari && selectedIndex === 0 && options[0].getAttribute('selected') === null) {
+                while (++i < length) {
+                  option = options[i];
+                  if (option.disabled || option.parentNode.disabled) {
+                    continue;
+                  }
+                  selectedIndex = i;
+                }
+              }
+              value = options[selectedIndex].value;
+            } else {
+              while (i < length) {
+                option = options[i++];
+                if (!option.disabled && !option.parentNode.disabled && option.selected && option.value) {
+                  value.push(option.value);
+                }
               }
             }
           }
@@ -2219,7 +2248,7 @@
    * @param {String} name 表单域的名称。
    * @returns {string|Array} 表单域的当前值。
    * @description
-   *   当该表单域只包含一个文本控件（文本、密码、多行文本输入控件或隐藏控件）时，返回字符串，其他情况（该单域只包含一个下拉选择、单选、复选控件或者多个任意类型的控件时）返回数组。
+   *   当该表单域只包含一个文本、密码、多行文本、单选下拉框、单选框或隐藏控件时，返回字符串，其他情况（该单域只包含一个多选下拉框、复选框控件或者多个任意类型的控件时）返回数组。
    *   当返回值是数组时，值为空字符串的选定项将被忽略。
    */
   HTMLFormElement.prototype.getFieldValue = function(name) {
