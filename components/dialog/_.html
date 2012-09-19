@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>OurJS</title>
+<script src="/framework/our.js"></script>
+<script src="/framework/src/components/tabpanel.js"></script>
+<style>
+component { display: block; }
+#test { position: relative; width: 400px; height: 300px; padding: 0; border: 3px dashed darkblue; }
+#test .tab { float: left; width: 50px; height: 20px; margin-right: 2px; background: darkgray; color: black; font: 14px/20px Verdana; text-decoration: none; text-align: center; cursor: default; }
+#test .tab:hover { background: silver; }
+#test .panel { display: none; position: absolute; left: 0; top: 20px; width: 400px; height: 280px; background: gainsboro; line-height: 280px; text-align: center; }
+#test a.active,
+#test a.active:hover { color: black; background: gainsboro; }
+#test div.active { display: block; }
+</style>
+<script>
+if (navigator.isIElt9) {
+  document.createElement('layer');
+  document.createElement('component');
+}
+</script>
+</head>
+<body>
+<h1>多页标签面板（选项卡）</h1>
+
+<ins>INS</ins>
+<del>DEL</del>
+<layer id="layer">LAYER</layer>
+
+<h2>TabPanel</h2>
+<component id="test" type="tabpanel" activeClassName="active" hoverDelay="200" defaultActiveIndex="2">
+  <div>
+    <a href="javascript:void('tab_1');" class="tab">1</a>
+    <div class="panel">面板一</div>
+
+    <a href="javascript:void('tab_1');" class="tab">2</a>
+    <div class="panel">面板二</div>
+
+    <a href="javascript:void('tab_1');" class="tab">3</a>
+    <div class="panel">面板三</div>
+  </div>
+
+  <a href="javascript:void('tab_1');" class="tab">4</a>
+  <div class="panel">面板四</div>
+
+  <a href="javascript:void('tab_1');" class="tab">5</a>
+  <div class="panel">面板五</div>
+</component>
+
+<script>
+execute(function($) {
+  var uiComponents = $(document.body).find('component');
+  uiComponents.forEach(function($uiComponent) {
+    switch ($uiComponent.getAttribute('type')) {
+      case 'tabpanel':
+        createTabPanel($uiComponent);
+        break;
+      default:
+        console.warn('未声明的组件：' + $uiComponent);
+    }
+  });
+
+  function createTabPanel($element) {
+    var tabs = $element.find('.tab');
+    var panels = $element.find('.panel');
+    var activeClassName = $element.getAttribute('activeClassName');
+    var hoverDelay = parseInt($element.getAttribute('hoverDelay'), 10);
+    var tabPanel = new TabPanel({
+      tabs: tabs,
+      panels: panels
+    }, {
+      activeClassName: activeClassName,
+      hoverDelay: hoverDelay
+    }).activate(parseInt($element.getAttribute('defaultActiveIndex'), 10) || 0);
+    Object.mixin($element, tabPanel);
+    Object.mixin($element, TabPanel.prototype, {blackList: ['constructor']});
+  }
+
+  var $test = $('#test');
+  setTimeout(function() {
+    $test.activate(0);
+  }, 1000);
+
+  $test.highlight();
+
+  $('<h1>component = ' + $test.constructor + '</h1>').insertTo(document.body);
+  $('<h1>layer = ' + $('#layer').constructor + '</h1>').insertTo(document.body);
+
+}, true);
+</script>
+
+</body>
+</html>

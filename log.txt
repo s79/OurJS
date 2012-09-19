@@ -3,7 +3,7 @@
 >Dialog -> Popup，Overlay 没有独立存在的必要，但 Popup 可以选择是否带有 Overlay。
 >IE 自动填充未触发 change 事件。
 >自定义事件不在 DOM 树中传播。
->Form.addValidation
+>Validator -> Form.addValidation，并考虑在合适的位置入 onlyVisible 参数，以适应动态改变显示状态的表单。
 
 将 UI 组件逐步替换为以 component 元素直接植入 HTML 代码的形式。原因如下：
 1. 之前构造器形式的 UI 组件均至少依赖一个已经存在于文档树中的元素，且几乎不会出现将一个元素作为多个 UI 组件的“源”使用的情况。

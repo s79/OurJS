@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dialog</title>
+<script src="/framework/our.js"></script>
+<script src="dialog.js"></script>
+<style>
+html,
+body { margin: 0; height: 100%; }
+fieldset { display: block; border: none; }
+button { display: block; margin-bottom: 20px; padding: 10px 15px; font-size: 14px; }
+.x-dialog { display: none; position: absolute; overflow: hidden; border: 5px solid darkcyan; }
+.x-dialog-close { display: block; position: absolute; right: 10px; top: 10px; width: 30px; height: 30px; background: blue; }
+.x-dialog-close:hover { background: red; }
+#help { width: 400px; height: 300px; background: white; z-index: 100; }
+#help2 { width: 300px; height: 200px; background: white; z-index: 101; }
+#help3 { width: 200px; height: 100px; background: white; z-index: 102; }
+</style>
+</head>
+<body>
+
+<button id="toggle" style="position: absolute; z-index: 10000;">show/hide</button>
+
+<fieldset id="help" data-component="dialog" data-effect="yes" data-overlay-color="black" data-overlay-opacity="0.2" data-position="fixed" data-x="200" data-y="200" data-width="400" data-height="300" data-src="http://www.ourgame.com/"></fieldset>
+<fieldset id="help2" data-component="dialog" data-effect="yes" data-overlay-color="black" data-overlay-opacity="0.2" data-position="fixed" data-x="200" data-y="200" data-width="400" data-height="300" data-src="_.html"></fieldset>
+<fieldset id="help3" data-component="dialog" data-effect="yes" data-overlay-color="black" data-overlay-opacity="0.2" data-position="fixed" data-x="200" data-y="200" data-width="400" data-height="300" data-src="_.html"></fieldset>
+
+<script>
+var dialog = {};
+execute(function($) {
+  var uiComponents = $(document.body).find('fieldset');
+  uiComponents.forEach(function($uiComponent) {
+    switch ($uiComponent.getData('component')) {
+      case 'dialog':
+        createDialog($uiComponent);
+        break;
+      default:
+        console.warn('未声明的组件：' + $uiComponent);
+    }
+  });
+
+  /**
+   * 获取组件配置。
+   * @param config
+   */
+  function getConfig($element, config) {
+    Object.forEach(config, function(_, key) {
+      var value = $element.getData(key);
+      if (value) {
+        config[key] = value;
+      }
+    });
+    return config;
+  }
+
+  /**
+   * 创建对话框。
+   * @param $element
+   */
+  function createDialog($element) {
+    var config = getConfig($element.addClass('x-dialog'), Dialog.config);
+
+    var dialog = new Dialog($element, config)
+        .on('open, close', function(e) {
+          $element.fire(e.type);
+        })
+        .on('open', function() {
+          var src = $element.getData('src');
+          $element.frame = $('<iframe name="frame_' + Date.now() + '" frameborder="no" scrolling="' + ($element.getData('scrolling') || 'no') + '" allowtransparency="true" src="' + src + '"></iframe>').insertTo($element);
+        })
+        .on('close', function() {
+          if ($element.frame) {
+            $element.frame.remove();
+          }
+        });
+
+    $('<a href="javascript:void(\'close\');" class="x-dialog-close"></a>')
+        .on('click', function(e) {
+          e.preventDefault();
+          dialog.close();
+        })
+        .insertTo($element);
+
+    window.dialog[$element.id] = dialog;
+
+  }
+
+}, true);
+
+//--------------------------------------------------[居中对话框简易控制]
+execute(function($) {
+  $('#toggle').on('click', function() {
+    var $help = $('#help');
+    $help.offsetWidth ? $help.close() : $help.open();
+  });
+  alert($('#help').getData('effect'));
+});
+
+</script>
+</body>
+</html>
