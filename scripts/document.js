@@ -212,7 +212,7 @@ execute(function($) {
 
 //--------------------------------------------------[列出名单中的指定内容]
     listen('build', function() {
-      $('<h1>JS 语言扩展</h1>').insertTo(indexColumns.a);
+      $('<h1>JS 原生对象</h1>').insertTo(indexColumns.a);
       [
         'Global',
         'Object',
@@ -229,7 +229,7 @@ execute(function($) {
           .forEach(function(name) {
             buildDocument(indexColumns.a, name, true);
           });
-      $('<h1>浏览器内置对象扩展</h1>').insertTo(indexColumns.a);
+      $('<h1>浏览器内置对象</h1>').insertTo(indexColumns.a);
       [
         'navigator',
         'location',
@@ -239,7 +239,7 @@ execute(function($) {
           .forEach(function(name) {
             buildDocument(indexColumns.a, name, true);
           });
-      $('<h1>DOM 扩展</h1>').insertTo(indexColumns.b);
+      $('<h1>DOM 对象</h1>').insertTo(indexColumns.b);
       [
         'window',
         'document',
