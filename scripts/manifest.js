@@ -38,7 +38,8 @@ var manifest = {
     'Array.from',
     'Array.prototype.contains',
     'Array.prototype.getFirst',
-    'Array.prototype.getLast'
+    'Array.prototype.getLast',
+    'Array.prototype.remove'
   ],
   'String': [
     '#ES5',

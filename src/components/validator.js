@@ -217,7 +217,7 @@ execute(function($) {
             })
             .on('fieldvalidated.validate', function(e) {
               if (validatingFields.contains(e.name)) {
-                validatingFields.splice(validatingFields.indexOf(e.name), 1);
+                validatingFields.remove(e.name);
                 allValidationsPassed = allValidationsPassed && !e.errorMessage;
                 if (!validatingFields.length) {
                   validator.fire('validated', {result: allValidationsPassed});

@@ -183,14 +183,14 @@
 
 //--------------------------------------------------[Array.prototype.indexOf]
   /**
-   * 返回数组中第一次出现指定的值的索引。
+   * 返回数组中第一次出现指定的元素的索引。
    * @name Array.prototype.indexOf
    * @function
-   * @param {*} searchElement 指定的值。
+   * @param {*} searchElement 指定的元素。
    * @param {number} [fromIndex] 从指定索引为起始点开始查找，默认为 0。
-   *   如果指定的值大于数组的长度，则使用数组的长度作为查找起始点。
-   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 (fromIndex + 数组的长度) 作为查找起始点，如果这个结果仍为负数，则使用 0 作为查找起始点。
-   * @returns {number} 索引值，如果数组中不包含指定的值，则返回 -1。
+   *   如果该值大于数组的长度，则使用数组的长度作为查找起始点。
+   *   如果该值为负数，则表示从数组的末尾开始计算的偏移量，即使用 (fromIndex + 数组的长度) 作为查找起始点，如果这个结果仍为负数，则使用 0 作为查找起始点。
+   * @returns {number} 索引值，如果数组中不包含指定的元素，则返回 -1。
    * @example
    *   [1, 2, 3, 2, 1].indexOf(2);
    *   // 1
@@ -229,14 +229,14 @@
 
 //--------------------------------------------------[Array.prototype.lastIndexOf]
   /**
-   * 返回数组中最后一次出现指定的值的索引。
+   * 返回数组中最后一次出现指定的元素的索引。
    * @name Array.prototype.lastIndexOf
    * @function
-   * @param {*} searchElement 指定的值。
+   * @param {*} searchElement 指定的元素。
    * @param {number} [fromIndex] 从指定索引为起始点开始查找，默认为数组的长度。
-   *   如果指定的值大于数组的长度，则使用数组的长度作为查找起始点。
-   *   如果指定一个负数，则表示从数组的末尾开始计算的偏移量，即使用 (fromIndex + 数组的长度) 作为查找起始点，如果这个结果仍为负数，则使用 0 作为查找起始点。
-   * @returns {number} 索引值，如果数组中不包含指定的值，则返回 -1。
+   *   如果该值大于数组的长度，则使用数组的长度作为查找起始点。
+   *   如果该值为负数，则表示从数组的末尾开始计算的偏移量，即使用 (fromIndex + 数组的长度) 作为查找起始点，如果这个结果仍为负数，则使用 0 作为查找起始点。
+   * @returns {number} 索引值，如果数组中不包含指定的元素，则返回 -1。
    * @example
    *   [1, 2, 3, 2, 1].lastIndexOf(2);
    *   // 3
@@ -546,15 +546,15 @@
    * 检查字符串是否以指定的子串开始。
    * @name String.prototype.startsWith
    * @function
-   * @param {string} subString 指定的子串。
+   * @param {string} substring 指定的子串。
    * @returns {boolean} 检查结果。
    * @example
    *   'abcdefg'.startsWith('a');
    *   // true
    * @see http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
    */
-  String.prototype.startsWith = function(subString) {
-    return this.indexOf(subString) === 0;
+  String.prototype.startsWith = function(substring) {
+    return this.indexOf(substring) === 0;
   };
 
 //--------------------------------------------------[String.prototype.endsWith]
@@ -562,16 +562,16 @@
    * 检查字符串是否以指定的子串结束。
    * @name String.prototype.endsWith
    * @function
-   * @param {string} subString 指定的子串。
+   * @param {string} substring 指定的子串。
    * @returns {boolean} 检查结果。
    * @example
    *   'abcdefg'.endsWith('a');
    *   // false
    * @see http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
    */
-  String.prototype.endsWith = function(subString) {
-    var lastIndex = this.lastIndexOf(subString);
-    return lastIndex >= 0 && lastIndex === this.length - subString.length;
+  String.prototype.endsWith = function(substring) {
+    var lastIndex = this.lastIndexOf(substring);
+    return lastIndex >= 0 && lastIndex === this.length - substring.length;
   };
 
 //--------------------------------------------------[String.prototype.contains]
@@ -579,15 +579,15 @@
    * 检查字符串是否包含指定的子串。
    * @name String.prototype.contains
    * @function
-   * @param {string} subString 指定的子串。
+   * @param {string} substring 指定的子串。
    * @returns {boolean} 检查结果。
    * @example
    *   'abcdefg'.contains('cd');
    *   // true
    * @see http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
    */
-  String.prototype.contains = function(subString) {
-    return this.indexOf(subString) !== -1;
+  String.prototype.contains = function(substring) {
+    return this.indexOf(substring) !== -1;
   };
 
 //--------------------------------------------------[String.prototype.toArray]
@@ -687,6 +687,7 @@
    *   Array.prototype.contains
    *   Array.prototype.getFirst
    *   Array.prototype.getLast
+   *   Array.prototype.remove
    *   String.prototype.clean
    *   Number.prototype.padZero
    *   Math.limit
@@ -881,6 +882,26 @@
    */
   Array.prototype.getLast = function() {
     return this[this.length - 1];
+  };
+
+//--------------------------------------------------[Array.prototype.remove]
+  /**
+   * 移除数组中第一个匹配的元素。
+   * @name Array.prototype.remove
+   * @function
+   * @returns {Array} 本数组。
+   * @description
+   *   IE6 无法通过 [undefined].remove() 或 [undefined].remove(undefined) 成功移除数组中的元素。
+   * @example
+   *   [1, 2, 1].remove(1);
+   *   // [2, 1]
+   */
+  Array.prototype.remove = function(item) {
+    var index = this.indexOf(item);
+    if (index > -1) {
+      this.splice(index, 1);
+    }
+    return this;
   };
 
 //--------------------------------------------------[String.prototype.clean]

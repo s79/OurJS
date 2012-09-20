@@ -7,89 +7,84 @@
 </head>
 <body>
 <script>
-// 例 1，这样写，IE6 会泄漏。
-//function leak() {
-//  var $e = document.createElement('div');
-//  $e.innerHTML = '<h1>Memory leak tester.</h1>';
-//  document.body.appendChild($e);
-//  $e.longString = new Array(1000).join('abcdefghijklmnopqrstuvwxyz');
-////  $e.onclick = function() {  // 和下一句效果一样，都会泄漏，因为这个函数的作用域链包含对 $e 的引用。
-//  $e.attachEvent('onclick', function() {
-////    console.log($e.tagName);  // 和下一句效果一样，原因同上。
-//    console.log(this.tagName);
-//  });
-//  return $e;
-//}
-//
-//for (var i = 0; i < 100; i++) {
-//  var $e = leak();
-//  $e.parentNode.removeChild($e);
-//}
-
-//例 2 = 例 1 改，不会泄露。
-//function leak() {
-//  var $e = document.createElement('div');
-//  $e.innerHTML = '<h1>Memory leak tester.</h1>';
-//  document.body.appendChild($e);
-//  $e.longString = new Array(1000).join('abcdefghijklmnopqrstuvwxyz');
-//  $e.onclick = function() {
-//    console.log($e.tagName);
-//  };
-//  return $e;
-//}
-//
-//for (var i = 0; i < 100; i++) {
-//  var $e = leak();
-////  $e.parentNode.removeChild($e);  // 只要不移除节点就不会泄漏。
-//}
-
-//--------------------------------------------------[框架方法测试]
-function fa(e) {
-  console.log(this.tagName + ':' + e.target.tagName + ':' + e.type);
-  return false;
-}
-function fb(e) {
-  console.log(this.tagName + ':' + e.target.tagName);
-//  e.stopImmediatePropagation();
-}
-function fc(e) {
-  console.log(this.nodeType);
-}
-function fd(e) {
-  console.log(this.innerHTML);
-  return false;
-}
-function fe(e) {
-  console.log(this.id);
-  return false;
-}
-function ff(e) {
-  console.log(e.timeStamp);
-}
-
+var $ = document.$;
+// 测试 IE6 内存泄漏。
 function leak() {
-  return $('<a href="javascript:alert(0);"><h1>This is a <span>test</span>.</h1></a>')
-      .insertTo(document.body)
-      .longString = new Array(1000).join('abcdefghijklmnopqrstuvwxyz');
+  var $e = $('<a href="javascript:alert(0);"><h1>This is a <span>test</span>.</h1></a>').insertTo(document.body);
+  $e.longString = new Array(1000).join('abcdefghijklmnopqrstuvwxyz');
+
+  // [2] 启用即可造成内存泄漏。
+  $e.attachEvent('onclick', function() {  // 和 $e.onclick = function() {...} 效果一样，都会泄漏，因为这个函数的作用域链包含对 $e 的引用。
+    console.log(this.tagName);  // 有没有这句，使用 this 和 $e 效果一样。
+  });
+
+// [*] 将上述 [2] 换成这个就不会泄漏。
+//  $e.attachEvent('onclick', handler);
+
+  return $e;
 }
+
+// [*] 将上述 [2] 换成这个就不会泄漏。
+var handler = function() {
+  console.log(this.tagName);
+};
 
 for (var i = 0; i < 100; i++) {
   (function($e) {
-    $e.on('contextmenu', fa);
-    $e.on('mouseover', fb);
-    $e.on('mouseover', fc);
-    $e.on('mousedown', fd);
-    $e.on('click', fe);
-    $e.on('click', ff);
+
+    // 这与 [2] 的作用是一样的。
+//    $e._dataset = [];
+//    $e._dataset.push(function() {
+//    });
+
+    $e.parentNode.removeChild($e);  // [1] 启用即可造成内存泄漏。
+
+//    $e.remove();  // [1] 启用即可造成内存泄漏 —— 这个方法可以缓解（使用了 clearAttributes 方法）。
+
   })(leak());
 }
 
-var $5 = document.getElementsByTagName('a')[5];
-$5.off('contextmenu', fa);
-$5.off('mouseover', fb);
-$5.off('mouseover', fc);
-$5.off('mousedown', fd);
-$5.off('click', fe);
+//--------------------------------------------------[框架方法测试]
+//function fa(e) {
+//  console.log(this.tagName + ':' + e.target.tagName + ':' + e.type);
+//}
+//function fb(e) {
+//  console.log(this.tagName + ':' + e.target.tagName);
+//}
+//function fc(e) {
+//  console.log(this.nodeType);
+//}
+//function fd(e) {
+//  console.log(this.innerHTML);
+//}
+//function fe(e) {
+//  console.log(this.id);
+//}
+//function ff(e) {
+//  console.log(e.timeStamp);
+//}
+//
+//var $ = document.$;
+//function leak() {
+//  var $e = $('<a href="javascript:alert(0);"><h1>This is a <span>test</span>.</h1></a>').insertTo(document.body);
+//  $e.longString = new Array(1000).join('abcdefghijklmnopqrstuvwxyz');
+//  return $e;
+//}
+//
+//for (var i = 0; i < 100; i++) {
+//  (function($e) {
+//    console.log($e)
+//    $e.on('contextmenu', fa);
+//    $e.on('mouseover', fb);
+//    $e.on('mouseover', fc);
+//    $e.on('mousedown', fd);
+//    $e.on('click', fe);
+//    $e.on('click', ff);
+//  })(leak());
+//}
+//
+//var $5 = $(document.body).find('a')[5];
+//$5.off('contextmenu, mouseover, mouseover, mousedown, click');
 
 //setTimeout(function() {
 //  location.reload();
