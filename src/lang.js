@@ -685,9 +685,9 @@
    *   Object.mixin
    *   Array.from
    *   Array.prototype.contains
+   *   Array.prototype.remove
    *   Array.prototype.getFirst
    *   Array.prototype.getLast
-   *   Array.prototype.remove
    *   String.prototype.clean
    *   Number.prototype.padZero
    *   Math.limit
@@ -856,6 +856,27 @@
     return this.indexOf(element) !== -1;
   };
 
+//--------------------------------------------------[Array.prototype.remove]
+  /**
+   * 移除数组中第一个与指定的元素相同的元素。
+   * @name Array.prototype.remove
+   * @function
+   * @param {*} element 指定的元素。
+   * @returns {Array} 本数组。
+   * @description
+   *   IE6 无法通过 [undefined].remove(undefined) 或 [undefined].remove() 成功移除数组中的元素。
+   * @example
+   *   [1, 2, 1].remove(1);
+   *   // [2, 1]
+   */
+  Array.prototype.remove = function(element) {
+    var index = this.indexOf(element);
+    if (index > -1) {
+      this.splice(index, 1);
+    }
+    return this;
+  };
+
 //--------------------------------------------------[Array.prototype.getFirst]
   /**
    * 获取本数组的第一个元素。
@@ -882,26 +903,6 @@
    */
   Array.prototype.getLast = function() {
     return this[this.length - 1];
-  };
-
-//--------------------------------------------------[Array.prototype.remove]
-  /**
-   * 移除数组中第一个匹配的元素。
-   * @name Array.prototype.remove
-   * @function
-   * @returns {Array} 本数组。
-   * @description
-   *   IE6 无法通过 [undefined].remove() 或 [undefined].remove(undefined) 成功移除数组中的元素。
-   * @example
-   *   [1, 2, 1].remove(1);
-   *   // [2, 1]
-   */
-  Array.prototype.remove = function(item) {
-    var index = this.indexOf(item);
-    if (index > -1) {
-      this.splice(index, 1);
-    }
-    return this;
   };
 
 //--------------------------------------------------[String.prototype.clean]

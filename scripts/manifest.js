@@ -37,9 +37,9 @@ var manifest = {
     '#自定义扩展',
     'Array.from',
     'Array.prototype.contains',
+    'Array.prototype.remove',
     'Array.prototype.getFirst',
-    'Array.prototype.getLast',
-    'Array.prototype.remove'
+    'Array.prototype.getLast'
   ],
   'String': [
     '#ES5',
