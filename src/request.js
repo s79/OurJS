@@ -1,10 +1,9 @@
 /**
  * @fileOverview 对 XMLHttpRequest 的封装。
  * @author sundongguo@gmail.com
- * @version 20120208
+ * @version 20120921
  */
 
-// TODO: jQuery - ticket #5280: Internet Explorer will keep connections alive if we don't abort on unload
 (function() {
 //==================================================[Request]
   /*
@@ -15,7 +14,10 @@
    *
    * 说明：
    *   用户使用 send 方法传递的请求数据与服务端返回的响应数据均不可预期，因此可以通过修改配置中的 requestParser 和 responseParser 这两个函数以对它们进行预处理。
-   *   本实现的每个 Request 对象都仅创建一个 XHR 对象，多次发送请求则重复使用。MooTools 在 xhr.abort() 后新建一个 XHR 对象，原因不明。大多数库并不重用 XHR 对象。若使用中出现其他问题，需考虑是否是因为重用 XHR 对象的原因。
+   *
+   * 更新记录：
+   *   版本 20120208 的实现是每个 request 仅创建一个 XHR 对象，多次发送请求则重复使用。
+   *   考虑到同一 request 的不同请求调用 setRequestHeader 时传入的值可能不同，版本 20120921 修改为不重用 XHR 对象，以免出现预料外的问题。
    *
    * 注意：
    *   IE6 IE7 IE8 IE9 均不支持 overrideMimeType，因此本组件不提供此功能。
@@ -33,6 +35,17 @@
   // 空函数。
   var empty = function() {
   };
+
+  // 正在请求中的 request 对象。
+  var activeRequests = [];
+  // http://bugs.jquery.com/ticket/5280
+  if (window.ActiveXObject) {
+    window.on('unload', function() {
+      activeRequests.forEach(function(request) {
+        request.abort();
+      });
+    });
+  }
 
   // 获取 XHR 对象。
   var getXHRObject = function() {
@@ -85,8 +98,6 @@
     var xhr = request.xhr;
     // 取消 xhr 对象的事件监听。
     xhr.onreadystatechange = empty;
-    // 重置请求状态。
-    delete request.timestamp;
     // 收集响应信息。
     var status = 0;
     var statusText = '';
@@ -123,6 +134,10 @@
         xhr.abort();
         break;
     }
+    // 重置请求状态。
+    delete request.timestamp;
+    delete request.xhr;
+    activeRequests.remove(request);
     // 触发 finish 事件。
     request.fire('finish', config.responseParser.call(request, {
       status: status,
@@ -177,7 +192,6 @@
    *   成功调用 abort 方法后触发。
    */
   var Request = new Component(function(url, config) {
-    this.xhr = getXHRObject();
     this.url = url;
     this.setConfig(config);
   });
@@ -221,7 +235,7 @@
   Request.prototype.send = function(requestData) {
     var request = this;
     var config = request.config;
-    var xhr = request.xhr;
+    var xhr = request.xhr = getXHRObject();
     // 只有进行中的请求有 timestamp 属性，需等待此次交互结束（若设置了 minTime 则交互结束的时间可能被延长）才能再次发起请求。若无 xhr 对象，则无法发起请求。
     if (request.timestamp || !xhr) {
       return request;
@@ -241,7 +255,7 @@
       requestData = '';
     }
     if (!config.useCache) {
-      url += (url.contains('?') ? '&' : '?') + '_=' + ++uid;
+      url += (url.contains('?') ? '&' : '?') + '_=' + (++uid).toString(36);
     }
     // http://bugs.jquery.com/ticket/2865
     if (config.username) {
@@ -264,6 +278,7 @@
         getResponse(request, TIMEOUT);
       }, Math.max(0, config.maxTime));
     }
+    activeRequests.push(request);
     // 获取响应。
     if (!async || xhr.readyState === 4) {
       // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
