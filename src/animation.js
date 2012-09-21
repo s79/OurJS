@@ -32,9 +32,6 @@
    *   在使用 Element.prototype.morph 方法时，传入同样的参数，多次播放时，目标元素将以上一次的终点作为起点，开始渐变。
    */
 
-  // 唯一识别码。
-  var uid = 0;
-
   // 供内部调用的标记值。
   var INTERNAL_IDENTIFIER_REVERSE = {};
 
@@ -217,20 +214,16 @@
 
   // 动画引擎，用于挂载各播放中的动画，并同频同步播放它们的每一帧。
   var engine;
-  var mountedAnimations = {};
-  var mountedCount = 0;
+  var mountedAnimations = [];
   var mountAnimation = function(animation) {
     animation.timestamp = Date.now();
-    mountedAnimations[animation.uid] = animation;
-    mountedCount++;
-//    console.log('[mountAnimation] mountedCount:', mountedCount, JSON.stringify(Object.keys(mountedAnimations)));
+    mountedAnimations.push(animation);
     // 启动引擎。
     if (!engine) {
       engine = setInterval(function() {
         // 播放挂载的动画。
-//        console.log('>ENGING RUNNING mountedCount:', mountedCount);
         var timestamp = Date.now();
-        Object.forEach(mountedAnimations, function(animation) {
+        mountedAnimations.forEach(function(animation) {
           var isPlayMethod = animation.status === PLAYING;
           var timePoint = Math.limit(animation.timePoint + (timestamp - animation.timestamp) * (isPlayMethod ? 1 : -1), 0, animation.duration);
           animation.timestamp = timestamp;
@@ -238,20 +231,20 @@
           playAnimation(animation, timePoint, isPlayMethod);
         });
         // 停止引擎。
-        if (mountedCount === 0) {
-//          console.warn('>ENGING STOP', engine);
+        if (!mountedAnimations.length) {
           clearInterval(engine);
           engine = undefined;
+//          console.warn('>ENGING STOP');
         }
       }, 16);
-//      console.warn('>ENGING START', engine);
+//      console.warn('>ENGING START');
     }
+//    console.log('[mountAnimation]: ' + mountedAnimations.length);
   };
   var unmountAnimation = function(animation) {
     delete animation.timestamp;
-    delete mountedAnimations[animation.uid];
-    mountedCount--;
-//    console.log('[unmountAnimation] mountedCount:', mountedCount, JSON.stringify(Object.keys(mountedAnimations)));
+    mountedAnimations.remove(animation);
+//    console.log('[unmountAnimation]: ' + mountedAnimations.length);
   };
 
 //--------------------------------------------------[Animation Constructor]
@@ -282,7 +275,6 @@
    *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
    */
   var Animation = new Component(function() {
-    this.uid = ++uid;
     this.clips = [];
     this.timePoint = 0;
     this.status = START_POINT;
@@ -348,7 +340,7 @@
         var timePoint = animation.timePoint;
         var duration = animation.duration;
         // 每次播放/倒放时的首帧同步播放。
-        playAnimation(animation, timePoint/* ? timePoint : (isPlayMethod ? 0 : duration)*/, isPlayMethod);
+        playAnimation(animation, timePoint, isPlayMethod);
         // 如果尚有未播放的帧，则将其挂载到动画引擎，异步播放中间帧及末帧。
         if (isPlayMethod ? timePoint !== duration : timePoint !== 0) {
           mountAnimation(animation);
