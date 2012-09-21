@@ -2,19 +2,14 @@
 >[LOW]Animation.createStyleRenderer 在首帧才收集样式。
 >Dialog -> Popup，Overlay 没有独立存在的必要，但 Popup 可以选择是否带有 Overlay。
 >IE 自动填充未触发 change 事件。
->Validator -> Form.addValidation，并考虑在合适的位置入 onlyVisible 参数，以适应动态改变显示状态的表单。
+>Validator -> Form.addValidation，并考虑在合适的位置加入 onlyVisible 参数，以适应动态改变显示状态的表单。
 
-目前构造器形式的 UI 组件均至少依赖一个已经存在于文档树中的元素，且几乎不会出现将一个元素作为多个 UI 组件的“源”使用的情况。
-因此考虑将 UI 组件逐步替换为以 component:type 元素直接植入 HTML 代码的形式，以使 UI 组件的代码更紧凑，更易用。
-需要考虑的问题有以下几点：
-* 针对 html 的解析及后续的修改、克隆操作，目前要实现能与浏览器的行为近似的功能比较困难(!)，因此对一致性略有影响。
-  也就是说这个修改是以牺牲“一致性”的代价来换取“易用性”的。
-* 提供 pool 存储 UI 组件的数据，并与对应元素关联。
-* 初始化时需要多个元素的 UI 组件，通过约定这些元素的 class 来标识。
-* 原 Configurable 特性以自定义属性的方式提供，不使用普通是因为普通属性应该是可修改并能实时生效的，但目前这一特性实现成本太高(!)。
-  而自定义属性恰好在语义上有“配置参数”的含义。
-* Observable 特性以 DOM 事件的方式提供。
-  需重写事件处理部分，禁止所以非标准 DOM 事件在 DOM 树中传播。
+>2012-09-21
+Animation 和 Request 修改。
++shadowObject
+
+>2012-09-20
++Array.prototype.remove
 
 >2012-09-18
 修改 getFieldValue 的返回值模式。

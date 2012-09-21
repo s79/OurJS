@@ -100,7 +100,7 @@
 //      return html;
 //    });
 //    HTMLElement.prototype.__defineSetter__('outerHTML', function(html) {
-//      var range = this.ownerDocument.createRange();
+//      var range = document.createRange();
 //      range.setStartBefore(this);
 //      this.parentNode.replaceChild(range.createContextualFragment(html), this);
 //      return html;
@@ -144,7 +144,7 @@
       return this.textContent;
     });
     HTMLElement.prototype.__defineSetter__('outerText', function(text) {
-      var textNode = this.ownerDocument.createTextNode(text);
+      var textNode = document.createTextNode(text);
       this.parentNode.replaceChild(textNode, this);
       return text;
     });
@@ -173,7 +173,7 @@
         case 'afterbegin':
         case 'beforeend':
         case 'afterend':
-          this.insertAdjacentElement(position, this.ownerDocument.createTextNode(text));
+          this.insertAdjacentElement(position, document.createTextNode(text));
           break;
         default:
           throw new Error('Invalid position "' + position + '"');
