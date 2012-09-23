@@ -5,32 +5,32 @@
 <script src="../dev.js"></script>
 </head>
 <body>
-<button id="add">添加</button>
-<button id="remove">删除</button>
-
-<a href="javascript:console.log(100);">IE6 IE7 IE8 IE9 伪协议会导致触发 beforeunload 事件</a>
+<label for="switcher"><input id="switcher" type="checkbox">为 window 添加 beforeunload 事件监听器</label>
+<a href="javascript:void('nothing');">点击伪协议的超链接在 IE6 IE7 IE8 IE9 中也会触发 beforeunload 事件</a>
 <script>
 execute(function($) {
   var showMessage = true;
-  $('#add')
-      .on('click', function() {
-        window.on('beforeunload', function(e) {
-          console.log('测试 this 指向及事件对象是否为 undefined:', typeOf(this), e);
-          if (showMessage) {
-            var message = '您正在应战中，请勿离开此页，否则将做失败处理！';
-            if (navigator.isFirefox) {
-              alert(message + '\n如果要继续游戏，请在稍后的对话框中点击“留在页面”。\n如果确定要离开，请在稍后的对话框中点击“离开页面”按钮。');
+  $('#switcher')
+      .on('change', function() {
+        if (this.checked) {
+          window.on('beforeunload', function(e) {
+            console.log('this = ' + typeOf(this));
+            console.log('e = ' + e);
+            if (showMessage) {
+              var message = '您正在应战中，请勿离开此页，否则将做失败处理！';
+              if (navigator.isFirefox) {
+                alert(message + '\n如果要继续游戏，请在稍后的对话框中点击“留在页面”。\n如果确定要离开，请在稍后的对话框中点击“离开页面”按钮。');
+              }
+              return message;
             }
-            return message;
-          }
-        });
+          });
+        } else {
+          window.off('beforeunload');
+        }
       })
-      .click();
-  $('#remove').on('click', function() {
-    window.off('beforeunload');
-  });
-
-  // IE6 IE7 IE8 IE9 伪协议会导致触发 beforeunload 事件
+      .checked = false;
+  // 点击伪协议的超链接在 IE6 IE7 IE8 IE9 中也会触发 beforeunload 事件。
+  // 具体是在 IE6 IE7 IE8 的 document 和 IE9 的 window 收到具备默认行为的事件时触发。
   document.on('click', function(e) {
 //    e.preventDefault();
   });
