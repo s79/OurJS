@@ -2168,11 +2168,11 @@
    * 获取本表单内某个域的当前值。
    * @name HTMLFormElement.prototype.getFieldValue
    * @function
-   * @param {String} name 表单域的名称。
-   * @returns {string|Array} 表单域的当前值。
+   * @param {String} name 域的名称。
+   * @returns {string|Array} 域的当前值。
    * @description
-   *   当该表单域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
-   *   其他情况（该表单域只包含一个 select-multiple 类型的控件或者多个任意类型的控件时）返回数组，值为空字符串的项不会被加入数组。
+   *   当该域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
+   *   其他情况（该域只包含一个 select-multiple 类型的控件或者多个任意类型的控件时）返回数组，值为空字符串的项不会被加入数组。
    * @see http://www.w3.org/TR/REC-html40/interact/forms.html#successful-controls
    */
   /*
@@ -2262,8 +2262,8 @@
    * 为表单配置验证规则。
    * @name HTMLFormElement.prototype.setValidationRules
    * @function
-   * @param {Object} rulesets 要验证的表单域名称及规则，格式为 <dfn>{<var>name</var>: <var>rules</var>, ...}</dfn>。
-   *   属性名 <var>name</var> 为要验证的表单域的名称，即本表单元素内对应的 INPUT/SELECT/TEXTAREA 元素的 name 属性值。
+   * @param {Object} rulesets 要验证的域名称及规则，格式为 <dfn>{<var>name</var>: <var>rules</var>, ...}</dfn>。
+   *   属性名 <var>name</var> 为要验证的域的名称，即本表单元素内对应的 INPUT/SELECT/TEXTAREA 元素的 name 属性值。
    *   属性值 <var>rules</var> 为定义验证规则的对象，包括 7 种验证方式。
    *   前 5 种是“预置”的，均以一个包含两个元素的数组来定义：第一个元素为验证的参考值，第二个元素为验证失败时的“错误信息”字符串。
    *   后 2 种是“自定”的，开发者可以自行决定验证方式，并在验证结束时返回“错误信息”。
@@ -2271,32 +2271,29 @@
    *   详情请见下表：
    *   <table>
    *     <tr><th>验证方式</th><th>值类型</th><th>详细描述</th></tr>
-   *     <tr><td><dfn>required</dfn></td><td>Array</td><td>限定该表单域的值不能为空。数组的第一个元素为 boolean 类型。</td></tr>
-   *     <tr><td><dfn>equals</dfn></td><td>Array</td><td>限定该表单域的值与相关表单域的值一致，仅应在这两个表单域均只包含一个文本控件时指定。数组的第一个元素为 string 类型，用于指定相关表单域的名称（不能指定为该表单域自身的名称）。</td></tr>
-   *     <tr><td><dfn>minLength</dfn></td><td>Array</td><td>当该表单域只包含一个文本控件时，限定输入文本的最小长度，否则限定选择项的最少数目。数组的第一个元素为 number 类型。</td></tr>
-   *     <tr><td><dfn>maxLength</dfn></td><td>Array</td><td>当该表单域只包含一个文本控件时，限定输入文本的最大长度，否则限定选择项的最多数目。数组的第一个元素为 number 类型。</td></tr>
+   *     <tr><td><dfn>required</dfn></td><td>Array</td><td>限定该域的值不能为空。数组的第一个元素为 boolean 类型。</td></tr>
+   *     <tr><td><dfn>equals</dfn></td><td>Array</td><td>限定该域的值与相关域的值一致，仅应在这两个域均只包含一个文本控件时指定。数组的第一个元素为 string 类型，用于指定相关域的名称（不能指定为该域自身的名称）。</td></tr>
+   *     <tr><td><dfn>minLength</dfn></td><td>Array</td><td>当该域只包含一个文本控件时，限定输入文本的最小长度，否则限定选择项的最少数目。数组的第一个元素为 number 类型。</td></tr>
+   *     <tr><td><dfn>maxLength</dfn></td><td>Array</td><td>当该域只包含一个文本控件时，限定输入文本的最大长度，否则限定选择项的最多数目。数组的第一个元素为 number 类型。</td></tr>
    *     <tr><td><dfn>type</dfn></td><td>Array</td><td>限定数据的类型。数组的第一个元素为 string 类型，可以为 number/date/email/phone 中的任一个。</td></tr>
-   *     <tr><td><dfn>custom</dfn></td><td>Function</td><td>用来对该表单域的值进行进一步验证的函数，该函数被调用时传入该表单域的值，其 this 的值为本表单元素，返回值应为一个“错误信息”字符串，为空则表示验证通过。</td></tr>
-   *     <tr><td><dfn>remote</dfn></td><td>Object</td><td>指定对该表单域的值进行服务端验证，包含两个属性：url 和 config，详细内容请参考 Request 组件。注意利用 config.requestParser 和 config.responseParser 对请求和响应数据进行预处理。该表单域的值将被作为参数传入 send 方法，finish 事件对象应具备 errorMessage 属性（“错误信息”字符串），为空则表示验证通过。</td></tr>
+   *     <tr><td><dfn>custom</dfn></td><td>Function</td><td>用来对该域的值进行进一步验证的函数，该函数被调用时传入该域的值，其 this 的值为本表单元素，返回值应为一个“错误信息”字符串，为空则表示验证通过。</td></tr>
+   *     <tr><td><dfn>remote</dfn></td><td>Object</td><td>指定对该域的值进行服务端验证，包含两个属性：url 和 config，详细内容请参考 Request 组件。注意利用 config.requestParser 和 config.responseParser 对请求和响应数据进行预处理。该域的值将被作为参数传入 send 方法，finish 事件对象应具备 errorMessage 属性（“错误信息”字符串），为空则表示验证通过。</td></tr>
    *   </table>
    *   进行验证的步骤为 required - equals - minLength - maxLength - type - custom - remote。
    *   若不需要某种类型的验证，在 <var>rules</var> 中省略对应的项即可。
    * @returns {HTMLFormElement} 本表单元素。
    * @fires validate
    *   表单的 submit 事件发生时触发。
-   * @fires validating
-   *   当某个表单域开始服务端验证时触发。即便有多个表单域需要进行服务端验证，也仅会触发一次。
    * @fires validated
    *   {boolean} result 验证结果，仅当所有已配置的规则均验证通过时为 true，否则为 false。
    *   在表单验证结束后触发。
    * @description
-   *   本方法不能重复调用。
-   *   一旦为一个表单元素配置了验证规则，该表单的 submit 事件的默认行为将被阻止。
-   *   当 submit 事件发生时，会自动调用 validateField 方法，对所有验证规则涉及到的、可见的、尚未验证的表单域进行验证（被动验证）。
-   *   如果有需要服务端验证的表单域，将首先触发 validating 事件，并在所有的服务端验证结束后触发 validated 事件。
-   *   在 validating 事件触发后，等待的所有服务端验证尚未结束前，如果用户修改了任一控件的值，则会立即取消当前的服务端验证，同时触发 validated 事件，本次验证按失败处理。
-   *   如果没需要服务端验证的表单域，将同步触发 validated 事件。
-   *   对提交行为的后续处理应在该表单的 validate 事件监听器中根据验证结果进行。
+   *   本方法不能重复调用。  // TODO
+   *   一旦为一个表单元素配置了验证规则，该表单的 submit 事件的默认行为将被阻止。对提交行为的后续处理应在该表单的 validate 事件监听器中根据验证结果进行。
+   *   当该表单触发 reset 事件时，当前的验证状态也会随之重置。
+   *   当 submit 事件发生时，会自动对所有验证规则涉及到的、且尚未验证的域进行验证（被动验证）。
+   *   如果没需要服务端验证的域，validated 事件将同步触发，否则 validated 事件将在所有的服务端验证结束后触发 。
+   *   在等待的所有服务端验证尚未结束前，如果用户修改了任一控件的值，则会立即取消当前的服务端验证，并触发 validated 事件，本次验证按失败处理。
    */
   HTMLFormElement.prototype.setValidationRules = function(rulesets) {
     var $form = this;
@@ -2334,9 +2331,9 @@
 
     // 为表单绑定事件。
     return $form
-        .on('submit.validation', function() {
-          // 单独绑定一个监听器，以免发生异常时导致表单提交。
-          return false;
+        .on('submit.validation', function(e) {
+          // 单独绑定一个监听器，以免验证过程发生异常时导致表单被提交。
+          e.preventDefault();
         })
         .on('submit.validation', function() {
           if (!isValidating) {
@@ -2362,7 +2359,7 @@
             if (validatingFields.length) {
               // 有验证仍在进行。
               $form
-                  .on('validatefield.validation', function() {
+                  .on('fieldvalidate.validation', function() {
                     $form.fire('validated', {result: false});
                   })
                   .on('fieldvalidated.validation', function(e) {
@@ -2373,55 +2370,48 @@
                         $form.fire('validated', {result: allValidationsPassed});
                       }
                     }
-                  })
-                  .fire('validating');
+                  });
             } else {
               // 所有验证均已完成。
               $form.fire('validated', {result: allValidationsPassed});
             }
           }
         })
-        .on('reset.validation', function() {
-          $form.off('fieldvalidated.validation, validatefield.validation');
+        .on('reset.validation, validated.validation', function() {
+          $form.off('fieldvalidate.validation, fieldvalidated.validation');
           isValidating = false;
+        })
+        .on('reset.validation', function() {
           $form.validationResultSet = {};
           Object.forEach(rulesets, function(rules) {
             if (rules.lastRequest) {
               rules.lastRequest.off('finish').abort();
             }
           });
-        })
-        .on('validated.validation', function() {
-          $form.off('fieldvalidated.validation, validatefield.validation');
-          isValidating = false;
         });
 
   };
 
-//--------------------------------------------------[HTMLFormElement.prototype.validateField]
+//--------------------------------------------------[HTMLFormElement.prototype.validateField]  // TODO: 此方法改为私有。
   /**
-   * 对指定的表单域进行验证。
+   * 对指定的域进行验证。
    * @name HTMLFormElement.prototype.validateField
    * @function
-   * @param {string} name 要验证的表单域名称。
+   * @param {string} name 要验证的域名称。
    * @returns {HTMLFormElement} 本表单元素。
-   * @fires validatefield
-   *   {string} name 验证的表单域的名称。
-   *   {string|Array} value 验证的表单域的值。
+   * @fires fieldvalidate
+   *   {string} name 验证的域的名称。
+   *   {string|Array} value 验证的域的值。
    *   调用 validateField 方法时触发。
-   * @fires fieldvalidating
-   *   {string} name 验证的表单域的名称。
-   *   {string|Array} value 验证的表单域的值。
-   *   当一个表单域开始服务端验证时触发。
    * @fires fieldvalidated
-   *   {string} name 验证的表单域的名称。
-   *   {string|Array} value 验证的表单域的值。
+   *   {string} name 验证的域的名称。
+   *   {string|Array} value 验证的域的值。
    *   {string} errorMessage “错误信息”字符串，为空则表示验证通过。
-   *   当一个表单域验证结束后触发。
+   *   当一个域验证结束后触发。
    * @description
-   *   指定的表单域必须已通过其所属表单元素的 setValidationRules 方法配置验证规则。
-   *   当该表单域包含的控件发生 change 事件（主动验证）或其所属表单触发 submit 事件时，validateField 方法可能被自动调用。
-   *   当 fieldvalidated 事件被触发时，事件对象的 errorMessage 属性值为“错误信息”，如果为空则表示当前表单域已通过验证。
+   *   指定的域必须已通过其所属表单元素的 setValidationRules 方法配置验证规则。
+   *   当该域包含的控件发生 change 事件（主动验证）或其所属表单触发 submit 事件时，validateField 方法可能被自动调用。
+   *   当 fieldvalidated 事件被触发时，事件对象的 errorMessage 属性值为“错误信息”，如果为空则表示当前域已通过验证。
    */
   var checkType = {
     number: function(value) {
@@ -2446,7 +2436,7 @@
     var errorMessage = '';
     var rule;
     validationResultSet[name] = undefined;
-    $form.fire('validatefield', {name: name, value: value});
+    $form.fire('fieldvalidate', {name: name, value: value});
     if ((rule = rules.required) && rule[0] && value.length === 0) {
       errorMessage = rule[1] || 'required';
     }
@@ -2471,9 +2461,6 @@
         rules.lastRequest.off('finish').abort();
       }
       rules.lastRequest = new Request(remote.url, remote.config)
-          .on('start', function() {
-            $form.fire('fieldvalidating', {name: name, value: value});
-          })
           .on('finish', function(e) {
             delete rules.lastRequest;
             var errorMessage = e.errorMessage;

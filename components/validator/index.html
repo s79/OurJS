@@ -337,12 +337,11 @@ dl.strong .strong { color: #333; font-weight: bold; }
             }
           }
         })
-        .on('validatefield', function(e) {
+        .on('fieldvalidate', function(e) {
+          if(e.name === 'account') {
+            getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
+          }
           logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
-        })
-        .on('fieldvalidating', function(e) {
-          getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
-          logger.log('<em>=</em>' + e.name + ' <var>' + e.value + '</var>');
         })
         .on('fieldvalidated', function(e) {
           var passed = !e.errorMessage;
@@ -353,7 +352,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
           }
           logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + passed + '">' + (e.errorMessage || 'passed') + '</dfn>');
         })
-        .on('validate, validating, validated', function(e) {
+        .on('validate, validated', function(e) {
           logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
         });
     /*
@@ -364,6 +363,9 @@ dl.strong .strong { color: #333; font-weight: bold; }
      logger.log('numbers: <var>' + $form.getFieldValue('numbers') + '</var>');
      logger.log('description: <var>' + $form.getFieldValue('description') + '</var>');
      */
+    $($form.elements.account).on('change', function(e) {
+      console.log(e.type, this.value);
+    });
 
   });
   </script>
