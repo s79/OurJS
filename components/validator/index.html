@@ -2,10 +2,9 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Validator</title>
-<script src="../../our.js"></script>
+<title>Form Validation</title>
+<script src="../../dev.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../src/components/validator.js"></script>
 <script src="../../src/addons/logger.js"></script>
 <style>
   /* 表单 */
@@ -48,11 +47,11 @@ dl.strong .strong { color: #333; font-weight: bold; }
 </head>
 <body>
 <div id="content">
-  <h1>表单验证器</h1>
+  <h1>表单验证</h1>
 
-  <h2>Validator</h2>
+  <h2>Form Validation</h2>
   <fieldset>
-    <legend>表单验证器</legend>
+    <legend>表单验证</legend>
     <form id="form" method="get" action="/">
       <div id="logger"></div>
       <table id="form_table">
@@ -198,8 +197,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
           </tr>
           <tr>
             <th colspan="3" class="submit">
-              <button type="reset">表单复位事件被阻止</button>
-              <button id="btn_reset" type="button">复位验证器</button>
+              <button type="reset">复位表单</button>
               <button id="btn_submit" type="submit">确定提交</button>
             </th>
           </tr>
@@ -246,24 +244,9 @@ dl.strong .strong { color: #333; font-weight: bold; }
     };
 
 //--------------------------------------------------[表单验证]
-    var textControls = ['text', 'password', 'textarea'];
-    var $form = $('#form')
-        .on('focusin, focusout', function(e) {
-          var $target = e.target;
-          var name = $target.name;
-          var controlType = name ? $target.type : undefined;
-          if (textControls.contains(controlType)) {
-            getMessageBox(name)[e.type === 'focusin' ? 'addClass' : 'removeClass']('hint');
-          }
-        })
-        .on('reset, submit', function() {
-          return false;
-        })
-        .on('submit', function() {
-          $('#btn_submit').focus();
-          validator.validate();
-        });
+    var $form = $('#form');
 
+    // 密码强度检测。
     // 中等强度密码参考分值，由 6 位包含小写字母和大写字母的字符组成，且其中没有连续的重复字符。
     var mediumValue = Math.pow(52, 6);
     // 高强度密码参考分值，由 8 位包含数字、小写字母、大写字母和标点符号的字符组成，且其中没有连续的重复字符。
@@ -274,6 +257,8 @@ dl.strong .strong { color: #333; font-weight: bold; }
       $passwordStrength.className = score >= strongValue ? 'strong' : (score >= mediumValue ? 'medium' : (score > 1 ? 'weak' : ''));
     });
 
+    // 显示提示信息。
+    var textControls = ['text', 'password', 'textarea'];
     var getMessageBox = function(name) {
       var control = $form.elements[name];
       control = control.nodeType ? control : control[0];
@@ -283,58 +268,75 @@ dl.strong .strong { color: #333; font-weight: bold; }
       }
       return $parent.getNextSibling();
     };
+    $form
+        .on('focusin, focusout', function(e) {
+          var $target = e.target;
+          var name = $target.name;
+          var controlType = name ? $target.type : undefined;
+          if (textControls.contains(controlType)) {
+            getMessageBox(name)[e.type === 'focusin' ? 'addClass' : 'removeClass']('hint');
+          }
+        })
+        .on('reset', function() {
+          Object.forEach(this.validationRulesets, function(rule, name) {
+            getMessageBox(name).removeClass('hint, valid, invalid');
+          });
+          $passwordStrength.removeClass('weak, medium, strong');
+        });
 
-    window.validator = new Validator($form, {
-      account: {
-        required: [true, '请输入帐号'],
-        minLength: [3, '帐号应在 3 位以上'],
-        maxLength: [20, '帐号应在 20 位以内'],
-        remote: {
-          url: 'validator.txt',
-          config: {
-            useCache: false,
-            minTime: 1000,
-            requestParser: function(data) {
-              return 'value=' + data;
-            },
-            responseParser: function(data) {
-              var value = $('#form').elements.account.value;
-              return {errorMessage: value.startsWith('our') ? '' : JSON.parse(data.text).errorMessage + '（以 our 开头即可通过验证）'};
+    // 添加验证规则。
+    $form
+        .setValidationRules({
+          account: {
+            required: [true, '请输入帐号'],
+            minLength: [3, '帐号应在 3 位以上'],
+            maxLength: [20, '帐号应在 20 位以内'],
+            remote: {
+              url: 'validator.txt',
+              config: {
+                useCache: false,
+                minTime: 1000,
+                requestParser: function(data) {
+                  return 'value=' + data;
+                },
+                responseParser: function(data) {
+                  var value = $('#form').elements.account.value;
+                  return {errorMessage: value.startsWith('our') ? '' : JSON.parse(data.text).errorMessage + '（以 our 开头即可通过验证）'};
+                }
+              }
+            }
+          },
+          password: {
+            required: [true, '请输入密码']
+          },
+          'password_confirm': {
+            equals: ['password', '两次输入的密码不一致']
+          },
+          email: {
+            type: ['email', '错误的 EMail 地址']
+          },
+          age: {
+            type: ['number', '年龄只能在 18 - 28 之间'],
+            custom: function(value) {
+              return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
+            }
+          },
+          games: {
+          },
+          colors: {
+            minLength: [2, '请选择 2 项'],
+            maxLength: [2, '请选择 2 项']
+          },
+          numbers: {
+            required: [true, '必选项（被禁用的控件选定了也无效）']
+          },
+          description: {
+            maxLength: [20, '自我介绍应限制在 20 字以内'],
+            custom: function(value) {
+              return value.contains(' ') ? '不能包含空格' : '';
             }
           }
-        }
-      },
-      password: {
-        required: [true, '请输入密码']
-      },
-      'password_confirm': {
-        equals: ['password', '两次输入的密码不一致']
-      },
-      email: {
-        type: ['email', '错误的 EMail 地址']
-      },
-      age: {
-        type: ['number', '年龄只能在 18 - 28 之间'],
-        custom: function(value) {
-          return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
-        }
-      },
-      games: {
-      },
-      colors: {
-        minLength: [2, '请选择 2 项'],
-        maxLength: [2, '请选择 2 项']
-      },
-      numbers: {
-        required: [true, '必选项（被禁用的控件选定了也无效）']
-      },
-      description: {
-        maxLength: [20, '自我介绍应限制在 20 字以内'],
-        custom: function(value) {
-          return value.contains(' ') ? '不能包含空格' : '';
-        }
-      }
-    })
+        })
         .on('validatefield', function(e) {
           logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
         })
@@ -354,10 +356,6 @@ dl.strong .strong { color: #333; font-weight: bold; }
         .on('validate, validating, validated', function(e) {
           logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
         });
-
-    $('#btn_reset').on('click', function() {
-      validator.reset();
-    });
     /*
      logger.log('age: <var>' + $form.getFieldValue('age') + '</var>');
      logger.log('os: <var>' + $form.getFieldValue('os') + '</var>');

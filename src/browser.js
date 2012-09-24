@@ -585,7 +585,7 @@
 
   // 在当前域的根路径创建一个文档，并在此文档中创建用来保存 userData 的元素。
   try {
-    // 使用这种方式（而不是在当前文档内直接插入 iframe 元素）可以避免在 IE6 的应用代码中调用 document.write 时出现“已终止操作”的异常。
+    // 使用这种方式（而不是在当前文档内直接插入 IFRAME 元素）可以避免在 IE6 的应用代码中调用 document.write 时出现“已终止操作”的异常。
     var storeContainerDocument = new ActiveXObject('htmlfile');
     storeContainerDocument.open();
     storeContainerDocument.write('<iframe id="store" src="/favicon.ico"></iframe>');

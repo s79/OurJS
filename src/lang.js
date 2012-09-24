@@ -534,9 +534,8 @@
   String.prototype.repeat = function(count) {
     count = toInteger(count);
     var result = '';
-    while (count) {
+    while (count--) {
       result += this;
-      count--;
     }
     return result;
   };

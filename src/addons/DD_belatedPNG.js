@@ -14,7 +14,7 @@
 (function() {
 //==================================================[IE6 PNG alpha 透明修复 & 启用背景图片缓存]
   /*
-   * 为使用了 alpha 透明的 PNG 图片的元素（包括背景或 img 元素的 src）添加一个 名为 'alpha' 的 class，即可在 IE6 中修复 PNG 的 alpha 透明问题。
+   * 为使用了 alpha 透明的 PNG 图片的元素（包括背景或 IMG 元素的 src）添加一个 名为 'alpha' 的 class，即可在 IE6 中修复 PNG 的 alpha 透明问题。
    * 修复了在 iframe 中使用导致内容无法正常显示的问题。
    *
    * 局限性：

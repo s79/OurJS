@@ -100,7 +100,7 @@ execute(function($) {
    * @name Overlay
    * @function
    * @private
-   * @param {Element} target 要遮掩的目标元素，当其值为 body 元素时，将覆盖整个视口。
+   * @param {Element} target 要遮掩的目标元素，当其值为 BODY 元素时，将覆盖整个视口。
    * @param {Object} [config] 配置信息。
    * @param {Object} config.overlayStyles 为遮掩层元素设置的样式。
    * @param {boolean} config.effect 是否启用动画效果。
@@ -146,7 +146,7 @@ execute(function($) {
           // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
           $overlay = $('<div><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>');
           $('<div></div>').setStyles(Object.mixin(config.overlayStyles, {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'})).insertTo($overlay);
-          // IE6 body 元素的遮掩层在更改视口尺寸时需要调整尺寸。
+          // IE6 BODY 元素的遮掩层在更改视口尺寸时需要调整尺寸。
           if (containerIsBody) {
             resizeOverlayElementForIE6 = function() {
               overlay.resize();
@@ -207,7 +207,7 @@ execute(function($) {
       var $overlay = this.element;
       var $target = this.target;
       if ($target === document.body) {
-        // 遮掩 body 的情况。
+        // 遮掩 BODY 的情况。
         if (navigator.isIE6) {
           var clientSize = window.getClientSize();
           // 刷新 display 以避免 IE6 的 $overlay 元素内的两个 height 为 100% 的子元素在纵向改变窗口大小时高度不随 $overlay 的变化而更新。
@@ -277,12 +277,12 @@ execute(function($) {
    * @description
    *   对话框的弹出位置、遮掩层遮盖的范围都是与对话框的父元素有关的。
    *   对话框元素将以其父元素为“参考元素”进行定位，遮掩层也作为其父元素的子元素被创建。
-   *   如果对话框元素的父元素是 body，遮掩层将遮掩整个视口。
-   *   当对话框元素的父元素不是 body 时，应避免其父元素出现滚动条，以免对话框和遮掩层能随其内容滚动。
+   *   如果对话框元素的父元素是 BODY，遮掩层将遮掩整个视口。
+   *   当对话框元素的父元素不是 BODY 时，应避免其父元素出现滚动条，以免对话框和遮掩层能随其内容滚动。
    *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。
    *   <ul>
    *     <li>对话框的默认状态为关闭。因此 element 的 display 将被设置为 none。</li>
-   *     <li>当对话框元素的父元素为 body 元素时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
+   *     <li>当对话框元素的父元素为 BODY 元素时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
    *     <li>建议为该元素设置明确的 zIndex，如果未设置 zIndex，则自动设置 zIndex 为 1000。</li>
    *     <li>如果对话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
    *   </ul>
@@ -348,7 +348,7 @@ execute(function($) {
           }
           // 调整遮掩层。
           overlay.behind($dialog);
-          // 仅父元素为 body 的对话框需要在改变窗口尺寸时重新调整位置（假设其他对话框的父元素的尺寸为固定）。
+          // 仅父元素为 BODY 的对话框需要在改变窗口尺寸时重新调整位置（假设其他对话框的父元素的尺寸为固定）。
           if (containerIsBody) {
             window.on('resize.dialog' + $dialog.uid, navigator.isIE6 ? function() {
               // 避免 IE6 的固定定位计算错误。

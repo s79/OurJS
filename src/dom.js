@@ -45,12 +45,12 @@
 //--------------------------------------------------[document.head]
   // 为 IE6 IE7 IE8 添加 document.head 属性。
   /**
-   * 获取文档的 head 元素。
+   * 获取文档的 HEAD 元素。
    * @name head
    * @memberOf document
    * @type Element
    * @description
-   *   与 document.documentElement 和 document.body 的作用一样，document.head 是获取文档的 head 元素的快捷方式。
+   *   与 document.documentElement 和 document.body 的作用一样，document.head 是获取文档的 HEAD 元素的快捷方式。
    * @example
    *   document.documentElement === document.getElementsByTagName('html')[0];
    *   // true
@@ -115,7 +115,7 @@
    * @type string
    * @description
    *   注意：
-   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+   *   getter 在遇到 BR 元素或换行符时，各浏览器行为不一致。
    */
   if (!('innerText' in html)) {
     HTMLElement.prototype.__defineGetter__('innerText', function() {
@@ -135,7 +135,7 @@
    * @type string
    * @description
    *   注意：
-   *   getter 在遇到 br 元素或换行符时，各浏览器行为不一致。
+   *   getter 在遇到 BR 元素或换行符时，各浏览器行为不一致。
    *   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
    *   与 innerText 不同，如果设置一个元素的 outerText，那么设置的字符串将作为文本节点替换本元素在文档树中的位置。
    */
@@ -462,57 +462,56 @@
     }
   };
 
-  // 修复 IE6 不支持 position: fixed 的问题。
-  //
-  // 注意：
-  //   目前仅考虑 direction: ltr 的情况，并且不支持嵌套使用 position: fixed。事实上这两点不会影响现有的绝大部分需求。
-  //   目前仅支持在 left right top bottom 上使用像素长度来设置偏移量。修复后，目标元素的样式中有 left 则 right 失效，有 top 则 bottom 失效。
-  //   因此要保证兼容，在应用中设置 position: fixed 的元素应有明确的尺寸设定，并只使用（left right top bottom）的（像素长度）来定位，否则在 IE6 中的表现会有差异。
-  //
-  // 处理流程：
-  //   position 的修改 = 启用/禁用修复，如果已启用修复，并且 display 不是 none，则同时启用表达式。
-  //   display 的修改 = 如果已启用修复，则启用/禁用表达式。
-  //   left/right/top/bottom 的修改 = 如果已启用修复，则调整 specifiedValue。如果已启用表达式，则更新表达式。
-  //   由于 IE6 设置为 position: absolute 的元素的 right bottom 定位与 body 元素的 position 有关，并且表现怪异，因此设置表达式时仍使用 left top 实现。
-  //   这样处理的附加好处是不必在每次更新表达式时启用/禁用设置在 right bottom 上的表达式。
-  //
-  // 参考：
-  //   http://www.qianduan.net/fix-ie6-dont-support-position-fixed-bug.html
-  //
-  // 实测结果：
-  //   X = 页面背景图片固定，背景图直接放在 html 上即可，若要放在 body 上，还要加上 background-attachment: fixed。
-  //   A = 为元素添加 CSS 表达式。
-  //   B = 为元素绑定事件监听器，在监听器中修改元素的位置。
-  //   X + A 可行，X + B 不可行。
+  /*
+   * 修复 IE6 不支持 position: fixed 的问题。
+   *
+   * 注意：
+   *   目前仅考虑 direction: ltr 的情况，并且不支持嵌套使用 position: fixed。事实上这两点不会影响现有的绝大部分需求。
+   *   目前仅支持在 left right top bottom 上使用像素长度来设置偏移量。修复后，目标元素的样式中有 left 则 right 失效，有 top 则 bottom 失效。
+   *   因此要保证兼容，在应用中设置 position: fixed 的元素应有明确的尺寸设定，并只使用（left right top bottom）的（像素长度）来定位，否则在 IE6 中的表现会有差异。
+   *
+   * 处理流程：
+   *   position 的修改 = 启用/禁用修复，如果已启用修复，并且 display 不是 none，则同时启用表达式。
+   *   display 的修改 = 如果已启用修复，则启用/禁用表达式。
+   *   left/right/top/bottom 的修改 = 如果已启用修复，则调整 specifiedValue。如果已启用表达式，则更新表达式。
+   *   由于 IE6 设置为 position: absolute 的元素的 right bottom 定位与 BODY 元素的 position 有关，并且表现怪异，因此设置表达式时仍使用 left top 实现。
+   *   这样处理的附加好处是不必在每次更新表达式时启用/禁用设置在 right bottom 上的表达式。
+   *
+   * 参考：
+   *   http://www.qianduan.net/fix-ie6-dont-support-position-fixed-bug.html
+   *
+   * 实测结果：
+   *   X = 页面背景图片固定，背景图直接放在 HTML 上即可，若要放在 BODY 上，还要加上 background-attachment: fixed。
+   *   A = 为元素添加 CSS 表达式。
+   *   B = 为元素绑定事件监听器，在监听器中修改元素的位置。
+   *   X + A 可行，X + B 不可行。
+   */
   if (navigator.isIE6) {
     // 保存已修复的元素的偏移量及是否启用的数据。
     /*
-     * <Object ie6FixedPositionedElements> {
-     *   <string uid>: <Object fixedData> {
-     *     left: <Object leftData> {
-     *       specifiedValue: <string specifiedValue>,
-     *       usedValue: <number usedValue>
-     *     },
-     *     right: <Object rightData> {
-     *       specifiedValue: <string specifiedValue>,
-     *       usedValue: <number usedValue>
-     *     },
-     *     top: <Object topData> {
-     *       specifiedValue: <string specifiedValue>,
-     *       usedValue: <number usedValue>
-     *     },
-     *     bottom: <Object bottomData> {
-     *       specifiedValue: <string specifiedValue>,
-     *       usedValue: <number usedValue>
-     *     },
-     *     enabled: <boolean enabled>
-     *   }
+     * <Object fixedData> {
+     *   left: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   right: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   top: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   bottom: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   enabled: <boolean enabled>
      * };
      */
-    var ie6FixedPositionedElements = {};
 
-    // 已修复的元素的总数。
-    var ie6FixedPositionedElementCount = 0;
+    // 设置页面背景。
+    html.style.backgroundImage = 'url(about:blank)';
 
     // 添加 CSS 表达式。
     var setExpressions = function($element, fixedData) {
@@ -540,19 +539,18 @@
 
     // IE6 获取 position 特性时的特殊处理。
     specialCSSPropertyGetter.position = function($element) {
-      return ie6FixedPositionedElements[$element.uid] ? 'fixed' : $element.currentStyle.position;
+      return $element.fixedData ? 'fixed' : $element.currentStyle.position;
     };
 
     // IE6 设置 position 特性时的特殊处理。
     specialCSSPropertySetter.position = function($element, propertyValue) {
-      var uid = $element.uid;
       // 本元素的偏移量数据，如果未启用修复则不存在。
-      var fixedData = ie6FixedPositionedElements[uid];
+      var fixedData = $element.fixedData;
       if (propertyValue.toLowerCase() === 'fixed') {
         // 设置固定定位。
         if (!fixedData) {
           // 启用修复。
-          fixedData = ie6FixedPositionedElements[uid] = {left: {}, right: {}, top: {}, bottom: {}, enabled: false};
+          fixedData = $element.fixedData = {left: {}, right: {}, top: {}, bottom: {}, enabled: false};
           var offset = {};
           var currentStyle = $element.currentStyle;
           fixedData.left.specifiedValue = offset.left = currentStyle.left;
@@ -564,19 +562,15 @@
           });
           // 如果 usedValue 中横向或纵向的两个值均为 NaN，则给 left 或 top 赋值为当前该元素相对于页面的偏移量。
           if (isNaN(fixedData.left.usedValue) && isNaN(fixedData.right.usedValue)) {
-            fixedData.left.usedValue = document.documentElement.scrollLeft + $element.getClientRect().left - (parseInt($element.currentStyle.marginLeft, 10) || 0);
+            fixedData.left.usedValue = html.scrollLeft + $element.getClientRect().left - (parseInt($element.currentStyle.marginLeft, 10) || 0);
           }
           if (isNaN(fixedData.top.usedValue) && isNaN(fixedData.bottom.usedValue)) {
-            fixedData.top.usedValue = document.documentElement.scrollTop + $element.getClientRect().top - (parseInt($element.currentStyle.marginTop, 10) || 0);
+            fixedData.top.usedValue = html.scrollTop + $element.getClientRect().top - (parseInt($element.currentStyle.marginTop, 10) || 0);
           }
           // 如果元素已被渲染（暂不考虑祖先级元素未被渲染的情况），启用表达式。
           if ($element.currentStyle.display !== 'none') {
             fixedData.enabled = true;
             setExpressions($element, fixedData);
-          }
-          // 若是本页面的第一次修复则设置页面背景。
-          if (ie6FixedPositionedElementCount++ === 0) {
-            document.documentElement.style.backgroundImage = 'url(about:blank)';
           }
         }
         propertyValue = 'absolute';
@@ -589,11 +583,7 @@
           $element.style.right = fixedData.right.specifiedValue;
           $element.style.top = fixedData.top.specifiedValue;
           $element.style.bottom = fixedData.bottom.specifiedValue;
-          delete ie6FixedPositionedElements[uid];
-          // 若本页面已不存在需修复的元素则取消页面背景设置。
-          if (--ie6FixedPositionedElementCount === 0) {
-            document.documentElement.style.backgroundImage = 'none';
-          }
+          $element.removeAttribute('fixedData');
         }
       }
       // 设置样式。
@@ -602,7 +592,7 @@
 
     // IE6 设置 display 特性时的特殊处理。
     specialCSSPropertySetter.display = function($element, propertyValue) {
-      var fixedData = ie6FixedPositionedElements[$element.uid];
+      var fixedData = $element.fixedData;
       // 仅在本元素已启用修复的情况下需要进行的处理。
       if (fixedData) {
         if (propertyValue.toLowerCase() === 'none') {
@@ -625,13 +615,13 @@
 
     // IE6 获取 left/right/top/bottom 特性时的特殊处理。
     var getOffset = function($element, propertyName) {
-      var fixedData = ie6FixedPositionedElements[$element.uid];
+      var fixedData = $element.fixedData;
       return fixedData ? fixedData[propertyName].specifiedValue : $element.currentStyle[propertyName];
     };
 
     // IE6 设置 left/right/top/bottom 特性时的特殊处理。
     var setOffset = function($element, propertyName, propertyValue) {
-      var fixedData = ie6FixedPositionedElements[$element.uid];
+      var fixedData = $element.fixedData;
       // 仅在本元素已启用修复的情况下需要进行的处理。
       if (fixedData) {
         fixedData[propertyName].specifiedValue = propertyValue;
@@ -833,9 +823,9 @@
    *
    * 根据上表可知，只有 IE8 以下会出现问题。
    * 混杂模式下，IE6 IE7 IE8 减去 body.clientLeft 的值即可得到准确结果。
-   * body.clientLeft 的值取决于 body 的 border 属性，如果未设置 body 的 border 属性，则 body 会继承 html 的 border 属性。如果 html 的 border 也未设置，则 html 的 border 默认值为 medium，计算出来是 2px。
+   * body.clientLeft 的值取决于 BODY 的 border 属性，如果未设置 BODY 的 border 属性，则 BODY 会继承 HTML 的 border 属性。如果 HTML 的 border 也未设置，则 HTML 的 border 默认值为 medium，计算出来是 2px。
    * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
-   * html.clientLeft 在 IE6 中取决于 html 的 border 属性，而在 IE7 中的值则始终为 2px。
+   * html.clientLeft 在 IE6 中取决于 HTML 的 border 属性，而在 IE7 中的值则始终为 2px。
    */
 
   /**
@@ -846,7 +836,7 @@
    * @description
    *   注意：
    *   不考虑非标准模式。
-   *   标准模式下 IE7(IE9 模拟) 的 body 的计算样式 direction: rtl 时，如果 html 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
+   *   标准模式下 IE7(IE9 模拟) 的 BODY 的计算样式 direction: rtl 时，如果 HTML 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
    */
   Element.prototype.getClientRect = navigator.isIElt8 ? function() {
     var clientRect = this.getBoundingClientRect();
@@ -1122,7 +1112,7 @@
         // 针对特定元素的处理。
         switch (cloned.nodeName) {
           case 'OBJECT':
-            // IE6 IE7 IE8 无法克隆使用 classid 来标识内容类型的 object 元素的子元素。IE9 还有另外的问题：
+            // IE6 IE7 IE8 无法克隆使用 classid 来标识内容类型的 OBJECT 元素的子元素。IE9 还有另外的问题：
             // http://bugs.jquery.com/ticket/10324
             cloned.outerHTML = original.outerHTML;
             break;
@@ -1815,7 +1805,7 @@
    *   // 为 id 为 test 的元素添加 click 事件监听器，并为其指定一个标签 temp。
    * @example
    *   $('#test').on('click:relay(a)', onClick);
-   *   // 为 id 为 test 的元素添加一个代理事件监听器，为该元素所有的后代 a 元素代理 click 事件的监听。
+   *   // 为 id 为 test 的元素添加一个代理事件监听器，为该元素所有的后代 A 元素代理 click 事件的监听。
    * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
    */
@@ -1941,10 +1931,11 @@
             }
             break;
           case 'input':
-            // IE6 IE7 IE8 可以使用 onpropertychange 即时相应用户输入，其他浏览器中可以使用 input 事件即时响应用户输入（需使用 addEventListener 绑定）。
+            // IE6 IE7 IE8 可以使用 onpropertychange 即时响应用户输入，其他浏览器中可以使用 input 事件即时响应用户输入（需使用 addEventListener 绑定）。
             // 但是 IE9 的 INPUT[type=text|password] 和 TEXTAREA 在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。IE8 的 TEXTAREA 也有以上问题，因此需要添加辅助派发器。
             // 通过 keydown，cut 和 blur 事件能解决按键删除和剪切、菜单剪切、拖拽内容出去的问题，但不能解决菜单删除的问题。
             // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次调用监听器。
+            // TODO: Safari 5.1.7 的表单自动填充不触发 change 和 input 事件。
             var nodeName = $element.nodeName;
             var controlType = $element.type;
             if (navigator.isIElt10 && (nodeName === 'TEXTAREA' || nodeName === 'INPUT' && (controlType === 'text' || controlType === 'password'))) {
@@ -1975,7 +1966,7 @@
             }
             break;
           case 'change':
-            // TODO: 一些浏览器拖拽内容出去时有不触发事件的问题，目前尚未处理。
+            // TODO: 一些浏览器拖拽内容出去时有不触发事件的问题，IE6 IE7 IE8 IE9 Safari 5.1.7 的表单自动填充不触发事件，目前尚未处理。
             // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
             // 需要添加辅助派发器。
             if (navigator.isIElt9 && $element.nodeName === 'INPUT' && ($element.type === 'checkbox' || $element.type === 'radio')) {
@@ -2167,25 +2158,40 @@
    *
    * 扩展方法：
    *   HTMLFormElement.prototype.getFieldValue
-   *   HTMLFormElement.prototype.serialize
+   *   HTMLFormElement.prototype.serialize  // TODO
    *   HTMLFormElement.prototype.setValidationRules
+   *   HTMLFormElement.prototype.validateField
    */
 
-  // 获取一个或一组控件的当前值，并对下列不一致的情况（*）作统一化处理。
-  // 如果为 select-one 类型：
-  //   取最后一个设置了 selected 的 option 值。
-  //   若该 option 设置了 disabled 则认为本控件无有效值（虽然此时可以取到该控件的 selectedIndex 和 value 值）。
-  //     * IE6 IE7 不支持 option 和 optgroup 元素的 disabled 属性（http://w3help.org/zh-cn/causes/HF3013）。
-  //   若没有设置了 selected 的 option，则取第一个未设置 disabled 的 option 值。
-  //     * Safari 5.1.7 在上述情况发生时，其 selectedIndex 仍为 0，并且认为本控件无有效值。
-  //     ! IE6 IE7 不支持 option 的 disabled 属性，所以其 selectedIndex 将为 0，并且不支持 hasAttribute 方法，因此无法修复本差异。
-  //   若所有的 option 都设置了 disabled，则其 selectedIndex 为 -1，并且认为本控件无有效值。
-  //     * 仅 Firefox 14.0.1 和 Opera 12.02 在上述情况发生时会将其 selectedIndex 设置为 -1，但后者会将第一个 option 元素的 value 作为有效值提交。
-  //     * 其他浏览器则将其 selectedIndex 设置为 0，但认为本控件无有效值。
-  // 如果为 select-multiple 类型：
-  //   若没有设置了 selected 的 option，则认为没有默认选中项，selectedIndex 为 -1，本控件无有效值（多选情况下的 selectedIndex 和 value 无实际意义）。
-  //   所有设置了 selected 的 option 认为有效。
-  //   所有设置了 disabled 的 option 认为无效。
+//--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
+  /**
+   * 获取本表单内某个域的当前值。
+   * @name HTMLFormElement.prototype.getFieldValue
+   * @function
+   * @param {String} name 表单域的名称。
+   * @returns {string|Array} 表单域的当前值。
+   * @description
+   *   当该表单域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
+   *   其他情况（该表单域只包含一个 select-multiple 类型的控件或者多个任意类型的控件时）返回数组，值为空字符串的项不会被加入数组。
+   * @see http://www.w3.org/TR/REC-html40/interact/forms.html#successful-controls
+   */
+  /*
+   * 获取一个或一组控件的当前值，并对下列不一致的情况（*）作统一化处理。
+   * 如果为 select-one 类型：
+   *   取最后一个设置了 selected 的 option 值。
+   *   若该 option 设置了 disabled 则认为本控件无有效值（虽然此时可以取到该控件的 selectedIndex 和 value 值）。
+   *     * IE6 IE7 不支持 OPTION 和 OPTGROUP 元素的 disabled 属性（http://w3help.org/zh-cn/causes/HF3013）。
+   *   若没有设置了 selected 的 option，则取第一个未设置 disabled 的 option 值。
+   *     * Safari 5.1.7 在上述情况发生时，其 selectedIndex 仍为 0，并且认为本控件无有效值。
+   *     ! IE6 IE7 不支持 option 的 disabled 属性，所以其 selectedIndex 将为 0，并且不支持 hasAttribute 方法，因此无法修复本差异。
+   *   若所有的 option 都设置了 disabled，则其 selectedIndex 为 -1，并且认为本控件无有效值。
+   *     * 仅 Firefox 14.0.1 和 Opera 12.02 在上述情况发生时会将其 selectedIndex 设置为 -1，但后者会将第一个 OPTION 元素的 value 作为有效值提交。
+   *     * 其他浏览器则将其 selectedIndex 设置为 0，但认为本控件无有效值。
+   * 如果为 select-multiple 类型：
+   *   若没有设置了 selected 的 option，则认为没有默认选中项，selectedIndex 为 -1，本控件无有效值（多选情况下的 selectedIndex 和 value 无实际意义）。
+   *   所有设置了 selected 的 option 认为有效。
+   *   所有设置了 disabled 的 option 认为无效。
+   */
   var getCurrentValue = function(control) {
     var value = '';
     if (control.nodeType) {
@@ -2243,24 +2249,243 @@
     return value;
   };
 
-//--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
-  /**
-   * 获取本表单内某个域的当前值。
-   * @name HTMLFormElement.prototype.getFieldValue
-   * @function
-   * @param {String} name 表单域的名称。
-   * @returns {string|Array} 表单域的当前值。
-   * @description
-   *   当该表单域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
-   *   其他情况（该表单域只包含一个 select-multiple 类型的控件或者多个任意类型的控件时）返回数组，值为空字符串的项不会被加入数组。
-   * @see http://www.w3.org/TR/REC-html40/interact/forms.html#successful-controls
-   */
   HTMLFormElement.prototype.getFieldValue = function(name) {
     var control = this.elements[name];
     if (!control) {
       throw new Error('Invalid field name "' + name + '"');
     }
     return getCurrentValue(control);
+  };
+
+//--------------------------------------------------[HTMLFormElement.prototype.setValidationRules]
+  /**
+   * 为表单配置验证规则。
+   * @name HTMLFormElement.prototype.setValidationRules
+   * @function
+   * @param {Object} rulesets 要验证的表单域名称及规则，格式为 <dfn>{<var>name</var>: <var>rules</var>, ...}</dfn>。
+   *   属性名 <var>name</var> 为要验证的表单域的名称，即本表单元素内对应的 INPUT/SELECT/TEXTAREA 元素的 name 属性值。
+   *   属性值 <var>rules</var> 为定义验证规则的对象，包括 7 种验证方式。
+   *   前 5 种是“预置”的，均以一个包含两个元素的数组来定义：第一个元素为验证的参考值，第二个元素为验证失败时的“错误信息”字符串。
+   *   后 2 种是“自定”的，开发者可以自行决定验证方式，并在验证结束时返回“错误信息”。
+   *   “错误信息”将作为 fieldvalidated 事件对象的 errorMessage 属性的值。
+   *   详情请见下表：
+   *   <table>
+   *     <tr><th>验证方式</th><th>值类型</th><th>详细描述</th></tr>
+   *     <tr><td><dfn>required</dfn></td><td>Array</td><td>限定该表单域的值不能为空。数组的第一个元素为 boolean 类型。</td></tr>
+   *     <tr><td><dfn>equals</dfn></td><td>Array</td><td>限定该表单域的值与相关表单域的值一致，仅应在这两个表单域均只包含一个文本控件时指定。数组的第一个元素为 string 类型，用于指定相关表单域的名称（不能指定为该表单域自身的名称）。</td></tr>
+   *     <tr><td><dfn>minLength</dfn></td><td>Array</td><td>当该表单域只包含一个文本控件时，限定输入文本的最小长度，否则限定选择项的最少数目。数组的第一个元素为 number 类型。</td></tr>
+   *     <tr><td><dfn>maxLength</dfn></td><td>Array</td><td>当该表单域只包含一个文本控件时，限定输入文本的最大长度，否则限定选择项的最多数目。数组的第一个元素为 number 类型。</td></tr>
+   *     <tr><td><dfn>type</dfn></td><td>Array</td><td>限定数据的类型。数组的第一个元素为 string 类型，可以为 number/date/email/phone 中的任一个。</td></tr>
+   *     <tr><td><dfn>custom</dfn></td><td>Function</td><td>用来对该表单域的值进行进一步验证的函数，该函数被调用时传入该表单域的值，其 this 的值为本表单元素，返回值应为一个“错误信息”字符串，为空则表示验证通过。</td></tr>
+   *     <tr><td><dfn>remote</dfn></td><td>Object</td><td>指定对该表单域的值进行服务端验证，包含两个属性：url 和 config，详细内容请参考 Request 组件。注意利用 config.requestParser 和 config.responseParser 对请求和响应数据进行预处理。该表单域的值将被作为参数传入 send 方法，finish 事件对象应具备 errorMessage 属性（“错误信息”字符串），为空则表示验证通过。</td></tr>
+   *   </table>
+   *   进行验证的步骤为 required - equals - minLength - maxLength - type - custom - remote。
+   *   若不需要某种类型的验证，在 <var>rules</var> 中省略对应的项即可。
+   * @returns {HTMLFormElement} 本表单元素。
+   * @fires validate
+   *   表单的 submit 事件发生时触发。
+   * @fires validating
+   *   当某个表单域开始服务端验证时触发。即便有多个表单域需要进行服务端验证，也仅会触发一次。
+   * @fires validated
+   *   {boolean} result 验证结果，仅当所有已配置的规则均验证通过时为 true，否则为 false。
+   *   在表单验证结束后触发。
+   * @description
+   *   本方法不能重复调用。
+   *   一旦为一个表单元素配置了验证规则，该表单的 submit 事件的默认行为将被阻止。
+   *   当 submit 事件发生时，会自动调用 validateField 方法，对所有验证规则涉及到的、可见的、尚未验证的表单域进行验证（被动验证）。
+   *   如果有需要服务端验证的表单域，将首先触发 validating 事件，并在所有的服务端验证结束后触发 validated 事件。
+   *   在 validating 事件触发后，等待的所有服务端验证尚未结束前，如果用户修改了任一控件的值，则会立即取消当前的服务端验证，同时触发 validated 事件，本次验证按失败处理。
+   *   如果没需要服务端验证的表单域，将同步触发 validated 事件。
+   *   对提交行为的后续处理应在该表单的 validate 事件监听器中根据验证结果进行。
+   */
+  HTMLFormElement.prototype.setValidationRules = function(rulesets) {
+    var $form = this;
+
+    // 不能重复调用。
+    if ($form.validationRulesets) {
+      throw new Error('Validation rules has been set');
+    }
+
+    // 保存验证规则。不要修改 DOM 对象上的这个属性！
+    $form.validationRulesets = rulesets;
+
+    // 每一项的值为 true 表示验证通过，false 表示验证未通过，undefined 表示正在验证中。
+    $form.validationResultSet = {};
+
+    var isValidating = false;
+
+    // 为控件绑定事件。
+    Object.forEach(rulesets, function(rules, name) {
+      Array.from($form.elements[name]).forEach(function(control) {
+        var $control = $(control).on('change.validation', function() {
+          $form.validateField(name);
+        });
+        // 如果设置了 equals 规则且已输入值，则在目标控件的值改变时重新检测本控件的值。
+        var relatedName = rules.equals && rules.equals[0];
+        if (relatedName) {
+          $($form.elements[relatedName]).on('change.validation', function() {
+            if ($control.value) {
+              $form.validateField(relatedName);
+            }
+          });
+        }
+      });
+    });
+
+    // 为表单绑定事件。
+    return $form
+        .on('submit.validation', function() {
+          // 单独绑定一个监听器，以免发生异常时导致表单提交。
+          return false;
+        })
+        .on('submit.validation', function() {
+          if (!isValidating) {
+            isValidating = true;
+            $form.fire('validate');
+            // 对尚未验证的域进行验证。
+            Object.forEach(rulesets, function(rules, name) {
+              if (!$form.validationResultSet.hasOwnProperty(name)) {
+                $form.validateField(name);
+              }
+            });
+            // 所有域的验证结果均已收集完毕，开始分析。
+            var validatingFields = [];
+            var allValidationsPassed = true;
+            Object.forEach($form.validationResultSet, function(result, name) {
+              if (result === undefined) {
+                validatingFields.push(name);
+              } else {
+                allValidationsPassed = allValidationsPassed && result;
+              }
+            });
+            // 处理结果。
+            if (validatingFields.length) {
+              // 有验证仍在进行。
+              $form
+                  .on('validatefield.validation', function() {
+                    $form.fire('validated', {result: false});
+                  })
+                  .on('fieldvalidated.validation', function(e) {
+                    if (validatingFields.contains(e.name)) {
+                      validatingFields.remove(e.name);
+                      allValidationsPassed = allValidationsPassed && !e.errorMessage;
+                      if (!validatingFields.length) {
+                        $form.fire('validated', {result: allValidationsPassed});
+                      }
+                    }
+                  })
+                  .fire('validating');
+            } else {
+              // 所有验证均已完成。
+              $form.fire('validated', {result: allValidationsPassed});
+            }
+          }
+        })
+        .on('reset.validation', function() {
+          $form.off('fieldvalidated.validation, validatefield.validation');
+          isValidating = false;
+          $form.validationResultSet = {};
+          Object.forEach(rulesets, function(rules) {
+            if (rules.lastRequest) {
+              rules.lastRequest.off('finish').abort();
+            }
+          });
+        })
+        .on('validated.validation', function() {
+          $form.off('fieldvalidated.validation, validatefield.validation');
+          isValidating = false;
+        });
+
+  };
+
+//--------------------------------------------------[HTMLFormElement.prototype.validateField]
+  /**
+   * 对指定的表单域进行验证。
+   * @name HTMLFormElement.prototype.validateField
+   * @function
+   * @param {string} name 要验证的表单域名称。
+   * @returns {HTMLFormElement} 本表单元素。
+   * @fires validatefield
+   *   {string} name 验证的表单域的名称。
+   *   {string|Array} value 验证的表单域的值。
+   *   调用 validateField 方法时触发。
+   * @fires fieldvalidating
+   *   {string} name 验证的表单域的名称。
+   *   {string|Array} value 验证的表单域的值。
+   *   当一个表单域开始服务端验证时触发。
+   * @fires fieldvalidated
+   *   {string} name 验证的表单域的名称。
+   *   {string|Array} value 验证的表单域的值。
+   *   {string} errorMessage “错误信息”字符串，为空则表示验证通过。
+   *   当一个表单域验证结束后触发。
+   * @description
+   *   指定的表单域必须已通过其所属表单元素的 setValidationRules 方法配置验证规则。
+   *   当该表单域包含的控件发生 change 事件（主动验证）或其所属表单触发 submit 事件时，validateField 方法可能被自动调用。
+   *   当 fieldvalidated 事件被触发时，事件对象的 errorMessage 属性值为“错误信息”，如果为空则表示当前表单域已通过验证。
+   */
+  var checkType = {
+    number: function(value) {
+      return !value || /^([+-]?\d+)(\.\d+)?$/.test(value);
+    },
+    date: function(value) {
+      return !value || value === Date.from(value).format();
+    },
+    email: function(value) {
+      return !value || /^([\w-])+@([\w-])+((\.[\w-]+){1,3})$/.test(value);
+    },
+    phone: function(value) {
+      return !value || /^\d{11}?$/.test(value);
+    }
+  };
+
+  HTMLFormElement.prototype.validateField = function(name) {
+    var $form = this;
+    var validationResultSet = $form.validationResultSet;
+    var rules = $form.validationRulesets[name];
+    var value = $form.getFieldValue(name);
+    var errorMessage = '';
+    var rule;
+    validationResultSet[name] = undefined;
+    $form.fire('validatefield', {name: name, value: value});
+    if ((rule = rules.required) && rule[0] && value.length === 0) {
+      errorMessage = rule[1] || 'required';
+    }
+    if (!errorMessage && (rule = rules.equals) && value !== $form.getFieldValue(rule[0])) {
+      errorMessage = rule[1] || 'equals';
+    }
+    if (!errorMessage && (rule = rules.minLength) && value.length < rule[0]) {
+      errorMessage = rule[1] || 'minLength';
+    }
+    if (!errorMessage && (rule = rules.maxLength) && value.length > rule[0]) {
+      errorMessage = rule[1] || 'maxLength';
+    }
+    if (!errorMessage && (rule = rules.type) && !checkType[rule[0]](value)) {
+      errorMessage = rule[1] || 'type';
+    }
+    if (!errorMessage && rules.custom) {
+      errorMessage = rules.custom.call($form, value);
+    }
+    var remote = rules.remote;
+    if (!errorMessage && remote) {
+      if (rules.lastRequest) {
+        rules.lastRequest.off('finish').abort();
+      }
+      rules.lastRequest = new Request(remote.url, remote.config)
+          .on('start', function() {
+            $form.fire('fieldvalidating', {name: name, value: value});
+          })
+          .on('finish', function(e) {
+            delete rules.lastRequest;
+            var errorMessage = e.errorMessage;
+            validationResultSet[name] = !errorMessage;
+            $form.fire('fieldvalidated', {name: name, value: value, errorMessage: errorMessage});
+          })
+          .send(value);
+    } else {
+      validationResultSet[name] = !errorMessage;
+      $form.fire('fieldvalidated', {name: name, value: value, errorMessage: errorMessage});
+    }
+    return $form;
   };
 
 //==================================================[document 扩展]
@@ -2297,7 +2522,7 @@
    *   这里与其他实现相比有以下几点差异：
    *   <ul>
    *     <li>忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。</li>
-   *     <li>修改“IE 添加多余的 tbody 元素”的问题的解决方案，在 wrappers 里预置一个 tbody 即可。</li>
+   *     <li>修改“IE 添加多余的 TBODY 元素”的问题的解决方案，在 wrappers 里预置一个 TBODY 即可。</li>
    *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装追加元素的相关方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法，而不应该使用本方法。</li>
    *   </ul>
    *   在创建元素时，如果包含 table，建议写上 tbody。举例如下：
@@ -2324,7 +2549,7 @@
   wrappers.thead = wrappers.tfoot = wrappers.colgroup = wrappers.caption = wrappers.tbody;
   wrappers.th = wrappers.td;
   if (navigator.isIElt9) {
-    // IE6 IE7 IE8 对 link style script 元素的特殊处理。
+    // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。
     wrappers.link = wrappers.style = wrappers.script = [1, '#<div>', '</div>'];
   }
 
@@ -2392,7 +2617,7 @@
    * @param {Object} [options] 可选参数。
    * @param {string} options.charset 脚本文件的字符集。
    * @param {Function} options.onLoad 加载完毕后的回调。
-   *   该函数被调用时 this 的值为加载本脚本时创建的 script 元素。
+   *   该函数被调用时 this 的值为加载本脚本时创建的 SCRIPT 元素。
    */
   document.loadScript = function(url, options) {
     options = options || {};

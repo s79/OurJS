@@ -208,7 +208,9 @@ var manifest = {
   ],
   'HTMLFormElement': [
     '#自定义扩展',
-    'HTMLFormElement.prototype.getFieldValue'
+    'HTMLFormElement.prototype.getFieldValue',
+    'HTMLFormElement.prototype.setValidationRules',
+    'HTMLFormElement.prototype.validateField'
   ],
   'Event': [
     '#自定义扩展',
@@ -317,11 +319,5 @@ var manifest = {
     'Calendar.config',
     'Calendar.prototype.getElement',
     'Calendar.prototype.render'
-  ],
-  'Validator': [
-    'Validator',
-    'Validator.prototype.validateField',
-    'Validator.prototype.validate',
-    'Validator.prototype.reset'
   ]
 };

@@ -135,7 +135,7 @@ var $container = document.$('#container');
 </pre>
 <pre>
 var $message = document.$('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd&gt;&lt;/dd&gt;&lt;/dl&gt;');
-// 创建一个 dl 元素。虽然每次只能创建一个元素，但这个元素可以包含任意多的后代元素。
+// 创建一个 DL 元素。虽然每次只能创建一个元素，但这个元素可以包含任意多的后代元素。
 </pre>
 <p>像很多库一样，OurJS 也可以使用 $ 来代替 document.$，以简化编码。具体做法请参考下文“<strong>使用 execute 方法执行代码块</strong>”一节中的内容。</p>
 <blockquote>
@@ -166,7 +166,7 @@ if ($input.offsetWidth) {
 $container.find('li').forEach(function($item) {
   $item.setStyles({color: 'silver', font-style: 'italic'}));
 });
-// 修改 id 为“container”的元素的所有后代 li 元素的样式。
+// 修改 id 为“container”的元素的所有后代 LI 元素的样式。
 </pre>
 <p>这点和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路 —— 恰当的设计可以避免很多需要“批量操作元素”的场景。</p>
 <p>如上例可以修改为：</p>
@@ -224,7 +224,7 @@ document.on('mouseenter, mouseleave', listener);
 <pre>
 $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
 // $element 元素将为其所有标签名为 li 且类名包含 enabled 的后代元素代理监听 mouseenter 事件。
-// 在 listener 被调用时，this 的值为被代理监听的 li 元素。
+// 在 listener 被调用时，this 的值为被代理监听的 LI 元素。
 </pre>
 <p>在 IE6 IE7 IE8 中，发生在元素对象上的事件如果可以传递，则只能传递到 document 对象，而不会传递到 window 对象，因此不要让 window 对象为其他元素代理事件监听，以保持兼容。</p>
 <ol class="comment">
