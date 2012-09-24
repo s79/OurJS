@@ -2322,7 +2322,7 @@
         if (relatedName) {
           $($form.elements[relatedName]).on('change.validation', function() {
             if ($control.value) {
-              $form.validateField(relatedName);
+              $form.validateField(name);
             }
           });
         }
