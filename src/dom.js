@@ -29,6 +29,109 @@
     });
   };
 
+//==================================================[DOM 补缺及扩展 - 构造器]
+  /*
+   * 仅为元素扩展新特性，而不是所有的节点类型。
+   *
+   * 提供屏蔽浏览器差异的，针对元素操作的方法有以下三种方案：
+   * 一、静态方法
+   *   方式：
+   *     提供一组静态方法，将元素以参数（一般是第一个参数）的形式传入并进行处理。
+   *   优点：
+   *     可以随意为方法命名。
+   *     不修改原生对象，可以跨 frame 操作，可与其他脚本库共存。
+   *   缺点：
+   *     静态方法的调用从字面上看是以方法为主体（先出现），代码冗长，语法不如以目标对象为主体的 . 操作自然。
+   *     有时需要使用静态方法，有时又要使用原生方法，缺乏一致性。
+   * 二、包装对象
+   *   方式：
+   *     创建一个对象包装目标元素，在这个包装对象的原型（链）中添加方法。
+   *   优点：
+   *     语法以目标对象为主体，可以链式调用，语法自然。
+   *     可以随意为方法命名。
+   *     不修改原生对象，可以跨 frame 操作，可与其他脚本库共存。
+   *   缺点：
+   *     访问元素的属性时需要使用 getter 和 setter 方法（包装对象没有“属性”的概念），操作元素未被包装的的一些生僻方法或属性时，需要解包，一致性不够好。
+   *     由于对包装对象上方法的调用与对原生对象上方法的调用方式是相同的（使用 . 操作符调用），特殊情况下有将原生对象当作包装对象误用的可能。
+   *     必须以约定的方式获取元素以便对其包装。
+   * 三、原型扩展
+   *   方式：
+   *     直接在 Element.prototype 上添加方法。对于不支持 Element 构造函数的浏览器（IE6 IE7），将对应特性直接附加在元素上。
+   *   优点：
+   *     不引入新的对象类型或命名空间，只在已有的对象类型上添加方法，一致性最好。
+   *     方法调用时操作主体就是目标元素本身，可以链式调用，语法自然。
+   *   缺点：
+   *     为方法命名时，不能使用 DOM 元素已有的和将来可能会有的特性名。
+   *     修改了原生对象，跨 frame 操作前需要预先修改目标 frame 中的原生对象，不能与其他基于原型扩展的脚本库共存。
+   *     必须以约定的方式获取元素以便兼容 IE6 IE7 的扩展方式，另外对 IE6 IE7 的修补方案有性能损耗。
+   *
+   * 为达到“简单轻便”、“化繁为简”的目标，这里使用第三种实现方式，以使 API 有最好的一致性和最自然语法。
+   * 为保持简单，不予提供跨 frame 的操作。实际上跨 frame 操作并不常见，通常也不建议这样做。必须这样做时，应在 frame 内也引入本脚本库，两侧通过事件通信。
+   * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 find、getNextSibling 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
+   */
+
+//--------------------------------------------------[Element]
+  /**
+   * 为无 Element 构造函数的浏览器创建 Element 对象，以确保在各浏览器中都可以通过 Element.prototype 为元素扩展新特性。
+   * @name Element
+   * @class
+   */
+  if (!window.Element) {
+    window.Element = {prototype: {}};
+  }
+
+//--------------------------------------------------[HTMLFormElement]
+  /**
+   * 为无 HTMLFormElement 构造函数的浏览器创建 HTMLFormElement 对象，以确保在各浏览器中都可以通过 HTMLFormElement.prototype 为表单元素扩展新特性。
+   * @name HTMLFormElement
+   * @class
+   */
+  if (!window.HTMLFormElement) {
+    window.HTMLFormElement = {prototype: {}};
+  }
+
+//==================================================[DOM 补缺及扩展 - 内部方法]
+//--------------------------------------------------[$ <内部方法>]
+  /**
+   * 为一个元素扩展新特性，对于无 Element 构造函数的浏览器 (IE6 IE7) 将在该元素上直接附加这些新特性。
+   * @name $
+   * @function
+   * @private
+   * @param {Element} element 要扩展的元素，只能传入 Element、document（事件对象的 target 属性）或 null。
+   * @returns {Element} 扩展后的元素。
+   * @description
+   *   注意：
+   *   不能获取并扩展其他页面的 DOM 元素！
+   */
+  // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值将作为该元素的 key 使用。
+  var uid = 0;
+  var prototypeOfElement = Element.prototype;
+  var prototypeOfHTMLFormElement = HTMLFormElement.prototype;
+  var $ = navigator.isIElt8 ? function(element) {
+    if (element && !element.uid) {
+      element.uid = ++uid;
+      // Object.mixin(element, prototypeOfElement);
+      // 使用以下方式附加新属性以降低开销。此处不必判断 hasOwnProperty，也无需考虑 hasDontEnumBug 的问题。
+      var property;
+      for (property in prototypeOfElement) {
+        element[property] = prototypeOfElement[property];
+      }
+      switch (element.nodeName) {
+        case 'FORM':
+          for (property in prototypeOfHTMLFormElement) {
+            element[property] = prototypeOfHTMLFormElement[property];
+          }
+          break;
+      }
+    }
+    return element;
+  } : function(element) {
+    if (element && !element.uid) {
+      element.uid = ++uid;
+    }
+    return element;
+  };
+
 //==================================================[DOM 补缺]
   /*
    * 为不支持某些特性的浏览器添加这些特性。
@@ -38,8 +141,12 @@
    *   HTMLElement.prototype.outerHTML
    *   HTMLElement.prototype.innerText
    *   HTMLElement.prototype.outerText
+   *
+   * 补缺方法：
    *   HTMLElement.prototype.insertAdjacentText
    *   HTMLElement.prototype.insertAdjacentElement
+   *   Element.prototype.compareDocumentPosition
+   *   Element.prototype.contains
    */
 
 //--------------------------------------------------[document.head]
@@ -225,110 +332,58 @@
     };
   }
 
-//==================================================[DOM 扩展 - 构造器]
-  /*
-   * 仅为元素扩展新特性，而不是所有的节点类型。
-   *
-   * 提供屏蔽浏览器差异的，针对元素操作的方法有以下三种方案：
-   * 一、静态方法
-   *   方式：
-   *     提供一组静态方法，将元素以参数（一般是第一个参数）的形式传入并进行处理。
-   *   优点：
-   *     可以随意为方法命名。
-   *     不修改原生对象，可以跨 frame 操作，可与其他脚本库共存。
-   *   缺点：
-   *     静态方法的调用从字面上看是以方法为主体（先出现），代码冗长，语法不如以目标对象为主体的 . 操作自然。
-   *     有时需要使用静态方法，有时又要使用原生方法，缺乏一致性。
-   * 二、包装对象
-   *   方式：
-   *     创建一个对象包装目标元素，在这个包装对象的原型（链）中添加方法。
-   *   优点：
-   *     语法以目标对象为主体，可以链式调用，语法自然。
-   *     可以随意为方法命名。
-   *     不修改原生对象，可以跨 frame 操作，可与其他脚本库共存。
-   *   缺点：
-   *     访问元素的属性时需要使用 getter 和 setter 方法（包装对象没有“属性”的概念），操作元素未被包装的的一些生僻方法或属性时，需要解包，一致性不够好。
-   *     由于对包装对象上方法的调用与对原生对象上方法的调用方式是相同的（使用 . 操作符调用），特殊情况下有将原生对象当作包装对象误用的可能。
-   *     必须以约定的方式获取元素以便对其包装。
-   * 三、原型扩展
-   *   方式：
-   *     直接在 Element.prototype 上添加方法。对于不支持 Element 构造函数的浏览器（IE6 IE7），将对应特性直接附加在元素上。
-   *   优点：
-   *     不引入新的对象类型或命名空间，只在已有的对象类型上添加方法，一致性最好。
-   *     方法调用时操作主体就是目标元素本身，可以链式调用，语法自然。
-   *   缺点：
-   *     为方法命名时，不能使用 DOM 元素已有的和将来可能会有的特性名。
-   *     修改了原生对象，跨 frame 操作前需要预先修改目标 frame 中的原生对象，不能与其他基于原型扩展的脚本库共存。
-   *     必须以约定的方式获取元素以便兼容 IE6 IE7 的扩展方式，另外对 IE6 IE7 的修补方案有性能损耗。
-   *
-   * 为达到“简单轻便”、“化繁为简”的目标，这里使用第三种实现方式，以使 API 有最好的一致性和最自然语法。
-   * 为保持简单，不予提供跨 frame 的操作。实际上跨 frame 操作并不常见，通常也不建议这样做。必须这样做时，应在 frame 内也引入本脚本库，两侧通过事件通信。
-   * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 find、getNextSibling 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
-   */
-
-//--------------------------------------------------[Element]
+//--------------------------------------------------[Element.prototype.compareDocumentPosition]
+  // 为 IE6 IE7 IE8 添加 Element.prototype.compareDocumentPosition 方法。
   /**
-   * 为无 Element 构造函数的浏览器创建 Element 对象，以确保在各浏览器中都可以通过 Element.prototype 为元素扩展新特性。
-   * @name Element
-   * @class
-   */
-  if (!window.Element) {
-    window.Element = {prototype: {}};
-  }
-
-//--------------------------------------------------[HTMLFormElement]
-  /**
-   * 为无 HTMLFormElement 构造函数的浏览器创建 HTMLFormElement 对象，以确保在各浏览器中都可以通过 HTMLFormElement.prototype 为表单元素扩展新特性。
-   * @name HTMLFormElement
-   * @class
-   */
-  if (!window.HTMLFormElement) {
-    window.HTMLFormElement = {prototype: {}};
-  }
-
-//==================================================[DOM 扩展 - 内部方法]
-//--------------------------------------------------[$ <内部方法>]
-  /**
-   * 为一个元素扩展新特性，对于无 Element 构造函数的浏览器 (IE6 IE7) 将在该元素上直接附加这些新特性。
-   * @name $
+   * 比较本元素和目标元素在文档树中的位置关系。
+   * @name Element.prototype.compareDocumentPosition
    * @function
-   * @private
-   * @param {Element} element 要扩展的元素，只能传入 Element、document（事件对象的 target 属性）或 null。
-   * @returns {Element} 扩展后的元素。
+   * @param {Element} target 目标元素。
+   * @returns {number} 比较结果。
    * @description
-   *   注意：
-   *   不能获取并扩展其他页面的 DOM 元素！
+   *   调用本方法后返回的 number 值的含义：
+   *   <table>
+   *     <tr><th>Bits</th><th>Number</th><th>Meaning</th></tr>
+   *     <tr><td>000000</td><td>0</td><td>节点 A 与节点 B 相等</td></tr>
+   *     <tr><td>000001</td><td>1</td><td>节点 A 与节点 B 在不同的文档（或者一个在文档之外）</td></tr>
+   *     <tr><td>000010</td><td>2</td><td>节点 B 在节点 A 之前</td></tr>
+   *     <tr><td>000100</td><td>4</td><td>节点 A 在节点 B 之前</td></tr>
+   *     <tr><td>001000</td><td>8</td><td>节点 B 包含节点 A</td></tr>
+   *     <tr><td>010000</td><td>16</td><td>节点 A 包含节点 B</td></tr>
+   *     <tr><td>100000</td><td>32</td><td>浏览器的私有使用</td></tr>
+   *   </table>
+   * @see http://www.w3.org/TR/DOM-Level-3-Core/core.html#Node3-compareDocumentPosition
+   * @see http://ejohn.org/blog/comparing-document-position/
    */
-  // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值将作为该元素的 key 使用。
-  var uid = 0;
-  var prototypeOfElement = Element.prototype;
-  var prototypeOfHTMLFormElement = HTMLFormElement.prototype;
-  var $ = navigator.isIElt8 ? function(element) {
-    if (element && !element.uid) {
-      element.uid = ++uid;
-      // Object.mixin(element, prototypeOfElement);
-      // 使用以下方式附加新属性以降低开销。此处不必判断 hasOwnProperty，也无需考虑 hasDontEnumBug 的问题。
-      var property;
-      for (property in prototypeOfElement) {
-        element[property] = prototypeOfElement[property];
-      }
-      switch (element.nodeName) {
-        case 'FORM':
-          for (property in prototypeOfHTMLFormElement) {
-            element[property] = prototypeOfHTMLFormElement[property];
-          }
-          break;
-      }
-    }
-    return element;
-  } : function(element) {
-    if (element && !element.uid) {
-      element.uid = ++uid;
-    }
-    return element;
-  };
+  if (!('compareDocumentPosition' in html)) {
+    Element.prototype.compareDocumentPosition = function(target) {
+      return (this != target && this.contains(target) && 16) +
+          (this != target && target.contains(this) && 8) +
+          (this.sourceIndex >= 0 && target.sourceIndex >= 0 ?
+              (this.sourceIndex < target.sourceIndex && 4) + (this.sourceIndex > target.sourceIndex && 2) :
+              1) +
+          0;
+    };
+  }
 
-//==================================================[Element 扩展 - 处理类]
+//--------------------------------------------------[Element.prototype.contains]
+  // 现在都支持此方法。
+  /**
+   * 判断本元素是否包含目标元素。
+   * @name Element.prototype.contains
+   * @function
+   * @param {Element} target 目标元素。
+   * @returns {boolean} 判断结果。
+   * @description
+   *   注意，如果本元素和目标元素一致，本方法也将返回 true。
+   */
+//  if (!('contains' in html)) {
+//    Element.prototype.contains = function(target) {
+//      return (this === target || !!(this.compareDocumentPosition(target) & 16));
+//    };
+//  }
+
+//==================================================[DOM 扩展 - 处理类]
   /*
    * 针对元素的类的操作。
    *
@@ -406,7 +461,7 @@
     return $element;
   };
 
-//==================================================[Element 扩展 - 处理样式]
+//==================================================[DOM 扩展 - 处理样式]
   /*
    * 获取/修改元素的样式。
    *
@@ -731,7 +786,7 @@
     return this;
   };
 
-//==================================================[Element 扩展 - 处理自定义数据]
+//==================================================[DOM 扩展 - 处理自定义数据]
   /*
    * 获取/添加/删除元素的自定义数据。
    *
@@ -802,7 +857,7 @@
     return this;
   };
 
-//==================================================[Element 扩展 - 获取坐标信息]
+//==================================================[DOM 扩展 - 获取坐标信息]
   /*
    * 获取元素在视口中的坐标信息。
    *
@@ -868,65 +923,7 @@
     }
   };
 
-//==================================================[Element 扩展 - 比较位置关系]
-  /*
-   * 比较两个元素在文档树中的位置关系。
-   *
-   * 扩展方法：
-   *   Element.prototype.comparePosition
-   *   Element.prototype.contains
-   */
-
-//--------------------------------------------------[Element.prototype.comparePosition]
-  /**
-   * 比较本元素和目标元素在文档树中的位置关系。
-   * @name Element.prototype.comparePosition
-   * @function
-   * @param {Element} target 目标元素。
-   * @returns {number} 比较结果。
-   * @description
-   *   调用本方法后返回的 number 值的含义：
-   *   <table>
-   *     <tr><th>Bits</th><th>Number</th><th>Meaning</th></tr>
-   *     <tr><td>000000</td><td>0</td><td>节点 A 与节点 B 相等</td></tr>
-   *     <tr><td>000001</td><td>1</td><td>节点 A 与节点 B 在不同的文档（或者一个在文档之外）</td></tr>
-   *     <tr><td>000010</td><td>2</td><td>节点 B 在节点 A 之前</td></tr>
-   *     <tr><td>000100</td><td>4</td><td>节点 A 在节点 B 之前</td></tr>
-   *     <tr><td>001000</td><td>8</td><td>节点 B 包含节点 A</td></tr>
-   *     <tr><td>010000</td><td>16</td><td>节点 A 包含节点 B</td></tr>
-   *     <tr><td>100000</td><td>32</td><td>浏览器的私有使用</td></tr>
-   *   </table>
-   * @see http://www.w3.org/TR/DOM-Level-3-Core/core.html#Node3-compareDocumentPosition
-   * @see http://ejohn.org/blog/comparing-document-position/
-   */
-  Element.prototype.comparePosition = 'compareDocumentPosition' in html ? function(target) {
-    return this.compareDocumentPosition(target);
-  } : function(target) {
-    return (this != target && this.contains(target) && 16) +
-        (this != target && target.contains(this) && 8) +
-        (this.sourceIndex >= 0 && target.sourceIndex >= 0 ?
-            (this.sourceIndex < target.sourceIndex && 4) + (this.sourceIndex > target.sourceIndex && 2) :
-            1) +
-        0;
-  };
-
-//--------------------------------------------------[Element.prototype.contains]
-  /**
-   * 判断本元素是否包含目标元素。
-   * @name Element.prototype.contains
-   * @function
-   * @param {Element} target 目标元素。
-   * @returns {boolean} 判断结果。
-   * @description
-   *   注意，如果本元素和目标元素一致，本方法也将返回 true。
-   */
-  if (!('contains' in html)) {
-    Element.prototype.contains = function(target) {
-      return (this === target || !!(this.compareDocumentPosition(target) & 16));
-    };
-  }
-
-//==================================================[Element 扩展 - 获取相关元素]
+//==================================================[DOM 扩展 - 获取相关元素]
   /*
    * 获取相关的元素。
    *
@@ -1065,7 +1062,7 @@
     return count;
   };
 
-//==================================================[Element 扩展 - 克隆元素]
+//==================================================[DOM 扩展 - 克隆元素]
   /*
    * 克隆本元素。
    *
@@ -1145,7 +1142,7 @@
     return $(clonedElement);
   };
 
-//==================================================[Element 扩展 - 修改位置或内容]
+//==================================================[DOM 扩展 - 修改位置或内容]
   /*
    * 修改元素的位置或内容。
    *
@@ -1274,7 +1271,7 @@
     return this;
   };
 
-//==================================================[Element 扩展 - 处理事件]
+//==================================================[DOM 扩展 - 处理事件]
   /*
    * 提供事件兼容性处理的解决方案。
    *
@@ -2152,7 +2149,7 @@
     return event;
   };
 
-//==================================================[HTMLFormElement 扩展]
+//==================================================[DOM 扩展 - 表单]
   /*
    * 为表单元素扩展新特性。
    *
@@ -2333,6 +2330,10 @@
     return $form
         .on('submit.validation', function(e) {
           // 单独绑定一个监听器，以免验证过程发生异常时导致表单被提交。
+          var activeElement = document.activeElement;
+          if ($form.contains(activeElement)) {
+            activeElement.blur();
+          }
           e.preventDefault();
         })
         .on('submit.validation', function() {
@@ -2475,7 +2476,7 @@
     return $form;
   };
 
-//==================================================[document 扩展]
+//==================================================[DOM 扩展 - document]
   /*
    * 为 document 扩展新特性，提供与 Element 类似的事件机制。
    *
@@ -2763,7 +2764,7 @@
    */
   document.fire = Element.prototype.fire;
 
-//==================================================[window 扩展]
+//==================================================[DOM 扩展 - window]
   /*
    * 为 window 扩展新特性，除与视口相关的方法外，还提供与 Element 类似的事件机制。
    * 前三个是与视口相关的方法，在 document.body 解析后方可用。
