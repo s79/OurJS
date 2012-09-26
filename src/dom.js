@@ -29,7 +29,7 @@
     });
   };
 
-//==================================================[DOM 补缺及扩展 - 构造器]
+//==================================================[DOM 对象补缺及扩展 - 为 IE6 IE7 提供的解决方案]
   /*
    * 仅为元素扩展新特性，而不是所有的节点类型。
    *
@@ -74,7 +74,7 @@
   /**
    * 为无 Element 构造函数的浏览器创建 Element 对象，以确保在各浏览器中都可以通过 Element.prototype 为元素扩展新特性。
    * @name Element
-   * @class
+   * @namespace
    */
   if (!window.Element) {
     window.Element = {prototype: {}};
@@ -84,13 +84,12 @@
   /**
    * 为无 HTMLFormElement 构造函数的浏览器创建 HTMLFormElement 对象，以确保在各浏览器中都可以通过 HTMLFormElement.prototype 为表单元素扩展新特性。
    * @name HTMLFormElement
-   * @class
+   * @namespace
    */
   if (!window.HTMLFormElement) {
     window.HTMLFormElement = {prototype: {}};
   }
 
-//==================================================[DOM 补缺及扩展 - 内部方法]
 //--------------------------------------------------[$ <内部方法>]
   /**
    * 为一个元素扩展新特性，对于无 Element 构造函数的浏览器 (IE6 IE7) 将在该元素上直接附加这些新特性。
@@ -882,7 +881,6 @@
    * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
    * html.clientLeft 在 IE6 中取决于 HTML 的 border 属性，而在 IE7 中的值则始终为 2px。
    */
-
   /**
    * 获取本元素的 border-box 在视口中的坐标信息。
    * @name Element.prototype.getClientRect
@@ -2161,17 +2159,6 @@
    */
 
 //--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
-  /**
-   * 获取本表单内某个域的当前值。
-   * @name HTMLFormElement.prototype.getFieldValue
-   * @function
-   * @param {String} name 域的名称。
-   * @returns {string|Array} 域的当前值。
-   * @description
-   *   当该域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
-   *   其他情况（该域只包含一个 select-multiple 类型的控件或者多个任意类型的控件时）返回数组，值为空字符串的项不会被加入数组。
-   * @see http://www.w3.org/TR/REC-html40/interact/forms.html#successful-controls
-   */
   /*
    * 获取一个或一组控件的当前值，并对下列不一致的情况（*）作统一化处理。
    * 如果为 select-one 类型：
@@ -2188,6 +2175,17 @@
    *   若没有设置了 selected 的 option，则认为没有默认选中项，selectedIndex 为 -1，本控件无有效值（多选情况下的 selectedIndex 和 value 无实际意义）。
    *   所有设置了 selected 的 option 认为有效。
    *   所有设置了 disabled 的 option 认为无效。
+   */
+  /**
+   * 获取本表单内某个域的当前值。
+   * @name HTMLFormElement.prototype.getFieldValue
+   * @function
+   * @param {String} name 域的名称。
+   * @returns {string|Array} 域的当前值。
+   * @description
+   *   当该域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
+   *   其他情况（该域只包含一个 select-multiple 类型的控件或者多个任意类型的控件时）返回数组，值为空字符串的项不会被加入数组。
+   * @see http://www.w3.org/TR/REC-html40/interact/forms.html#successful-controls
    */
   var getCurrentValue = function(control) {
     var value = '';
@@ -2279,6 +2277,15 @@
    *   进行验证的步骤为 required - equals - minLength - maxLength - type - custom - remote。
    *   若不需要某种类型的验证，在 <var>rules</var> 中省略对应的项即可。
    * @returns {HTMLFormElement} 本表单元素。
+   * @fires fieldvalidate
+   *   {string} name 验证的域的名称。
+   *   {string|Array} value 验证的域的值。
+   *   调用 validateField 方法时触发。
+   * @fires fieldvalidated
+   *   {string} name 验证的域的名称。
+   *   {string|Array} value 验证的域的值。
+   *   {string} errorMessage “错误信息”字符串，为空则表示验证通过。
+   *   当一个域验证结束后触发。
    * @fires validate
    *   表单的 submit 事件发生时触发。
    * @fires validated
@@ -2292,6 +2299,67 @@
    *   如果没需要服务端验证的域，validated 事件将同步触发，否则 validated 事件将在所有的服务端验证结束后触发 。
    *   在等待的所有服务端验证尚未结束前，如果用户修改了任一控件的值，则会立即取消当前的服务端验证，并触发 validated 事件，本次验证按失败处理。
    */
+  var checkType = {
+    number: function(value) {
+      return !value || /^([+-]?\d+)(\.\d+)?$/.test(value);
+    },
+    date: function(value) {
+      return !value || value === Date.from(value).format();
+    },
+    email: function(value) {
+      return !value || /^([\w-])+@([\w-])+((\.[\w-]+){1,3})$/.test(value);
+    },
+    phone: function(value) {
+      return !value || /^\d{11}?$/.test(value);
+    }
+  };
+
+  var validateField = function($form, name) {
+    var validationResultSet = $form.validationResultSet;
+    var rules = $form.validationRulesets[name];
+    var value = $form.getFieldValue(name);
+    var errorMessage = '';
+    var rule;
+    validationResultSet[name] = undefined;
+    $form.fire('fieldvalidate', {name: name, value: value});
+    if ((rule = rules.required) && rule[0] && value.length === 0) {
+      errorMessage = rule[1] || 'required';
+    }
+    if (!errorMessage && (rule = rules.equals) && value !== $form.getFieldValue(rule[0])) {
+      errorMessage = rule[1] || 'equals';
+    }
+    if (!errorMessage && (rule = rules.minLength) && value.length < rule[0]) {
+      errorMessage = rule[1] || 'minLength';
+    }
+    if (!errorMessage && (rule = rules.maxLength) && value.length > rule[0]) {
+      errorMessage = rule[1] || 'maxLength';
+    }
+    if (!errorMessage && (rule = rules.type) && !checkType[rule[0]](value)) {
+      errorMessage = rule[1] || 'type';
+    }
+    if (!errorMessage && rules.custom) {
+      errorMessage = rules.custom.call($form, value);
+    }
+    var remote = rules.remote;
+    if (!errorMessage && remote) {
+      if (rules.lastRequest) {
+        rules.lastRequest.off('finish').abort();
+      }
+      rules.lastRequest = new Request(remote.url, remote.config)
+          .on('finish', function(e) {
+            delete rules.lastRequest;
+            var errorMessage = e.errorMessage;
+            validationResultSet[name] = !errorMessage;
+            $form.fire('fieldvalidated', {name: name, value: value, errorMessage: errorMessage});
+          })
+          .send(value);
+    } else {
+      validationResultSet[name] = !errorMessage;
+      $form.fire('fieldvalidated', {name: name, value: value, errorMessage: errorMessage});
+    }
+    return $form;
+  };
+
   HTMLFormElement.prototype.setValidationRules = function(rulesets) {
     var $form = this;
 
@@ -2391,89 +2459,6 @@
           });
         });
 
-  };
-
-//--------------------------------------------------[HTMLFormElement.prototype.validateField]  // TODO: 此方法改为私有。
-  /**
-   * 对指定的域进行验证。
-   * @name HTMLFormElement.prototype.validateField
-   * @function
-   * @param {string} name 要验证的域名称。
-   * @returns {HTMLFormElement} 本表单元素。
-   * @fires fieldvalidate
-   *   {string} name 验证的域的名称。
-   *   {string|Array} value 验证的域的值。
-   *   调用 validateField 方法时触发。
-   * @fires fieldvalidated
-   *   {string} name 验证的域的名称。
-   *   {string|Array} value 验证的域的值。
-   *   {string} errorMessage “错误信息”字符串，为空则表示验证通过。
-   *   当一个域验证结束后触发。
-   * @description
-   *   指定的域必须已通过其所属表单元素的 setValidationRules 方法配置验证规则。
-   *   当该域包含的控件发生 change 事件（主动验证）或其所属表单触发 submit 事件时，validateField 方法可能被自动调用。
-   *   当 fieldvalidated 事件被触发时，事件对象的 errorMessage 属性值为“错误信息”，如果为空则表示当前域已通过验证。
-   */
-  var checkType = {
-    number: function(value) {
-      return !value || /^([+-]?\d+)(\.\d+)?$/.test(value);
-    },
-    date: function(value) {
-      return !value || value === Date.from(value).format();
-    },
-    email: function(value) {
-      return !value || /^([\w-])+@([\w-])+((\.[\w-]+){1,3})$/.test(value);
-    },
-    phone: function(value) {
-      return !value || /^\d{11}?$/.test(value);
-    }
-  };
-
-  HTMLFormElement.prototype.validateField = function(name) {
-    var $form = this;
-    var validationResultSet = $form.validationResultSet;
-    var rules = $form.validationRulesets[name];
-    var value = $form.getFieldValue(name);
-    var errorMessage = '';
-    var rule;
-    validationResultSet[name] = undefined;
-    $form.fire('fieldvalidate', {name: name, value: value});
-    if ((rule = rules.required) && rule[0] && value.length === 0) {
-      errorMessage = rule[1] || 'required';
-    }
-    if (!errorMessage && (rule = rules.equals) && value !== $form.getFieldValue(rule[0])) {
-      errorMessage = rule[1] || 'equals';
-    }
-    if (!errorMessage && (rule = rules.minLength) && value.length < rule[0]) {
-      errorMessage = rule[1] || 'minLength';
-    }
-    if (!errorMessage && (rule = rules.maxLength) && value.length > rule[0]) {
-      errorMessage = rule[1] || 'maxLength';
-    }
-    if (!errorMessage && (rule = rules.type) && !checkType[rule[0]](value)) {
-      errorMessage = rule[1] || 'type';
-    }
-    if (!errorMessage && rules.custom) {
-      errorMessage = rules.custom.call($form, value);
-    }
-    var remote = rules.remote;
-    if (!errorMessage && remote) {
-      if (rules.lastRequest) {
-        rules.lastRequest.off('finish').abort();
-      }
-      rules.lastRequest = new Request(remote.url, remote.config)
-          .on('finish', function(e) {
-            delete rules.lastRequest;
-            var errorMessage = e.errorMessage;
-            validationResultSet[name] = !errorMessage;
-            $form.fire('fieldvalidated', {name: name, value: value, errorMessage: errorMessage});
-          })
-          .send(value);
-    } else {
-      validationResultSet[name] = !errorMessage;
-      $form.fire('fieldvalidated', {name: name, value: value, errorMessage: errorMessage});
-    }
-    return $form;
   };
 
 //==================================================[DOM 扩展 - document]
@@ -2767,7 +2752,7 @@
 //==================================================[DOM 扩展 - window]
   /*
    * 为 window 扩展新特性，除与视口相关的方法外，还提供与 Element 类似的事件机制。
-   * 前三个是与视口相关的方法，在 document.body 解析后方可用。
+   * 与视口相关的方法（getXXX）在 document.body 解析后方可使用。
    *
    * 扩展方法：
    *   window.$
@@ -2788,13 +2773,17 @@
   window.uid = 'window';
 
 //--------------------------------------------------[window.$]
-  /*
-   * 将全局作用域的 $ 作为 document.$ 的别名，以便于书写代码。
+  /**
+   * 根据指定的参数获取/创建一个元素，并对其进行扩展。
    * @name window.$
    * @function
+   * @param {string|Element} e 不同类型的元素表示。
+   * @returns {Element} 扩展后的元素。
+   * @description
+   *   本方法是对 document.$ 的引用。
+   *   将全局作用域的 $ 作为 document.$ 的别名，便于书写应用代码。
    */
-  // 移除 window.$，推荐使用 execute 方法封装代码块，并使用其参数中的 $ 来代替 window.$ 的便利性。
-  // window.$ = document.$;
+  window.$ = document.$;
 
 //--------------------------------------------------[window.getClientSize]
   /**

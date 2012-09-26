@@ -5,7 +5,7 @@
  */
 
 (function() {
-//==================================================[Animation]
+//==================================================[动画]
   /*
    * 调用流程：
    *   var animation = new Animation(...).addClip(...);
@@ -247,7 +247,7 @@
 //    console.log('[unmountAnimation]: ' + mountedAnimations.length);
   };
 
-//--------------------------------------------------[Animation Constructor]
+//--------------------------------------------------[Animation]
   /**
    * 动画。
    * @name Animation
@@ -274,7 +274,7 @@
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。<br>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
    *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
    */
-  var Animation = new Component(function() {
+  var Animation = window.Animation = new Component(function() {
     this.clips = [];
     this.timePoint = 0;
     this.status = START_POINT;
@@ -411,13 +411,10 @@
     return animation;
   };
 
-//--------------------------------------------------[Animation]
-  window.Animation = Animation;
-
 })();
 
 (function() {
-//==================================================[Animation.create*Renderer]
+//==================================================[动画 - 渲染器]
   /*
    * 创建用于绘制动画每一帧的渲染器。
    * 渲染器实际上是一个函数，接受两个参数 x 和 y，其中 x 为时间轴，y 为偏移量，两者均从 0 趋向于 1。

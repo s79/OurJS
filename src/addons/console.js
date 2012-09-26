@@ -10,7 +10,7 @@
  */
 
 (function() {
-//==================================================[控制台]
+//==================================================[控制台补缺]
   /*
    * 为无控制台的浏览器（主要是 IE6）提供控制台功能，以便调试代码。
    *
@@ -18,13 +18,27 @@
    *   console
    */
 
+//--------------------------------------------------[console]
+  /**
+   * 控制台对象。
+   * @name console
+   * @namespace
+   */
   if (window.console) {
     return;
   }
 
+//--------------------------------------------------[console.*]
+  /**
+   * 记录日志。
+   * @name console.log
+   * @function
+   * @param {*} [expression1] 要记录的第一个表达式的值。
+   * @param {*} [expression2] 要记录的第二个表达式的值。
+   * @param {*} […] 要记录的第 n 个表达式的值。
+   */
   var $ = document.$;
 
-//--------------------------------------------------[console.xxx]
   // 空函数。
   var empty = function() {
   };
@@ -158,13 +172,6 @@
     group: empty,
     groupCollapsed: empty,
     groupEnd: empty
-  };
-
-  // 提供清理控制台输出的方法，未做特殊处理，注意避免与应用的全局变量重名。
-  window.clear = function() {
-    setTimeout(function() {
-      $output.value = '';
-    }, 0);
   };
 
 }());

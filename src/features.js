@@ -5,7 +5,7 @@
  */
 
 (function() {
-//==================================================[可配置的]
+//==================================================[特性 - 可配置的]
   /*
    * 特性 - 可配置的。
    *
@@ -22,7 +22,7 @@
    *   setConfig
    */
 
-//--------------------------------------------------[Configurable Constructor]
+//--------------------------------------------------[Configurable]
   /**
    * 创建一个对象，该对象将具备可配置的特性。
    * @name Configurable
@@ -32,7 +32,7 @@
    *   具备此特性的对象即具备更改配置的能力。
    *   本特性只能在更改配置时保证配置信息的有效性（无法在配置数据中增加默认配置中不存在的项），开发者应设计可以使更改后的配置能够即时生效的逻辑。
    */
-  var Configurable = function(defaultConfig) {
+  var Configurable = window.Configurable = function(defaultConfig) {
     this.config = defaultConfig;
   };
 
@@ -63,10 +63,7 @@
     return this.config;
   };
 
-//--------------------------------------------------[Configurable]
-  window.Configurable = Configurable;
-
-//==================================================[可观察的]
+//==================================================[特性 - 可观察的]
   /*
    * 特性 - 可观察的。
    *
@@ -106,7 +103,7 @@
     return result;
   };
 
-//--------------------------------------------------[Observable Constructor]
+//--------------------------------------------------[Observable]
   /**
    * 创建一个对象，该对象将具备可观察的特性。
    * @name Observable
@@ -114,7 +111,7 @@
    * @description
    *   具备此特性的对象即具备处理事件的能力。
    */
-  var Observable = function() {
+  var Observable = window.Observable = function() {
     this.events = {};
   };
 
@@ -211,8 +208,5 @@
     }
     return event;
   };
-
-//--------------------------------------------------[Observable]
-  window.Observable = Observable;
 
 })();

@@ -10,8 +10,9 @@
  * @version 20120808
  */
 
-execute(function($) {
+(function() {
 //==================================================[Highcharts 适配器]
+  var $ = document.$;
   var uid = 0;
   var pathAnimation;
   var copy = function(destination, original) {
@@ -248,4 +249,4 @@ execute(function($) {
     }
   };
 
-});
+})();

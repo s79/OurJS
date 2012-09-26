@@ -129,6 +129,8 @@ var manifest = {
     'localStorage.clear'
   ],
   'window': [
+    '#获取和创建元素',
+    'window.$',
     '#获取视口信息',
     'window.getClientSize',
     'window.getScrollSize',
@@ -170,7 +172,7 @@ var manifest = {
     '#获取坐标信息',
     'Element.prototype.getClientRect',
     '#比较位置关系',
-    'Element.prototype.comparePosition',
+    'Element.prototype.compareDocumentPosition',
     'Element.prototype.contains',
     '#获取相关元素',
     'Element.prototype.find',
@@ -209,8 +211,7 @@ var manifest = {
   'HTMLFormElement': [
     '#自定义扩展',
     'HTMLFormElement.prototype.getFieldValue',
-    'HTMLFormElement.prototype.setValidationRules',
-    'HTMLFormElement.prototype.validateField'
+    'HTMLFormElement.prototype.setValidationRules'
   ],
   'Event': [
     '#自定义扩展',

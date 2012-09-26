@@ -184,6 +184,7 @@
    * @namespace
    */
 
+//--------------------------------------------------[navigator.warn]
   /**
    * 供内部使用的向用户显示警告信息的方法。
    * @name navigator.warn
@@ -191,11 +192,9 @@
    * @private
    * @param {string} message 警告信息。
    */
-  navigator.warn = function(message) {
-    // 使用 typeof 在 IE 中可能得到 "object"。
-    if (console && typeOf(console.warn) === 'function') {
-      console.warn('OurJS: ' + message);
-    }
+  navigator.warn = (console && typeOf(console.warn) === 'function') ? function(message) {
+    console.warn('OurJS: ' + message);
+  } : function() {
   };
 
 //--------------------------------------------------[navigator.*]

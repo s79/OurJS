@@ -1,8 +1,15 @@
 ﻿>[LOW]动画支持复合属性。
 >[LOW]Animation.createStyleRenderer 在首帧才收集样式。
+>[LOW]Configurable 考虑去掉，目前看来用处不大。
 >Dialog -> Popup，Overlay 没有独立存在的必要，但 Popup 可以选择是否带有 Overlay。
 >IE 自动填充未触发 change 事件。
->自动对 onlyVisible 的表单域进行验证，以适应动态改变显示状态的表单。也可以强行按照规则验证指定表单域。
+>移出不常用代码到 utilities 目录。
+
+>2012-09-26
+调整代码注释。
+
+>2012-09-25
+Element.prototype.compareDocumentPosition 更改为补缺方法。
 
 >2012-09-24
 Validator -> Form.setValidationRules

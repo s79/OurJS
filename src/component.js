@@ -13,7 +13,7 @@
    *   Component
    */
 
-//--------------------------------------------------[Component Constructor]
+//--------------------------------------------------[Component]
   /**
    * 创建一个组件。
    * @name Component
@@ -30,7 +30,7 @@
    *   为保证以上两种特性不被破坏，组件的原型及其实例对象中都不应设置以下属性：
    *   'config'，'events'，'setConfig'，'on'，'off'，'fire'。
    */
-  function Component(initialization, config, prototype) {
+  var Component = window.Component = function(initialization, config, prototype) {
     // 为组件的实例启用可配置和可观察的特性。
     var Constructor = function() {
       Configurable.call(this, Object.clone(Constructor.config || {}));
@@ -48,12 +48,9 @@
     }
     // 返回组件。
     return Constructor;
-  }
+  };
 
   Object.mixin(Component.prototype, Configurable.prototype);
   Object.mixin(Component.prototype, Observable.prototype);
-
-//--------------------------------------------------[Component]
-  window.Component = Component;
 
 })();

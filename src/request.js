@@ -5,7 +5,7 @@
  */
 
 (function() {
-//==================================================[Request]
+//==================================================[请求 HTTP 资源]
   /*
    * 调用流程：
    *   var request = new Request(url, config);
@@ -148,7 +148,7 @@
     }));
   };
 
-//--------------------------------------------------[Request Constructor]
+//--------------------------------------------------[Request]
   /**
    * 对一个指定的资源发起请求，并获取响应数据。
    * @name Request
@@ -190,8 +190,12 @@
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 start 事件监听器中显示的提示信息隐藏。
    * @fires abort
    *   成功调用 abort 方法后触发。
+   * @description
+   *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
+   *   每发送一个请求必然会收到一个响应，当请求发送后，无论发生何种情况（本次请求超时或被取消）均会触发 finish 事件。
+   *   这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
    */
-  var Request = new Component(function(url, config) {
+  var Request = window.Request = new Component(function(url, config) {
     this.url = url;
     this.setConfig(config);
   });
@@ -312,8 +316,5 @@
     }
     return request;
   };
-
-//--------------------------------------------------[Request]
-  window.Request = Request;
 
 })();

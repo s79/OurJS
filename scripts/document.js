@@ -117,6 +117,17 @@ execute(function($) {
           '';
     };
 
+//--------------------------------------------------[getExample]
+    var getExample = function(symbol) {
+      return symbol && symbol.examples.length ?
+          '<dl><dt>示例：</dt><dd>' + symbol.examples.map(
+              function(example) {
+                return '<pre class="prettyprint">' + example + '</pre>';
+              }
+          ).join('') + '</dd></dl>' :
+          '';
+    };
+
 //--------------------------------------------------[getRequires]
     var getRequires = function(symbol) {
       return symbol && symbol.requires.length ?
@@ -138,17 +149,6 @@ execute(function($) {
       return symbol && symbol.deprecated ? '<dl><dt>已过期：</dt><dd>' + symbol.deprecated + '</dd></dl>' : '';
     };
 
-//--------------------------------------------------[getExample]
-    var getExample = function(symbol) {
-      return symbol && symbol.examples.length ?
-          '<dl><dt>示例：</dt><dd>' + symbol.examples.map(
-              function(example) {
-                return '<pre class="prettyprint">' + example + '</pre>';
-              }
-          ).join('') + '</dd></dl>' :
-          '';
-    };
-
 //--------------------------------------------------[getSee]
     var getSee = function(symbol) {
       return symbol && symbol.see.length ?
@@ -159,11 +159,6 @@ execute(function($) {
           ).join('') + '</dl>' :
           '';
     };
-
-//--------------------------------------------------[getAuthor]
-//    var getAuthor = function(symbol) {
-//      return symbol && symbol.author ? '<dl><dt>Author:</dt><dd>' + symbol.author + '</dd></dl>' : '';
-//    };
 
 //--------------------------------------------------[生成一类对象的文档]
     var indexColumns = {

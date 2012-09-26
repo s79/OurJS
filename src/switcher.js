@@ -5,12 +5,12 @@
  */
 
 (function() {
-//==================================================[Switcher]
+//==================================================[切换器]
   /*
    * 使用一个数组创建切换器，在每次切换活动元素时会触发相应的事件。
    */
 
-//--------------------------------------------------[Switcher Constructor]
+//--------------------------------------------------[Switcher]
   /**
    * 使用一个数组创建切换控制器。在这个数组中，同一时刻最多只有一个元素是“活动”的。
    * @name Switcher
@@ -23,7 +23,7 @@
    *   {Element} event.inactiveItem 上一个活动元素。
    *   成功调用 activate 方法后触发。
    */
-  var Switcher = new Component(function(items) {
+  var Switcher = window.Switcher = new Component(function(items) {
     this.items = items;
     this.activeItem = null;
   });
@@ -79,8 +79,5 @@
     }
     return switcher;
   };
-
-//--------------------------------------------------[Switcher]
-  window.Switcher = Switcher;
 
 })();

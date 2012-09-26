@@ -3,13 +3,13 @@
  */
 
 /**
- * @fileOverview 记录器。
+ * @fileOverview 日志记录器。
  * @author sundongguo@gmail.com
  * @version 20120806
  */
 
 (function() {
-//==================================================[记录器]
+//==================================================[日志记录器]
   var $ = document.$;
 
   var styleRulesInjected = false;
@@ -40,10 +40,10 @@
 
 //--------------------------------------------------[Logger]
   /**
-   * 创建一个记录器。
+   * 创建一个日志记录器。
    * @name Logger
    * @constructor
-   * @param {Element} container 记录器的容器。
+   * @param {Element} container 日志记录器的容器。
    * @param {boolean} [enableClearButton] 启用清除记录内容的按钮。
    */
   var Logger = window.Logger = function(container, enableClearButton) {
@@ -134,7 +134,7 @@
 
 //--------------------------------------------------[Logger.prototype.clear]
   /**
-   * 清空记录器。
+   * 清空日志记录器。
    * @name Logger.prototype.clear
    * @function
    * @returns {Object} Logger 对象。
