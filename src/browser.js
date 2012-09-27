@@ -192,7 +192,7 @@
    * @private
    * @param {string} message 警告信息。
    */
-  navigator.warn = (console && typeOf(console.warn) === 'function') ? function(message) {
+  navigator.warn = (window.console && typeOf(console.warn) === 'function') ? function(message) {
     console.warn('OurJS: ' + message);
   } : function() {
   };
