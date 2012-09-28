@@ -3,10 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>lang-randomRange</title>
-<script src="../src/plugins/console.js"></script>
-<script src="../src/plugins/json2.js"></script>
-<script src="../src/lang.js"></script>
-<script src="../src/dom.js"></script>
+<script src="../dev.js"></script>
 <style type="text/css">
 p {
   margin: 0;
@@ -70,6 +67,24 @@ function generateMixed(n) {
   return s;
 }
 generateMixed(25);
+</script>
+<script>
+//--------------------------------------------------[Array.prototype.getRandomItems]
+Array.prototype.getRandomItems = function(number) {
+  var clone = Object.clone(this);
+  var result = [];
+  while (number--) {
+    result = result.concat(clone.splice(Math.randomRange(0, clone.length - 1), 1));
+  }
+  return result;
+};
+
+//--------------------------------------------------[Test]
+var data = '*'.repeat(19).split('*').map(function(item, index) {
+  return index;
+});
+console.log(data.getRandomItems(5));
+
 </script>
 </body>
 </html>
