@@ -2155,7 +2155,6 @@
    *   HTMLFormElement.prototype.getFieldValue
    *   HTMLFormElement.prototype.serialize  // TODO
    *   HTMLFormElement.prototype.setValidationRules
-   *   HTMLFormElement.prototype.validateField
    */
 
 //--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
@@ -2266,7 +2265,7 @@
    *   详情请见下表：
    *   <table>
    *     <tr><th>验证方式</th><th>值类型</th><th>详细描述</th></tr>
-   *     <tr><td><dfn>required</dfn></td><td>Array</td><td>限定该域的值不能为空。数组的第一个元素为 boolean 类型。</td></tr>
+   *     <tr><td><dfn>required</dfn></td><td>Array</td><td>限定该域是否为必填项或必选项。数组的第一个元素为 boolean 类型。</td></tr>
    *     <tr><td><dfn>equals</dfn></td><td>Array</td><td>限定该域的值与相关域的值一致，仅应在这两个域均只包含一个文本控件时指定。数组的第一个元素为 string 类型，用于指定相关域的名称（不能指定为该域自身的名称）。</td></tr>
    *     <tr><td><dfn>minLength</dfn></td><td>Array</td><td>当该域只包含一个文本控件时，限定输入文本的最小长度，否则限定选择项的最少数目。数组的第一个元素为 number 类型。</td></tr>
    *     <tr><td><dfn>maxLength</dfn></td><td>Array</td><td>当该域只包含一个文本控件时，限定输入文本的最大长度，否则限定选择项的最多数目。数组的第一个元素为 number 类型。</td></tr>
@@ -2280,24 +2279,25 @@
    * @fires fieldvalidate
    *   {string} name 验证的域的名称。
    *   {string|Array} value 验证的域的值。
-   *   调用 validateField 方法时触发。
+   *   当开始验证一个域时触发。
    * @fires fieldvalidated
    *   {string} name 验证的域的名称。
    *   {string|Array} value 验证的域的值。
    *   {string} errorMessage “错误信息”字符串，为空则表示验证通过。
-   *   当一个域验证结束后触发。
+   *   在一个域验证结束后触发。
    * @fires validate
-   *   表单的 submit 事件发生时触发。
+   *   当表单验证开始时（即表单的 submit 事件发生时）触发。
    * @fires validated
    *   {boolean} result 验证结果，仅当所有已配置的规则均验证通过时为 true，否则为 false。
    *   在表单验证结束后触发。
    * @description
-   *   本方法不能重复调用。  // TODO
+   *   本方法不能重复调用，即只能为表单配置一套验证规则。
    *   一旦为一个表单元素配置了验证规则，该表单的 submit 事件的默认行为将被阻止。对提交行为的后续处理应在该表单的 validate 事件监听器中根据验证结果进行。
-   *   当该表单触发 reset 事件时，当前的验证状态也会随之重置。
-   *   当 submit 事件发生时，会自动对所有验证规则涉及到的、且尚未验证的域进行验证（被动验证）。
-   *   如果没需要服务端验证的域，validated 事件将同步触发，否则 validated 事件将在所有的服务端验证结束后触发 。
+   *   当 submit 事件发生时，会自动对所有验证规则涉及到的、且尚未验证的域进行验证。
+   *   如果没需要服务端验证的域，validated 事件将同步触发，否则 validated 事件将在所有的服务端验证结束后异步触发 。
    *   在等待的所有服务端验证尚未结束前，如果用户修改了任一控件的值，则会立即取消当前的服务端验证，并触发 validated 事件，本次验证按失败处理。
+   *   当该表单触发 reset 事件时，当前的验证结果也会随之重置。
+   *   如果需要验证特定的域，触发其中任一控件的 change 事件即可。
    */
   var checkType = {
     number: function(value) {
@@ -2357,7 +2357,6 @@
       validationResultSet[name] = !errorMessage;
       $form.fire('fieldvalidated', {name: name, value: value, errorMessage: errorMessage});
     }
-    return $form;
   };
 
   HTMLFormElement.prototype.setValidationRules = function(rulesets) {
@@ -2380,14 +2379,14 @@
     Object.forEach(rulesets, function(rules, name) {
       Array.from($form.elements[name]).forEach(function(control) {
         var $control = $(control).on('change.validation', function() {
-          $form.validateField(name);
+          validateField($form, name);
         });
         // 如果设置了 equals 规则且已输入值，则在目标控件的值改变时重新检测本控件的值。
         var relatedName = rules.equals && rules.equals[0];
         if (relatedName) {
           $($form.elements[relatedName]).on('change.validation', function() {
             if ($control.value) {
-              $form.validateField(name);
+              validateField($form, name);
             }
           });
         }
@@ -2411,7 +2410,7 @@
             // 对尚未验证的域进行验证。
             Object.forEach(rulesets, function(rules, name) {
               if (!$form.validationResultSet.hasOwnProperty(name)) {
-                $form.validateField(name);
+                validateField($form, name);
               }
             });
             // 所有域的验证结果均已收集完毕，开始分析。
