@@ -263,6 +263,13 @@ execute(function($) {
           .forEach(function(name) {
             buildDocument(indexColumns.c, name, true);
           });
+      $('<h1>控件</h1>').insertTo(indexColumns.c);
+      [
+        'Widget'
+      ]
+          .forEach(function(name) {
+            buildDocument(indexColumns.c, name, true);
+          });
       [
         'TabPanel',
         'Slideshow',

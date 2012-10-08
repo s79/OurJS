@@ -1,8 +1,43 @@
 /**
- * @fileOverview 组件 - 多页标签面板。
+ * @fileOverview 控件 - 多页标签面板。
  * @author sundongguo@gmail.com
- * @version 20120326
+ * @version 20121008
  */
+//==================================================[Widget.parsers.tabpanel]
+if (navigator.isIElt9) {
+  document.createElement('widget-tabpanel');
+}
+
+Widget.parsers.tabpanel = function($element) {
+  var tabs = $element.find('.tab');
+  var panels = $element.find('.panel');
+
+  var config = Widget.getConfig($element, {
+    hoverDelay: NaN,
+    defaultActiveIndex: 0
+  });
+  console.log(config.hoverDelay);
+
+  var tabPanel = new TabPanel({
+    tabs: tabs,
+    panels: panels
+  }, {
+    activeClassName: 'active',
+    hoverDelay: config.hoverDelay
+  }).activate(parseInt($element.getAttribute('defaultActiveIndex'), 10) || 0);
+  Object.mixin($element, tabPanel);
+  Object.mixin($element, TabPanel.prototype, {blackList: ['constructor']});
+};
+
+document.on('domready', function() {
+  var $test = $('#test');
+  setTimeout(function() {
+    $test.activate(0);
+  }, 1000);
+
+  $test.highlight();
+
+});
 
 execute(function($) {
 //==================================================[TabPanel]
@@ -107,7 +142,7 @@ execute(function($) {
    */
   TabPanel.config = {
     activeClassName: 'active',
-    hoverDelay: undefined
+    hoverDelay: NaN
   };
 
 //--------------------------------------------------[TabPanel.prototype.activate]

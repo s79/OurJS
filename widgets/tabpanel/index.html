@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>widget-tabpanel</title>
+<script src="../../dev.js"></script>
+<script src="../../src/widgets/tabpanel.js"></script>
+<style>
+widget-tabpanel { display: block; }
+widget-tabpanel .panel { display: none; }
+widget-tabpanel .active { display: block; }
+
+#test { position: relative; width: 400px; height: 300px; padding: 0; border: 1px solid darkblue; }
+#test .tab { float: left; width: 50px; height: 20px; margin-right: 2px; background: darkgray; color: black; font: 14px/20px Verdana; text-decoration: none; text-align: center; cursor: default; }
+#test .tab:hover { background: silver; }
+#test .panel { position: absolute; left: 0; top: 20px; width: 400px; height: 280px; background: gainsboro; line-height: 280px; text-align: center; }
+#test a.active,
+#test a.active:hover { color: black; background: gainsboro; }
+</style>
+</head>
+<body>
+<h1>多页标签面板（选项卡）</h1>
+<h2>widget-tabpanel</h2>
+<widget-tabpanel id="test" hoverDelay="200" defaultActiveIndex="2">
+  <div>
+    <a href="javascript:void('tab_1');" class="tab">1</a>
+    <div class="panel">面板一</div>
+
+    <a href="javascript:void('tab_1');" class="tab">2</a>
+    <div class="panel">面板二</div>
+
+    <a href="javascript:void('tab_1');" class="tab">3</a>
+    <div class="panel">面板三</div>
+  </div>
+
+  <a href="javascript:void('tab_1');" class="tab">4</a>
+  <div class="panel">面板四</div>
+
+  <a href="javascript:void('tab_1');" class="tab">5</a>
+  <div class="panel">面板五</div>
+</widget-tabpanel>
+
+</body>
+</html>

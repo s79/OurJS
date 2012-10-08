@@ -292,6 +292,9 @@ var manifest = {
     'Switcher.prototype.spliceItems',
     'Switcher.prototype.activate'
   ],
+  'Widget': [
+    'Widget.parse'
+  ],
   'TabPanel': [
     'TabPanel',
     'TabPanel.config',
