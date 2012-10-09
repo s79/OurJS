@@ -16,14 +16,16 @@
   var uid = 0;
   var pathAnimation;
   var copy = function(destination, original) {
-    Object.forEach(original, function(value, key) {
-      value = original[key];
-      if (value && typeof value === 'object' && value.constructor !== Array && typeof value.nodeType !== 'number') {
-        destination[key] = copy(destination[key] || {}, value);
-      } else {
-        destination[key] = original[key];
-      }
-    });
+    if (original) {
+      Object.forEach(original, function(value, key) {
+        value = original[key];
+        if (value && typeof value === 'object' && value.constructor !== Array && typeof value.nodeType !== 'number') {
+          destination[key] = copy(destination[key] || {}, value);
+        } else {
+          destination[key] = original[key];
+        }
+      });
+    }
     return destination;
   };
 
@@ -96,20 +98,21 @@
      * @param {Function} fn Event handler.
      */
     addEvent: function(el, type, fn) {
-      if (!fn.uid) {
-        fn.uid = ++uid;
-      }
-      if (el.fire) {
-        el.on(type + '.hc' + uid, fn);
-      } else {
-        if (!el.events) {
-          el.events = {};
+      // IE6 IE7 IE8 可能传入 object.Array。
+      if (typeof fn === 'function') {
+        if (!fn.uid) {
+          fn.uid = ++uid;
         }
-        // 自定义对象的 events 可能被 Highcharts 占用，且对应的 key 的类型为 function，OurJS 需要数组，因此先将名称进行转义。
-        if (typeof el.events[type] === 'function') {
-          type = '_' + type + '_';
+        var label = '.hc' + fn.uid;
+        if (el.fire) {
+          el.on(type + label, fn);
+        } else {
+          if (!el.events) {
+            el.events = {};
+          }
+          // 自定义对象的 events 可能被 Highcharts 占用，且对应的 key 的类型为 function，OurJS 需要数组，因此先将名称进行转义。
+          Observable.prototype.on.call(el, type + '_' + label, fn);
         }
-        Observable.prototype.on.call(el, type, fn);
       }
     },
 
@@ -117,25 +120,22 @@
      * Remove an event listener.
      */
     removeEvent: function(el, type, fn) {
-      var uid = '';
+      var label = '';
       if (fn && fn.uid) {
-        uid = fn.uid;
+        label = '.hc' + fn.uid;
       }
       if (el.fire) {
         if (type) {
-          el.off(type + '.hc' + uid);
+          el.off(type + label);
         } else {
+          // 移除所有监听器。
         }
       } else {
         if (!el.events) {
           el.events = {};
         }
         if (type) {
-          if (typeof el.events[type] === 'function') {
-            delete el.events[type];
-            type = '_' + type + '_';
-          }
-          Observable.prototype.off.call(el, type);
+          Observable.prototype.off.call(el, type + '_' + label);
         } else {
           el.events = {};
         }
@@ -146,33 +146,25 @@
      * Fire an event.
      */
     fireEvent: function(el, type, eventArguments, defaultFunction) {
-      eventArguments = eventArguments || {};
+      if (!eventArguments) {
+        eventArguments = {};
+      }
       eventArguments.preventDefault = function() {
         this.isDefaultPrevented = function() {
           return true;
         };
         defaultFunction = null;
       };
-      var event;
       if (el.fire) {
-        event = el.fire(type, eventArguments);
+        el.fire(type, eventArguments);
       } else {
         if (!el.events) {
           el.events = {};
         }
-        if (typeof el.events[type] === 'function') {
-          var originalType = type;
-          type = '_' + type + '_';
-        }
-        event = Observable.prototype.fire.call(el, type, eventArguments);
-        if (originalType) {
-          if (el.events[originalType].call(el, event) === false) {
-            event.preventDefault();
-          }
-        }
+        Observable.prototype.fire.call(el, type + '_', eventArguments);
       }
       if (defaultFunction) {
-        defaultFunction(event);
+        defaultFunction(eventArguments);
       }
     },
 
