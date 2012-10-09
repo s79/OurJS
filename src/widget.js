@@ -22,6 +22,8 @@
    *   Widget.getConfig
    */
 
+  var $ = document.$;
+
 //--------------------------------------------------[Widget]
   /**
    * 提供对自定义控件的支持。
@@ -83,7 +85,6 @@
   Widget.getConfig = function(element, config) {
     Object.forEach(config, function(defaultValue, key) {
       var value = element.getAttribute(key);
-      console.warn(value, typeof value);
       if (value !== null) {
         switch (typeof defaultValue) {
           case 'string':
