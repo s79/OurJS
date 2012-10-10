@@ -68,7 +68,7 @@ OurJS 只可以和非侵入式设计的框架或类库共存。
     <td>可选组件</td><td>src/components/*.js</td>
   </tr>
   <tr>
-    <td>可选插件</td><td>src/addons/*.js</td>
+    <td>实用工具</td><td>src/utilities/*.js</td>
   </tr>
   <tr>
     <td>适配器</td><td>src/adapters/*.js</td>

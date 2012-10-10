@@ -24,7 +24,7 @@
     scripts.push('<script src="/framework/src/integrated/json2.js"></script>');
   }
   if (document.documentElement.currentStyle && !document.documentElement.currentStyle.minWidth) {
-    scripts.push('<script src="/framework/src/addons/console.js"></script>');
+    scripts.push('<script src="/framework/src/utilities/console.js"></script>');
   }
   document.write(scripts.join('\n'));
 })();
