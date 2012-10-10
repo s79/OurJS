@@ -3,11 +3,43 @@
  * @author sundongguo@gmail.com
  * @version 20121008
  */
-//==================================================[Widget.parsers.tabpanel]
+//==================================================[控件 - 多页标签面板]
 if (navigator.isIElt9) {
   document.createElement('widget-tabpanel');
 }
 
+//--------------------------------------------------[Widget.parsers.tabpanel]
+/**
+ * 多页标签面板。
+ * @name Widget.parsers.tabpanel
+ * @namespace
+ * @description
+ *   元素 WIDGET-TABPANEL 表示一个多页标签面板，其子元素中包含类名 'tab' 的为“标签”，包含类名 'panel' 的为“面板”。
+ *   “标签”和“面板”必须按顺序一一对应。
+ *   一个“标签”和一个“面板”组成一组“标签面板”。
+ *   只有被激活的“标签面板”中的“面板”才会显示（对应的“标签”和“面板”会被自动加入 'active' 类），其余的“面板”将被隐藏，同一时刻最多只有一组“标签面板”被激活。
+ *   TagName:
+ *     WIDGET-TABPANEL
+ *   Attributes：
+ *     data-default-active-index 指定默认激活第几组“标签面板”，默认为 '0'，即激活第一组。
+ *     data-hover-delay 指定以毫秒为单位的“标签”鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 '200' - '400' 之间的数值。
+ *   Properties：
+ *     activeTab
+ *     activePanel
+ *     activeIndex
+ *   Method:
+ *     activate 激活一组“标签面板”。如果要激活的“标签面板”已在激活状态，则调用此方法无效。
+ *     参数：
+ *       {Element|number} value 要激活的“标签面板”的“标签”元素或“面板”元素，或者它们在所有“标签”和“面板”中的索引值。如果指定的值为不是“标签”或“面板”，或者为一个不在有效范围内的数字，则取消激活的“标签面板”。
+ *     返回值：
+ *       {Element} 本元素。
+ *   Events：
+ *     activate 成功调用 activate 方法后触发。
+ *       {Element} activeTab 当前的激活的“标签”。
+ *       {Element} activePanel 当前的激活的“面板”。
+ *       {Element} inactiveTab 上一个激活的“标签”。
+ *       {Element} inactivePanel 上一个激活的“面板”。
+ */
 Widget.parsers.tabpanel = function($element) {
   var tabs = $element.find('.tab');
   var panels = $element.find('.panel');
@@ -29,6 +61,7 @@ Widget.parsers.tabpanel = function($element) {
   Object.mixin($element, TabPanel.prototype, {blackList: ['constructor']});
 };
 
+//--------------------------------------------------[TEST]
 document.on('domready', function() {
   var $test = $('#test');
   setTimeout(function() {
@@ -40,33 +73,7 @@ document.on('domready', function() {
 });
 
 execute(function($) {
-//==================================================[TabPanel]
-  /*
-   * 创建多页标签面板。
-   */
-
 //--------------------------------------------------[TabPanel Constructor]
-  /**
-   * 多页标签面板。
-   * @name TabPanel
-   * @constructor
-   * @param {Object} elements 相关元素。
-   * @param {Array} elements.tabs 包含所有“标签”的数组。组成“标签”的各元素的标签名应该一致，并且有共同的父元素。
-   * @param {Array} elements.panels 包含所有“面板”的数组，应确保 panels 的数量和 tabs 的数量一致。
-   * @param {Object} [config] 配置信息。
-   * @param {string} config.activeClassName 为激活的“标签”和“面板”添加的类名，默认为 'active'。
-   * @param {number} config.hoverDelay 以毫秒为单位的“标签”鼠标悬停激活延时，默认为 undefined，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 200 - 400 之间的数值。
-   * @fires activate
-   *   {Element} activeTab 当前的激活的“标签”。
-   *   {Element} activePanel 当前的激活的“面板”。
-   *   {Element} inactiveTab 上一个激活的“标签”。
-   *   {Element} inactivePanel 上一个激活的“面板”。
-   *   成功调用 activate 方法后触发。
-   * @description
-   *   “标签”和“面板”必须按顺序一一对应，保存在参数 tabs 和 panels 中。
-   *   一个“标签”和一个“面板”组成一组“标签面板”。
-   *   同一时刻最多只有一组“标签面板”被激活。
-   */
   var TabPanel = new Component(function(elements, config) {
     var tabPanel = this;
 
@@ -136,28 +143,23 @@ execute(function($) {
   });
 
 //--------------------------------------------------[TabPanel.config]
-  /**
-   * 默认配置。
-   * @name TabPanel.config
-   */
   TabPanel.config = {
     activeClassName: 'active',
     hoverDelay: NaN
   };
 
 //--------------------------------------------------[TabPanel.prototype.activate]
-  /**
-   * 激活一组“标签面板”。
-   * @name TabPanel.prototype.activate
-   * @function
-   * @param {Element|number} value 要激活的“标签面板”的“标签”元素或其在 tabs 中的索引值。
-   *   如果指定的值为不在 tabs 中的对象，或为一个不在有效范索引围内的数字，则取消激活的“标签面板”。
-   * @returns {Object} TabPanel 对象。
-   * @description
-   *   如果要激活的“标签面板”已在激活状态，则调用此方法无效。
-   */
   TabPanel.prototype.activate = function(value) {
-    this.switcher.activate(typeof value === 'number' ? value : this.elements.tabs.indexOf(value));
+    var index;
+    if (typeof value === 'number') {
+      index = value;
+    } else {
+      index = this.elements.tabs.indexOf(value);
+      if (index === -1) {
+        index = this.elements.panels.indexOf(value);
+      }
+    }
+    this.switcher.activate(index);
     return this;
   };
 
