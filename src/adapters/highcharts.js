@@ -1,6 +1,7 @@
 /*!
  * Highcharts adapter for OurJS.
- *  Highcharts version: v2.2.5 (2012-06-08)
+ *  Highcharts version: v2.3.3 (2012-06-08 <未测试全部功能>)
+ *  Highstock version: v1.2.4 (2012-10-11)
  *  Highcharts license: www.highcharts.com/license
  */
 
@@ -47,7 +48,7 @@
     adapterRun: function(el, method) {
       // This currently works for getting inner width and height. If adding
       // more methods later, we need a conditional implementation for each.
-      return parseInt($(el).getStyle(method), 10);
+      return(method === 'width' || method === 'height') ? parseInt($(el).getStyle(method), 10) : null;
     },
 
     /**
@@ -89,6 +90,13 @@
         result = copy(result, arguments[i]);
       }
       return result;
+    },
+
+    /**
+     * Return the index of an item in an array, or -1 if not matched.
+     */
+    inArray: function(item, arr, from) {
+      return arr.indexOf(item, from);
     },
 
     /**
