@@ -22,8 +22,6 @@
    *   Widget.getConfig
    */
 
-  var $ = document.$;
-
 //--------------------------------------------------[Widget]
   /**
    * 提供对自定义控件的支持。
@@ -51,17 +49,24 @@
    * @description
    *   在 DOM 树解析完成后会自动解析页面内的全部可解析的控件，因此仅应在必要时调用本方法。
    */
+  var parseWidget = function(parser, $element) {
+    if (!$element.isWidget) {
+      parser($element);
+      $element.isWidget = true;
+    }
+  };
+
   Widget.parse = function(element, recursive) {
     var nodeName = element.nodeName.toLowerCase();
-    var widgetParser;
-    if (nodeName.startsWith('widget-') && (widgetParser = Widget.parsers[nodeName.slice(7)])) {
-      widgetParser(element);
+    var parser;
+    if (nodeName.startsWith('widget-') && (parser = Widget.parsers[nodeName.slice(7)])) {
+      parseWidget(parser, element);
     }
     if (recursive) {
       Object.keys(Widget.parsers).forEach(function(type) {
-        widgetParser = Widget.parsers[type];
+        parser = Widget.parsers[type];
         Element.prototype.find.call(element, 'widget-' + type).forEach(function($widget) {
-          widgetParser($widget);
+          parseWidget(parser, $widget);
         });
       });
     }

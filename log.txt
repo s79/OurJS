@@ -5,6 +5,25 @@
 >IE 自动填充未触发 change 事件。
 >移出不常用代码到 utilities 目录。
 
+>2012-10-11
+升级 Highcharts adapter，使其支持 Highstock 最新版。
+tabPanel -> widget-tabpanel
+
+>2012-10-10
+addons -> utilities
+
+>2012-10-09
+修复 Highcharts 适配器事件处理的 bug。
+
+>2012-10-08
++widget.js
+
+>2012-09-28
+完善 setValidationRules。
+
+>2012-09-27
+修复 navigator.warn 的一处 bug。
+
 >2012-09-26
 调整代码注释。
 
