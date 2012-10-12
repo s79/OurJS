@@ -19,7 +19,6 @@
    *
    * 提供静态方法：
    *   Widget.parse
-   *   Widget.getConfig
    */
 
 //--------------------------------------------------[Widget]
@@ -51,6 +50,26 @@
    */
   var parseWidget = function(parser, $element) {
     if (!$element.isWidget) {
+      // 根据解析器的 config 属性从目标元素的 attribute 中获取并保存配置信息。
+      Object.forEach(parser.config || {}, function(defaultValue, key) {
+        var value = $element.getData(key);
+        if (value !== null) {
+          switch (typeof defaultValue) {
+            case 'string':
+              break;
+            case 'boolean':
+              value = true;
+              break;
+            case 'number':
+              value = parseFloat(value);
+              break;
+            default:
+              throw new Error('Invalid config type "' + key + '"');
+          }
+          $element[key] = value;
+        }
+      });
+      // 解析元素。
       parser($element);
       $element.isWidget = true;
     }
@@ -70,42 +89,6 @@
         });
       });
     }
-  };
-
-//--------------------------------------------------[Widget.getConfig]
-  /**
-   * 从创建控件的元素的 attribute 中获取配置信息。
-   * @name Widget.getConfig
-   * @function
-   * @private
-   * @param {Element} element 创建控件的元素。
-   * @param {Object} config 默认配置信息，其属性值的类型可以是 string、boolean 或 number 中的一种。
-   * @description
-   *   要获取的属性值类型在不同情况下的结果：
-   *   string - 即对应的 attribute 的值，若为空则为空字符串。
-   *   boolean - 将对应的 attribute 的值转换为数字，若为空则为 0。
-   *   number - 无论对应的 attribute 的值是什么，声明该 attribute 其值即为 true。
-   */
-  Widget.getConfig = function(element, config) {
-    Object.forEach(config, function(defaultValue, key) {
-      var value = element.getAttribute(key);
-      if (value !== null) {
-        switch (typeof defaultValue) {
-          case 'string':
-            break;
-          case 'boolean':
-            value = true;
-            break;
-          case 'number':
-            value = parseFloat(value);
-            break;
-          default:
-            throw new Error('Invalid type of config "' + key + '"');
-        }
-        config[key] = value;
-      }
-    });
-    return config;
   };
 
 //--------------------------------------------------[自动解析]

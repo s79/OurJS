@@ -193,7 +193,7 @@
    * 触发本对象的某类事件，运行相关的事件监听器。
    * @name Observable.prototype.fire
    * @function
-   * @param {String} type 事件类型。
+   * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    * @returns {Object} 事件对象。
    */

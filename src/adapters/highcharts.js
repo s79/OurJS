@@ -43,7 +43,7 @@
     /**
      * Run a general method on the framework, following jQuery syntax.
      * @param {Object} el The HTML element.
-     * @param {String} method Which method to run on the wrapped element.
+     * @param {string} method Which method to run on the wrapped element.
      */
     adapterRun: function(el, method) {
       // This currently works for getting inner width and height. If adding
@@ -102,7 +102,7 @@
     /**
      * Add an event listener.
      * @param {Object} el HTML element or custom object.
-     * @param {String} type Event type.
+     * @param {string} type Event type.
      * @param {Function} fn Event handler.
      */
     addEvent: function(el, type, fn) {

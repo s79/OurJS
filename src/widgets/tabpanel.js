@@ -6,14 +6,9 @@
 
 (function() {
 //==================================================[控件 - 多页标签面板]
-  if (navigator.isIElt9) {
-    document.createElement('widget-tabpanel');
-  }
-
-//--------------------------------------------------[Widget.parsers.tabpanel]
   /**
    * 多页标签面板。
-   * @name Widget.parsers.tabpanel
+   * @name WIDGET-TABPANEL
    * @namespace
    * @description
    *   元素 WIDGET-TABPANEL 表示一个多页标签面板，其子元素中包含类名 'tab' 的为“标签”，包含类名 'panel' 的为“面板”。
@@ -44,14 +39,15 @@
    *       {Element} inactiveTab 上一个激活的“标签”。
    *       {Element} inactivePanel 上一个激活的“面板”。
    */
+
+//--------------------------------------------------[WIDGET-TABPANEL]
+  if (navigator.isIElt9) {
+    document.createElement('widget-tabpanel');
+  }
+
+//--------------------------------------------------[Widget.parsers.tabpanel]
   var activeClassName = 'active';
   Widget.parsers.tabpanel = function($element) {
-    // 获取配置信息。 // TODO: 在 Widget.parse 中参考 Widget.parsers.tabpanel.config 的属性值进行双向绑定。
-    var config = Widget.getConfig($element, {
-      hoverDelay: NaN
-    });
-    $element.hoverDelay = config.hoverDelay;
-
     // 保存属性。
     var tabs = $element.tabs = $element.find('.tab');
     var panels = $element.panels = $element.find('.panel');
@@ -123,6 +119,11 @@
     // 默认激活第一组。
     $element.activate(0);
 
+  };
+
+//--------------------------------------------------[Widget.parsers.tabpanel.config]
+  Widget.parsers.tabpanel.config = {
+    hoverDelay: NaN
   };
 
 })();
