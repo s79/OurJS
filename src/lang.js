@@ -688,6 +688,10 @@
    *   Array.prototype.getFirst
    *   Array.prototype.getLast
    *   String.prototype.clean
+   *   String.prototype.capitalize
+   *   String.prototype.camelize
+   *   String.prototype.underscored
+   *   String.prototype.dasherize
    *   Number.prototype.padZero
    *   Math.limit
    *   Math.randomRange
@@ -695,6 +699,18 @@
    *   Date.prototype.format
    *   RegExp.escape
    */
+
+  // 将字符串中的单词分隔符压缩或转换为一个空格字符。
+  var wordsSeparatorsPattern = /(-(?=\D|$)|_)+/g;
+  var camelizedLettersPattern = /[^A-Z\s]([A-Z])|[A-Z][^A-Z\s]/g;
+  var collapseWordsSeparators = function(string) {
+    return string
+        .replace(wordsSeparatorsPattern, ' ')
+        .replace(camelizedLettersPattern, function(letters, isUpperCase) {
+          return isUpperCase ? letters.charAt(0) + ' ' + letters.charAt(1) : ' ' + letters;
+        })
+        .clean();
+  };
 
 //--------------------------------------------------[Object.forEach]
   /**
@@ -906,7 +922,7 @@
 
 //--------------------------------------------------[String.prototype.clean]
   /**
-   * 合并本字符串中的空白字符，并去掉首尾的空白字符。
+   * 合并字符串中的空白字符，并去掉首尾的空白字符。
    * @name String.prototype.clean
    * @function
    * @returns {string} 清理后的字符串。
@@ -917,6 +933,82 @@
   var whitespacesPattern = new RegExp('[' + WHITESPACES + ']+', 'g');
   String.prototype.clean = function() {
     return this.replace(whitespacesPattern, ' ').trim();
+  };
+
+//--------------------------------------------------[String.prototype.capitalize]
+  /**
+   * 以 capitalize 的形式重组字符串。
+   * @name String.prototype.capitalize
+   * @function
+   * @returns {string} 重组后的字符串。
+   * @example
+   *   'foo bar'.capitalize();
+   *   // 'FooBar'
+   *   'foo-bar'.capitalize();
+   *   // 'FooBar'
+   */
+  var firstLetterPattern = /(?:^|\s)(\S)/g;
+  String.prototype.capitalize = function() {
+    return collapseWordsSeparators(this).replace(firstLetterPattern, function(_, firstLetter) {
+      return firstLetter.toUpperCase();
+    });
+  };
+
+//--------------------------------------------------[String.prototype.camelize]
+  /**
+   * 以 camelize 的形式重组字符串。
+   * @name String.prototype.camelize
+   * @function
+   * @returns {string} 重组后的字符串。
+   * @example
+   *   'foo bar'.camelize();
+   *   // 'fooBar'
+   *   'foo-bar'.camelize();
+   *   // 'fooBar'
+   *   'HTMLFormElement'.camelize();
+   *   // 'htmlFormElement'
+   */
+  var leadingUppercaseLettersPattern = /[A-Z](?=[^A-Z])|[A-Z]*(?=[A-Z])/;
+  String.prototype.camelize = function() {
+    return this
+        .capitalize()
+        .replace(leadingUppercaseLettersPattern, function(letters) {
+          return letters.toLowerCase();
+        });
+  };
+
+//--------------------------------------------------[String.prototype.underscored]
+  /**
+   * 以 underscored 的形式重组字符串。
+   * @name String.prototype.underscored
+   * @function
+   * @returns {string} 重组后的字符串。
+   * @example
+   *   'foo bar'.underscored();
+   *   // 'foo_bar'
+   *   'FooBar'.underscored();
+   *   // 'foo_bar'
+   */
+  var whitespacePattern = / /g;
+  String.prototype.underscored = function() {
+    return collapseWordsSeparators(this).replace(whitespacePattern, '_').toLowerCase();
+  };
+
+//--------------------------------------------------[String.prototype.dasherize]
+  /**
+   * 以 dasherize 的形式重组字符串。
+   * @name String.prototype.dasherize
+   * @function
+   * @returns {string} 重组后的字符串。
+   * @example
+   *   'foo bar'.dasherize();
+   *   // 'foo-bar'
+   *   'FooBar'.dasherize();
+   *   // 'foo-bar'
+   */
+  var underscoredPattern = /_/g;
+  String.prototype.dasherize = function() {
+    return this.underscored().replace(underscoredPattern, '-');
   };
 
 //--------------------------------------------------[Number.prototype.padZero]

@@ -29,7 +29,7 @@ execute(function($) {
         var lastIndex = parents.length - 1;
         parents.forEach(function(member, index) {
           if (index === lastIndex && !symbol.isStatic) {
-            syntax += '<samp>' + member.toLowerCase() + '</samp>.';
+            syntax += '<samp>' + member.camelize() + '</samp>.';
           } else {
             syntax += '<cite>' + member + '</cite>.';
           }

@@ -13,22 +13,6 @@
   // 参数分隔符。
   var separator = /\s*,\s*/;
 
-  // 将字符串从 Hyphenate 转换为 CamelCase。
-//  var hyphenateFirstLetterPattern = /-([a-z])/g;
-//  var hyphenateToCamelCase = function(string) {
-//    return string.replace(hyphenateFirstLetterPattern, function(_, letter) {
-//      return letter.toUpperCase();
-//    });
-//  };
-
-  // 将字符串从 CamelCase 转换为 Hyphenate。
-  var camelCaseFirstLetterPattern = /[A-Z]/g;
-  var camelCaseToHyphenate = function(string) {
-    return string.replace(camelCaseFirstLetterPattern, function(letter) {
-      return '-' + letter.toLowerCase();
-    });
-  };
-
 //==================================================[DOM 对象补缺及扩展 - 为 IE6 IE7 提供的解决方案]
   /*
    * 仅为元素扩展新特性，而不是所有的节点类型。
@@ -721,7 +705,7 @@
    *   不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
    */
   Element.prototype.getStyle = 'getComputedStyle' in window ? function(propertyName) {
-    return window.getComputedStyle(this, null).getPropertyValue(camelCaseToHyphenate(propertyName)) || '';
+    return window.getComputedStyle(this, null).getPropertyValue(propertyName.dasherize()) || '';
   } : function(propertyName) {
     var getSpecialCSSProperty = specialCSSPropertyGetter[propertyName];
     return (getSpecialCSSProperty ? getSpecialCSSProperty(this) : this.currentStyle[propertyName]) || '';
@@ -797,7 +781,7 @@
 
   var validNamePattern = /^[a-z][a-zA-Z]*$/;
   var parseDataKey = function(key) {
-    return validNamePattern.test(key) ? 'data-' + camelCaseToHyphenate(key) : '';
+    return validNamePattern.test(key) ? 'data-' + key.dasherize() : '';
   };
 
 //--------------------------------------------------[Element.prototype.getData]
@@ -825,7 +809,7 @@
    * 在本元素中保存一条自定义数据。
    * @name Element.prototype.setData
    * @function
-   * @param {string} key 数据名，必须为 camelCase 形式，并且只能包含英文字母。
+   * @param {string} key 数据名，必须为 camel case 形式，并且只能包含英文字母。
    * @param {string} value 数据值，必须为字符串。
    * @returns {Element} 本元素。
    */
@@ -2112,7 +2096,7 @@
    * 触发本元素的某类事件。
    * @name Element.prototype.fire
    * @function
-   * @param {String} type 事件类型。
+   * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    *   data 的属性会被追加到事件对象中，但名称为 originalEvent 的属性除外。
    * @returns {Object} 事件对象。
@@ -2179,7 +2163,7 @@
    * 获取本表单内某个域的当前值。
    * @name HTMLFormElement.prototype.getFieldValue
    * @function
-   * @param {String} name 域的名称。
+   * @param {string} name 域的名称。
    * @returns {string|Array} 域的当前值。
    * @description
    *   当该域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
@@ -2742,7 +2726,7 @@
    * 触发 document 的某类事件，运行相关的事件监听器。
    * @name document.fire
    * @function
-   * @param {String} type 事件类型。
+   * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    * @returns {Object} document 对象。
    */
@@ -2903,7 +2887,7 @@
    * 触发 window 的某类事件，运行相关的事件监听器。
    * @name window.fire
    * @function
-   * @param {String} type 事件类型。
+   * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    * @returns {Object} window 对象。
    */

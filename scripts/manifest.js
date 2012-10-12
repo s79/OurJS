@@ -52,7 +52,11 @@ var manifest = {
     'String.prototype.contains',
     'String.prototype.toArray',
     '#自定义扩展',
-    'String.prototype.clean'
+    'String.prototype.clean',
+    'String.prototype.capitalize',
+    'String.prototype.camelize',
+    'String.prototype.underscored',
+    'String.prototype.dasherize'
   ],
   'Boolean': [
     '#ES5',
