@@ -53,9 +53,7 @@ var manifest = {
     'String.prototype.toArray',
     '#自定义扩展',
     'String.prototype.clean',
-    'String.prototype.capitalize',
     'String.prototype.camelize',
-    'String.prototype.underscored',
     'String.prototype.dasherize'
   ],
   'Boolean': [

@@ -9,26 +9,6 @@
   var hasOwnProperty = Object.prototype.hasOwnProperty;
   var toString = Object.prototype.toString;
 
-  // 空白字符。
-  var WHITESPACES = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF';
-
-  // 日期标识符。
-  var dateFormatPattern = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
-
-  // 辅助解决遍历 bug。
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
-  var hasDontEnumBug = !{toString: null}.propertyIsEnumerable('toString');
-  var DONT_ENUM_PROPERTIES = [
-    'toString',
-    'toLocaleString',
-    'valueOf',
-    'hasOwnProperty',
-    'isPrototypeOf',
-    'propertyIsEnumerable',
-    'constructor'
-  ];
-  var DONT_ENUM_PROPERTIES_LENGTH = DONT_ENUM_PROPERTIES.length;
-
   // 将提供的值转化为整数。
   // http://es5.github.com/#x9.4
   var toInteger = function(value) {
@@ -49,6 +29,23 @@
     }
     return Object(value);
   };
+
+  // 空白字符。
+  var WHITESPACES = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF';
+
+  // 辅助解决遍历 bug。
+  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
+  var hasDontEnumBug = !{toString: null}.propertyIsEnumerable('toString');
+  var DONT_ENUM_PROPERTIES = [
+    'toString',
+    'toLocaleString',
+    'valueOf',
+    'hasOwnProperty',
+    'isPrototypeOf',
+    'propertyIsEnumerable',
+    'constructor'
+  ];
+  var DONT_ENUM_PROPERTIES_LENGTH = DONT_ENUM_PROPERTIES.length;
 
 //==================================================[ES5 补缺]
   /*
@@ -688,9 +685,7 @@
    *   Array.prototype.getFirst
    *   Array.prototype.getLast
    *   String.prototype.clean
-   *   String.prototype.capitalize
    *   String.prototype.camelize
-   *   String.prototype.underscored
    *   String.prototype.dasherize
    *   Number.prototype.padZero
    *   Math.limit
@@ -701,16 +696,19 @@
    */
 
   // 将字符串中的单词分隔符压缩或转换为一个空格字符。
-  var wordsSeparatorsPattern = /(-(?=\D|$)|_)+/g;
+  var wordSeparatorsPattern = /(-(?=\D|$)|_)+/g;
   var camelizedLettersPattern = /[^A-Z\s]([A-Z])|[A-Z][^A-Z\s]/g;
-  var collapseWordsSeparators = function(string) {
+  var segmentWords = function(string) {
     return string
-        .replace(wordsSeparatorsPattern, ' ')
-        .replace(camelizedLettersPattern, function(letters, isUpperCase) {
-          return isUpperCase ? letters.charAt(0) + ' ' + letters.charAt(1) : ' ' + letters;
+        .replace(wordSeparatorsPattern, ' ')
+        .replace(camelizedLettersPattern, function(letters, capitalLetterInTheBack) {
+          return capitalLetterInTheBack ? letters.charAt(0) + ' ' + letters.charAt(1) : ' ' + letters;
         })
         .clean();
   };
+
+  // 日期标识符。
+  var dateFormatPattern = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
 
 //--------------------------------------------------[Object.forEach]
   /**
@@ -935,63 +933,30 @@
     return this.replace(whitespacesPattern, ' ').trim();
   };
 
-//--------------------------------------------------[String.prototype.capitalize]
-  /**
-   * 以 capitalize 的形式重组字符串。
-   * @name String.prototype.capitalize
-   * @function
-   * @returns {string} 重组后的字符串。
-   * @example
-   *   'foo bar'.capitalize();
-   *   // 'FooBar'
-   *   'foo-bar'.capitalize();
-   *   // 'FooBar'
-   */
-  var firstLetterPattern = /(?:^|\s)(\S)/g;
-  String.prototype.capitalize = function() {
-    return collapseWordsSeparators(this).replace(firstLetterPattern, function(_, firstLetter) {
-      return firstLetter.toUpperCase();
-    });
-  };
-
 //--------------------------------------------------[String.prototype.camelize]
   /**
    * 以 camelize 的形式重组字符串。
    * @name String.prototype.camelize
    * @function
+   * @param {boolean} [useUpperCamelCase] 是否使用大驼峰式命名法（又名 Pascal 命名法），默认为 false，即使用小驼峰式命名法。
    * @returns {string} 重组后的字符串。
    * @example
-   *   'foo bar'.camelize();
-   *   // 'fooBar'
    *   'foo-bar'.camelize();
    *   // 'fooBar'
+   *   'foo-bar'.camelize(true);
+   *   // 'FooBar'
    *   'HTMLFormElement'.camelize();
    *   // 'htmlFormElement'
    */
+  var firstLetterPattern = /(?:^|\s)(\S)/g;
   var leadingUppercaseLettersPattern = /[A-Z](?=[^A-Z])|[A-Z]*(?=[A-Z])/;
-  String.prototype.camelize = function() {
-    return this
-        .capitalize()
-        .replace(leadingUppercaseLettersPattern, function(letters) {
-          return letters.toLowerCase();
-        });
-  };
-
-//--------------------------------------------------[String.prototype.underscored]
-  /**
-   * 以 underscored 的形式重组字符串。
-   * @name String.prototype.underscored
-   * @function
-   * @returns {string} 重组后的字符串。
-   * @example
-   *   'foo bar'.underscored();
-   *   // 'foo_bar'
-   *   'FooBar'.underscored();
-   *   // 'foo_bar'
-   */
-  var whitespacePattern = / /g;
-  String.prototype.underscored = function() {
-    return collapseWordsSeparators(this).replace(whitespacePattern, '_').toLowerCase();
+  String.prototype.camelize = function(useUpperCamelCase) {
+    var result = segmentWords(this).replace(firstLetterPattern, function(_, firstLetter) {
+      return firstLetter.toUpperCase();
+    });
+    return useUpperCamelCase ? result : result.replace(leadingUppercaseLettersPattern, function(leadingUppercaseLetters) {
+      return leadingUppercaseLetters.toLowerCase();
+    });
   };
 
 //--------------------------------------------------[String.prototype.dasherize]
@@ -1001,14 +966,14 @@
    * @function
    * @returns {string} 重组后的字符串。
    * @example
-   *   'foo bar'.dasherize();
+   *   'foo_bar'.dasherize();
    *   // 'foo-bar'
    *   'FooBar'.dasherize();
    *   // 'foo-bar'
    */
-  var underscoredPattern = /_/g;
+  var whitespacePattern = / /g;
   String.prototype.dasherize = function() {
-    return this.underscored().replace(underscoredPattern, '-');
+    return segmentWords(this).replace(whitespacePattern, '-').toLowerCase();
   };
 
 //--------------------------------------------------[Number.prototype.padZero]
