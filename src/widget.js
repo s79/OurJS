@@ -50,7 +50,7 @@
    */
   var parseWidget = function(parser, $element) {
     if (!$element.isWidget) {
-      // 根据解析器的 config 属性从目标元素的 attribute 中获取并保存配置信息。
+      // 根据解析器的 config 属性从目标元素的 attribute 中解析配置信息并将其添加到目标元素。
       Object.forEach(parser.config || {}, function(defaultValue, key) {
         var value = $element.getData(key);
         if (value !== null) {
@@ -69,6 +69,10 @@
           $element[key] = value;
         }
       });
+      // 根据解析器的 methods 属性为目标元素添加方法。
+      Object.forEach(parser.methods || {}, function(value, key) {
+        $element[key] = value;
+      });
       // 解析元素。
       parser($element);
       $element.isWidget = true;
@@ -78,13 +82,13 @@
   Widget.parse = function(element, recursive) {
     var nodeName = element.nodeName.toLowerCase();
     var parser;
-    if (nodeName.startsWith('widget-') && (parser = Widget.parsers[nodeName.slice(7)])) {
+    if (nodeName.startsWith('w-') && (parser = Widget.parsers[nodeName.slice(2)])) {
       parseWidget(parser, element);
     }
     if (recursive) {
       Object.keys(Widget.parsers).forEach(function(type) {
         parser = Widget.parsers[type];
-        Element.prototype.find.call(element, 'widget-' + type).forEach(function($widget) {
+        Element.prototype.find.call(element, 'w-' + type).forEach(function($widget) {
           parseWidget(parser, $widget);
         });
       });

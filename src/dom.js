@@ -2543,22 +2543,23 @@
    * @function
    * @param {Array} rules 包含样式规则的数组，其中每一项为一条规则。
    */
+  var dynamicStyleSheet;
   document.addStyleRules = function(rules) {
-    var styleSheets = document.styleSheets;
-    if (styleSheets.length === 0) {
+    if (!dynamicStyleSheet) {
       document.head.appendChild(document.createElement('style'));
+      var styleSheets = document.styleSheets;
+      dynamicStyleSheet = styleSheets[styleSheets.length - 1];
     }
-    var styleSheet = styleSheets[styleSheets.length - 1];
     rules.forEach(function(rule) {
-      if (styleSheet.insertRule) {
-        styleSheet.insertRule(rule, styleSheet.cssRules.length);
+      if (dynamicStyleSheet.insertRule) {
+        dynamicStyleSheet.insertRule(rule, dynamicStyleSheet.cssRules.length);
       } else {
         var lBraceIndex = rule.indexOf('{');
         var rBraceIndex = rule.indexOf('}');
         var selectors = rule.slice(0, lBraceIndex);
         var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
         selectors.split(separator).forEach(function(selector) {
-          styleSheet.addRule(selector, declarations);
+          dynamicStyleSheet.addRule(selector, declarations);
         });
       }
     });

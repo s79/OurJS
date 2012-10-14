@@ -178,7 +178,8 @@ execute(function($) {
       var group = {
         constructor: '<h2>构造函数</h2>',
         methods: '<h2>方法</h2>',
-        properties: '<h2>属性</h2>'
+        properties: '<h2>属性</h2>',
+        elements: '<h2>自定义元素</h2>'
       };
       // 注解信息（可以作用于一类对象内的多个 API）。
       var comment = '';
@@ -193,7 +194,7 @@ execute(function($) {
           // 语法和说明。
           $('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>').insertTo($indexFieldset);
           // 详细信息。
-          var groupName = symbol ? (symbol.isFunction ? (symbol.isConstructor ? 'constructor' : 'methods') : 'properties') : '';
+          var groupName = symbol ? (symbol.isFunction ? (symbol.isConstructor ? 'constructor' : 'methods') : name.startsWith('W-') ? 'elements' : 'properties') : '';
           if (groupName && groupName !== lastGroupName) {
             $(group[groupName]).insertTo($detailsDiv);
           }
@@ -271,7 +272,7 @@ execute(function($) {
             buildDocument(indexColumns.c, name, true);
           });
       [
-        'TabPanel',
+        '多页标签面板',
         'Slideshow',
         'Dialog',
         'Paginator',

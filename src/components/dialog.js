@@ -1,18 +1,25 @@
 /**
- * @fileOverview 组件 - 模态对话框。
+ * @fileOverview 控件 - 模态对话框。
  * @author sundongguo@gmail.com
  * @version 20120310
  */
 
-execute(function($) {
-//==================================================[Overlay]
+(function() {
+//==================================================[控件 - 模态对话框]
   /*
-   * 创建一个覆盖指定元素的内容的遮掩层。
-   * 遮掩层除视觉遮掩效果外，还能屏蔽鼠标和键盘对被遮掩区域的操作。
+   * 内部控件 - 遮盖层
+   * 使用 W-OVERLAY 元素来表示一个遮盖层。
+   * 遮盖层用于遮盖模态对话框下边、其父元素内的其他内容。
    *
-   * 说明：
-   *   遮掩层用来配合模态对话框使用。
-   *   要在页面上实现 L 元素覆盖 M 元素，即要求 L 元素的 stacking context 与 M 元素的 stacking context 相同，或为其祖先级元素。
+   * TagName:
+   *   W-OVERLAY
+   *
+   * Method:
+   *   behind 指定要将遮掩层置于哪个对话框元素之下。
+   *   参数：
+   *     {Element} [element] 要将遮掩层置于其后的目标元素。如果省略此参数，则隐藏遮掩层。
+   *   返回值：
+   *     {Element} 本元素。
    *
    * 问题：
    *   IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
@@ -24,6 +31,19 @@ execute(function($) {
    *   http://w3help.org/zh-cn/causes/RM8015
    */
 
+//--------------------------------------------------[W-OVERLAY & W-DIALOG]
+  if (navigator.isIElt9) {
+    document.createElement('w-overlay');
+    document.createElement('w-dialog');
+  }
+
+//--------------------------------------------------[CSSRules]
+  document.addStyleRules([
+    'w-overlay { display: none; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }',
+    'w-dialog { display: none; }'
+  ]);
+
+//==================================================[Overlay]
   // 限定不可聚焦的区域。参数 config 包含 enable 和 disable 两个元素。如果省略此参数，则取消限定。
   var $before;
   var $after;
@@ -119,7 +139,7 @@ execute(function($) {
    * @private
    */
   Overlay.config = {
-    overlayStyles: {backgroundColor: 'black', opacity: 0.2},
+    overlayStyles: {},
     effect: false
   };
 
@@ -145,7 +165,7 @@ execute(function($) {
         if (navigator.isIE6) {
           // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
           $overlay = $('<div><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>');
-          $('<div></div>').setStyles(Object.mixin(config.overlayStyles, {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'})).insertTo($overlay);
+          $('<w-overlay></w-overlay>').setStyles(Object.mixin(config.overlayStyles, {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'})).insertTo($overlay);
           // IE6 BODY 元素的遮掩层在更改视口尺寸时需要调整尺寸。
           if (containerIsBody) {
             resizeOverlayElementForIE6 = function() {
@@ -153,7 +173,7 @@ execute(function($) {
             };
           }
         } else {
-          $overlay = $('<div></div>').setStyles(config.overlayStyles);
+          $overlay = $('<w-overlay></w-overlay>').setStyles(config.overlayStyles);
         }
         // 确定遮掩层元素的样式并插入文档树。
         $overlay.setStyles({display: 'none', position: containerIsBody ? 'fixed' : 'absolute'}).insertTo($container);
@@ -226,9 +246,9 @@ execute(function($) {
 //--------------------------------------------------[Overlay]
   window.Overlay = Overlay;
 
-});
+})();
 
-execute(function($) {
+(function() {
 //==================================================[Dialog]
   /*
    * 创建模态对话框。
@@ -412,7 +432,7 @@ execute(function($) {
    * @name Dialog.config
    */
   Dialog.config = {
-    overlayStyles: {backgroundColor: 'black', opacity: 0.2},
+    overlayStyles: {},
     offsetX: undefined,
     offsetY: undefined,
     effect: false
@@ -513,4 +533,4 @@ execute(function($) {
 //--------------------------------------------------[Dialog]
   window.Dialog = Dialog;
 
-});
+})();

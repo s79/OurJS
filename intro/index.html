@@ -9,9 +9,8 @@
 <link rel="stylesheet" href="../stylesheets/prettify.css">
 <style>
 h3 strong { color: #BE1D2C; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2); }
-ul ul { color: #666; font-size: 12px; }
-ul ul p { margin-bottom: 0; }
-ul ul pre { margin-top: 5px; border-color: silver; background-color: #F8F8F8; }
+.comment p { margin: 0; }
+.comment pre { margin-top: 5px; border-color: silver; background-color: #F8F8F8; }
 #outline .h3 a,
 #outline .h3 a:visited { color: #333; }
 </style>
@@ -69,26 +68,62 @@ execute(function($) {
     </p>
   </blockquote>
 
-  <h2>设计思想</h2>
-  <h3><strong>化繁为简</strong></h3>
+  <h2>特点</h2>
+  <h3><strong>化繁为简</strong> —— 以简单直接的方式，提供易于理解和使用的功能。</h3>
   <ul>
     <li>
       <p class="referral">让旧浏览器能尽可能多的使用新的标准 API。</p>
       <p class="comment">这样可以减少 OurJS 的自定义 API 的数量。</p>
+      <div class="comment">
+        <p>数组的 forEach 方法是 ECMAScript 5 引入的，本来只有在较新版本的浏览器中才能使用，但现在可以在旧浏览器中使用了：</p>
+        <pre>anArray.<strong>forEach</strong>(function(item) {...});</pre>
+        <p>ECMAScript 5 的 JSON 对象原本在 IE6 IE7 中是不支持的，但现在他们支持了：</p>
+        <pre>var data = <strong>JSON</strong>.parse('{"state": "active", "score": 32768}');</pre>
+        <p>HTML5 的 localStorage 对象原本在 IE6 IE7 中是不支持的，但现在他们支持了：</p>
+        <pre><strong>localStorage</strong>.setItem('foo', 'bar');</pre>
+      </div>
     </li>
     <li>
       <p class="referral">不模拟其他语言的“类”和“继承”的机制。</p>
-      <p class="comment">
-        使用 JS 自身的特性为对象扩充功能更加直观和灵活，没必要以蹩脚的方式去效仿其他语言的“类”和“继承”。<br>
-      </p>
+      <p class="comment">使用 JS 自身的特性为对象扩充功能更加直观和灵活，没必要以蹩脚的方式去效仿其他语言的“类”和“继承”。</p>
+      <div class="comment">
+        <p>如果一个对象需要处理事件的能力，这样做就可以实现了：</p>
+<pre>
+<strong>Observable</strong>.applyTo(target);
+target.on('foo', onFoo);
+target.fire('foo');
+</pre>
+      </div>
     </li>
     <li>
       <p class="referral">避免使用包装对象。</p>
       <p class="comment">因此不必去关注原始对象与包装对象的区别，也不会出现误用的情况。要操作一个对象，直接调用它的方法或属性即可。</p>
+      <div class="comment">
+        <p>IE6 IE7 本来没有 Element 构造函数，但现在可以通过扩充 Element.prototype 来为页面上的 DOM 元素添加新特性了：</p>
+        <pre>Element.<strong>prototype</strong>.newMethod = function() {...};</pre>
+        <p>IE6 并不支持 CSS2 引入的固定定位，但现在通过使用 element.setStyle/setStyles 方法，可以在 IE6 中实现固定定位：</p>
+<pre>
+element.<strong>setStyles</strong>({position: 'fixed', right: 0, bottom: 0});
+// 此时使用 element.getStyle/getStyles 获取 position 的值在 IE6 中也可以正确的获得 'fixed'。
+</pre>
+        <p>IE6 IE7 IE8 的事件模型与其他浏览器不同，但现在可以通过 element.on/off/fire 方法来统一实现事件处理函数的绑定/解除绑定/触发了：</p>
+<pre>
+element.<strong>on</strong>('click', function(e) {...});
+// 事件对象 e 也做了兼容性处理，确保在所有浏览器中有一致的表现。
+</pre>
+      </div>
     </li>
     <li>
-      <p class="referral">为常用的功能提供“组件”以简化开发。</p>
-      <p class="comment">这些组件的粒度适当，灵活可控，可以很方便的解决常见的需求。</p>
+      <p class="referral">为常用的功能提供“控件(Widget)”以简化开发。</p>
+      <p class="comment">这些控件就像使用具备特定功能的 HTML 元素一样容易使用，甚至不需要写脚本去初始化它们。</p>
+      <div class="comment">
+        <p>如果要在页面内实现一个模态对话框，这样写就可以了：</p>
+<pre>
+&lt;w-dialog id="notice"&gt;...&lt;/w-dialog&gt;
+...
+&lt;a href="javascript:notice.open();"&gt;查看通知&lt;a&gt;
+</pre>
+      </div>
     </li>
     <li>
       <p class="referral">提供“模块-应用”机制来梳理复杂的逻辑。</p>
@@ -106,72 +141,26 @@ execute(function($) {
     </p>
   </blockquote>
 
-  <h2>特点</h2>
-  <h3>功能完善 —— 提供的功能覆盖面广、细节完善，可以满足 WEB 开发中的绝大多数需求。</h3>
+  <h3><strong>功能完善</strong> —— 提供的功能覆盖面广、细节完善，可以满足 WEB 开发中的绝大多数需求。</h3>
   <ul>
     <li>
-      <p>OurJS 通过<strong>扩展</strong> JS 内置对象、浏览器内置对象、DOM 对象，提供附加<strong>特性</strong>，封装功能<strong>组件</strong>，<strong>模块化</strong>管理代码等方式，提供了丰富的功能。</p>
+      <p>OurJS 提供的功能包括原生 JS 对象扩展、DOM 对象兼容性处理、客户端参数检测、数据存储、跨域通信、动画、Ajax、模版、控件等。</p>
     </li>
     <li>
       <p>每个功能都经过长期实践，其行为和细节更完善，其设计粒度更符合常见的应用场景。</p>
     </li>
   </ul>
 
-  <h3>语法自然 —— 所有 API 的语法均符合原生 JS 和 DOM 的语法习惯。</h3>
+  <h3><strong>风格一致</strong> —— 提供的 API 与原生 JS 和 DOM 的语法习惯一致，便于理解和记忆。</h3>
   <ul>
     <li>
-      <p>
-        对于一些在新的规范（以及稳定版本的草案）中定义的，或已成为事实标准的特性，在尚未支持的浏览器上通过技术手段予以<strong>补缺</strong>。<br>
-        在旧浏览器中经过 OurJS 的补缺处理后，可以放心的使用这些 API。
+      <p class="referral">
+        OurJS 通过<strong title="对于一些在新的规范（以及稳定版本的草案）中定义的，或已成为事实标准的特性，在尚未支持的浏览器上通过技术手段予以补缺。">补缺</strong>和<strong title="对于有规范支持但无法通过技术手段实现补缺的，或者无规范支持仅为方便使用而提供的特性，以扩展的方式提供。">扩展</strong>的方式提供的 API 均与原生 JS 和 DOM 的风格一致，让开发者能够使用最流畅自然的语法来编写代码。
       </p>
-      <ul>
-        <li>
-          <p>数组的 forEach 方法是 ECMAScript 5 引入的，本来只有在较新版本的浏览器中才能使用，但现在可以在旧浏览器中使用了：</p>
-          <pre>anArray.<strong>forEach</strong>(function(item) {...});</pre>
-        </li>
-        <li>
-          <p>HTML5 的 localStorage 对象和 ECMAScript 5 的 JSON 对象原本在 IE6 IE7 中是不支持的，但现在他们支持了：</p>
-          <pre><strong>localStorage</strong>.setItem('data', <strong>JSON</strong>.stringify(userData));</pre>
-        </li>
-        <li>
-          <p>IE6 IE7 本来没有 Element 构造函数，但现在可以通过扩充 Element.prototype 来为页面上的 DOM 元素添加新特性了：</p>
-          <pre>Element.<strong>prototype</strong>.newMethod = function() {...};</pre>
-        </li>
-      </ul>
     </li>
     <li>
-      <p>
-        对于有规范支持但无法通过技术手段实现补缺的，或者无规范支持仅为方便使用而提供的特性，以<strong>扩展</strong>的方式提供。<br>
-        设计这些扩展的 API 时均参考原生 API 的语法，以使其语义明确，流畅自然。
-      </p>
-      <ul>
-        <li>
-          <p>IE6 并不支持 CSS2 引入的固定定位，但现在通过使用 element.setStyle/setStyles 方法，可以在 IE6 中实现固定定位：</p>
-<pre>
-element.<strong>setStyles</strong>({position: 'fixed', right: 0, bottom: 0});
-// 此时使用 element.getStyle/getStyles 获取 position 的值在 IE6 中也可以正确的获得 'fixed'。
-</pre>
-        </li>
-        <li>
-          <p>IE6 IE7 IE8 的事件模型与其他浏览器不同，但现在可以通过 element.on/off/fire 方法来统一实现事件处理函数的绑定/解除绑定/触发了：</p>
-<pre>
-element.<strong>on</strong>('click', function(e) {...});
-// 事件对象 e 也做了兼容性处理，确保在所有浏览器中有一致的表现。
-</pre>
-        </li>
-        <li>
-          <p>OurJS 还提供了一些虽然目前尚无规范支持，但却很实用的方法，如将一个 NodeList 对象（或其他任意数据类型）转化为数组：</p>
-          <pre>Array.<strong>from</strong>($form.elements.favorites).forEach(function(control){...});</pre>
-        </li>
-      </ul>
-    </li>
-  </ul>
-
-  <h3>风格一致 —— 有共同点的方法、参数或对象也具备一致的名称和行为，便于理解和记忆。</h3>
-  <ul>
-    <li>
-      <p>不同对象的同类方法的名称一致，同名参数的作用也基本一致。</p>
-      <ul>
+      <p class="referral">有共同点的方法、参数或对象也具备一致的名称，因此他们的行为也是可预期的。</p>
+      <ul class="comment">
         <li>
           <p>
             Array 和 Object 的 forEach 方法的作用均为遍历。<br>
@@ -187,40 +176,26 @@ element.<strong>on</strong>('click', function(e) {...});
         </li>
         <li>
           <p>
-            DOM 对象和具备 Observable 特性的对象（如所有组件的实例）处理事件的方法均为 on、off 和 fire。<br>
+            DOM 对象和具备 Observable 特性的对象处理事件的方法均为 on、off 和 fire。<br>
             它们的 name 参数格式略有不同，因为 DOM 事件可以传递，因此有“代理”的概念。<br>
             它们的 listener 参数的含义和作用则完全一致，并且当 listener 被调用时，this 的值也均为被监听的对象。
           </p>
         </li>
       </ul>
     </li>
-    <li>
-      <p>所有组件都具备更改配置和处理事件的能力。</p>
-      <ul>
-        <li>
-          <p>所有组件都可以通过修改其 config 属性、创建实例时指定 config 参数或直接调用实例的 setConfig 方法来更改配置。</p>
-        </li>
-        <li>
-          <p>所有组件的实例都可以通过 on、off 和 fire 方法来处理事件。</p>
-        </li>
-        <li>
-          <p>执行每个组件的实例方法时，都会“主动触发”一个同名的事件，并会在随后根据情况同步或异步的“被动触发”表示处理过程或结果的事件。</p>
-        </li>
-      </ul>
-    </li>
   </ul>
 
-  <h3>易于扩展 —— 不论是要扩展框架本身，还是扩展应用，OurJS 均提供了简易的方式。</h3>
+  <h3><strong>易于扩展</strong> —— 不论是要扩展框架本身，还是扩展应用，OurJS 均提供了简易的方式。</h3>
   <ul>
     <li>
-      <p class="referral">要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（但应避免扩展 Object 的原型）。</p>
+      <p class="referral">要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（尽量避免扩展 Object 的 prototype）。</p>
       <p class="comment">OurJS 并没有提供特别的方法来做这件事情，使用 JS 固有的方式，可以让代码更加简单易读。</p>
     </li>
     <li>
-      <p class="referral">OurJS 提供了组件构造器，要添加新的组件，使用组件构造器即可创建出和现有的组件具有相同特性的新组件。</p>
+      <p class="referral">按照 OurJS 的“控件”编写规范，可以根据需要随时添加新的控件。</p>
       <p class="comment">
         Component 提供的事件机制可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。<br>
-        OurJS 没有提供“继承”机制，当一个组件依赖另一个时，可以使用更灵活的“组合”方式进行扩展（具体实施方式可以参考 TabPanel 和 Slideshow 的源码）。
+        OurJS 并没有提供“继承”机制，建议使用更灵活的“组合”方式进行扩展。
       </p>
     </li>
     <li>

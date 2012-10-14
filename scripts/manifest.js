@@ -297,10 +297,8 @@ var manifest = {
   'Widget': [
     'Widget.parse'
   ],
-  'TabPanel': [
-    'TabPanel',
-    'TabPanel.config',
-    'TabPanel.prototype.activate'
+  '多页标签面板': [
+    'W-TABPANEL'
   ],
   'Slideshow': [
     'Slideshow',

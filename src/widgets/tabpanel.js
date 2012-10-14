@@ -8,23 +8,21 @@
 //==================================================[控件 - 多页标签面板]
   /**
    * 多页标签面板。
-   * @name WIDGET-TABPANEL
+   * @name W-TABPANEL
    * @namespace
    * @description
-   *   元素 WIDGET-TABPANEL 表示一个多页标签面板，其子元素中包含类名 'tab' 的为“标签”，包含类名 'panel' 的为“面板”。
+   *   使用 W-TABPANEL 元素来表示一个多页标签面板，其子元素中包含类名 'tab' 的为“标签”，包含类名 'panel' 的为“面板”。
    *   “标签”和“面板”必须按顺序一一对应。
    *   一个“标签”和一个“面板”组成一组“标签面板”。
    *   同一时刻最多只有一组“标签面板”被激活， 被激活的“标签”和“面板”会被自动加入 'active' 类。
    *   只有被激活的“标签面板”中的“面板”才会显示（display: block），其余的“面板”将被隐藏（display: none）。
    *   TagName:
-   *     WIDGET-TABPANEL
+   *     W-TABPANEL
    *   Attributes：
-   *     hoverdelay (hoverDelay) 指定以毫秒为单位的“标签”鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 '200' - '400' 之间的数值。
+   *     data-hover-delay (hoverDelay) 指定以毫秒为单位的“标签”鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 '200' - '400' 之间的数值。
    *   Properties：
    *     tabs
    *     panels
-   *     activeTab
-   *     activePanel
    *   Method:
    *     activate 激活一组“标签面板”。如果要激活的“标签面板”已在激活状态，则调用此方法无效。
    *     参数：
@@ -40,33 +38,37 @@
    *       {Element} inactivePanel 上一个激活的“面板”。
    */
 
-//--------------------------------------------------[WIDGET-TABPANEL]
+//--------------------------------------------------[W-TABPANEL]
   if (navigator.isIElt9) {
-    document.createElement('widget-tabpanel');
+    document.createElement('w-tabpanel');
   }
 
+//--------------------------------------------------[CSSRules]
+  document.addStyleRules([
+    'w-tabpanel { display: block; }',
+    'w-tabpanel .panel { display: none; }',
+    'w-tabpanel .active { display: block; }'
+  ]);
+
 //--------------------------------------------------[Widget.parsers.tabpanel]
-  var activeClassName = 'active';
   Widget.parsers.tabpanel = function($element) {
     // 保存属性。
     var tabs = $element.tabs = $element.find('.tab');
     var panels = $element.panels = $element.find('.panel');
-    $element.activeTab = null;
-    $element.activePanel = null;
 
     // 使用 Switcher 实现选项卡切换。
-    var switcher = new Switcher(tabs).on('activate', function(event) {
-      var activeTab = $element.activeTab = event.activeItem;
-      var activePanel = $element.activePanel = activeTab ? panels[tabs.indexOf(activeTab)] : null;
+    var switcher = $element.switcher = new Switcher(tabs).on('activate', function(event) {
+      var activeTab = event.activeItem;
+      var activePanel = activeTab ? panels[tabs.indexOf(activeTab)] : null;
       var inactiveTab = event.inactiveItem;
       var inactivePanel = inactiveTab ? panels[tabs.indexOf(inactiveTab)] : null;
       if (activeTab && activePanel) {
-        activeTab.addClass(activeClassName);
-        activePanel.addClass(activeClassName);
+        activeTab.addClass('active');
+        activePanel.addClass('active');
       }
       if (inactiveTab && inactivePanel) {
-        inactiveTab.removeClass(activeClassName);
-        inactivePanel.removeClass(activeClassName);
+        inactiveTab.removeClass('active');
+        inactivePanel.removeClass('active');
       }
       $element.fire('activate', {
         activeTab: activeTab,
@@ -101,21 +103,6 @@
           }
         });
 
-    // 添加方法。
-    $element.activate = function(value) {
-      var index;
-      if (typeof value === 'number') {
-        index = value;
-      } else {
-        index = this.elements.tabs.indexOf(value);
-        if (index === -1) {
-          index = this.elements.panels.indexOf(value);
-        }
-      }
-      switcher.activate(index);
-      return this;
-    };
-
     // 默认激活第一组。
     $element.activate(0);
 
@@ -124,6 +111,23 @@
 //--------------------------------------------------[Widget.parsers.tabpanel.config]
   Widget.parsers.tabpanel.config = {
     hoverDelay: NaN
+  };
+
+//--------------------------------------------------[Widget.parsers.tabpanel.methods]
+  Widget.parsers.tabpanel.methods = {
+    activate: function(value) {
+      var index;
+      if (typeof value === 'number') {
+        index = value;
+      } else {
+        index = this.tabs.indexOf(value);
+        if (index === -1) {
+          index = this.panels.indexOf(value);
+        }
+      }
+      this.switcher.activate(index);
+      return this;
+    }
   };
 
 })();
