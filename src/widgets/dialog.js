@@ -5,45 +5,48 @@
  */
 
 (function() {
-//==================================================[控件 - 模态对话框]
-  /*
-   * 内部控件 - 遮盖层
-   * 使用 W-OVERLAY 元素来表示一个遮盖层。
-   * 遮盖层用于遮盖模态对话框下边、其父元素内的其他内容。
+//==================================================[控件 - 遮盖层]
+  /**
+   * 遮盖层
+   * @name W-OVERLAY
+   * @namespace
+   * @private
+   * @description
+   *   使用 W-OVERLAY 元素来表示一个遮盖层。
+   *   遮盖层用于遮盖模态对话框下边、其父元素内的其他内容。当其父元素为 BODY 元素时，将覆盖整个视口。
+   *   遮掩层在显示/隐藏时是否使用动画取决于调用它的对话框是否启用了动画。
+   *   需要定义其他的样式时，可以通过 CSS 进行修改，或者直接修改遮掩层元素的 style 属性。
+   *   TagName:
+   *     W-OVERLAY
+   *   Method:
+   *     behind 指定要将遮掩层置于哪个对话框元素之下。
+   *     参数：
+   *       {Element} [$dialog] 要将遮掩层置于其后的对话框元素。如果省略此参数，则隐藏遮掩层。
+   *     返回值：
+   *       {Element} 本元素。
+   *     resize 调整遮掩层尺寸。
+   *     返回值：
+   *       {Element} 本元素。
    *
-   * TagName:
-   *   W-OVERLAY
-   *
-   * Method:
-   *   behind 指定要将遮掩层置于哪个对话框元素之下。
-   *   参数：
-   *     {Element} [element] 要将遮掩层置于其后的目标元素。如果省略此参数，则隐藏遮掩层。
-   *   返回值：
-   *     {Element} 本元素。
-   *
-   * 问题：
-   *   IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
-   *   这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲覆盖区域不是 BODY，但其中有 SELECT 元素时出现。
-   *   上述情况很少见，因此未处理此问题。
-   *   如果需要处理，去掉 IE6 fixed positioned 相关代码中的“启用/禁用表达式”部分即可。
-   *
-   * 参考：
-   *   http://w3help.org/zh-cn/causes/RM8015
+   *   问题：
+   *     IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
+   *     这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲覆盖区域不是 BODY，但其中有 SELECT 元素时出现。
+   *     上述情况很少见，因此未处理此问题。
+   *     如果需要处理，去掉 IE6 fixed positioned 相关代码中的“启用/禁用表达式”部分即可。
+   *   参考：
+   *     http://w3help.org/zh-cn/causes/RM8015
    */
-
-//--------------------------------------------------[W-OVERLAY & W-DIALOG]
+//--------------------------------------------------[W-OVERLAY]
   if (navigator.isIElt9) {
     document.createElement('w-overlay');
-    document.createElement('w-dialog');
   }
 
 //--------------------------------------------------[CSSRules]
   document.addStyleRules([
-    'w-overlay { display: none; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }',
-    'w-dialog { display: none; }'
+    'w-overlay { display: none; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
   ]);
 
-//==================================================[Overlay]
+//--------------------------------------------------[freezeFocusArea]
   // 限定不可聚焦的区域。参数 config 包含 enable 和 disable 两个元素。如果省略此参数，则取消限定。
   var $before;
   var $after;
@@ -114,146 +117,138 @@
     }
   };
 
-//--------------------------------------------------[Overlay Constructor]
-  /**
-   * 遮掩层。
-   * @name Overlay
-   * @function
-   * @private
-   * @param {Element} target 要遮掩的目标元素，当其值为 BODY 元素时，将覆盖整个视口。
-   * @param {Object} [config] 配置信息。
-   * @param {Object} config.overlayStyles 为遮掩层元素设置的样式。
-   * @param {boolean} config.effect 是否启用动画效果。
-   * @description
-   *   遮掩层仅供内部使用，且均为被动调用，因此未提供事件支持。
-   */
-  var Overlay = new Component(function(target, config) {
-    this.setConfig(config);
-    this.target = $(target);
-  });
+//--------------------------------------------------[Widget.parsers.overlay]
+  Widget.parsers.overlay = function($element) {
+    // 保存属性。
+    var context = $element.context = $element.getParent();
+    $element.isVisible = false;
 
-//--------------------------------------------------[Overlay.config]
-  /**
-   * 默认配置。
-   * @name Overlay.config
-   * @private
-   */
-  Overlay.config = {
-    overlayStyles: {},
-    effect: false
+    // 设置样式及内部结构。
+    var contextIsBody = context === document.body;
+    $element.setStyles({position: contextIsBody ? 'fixed' : 'absolute'});
+    if (navigator.isIE6) {
+      // IE6 使用 IFRAME 元素遮盖 SELECT 元素，在其上覆盖一个 SPAN 元素是为了避免鼠标点击时离开本文档（IE6 HTMLUnknownElement 无法插入非短句式内容）。
+      $element.innerHTML = '<iframe scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><span style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></span>';
+      // IE6 BODY 元素的遮掩层在更改视口尺寸时需要调整尺寸。
+      if (contextIsBody) {
+        $element.resizeInIE6 = function() {
+          $element.resize();
+        };
+      }
+    }
+
+    // 绑定事件。
+    var dialogs = context.dialogs || (context.dialogs = []);
+    $element.on('click.overlay', function() {
+      dialogs.getLast().focus();
+    });
+
   };
 
-//--------------------------------------------------[Overlay.prototype.behind]
-  /**
-   * 调整遮掩层的纵向位置，或隐藏遮掩层。
-   * @name Overlay.prototype.behind
-   * @function
-   * @private
-   * @param {Element} [element] 要将遮掩层置于其后的目标元素。如果省略此参数，则隐藏遮掩层。
-   * @returns {Object} Overlay 对象。
-   */
-  Overlay.prototype.behind = function(element) {
-    var overlay = this;
-    if (element) {
-      if (!overlay.animation) {
-        var config = overlay.config;
-        var $container = overlay.target;
-        var containerIsBody = $container === document.body;
-        // 创建遮掩层元素。
-        var $overlay;
-        var resizeOverlayElementForIE6;
-        if (navigator.isIE6) {
-          // IE6 使用 IFRAME 元素遮盖 SELECT 元素。
-          $overlay = $('<div><iframe scrolling="no" style="width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe></div>');
-          $('<w-overlay></w-overlay>').setStyles(Object.mixin(config.overlayStyles, {position: 'absolute', left: 0, top: 0, width: '100%', height: '100%'})).insertTo($overlay);
-          // IE6 BODY 元素的遮掩层在更改视口尺寸时需要调整尺寸。
-          if (containerIsBody) {
-            resizeOverlayElementForIE6 = function() {
-              overlay.resize();
-            };
+//--------------------------------------------------[Widget.parsers.overlay.methods]
+  Widget.parsers.overlay.methods = {
+    reposition: function() {
+      var $dialog = this.context.dialogs.getLast();
+      if ($dialog) {
+        this.setStyle('zIndex', $dialog.getStyle('zIndex') - 1);
+        if (!this.isVisible) {
+          if (this.resizeInIE6) {
+            window.attachEvent('onresize', this.resizeInIE6);
           }
-        } else {
-          $overlay = $('<w-overlay></w-overlay>').setStyles(config.overlayStyles);
+          this.fade('in');
+          this.isVisible = true;
+          this.resize();
         }
-        // 确定遮掩层元素的样式并插入文档树。
-        $overlay.setStyles({display: 'none', position: containerIsBody ? 'fixed' : 'absolute'}).insertTo($container);
-        overlay.element = $overlay;
-        // 动画效果。
-        overlay.animation = new Animation()
-            .on('playstart', function() {
-              $overlay.setStyle('display', 'block');
-              // 如果启用了动画效果则添加动画剪辑。
-              if (config.effect) {
-                var originalOpacity = $overlay.getStyle('opacity');
-                $overlay.setStyle('opacity', 0);
-                this.addClip(Animation.createStyleRenderer($overlay, {opacity: originalOpacity}), 0, 150, 'easeIn');
-              }
-              overlay.resize();
-              if (resizeOverlayElementForIE6) {
-                window.attachEvent('onresize', resizeOverlayElementForIE6);
-              }
-            })
-            .on('reversefinish', function() {
-              $overlay.remove();
-              delete overlay.animation;
-              delete overlay.element;
-              if (resizeOverlayElementForIE6) {
-                window.detachEvent('onresize', resizeOverlayElementForIE6);
-              }
-            });
-      }
-      overlay.element.setStyle('zIndex', element.getStyle('zIndex') - 1);
-      freezeFocusArea({enable: element, disable: overlay.target});
-      overlay.animation.play();
-    } else {
-      if (this.animation) {
-        this.animation.reverse();
+        freezeFocusArea({enable: $dialog, disable: this.context});
+      } else {
+        if (this.isVisible) {
+          if (this.resizeInIE6) {
+            window.detachEvent('onresize', this.resizeInIE6);
+          }
+          this.fade('out');
+          this.isVisible = false;
+        }
         freezeFocusArea();
       }
-    }
-    return overlay;
-  };
-
-//--------------------------------------------------[Overlay.prototype.resize]
-  /**
-   * 调整遮掩层尺寸。
-   * @name Overlay.prototype.resize
-   * @function
-   * @private
-   * @returns {Object} Overlay 对象。
-   */
-  Overlay.prototype.resize = function() {
-    if (this.element) {
-      var $overlay = this.element;
-      var $target = this.target;
-      if ($target === document.body) {
-        // 遮掩 BODY 的情况。
-        if (navigator.isIE6) {
-          var clientSize = window.getClientSize();
-          // 刷新 display 以避免 IE6 的 $overlay 元素内的两个 height 为 100% 的子元素在纵向改变窗口大小时高度不随 $overlay 的变化而更新。
-          $overlay.setStyles({left: 0, top: 0, width: clientSize.width, height: clientSize.height, display: 'none'}).setStyle('display', 'block');
+      return this;
+    },
+    resize: function() {
+      if (this.isVisible) {
+        var context = this.context;
+        if (context === document.body) {
+          // 遮掩 BODY 的情况。
+          if (navigator.isIE6) {
+            var clientSize = window.getClientSize();
+            // 使本元素 reflow 以避免 IE6 的 this 元素内的两个 height 为 100% 的子元素在纵向改变窗口大小时高度不随 this 的变化而更新。
+            this.setStyles({left: 0, top: 0, width: clientSize.width, height: clientSize.height, display: 'none'}).setStyle('display', 'block');
+          } else {
+            this.setStyles({left: 0, right: 0, top: 0, bottom: 0});
+          }
         } else {
-          $overlay.setStyles({left: 0, right: 0, top: 0, bottom: 0});
+          // 其他情况。
+          this.setStyles({left: 0, top: 0, width: context.clientWidth, height: context.clientHeight});
         }
-      } else {
-        // 其他情况统一处理。
-        $overlay.setStyles({left: 0, top: 0, width: $target.clientWidth, height: $target.clientHeight});
       }
+      return this;
     }
-    return this;
   };
-
-//--------------------------------------------------[Overlay]
-  window.Overlay = Overlay;
 
 })();
 
 (function() {
-//==================================================[Dialog]
-  /*
-   * 创建模态对话框。
-   * 当对话框弹出时，为突出对话框内容，将在对话框之下创建遮掩层，以阻止用户对遮盖部分内容的操作。
+//==================================================[控件 - 模态对话框]
+  /**
+   * 模态对话框。
+   * @name W-DIALOG
+   * @namespace
+   * @description
+   *   使用 W-DIALOG 元素来表示一个模态对话框。
+   *   当对话框弹出时，为突出对话框内容，将在对话框之下创建遮掩层，以阻止用户对遮盖部分内容的操作。
+   *   对话框的弹出位置、遮掩层遮盖的范围都是与对话框的父元素有关的。
+   *   对话框元素将以其父元素为“参考元素(context)”进行定位，遮掩层也作为其父元素的子元素被创建。
+   *   如果对话框元素的父元素是 BODY，遮掩层将遮掩整个视口。
+   *   当对话框元素的父元素不是 BODY 时，应避免其父元素出现滚动条，以免对话框和遮掩层能随其内容滚动。
+   *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。
+   *   <ul>
+   *     <li>对话框的默认状态为关闭。因此 element 的 display 将被设置为 none。</li>
+   *     <li>当对话框元素的父元素为 BODY 元素时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
+   *     <li>建议为该元素设置明确的 zIndex，如果未设置 zIndex，则自动设置 zIndex 为 1000。</li>
+   *     <li>如果对话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
+   *   </ul>
+   *   TagName:
+   *     W-DIALOG
+   *   Attributes：
+   *     data-offset-x (offsetX) 对话框的左边与其父元素的左边的横向差值。默认为 NaN，此时对话框的中心点在横向将与其父元素的中心点重合。
+   *     data-offset-y (offsetY) 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
+   *     data-effect (effect) 是否启用淡入淡出的动画效果，默认为 false。
+   *     data-fixed (fixed) 是否启用固定定位，仅在对话框的父元素为 BODY 元素时有效，默认为 false。
+   *   Properties：
+   *
+   *   Method:
+   *     open 打开对话框。如果对话框正在打开或已经打开，则调用此方法无效。
+   *     返回值：
+   *       {Element} 本元素。
+   *     close 关闭对话框。如果对话框正在关闭或已经关闭，则调用此方法无效。
+   *     返回值：
+   *       {Element} 本元素。
+   *     reposition 重新定位对话框位置。仅在对话框处于“打开”状态时，调用此方法才有效。
+   *     返回值：
+   *       {Element} 本元素。
+   *   Events：
+   *     open 在对话框打开时触发。
+   *     close 在对话框关闭后触发。
+   *     reposition 成功调用 reposition 方法后触发。
    */
+
+//--------------------------------------------------[W-OVERLAY & W-DIALOG]
+  if (navigator.isIElt9) {
+    document.createElement('w-dialog');
+  }
+
+//--------------------------------------------------[CSSRules]
+  document.addStyleRules([
+    'w-dialog { display: none; }'
+  ]);
 
   // 对话框分组，将使用同一个遮掩层的对话框分为一组，在这组对话框层叠显示时，遮掩层会自动修改 zIndex 以适应顶层对话框。
   /*
@@ -280,32 +275,6 @@
    * @param {number} config.offsetY 对话框的顶边与其父元素的顶边的纵向差值。默认为 undefined，此时对话框的中心点在纵向将与其父元素的中心点重合。
    * @param {boolean} config.effect 是否启用淡入淡出的动画效果，默认为 false。
    *   在 IE6 IE7 IE8 应关闭，否则动画使用的透明滤镜可能和 PNG 透明修复脚本冲突，或者因透明滤镜重叠而导致显示异常。
-   * @fires open
-   *   成功调用 open 方法后触发。
-   * @fires openstart
-   *   在对话框打开时触发。如果启用了动画效果，则在对话框打开动画开始播放后触发。
-   * @fires openfinish
-   *   在对话框打开后触发。如果启用了动画效果，则在对话框打开动画播放完成后触发。
-   * @fires close
-   *   成功调用 close 方法后触发。
-   * @fires closestart
-   *   在对话框关闭时触发。如果启用了动画效果，则在对话框关闭动画开始播放后触发。
-   * @fires closefinish
-   *   在对话框关闭后触发。如果启用了动画效果，则在对话框关闭动画播放完成后触发。
-   * @fires reposition
-   *   成功调用 reposition 方法后触发。
-   * @description
-   *   对话框的弹出位置、遮掩层遮盖的范围都是与对话框的父元素有关的。
-   *   对话框元素将以其父元素为“参考元素”进行定位，遮掩层也作为其父元素的子元素被创建。
-   *   如果对话框元素的父元素是 BODY，遮掩层将遮掩整个视口。
-   *   当对话框元素的父元素不是 BODY 时，应避免其父元素出现滚动条，以免对话框和遮掩层能随其内容滚动。
-   *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。
-   *   <ul>
-   *     <li>对话框的默认状态为关闭。因此 element 的 display 将被设置为 none。</li>
-   *     <li>当对话框元素的父元素为 BODY 元素时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
-   *     <li>建议为该元素设置明确的 zIndex，如果未设置 zIndex，则自动设置 zIndex 为 1000。</li>
-   *     <li>如果对话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
-   *   </ul>
    */
   var Dialog = new Component(function(element, config) {
     var dialog = this;
@@ -427,10 +396,6 @@
   });
 
 //--------------------------------------------------[Dialog.config]
-  /**
-   * 默认配置。
-   * @name Dialog.config
-   */
   Dialog.config = {
     overlayStyles: {},
     offsetX: undefined,
@@ -439,42 +404,18 @@
   };
 
 //--------------------------------------------------[Dialog.prototype.open]
-  /**
-   * 打开对话框。
-   * @name Dialog.prototype.open
-   * @function
-   * @returns {Object} Dialog 对象。
-   * @description
-   *   如果对话框正在打开或已经打开，则调用此方法无效。
-   */
   Dialog.prototype.open = function() {
     this.animation.play();
     return this;
   };
 
 //--------------------------------------------------[Dialog.prototype.close]
-  /**
-   * 关闭对话框。
-   * @name Dialog.prototype.close
-   * @function
-   * @returns {Object} Dialog 对象。
-   * @description
-   *   如果对话框正在关闭或已经关闭，则调用此方法无效。
-   */
   Dialog.prototype.close = function() {
     this.animation.reverse();
     return this;
   };
 
 //--------------------------------------------------[Dialog.prototype.reposition]
-  /**
-   * 重新定位对话框位置。
-   * @name Dialog.prototype.reposition
-   * @function
-   * @returns {Object} Dialog 对象。
-   * @description
-   *   仅在对话框处于“打开”状态时，调用此方法才有效。
-   */
   Dialog.prototype.reposition = function() {
     if (this.isOpen) {
       var config = this.config;

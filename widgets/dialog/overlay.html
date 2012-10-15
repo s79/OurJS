@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>w-overlay</title>
+<link rel="stylesheet" href="../reset.css">
+<script src="../../dev.js"></script>
+<script src="../../src/widgets/dialog.js"></script>
+<style>
+button { position: absolute; z-index: 1000; width: 135px; height: 30px; }
+select { width: 100px; background: orangered; }
+#pOverlay { background: gold; opacity: 1; filter: alpha(opacity = 100); }
+#divOverlay { background: cornflowerblue; opacity: 0.75; filter: alpha(opacity = 75); }
+#spanOverlay { background: orchid; opacity: 0.5; filter: alpha(opacity = 50); }
+#varOverlay { background: springgreen; opacity: 0.75; filter: alpha(opacity = 75); }
+</style>
+<script>
+Widget.parsers.overlay.methods.test = function(element) {
+  if (element) {
+    this.context.dialogs.push(element);
+  } else {
+    this.context.dialogs.pop();
+  }
+  this.reposition();
+};
+</script>
+</head>
+<body>
+<h1>w-overlay</h1>
+<p>遮盖层</p>
+
+<h2 id="x" style="position: absolute; left: 1500px; top: 1500px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
+
+<select>
+  <option>IE6 SELECT</option>
+</select>
+
+<span id="span" style="position: absolute; left: 575px; top: 350px; z-index: 50; width: 400px; height: 50px; margin: 25px; padding: 5px 15px; border: 7px solid mediumorchid; background: white">
+  <var id="var" style="position: absolute; left: 10px; bottom: 0; display: block; width: 100px; height:20px; margin: 2px 2px 2px -30px; padding: 5px; border: 3px solid black; background: silver; overflow: hidden;">
+    <em id="palceholder_A" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
+    <w-overlay id="varOverlay"></w-overlay>
+  </var>
+  <w-overlay id="spanOverlay"></w-overlay>
+</span>
+
+<div id="div" tabindex="0" style="position: absolute; left: 600px; top: 100px; z-index: 100; width: 400px; height: 300px; margin: 10px; padding: 5px; border: 7px solid black; overflow: auto;">
+  <select>
+    <option>IE6 SELECT</option>
+  </select>
+  <select style="visibility: hidden;"></select>
+  <select>
+    <option>IE6 SELECT</option>
+  </select>
+  <p id="p" style="position: relative; width: 800px; height: 200px; margin: 10px; padding: 10px; border: 10px solid black;">
+    <em id="palceholder_B" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
+    <w-overlay id="pOverlay"></w-overlay>
+  </p>
+  <w-overlay id="divOverlay"></w-overlay>
+</div>
+
+<w-overlay id="bodyOverlay"></w-overlay>
+
+<script>
+var bodyOverlay = $('#bodyOverlay');
+var divOverlay = $('#divOverlay');
+var pOverlay = $('#pOverlay');
+var spanOverlay = $('#spanOverlay');
+var varOverlay = $('#varOverlay');
+var div = $('#div');
+var palceholder_A = $('#palceholder_A');
+var palceholder_B = $('#palceholder_B');
+//--------------------------------------------------[fix support]
+$(document.body).find('button').forEach(function($button) {
+  $button.setStyle('position', 'fixed');
+});
+
+var $div = $('#div');
+var $span = $('#span').setStyle('opacity', .75);
+var length = window.getPageOffset().y + $span.getClientRect().top - parseInt($span.getStyle('marginTop'), 10);
+window.on('scroll', function() {
+  var position = $span.getStyle('position');
+  if (window.getPageOffset().y >= length) {
+    if (position !== 'fixed') {
+      $span.setStyles({position: 'fixed', top: 0});
+    }
+  } else {
+    if (position !== 'absolute') {
+      $span.setStyles({position: 'absolute', top: length});
+    }
+  }
+});
+</script>
+
+<button style="left: 100px; top: 100px;" onmouseover="bodyOverlay.test(div);">bodyOverlay 开</button>
+<button style="left: 250px; top: 100px;" onmouseover="bodyOverlay.test();">bodyOverlay 关</button>
+<button style="left: 100px; top: 150px;" onmouseover="divOverlay.test(palceholder_B);">divOverlay 开</button>
+<button style="left: 250px; top: 150px;" onmouseover="divOverlay.test();">divOverlay 关</button>
+<button style="left: 100px; top: 200px;" onmouseover="pOverlay.test(palceholder_B);">pOverlay 开</button>
+<button style="left: 250px; top: 200px;" onmouseover="pOverlay.test();">pOverlay 关</button>
+<button style="left: 100px; top: 250px;" onmouseover="spanOverlay.test(palceholder_A);">spanOverlay 开</button>
+<button style="left: 250px; top: 250px;" onmouseover="spanOverlay.test();">spanOverlay 关</button>
+<button style="left: 100px; top: 300px;" onmouseover="varOverlay.test(palceholder_A);">varOverlay 开</button>
+<button style="left: 250px; top: 300px;" onmouseover="varOverlay.test();">varOverlay 关</button>
+<button style="left: 175px; top: 350px;" onclick="div.setStyle('position', 'fixed');">div.position=fixed</button>
+<button style="left: 175px; top: 400px;" onclick="div.setStyle('position', 'absolute');">div.position=absolute</button>
+<button style="left: 175px; top: 450px;" onclick="div.setStyle('display', 'block');">div.display=block</button>
+<button style="left: 175px; top: 500px;" onclick="div.setStyle('display', 'none');">div.display=none</button>
+<button style="left: 175px; top: 550px;" onclick="div.morph({left: 0, top: 0, backgroundColor: '#ff0000'}, {duration: 5000, onFinish: function(){this.fade('out', {onFinish: function() {this.fade('in');}});}});">div.animate</button>
+
+</body>
+</html>

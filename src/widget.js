@@ -51,28 +51,32 @@
   var parseWidget = function(parser, $element) {
     if (!$element.isWidget) {
       // 根据解析器的 config 属性从目标元素的 attribute 中解析配置信息并将其添加到目标元素。
-      Object.forEach(parser.config || {}, function(defaultValue, key) {
-        var value = $element.getData(key);
-        if (value !== null) {
-          switch (typeof defaultValue) {
-            case 'string':
-              break;
-            case 'boolean':
-              value = true;
-              break;
-            case 'number':
-              value = parseFloat(value);
-              break;
-            default:
-              throw new Error('Invalid config type "' + key + '"');
+      if (parser.config) {
+        Object.forEach(parser.config, function(defaultValue, key) {
+          var value = $element.getData(key);
+          if (value !== null) {
+            switch (typeof defaultValue) {
+              case 'string':
+                break;
+              case 'boolean':
+                value = true;
+                break;
+              case 'number':
+                value = parseFloat(value);
+                break;
+              default:
+                throw new Error('Invalid config type "' + key + '"');
+            }
+            $element[key] = value;
           }
-          $element[key] = value;
-        }
-      });
+        });
+      }
       // 根据解析器的 methods 属性为目标元素添加方法。
-      Object.forEach(parser.methods || {}, function(value, key) {
-        $element[key] = value;
-      });
+      if (parser.methods) {
+        Object.forEach(parser.methods, function(value, key) {
+          $element[key] = value;
+        });
+      }
       // 解析元素。
       parser($element);
       $element.isWidget = true;

@@ -2,50 +2,42 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Dialog</title>
-<script src="../../our.js"></script>
-<script src="../../src/utilities/console.js"></script>
-<script src="../../src/utilities/DD_belatedPNG.js"></script>
-<script src="../../scripts/framework.js"></script>
-<script src="../../src/components/dialog.js"></script>
+<title>w-dialog</title>
+<link rel="stylesheet" href="../reset.css">
+<script src="../../dev.js"></script>
+<script src="../../src/widgets/dialog.js"></script>
 <style>
-button.action { margin-top: 20px; padding: 10px 15px; font-size: 14px; }
+
 </style>
 </head>
 <body>
-<div id="content">
-  <h1>模态对话框</h1>
+<h1>w-dialog</h1>
+<p>模态对话框</p>
 
-  <h2>Dialog</h2>
+<fieldset>
+  <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
+  <input type="button" value="button">
+  <input type="text" value="text">
+  <select>
+    <option>IE6 SELECT</option>
+  </select>
+  <a href="#">link</a>
+</fieldset>
+
+<p style="clear: both; text-align: center;">
+  <button class="action" onclick="dialogA.open();">dialogA.open()</button>
+</p>
+
+<div style="width: 800px; height: 450px; border: 1px solid silver; background: whitesmoke;">
   <fieldset>
     <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
     <input type="button" value="button">
     <input type="text" value="text">
+    <select>
+      <option>IE6 SELECT</option>
+    </select>
     <a href="#">link</a>
   </fieldset>
-  <fieldset>
-    <legend>测试 IE6 中 SELECT 元素的遮盖情况</legend>
-    <select>
-      <option>SELECT</option>
-    </select>
-  </fieldset>
-  <p style="clear: both; text-align: center;">
-    <button class="action" onclick="dialogA.open();">dialogA.open()</button>
-  </p>
-  <div style="width: 800px; height: 500px; background: whitesmoke;">
-    <fieldset>
-      <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
-      <input type="button" value="button">
-      <input type="text" value="text">
-      <a href="#">link</a>
-    </fieldset>
-    <fieldset>
-      <legend>测试 IE6 中 SELECT 元素的遮盖情况</legend>
-      <select>
-        <option>SELECT</option>
-      </select>
-    </fieldset>
-  </div>
 </div>
 
 <!-- dialog_a { -->

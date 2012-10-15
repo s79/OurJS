@@ -5,6 +5,13 @@
 >IE 自动填充未触发 change 事件。
 >移出不常用代码到 utilities 目录。
 
+>2012-10-15
+W-OVERLAY
+
+>2012-10-14
+UIComponent -> Widget
+W-TABPANEL
+
 >2012-10-12
 +String.prototype.capitalize
 +String.prototype.camelize
