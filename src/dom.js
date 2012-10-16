@@ -2490,31 +2490,34 @@
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
    */
-  var tagNamePattern = /^<(\w+)/;
+  var tagNamePattern = /[\w-]+/;
 
   var wrappers = {
     area: [1, '<map>', '</map>'],
     legend: [1, '<fieldset>', '</fieldset>'],
     option: [1, '<select>', '</select>'],
-    tbody: [1, '<table><tbody></tbody>', '</table>'],
+    caption: [1, '<table><tbody></tbody>', '</table>'],
     tr: [2, '<table><tbody>', '</tbody></table>'],
     td: [3, '<table><tbody><tr>', '</tr></tbody></table>'],
     col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>']
   };
   wrappers.optgroup = wrappers.option;
-  wrappers.thead = wrappers.tfoot = wrappers.colgroup = wrappers.caption = wrappers.tbody;
+  wrappers.colgroup = wrappers.thead = wrappers.tfoot = wrappers.tbody = wrappers.caption;
   wrappers.th = wrappers.td;
   if (navigator.isIElt9) {
-    // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。
+    // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。  // TODO: [0, '#', '']
     wrappers.link = wrappers.style = wrappers.script = [1, '#<div>', '</div>'];
   }
+  var defaultWrapper = [0, '', ''];
 
   document.$ = function(e) {
     var element = null;
     switch (typeof e) {
       case 'string':
-        if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
-          var wrapper = wrappers[(tagNamePattern.exec(e) || ['', ''])[1].toLowerCase()] || [0, '', ''];
+        if (e.charAt(0) === '#') {
+          element = document.getElementById(e.slice(1));
+        } else if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
+          var wrapper = wrappers[tagNamePattern.exec(e)[0].toLowerCase()] || defaultWrapper;
           var depth = wrapper[0] + 1;
           var div = document.createElement('div');
           element = div;
@@ -2523,8 +2526,6 @@
             element = element.lastChild;
           }
           element = element && element.nodeType === 1 ? element : div;
-        } else if (e.charAt(0) === '#') {
-          element = document.getElementById(e.slice(1));
         }
         break;
       case 'object':

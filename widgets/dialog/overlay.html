@@ -9,7 +9,7 @@
 <style>
 button { position: absolute; z-index: 1000; width: 135px; height: 30px; }
 select { width: 100px; background: orangered; }
-#pOverlay { background: gold; opacity: 1; filter: alpha(opacity = 100); }
+#h1Overlay { background: gold; opacity: 1; filter: alpha(opacity = 100); }
 #divOverlay { background: cornflowerblue; opacity: 0.75; filter: alpha(opacity = 75); }
 #spanOverlay { background: orchid; opacity: 0.5; filter: alpha(opacity = 50); }
 #varOverlay { background: springgreen; opacity: 0.75; filter: alpha(opacity = 75); }
@@ -54,10 +54,10 @@ Widget.parsers.overlay.methods.test = function(element) {
   <select>
     <option>IE6 SELECT</option>
   </select>
-  <p id="p" style="position: relative; width: 800px; height: 200px; margin: 10px; padding: 10px; border: 10px solid black;">
+  <h1 id="h1" style="position: relative; width: 800px; height: 200px; margin: 10px; padding: 10px; border: 10px solid black;">
     <em id="palceholder_B" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
-    <w-overlay id="pOverlay"></w-overlay>
-  </p>
+    <w-overlay id="h1Overlay"></w-overlay>
+  </h1>
   <w-overlay id="divOverlay"></w-overlay>
 </div>
 
@@ -66,7 +66,7 @@ Widget.parsers.overlay.methods.test = function(element) {
 <script>
 var bodyOverlay = $('#bodyOverlay');
 var divOverlay = $('#divOverlay');
-var pOverlay = $('#pOverlay');
+var h1Overlay = $('#h1Overlay');
 var spanOverlay = $('#spanOverlay');
 var varOverlay = $('#varOverlay');
 var div = $('#div');
@@ -98,8 +98,8 @@ window.on('scroll', function() {
 <button style="left: 250px; top: 100px;" onmouseover="bodyOverlay.test();">bodyOverlay 关</button>
 <button style="left: 100px; top: 150px;" onmouseover="divOverlay.test(palceholder_B);">divOverlay 开</button>
 <button style="left: 250px; top: 150px;" onmouseover="divOverlay.test();">divOverlay 关</button>
-<button style="left: 100px; top: 200px;" onmouseover="pOverlay.test(palceholder_B);">pOverlay 开</button>
-<button style="left: 250px; top: 200px;" onmouseover="pOverlay.test();">pOverlay 关</button>
+<button style="left: 100px; top: 200px;" onmouseover="h1Overlay.test(palceholder_B);">h1Overlay 开</button>
+<button style="left: 250px; top: 200px;" onmouseover="h1Overlay.test();">h1Overlay 关</button>
 <button style="left: 100px; top: 250px;" onmouseover="spanOverlay.test(palceholder_A);">spanOverlay 开</button>
 <button style="left: 250px; top: 250px;" onmouseover="spanOverlay.test();">spanOverlay 关</button>
 <button style="left: 100px; top: 300px;" onmouseover="varOverlay.test(palceholder_A);">varOverlay 开</button>

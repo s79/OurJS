@@ -11,6 +11,28 @@
 </style>
 </head>
 <body>
+<script>
+// 审查代码中判断 tagName 或 nodeName 的地方，IE6 IE7 IE8 的自定义元素的这些属性与开始标签书写时的大小写相同，其他浏览器则均为大写字母。
+// 所有涉及到标签名判断的地方都要注意。如事件代理部分。
+
+document.createElement('Foo');
+
+// IE6 IE7 IE8 悬空元素 innerHTML 中包含非默认的标签时无法正确解析。
+var foo = $('<Foo>FOO</Foo>');
+console.warn(foo.outerHTML);
+console.warn(foo.tagName);
+console.warn(foo.nodeName);
+
+// 不悬空即可正确识别。
+var container = document.createElement('div');
+document.head.appendChild(container);
+container.innerHTML = '<Foo>FOO</Foo>';
+console.log(container.firstChild.outerHTML);
+console.log(container.firstChild.tagName);
+console.log(container.firstChild.nodeName);
+
+container.innerHTML = '#<style>fieldset { background: cyan; }</style>';
+</script>
 <h1>w-dialog</h1>
 <p>模态对话框</p>
 

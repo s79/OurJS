@@ -127,8 +127,8 @@
     var contextIsBody = $context === document.body;
     $element.setStyles({position: contextIsBody ? 'fixed' : 'absolute'});
     if (navigator.isIE6) {
-      // IE6 使用 IFRAME 元素遮盖 SELECT 元素，在其上覆盖一个 SPAN 元素是为了避免鼠标点击时离开本文档（IE6 HTMLUnknownElement 无法通过 innerHTML 插入非短句式内容）。
-      $element.innerHTML = '<iframe scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><span style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></span>';
+      // IE6 使用 IFRAME 元素遮盖 SELECT 元素，在其上覆盖一个 DIV 元素是为了避免鼠标在遮盖范围内点击时触发元素在本文档之外。
+      $element.innerHTML = '<iframe frameborder="no" scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></div>';
       // IE6 BODY 的遮盖层在更改视口尺寸时需要调整尺寸。
       if (contextIsBody) {
         $element.resizeInIE6 = function() {
