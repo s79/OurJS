@@ -16,6 +16,9 @@ select { width: 100px; background: orangered; }
 </style>
 <script>
 Widget.parsers.overlay.methods.test = function(element) {
+  if (!this.context.dialogs) {
+    this.context.dialogs = [];
+  }
   if (element) {
     this.context.dialogs.push(element);
   } else {

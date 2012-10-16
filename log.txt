@@ -5,6 +5,9 @@
 >IE 自动填充未触发 change 事件。
 >移出不常用代码到 utilities 目录。
 
+>2012-10-16
+W-DIALOG
+
 >2012-10-15
 W-OVERLAY
 
@@ -460,9 +463,9 @@ getAnimationQueue
 
 >2012-03-22
 生成索引页。
-修改 IE6 Mask 遮掩 SELECT 的方式。
+修改 IE6 Mask 遮盖 SELECT 的方式。
   当页面 HTML 元素设置了非正常背景图片时（找不到图片或 about:blank），IFRAME 无法遮盖 SELECT 元素（滚动窗口 SELECT 即再次在最前端显示），但若此时页面内有 fixed 定位的元素即无此问题。
-  解决方案：将 IE6 的 BODY 遮掩层也使用 fixed 定位。
+  解决方案：将 IE6 的 BODY 遮盖层也使用 fixed 定位。
 
 >2012-03-21
 将代码存放在 github。
@@ -499,11 +502,11 @@ __@private__
  * @param {Element} element 要作为对话框显示的元素。
  *   该元素的 position 将在创建后视情况而被修改为 absolute 或 fixed，另外建议为该元素设置像素单位的 left、top 和明确的 zIndex。
  * @param {Object=} options 可选参数，这些参数的默认值保存在 Dialog.options 中。
- * @option {?Element|Object} maskTarget 要遮掩的元素，该元素必须创建了 stacking context。可以为 null，但如果指定，则应为 element 的同级或祖先级元素。
- *   当其值为 window 时，将遮掩整个视口。
+ * @option {?Element|Object} maskTarget 要遮盖的元素，该元素必须创建了 stacking context。可以为 null，但如果指定，则应为 element 的同级或祖先级元素。
+ *   当其值为 window 时，将遮盖整个视口。
  *   当多个对话框指定了同一个 maskTarget 时，则视这些对话框为一组，将对话框分组有利于重叠显示这些对话框。
- * @option {Object} maskAttributes 为遮掩层元素附加的属性，仅在 maskTarget 不为 null 时有效。
- * @option {Object} maskStyles 为遮掩层元素设置的样式，仅在 maskTarget 不为 null 时有效。
+ * @option {Object} maskAttributes 为遮盖层元素附加的属性，仅在 maskTarget 不为 null 时有效。
+ * @option {Object} maskStyles 为遮盖层元素设置的样式，仅在 maskTarget 不为 null 时有效。
  * @option {?Element|Object} pinnedTarget 定位的目标元素，将对话框的中心点固定在该元素的中心点，可以为 null，但如果指定，则应为 element 的同级或祖先级元素。
  *   当其值为 window 时，对话框的中心点将保持与视口的中心点重合。
  * @option {number} pinnedOffsetX 对话框的左边与 pinnedTarget 的左边的横向差值，仅在 pinnedTarget 不为 null 时有效。

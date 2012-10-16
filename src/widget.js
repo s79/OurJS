@@ -21,6 +21,8 @@
    *   Widget.parse
    */
 
+  var $ = document.$;
+
 //--------------------------------------------------[Widget]
   /**
    * 提供对自定义控件的支持。
@@ -77,6 +79,21 @@
           $element[key] = value;
         });
       }
+      // 根据解析器的 events 属性为目标元素添加内联事件监听器。
+      if (parser.events) {
+        parser.events.forEach(function(name) {
+          var inlineName = 'on' + name;
+          var inlineEventListener = $element.getAttribute(inlineName);
+          if (typeof inlineEventListener === 'string') {
+            $element[inlineName] = new Function(inlineEventListener);
+          }
+          $element.on(name, function(event) {
+            if (this[inlineName]) {
+              this[inlineName](event);
+            }
+          });
+        });
+      }
       // 解析元素。
       parser($element);
       $element.isWidget = true;
@@ -84,15 +101,16 @@
   };
 
   Widget.parse = function(element, recursive) {
-    var nodeName = element.nodeName.toLowerCase();
+    var $element = $(element);
+    var nodeName = $element.nodeName.toLowerCase();
     var parser;
     if (nodeName.startsWith('w-') && (parser = Widget.parsers[nodeName.slice(2)])) {
-      parseWidget(parser, element);
+      parseWidget(parser, $element);
     }
     if (recursive) {
       Object.keys(Widget.parsers).forEach(function(type) {
         parser = Widget.parsers[type];
-        Element.prototype.find.call(element, 'w-' + type).forEach(function($widget) {
+        $element.find('w-' + type).forEach(function($widget) {
           parseWidget(parser, $widget);
         });
       });

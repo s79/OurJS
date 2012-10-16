@@ -28,7 +28,7 @@
   <button class="action" onclick="dialogA.open();">dialogA.open()</button>
 </p>
 
-<div style="width: 800px; height: 450px; border: 1px solid silver; background: whitesmoke;">
+<div id="container" style="width: 800px; height: 450px; border: 1px solid silver; background: whitesmoke;">
   <fieldset>
     <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
     <input type="button" value="button">
@@ -41,7 +41,7 @@
 </div>
 
 <!-- dialog_a { -->
-<div id="dialog_a" style="display: none; position: fixed; z-index: 1010; width: 600px; height: 400px; background: steelblue url(png.png);" class="alpha">
+<w-dialog id="dialog_a" style="width: 600px; height: 400px; background: steelblue url(png.png);" class="alpha">
   <fieldset style="background: url(png.png);" class="alpha">
     <legend>测试 IE6 中 SELECT 元素的遮盖情况</legend>
     <select>
@@ -52,11 +52,11 @@
     <button class="action" onclick="dialogA.close();">dialogA.close()</button>
     <button class="action" onclick="dialogB.open();">dialogB.open()</button>
   </p>
-</div>
+</w-dialog>
 <!-- } dialog_a -->
 
 <!-- dialog_b { -->
-<div id="dialog_b" style="display: none; position: fixed; left: 20%; top: 20%; z-index: 1020; width: 400px; height: 200px; background: mediumorchid;">
+<w-dialog id="dialog_b" style="width: 400px; height: 200px; background: mediumorchid;">
   <p style="clear: both; text-align: center;">
     <button class="action" onclick="dialogB.close();">dialogB.close()</button>
   </p>
@@ -64,49 +64,25 @@
     <button class="action" onclick="animation.play();">变长</button>
     <button class="action" onclick="animation.reverse();">变短</button>
   </p>
-</div>
+</w-dialog>
 <!-- } dialog_b -->
 
 <script>
-var dialogA;
-var dialogB;
-var animation;
-execute(function($) {
 //--------------------------------------------------[TEST]
-  dialogA = new Dialog($('#dialog_a'), {offsetY: 200})
-      .on('open',
-      function() {
-        console.log('open');
-      })
-      .on('openstart',
-      function() {
-        console.log('openstart');
-      })
-      .on('openfinish',
-      function() {
-        console.log('openfinish');
-      })
-      .on('close',
-      function() {
-        console.log('close');
-      })
-      .on('closestart',
-      function() {
-        console.log('closestart');
-      })
-      .on('closefinish',
-      function() {
-        console.log('closefinish');
-      });
-
-  dialogB = new Dialog($('#dialog_b'), {effect: true});
-
-  animation = new Animation().addClip(Animation.createStyleRenderer(dialogB.element, {height: 400}), 0, 200, 'ease')
-      .on('step', function() {
-        dialogB.reposition();
-      });
-
-});
+var dialogA = $('#dialog_a')
+    .on('open', function() {
+      console.log('open');
+    })
+    .on('close', function() {
+      console.log('close');
+    });
+var dialogB = $('#dialog_b');
+dialogB.effect = 1;
+var animation = new Animation()
+    .addClip(Animation.createStyleRenderer(dialogB, {height: 400}), 0, 200, 'ease')
+    .on('step', function() {
+      dialogB.reposition();
+    });
 </script>
 
 </body>

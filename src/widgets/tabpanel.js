@@ -23,6 +23,8 @@
    *   Properties：
    *     tabs
    *     panels
+   *     activeTab
+   *     activePanel
    *   Method:
    *     activate 激活一组“标签面板”。如果要激活的“标签面板”已在激活状态，则调用此方法无效。
    *     参数：
@@ -55,6 +57,8 @@
     // 保存属性。
     var tabs = $element.tabs = $element.find('.tab');
     var panels = $element.panels = $element.find('.panel');
+    $element.activeTab = null;
+    $element.activePanel = null;
 
     // 使用 Switcher 实现选项卡切换。
     var switcher = $element.switcher = new Switcher(tabs).on('activate', function(event) {
@@ -65,6 +69,8 @@
       if (activeTab && activePanel) {
         activeTab.addClass('active');
         activePanel.addClass('active');
+        $element.activeTab = activeTab;
+        $element.activePanel = activePanel;
       }
       if (inactiveTab && inactivePanel) {
         inactiveTab.removeClass('active');
@@ -129,5 +135,8 @@
       return this;
     }
   };
+
+//--------------------------------------------------[Widget.parsers.tabpanel.events]
+  Widget.parsers.tabpanel.events = ['activate'];
 
 })();

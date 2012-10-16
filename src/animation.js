@@ -743,9 +743,9 @@
       var percentageNeedsPlay;
       if (prevFade) {
         originalOpacity = prevFade.originalOpacity;
-        // 新动画与旧动画的方向相同：需要播放的百分比 = 旧动画要播完的百分比 * 旧动画未播完的百分比。
-        // 新动画与旧动画的方向相反：需要播放的百分比 = 1 - 旧动画要播完的百分比 * 旧动画未播完的百分比。
-        percentageNeedsPlay = Math.abs((isFadeInMode === prevFade.isFadeInMode ? 0 : 1) - prevFade.percentageNeedsPlay * (1 - (prevFade.timePoint / prevFade.duration || 1)));
+        // 新动画与旧动画的方向相同：需要播放的百分比 = 旧动画要播放的百分比 * 旧动画未播完的百分比。
+        // 新动画与旧动画的方向相反：需要播放的百分比 = 1 - 旧动画要播放的百分比 * 旧动画未播完的百分比。
+        percentageNeedsPlay = Math.abs((isFadeInMode === prevFade.isFadeInMode ? 0 : 1) - prevFade.percentageNeedsPlay * (1 - (prevFade.timePoint / prevFade.duration)));
         // 停止播放旧动画。
         prevFade.pause();
       } else {
