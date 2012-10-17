@@ -8,16 +8,14 @@
 //==================================================[控件 - 多页标签面板]
   /**
    * 多页标签面板。
-   * @name W-TABPANEL
+   * @name TABPANEL
    * @namespace
    * @description
-   *   使用 W-TABPANEL 元素来表示一个多页标签面板，其子元素中包含类名 'tab' 的为“标签”，包含类名 'panel' 的为“面板”。
+   *   使用 INS[widget=tabpanel] 元素来表示一个多页标签面板，其子元素中包含类名 'tab' 的为“标签”，包含类名 'panel' 的为“面板”。
    *   “标签”和“面板”必须按顺序一一对应。
    *   一个“标签”和一个“面板”组成一组“标签面板”。
    *   同一时刻最多只有一组“标签面板”被激活， 被激活的“标签”和“面板”会被自动加入 'active' 类。
    *   只有被激活的“标签面板”中的“面板”才会显示（display: block），其余的“面板”将被隐藏（display: none）。
-   *   TagName:
-   *     W-TABPANEL
    *   Attributes：
    *     data-hover-delay (hoverDelay) 指定以毫秒为单位的“标签”鼠标悬停激活延时，默认为 NaN，此时由鼠标点击事件激活。若要启用鼠标悬停激活，建议设置为 '200' - '400' 之间的数值。
    *   Properties：
@@ -40,16 +38,11 @@
    *       {Element} inactivePanel 上一个激活的“面板”。
    */
 
-//--------------------------------------------------[W-TABPANEL]
-  if (navigator.isIElt9) {
-    document.createElement('w-tabpanel');
-  }
-
 //--------------------------------------------------[CSSRules]
   document.addStyleRules([
-    'w-tabpanel { display: block; }',
-    'w-tabpanel .panel { display: none; }',
-    'w-tabpanel .active { display: block; }'
+    'INS[widget=tabpanel] { display: block; }',
+    'INS[widget=tabpanel] .panel { display: none; }',
+    'INS[widget=tabpanel] .active { display: block; }'
   ]);
 
 //--------------------------------------------------[Widget.parsers.tabpanel]

@@ -167,6 +167,7 @@ execute(function($) {
       c: $('#column_c')
     };
     // 同时生成索引文档和细节文档，side 参数仅供索引文档使用。
+    var widgetsPattern = /^[A-Z]+$/;
     var buildDocument = function($container, name, isBuiltIn) {
       // 本类对象的标题。
       var $indexFieldset = $('<fieldset' + (isBuiltIn ? '' : ' class="optional"') + '><legend><a href="#' + name.toLowerCase() + '"><dfn>' + name + '</dfn></a>' + (isBuiltIn ? '' : '<span>(可选)</span>') + '</legend></fieldset>');
@@ -179,7 +180,7 @@ execute(function($) {
         constructor: '<h2>构造函数</h2>',
         methods: '<h2>方法</h2>',
         properties: '<h2>属性</h2>',
-        elements: '<h2>自定义元素</h2>'
+        widgets: '<h2>自定义控件</h2>'
       };
       // 注解信息（可以作用于一类对象内的多个 API）。
       var comment = '';
@@ -194,7 +195,7 @@ execute(function($) {
           // 语法和说明。
           $('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>').insertTo($indexFieldset);
           // 详细信息。
-          var groupName = symbol ? (symbol.isFunction ? (symbol.isConstructor ? 'constructor' : 'methods') : name.startsWith('W-') ? 'elements' : 'properties') : '';
+          var groupName = symbol ? (symbol.isFunction ? (symbol.isConstructor ? 'constructor' : 'methods') : widgetsPattern.test(name) ? 'widgets' : 'properties') : '';
           if (groupName && groupName !== lastGroupName) {
             $(group[groupName]).insertTo($detailsDiv);
           }

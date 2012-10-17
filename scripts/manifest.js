@@ -298,19 +298,15 @@ var manifest = {
     'Widget.parse'
   ],
   '多页标签面板': [
-    'W-TABPANEL'
+    'TABPANEL'
   ],
   'Slideshow': [
     'Slideshow',
     'Slideshow.config',
     'Slideshow.prototype.show'
   ],
-  'Dialog': [
-    'Dialog',
-    'Dialog.config',
-    'Dialog.prototype.open',
-    'Dialog.prototype.close',
-    'Dialog.prototype.reposition'
+  '模态对话框': [
+    'DIALOG'
   ],
   'Paginator': [
     'Paginator',

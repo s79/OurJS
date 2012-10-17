@@ -9,3 +9,4 @@ echo. */>>%ourjs%
 copy/y/b %ourjs% + lang.js + browser.js + dom.js + features.js + component.js + animation.js + request.js + switcher.js + widget.js + modularization.js + execute.js + integrated\json2.js + integrated\sizzle.js %ourjs%
 set yuicompressor_path=D:\ProgramFiles\JSFileCompressor\yuicompressor-2.4.7\build
 java -jar %yuicompressor_path%\yuicompressor-2.4.7.jar %ourjs% -o %ourjs% --charset UTF-8
+pause

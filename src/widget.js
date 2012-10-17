@@ -9,6 +9,7 @@
   /*
    * 提供对自定义控件的支持。
    * 控件解析器需要根据情况载入。
+   * 控件使用 INS[widget=<widgetType>] 元素。widgetType 是大小写敏感的。
    * 控件的配置参数以元素的 attribute 的形式写在标签内部，大小写不敏感。若有多个同名的 attribute，则仅第一个生效。
    *
    * 提供对象：
@@ -102,18 +103,12 @@
 
   Widget.parse = function(element, recursive) {
     var $element = $(element);
-    var nodeName = $element.nodeName.toLowerCase();
     var parser;
-    if (nodeName.startsWith('w-') && (parser = Widget.parsers[nodeName.slice(2)])) {
+    if ($element.nodeName === 'INS' && (parser = Widget.parsers[$element.getAttribute('widget')])) {
       parseWidget(parser, $element);
     }
     if (recursive) {
-      Object.keys(Widget.parsers).forEach(function(type) {
-        parser = Widget.parsers[type];
-        $element.find('w-' + type).forEach(function($widget) {
-          parseWidget(parser, $widget);
-        });
-      });
+      $element.find('INS').forEach(Widget.parse);
     }
   };
 

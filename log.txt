@@ -9,6 +9,7 @@
 使用 CSS Expression 修复 IE6 下自定义控件元素的属性选择符，并自动处理固定定位。
 IE6 position: fixed 可以和其他浏览器一样在样式表中使用了。
 console.js 的历史纪录功能不再重复记录相同的输入。
+W-XXX -> INS[widget=XXX]
 
 >2012-10-16
 W-DIALOG

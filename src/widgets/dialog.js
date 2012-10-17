@@ -8,16 +8,14 @@
 //==================================================[控件 - 遮盖层]
   /**
    * 遮盖层
-   * @name W-OVERLAY
+   * @name OVERLAY
    * @namespace
    * @private
    * @description
-   *   使用 W-OVERLAY 元素来表示一个遮盖层。
+   *   使用 INS[widget=overlay] 元素来表示一个遮盖层。
    *   遮盖层用于遮盖模态对话框下边、其父元素内的其他内容。当其父元素为 BODY 时，将覆盖整个视口。
    *   遮盖层在显示/隐藏时是否使用动画取决于调用它的对话框是否启用了动画。
    *   需要定义其他的样式时，可以通过 CSS 进行修改，或者直接修改遮盖层元素的 style 属性。
-   *   TagName:
-   *     W-OVERLAY
    *   Method:
    *     behind 指定要将遮盖层置于哪个对话框元素之下。
    *     参数：
@@ -36,14 +34,10 @@
    *   参考：
    *     http://w3help.org/zh-cn/causes/RM8015
    */
-//--------------------------------------------------[W-OVERLAY]
-  if (navigator.isIElt9) {
-    document.createElement('w-overlay');
-  }
 
 //--------------------------------------------------[CSSRules]
   document.addStyleRules([
-    'w-overlay { display: none; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
+    'INS[widget=overlay] { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
   ]);
 
 //--------------------------------------------------[freezeFocusArea]
@@ -129,6 +123,8 @@
     if (navigator.isIE6) {
       // IE6 使用 IFRAME 元素遮盖 SELECT 元素，在其上覆盖一个 DIV 元素是为了避免鼠标在遮盖范围内点击时触发元素在本文档之外。
       $element.innerHTML = '<iframe frameborder="no" scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></div>';
+      $element.iframeOverlay = $element.getFirstChild();
+      $element.divOverlay = $element.getLastChild();
       // IE6 BODY 的遮盖层在更改视口尺寸时需要调整尺寸。
       if (contextIsBody) {
         $element.resizeInIE6 = function() {
@@ -173,14 +169,16 @@
           // 遮盖 BODY 的情况。
           if (navigator.isIE6) {
             var clientSize = window.getClientSize();
-            // 使本元素 reflow 以避免 IE6 的 this 元素内的两个 height 为 100% 的子元素在纵向改变窗口大小时高度不随 this 的变化而更新。
-            this.setStyles({left: 0, top: 0, width: clientSize.width, height: clientSize.height, display: 'none'}).setStyle('display', 'block');
+            // 同时修改三个元素的尺寸，以避免两个子元素在纵向改变窗口大小时高度不随父元素的变化而更新。
+            this.setStyles({width: clientSize.width, height: clientSize.height});
+            this.iframeOverlay.setStyle('height', clientSize.height);
+            this.divOverlay.setStyle('height', clientSize.height);
           } else {
-            this.setStyles({left: 0, right: 0, top: 0, bottom: 0});
+            this.setStyles({right: 0, bottom: 0});
           }
         } else {
           // 其他情况。
-          this.setStyles({left: 0, top: 0, width: context.clientWidth, height: context.clientHeight});
+          this.setStyles({width: context.clientWidth, height: context.clientHeight});
         }
       }
       return this;
@@ -193,24 +191,22 @@
 //==================================================[控件 - 模态对话框]
   /**
    * 模态对话框。
-   * @name W-DIALOG
+   * @name DIALOG
    * @namespace
    * @description
-   *   使用 W-DIALOG 元素来表示一个模态对话框。
+   *   使用 INS[widget=dialog] 元素来表示一个模态对话框。
    *   当对话框弹出时，为突出对话框内容，将在对话框之下创建遮盖层，以阻止用户对遮盖部分内容的操作。
    *   对话框的弹出位置、遮盖层遮盖的范围都是与对话框的父元素有关的。
-   *   W-DIALOG 元素将以其父元素为“参考元素(context)”进行定位，遮盖层也作为其父元素的子元素被创建，因此不要修改 W-DIALOG 元素在文档树中的位置！
-   *   如果 W-DIALOG 元素的父元素是 BODY，遮盖层将遮盖整个视口。
-   *   当 W-DIALOG 元素的父元素不是 BODY 时，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
+   *   对话框元素将以其父元素为“参考元素(context)”进行定位，遮盖层也作为其父元素的子元素被创建，因此不要修改对话框元素在文档树中的位置！
+   *   如果对话框元素的父元素是 BODY，遮盖层将遮盖整个视口。
+   *   当对话框元素的父元素不是 BODY 时，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
    *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。
    *   <ul>
-   *     <li>对话框的默认状态为关闭。因此 W-DIALOG 元素的 display 将被设置为 none。</li>
-   *     <li>仅当 W-DIALOG 元素的父元素为 BODY 时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
-   *     <li>W-DIALOG 元素的 zIndex 值会被自动指定。</li>
-   *     <li>如果 W-DIALOG 元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
+   *     <li>对话框的默认状态为关闭。因此对话框元素的 display 将被设置为 none。</li>
+   *     <li>仅当对话框元素的父元素为 BODY 时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
+   *     <li>对话框元素的 zIndex 值会被自动指定。</li>
+   *     <li>如果对话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
    *   </ul>
-   *   TagName:
-   *     W-DIALOG
    *   Attributes：
    *     data-offset-x (offsetX) 对话框的左边与其父元素的左边的横向差值。默认为 NaN，此时对话框的中心点在横向将与其父元素的中心点重合。
    *     data-offset-y (offsetY) 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
@@ -234,14 +230,9 @@
    *     reposition 成功调用 reposition 方法后触发。
    */
 
-//--------------------------------------------------[W-DIALOG]
-  if (navigator.isIElt9) {
-    document.createElement('w-dialog');
-  }
-
 //--------------------------------------------------[CSSRules]
   document.addStyleRules([
-    'w-dialog { display: none; }'
+    'INS[widget=dialog] { display: none; }'
   ]);
 
 //--------------------------------------------------[Widget.parsers.dialog]
@@ -258,9 +249,9 @@
       if (!contextIsBody && $context.getStyle('position') === 'static') {
         $context.setStyle('position', 'relative');
       }
-      // 为 $context 添加 W-OVERLAY 和 W-DIALOG 公用的属性。
+      // 为 $context 添加遮盖层和对话框公用的属性。
       $context.dialogs = [];
-      Widget.parse($context.overlay = $(document.createElement('w-overlay')).insertTo($context).on('click.overlay', function() {
+      Widget.parse($context.overlay = $('<ins widget="overlay"></ins>').insertTo($context).on('click.overlay', function() {
         $context.dialogs.getLast().focus();
       }));
     }
@@ -271,7 +262,7 @@
     // 设置样式。
     // 仅当父元素为 BODY 时，其 position 才可以是 fixed。
     // 调节对话框的位置是通过 $element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。设置 left 为 -50000 是为了避免在 IE6 中启用 png 修复时出现闪烁现象。
-    // 从 2000000000 开始重置 $element 的 zIndex，以供遮盖层参照。
+    // 从 500000 开始重置 $element 的 zIndex，以供遮盖层参照（如果数字过大 Firefox 12.0 在取值时会有问题）。
     $element.setStyles({position: $element.isFixedPositioned ? 'fixed' : 'absolute', left: -50000, top: 0});
 
   };
@@ -296,7 +287,7 @@
             // 更新状态。
             $dialog.isOpen = true;
             // 添加到已打开的对话框组，并修改对话框的位置。
-            $dialog.setStyle('zIndex', 2000000000 + $context.dialogs.push($dialog) * 2).reposition();
+            $dialog.setStyle('zIndex', 500000 + $context.dialogs.push($dialog)).reposition();
             // 重新定位遮盖层。
             $context.overlay.reposition();
             // 仅父元素为 BODY 的对话框需要在改变窗口尺寸时重新调整位置（此处假定其他对话框的父元素尺寸不会变化）。

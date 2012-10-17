@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>w-dialog</title>
+<title>DIALOG</title>
 <link rel="stylesheet" href="../reset.css">
 <script src="../../dev.js"></script>
 <script src="../../src/widgets/dialog.js"></script>
@@ -11,29 +11,7 @@
 </style>
 </head>
 <body>
-<script>
-// 审查代码中判断 tagName 或 nodeName 的地方，IE6 IE7 IE8 的自定义元素的这些属性与开始标签书写时的大小写相同，其他浏览器则均为大写字母。
-// 所有涉及到标签名判断的地方都要注意。如事件代理部分。
-
-document.createElement('Foo');
-
-// IE6 IE7 IE8 悬空元素 innerHTML 中包含非默认的标签时无法正确解析。
-var foo = $('<Foo>FOO</Foo>');
-console.warn(foo.outerHTML);
-console.warn(foo.tagName);
-console.warn(foo.nodeName);
-
-// 不悬空即可正确识别。
-var container = document.createElement('div');
-document.head.appendChild(container);
-container.innerHTML = '<Foo>FOO</Foo>';
-console.log(container.firstChild.outerHTML);
-console.log(container.firstChild.tagName);
-console.log(container.firstChild.nodeName);
-
-container.innerHTML = '#<style>fieldset { background: cyan; }</style>';
-</script>
-<h1>w-dialog</h1>
+<h1>DIALOG</h1>
 <p>模态对话框</p>
 
 <fieldset>
@@ -63,7 +41,7 @@ container.innerHTML = '#<style>fieldset { background: cyan; }</style>';
 </div>
 
 <!-- dialog_a { -->
-<w-dialog id="dialog_a" style="width: 600px; height: 400px; background: steelblue url(png.png);" class="alpha">
+<ins id="dialog_a" widget="dialog" style="width: 600px; height: 400px; background: steelblue url(png.png);" class="alpha">
   <fieldset style="background: url(png.png);" class="alpha">
     <legend>测试 IE6 中 SELECT 元素的遮盖情况</legend>
     <select>
@@ -74,11 +52,11 @@ container.innerHTML = '#<style>fieldset { background: cyan; }</style>';
     <button class="action" onclick="dialogA.close();">dialogA.close()</button>
     <button class="action" onclick="dialogB.open();">dialogB.open()</button>
   </p>
-</w-dialog>
+</ins>
 <!-- } dialog_a -->
 
 <!-- dialog_b { -->
-<w-dialog id="dialog_b" style="width: 400px; height: 200px; background: mediumorchid;">
+<ins id="dialog_b" widget="dialog" style="width: 400px; height: 200px; background: mediumorchid;">
   <p style="clear: both; text-align: center;">
     <button class="action" onclick="dialogB.close();">dialogB.close()</button>
   </p>
@@ -86,7 +64,7 @@ container.innerHTML = '#<style>fieldset { background: cyan; }</style>';
     <button class="action" onclick="animation.play();">变长</button>
     <button class="action" onclick="animation.reverse();">变短</button>
   </p>
-</w-dialog>
+</ins>
 <!-- } dialog_b -->
 
 <script>

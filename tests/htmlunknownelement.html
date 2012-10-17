@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:widget>
+<head>
+<meta charset="utf-8">
+<script src="../dev.js"></script>
+</head>
+<body>
+<widget:Foo id="foo">FOO</widget:Foo>
+<script>
+// IE6 IE7 IE8 带 namespace 的元素 tagName 或 nodeName 仅为冒号后边的部分，且大小写敏感。
+console.warn(foo.outerHTML);
+console.warn(foo.tagName);
+console.warn(foo.nodeName);
+
+// IE6 IE7 IE8 的自定义元素需要先创建一个才能识别（大小写不敏感）。
+document.createElement('bar');
+
+// IE6 IE7 IE8 悬空元素 innerHTML 中包含非默认的标签时无法正确解析。
+var bar = $('<Bar>BAR</Bar>');
+console.warn(bar.outerHTML);
+console.warn(bar.tagName);
+console.warn(bar.nodeName);
+
+// 不悬空即可正确识别，但该元素的 tagName 或 nodeName 属性与开始标签书写时的大小写相同（其他浏览器均为大写字母）。
+var container = document.createElement('div');
+document.head.appendChild(container);
+container.innerHTML = '<Bar>BAR</Bar>';
+console.log(container.firstChild.outerHTML);
+console.log(container.firstChild.tagName);
+console.log(container.firstChild.nodeName);
+
+</script>
+</body>
+</html>
