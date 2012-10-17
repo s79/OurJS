@@ -290,7 +290,7 @@ execute(function($) {
   var $html = $(document.documentElement);
   var $header = $('#header');
   var $content = $('#content');
-  var $deatilsPanel = $('#details_container').setStyle('position', 'fixed');
+  var $deatilsPanel = $('#details_container');
   var $detailsClose = $('#details_close');
   var $currentDetails = null;
 

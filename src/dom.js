@@ -2508,6 +2508,7 @@
     // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。  // TODO: [0, '#', '']
     wrappers.link = wrappers.style = wrappers.script = [1, '#<div>', '</div>'];
   }
+
   var defaultWrapper = [0, '', ''];
 
   document.$ = function(e) {
@@ -2545,6 +2546,7 @@
    * @param {Array} rules 包含样式规则的数组，其中每一项为一条规则。
    */
   var dynamicStyleSheet;
+  var widgetSelectorPattern = /\[widget=(\w+)\]/i;
   document.addStyleRules = function(rules) {
     if (!dynamicStyleSheet) {
       document.head.appendChild(document.createElement('style'));
@@ -2560,11 +2562,41 @@
         var selectors = rule.slice(0, lBraceIndex);
         var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
         selectors.split(separator).forEach(function(selector) {
-          dynamicStyleSheet.addRule(selector, declarations);
+          // 配合 document.fixIE6Styles 方法修复 IE6 下自定义控件元素的属性选择符。
+          dynamicStyleSheet.addRule(navigator.isIE6 ? selector.replace(widgetSelectorPattern, function(_, widgetSelector) {
+            return '.widget-' + widgetSelector;
+          }) : selector, declarations);
         });
       }
     });
   };
+
+//--------------------------------------------------[document.fixIE6Styles]
+  /**
+   * 使用 CSS Expression 修复 IE6 下自定义控件元素的属性选择符，并自动处理固定定位。
+   * @name document.fixIE6Styles
+   * @function
+   * @private
+   */
+  if (navigator.isIE6) {
+    document.addStyleRules(['* { behavior: expression(document.fixIE6Styles(this)); }']);
+//    window.fixCount = 0;
+    document.fixIE6Styles = function(element) {
+//      window.fixCount++;
+      var widget = element.getAttribute('widget');
+      if (widget) {
+        $(element).addClass('widget-' + widget);
+      }
+      if (element.currentStyle.position === 'fixed') {
+        element.runtimeStyle.display = 'none';
+        setTimeout(function() {
+          element.runtimeStyle.display = '';
+          $(element).setStyle('position', 'fixed');
+        }, 0);
+      }
+      element.style.behavior = 'none';
+    };
+  }
 
 //--------------------------------------------------[document.loadScript]
   /**

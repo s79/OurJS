@@ -91,9 +91,6 @@ execute(function($) {
 
 //--------------------------------------------------[页头]
   $('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS"><span>OurJS on GitHub</span></a></h2><ul id="menu"></ul></div></div>').insertTo(document.body, 'top');
-  if (navigator.isIE6) {
-    $('#header').setStyle('position', 'fixed');
-  }
 
   // 生成菜单。
   var pathname = location.pathname;
@@ -177,8 +174,7 @@ execute(function($) {
 
   if ($content.getData('outline') === 'enabled') {
     // 创建“显示提纲”按钮。
-    var $outline = $('<div id="outline"><a href="javascript:void(\'shownOutline\');" class="control">提纲</a><div><ul></ul></div></div>');
-    $outline.setStyle('position', 'fixed').insertTo(document.body);
+    var $outline = $('<div id="outline"><a href="javascript:void(\'shownOutline\');" class="control">提纲</a><div><ul></ul></div></div>').insertTo(document.body);
 
     // 注入提纲。
     var $outlineList = $outline.getLastChild().getFirstChild();

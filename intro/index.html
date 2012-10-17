@@ -101,10 +101,10 @@ target.fire('foo');
       <div class="comment">
         <p>IE6 IE7 本来没有 Element 构造函数，但现在可以通过扩充 Element.prototype 来为页面上的 DOM 元素添加新特性了：</p>
         <pre>Element.<strong>prototype</strong>.newMethod = function() {...};</pre>
-        <p>IE6 并不支持 CSS2 引入的固定定位，但现在通过使用 element.setStyle/setStyles 方法，可以在 IE6 中实现固定定位：</p>
+        <p>IE6 本来并不支持 CSS2 引入的固定定位，但现在支持了：</p>
 <pre>
-element.<strong>setStyles</strong>({position: 'fixed', right: 0, bottom: 0});
-// 此时使用 element.getStyle/getStyles 获取 position 的值在 IE6 中也可以正确的获得 'fixed'。
+&lt;div style="position: fixed; right: 0; bottom: 0;"&gt;...&lt;/div&gt;
+// 希望取消固定定位时，可以和其他浏览器一样，通过使用 element.setStyle/setStyles 方法修改 position 的值。
 </pre>
         <p>IE6 IE7 IE8 的事件模型与其他浏览器不同，但现在可以通过 element.on/off/fire 方法来统一实现事件处理函数的绑定/解除绑定/触发了：</p>
 <pre>
