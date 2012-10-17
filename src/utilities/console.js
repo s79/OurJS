@@ -60,7 +60,7 @@
   $console.attachEvent('onsubmit', function() {
     var code = $input.value;
     $input.value = '';
-    historyIndex = history.push(code);
+    historyIndex = code === history.getLast() ? history.length : history.push(code);
     log('>> ' + code);
     scriptContainer.innerHTML = '#<script defer>try { window.__result__ = eval("' + code.replace(/(['"\\])/g, '\\$1') + '"); } catch(e) { window.__result__ = "Error: " + e.message; }</script>';
     var result = window.__result__;
