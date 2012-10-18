@@ -210,8 +210,7 @@
    *   Attributes：
    *     data-offset-x (offsetX) 对话框的左边与其父元素的左边的横向差值。默认为 NaN，此时对话框的中心点在横向将与其父元素的中心点重合。
    *     data-offset-y (offsetY) 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
-   *     data-effect (effect) 打开和关闭对话框时使用的动画效果，默认为 false。
-   *     data-fixed (fixed) 是否启用固定定位，仅在对话框的父元素为 BODY 时有效，默认为 false。当 IE6 IE7 IE8 使用了透明滤镜或 PNG 半透明修复脚本时应关闭，以避免显示异常。
+   *     data-effect (effect) 打开和关闭对话框时使用的动画效果，默认为 0，即关闭动画效果。IE6 本属性无效。
    *   Properties：
    *     isOpen
    *   Method:
@@ -232,7 +231,7 @@
 
 //--------------------------------------------------[CSSRules]
   document.addStyleRules([
-    'INS[widget=dialog] { display: none; }'
+    'INS[widget=dialog] { display: none; outline: none; }'
   ]);
 
 //--------------------------------------------------[Widget.parsers.dialog]
@@ -240,8 +239,12 @@
     // 保存属性。
     var $context = $element.context = $element.getParent();
     var contextIsBody = $context === document.body;
-    $element.isFixedPositioned = contextIsBody && $element.fixed;
+    $element.isFixedPositioned = contextIsBody && $element.getStyle('position') === 'fixed';
     $element.isOpen = false;
+    // IE6 不使用动画。
+    if (navigator.isIE6) {
+      $element.effect = 0;
+    }
 
     // 本对话框是 $context 中的第一个对话框。
     if (!$context.dialogs) {
@@ -258,6 +261,9 @@
 
     // 使本元素可获得焦点。
     $element.tabIndex = 0;
+    if (navigator.isIElt8) {
+      $element.hideFocus = true;
+    }
 
     // 设置样式。
     // 仅当父元素为 BODY 时，其 position 才可以是 fixed。
@@ -271,8 +277,7 @@
   Widget.parsers.dialog.config = {
     offsetX: NaN,
     offsetY: NaN,
-    effect: 0,
-    fixed: false
+    effect: 0
   };
 
 //--------------------------------------------------[Widget.parsers.dialog.methods]
@@ -281,7 +286,8 @@
       var $dialog = this;
       if (!$dialog.isOpen) {
         $dialog.fade('in', {
-          duration: 100,
+          duration: $dialog.effect ? 100 : 0,
+          timingFunction: 'easeOut',
           onStart: function() {
             var $context = $dialog.context;
             // 更新状态。
@@ -305,6 +311,9 @@
             $dialog.fire('open');
           }
         });
+        if ($dialog.effect === 2) {
+          $dialog.setStyle('marginTop', -20).morph({marginTop: 0}, {duration: 100, timingFunction: 'easeOut'});
+        }
       }
       return $dialog;
     },
@@ -312,7 +321,8 @@
       var $dialog = this;
       if ($dialog.isOpen) {
         $dialog.fade('out', {
-          duration: 100,
+          duration: $dialog.effect ? 100 : 0,
+          timingFunction: 'easeIn',
           onFinish: function() {
             var $context = $dialog.context;
             // 更新状态。
@@ -329,6 +339,15 @@
             $dialog.fire('close');
           }
         });
+        if ($dialog.effect === 2) {
+          $dialog.morph({marginTop: -20}, {
+            duration: 100,
+            timingFunction: 'easeIn',
+            onFinish: function() {
+              this.setStyle('marginTop', 0)
+            }
+          });
+        }
       }
       return $dialog;
     },

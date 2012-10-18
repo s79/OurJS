@@ -1,4 +1,6 @@
 /* --------------------------------------------------[Index] */
+html,
+body { -overflow-x: hidden; }
 kbd,
 samp { font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
 a:link,

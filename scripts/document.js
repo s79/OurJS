@@ -275,10 +275,9 @@ execute(function($) {
       [
         '多页标签面板',
         'Slideshow',
-        'Dialog',
+        '模态对话框',
         'Paginator',
-        'Calendar',
-        'Validator'
+        'Calendar'
       ]
           .forEach(function(name) {
             buildDocument(indexColumns.c, name, false);
@@ -294,6 +293,10 @@ execute(function($) {
   var $deatilsPanel = $('#details_container');
   var $detailsClose = $('#details_close');
   var $currentDetails = null;
+
+  document.addStyleRules([
+    'INS[widget=overlay] { opacity: 0.05; filter: alpha(opacity=5); }'
+  ]);
 
   declareModule('details', function(listen, notify) {
 //--------------------------------------------------[细节层]
@@ -318,15 +321,11 @@ execute(function($) {
       $detailsClose.setStyles({
         left: Math.max(710 - 20, clientSize.width - pinnedOffsetX - 55)
       });
-      deatilsPanel.setConfig({offsetX: pinnedOffsetX});
+      $deatilsPanel.offsetX = pinnedOffsetX;
     };
 
     // 使用对话框实现。
-    var deatilsPanel = new Dialog($deatilsPanel, {
-      overlayStyles: {background: 'black', opacity: .05},
-      offsetX: 0,
-      offsetY: 0
-    })
+    $deatilsPanel
         .on('open', function() {
           // 按下 ESC 键或点击细节层外即关闭细节层。
           $html.on('keydown.deatilsPanel, mousedown.deatilsPanel', function(e) {
@@ -358,14 +357,21 @@ execute(function($) {
           }
           $html.setStyles({paddingRight: scrollbarWidth, overflow: 'hidden'});
           adjustDeatilsPanel();
-          deatilsPanel.open();
+          $deatilsPanel.open();
           window.scrollTo(0, offsetY);
           // 打开时的向左移动的效果。
           var detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
-          $deatilsPanel.setStyles({left: detailsPanelLeft + 30, opacity: 0}).morph({left: detailsPanelLeft, opacity: 1}, {duration: 150, onStart: function() {
-            // 显示当前细节内容。
-            $currentDetails.addClass('current');
-          }});
+          $deatilsPanel
+              .setStyles({left: detailsPanelLeft + 30, opacity: 0})
+              .morph({
+                left: detailsPanelLeft, opacity: 1
+              }, {
+                duration: 150,
+                onStart: function() {
+                  // 显示当前细节内容。
+                  $currentDetails.addClass('current');
+                }
+              });
         }
       },
       close: function() {
@@ -373,14 +379,21 @@ execute(function($) {
           this.isOpen = false;
           // 关闭时的向右移动的效果。
           var detailsPanelLeft = parseInt($deatilsPanel.getStyle('left'), 10);
-          $deatilsPanel.morph({left: detailsPanelLeft + 15, opacity: 0}, {transition: 'easeIn', duration: 150, onFinish: function() {
-            // 取消当前细节内容。
-            $currentDetails.removeClass('current');
-            $currentDetails = null;
-            var offsetY = window.getPageOffset().y;
-            deatilsPanel.close();
-            window.scrollTo(0, offsetY);
-          }});
+          $deatilsPanel.morph({
+            left: detailsPanelLeft + 15,
+            opacity: 0
+          }, {
+            transition: 'easeIn',
+            duration: 150,
+            onFinish: function() {
+              // 取消当前细节内容。
+              $currentDetails.removeClass('current');
+              $currentDetails = null;
+              var offsetY = window.getPageOffset().y;
+              $deatilsPanel.close();
+              window.scrollTo(0, offsetY);
+            }
+          });
         }
       },
       isOpen: false

@@ -2588,9 +2588,10 @@
         $(element).addClass('widget-' + widget);
       }
       if (element.currentStyle.position === 'fixed') {
-        element.runtimeStyle.display = 'none';
+        element.currentStyleDisplayValue = element.currentStyle.display;
+        element.style.display = 'none';
         setTimeout(function() {
-          element.runtimeStyle.display = '';
+          element.style.display = element.currentStyleDisplayValue;
           $(element).setStyle('position', 'fixed');
         }, 0);
       }
