@@ -36,36 +36,36 @@ execute(function($) {
         {
           text: 'Ajax',
           url: '/OurJS/demos/request/'
-        }
-      ]
-    },
-    {
-      text: 'UI 组件',
-      url: '/OurJS/components/',
-      submenu: [
-        {
-          text: '多页标签面板',
-          url: '/OurJS/components/tabpanel/'
         },
         {
-          text: '幻灯片播放器',
-          url: '/OurJS/components/slideshow/'
+          text: '表单验证',
+          url: '/OurJS/demos/validation/'
         },
         {
-          text: '模态对话框',
-          url: '/OurJS/components/dialog/'
-        },
-        {
-          text: '分页导航条',
-          url: '/OurJS/components/paginator/'
-        },
-        {
-          text: '月历 &amp; 日期选择器',
-          url: '/OurJS/components/calendar/'
-        },
-        {
-          text: '表单验证器',
-          url: '/OurJS/components/validator/'
+          text: '自定义控件',
+          url: '/OurJS/demos/widgets/',
+          submenu: [
+            {
+              text: '多页标签面板',
+              url: '/OurJS/demos/widgets/tabpanel/'
+            },
+            {
+              text: '模态对话框',
+              url: '/OurJS/demos/widgets/dialog/'
+            },
+            {
+              text: '幻灯片播放器',
+              url: '/OurJS/demos/widgets/slideshow/'
+            },
+            {
+              text: '分页导航条',
+              url: '/OurJS/demos/widgets/paginator/'
+            },
+            {
+              text: '月历 &amp; 日期选择器',
+              url: '/OurJS/demos/widgets/calendar/'
+            }
+          ]
         }
       ]
     },
@@ -86,6 +86,14 @@ execute(function($) {
           url: '/OurJS/docs/colors.html'
         }
       ]
+    },
+    {
+      text: '下载',
+      url: '/OurJS/download/'
+    },
+    {
+      text: '更新日志',
+      url: '/OurJS/changelog/'
     }
   ];
 

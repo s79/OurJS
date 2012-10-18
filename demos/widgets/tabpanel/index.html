@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>多页标签面板</title>
+<script src="../../../our.js"></script>
+<script src="../../../scripts/framework.js"></script>
+<script src="../../../src/widgets/tabpanel.js"></script>
+<style>
+#test { width: 400px; height: 300px; border: 1px solid darkblue; }
+#test .tabs { list-style: none; padding: 0; overflow: hidden; *zoom: 1; }
+#test .tab { float: left; width: 50px; margin-right: 2px; }
+#test .tab a { display: block; height: 20px; background: darkgray; color: black; font: 14px/20px Verdana; text-align: center; text-decoration: none; cursor: default; }
+#test .tab a:hover { background: silver; }
+#test .tabs .active a,
+#test .tabs .active a:hover { color: black; background: gainsboro; }
+#test .panels { }
+#test .panel { height: 280px; background: gainsboro; font-size: 100px; line-height: 280px; text-align: center; }
+</style>
+</head>
+<body>
+<div id="content">
+  <h1>多页标签面板（选项卡）</h1>
+
+  <h2>TABPANEL</h2>
+  <ins id="test" widget="tabpanel" data-hover-delay="200">
+    <ul class="tabs">
+      <li class="tab"><a href="javascript:void('switchTab');">1</a></li>
+      <li class="tab"><a href="javascript:void('switchTab');">2</a></li>
+      <li class="tab"><a href="javascript:void('switchTab');">3</a></li>
+      <li class="tab"><a href="javascript:void('switchTab');">4</a></li>
+      <li class="tab"><a href="javascript:void('switchTab');">5</a></li>
+    </ul>
+    <div class="panels">
+      <div class="panel">一</div>
+      <div class="panel">二</div>
+      <div class="panel">三</div>
+      <div class="panel">四</div>
+      <div class="panel">五</div>
+    </div>
+  </ins>
+
+</div>
+</body>
+</html>

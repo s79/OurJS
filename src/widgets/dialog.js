@@ -145,7 +145,7 @@
           if (this.resizeInIE6) {
             window.attachEvent('onresize', this.resizeInIE6);
           }
-          this.fade('in', {duration: 100});
+          this.fade('in', {duration: 100, timingFunction: 'easeOut'});
           this.isVisible = true;
           this.resize();
         }
@@ -155,7 +155,7 @@
           if (this.resizeInIE6) {
             window.detachEvent('onresize', this.resizeInIE6);
           }
-          this.fade('out', {duration: 100});
+          this.fade('out', {duration: 100, timingFunction: 'easeIn'});
           this.isVisible = false;
         }
         freezeFocusArea();
@@ -196,21 +196,23 @@
    * @description
    *   使用 INS[widget=dialog] 元素来表示一个模态对话框。
    *   当对话框弹出时，为突出对话框内容，将在对话框之下创建遮盖层，以阻止用户对遮盖部分内容的操作。
-   *   对话框的弹出位置、遮盖层遮盖的范围都是与对话框的父元素有关的。
-   *   对话框元素将以其父元素为“参考元素(context)”进行定位，遮盖层也作为其父元素的子元素被创建，因此不要修改对话框元素在文档树中的位置！
+   *   遮盖层遮盖的范围为其父元素的渲染范围。
    *   如果对话框元素的父元素是 BODY，遮盖层将遮盖整个视口。
+   *   对话框元素默认以其父元素为“定位参考元素”进行定位，也可以通过 data-pinned-target 属性来指定一个特定的元素。
    *   当对话框元素的父元素不是 BODY 时，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
    *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。
+   *   对话框的一些数据保存在其父元素中，因此不要修改对话框元素在文档树中的位置！
    *   <ul>
    *     <li>对话框的默认状态为关闭。因此对话框元素的 display 将被设置为 none。</li>
-   *     <li>仅当对话框元素的父元素为 BODY 时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
+   *     <li>仅当对话框元素的定位参考元素为 BODY 时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
    *     <li>对话框元素的 zIndex 值会被自动指定。</li>
-   *     <li>如果对话框元素的父元素的 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
+   *     <li>如果对话框元素的父元素不是 BODY 且其 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
    *   </ul>
    *   Attributes：
+   *     data-pinned-target (pinnedTarget) 对话框的定位参考元素。默认为父元素，可以指定为其父元素的其他后代元素的 id。
    *     data-offset-x (offsetX) 对话框的左边与其父元素的左边的横向差值。默认为 NaN，此时对话框的中心点在横向将与其父元素的中心点重合。
    *     data-offset-y (offsetY) 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
-   *     data-effect (effect) 打开和关闭对话框时使用的动画效果，默认为 0，即关闭动画效果。IE6 本属性无效。
+   *     data-animation (animation) 打开和关闭对话框时使用的动画效果，可选项有 'fade' 和 'slide'，默认为 'none'，即关闭动画效果。IE6 本属性无效，始终关闭动画效果。
    *   Properties：
    *     isOpen
    *   Method:
@@ -238,18 +240,22 @@
   Widget.parsers.dialog = function($element) {
     // 保存属性。
     var $context = $element.context = $element.getParent();
-    var contextIsBody = $context === document.body;
-    $element.isFixedPositioned = contextIsBody && $element.getStyle('position') === 'fixed';
-    $element.isOpen = false;
+    // pinnedTarget 必须是 context 的后代元素。
+    var $pinnedTarget;
+    $element.pinnedTarget = ($element.pinnedTarget && ($pinnedTarget = $('#' + $element.pinnedTarget)) && $context.contains($pinnedTarget)) ? $pinnedTarget : $context;
     // IE6 不使用动画。
     if (navigator.isIE6) {
-      $element.effect = 0;
+      $element.animation = 'none';
     }
+    // 仅当 pinnedTarget 为 BODY 时才允许 position 设置为 fixed。
+    $element.isFixedPositioned = $element.pinnedTarget === document.body && $element.getStyle('position') === 'fixed';
+    // 默认状态为关闭。
+    $element.isOpen = false;
 
     // 本对话框是 $context 中的第一个对话框。
     if (!$context.dialogs) {
       // 确保 $context 创建 stacking context。
-      if (!contextIsBody && $context.getStyle('position') === 'static') {
+      if ($context !== document.body && $context.getStyle('position') === 'static') {
         $context.setStyle('position', 'relative');
       }
       // 为 $context 添加遮盖层和对话框公用的属性。
@@ -266,18 +272,18 @@
     }
 
     // 设置样式。
-    // 仅当父元素为 BODY 时，其 position 才可以是 fixed。
-    // 调节对话框的位置是通过 $element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。设置 left 为 -50000 是为了避免在 IE6 中启用 png 修复时出现闪烁现象。
+    // 调节对话框的位置是通过 $element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
     // 从 500000 开始重置 $element 的 zIndex，以供遮盖层参照（如果数字过大 Firefox 12.0 在取值时会有问题）。
-    $element.setStyles({position: $element.isFixedPositioned ? 'fixed' : 'absolute', left: -50000, top: 0});
+    $element.setStyles({position: $element.isFixedPositioned ? 'fixed' : 'absolute', left: 0, top: 0});
 
   };
 
 //--------------------------------------------------[Widget.parsers.dialog.config]
   Widget.parsers.dialog.config = {
+    pinnedTarget: '',
     offsetX: NaN,
     offsetY: NaN,
-    effect: 0
+    animation: 'none'
   };
 
 //--------------------------------------------------[Widget.parsers.dialog.methods]
@@ -286,7 +292,7 @@
       var $dialog = this;
       if (!$dialog.isOpen) {
         $dialog.fade('in', {
-          duration: $dialog.effect ? 100 : 0,
+          duration: $dialog.animation === 'none' ? 0 : 100,
           timingFunction: 'easeOut',
           onStart: function() {
             var $context = $dialog.context;
@@ -311,7 +317,7 @@
             $dialog.fire('open');
           }
         });
-        if ($dialog.effect === 2) {
+        if ($dialog.animation === 'slide') {
           $dialog.setStyle('marginTop', -20).morph({marginTop: 0}, {duration: 100, timingFunction: 'easeOut'});
         }
       }
@@ -321,7 +327,7 @@
       var $dialog = this;
       if ($dialog.isOpen) {
         $dialog.fade('out', {
-          duration: $dialog.effect ? 100 : 0,
+          duration: $dialog.animation === 'none' ? 0 : 100,
           timingFunction: 'easeIn',
           onFinish: function() {
             var $context = $dialog.context;
@@ -339,7 +345,7 @@
             $dialog.fire('close');
           }
         });
-        if ($dialog.effect === 2) {
+        if ($dialog.animation === 'slide') {
           $dialog.morph({marginTop: -20}, {
             duration: 100,
             timingFunction: 'easeIn',
@@ -354,7 +360,6 @@
     reposition: function() {
       var $dialog = this;
       if ($dialog.isOpen) {
-        var $context = $dialog.context;
         var isFixedPositioned = $dialog.isFixedPositioned;
         // 获取当前位置。
         var dialogClientRect = $dialog.getClientRect();
@@ -365,24 +370,24 @@
         // 计算预期位置。
         var expectedX;
         var expectedY;
-        var contextClientRect = {};
+        var pinnedTargetClientRect = {};
         if (isFixedPositioned) {
           var viewportClientSize = window.getClientSize();
-          contextClientRect.left = 0;
-          contextClientRect.top = 0;
-          contextClientRect.width = viewportClientSize.width;
-          contextClientRect.height = viewportClientSize.height;
+          pinnedTargetClientRect.left = 0;
+          pinnedTargetClientRect.top = 0;
+          pinnedTargetClientRect.width = viewportClientSize.width;
+          pinnedTargetClientRect.height = viewportClientSize.height;
         } else {
-          contextClientRect = $context.getClientRect();
+          pinnedTargetClientRect = $dialog.pinnedTarget.getClientRect();
         }
-        expectedX = contextClientRect.left + (Number.isFinite($dialog.offsetX) ? $dialog.offsetX : (contextClientRect.width - currentWidth) / 2);
-        expectedY = contextClientRect.top + (Number.isFinite($dialog.offsetY) ? $dialog.offsetY : (contextClientRect.height - currentHeight) / 2);
+        expectedX = pinnedTargetClientRect.left + (Number.isFinite($dialog.offsetX) ? $dialog.offsetX : (pinnedTargetClientRect.width - currentWidth) / 2);
+        expectedY = pinnedTargetClientRect.top + (Number.isFinite($dialog.offsetY) ? $dialog.offsetY : (pinnedTargetClientRect.height - currentHeight) / 2);
         // 确保固定定位的对话框显示在视口内。
         if (isFixedPositioned) {
           var leftLimit = 0;
-          var rightLimit = leftLimit + contextClientRect.width;
+          var rightLimit = leftLimit + pinnedTargetClientRect.width;
           var topLimit = 0;
-          var bottomLimit = topLimit + contextClientRect.height;
+          var bottomLimit = topLimit + pinnedTargetClientRect.height;
           // 当视口尺寸不足以容纳对话框时，优先显示右上角（对话框的关闭按钮一般在右上角）。
           if (expectedX < leftLimit) {
             expectedX = leftLimit;

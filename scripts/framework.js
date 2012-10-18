@@ -1,10 +1,6 @@
 (function() {
-  var commonCss = '/stylesheets/common.css';
-  var commonJs = '/scripts/common.js';
-  if (location.pathname.indexOf('OurJS') === 1) {
-    commonCss = '/OurJS' + commonCss;
-    commonJs = '/OurJS' + commonJs;
-  }
-  document.writeln('<link rel="stylesheet" href="' + commonCss + '">');
-  document.writeln('<script src="' + commonJs + '"></script>');
+  var pathPrefix = location.pathname.indexOf('OurJS') === 1 ? '/OurJS' : '';
+  document.writeln('<link rel="stylesheet" href="' + pathPrefix + '/stylesheets/reset.css">');
+  document.writeln('<link rel="stylesheet" href="' + pathPrefix + '/stylesheets/common.css">');
+  document.writeln('<script src="' + pathPrefix + '/scripts/common.js"></script>');
 })();

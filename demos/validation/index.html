@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>表单验证</title>
-<script src="../../dev.js"></script>
+<script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
 <script src="../../src/utilities/logger.js"></script>
 <style>
@@ -51,7 +51,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
 
   <h2>Form Validation</h2>
   <fieldset>
-    <legend>表单验证</legend>
+    <legend>使用 htmlFormElement.setValidationRules 来添加验证规则</legend>
     <form id="form" method="get" action="/">
       <div id="logger"></div>
       <table id="form_table">
@@ -292,7 +292,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
             minLength: [3, '帐号应在 3 位以上'],
             maxLength: [20, '帐号应在 20 位以内'],
             remote: {
-              url: 'validator.txt',
+              url: 'remote.txt',
               config: {
                 useCache: false,
                 minTime: 1000,

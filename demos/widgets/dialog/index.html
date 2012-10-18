@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>模态对话框</title>
+<script src="../../../our.js"></script>
+<script src="../../../scripts/framework.js"></script>
+<script src="../../../src/widgets/dialog.js"></script>
+<script src="../../../src/utilities/logger.js"></script>
+<style>
+
+</style>
+</head>
+<body>
+<div id="content">
+  <h1>模态对话框</h1>
+
+  <h2>DIALOG</h2>
+  <p style="text-align: center;">
+    <button class="action" onclick="dialogA.open();">dialogA.open()</button>
+  </p>
+  <div id="container" style="border: 2px solid darkseagreen; background: whitesmoke;">
+    <fieldset>
+      <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
+      <input type="button" value="button">
+      <input type="text" value="text">
+      <select>
+        <option>IE6 SELECT</option>
+      </select>
+      <a href="#">link</a>
+    </fieldset>
+    <div id="logger" style="height: 450px;"></div>
+  </div>
+
+</div>
+
+<!-- dialog_a { -->
+<ins id="dialog_a" widget="dialog" data-pinned-target="logger" data-animation="slide" style="position:fixed; width: 600px; height: 400px; background: steelblue;">
+  <select>
+    <option>IE6 SELECT</option>
+  </select>
+  <p style="text-align: center;">
+    <button class="action" onclick="dialogA.close();">dialogA.close()</button>
+    <button class="action" onclick="dialogB.open();">dialogB.open()</button>
+  </p>
+</ins>
+<!-- } dialog_a -->
+
+<!-- dialog_b { -->
+<ins id="dialog_b" widget="dialog" data-animation="fade" style="position: fixed; width: 400px; height: 200px; background: mediumorchid;">
+  <p style="text-align: center;">
+    <button class="action" onclick="dialogB.close();">dialogB.close()</button>
+  </p>
+  <p style="text-align: center;">
+    <button class="action" onclick="animation.play();">变长</button>
+    <button class="action" onclick="animation.reverse();">变短</button>
+  </p>
+</ins>
+<!-- } dialog_b -->
+
+<script>
+//--------------------------------------------------[TEST]
+var logger = new Logger($('#logger'), true);
+
+var dialogA = $('#dialog_a')
+    .on('open', function(e) {
+      logger.log('<em>' + e.type + '</em> ' + e.target.id);
+    })
+    .on('close', function(e) {
+      logger.log('<em>' + e.type + '</em>' + e.target.id);
+    });
+
+var dialogB = $('#dialog_b');
+
+var animation = new Animation()
+    .addClip(Animation.createStyleRenderer(dialogB, {height: 400}), 0, 200, 'ease')
+    .on('step', function() {
+      dialogB.reposition();
+    });
+</script>
+
+</body>
+</html>

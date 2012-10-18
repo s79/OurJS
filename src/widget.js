@@ -56,22 +56,24 @@
       // 根据解析器的 config 属性从目标元素的 attribute 中解析配置信息并将其添加到目标元素。
       if (parser.config) {
         Object.forEach(parser.config, function(defaultValue, key) {
-          var value = $element.getData(key);
-          if (value !== null) {
+          var value = defaultValue;
+          var specifiedValue = $element.getData(key);
+          if (specifiedValue !== undefined) {
             switch (typeof defaultValue) {
               case 'string':
+                value = specifiedValue;
                 break;
               case 'boolean':
                 value = true;
                 break;
               case 'number':
-                value = parseFloat(value);
+                value = parseFloat(specifiedValue);
                 break;
               default:
                 throw new Error('Invalid config type "' + key + '"');
             }
-            $element[key] = value;
           }
+          $element[key] = value;
         });
       }
       // 根据解析器的 methods 属性为目标元素添加方法。
