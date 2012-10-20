@@ -17,7 +17,7 @@ execute(function($) {
       if (symbol) {
         syntax = '';
         if (!symbol.isStatic) {
-          name = name.replace('.prototype.', '.');
+          name = name.replace('#', '.');
         }
         var parents = name.split('.');
         var symbolName = parents.pop();
@@ -106,6 +106,17 @@ execute(function($) {
           '';
     };
 
+//--------------------------------------------------[getAttributes]
+    var getAttributes = function(symbol) {
+      return symbol && symbol.attributes.length ?
+          '<dl class="event"><dt>可配置项：</dt><dd><table>' + symbol.attributes.map(
+              function(event) {
+                return '<tr><td><dfn>' + event.name + '</dfn></td><td>' + event.description + '</td></tr>';
+              }
+          ).join('') + '</table></dd></dl>' :
+          '';
+    };
+
 //--------------------------------------------------[getFires]
     var getFires = function(symbol) {
       return symbol && symbol.fires.length ?
@@ -186,9 +197,8 @@ execute(function($) {
       var comment = '';
       var lastGroupName;
       manifest[name].forEach(function(name) {
-        if (name.startsWith('#')) {
-          comment = name.slice(1);
-          $('<h2>' + comment + '</h2>').insertTo($indexFieldset);
+        if (name.startsWith('=') && name.endsWith('=')) {
+          $('<h2>' + name.slice(1, -1) + '</h2>').insertTo($indexFieldset);
         } else {
           var symbol = apiData[name];
           var category = getCategory(symbol);
@@ -199,7 +209,7 @@ execute(function($) {
           if (groupName && groupName !== lastGroupName) {
             $(group[groupName]).insertTo($detailsDiv);
           }
-          $('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>').insertTo($detailsDiv);
+          $('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5/DOM3'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getAttributes(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>').insertTo($detailsDiv);
           lastGroupName = groupName;
         }
       });

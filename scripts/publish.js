@@ -159,12 +159,12 @@ function parseExample(string) {
 
 /** Get a symbol's raw data. */
 function filterSymbol(source) {
-  var name = source.alias.replace('#', (source.isNamespace ? '.' : '.prototype.'));
+  var name = source.alias;
   symbols[name] = {
 //    author: source.author,
     name: name,
     type: source.type,
-    isStatic: name.indexOf('.prototype.') === -1,
+    isStatic: name.indexOf('#') === -1,
     isFunction: (source.isa === 'CONSTRUCTOR' || source.isa === 'FUNCTION'),
     isConstructor: source.isa === 'CONSTRUCTOR',
     parameters: source.params.map(function(item) {
@@ -181,8 +181,22 @@ function filterSymbol(source) {
       newItem.description = parseDescription(item.desc);
       return newItem;
     }),
+    // 这种自定义的 tag 将被解析到 comment.tags 中，并且内容在其 desc 属性内，也仅为字符串。
+    attributes: source.comment.tags
+        .filter(function(item) {
+          return item.title === 'attribute';
+        })
+        .map(function(item) {
+          var match = parseDescription(item.desc).match(/<p>(.*?)<\/p>(.*)/);
+          var mame = match && match[1] || '';
+          var description = match && match[2] || '';
+          return {
+            name: mame,
+            description: description
+          };
+        }),
+    // fires 仅为字符串，因此在写注释文档时约定：第一行为事件名，其后为描述。
     fires: source.fires.map(function(item) {
-      // 使用 jsdoc-toolkit 获取的文档数据中，fires 仅为字符串，因此在写注释文档时约定：第一行为事件名，其后为描述。
       var match = parseDescription(item).match(/<p>(.*?)<\/p>(.*)/);
       var mame = match && match[1] || '';
       var description = match && match[2] || '';
@@ -201,17 +215,13 @@ function filterSymbol(source) {
     see: source.see
   };
 
-  if (source.properties.length) {
-    source.properties.forEach(function(property) {
-      filterSymbol(property);
-    });
-  }
+  source.properties.forEach(function(property) {
+    filterSymbol(property);
+  });
 
-  if (source.methods.length) {
-    source.methods.forEach(function(method) {
-      filterSymbol(method);
-    });
-  }
+  source.methods.forEach(function(method) {
+    filterSymbol(method);
+  });
 
 }
 
@@ -224,8 +234,8 @@ function publish(symbolSet) {
   };
 
   // Get a list of all the classes in the symbolset.
-  var classes = symbolSet.toArray().filter(function($) {
-    return ($.is('CONSTRUCTOR') || $.isNamespace)
+  var classes = symbolSet.toArray().filter(function(symbol) {
+    return (symbol.is('CONSTRUCTOR') || symbol.isNamespace)
   });
 
   // Output data.

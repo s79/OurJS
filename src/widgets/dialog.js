@@ -8,31 +8,36 @@
 //==================================================[控件 - 遮盖层]
   /**
    * 遮盖层
-   * @name OVERLAY
-   * @namespace
+   * @name Overlay
+   * @constructor
    * @private
    * @description
-   *   为元素添加 widget-overlay 类，即可使该元素成为遮盖层控件。
+   *   为元素添加 'widget-overlay' 类，即可使该元素成为遮盖层控件。
    *   遮盖层用于遮盖模态对话框下边、其父元素内的其他内容。当其父元素为 BODY 时，将覆盖整个视口。
    *   遮盖层在显示/隐藏时是否使用动画取决于调用它的对话框是否启用了动画。
    *   需要定义其他的样式时，可以通过 CSS 进行修改，或者直接修改遮盖层元素的 style 属性。
-   *   Method:
-   *     behind 指定要将遮盖层置于哪个对话框元素之下。
-   *     参数：
-   *       {Element} [$dialog] 要将遮盖层置于其后的对话框元素。如果省略此参数，则隐藏遮盖层。
-   *     返回值：
-   *       {Element} 本元素。
-   *     resize 调整遮盖层尺寸。
-   *     返回值：
-   *       {Element} 本元素。
-   *
    *   问题：
    *     IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
    *     这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲覆盖区域不是 BODY，但其中有 SELECT 元素时出现。
    *     上述情况很少见，因此未处理此问题。
    *     如果需要处理，去掉 IE6 fixed positioned 相关代码中的“启用/禁用表达式”部分即可。
-   *   参考：
-   *     http://w3help.org/zh-cn/causes/RM8015
+   * @see http://w3help.org/zh-cn/causes/RM8015
+   */
+
+  /**
+   * 重新定位遮盖层的层级，如果当前 context 下不再有其他对话框，则隐藏遮盖层。
+   * @name TabPanel#reposition
+   * @function
+   * @private
+   * @returns {Element} 本元素。
+   */
+
+  /**
+   * 调整遮盖层尺寸。
+   * @name TabPanel#resize
+   * @function
+   * @private
+   * @returns {Element} 本元素。
    */
 
   var $ = document.$;
@@ -107,7 +112,7 @@
     }
   };
 
-//--------------------------------------------------[overlay]
+//--------------------------------------------------[Overlay]
   Widget.register('overlay', {
     css: [
       '.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
@@ -190,49 +195,80 @@
 //==================================================[控件 - 模态对话框]
   /**
    * 模态对话框。
-   * @name DIALOG
-   * @namespace
+   * @name Dialog
+   * @constructor
+   * @attribute data-pinned-target
+   *   对话框的“定位参考元素”的 id。
+   *   如果不指定该属性，则以父元素作为“定位参考元素”。
+   * @attribute data-offset-x
+   *   对话框的左边与其“定位参考元素”的左边的横向差值。
+   *   如果不指定该属性，对话框的中心点在横向将与其“定位参考元素”的中心点重合。
+   * @attribute data-offset-y
+   *   对话框的顶边与其“定位参考元素”的顶边的纵向差值。
+   *   如果不指定该属性，对话框的中心点在纵向将与其“定位参考元素”的中心点重合。
+   * @attribute data-animation
+   *   打开和关闭对话框时使用的动画效果，可选项有 'none'，'fade' 和 'slide'。
+   *   如果不指定该属性或指定为 'none'，则关闭动画效果。
+   *   IE6 本属性无效，始终关闭动画效果。
+   * @fires open
+   *   在对话框打开时触发。
+   * @fires close
+   *   在对话框关闭后触发。
+   * @fires reposition
+   *   成功调用 reposition 方法后触发。
    * @description
    *   为元素添加 widget-dialog 类，即可使该元素成为模态对话框控件。
    *   当对话框弹出时，为突出对话框内容，将在对话框之下创建遮盖层，以阻止用户对遮盖部分内容的操作。
-   *   遮盖层遮盖的范围为其父元素的渲染范围。
-   *   如果对话框元素的父元素是 BODY，遮盖层将遮盖整个视口。
-   *   对话框元素默认以其父元素为“定位参考元素”进行定位，也可以通过 data-pinned-target 属性来指定一个特定的元素。
-   *   当对话框元素的父元素不是 BODY 时，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
+   *   遮盖层遮盖的范围为其父元素的渲染范围。如果对话框元素的父元素是 BODY，遮盖层将遮盖整个视口。
    *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。
+   *   当对话框元素的父元素不是 BODY 时，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
    *   对话框的一些数据保存在其父元素中，因此不要修改对话框元素在文档树中的位置！
    *   <ul>
    *     <li>对话框的默认状态为关闭。因此对话框元素的 display 将被设置为 none。</li>
-   *     <li>仅当对话框元素的定位参考元素为 BODY 时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
+   *     <li>仅当对话框元素的“定位参考元素”为 BODY 时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
    *     <li>对话框元素的 zIndex 值会被自动指定。</li>
    *     <li>如果对话框元素的父元素不是 BODY 且其 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
    *   </ul>
-   *   Attributes：
-   *     data-pinned-target (pinnedTarget) 对话框的定位参考元素。默认为父元素，可以指定为其父元素的其他后代元素的 id。
-   *     data-offset-x (offsetX) 对话框的左边与其父元素的左边的横向差值。默认为 NaN，此时对话框的中心点在横向将与其父元素的中心点重合。
-   *     data-offset-y (offsetY) 对话框的顶边与其父元素的顶边的纵向差值。默认为 NaN，此时对话框的中心点在纵向将与其父元素的中心点重合。
-   *     data-animation (animation) 打开和关闭对话框时使用的动画效果，可选项有 'fade' 和 'slide'，默认为 'none'，即关闭动画效果。IE6 本属性无效，始终关闭动画效果。
-   *   Properties：
-   *     isOpen
-   *   Method:
-   *     open 打开对话框。如果对话框已经打开，则调用此方法无效。
-   *     返回值：
-   *       {Element} 本元素。
-   *     close 关闭对话框。如果对话框已经关闭，则调用此方法无效。
-   *     返回值：
-   *       {Element} 本元素。
-   *     reposition 重新定位对话框位置。如果对话框已经关闭，则调用此方法无效。
-   *     返回值：
-   *       {Element} 本元素。
-   *   Events：
-   *     open 在对话框打开时触发。
-   *     close 在对话框关闭后触发。
-   *     reposition 成功调用 reposition 方法后触发。
+   * @example
+   *   &lt;div id="notice" class="widget-dialog" data-offset-y="100" onopen="alert('open');"&gt;...&lt;/div&gt;
+   */
+
+  /**
+   * 对话框当前是否为“打开”状态。
+   * @name Dialog#isOpen
+   * @type boolean
+   */
+
+  /**
+   * 打开对话框。
+   * @name Dialog#open
+   * @function
+   * @returns {Element} 本元素。
+   * @description
+   *   如果对话框已经打开，则调用此方法无效。
+   */
+
+  /**
+   * 关闭对话框。
+   * @name Dialog#close
+   * @function
+   * @returns {Element} 本元素。
+   * @description
+   *   如果对话框已经关闭，则调用此方法无效。
+   */
+
+  /**
+   * 调整对话框的位置。
+   * @name Dialog#reposition
+   * @function
+   * @returns {Element} 本元素。
+   * @description
+   *   如果对话框已经关闭，则调用此方法无效。
    */
 
   var $ = document.$;
 
-//--------------------------------------------------[dialog]
+//--------------------------------------------------[Dialog]
   Widget.register('dialog', {
     css: [
       '.widget-dialog { display: none; outline: none; }'

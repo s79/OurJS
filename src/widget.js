@@ -42,22 +42,22 @@
    * @name Widget.register
    * @function
    * @param {string} type 控件类型。
-   * @param {Object} widget 包含控件的相关信息的对象。
-   * @param {Array} widget.css 可选，包含要应用到此类控件的 CSS 规则集的数组。
-   * @param {Object} widget.config 可选，包含控件的默认配置的对象。
-   * @param {Object} widget.methods 可选，包含控件的实例方法的对象。
-   * @param {Array} widget.events 可选，包含控件能够触发的事件名称的数组。
-   * @param {Function} widget.initialize 必选，控件的初始化函数。
+   * @param {Object} parser 控件的解析器。
+   * @param {Array} parser.css 可选，包含要应用到此类控件的 CSS 规则集的数组。
+   * @param {Object} parser.config 可选，包含控件的默认配置的对象。
+   * @param {Object} parser.methods 可选，包含控件的实例方法的对象。
+   * @param {Array} parser.events 可选，包含控件能够触发的事件名称的数组。
+   * @param {Function} parser.initialize 必选，控件的初始化函数。
    */
-  Widget.register = function(type, widget) {
-    if (widget.css) {
-      document.addStyleRules(widget.css);
+  Widget.register = function(type, parser) {
+    if (parser.css) {
+      document.addStyleRules(parser.css);
     }
 
     Widget.parsers[type] = function($element) {
       // 从目标元素的 attribute 中解析配置信息并将其添加到目标元素。
-      if (widget.config) {
-        Object.forEach(widget.config, function(defaultValue, key) {
+      if (parser.config) {
+        Object.forEach(parser.config, function(defaultValue, key) {
           var value = defaultValue;
           var specifiedValue = $element.getData(key);
           if (specifiedValue !== undefined) {
@@ -79,12 +79,12 @@
         });
       }
       // 为目标元素添加方法。
-      if (widget.methods) {
-        Object.mixin($element, widget.methods);
+      if (parser.methods) {
+        Object.mixin($element, parser.methods);
       }
       // 为目标元素添加内联事件监听器。
-      if (widget.events) {
-        widget.events.forEach(function(name) {
+      if (parser.events) {
+        parser.events.forEach(function(name) {
           var inlineName = 'on' + name;
           var inlineEventListener = $element.getAttribute(inlineName);
           if (typeof inlineEventListener === 'string') {
@@ -98,7 +98,7 @@
         });
       }
       // 初始化。
-      widget.initialize($element);
+      parser.initialize($element);
     };
 
   };

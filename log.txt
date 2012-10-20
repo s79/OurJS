@@ -5,6 +5,14 @@
 >IE 自动填充未触发 change 事件。
 >移出不常用代码到 utilities 目录。
 
+>2012-10-20
++Widget.register
+不再使用 INS[widget=xxx] 来表示控件，改为 class=widget-xxx 指定。
+使文档注释支持 @attribute 标签。
+
+>2012-10-18
+更改文件夹结构，将 demos 合并。
+
 >2012-10-17
 使用 CSS Expression 修复 IE6 下自定义控件元素的属性选择符，并自动处理固定定位。
 IE6 position: fixed 可以和其他浏览器一样在样式表中使用了。

@@ -204,6 +204,7 @@
   /**
    * 默认配置。
    * @name Request.config
+   * @type Object
    */
   Request.config = {
     username: '',
