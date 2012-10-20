@@ -295,7 +295,7 @@ execute(function($) {
   var $currentDetails = null;
 
   document.addStyleRules([
-    'INS[widget=overlay] { opacity: 0.05; filter: alpha(opacity=5); }'
+    '.widget-overlay { opacity: 0.05; filter: alpha(opacity=5); }'
   ]);
 
   declareModule('details', function(listen, notify) {

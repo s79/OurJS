@@ -12,7 +12,7 @@
    * @namespace
    * @private
    * @description
-   *   使用 INS[widget=overlay] 元素来表示一个遮盖层。
+   *   为元素添加 widget-overlay 类，即可使该元素成为遮盖层控件。
    *   遮盖层用于遮盖模态对话框下边、其父元素内的其他内容。当其父元素为 BODY 时，将覆盖整个视口。
    *   遮盖层在显示/隐藏时是否使用动画取决于调用它的对话框是否启用了动画。
    *   需要定义其他的样式时，可以通过 CSS 进行修改，或者直接修改遮盖层元素的 style 属性。
@@ -35,12 +35,8 @@
    *     http://w3help.org/zh-cn/causes/RM8015
    */
 
-//--------------------------------------------------[CSSRules]
-  document.addStyleRules([
-    'INS[widget=overlay] { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
-  ]);
+  var $ = document.$;
 
-//--------------------------------------------------[freezeFocusArea]
   // 限定不可聚焦的区域。参数 config 包含 enable 和 disable 两个元素。如果省略此参数，则取消限定。
   var $before;
   var $after;
@@ -111,79 +107,82 @@
     }
   };
 
-//--------------------------------------------------[Widget.parsers.overlay]
-  Widget.parsers.overlay = function($element) {
-    // 保存属性。
-    var $context = $element.context = $element.getParent();
-    $element.isVisible = false;
-
-    // 设置样式及内部结构。
-    var contextIsBody = $context === document.body;
-    $element.setStyles({position: contextIsBody ? 'fixed' : 'absolute'});
-    if (navigator.isIE6) {
-      // IE6 使用 IFRAME 元素遮盖 SELECT 元素，在其上覆盖一个 DIV 元素是为了避免鼠标在遮盖范围内点击时触发元素在本文档之外。
-      $element.innerHTML = '<iframe frameborder="no" scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></div>';
-      $element.iframeOverlay = $element.getFirstChild();
-      $element.divOverlay = $element.getLastChild();
-      // IE6 BODY 的遮盖层在更改视口尺寸时需要调整尺寸。
-      if (contextIsBody) {
-        $element.resizeInIE6 = function() {
-          $element.resize();
-        };
-      }
-    }
-
-  };
-
-//--------------------------------------------------[Widget.parsers.overlay.methods]
-  Widget.parsers.overlay.methods = {
-    reposition: function() {
-      var $dialog = this.context.dialogs.getLast();
-      if ($dialog) {
-        this.setStyle('zIndex', $dialog.getStyle('zIndex') - 1);
-        if (!this.isVisible) {
-          if (this.resizeInIE6) {
-            window.attachEvent('onresize', this.resizeInIE6);
+//--------------------------------------------------[overlay]
+  Widget.register('overlay', {
+    css: [
+      '.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
+    ],
+    methods: {
+      reposition: function() {
+        var $dialog = this.context.dialogs.getLast();
+        if ($dialog) {
+          this.setStyle('zIndex', $dialog.getStyle('zIndex') - 1);
+          if (!this.isVisible) {
+            if (this.resizeInIE6) {
+              window.attachEvent('onresize', this.resizeInIE6);
+            }
+            this.fade('in', {duration: 100, timingFunction: 'easeOut'});
+            this.isVisible = true;
+            this.resize();
           }
-          this.fade('in', {duration: 100, timingFunction: 'easeOut'});
-          this.isVisible = true;
-          this.resize();
-        }
-        freezeFocusArea({enable: $dialog, disable: this.context});
-      } else {
-        if (this.isVisible) {
-          if (this.resizeInIE6) {
-            window.detachEvent('onresize', this.resizeInIE6);
-          }
-          this.fade('out', {duration: 100, timingFunction: 'easeIn'});
-          this.isVisible = false;
-        }
-        freezeFocusArea();
-      }
-      return this;
-    },
-    resize: function() {
-      if (this.isVisible) {
-        var context = this.context;
-        if (context === document.body) {
-          // 遮盖 BODY 的情况。
-          if (navigator.isIE6) {
-            var clientSize = window.getClientSize();
-            // 同时修改三个元素的尺寸，以避免两个子元素在纵向改变窗口大小时高度不随父元素的变化而更新。
-            this.setStyles({width: clientSize.width, height: clientSize.height});
-            this.iframeOverlay.setStyle('height', clientSize.height);
-            this.divOverlay.setStyle('height', clientSize.height);
-          } else {
-            this.setStyles({right: 0, bottom: 0});
-          }
+          freezeFocusArea({enable: $dialog, disable: this.context});
         } else {
-          // 其他情况。
-          this.setStyles({width: context.clientWidth, height: context.clientHeight});
+          if (this.isVisible) {
+            if (this.resizeInIE6) {
+              window.detachEvent('onresize', this.resizeInIE6);
+            }
+            this.fade('out', {duration: 100, timingFunction: 'easeIn'});
+            this.isVisible = false;
+          }
+          freezeFocusArea();
+        }
+        return this;
+      },
+      resize: function() {
+        if (this.isVisible) {
+          var context = this.context;
+          if (context === document.body) {
+            // 遮盖 BODY 的情况。
+            if (navigator.isIE6) {
+              var clientSize = window.getClientSize();
+              // 同时修改三个元素的尺寸，以避免两个子元素在纵向改变窗口大小时高度不随父元素的变化而更新。
+              this.setStyles({width: clientSize.width, height: clientSize.height});
+              this.iframeOverlay.setStyle('height', clientSize.height);
+              this.divOverlay.setStyle('height', clientSize.height);
+            } else {
+              this.setStyles({right: 0, bottom: 0});
+            }
+          } else {
+            // 其他情况。
+            this.setStyles({width: context.clientWidth, height: context.clientHeight});
+          }
+        }
+        return this;
+      }
+    },
+    initialize: function($element) {
+      // 保存属性。
+      var $context = $element.context = $element.getParent();
+      $element.isVisible = false;
+
+      // 设置样式及内部结构。
+      var contextIsBody = $context === document.body;
+      $element.setStyles({position: contextIsBody ? 'fixed' : 'absolute'});
+      if (navigator.isIE6) {
+        // IE6 使用 IFRAME 元素遮盖 SELECT 元素，在其上覆盖一个 DIV 元素是为了避免鼠标在遮盖范围内点击时触发元素在本文档之外。
+        $element.innerHTML = '<iframe frameborder="no" scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></div>';
+        $element.iframeOverlay = $element.getFirstChild();
+        $element.divOverlay = $element.getLastChild();
+        // IE6 BODY 的遮盖层在更改视口尺寸时需要调整尺寸。
+        if (contextIsBody) {
+          $element.resizeInIE6 = function() {
+            $element.resize();
+          };
         }
       }
-      return this;
+
     }
-  };
+  });
 
 })();
 
@@ -194,7 +193,7 @@
    * @name DIALOG
    * @namespace
    * @description
-   *   使用 INS[widget=dialog] 元素来表示一个模态对话框。
+   *   为元素添加 widget-dialog 类，即可使该元素成为模态对话框控件。
    *   当对话框弹出时，为突出对话框内容，将在对话框之下创建遮盖层，以阻止用户对遮盖部分内容的操作。
    *   遮盖层遮盖的范围为其父元素的渲染范围。
    *   如果对话框元素的父元素是 BODY，遮盖层将遮盖整个视口。
@@ -231,187 +230,183 @@
    *     reposition 成功调用 reposition 方法后触发。
    */
 
-//--------------------------------------------------[CSSRules]
-  document.addStyleRules([
-    'INS[widget=dialog] { display: none; outline: none; }'
-  ]);
+  var $ = document.$;
 
-//--------------------------------------------------[Widget.parsers.dialog]
-  Widget.parsers.dialog = function($element) {
-    // 保存属性。
-    var $context = $element.context = $element.getParent();
-    // pinnedTarget 必须是 context 的后代元素。
-    var $pinnedTarget;
-    $element.pinnedTarget = ($element.pinnedTarget && ($pinnedTarget = $('#' + $element.pinnedTarget)) && $context.contains($pinnedTarget)) ? $pinnedTarget : $context;
-    // IE6 不使用动画。
-    if (navigator.isIE6) {
-      $element.animation = 'none';
-    }
-    // 仅当 pinnedTarget 为 BODY 时才允许 position 设置为 fixed。
-    $element.isFixedPositioned = $element.pinnedTarget === document.body && $element.getStyle('position') === 'fixed';
-    // 默认状态为关闭。
-    $element.isOpen = false;
-
-    // 本对话框是 $context 中的第一个对话框。
-    if (!$context.dialogs) {
-      // 确保 $context 创建 stacking context。
-      if ($context !== document.body && $context.getStyle('position') === 'static') {
-        $context.setStyle('position', 'relative');
-      }
-      // 为 $context 添加遮盖层和对话框公用的属性。
-      $context.dialogs = [];
-      Widget.parse($context.overlay = $('<ins widget="overlay"></ins>').insertTo($context).on('click.overlay', function() {
-        $context.dialogs.getLast().focus();
-      }));
-    }
-
-    // 使本元素可获得焦点。
-    $element.tabIndex = 0;
-    if (navigator.isIElt8) {
-      $element.hideFocus = true;
-    }
-
-    // 设置样式。
-    // 调节对话框的位置是通过 $element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
-    // 从 500000 开始重置 $element 的 zIndex，以供遮盖层参照（如果数字过大 Firefox 12.0 在取值时会有问题）。
-    $element.setStyles({position: $element.isFixedPositioned ? 'fixed' : 'absolute', left: 0, top: 0});
-
-  };
-
-//--------------------------------------------------[Widget.parsers.dialog.config]
-  Widget.parsers.dialog.config = {
-    pinnedTarget: '',
-    offsetX: NaN,
-    offsetY: NaN,
-    animation: 'none'
-  };
-
-//--------------------------------------------------[Widget.parsers.dialog.methods]
-  Widget.parsers.dialog.methods = {
-    open: function() {
-      var $dialog = this;
-      if (!$dialog.isOpen) {
-        $dialog.fade('in', {
-          duration: $dialog.animation === 'none' ? 0 : 100,
-          timingFunction: 'easeOut',
-          onStart: function() {
-            var $context = $dialog.context;
-            // 更新状态。
-            $dialog.isOpen = true;
-            // 添加到已打开的对话框组，并修改对话框的位置。
-            $dialog.setStyle('zIndex', 500000 + $context.dialogs.push($dialog)).reposition();
-            // 重新定位遮盖层。
-            $context.overlay.reposition();
-            // 仅父元素为 BODY 的对话框需要在改变窗口尺寸时重新调整位置（此处假定其他对话框的父元素尺寸不会变化）。
-            if ($context === document.body) {
-              window.on('resize.dialog_' + $dialog.uid, navigator.isIE6 ? function() {
-                // 避免 IE6 的固定定位计算错误。
-                setTimeout(function() {
-                  $dialog.reposition();
-                }, 0);
-              } : function() {
-                $dialog.reposition();
-              });
-            }
-            // 触发事件。
-            $dialog.fire('open');
-          }
-        });
-        if ($dialog.animation === 'slide') {
-          $dialog.setStyle('marginTop', -20).morph({marginTop: 0}, {duration: 100, timingFunction: 'easeOut'});
-        }
-      }
-      return $dialog;
+//--------------------------------------------------[dialog]
+  Widget.register('dialog', {
+    css: [
+      '.widget-dialog { display: none; outline: none; }'
+    ],
+    config: {
+      pinnedTarget: '',
+      offsetX: NaN,
+      offsetY: NaN,
+      animation: 'none'
     },
-    close: function() {
-      var $dialog = this;
-      if ($dialog.isOpen) {
-        $dialog.fade('out', {
-          duration: $dialog.animation === 'none' ? 0 : 100,
-          timingFunction: 'easeIn',
-          onFinish: function() {
-            var $context = $dialog.context;
-            // 更新状态。
-            $dialog.isOpen = false;
-            // 从已打开的对话框组中移除。
-            $context.dialogs.pop();
-            // 重新定位遮盖层。
-            $context.overlay.reposition();
-            // 删除事件监听器。
-            if ($context === document.body) {
-              window.off('resize.dialog_' + $dialog.uid);
-            }
-            // 触发事件。
-            $dialog.fire('close');
-          }
-        });
-        if ($dialog.animation === 'slide') {
-          $dialog.morph({marginTop: -20}, {
-            duration: 100,
-            timingFunction: 'easeIn',
-            onFinish: function() {
-              this.setStyle('marginTop', 0)
+    methods: {
+      open: function() {
+        var $dialog = this;
+        if (!$dialog.isOpen) {
+          $dialog.fade('in', {
+            duration: $dialog.animation === 'none' ? 0 : 100,
+            timingFunction: 'easeOut',
+            onStart: function() {
+              var $context = $dialog.context;
+              // 更新状态。
+              $dialog.isOpen = true;
+              // 添加到已打开的对话框组，并修改对话框的位置。
+              $dialog.setStyle('zIndex', 500000 + $context.dialogs.push($dialog)).reposition();
+              // 重新定位遮盖层。
+              $context.overlay.reposition();
+              // 仅父元素为 BODY 的对话框需要在改变窗口尺寸时重新调整位置（此处假定其他对话框的父元素尺寸不会变化）。
+              if ($context === document.body) {
+                window.on('resize.dialog_' + $dialog.uid, navigator.isIE6 ? function() {
+                  // 避免 IE6 的固定定位计算错误。
+                  setTimeout(function() {
+                    $dialog.reposition();
+                  }, 0);
+                } : function() {
+                  $dialog.reposition();
+                });
+              }
+              // 触发事件。
+              $dialog.fire('open');
             }
           });
+          if ($dialog.animation === 'slide') {
+            $dialog.setStyle('marginTop', -20).morph({marginTop: 0}, {duration: 100, timingFunction: 'easeOut'});
+          }
         }
+        return $dialog;
+      },
+      close: function() {
+        var $dialog = this;
+        if ($dialog.isOpen) {
+          $dialog.fade('out', {
+            duration: $dialog.animation === 'none' ? 0 : 100,
+            timingFunction: 'easeIn',
+            onFinish: function() {
+              var $context = $dialog.context;
+              // 更新状态。
+              $dialog.isOpen = false;
+              // 从已打开的对话框组中移除。
+              $context.dialogs.pop();
+              // 重新定位遮盖层。
+              $context.overlay.reposition();
+              // 删除事件监听器。
+              if ($context === document.body) {
+                window.off('resize.dialog_' + $dialog.uid);
+              }
+              // 触发事件。
+              $dialog.fire('close');
+            }
+          });
+          if ($dialog.animation === 'slide') {
+            $dialog.morph({marginTop: -20}, {
+              duration: 100,
+              timingFunction: 'easeIn',
+              onFinish: function() {
+                this.setStyle('marginTop', 0)
+              }
+            });
+          }
+        }
+        return $dialog;
+      },
+      reposition: function() {
+        var $dialog = this;
+        if ($dialog.isOpen) {
+          var isFixedPositioned = $dialog.isFixedPositioned;
+          // 获取当前位置。
+          var dialogClientRect = $dialog.getClientRect();
+          var currentX = dialogClientRect.left;
+          var currentY = dialogClientRect.top;
+          var currentWidth = dialogClientRect.width;
+          var currentHeight = dialogClientRect.height;
+          // 计算预期位置。
+          var expectedX;
+          var expectedY;
+          var pinnedTargetClientRect = {};
+          if (isFixedPositioned) {
+            var viewportClientSize = window.getClientSize();
+            pinnedTargetClientRect.left = 0;
+            pinnedTargetClientRect.top = 0;
+            pinnedTargetClientRect.width = viewportClientSize.width;
+            pinnedTargetClientRect.height = viewportClientSize.height;
+          } else {
+            pinnedTargetClientRect = $dialog.pinnedTarget.getClientRect();
+          }
+          expectedX = pinnedTargetClientRect.left + (Number.isFinite($dialog.offsetX) ? $dialog.offsetX : (pinnedTargetClientRect.width - currentWidth) / 2);
+          expectedY = pinnedTargetClientRect.top + (Number.isFinite($dialog.offsetY) ? $dialog.offsetY : (pinnedTargetClientRect.height - currentHeight) / 2);
+          // 确保固定定位的对话框显示在视口内。
+          if (isFixedPositioned) {
+            var leftLimit = 0;
+            var rightLimit = leftLimit + pinnedTargetClientRect.width;
+            var topLimit = 0;
+            var bottomLimit = topLimit + pinnedTargetClientRect.height;
+            // 当视口尺寸不足以容纳对话框时，优先显示右上角（对话框的关闭按钮一般在右上角）。
+            if (expectedX < leftLimit) {
+              expectedX = leftLimit;
+            }
+            if (expectedX + currentWidth > rightLimit) {
+              expectedX = rightLimit - currentWidth;
+            }
+            if (expectedY + currentHeight > bottomLimit) {
+              expectedY = bottomLimit - currentHeight;
+            }
+            if (expectedY < topLimit) {
+              expectedY = topLimit;
+            }
+          }
+          // 设置最终位置。
+          $dialog.setStyles({left: parseInt($dialog.getStyle('left'), 10) + expectedX - currentX, top: parseInt($dialog.getStyle('top'), 10) + expectedY - currentY});
+          // 触发事件。
+          $dialog.fire('reposition');
+        }
+        return $dialog;
       }
-      return $dialog;
     },
-    reposition: function() {
-      var $dialog = this;
-      if ($dialog.isOpen) {
-        var isFixedPositioned = $dialog.isFixedPositioned;
-        // 获取当前位置。
-        var dialogClientRect = $dialog.getClientRect();
-        var currentX = dialogClientRect.left;
-        var currentY = dialogClientRect.top;
-        var currentWidth = dialogClientRect.width;
-        var currentHeight = dialogClientRect.height;
-        // 计算预期位置。
-        var expectedX;
-        var expectedY;
-        var pinnedTargetClientRect = {};
-        if (isFixedPositioned) {
-          var viewportClientSize = window.getClientSize();
-          pinnedTargetClientRect.left = 0;
-          pinnedTargetClientRect.top = 0;
-          pinnedTargetClientRect.width = viewportClientSize.width;
-          pinnedTargetClientRect.height = viewportClientSize.height;
-        } else {
-          pinnedTargetClientRect = $dialog.pinnedTarget.getClientRect();
-        }
-        expectedX = pinnedTargetClientRect.left + (Number.isFinite($dialog.offsetX) ? $dialog.offsetX : (pinnedTargetClientRect.width - currentWidth) / 2);
-        expectedY = pinnedTargetClientRect.top + (Number.isFinite($dialog.offsetY) ? $dialog.offsetY : (pinnedTargetClientRect.height - currentHeight) / 2);
-        // 确保固定定位的对话框显示在视口内。
-        if (isFixedPositioned) {
-          var leftLimit = 0;
-          var rightLimit = leftLimit + pinnedTargetClientRect.width;
-          var topLimit = 0;
-          var bottomLimit = topLimit + pinnedTargetClientRect.height;
-          // 当视口尺寸不足以容纳对话框时，优先显示右上角（对话框的关闭按钮一般在右上角）。
-          if (expectedX < leftLimit) {
-            expectedX = leftLimit;
-          }
-          if (expectedX + currentWidth > rightLimit) {
-            expectedX = rightLimit - currentWidth;
-          }
-          if (expectedY + currentHeight > bottomLimit) {
-            expectedY = bottomLimit - currentHeight;
-          }
-          if (expectedY < topLimit) {
-            expectedY = topLimit;
-          }
-        }
-        // 设置最终位置。
-        $dialog.setStyles({left: parseInt($dialog.getStyle('left'), 10) + expectedX - currentX, top: parseInt($dialog.getStyle('top'), 10) + expectedY - currentY});
-        // 触发事件。
-        $dialog.fire('reposition');
+    events: ['open', 'close', 'reposition'],
+    initialize: function($element) {
+      // 保存属性。
+      var $context = $element.context = $element.getParent();
+      // pinnedTarget 必须是 context 的后代元素。
+      var $pinnedTarget;
+      $element.pinnedTarget = ($element.pinnedTarget && ($pinnedTarget = $('#' + $element.pinnedTarget)) && $context.contains($pinnedTarget)) ? $pinnedTarget : $context;
+      // IE6 不使用动画。
+      if (navigator.isIE6) {
+        $element.animation = 'none';
       }
-      return $dialog;
-    }
-  };
+      // 仅当 pinnedTarget 为 BODY 时才允许 position 设置为 fixed。
+      $element.isFixedPositioned = $element.pinnedTarget === document.body && $element.getStyle('position') === 'fixed';
+      // 默认状态为关闭。
+      $element.isOpen = false;
 
-//--------------------------------------------------[Widget.parsers.dialog.events]
-  Widget.parsers.dialog.events = ['open', 'close', 'reposition'];
+      // 本对话框是 $context 中的第一个对话框。
+      if (!$context.dialogs) {
+        // 确保 $context 创建 stacking context。
+        if ($context !== document.body && $context.getStyle('position') === 'static') {
+          $context.setStyle('position', 'relative');
+        }
+        // 为 $context 添加遮盖层和对话框公用的属性。
+        $context.dialogs = [];
+        Widget.parse($context.overlay = $('<div class="widget-overlay"></div>').insertTo($context).on('click.overlay', function() {
+          $context.dialogs.getLast().focus();
+        }));
+      }
+
+      // 使本元素可获得焦点。
+      $element.tabIndex = 0;
+      if (navigator.isIElt8) {
+        $element.hideFocus = true;
+      }
+
+      // 设置样式。
+      // 调节对话框的位置是通过 $element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
+      // 从 500000 开始重置 $element 的 zIndex，以供遮盖层参照（如果数字过大 Firefox 12.0 在取值时会有问题）。
+      $element.setStyles({position: $element.isFixedPositioned ? 'fixed' : 'absolute', left: 0, top: 0});
+
+    }
+  });
 
 })();

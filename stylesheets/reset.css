@@ -12,4 +12,3 @@ sup, sub { position: relative; vertical-align: baseline; }
 sup { top: -3px; }
 sub { bottom: -3px; }
 button { padding: 5px 10px; overflow: visible; }
-ins { text-decoration: none; }

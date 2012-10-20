@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <title>OVERLAY</title>
-<link rel="stylesheet" href="../reset.css">
-<script src="../../dev.js"></script>
-<script src="../../src/widgets/dialog.js"></script>
+<link rel="stylesheet" href="../../../stylesheets/reset.css">
+<script src="../../../dev.js"></script>
+<script src="../../../src/widgets/dialog.js"></script>
 <style>
 button { position: fixed; z-index: 1000; width: 135px; height: 30px; }
 select { width: 100px; background: orangered; }
@@ -41,9 +41,9 @@ Widget.parsers.overlay.methods.test = function(element) {
 <span id="span" style="position: absolute; left: 575px; top: 350px; z-index: 50; width: 400px; height: 50px; margin: 25px; padding: 5px 15px; border: 7px solid mediumorchid; background: white">
   <var id="var" style="position: absolute; left: 10px; bottom: 0; display: block; width: 100px; height:20px; margin: 2px 2px 2px -30px; padding: 5px; border: 3px solid black; background: silver; overflow: hidden;">
     <em id="palceholder_A" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
-    <ins id="varOverlay" widget="overlay"></ins>
+    <div id="varOverlay" class="widget-overlay"></div>
   </var>
-  <ins id="spanOverlay" widget="overlay"></ins>
+  <div id="spanOverlay" class="widget-overlay"></div>
 </span>
 
 <div id="div" tabindex="0" style="position: absolute; left: 600px; top: 100px; z-index: 100; width: 400px; height: 300px; margin: 10px; padding: 5px; border: 7px solid black; overflow: auto;">
@@ -56,12 +56,12 @@ Widget.parsers.overlay.methods.test = function(element) {
   </select>
   <h1 id="h1" style="position: relative; width: 800px; height: 200px; margin: 10px; padding: 10px; border: 10px solid black;">
     <em id="palceholder_B" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
-    <ins id="h1Overlay" widget="overlay"></ins>
+    <div id="h1Overlay" class="widget-overlay"></div>
   </h1>
-  <ins id="divOverlay" widget="overlay"></ins>
+  <div id="divOverlay" class="widget-overlay"></div>
 </div>
 
-<ins id="bodyOverlay" widget="overlay"></ins>
+<div id="bodyOverlay" class="widget-overlay"></div>
 
 <script>
 var bodyOverlay = $('#bodyOverlay');

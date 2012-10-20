@@ -500,197 +500,6 @@
     }
   };
 
-  /*
-   * 修复 IE6 不支持 position: fixed 的问题。
-   *
-   * 注意：
-   *   目前仅考虑 direction: ltr 的情况，并且不支持嵌套使用 position: fixed。事实上这两点不会影响现有的绝大部分需求。
-   *   目前仅支持在 left right top bottom 上使用像素长度来设置偏移量。修复后，目标元素的样式中有 left 则 right 失效，有 top 则 bottom 失效。
-   *   因此要保证兼容，在应用中设置 position: fixed 的元素应有明确的尺寸设定，并只使用（left right top bottom）的（像素长度）来定位，否则在 IE6 中的表现会有差异。
-   *
-   * 处理流程：
-   *   position 的修改 = 启用/禁用修复，如果已启用修复，并且 display 不是 none，则同时启用表达式。
-   *   display 的修改 = 如果已启用修复，则启用/禁用表达式。
-   *   left/right/top/bottom 的修改 = 如果已启用修复，则调整 specifiedValue。如果已启用表达式，则更新表达式。
-   *   由于 IE6 设置为 position: absolute 的元素的 right bottom 定位与 BODY 元素的 position 有关，并且表现怪异，因此设置表达式时仍使用 left top 实现。
-   *   这样处理的附加好处是不必在每次更新表达式时启用/禁用设置在 right bottom 上的表达式。
-   *
-   * 参考：
-   *   http://www.qianduan.net/fix-ie6-dont-support-position-fixed-bug.html
-   *
-   * 实测结果：
-   *   X = 页面背景图片固定，背景图直接放在 HTML 上即可，若要放在 BODY 上，还要加上 background-attachment: fixed。
-   *   A = 为元素添加 CSS 表达式。
-   *   B = 为元素绑定事件监听器，在监听器中修改元素的位置。
-   *   X + A 可行，X + B 不可行。
-   */
-  if (navigator.isIE6) {
-    // 保存已修复的元素的偏移量及是否启用的数据。
-    /*
-     * <Object fixedData> {
-     *   left: <Object> {
-     *     specifiedValue: <string specifiedValue>,
-     *     usedValue: <number usedValue>
-     *   },
-     *   right: <Object> {
-     *     specifiedValue: <string specifiedValue>,
-     *     usedValue: <number usedValue>
-     *   },
-     *   top: <Object> {
-     *     specifiedValue: <string specifiedValue>,
-     *     usedValue: <number usedValue>
-     *   },
-     *   bottom: <Object> {
-     *     specifiedValue: <string specifiedValue>,
-     *     usedValue: <number usedValue>
-     *   },
-     *   enabled: <boolean enabled>
-     * };
-     */
-
-    // 设置页面背景。
-    html.style.backgroundImage = 'url(about:blank)';
-
-    // 添加 CSS 表达式。
-    var setExpressions = function($element, fixedData) {
-      var left = fixedData.left.usedValue;
-      var top = fixedData.top.usedValue;
-      var right = fixedData.right.usedValue;
-      var bottom = fixedData.bottom.usedValue;
-      if (isFinite(left)) {
-        $element.style.setExpression('left', '(document && document.documentElement.scrollLeft + ' + left + ') + "px"');
-      } else {
-        $element.style.setExpression('left', '(document && (document.documentElement.scrollLeft + document.documentElement.clientWidth - this.offsetWidth - (parseInt(this.currentStyle.marginLeft, 10) || 0) - (parseInt(this.currentStyle.marginRight, 10) || 0)) - ' + right + ') + "px"');
-      }
-      if (isFinite(top)) {
-        $element.style.setExpression('top', '(document && document.documentElement.scrollTop + ' + top + ') + "px"');
-      } else {
-        $element.style.setExpression('top', '(document && (document.documentElement.scrollTop + document.documentElement.clientHeight - this.offsetHeight - (parseInt(this.currentStyle.marginTop, 10) || 0) - (parseInt(this.currentStyle.marginBottom, 10) || 0)) - ' + bottom + ') + "px"');
-      }
-    };
-
-    // 删除 CSS 表达式。
-    var removeExpressions = function($element) {
-      $element.style.removeExpression('left');
-      $element.style.removeExpression('top');
-    };
-
-    // IE6 获取 position 特性时的特殊处理。
-    specialCSSPropertyGetter.position = function($element) {
-      return $element.fixedData ? 'fixed' : $element.currentStyle.position;
-    };
-
-    // IE6 设置 position 特性时的特殊处理。
-    specialCSSPropertySetter.position = function($element, propertyValue) {
-      // 本元素的偏移量数据，如果未启用修复则不存在。
-      var fixedData = $element.fixedData;
-      if (propertyValue.toLowerCase() === 'fixed') {
-        // 设置固定定位。
-        if (!fixedData) {
-          // 启用修复。
-          fixedData = $element.fixedData = {left: {}, right: {}, top: {}, bottom: {}, enabled: false};
-          var offset = {};
-          var currentStyle = $element.currentStyle;
-          fixedData.left.specifiedValue = offset.left = currentStyle.left;
-          fixedData.right.specifiedValue = offset.right = currentStyle.right;
-          fixedData.top.specifiedValue = offset.top = currentStyle.top;
-          fixedData.bottom.specifiedValue = offset.bottom = currentStyle.bottom;
-          Object.forEach(offset, function(length, side, offset) {
-            fixedData[side].usedValue = offset[side] = length.endsWith('px') ? parseInt(length, 10) : NaN;
-          });
-          // 如果 usedValue 中横向或纵向的两个值均为 NaN，则给 left 或 top 赋值为当前该元素相对于页面的偏移量。
-          if (isNaN(fixedData.left.usedValue) && isNaN(fixedData.right.usedValue)) {
-            fixedData.left.usedValue = html.scrollLeft + $element.getClientRect().left - (parseInt($element.currentStyle.marginLeft, 10) || 0);
-          }
-          if (isNaN(fixedData.top.usedValue) && isNaN(fixedData.bottom.usedValue)) {
-            fixedData.top.usedValue = html.scrollTop + $element.getClientRect().top - (parseInt($element.currentStyle.marginTop, 10) || 0);
-          }
-          // 如果元素已被渲染（暂不考虑祖先级元素未被渲染的情况），启用表达式。
-          if ($element.currentStyle.display !== 'none') {
-            fixedData.enabled = true;
-            setExpressions($element, fixedData);
-          }
-        }
-        propertyValue = 'absolute';
-      } else {
-        // 设置非固定定位。
-        if (fixedData) {
-          // 禁用修复。
-          removeExpressions($element);
-          $element.style.left = fixedData.left.specifiedValue;
-          $element.style.right = fixedData.right.specifiedValue;
-          $element.style.top = fixedData.top.specifiedValue;
-          $element.style.bottom = fixedData.bottom.specifiedValue;
-          $element.removeAttribute('fixedData');
-        }
-      }
-      // 设置样式。
-      $element.style.position = propertyValue;
-    };
-
-    // IE6 设置 display 特性时的特殊处理。
-    specialCSSPropertySetter.display = function($element, propertyValue) {
-      var fixedData = $element.fixedData;
-      // 仅在本元素已启用修复的情况下需要进行的处理。
-      if (fixedData) {
-        if (propertyValue.toLowerCase() === 'none') {
-          // 不渲染元素，禁用表达式。
-          if (fixedData.enabled) {
-            fixedData.enabled = false;
-            removeExpressions($element);
-          }
-        } else {
-          // 渲染元素，启用表达式。
-          if (!fixedData.enabled) {
-            fixedData.enabled = true;
-            setExpressions($element, fixedData);
-          }
-        }
-      }
-      // 设置样式。
-      $element.style.display = propertyValue;
-    };
-
-    // IE6 获取 left/right/top/bottom 特性时的特殊处理。
-    var getOffset = function($element, propertyName) {
-      var fixedData = $element.fixedData;
-      return fixedData ? fixedData[propertyName].specifiedValue : $element.currentStyle[propertyName];
-    };
-
-    // IE6 设置 left/right/top/bottom 特性时的特殊处理。
-    var setOffset = function($element, propertyName, propertyValue) {
-      var fixedData = $element.fixedData;
-      // 仅在本元素已启用修复的情况下需要进行的处理。
-      if (fixedData) {
-        fixedData[propertyName].specifiedValue = propertyValue;
-        // 如果值可用，更新使用值。
-        if (propertyValue.endsWith('px')) {
-          var usedValue = parseInt(propertyValue, 10);
-          if (fixedData[propertyName].usedValue !== usedValue) {
-            fixedData[propertyName].usedValue = usedValue;
-            // 如果表达式已启用，更新表达式。
-            if (fixedData.enabled) {
-              setExpressions($element, fixedData);
-            }
-          }
-        }
-      } else {
-        // 设置样式。
-        $element.style[propertyName] = propertyValue;
-      }
-    };
-
-    ['left', 'right', 'top', 'bottom'].forEach(function(side) {
-      specialCSSPropertyGetter[side] = function($element) {
-        return getOffset($element, side);
-      };
-      specialCSSPropertySetter[side] = function($element, propertyValue) {
-        setOffset($element, side, propertyValue);
-      };
-    });
-
-  }
-
 //--------------------------------------------------[Element.prototype.getStyle]
   /**
    * 获取本元素的“计算后的样式”中某个特性的值。
@@ -1255,7 +1064,7 @@
 
 //==================================================[DOM 扩展 - 处理事件]
   /*
-   * 提供事件兼容性处理的解决方案。
+   * 提供事件的兼容性处理。
    *
    * 事件兼容性的处理在与 DOM 相关的问题中比较复杂，这里提供的方案中，有以下几个主要概念：
    *   处理器 (handler)：
@@ -2546,7 +2355,6 @@
    * @param {Array} rules 包含样式规则的数组，其中每一项为一条规则。
    */
   var dynamicStyleSheet;
-  var widgetSelectorPattern = /\[widget=(\w+)\]/i;
   document.addStyleRules = function(rules) {
     if (!dynamicStyleSheet) {
       document.head.appendChild(document.createElement('style'));
@@ -2562,42 +2370,11 @@
         var selectors = rule.slice(0, lBraceIndex);
         var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
         selectors.split(separator).forEach(function(selector) {
-          // 配合 document.fixIE6Styles 方法修复 IE6 下自定义控件元素的属性选择符。
-          dynamicStyleSheet.addRule(navigator.isIE6 ? selector.replace(widgetSelectorPattern, function(_, widgetSelector) {
-            return '.widget-' + widgetSelector;
-          }) : selector, declarations);
+          dynamicStyleSheet.addRule(selector, declarations);
         });
       }
     });
   };
-
-//--------------------------------------------------[document.fixIE6Styles]
-  /**
-   * 使用 CSS Expression 修复 IE6 下自定义控件元素的属性选择符，并自动处理固定定位。
-   * @name document.fixIE6Styles
-   * @function
-   * @private
-   */
-  if (navigator.isIE6) {
-    document.addStyleRules(['* { behavior: expression(document.fixIE6Styles(this)); }']);
-//    window.fixCount = 0;
-    document.fixIE6Styles = function(element) {
-//      window.fixCount++;
-      var widget = element.getAttribute('widget');
-      if (widget) {
-        $(element).addClass('widget-' + widget);
-      }
-      if (element.currentStyle.position === 'fixed') {
-        element.currentStyleDisplayValue = element.currentStyle.display;
-        element.style.display = 'none';
-        setTimeout(function() {
-          element.style.display = element.currentStyleDisplayValue;
-          $(element).setStyle('position', 'fixed');
-        }, 0);
-      }
-      element.style.behavior = 'none';
-    };
-  }
 
 //--------------------------------------------------[document.loadScript]
   /**
@@ -2927,5 +2704,213 @@
    * @returns {Object} window 对象。
    */
   window.fire = Element.prototype.fire;
+
+//==================================================[DOM 扩展 - IE6 固定定位]
+  /*
+   * 修复 IE6 不支持 position: fixed 的问题。
+   *
+   * 注意：
+   *   目前仅考虑 direction: ltr 的情况，并且不支持嵌套使用 position: fixed。事实上这两点不会影响现有的绝大部分需求。
+   *   目前仅支持在 left right top bottom 上使用像素长度来设置偏移量。修复后，目标元素的样式中有 left 则 right 失效，有 top 则 bottom 失效。
+   *   因此要保证兼容，在应用中设置 position: fixed 的元素应有明确的尺寸设定，并只使用（left right top bottom）的（像素长度）来定位，否则在 IE6 中的表现会有差异。
+   *
+   * 处理流程：
+   *   position 的修改 = 启用/禁用修复，如果已启用修复，并且 display 不是 none，则同时启用表达式。
+   *   display 的修改 = 如果已启用修复，则启用/禁用表达式。
+   *   left/right/top/bottom 的修改 = 如果已启用修复，则调整 specifiedValue。如果已启用表达式，则更新表达式。
+   *   由于 IE6 设置为 position: absolute 的元素的 right bottom 定位与 BODY 元素的 position 有关，并且表现怪异，因此设置表达式时仍使用 left top 实现。
+   *   这样处理的附加好处是不必在每次更新表达式时启用/禁用设置在 right bottom 上的表达式。
+   *
+   * 参考：
+   *   http://www.qianduan.net/fix-ie6-dont-support-position-fixed-bug.html
+   *
+   * 实测结果：
+   *   X = 页面背景图片固定，背景图直接放在 HTML 上即可，若要放在 BODY 上，还要加上 background-attachment: fixed。
+   *   A = 为元素添加 CSS 表达式。
+   *   B = 为元素绑定事件监听器，在监听器中修改元素的位置。
+   *   X + A 可行，X + B 不可行。
+   */
+  if (navigator.isIE6) {
+    // 保存已修复的元素的偏移量及是否启用的数据。
+    /*
+     * <Object fixedData> {
+     *   left: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   right: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   top: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   bottom: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   enabled: <boolean enabled>
+     * };
+     */
+
+    // 设置页面背景。
+    html.style.backgroundImage = 'url(about:blank)';
+
+    // 添加 CSS 表达式。
+    var setExpressions = function($element, fixedData) {
+      var left = fixedData.left.usedValue;
+      var top = fixedData.top.usedValue;
+      var right = fixedData.right.usedValue;
+      var bottom = fixedData.bottom.usedValue;
+      if (isFinite(left)) {
+        $element.style.setExpression('left', '(document && document.documentElement.scrollLeft + ' + left + ') + "px"');
+      } else {
+        $element.style.setExpression('left', '(document && (document.documentElement.scrollLeft + document.documentElement.clientWidth - this.offsetWidth - (parseInt(this.currentStyle.marginLeft, 10) || 0) - (parseInt(this.currentStyle.marginRight, 10) || 0)) - ' + right + ') + "px"');
+      }
+      if (isFinite(top)) {
+        $element.style.setExpression('top', '(document && document.documentElement.scrollTop + ' + top + ') + "px"');
+      } else {
+        $element.style.setExpression('top', '(document && (document.documentElement.scrollTop + document.documentElement.clientHeight - this.offsetHeight - (parseInt(this.currentStyle.marginTop, 10) || 0) - (parseInt(this.currentStyle.marginBottom, 10) || 0)) - ' + bottom + ') + "px"');
+      }
+    };
+
+    // 删除 CSS 表达式。
+    var removeExpressions = function($element) {
+      $element.style.removeExpression('left');
+      $element.style.removeExpression('top');
+    };
+
+    // IE6 获取 position 特性时的特殊处理。
+    specialCSSPropertyGetter.position = function($element) {
+      return $element.fixedData ? 'fixed' : $element.currentStyle.position;
+    };
+
+    // IE6 设置 position 特性时的特殊处理。
+    specialCSSPropertySetter.position = function($element, propertyValue) {
+      // 本元素的偏移量数据，如果未启用修复则不存在。
+      var fixedData = $element.fixedData;
+      if (propertyValue.toLowerCase() === 'fixed') {
+        // 设置固定定位。
+        if (!fixedData) {
+          // 启用修复。
+          fixedData = $element.fixedData = {left: {}, right: {}, top: {}, bottom: {}, enabled: false};
+          var offset = {};
+          var currentStyle = $element.currentStyle;
+          fixedData.left.specifiedValue = offset.left = currentStyle.left;
+          fixedData.right.specifiedValue = offset.right = currentStyle.right;
+          fixedData.top.specifiedValue = offset.top = currentStyle.top;
+          fixedData.bottom.specifiedValue = offset.bottom = currentStyle.bottom;
+          Object.forEach(offset, function(length, side, offset) {
+            fixedData[side].usedValue = offset[side] = length.endsWith('px') ? parseInt(length, 10) : NaN;
+          });
+          // 如果 usedValue 中横向或纵向的两个值均为 NaN，则给 left 或 top 赋值为当前该元素相对于页面的偏移量。
+          if (isNaN(fixedData.left.usedValue) && isNaN(fixedData.right.usedValue)) {
+            fixedData.left.usedValue = html.scrollLeft + $element.getClientRect().left - (parseInt($element.currentStyle.marginLeft, 10) || 0);
+          }
+          if (isNaN(fixedData.top.usedValue) && isNaN(fixedData.bottom.usedValue)) {
+            fixedData.top.usedValue = html.scrollTop + $element.getClientRect().top - (parseInt($element.currentStyle.marginTop, 10) || 0);
+          }
+          // 如果元素已被渲染（暂不考虑祖先级元素未被渲染的情况），启用表达式。
+          if ($element.currentStyle.display !== 'none') {
+            fixedData.enabled = true;
+            setExpressions($element, fixedData);
+          }
+        }
+        propertyValue = 'absolute';
+      } else {
+        // 设置非固定定位。
+        if (fixedData) {
+          // 禁用修复。
+          removeExpressions($element);
+          $element.style.left = fixedData.left.specifiedValue;
+          $element.style.right = fixedData.right.specifiedValue;
+          $element.style.top = fixedData.top.specifiedValue;
+          $element.style.bottom = fixedData.bottom.specifiedValue;
+          $element.removeAttribute('fixedData');
+        }
+      }
+      // 设置样式。
+      $element.style.position = propertyValue;
+    };
+
+    // IE6 设置 display 特性时的特殊处理。
+    specialCSSPropertySetter.display = function($element, propertyValue) {
+      var fixedData = $element.fixedData;
+      // 仅在本元素已启用修复的情况下需要进行的处理。
+      if (fixedData) {
+        if (propertyValue.toLowerCase() === 'none') {
+          // 不渲染元素，禁用表达式。
+          if (fixedData.enabled) {
+            fixedData.enabled = false;
+            removeExpressions($element);
+          }
+        } else {
+          // 渲染元素，启用表达式。
+          if (!fixedData.enabled) {
+            fixedData.enabled = true;
+            setExpressions($element, fixedData);
+          }
+        }
+      }
+      // 设置样式。
+      $element.style.display = propertyValue;
+    };
+
+    // IE6 获取 left/right/top/bottom 特性时的特殊处理。
+    var getOffset = function($element, propertyName) {
+      var fixedData = $element.fixedData;
+      return fixedData ? fixedData[propertyName].specifiedValue : $element.currentStyle[propertyName];
+    };
+
+    // IE6 设置 left/right/top/bottom 特性时的特殊处理。
+    var setOffset = function($element, propertyName, propertyValue) {
+      var fixedData = $element.fixedData;
+      // 仅在本元素已启用修复的情况下需要进行的处理。
+      if (fixedData) {
+        fixedData[propertyName].specifiedValue = propertyValue;
+        // 如果值可用，更新使用值。
+        if (propertyValue.endsWith('px')) {
+          var usedValue = parseInt(propertyValue, 10);
+          if (fixedData[propertyName].usedValue !== usedValue) {
+            fixedData[propertyName].usedValue = usedValue;
+            // 如果表达式已启用，更新表达式。
+            if (fixedData.enabled) {
+              setExpressions($element, fixedData);
+            }
+          }
+        }
+      } else {
+        // 设置样式。
+        $element.style[propertyName] = propertyValue;
+      }
+    };
+
+    ['left', 'right', 'top', 'bottom'].forEach(function(side) {
+      specialCSSPropertyGetter[side] = function($element) {
+        return getOffset($element, side);
+      };
+      specialCSSPropertySetter[side] = function($element, propertyValue) {
+        setOffset($element, side, propertyValue);
+      };
+    });
+
+    // 在 IE6 中使用 CSS Expression 自动处理固定定位。
+    document.addStyleRules(['* { behavior: expression(document.fixIE6Styles(this)); }']);
+//    window.fixCount = 0;
+    document.fixIE6Styles = function(element) {
+//      window.fixCount++;
+      if (element.currentStyle.position === 'fixed') {
+        element.currentStyleDisplayValue = element.currentStyle.display;
+        element.style.display = 'none';
+        setTimeout(function() {
+          element.style.display = element.currentStyleDisplayValue;
+          $(element).setStyle('position', 'fixed');
+        }, 0);
+      }
+      element.style.behavior = 'none';
+    };
+
+  }
 
 })();

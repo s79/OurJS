@@ -295,6 +295,7 @@ var manifest = {
     'Switcher.prototype.activate'
   ],
   'Widget': [
+    'Widget.register',
     'Widget.parse'
   ],
   '多页标签面板': [

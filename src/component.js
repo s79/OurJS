@@ -18,7 +18,7 @@
    * 创建一个组件。
    * @name Component
    * @constructor
-   * @param {Function} initialization 组件的初始化函数。
+   * @param {Function} initialize 组件的初始化函数。
    * @param {Object} [config] 组件的默认配置。
    *   如果省略，则认为该组件没有可配置项。
    *   可以在创建组件之后再设置其 config 属性以更改其默认配置。
@@ -30,12 +30,12 @@
    *   为保证以上两种特性不被破坏，组件的原型及其实例对象中都不应设置以下属性：
    *   'config'，'events'，'setConfig'，'on'，'off'，'fire'。
    */
-  var Component = window.Component = function(initialization, config, prototype) {
+  var Component = window.Component = function(initialize, config, prototype) {
     // 为组件的实例启用可配置和可观察的特性。
     var Constructor = function() {
       Configurable.call(this, Object.clone(Constructor.config || {}));
       Observable.call(this);
-      initialization.apply(this, Array.from(arguments));
+      initialize.apply(this, Array.from(arguments));
     };
     // 保存默认配置。
     Constructor.config = config || {};
