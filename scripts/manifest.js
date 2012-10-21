@@ -318,9 +318,10 @@ var manifest = {
     'Dialog#close',
     'Dialog#reposition'
   ],
-  'Paginator': [
+  '分页导航条': [
     'Paginator',
-    'Paginator.config',
+    'Paginator#totalPage',
+    'Paginator#currentPage',
     'Paginator#turn',
     'Paginator#render'
   ],

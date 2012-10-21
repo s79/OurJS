@@ -12,8 +12,8 @@
    * @constructor
    * @attribute data-hover-delay
    *   指定以毫秒为单位的“标签”鼠标悬停激活延时。
-   *   如果指定该属性，则启用鼠标悬停激活（建议设置为 '200' - '400' 之间的数值）。
-   *   如果不指定该属性，则由鼠标点击激活。
+   *   如果指定本属性，则启用鼠标悬停激活（建议设置为 '200' - '400' 之间的数值）。
+   *   如果不指定本属性，则由鼠标点击激活。
    * @fires activate
    *   {Element} activeTab 当前的激活的“标签”。
    *   {Element} activePanel 当前的激活的“面板”。
@@ -88,7 +88,9 @@
       }
     },
     events: ['activate'],
-    initialize: function($element) {
+    initialize: function() {
+      var $element = this;
+
       // 保存属性。
       var tabs = $element.tabs = $element.find('.tab');
       var panels = $element.panels = $element.find('.panel');

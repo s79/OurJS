@@ -5,6 +5,9 @@
 >IE 自动填充未触发 change 事件。
 >移出不常用代码到 utilities 目录。
 
+>2012-10-21
+widget-paginator 支持两种模式
+
 >2012-10-20
 +Widget.register
 不再使用 INS[widget=xxx] 来表示控件，改为 class=widget-xxx 指定。

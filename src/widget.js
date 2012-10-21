@@ -98,7 +98,7 @@
         });
       }
       // 初始化。
-      parser.initialize($element);
+      parser.initialize.call($element);
     };
 
   };
@@ -116,14 +116,15 @@
   Widget.parse = function(element, recursive) {
     var $element = $(element);
 
-    if (!$element.isWidget) {
+    if (!$element.widgetType) {
       var classNames = $element.className.clean().split(' ');
       var className;
       while (className = classNames.shift()) {
-        var parser = Widget.parsers[className.replace('widget-', '')];
+        var type = className.replace('widget-', '');
+        var parser = Widget.parsers[type];
         if (parser) {
           parser($element);
-          $element.isWidget = true;
+          $element.widgetType = type;
           break;
         }
       }

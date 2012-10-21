@@ -286,7 +286,7 @@ execute(function($) {
         '多页标签面板',
         'Slideshow',
         '模态对话框',
-        'Paginator',
+        '分页导航条',
         'Calendar'
       ]
           .forEach(function(name) {

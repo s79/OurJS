@@ -3,89 +3,72 @@
 <head>
 <meta charset="utf-8">
 <title>分页导航条</title>
-<script src="../../../our.js"></script>
+<script src="../../../dev.js"></script>
 <script src="../../../scripts/framework.js"></script>
+<script src="../../../src/widgets/dialog.js"></script>
 <script src="../../../src/widgets/paginator.js"></script>
 <style>
-#log { width: 100px; height: 30px; margin: 20px auto 0; color: orangered; font-weight: bold; font-size: 20px; text-align: center; }
-#paginator { margin: 10px auto 100px; font-size: 12px; line-height: 14px; text-align: center; }
-#paginator a { display: inline-block; margin: 2px; padding: 2px 5px; border: 1px solid silver; background: gainsboro; color: black; text-decoration: none; }
-#paginator a.prev,
-#paginator a.next { padding: 2px 10px; }
-#paginator a:link,
-#paginator a:visited,
-#paginator a:active { background: gainsboro; }
-#paginator a:hover { background: whitesmoke; }
-#paginator a.current,
-#paginator a.current:hover { background: white; }
-#paginator a.disabled { border-color: gainsboro; background: whitesmoke; color: gainsboro; }
+.container { padding: 80px 0 20px; }
+.container .widget-overlay { background: white; opacity: 0.5; filter: alpha(opacity = 50); }
+.widget-dialog { padding: 5px 20px; border: 1px solid black; background: white; color: black; font-size: 14px; }
 </style>
 </head>
 <body>
 <div id="content">
   <h1>分页导航条</h1>
 
-  <h2>Paginator</h2>
+  <h2>无脚本模式</h2>
+  <ul>
+    <li>适用于数据内容由服务端直接输出的场景。</li>
+    <li>服务端将“总页数”，“当前页”以及“链接地址”写入目标元素的 data-target-url、data-total-page 和 data-current-page 属性，即可启用此模式。</li>
+    <li>在此模式下，不必使用任何 JS 代码来处理导航条内容。</li>
+  </ul>
   <fieldset>
-    <legend>分页导航条</legend>
-    <form id="switch_mode">
-      <label><input id="client" name="mode" type="radio" value="client" checked>客户端翻页（使用 Ajax 处理信息）</label><br>
-      <label><input id="server" name="mode" type="radio" value="server">服务端翻页</label>
-    </form>
-    <div id="log"></div>
-    <div id="paginator">
-      <a href="javascript:void('prev');" title="上一页" class="prev">‹</a>
-      <span></span>
-      <a href="javascript:void('next');" title="下一页" class="next">›</a>
+    <legend>点击页码会导致页面刷新</legend>
+    <div class="container">
+      <script>
+      (function() {
+        var totalPage = 30;
+        var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 1, 1, totalPage);
+        document.write('<div class="widget-paginator" data-target-url="?page={page}" data-total-page="' + totalPage + '" data-current-page="' + currentPage + '"></div>');
+      })();
+      </script>
     </div>
   </fieldset>
-  <script>
-  execute(function($) {
-    // TODO: 基于数据的行为管理。
-    var $form = $('#switch_mode');
-    var mode = localStorage.getItem('component_paginator_mode') || 'client';
-    var saveMode = function() {
-      mode = $form.getFieldValue('mode').getFirst();
-      localStorage.setItem('component_paginator_mode', mode);
-    };
-    $('#' + mode).checked = true;
-    $('#client').on('change', saveMode);
-    $('#server').on('change', saveMode);
 
-//--------------------------------------------------[paginator]
-    var $paginator = $('#paginator');
-    var controls = $paginator.find('a');
-    var $pages = $paginator.find('span').getFirst();
-    var totalRows = 500;
-    var pageSize = 10;
-    var totalPage = Math.ceil(totalRows / pageSize);
-    var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 1, 1, totalPage);
-    window.paginator = new Paginator({
-      prev: controls[0],
-      next: controls[1],
-      pages: $pages
-    })
-        .on('turn', function(e) {
-          $('#log').morph({}, {
-            duration: 500,
-            onStart: function() {
-              this.innerText = 'Loading...';
-            },
-            onFinish: function() {
-              if (mode === 'client') {
-                this.highlight().innerText = e.number;
-                paginator.render(e.number, totalPage);
-              } else {
-                location.search = 'page=' + e.number;
-              }
-            }
-          });
-        })
-        .on('render', function(e) {
-        })
-        .render(currentPage, totalPage);
-  });
-  </script>
+  <h2>有脚本模式</h2>
+  <ul>
+    <li>适用于数据内容是由客户端通过 Ajax 获取的场景。</li>
+    <li>省略目标元素的 data-target-url、data-total-page 和 data-current-page 属性，即可启用此模式。</li>
+    <li>在此模式下，应当在合适的时间调用 render 方法来渲染导航条内容，并在 turn 事件的监听器中进行后续处理。</li>
+  </ul>
+  <fieldset>
+    <legend>点击页码不会刷新当前页面</legend>
+    <div class="container">
+      <div id="loading" class="widget-dialog">Loading...</div>
+      <div id="paginator" class="widget-paginator"></div>
+    </div>
+    <script>
+    document.on('domready', function() {
+      var totalPage = 10;
+      var currentPage = 5;
+      var $loading = $('#loading');
+      var $paginator = $('#paginator');
+      // 添加翻页事件监听器。
+      $paginator.on('turn', function(e) {
+        // 检测到翻页事件，在此处请求新页的数据。
+        $loading.open();
+        // 模拟 500 毫秒后收到新页的数据，重新渲染导航条。
+        setTimeout(function() {
+          $loading.close();
+          $paginator.render(e.number, totalPage);
+        }, 500);
+      });
+      // 需要手动渲染导航条。
+      $paginator.render(currentPage, totalPage);
+    });
+    </script>
+  </fieldset>
 
 </div>
 </body>

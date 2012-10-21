@@ -1,7 +1,7 @@
 /**
  * @fileOverview 控件 - 模态对话框。
  * @author sundongguo@gmail.com
- * @version 20120310
+ * @version 20121018
  */
 
 (function() {
@@ -165,23 +165,23 @@
         return this;
       }
     },
-    initialize: function($element) {
+    initialize: function() {
       // 保存属性。
-      var $context = $element.context = $element.getParent();
-      $element.isVisible = false;
+      var $context = this.context = this.getParent();
+      this.isVisible = false;
 
       // 设置样式及内部结构。
       var contextIsBody = $context === document.body;
-      $element.setStyles({position: contextIsBody ? 'fixed' : 'absolute'});
+      this.setStyles({position: contextIsBody ? 'fixed' : 'absolute'});
       if (navigator.isIE6) {
         // IE6 使用 IFRAME 元素遮盖 SELECT 元素，在其上覆盖一个 DIV 元素是为了避免鼠标在遮盖范围内点击时触发元素在本文档之外。
-        $element.innerHTML = '<iframe frameborder="no" scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></div>';
-        $element.iframeOverlay = $element.getFirstChild();
-        $element.divOverlay = $element.getLastChild();
+        this.innerHTML = '<iframe frameborder="no" scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></div>';
+        this.iframeOverlay = this.getFirstChild();
+        this.divOverlay = this.getLastChild();
         // IE6 BODY 的遮盖层在更改视口尺寸时需要调整尺寸。
         if (contextIsBody) {
-          $element.resizeInIE6 = function() {
-            $element.resize();
+          this.resizeInIE6 = function() {
+            this.resize();
           };
         }
       }
@@ -199,16 +199,16 @@
    * @constructor
    * @attribute data-pinned-target
    *   对话框的“定位参考元素”的 id。
-   *   如果不指定该属性，则以父元素作为“定位参考元素”。
+   *   如果不指定本属性，则以父元素作为“定位参考元素”。
    * @attribute data-offset-x
    *   对话框的左边与其“定位参考元素”的左边的横向差值。
-   *   如果不指定该属性，对话框的中心点在横向将与其“定位参考元素”的中心点重合。
+   *   如果不指定本属性，对话框的中心点在横向将与其“定位参考元素”的中心点重合。
    * @attribute data-offset-y
    *   对话框的顶边与其“定位参考元素”的顶边的纵向差值。
-   *   如果不指定该属性，对话框的中心点在纵向将与其“定位参考元素”的中心点重合。
+   *   如果不指定本属性，对话框的中心点在纵向将与其“定位参考元素”的中心点重合。
    * @attribute data-animation
    *   打开和关闭对话框时使用的动画效果，可选项有 'none'，'fade' 和 'slide'。
-   *   如果不指定该属性或指定为 'none'，则关闭动画效果。
+   *   如果不指定本属性或指定为 'none'，则关闭动画效果。
    *   IE6 本属性无效，始终关闭动画效果。
    * @fires open
    *   在对话框打开时触发。
@@ -350,11 +350,10 @@
         return $dialog;
       },
       reposition: function() {
-        var $dialog = this;
-        if ($dialog.isOpen) {
-          var isFixedPositioned = $dialog.isFixedPositioned;
+        if (this.isOpen) {
+          var isFixedPositioned = this.isFixedPositioned;
           // 获取当前位置。
-          var dialogClientRect = $dialog.getClientRect();
+          var dialogClientRect = this.getClientRect();
           var currentX = dialogClientRect.left;
           var currentY = dialogClientRect.top;
           var currentWidth = dialogClientRect.width;
@@ -370,10 +369,10 @@
             pinnedTargetClientRect.width = viewportClientSize.width;
             pinnedTargetClientRect.height = viewportClientSize.height;
           } else {
-            pinnedTargetClientRect = $dialog.pinnedTarget.getClientRect();
+            pinnedTargetClientRect = this.pinnedTarget.getClientRect();
           }
-          expectedX = pinnedTargetClientRect.left + (Number.isFinite($dialog.offsetX) ? $dialog.offsetX : (pinnedTargetClientRect.width - currentWidth) / 2);
-          expectedY = pinnedTargetClientRect.top + (Number.isFinite($dialog.offsetY) ? $dialog.offsetY : (pinnedTargetClientRect.height - currentHeight) / 2);
+          expectedX = pinnedTargetClientRect.left + (Number.isFinite(this.offsetX) ? this.offsetX : (pinnedTargetClientRect.width - currentWidth) / 2);
+          expectedY = pinnedTargetClientRect.top + (Number.isFinite(this.offsetY) ? this.offsetY : (pinnedTargetClientRect.height - currentHeight) / 2);
           // 确保固定定位的对话框显示在视口内。
           if (isFixedPositioned) {
             var leftLimit = 0;
@@ -395,28 +394,28 @@
             }
           }
           // 设置最终位置。
-          $dialog.setStyles({left: parseInt($dialog.getStyle('left'), 10) + expectedX - currentX, top: parseInt($dialog.getStyle('top'), 10) + expectedY - currentY});
+          this.setStyles({left: parseInt(this.getStyle('left'), 10) + expectedX - currentX, top: parseInt(this.getStyle('top'), 10) + expectedY - currentY});
           // 触发事件。
-          $dialog.fire('reposition');
+          this.fire('reposition');
         }
-        return $dialog;
+        return this;
       }
     },
     events: ['open', 'close', 'reposition'],
-    initialize: function($element) {
+    initialize: function() {
       // 保存属性。
-      var $context = $element.context = $element.getParent();
+      var $context = this.context = this.getParent();
       // pinnedTarget 必须是 context 的后代元素。
       var $pinnedTarget;
-      $element.pinnedTarget = ($element.pinnedTarget && ($pinnedTarget = $('#' + $element.pinnedTarget)) && $context.contains($pinnedTarget)) ? $pinnedTarget : $context;
+      this.pinnedTarget = (this.pinnedTarget && ($pinnedTarget = $('#' + this.pinnedTarget)) && $context.contains($pinnedTarget)) ? $pinnedTarget : $context;
       // IE6 不使用动画。
       if (navigator.isIE6) {
-        $element.animation = 'none';
+        this.animation = 'none';
       }
       // 仅当 pinnedTarget 为 BODY 时才允许 position 设置为 fixed。
-      $element.isFixedPositioned = $element.pinnedTarget === document.body && $element.getStyle('position') === 'fixed';
+      this.isFixedPositioned = this.pinnedTarget === document.body && this.getStyle('position') === 'fixed';
       // 默认状态为关闭。
-      $element.isOpen = false;
+      this.isOpen = false;
 
       // 本对话框是 $context 中的第一个对话框。
       if (!$context.dialogs) {
@@ -432,15 +431,15 @@
       }
 
       // 使本元素可获得焦点。
-      $element.tabIndex = 0;
+      this.tabIndex = 0;
       if (navigator.isIElt8) {
-        $element.hideFocus = true;
+        this.hideFocus = true;
       }
 
       // 设置样式。
-      // 调节对话框的位置是通过 $element 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
-      // 从 500000 开始重置 $element 的 zIndex，以供遮盖层参照（如果数字过大 Firefox 12.0 在取值时会有问题）。
-      $element.setStyles({position: $element.isFixedPositioned ? 'fixed' : 'absolute', left: 0, top: 0});
+      // 调节对话框的位置是通过 this 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
+      // 从 500000 开始重置 this 的 zIndex，以供遮盖层参照（如果数字过大 Firefox 12.0 在取值时会有问题）。
+      this.setStyles({position: this.isFixedPositioned ? 'fixed' : 'absolute', left: 0, top: 0});
 
     }
   });

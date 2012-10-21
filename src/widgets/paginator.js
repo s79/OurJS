@@ -1,174 +1,206 @@
 /**
- * @fileOverview 组件 - 分页导航条。
+ * @fileOverview 控件 - 分页导航条。
  * @author sundongguo@gmail.com
- * @version 20120516
+ * @version 20121021
  */
 
-execute(function($) {
-//==================================================[Paginator]
-  /*
-   * 创建分页导航条。
-   */
-
-//--------------------------------------------------[Paginator Constructor]
+(function() {
+//==================================================[控件 - 分页导航条]
   /**
    * 分页导航条。
    * @name Paginator
    * @constructor
-   * @param {Object} elements 相关元素。
-   * @param {Element} elements.prev “上一页”按钮。
-   * @param {Element} elements.next “下一页”按钮。
-   * @param {Element} elements.pages 页码的容器，用于容纳每次渲染后生成的页码元素。
-   * @param {Object} [config] 配置信息。
-   * @param {number} config.edgeEntries 在导航条的两端显示的最多页码数量，默认为 1。
-   * @param {number} config.sideEntries 在当前页码的两侧显示的最多页码数量，默认为 2。
-   * @param {string} config.disabledClassName 为禁用的翻页按钮添加的类名，默认为 'disabled'。
-   * @param {string} config.currentClassName 为当前页码添加的类名，默认为 'current'。
+   * @attribute data-edge-entries
+   *   在导航条的两端显示的最多页码数量。
+   *   如果不指定本属性，则使用 1 作为默认值。
+   * @attribute data-side-entries
+   *   在当前页码的两侧显示的最多页码数量。
+   *   如果不指定本属性，则使用 2 作为默认值。
+   * @attribute data-target-url
+   *   点击页码链接后跳转到的地址，在地址字符串中使用 {page} 表示当前页码。
+   *   是否指定本属性将导致本控件具备不同的行为。
+   *   如果指定本属性，即进入“无脚本模式”，此时当点击页码链接时，将直接跳转到指定的 url 地址，而不会触发 turn 事件。<br>这种模式适用的场景为：页面由服务端代码输出，知道 totalPage 和 currentPage（通过设置 data-total-page 和 data-current-page 属性来指定），且翻页时需要刷新页面。<br>在“无脚本模式”下，不必使用任何 JS 代码来处理导航条内容。
+   *   如果不指定本属性，即进入“有脚本模式”，此时当点击页码链接时，会触发 turn 事件，但会阻止点击链接的默认行为。<br>这种模式适用的场景为：页面生成时不知道 totalPage 和 currentPage（这种模式下设置 data-total-page 和 data-current-page 属性是无效的），或当翻页时不希望刷新当前页面。<br>在“有脚本模式”下，应当在合适的时间调用 render 方法来渲染导航条内容，并在 turn 事件的监听器中进行后续处理。
+   * @attribute data-total-page
+   *   要分页显示的数据的总页数。
+   *   仅在“无脚本模式”下，本属性才有效。
+   * @attribute data-current-page
+   *   要分页显示的数据的当前页码。
+   *   仅在“无脚本模式”下，本属性才有效。
    * @fires turn
-   *   {number} number 目标页码。
-   *   成功调用 turn 方法后触发。
+   *   {number} targetPage 目标页码。
+   *   调用 turn 方法后触发。
    * @fires render
    *   {number} currentPage 当前页码。
    *   {number} totalPage 总页数。
-   *   成功调用 render 方法后触发。
+   *   调用 render 方法后触发。
+   * @description
+   *   为元素添加 'widget-paginator' 类，即可使该元素成为分页导航条控件。
+   *   分页导航条控件有两种模式：“无脚本模式”和“有脚本模式”。使用哪种模式取决于是否为本元素指定了 data-target-url 属性。
+   *   当分页导航条控件初始化时，会自动创建其内部的元素。
+   *   其中“上一页”按钮的类名为 'prev'，“下一页”按钮的类名为 'next'，页码的容器的类名为 'pages'。
+   *   如果一个按钮处于禁用状态，将自动为其添加类名 'disabled'。
+   *   表示当前页的页码元素将被自动添加类名 'current'。
    */
-  var Paginator = new Component(function(elements, config) {
-    var paginator = this;
 
-    // 获取配置信息。
-    config = paginator.setConfig(config);
-
-    // 保存属性。
-    paginator.elements = elements;
-    paginator.targetPage = 0;
-    paginator.currentPage = 0;
-    paginator.totalPage = 0;
-
-    // 翻到上一页/下一页。
-    elements.prev.on('click', function() {
-      if (!this.hasClass(config.disabledClassName)) {
-        paginator.turn(paginator.targetPage - 1);
-      }
-    });
-    elements.next.on('click', function() {
-      if (!this.hasClass(config.disabledClassName)) {
-        paginator.turn(paginator.targetPage + 1);
-      }
-    });
-
-    // 翻到指定页。
-    elements.pages.on('click:relay(a)', function() {
-      paginator.turn(Number.toInteger(this.innerText));
-    });
-
-  });
-
-//--------------------------------------------------[Paginator.config]
   /**
-   * 默认配置。
-   * @name Paginator.config
+   * 总页数。
+   * @name Paginator#totalPage
+   * @type number
    */
-  Paginator.config = {
-    edgeEntries: 1,
-    sideEntries: 2,
-    disabledClassName: 'disabled',
-    currentClassName: 'current'
-  };
 
-//--------------------------------------------------[Paginator.prototype.turn]
   /**
-   * 跳转页码。
-   * @name Paginator.prototype.turn
+   * 当前页。
+   * @name Paginator#currentPage
+   * @type number
+   */
+
+  /**
+   * 跳转到指定页。
+   * @name Paginator#turn
    * @function
    * @param {number} number 目标页码。
-   * @returns {Object} Paginator 对象。
-   * @description
-   *   如果目标页码与当前页码相同，则调用此方法无效。
+   * @returns {Element} 本元素。
    */
-  Paginator.prototype.turn = function(number) {
-    number = Math.limit(number, 1, this.totalPage);
-    if (number !== this.targetPage) {
-      this.targetPage = number;
-      this.fire('turn', {number: number});
-    }
-    return this;
-  };
 
-//--------------------------------------------------[Paginator.prototype.render]
   /**
-   * 根据当前页和总页数渲染分页导航条。
-   * @name Paginator.prototype.render
+   * 根据当前页和总页数渲染导航条内容。
+   * @name Paginator#render
    * @function
    * @param {number} currentPage 当前页码。
    * @param {number} totalPage 总页数。
-   * @returns {Object} Paginator 对象。
-   * @description
-   *   如果 currentPage 和 totalPage 与当前页码和总页数相同，则调用此方法无效。
+   * @returns {Element} 本元素。
    */
-  Paginator.prototype.render = function(currentPage, totalPage) {
-    if (currentPage !== this.currentPage || totalPage !== this.totalPage) {
-      var elements = this.elements;
-      var config = this.config;
-
-      // 更新 currentPage 和 totalPage。
-      this.targetPage = this.currentPage = currentPage = Math.limit(currentPage, 1, totalPage);
-      this.totalPage = totalPage;
-
-      // 生成页码 items。
-      var edgeEntries = config.edgeEntries;
-      var sideEntries = config.sideEntries;
-      var ranges = {left: {}, middle: {}, right: {}};
-      ranges.left.min = 1;
-      ranges.left.max = Math.min(edgeEntries, totalPage);
-      ranges.middle.min = Math.max(Math.min(currentPage - sideEntries, totalPage - (sideEntries * 2 + 1)), ranges.left.max + 1);
-      ranges.middle.max = Math.min(ranges.middle.min + (sideEntries * 2), totalPage);
-      ranges.right.min = Math.max(totalPage - edgeEntries + 1, ranges.middle.max + 1);
-      ranges.right.max = totalPage;
-      var items = [];
-      var n;
-      // 左侧数字。
-      n = ranges.left.min;
-      while (n <= ranges.left.max) {
-        items.push(n++);
-      }
-      // 左侧省略。
-      if (ranges.middle.min > ranges.left.max + 1) {
-        items.push(NaN);
-      }
-      // 中部数字。
-      n = ranges.middle.min;
-      while (n <= ranges.middle.max) {
-        items.push(n++);
-      }
-      // 右侧省略。
-      if (ranges.right.min > ranges.middle.max + 1) {
-        items.push(NaN);
-      }
-      // 右侧数字。
-      n = ranges.right.min;
-      while (n <= ranges.right.max) {
-        items.push(n++);
-      }
-
-      // 渲染导航条。
-      var disabledClassName = config.disabledClassName;
-      var currentClassName = config.currentClassName;
-      elements.prev[currentPage === 1 ? 'addClass' : 'removeClass'](disabledClassName);
-      elements.next[currentPage === totalPage ? 'addClass' : 'removeClass'](disabledClassName);
-      elements.pages.innerHTML = items.map(function(number) {
-        return Number.isNaN(number) ? '<span>...</span>' : '<a href="javascript:void(\'' + number + '\');" title="第 ' + number + ' 页"' + (number === currentPage ? ' class="' + currentClassName + '"' : '') + '>' + number + '</a>';
-      }).join('');
-
-      // 触发事件。
-      this.fire('render', {currentPage: currentPage, totalPage: totalPage});
-
-    }
-
-    return this;
-
-  };
 
 //--------------------------------------------------[Paginator]
-  window.Paginator = Paginator;
+  Widget.register('paginator', {
+    css: [
+      '.widget-paginator { font-size: 14px; line-height: 16px; text-align: center; }',
+      '.widget-paginator a:link, .widget-paginator a:visited, .widget-paginator a:hover, .widget-paginator a:active { display: inline-block; margin: 2px; padding: 2px 5px; border: 1px solid silver; background: white; color: black; text-decoration: none; }',
+      '.widget-paginator a:hover { border-color: firebrick; text-decoration: none; }',
+      '.widget-paginator a.current:link, .widget-paginator a.current:visited, .widget-paginator a.current:hover, .widget-paginator a.current:active { border-color: firebrick; background: crimson; color: white; }',
+      '.widget-paginator a.disabled:link, .widget-paginator a.disabled:visited, .widget-paginator a.disabled:hover, .widget-paginator a.disabled:active { border-color: gainsboro; color: gainsboro; cursor: default; }'
+    ],
+    config: {
+      edgeEntries: 1,
+      sideEntries: 2,
+      targetUrl: '',
+      totalPage: 1,
+      currentPage: 1
+    },
+    methods: {
+      turn: function(targetPage) {
+        targetPage = Math.limit(targetPage, 1, this.totalPage);
+        this.targetPage = targetPage;
+        this.fire('turn', {number: targetPage});
+        return this;
+      },
+      render: function(currentPage, totalPage) {
+        // 更新 currentPage 和 totalPage。
+        this.targetPage = this.currentPage = currentPage = Math.limit(currentPage, 1, totalPage);
+        this.totalPage = totalPage;
+        // 生成页码 items。
+        var edgeEntries = this.edgeEntries;
+        var sideEntries = this.sideEntries;
+        var ranges = {left: {}, middle: {}, right: {}};
+        ranges.left.min = 1;
+        ranges.left.max = Math.min(edgeEntries, totalPage);
+        ranges.middle.min = Math.max(Math.min(currentPage - sideEntries, totalPage - (sideEntries * 2 + 1)), ranges.left.max + 1);
+        ranges.middle.max = Math.min(ranges.middle.min + (sideEntries * 2), totalPage);
+        ranges.right.min = Math.max(totalPage - edgeEntries + 1, ranges.middle.max + 1);
+        ranges.right.max = totalPage;
+        var items = [];
+        var n;
+        // 左侧数字。
+        n = ranges.left.min;
+        while (n <= ranges.left.max) {
+          items.push(n++);
+        }
+        // 左侧省略。
+        if (ranges.middle.min > ranges.left.max + 1) {
+          items.push(NaN);
+        }
+        // 中部数字。
+        n = ranges.middle.min;
+        while (n <= ranges.middle.max) {
+          items.push(n++);
+        }
+        // 右侧省略。
+        if (ranges.right.min > ranges.middle.max + 1) {
+          items.push(NaN);
+        }
+        // 右侧数字。
+        n = ranges.right.min;
+        while (n <= ranges.right.max) {
+          items.push(n++);
+        }
+        // 渲染导航条内容。
+        var targetUrl = this.targetUrl;
+        if (targetUrl) {
+          this.prevButton.href = currentPage === 1 ? 'javascript:void(\'prev\');'/* TODO: preventDefault */ : targetUrl.replace(/{page}/, currentPage - 1);
+          this.nextButton.href = currentPage === totalPage ? 'javascript:void(\'next\');'/* TODO: preventDefault */ : targetUrl.replace(/{page}/, currentPage + 1);
+        }
+        this.prevButton[currentPage === 1 ? 'addClass' : 'removeClass']('disabled');
+        this.nextButton[currentPage === totalPage ? 'addClass' : 'removeClass']('disabled');
+        this.pageNumberContainer.innerHTML = items
+            .map(function(number) {
+              return Number.isNaN(number) ? '<span>...</span>' : '<a href="' + (targetUrl ? targetUrl.replace(/{page}/, number) : 'javascript:void(\'' + number + '\');') + '" title="第 ' + number + ' 页"' + (number === currentPage ? ' class="current"' : '') + '>' + number + '</a>';
+            })
+            .join('');
+        // 触发事件。
+        this.fire('render', {currentPage: currentPage, totalPage: totalPage});
+        return this;
+      }
+    },
+    events: ['turn', 'render'],
+    initialize: function() {
+      var $element = this;
 
-});
+      // 保存属性。
+      var $prevButton = $element.prevButton = $('<a href="javascript:void(\'prev\');" class="prev">‹ 上一页</a>').insertTo($element);
+      var $pageNumberContainer = $element.pageNumberContainer = $('<span class="pages"></span>').insertTo($element);
+      var $nextButton = $element.nextButton = $('<a href="javascript:void(\'next\');" class="next">下一页 ›</a>').insertTo($element);
+      $element.targetPage = 0;
+
+      // 根据是否配置了 data-target-url 属性确定工作模式。
+      var targetUrl = $element.targetUrl;
+      if (!targetUrl) {
+        $element.totalPage = 0;
+        $element.currentPage = 0;
+      }
+
+      // 翻到上一页/下一页。
+      $prevButton.on('click.paginator', function(event) {
+        if (!targetUrl) {
+          if (!this.hasClass('disabled')) {
+            $element.turn($element.targetPage - 1);
+          }
+          event.preventDefault();
+        }
+      });
+      $nextButton.on('click.paginator', function(event) {
+        if (!targetUrl) {
+          if (!this.hasClass('disabled')) {
+            $element.turn($element.targetPage + 1);
+          }
+          event.preventDefault();
+        }
+      });
+
+      // 翻到指定页。
+      $pageNumberContainer.on('click.paginator:relay(a)', function(event) {
+        if (!targetUrl) {
+          $element.turn(Number.toInteger(this.innerText));
+          event.preventDefault();
+        }
+      });
+
+      // “无脚本模式”，自动渲染导航条内容。
+      if (targetUrl) {
+        $element.render($element.currentPage, $element.totalPage);
+      }
+
+    }
+  });
+
+})();
