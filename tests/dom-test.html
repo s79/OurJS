@@ -6,10 +6,6 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="../dev.js"></script>
 <script src="../src/utilities/logger.js"></script>
-<style>
-.alogger p.true { border-bottom: 1px solid; color: green; }
-.alogger p.false { border-bottom: 1px solid; color: red; }
-</style>
 </head>
 
 text_before
@@ -40,6 +36,7 @@ b
 
 <div id="logger_1" style="position: absolute; left: 10px; top: 150px;"></div>
 <div id="logger_2" style="position: absolute; left: 400px; top: 150px;"></div>
+
 <script>
 var $ = document.$;
 //--------------------------------------------------[test1]
@@ -91,6 +88,15 @@ l2.assert('$y.getData(\'whatData\') === \'WHAT?\'');
 
 // This test will be true in all browsers.
 l2.assert('document.createElement(\'var\').ownerDocument === window.document');
+
+document.loadScript('dom-createElement.js', {
+  charset: 'gb2312',
+  onLoad: function() {
+    l2.assert("'" + this.nodeName + "' === 'SCRIPT' && '" + this.charset + "' === 'gb2312'");
+  }
+});
+
 </script>
+
 </body>
 </html>

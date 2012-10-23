@@ -2299,23 +2299,23 @@
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
    */
-  var tagNamePattern = /[\w-]+/;
+  var tagNamePattern = /(?!<)\w*/;
 
   var wrappers = {
     area: [1, '<map>', '</map>'],
     legend: [1, '<fieldset>', '</fieldset>'],
-    option: [1, '<select>', '</select>'],
-    caption: [1, '<table><tbody></tbody>', '</table>'],
+    optgroup: [1, '<select>', '</select>'],
+    colgroup: [1, '<table><tbody></tbody>', '</table>'],
+    col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
     tr: [2, '<table><tbody>', '</tbody></table>'],
-    td: [3, '<table><tbody><tr>', '</tr></tbody></table>'],
-    col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>']
+    th: [3, '<table><tbody><tr>', '</tr></tbody></table>']
   };
-  wrappers.optgroup = wrappers.option;
-  wrappers.colgroup = wrappers.thead = wrappers.tfoot = wrappers.tbody = wrappers.caption;
-  wrappers.th = wrappers.td;
+  wrappers.option = wrappers.optgroup;
+  wrappers.caption = wrappers.thead = wrappers.tfoot = wrappers.tbody = wrappers.colgroup;
+  wrappers.td = wrappers.th;
   if (navigator.isIElt9) {
-    // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。  // TODO: [0, '#', '']
-    wrappers.link = wrappers.style = wrappers.script = [1, '#<div>', '</div>'];
+    // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。
+    wrappers.link = wrappers.style = wrappers.script = [0, '#', ''];
   }
 
   var defaultWrapper = [0, '', ''];

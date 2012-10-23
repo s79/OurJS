@@ -95,8 +95,10 @@
    * @returns {Object} Logger 对象。
    */
   Logger.prototype.assert = function(expression) {
-    var result = eval(expression);
-    $('<p class="' + result + '"><em>' + (result ? '√' : 'X') + '</em>' + expression + '</p>').insertTo(this.outputElement);
+    var result = !!eval(expression);
+    $('<p class="' + result + '"><em>' + (result ? '√' : 'X') + '</em><span></span></p>')
+        .insertTo(this.outputElement)
+        .getLastChild().innerText = expression;
     this.outputElement.scrollTop += 10000;
     return this;
   };
