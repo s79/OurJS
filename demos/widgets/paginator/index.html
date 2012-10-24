@@ -40,7 +40,7 @@
   <ul>
     <li>适用于数据内容是由客户端通过 Ajax 获取的场景。</li>
     <li>省略目标元素的 data-target-url、data-total-page 和 data-current-page 属性，即可启用此模式。</li>
-    <li>在此模式下，应当在合适的时间调用 render 方法来渲染导航条内容，并在 turn 事件的监听器中进行后续处理。</li>
+    <li>在此模式下，应当在合适的时间调用 update 方法来更新导航条内容，并在 turn 事件的监听器中进行后续处理。</li>
   </ul>
   <fieldset>
     <legend>点击页码不会刷新当前页面</legend>
@@ -58,14 +58,14 @@
       $paginator.on('turn', function(e) {
         // 检测到翻页事件，在此处请求新页的数据。
         $loading.open();
-        // 模拟 500 毫秒后收到新页的数据，重新渲染导航条。
+        // 模拟 500 毫秒后收到新页的数据，更新导航条。
         setTimeout(function() {
           $loading.close();
-          $paginator.render(e.number, totalPage);
+          $paginator.update(e.number, totalPage);
         }, 500);
       });
-      // 需要手动渲染导航条。
-      $paginator.render(currentPage, totalPage);
+      // 需要手动更新导航条。
+      $paginator.update(currentPage, totalPage);
     });
     </script>
   </fieldset>

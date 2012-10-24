@@ -20,7 +20,7 @@
    *   点击页码链接后跳转到的地址，在地址字符串中使用 {page} 表示当前页码。
    *   是否指定本属性将导致本控件具备不同的行为。
    *   如果指定本属性，即进入“无脚本模式”，此时当点击页码链接时，将直接跳转到指定的 url 地址，而不会触发 turn 事件。<br>这种模式适用的场景为：页面由服务端代码输出，知道 totalPage 和 currentPage（通过设置 data-total-page 和 data-current-page 属性来指定），且翻页时需要刷新页面。<br>在“无脚本模式”下，不必使用任何 JS 代码来处理导航条内容。
-   *   如果不指定本属性，即进入“有脚本模式”，此时当点击页码链接时，会触发 turn 事件，但会阻止点击链接的默认行为。<br>这种模式适用的场景为：页面生成时不知道 totalPage 和 currentPage（这种模式下设置 data-total-page 和 data-current-page 属性是无效的），或当翻页时不希望刷新当前页面。<br>在“有脚本模式”下，应当在合适的时间调用 render 方法来渲染导航条内容，并在 turn 事件的监听器中进行后续处理。
+   *   如果不指定本属性，即进入“有脚本模式”，此时当点击页码链接时，会触发 turn 事件，但会阻止点击链接的默认行为。<br>这种模式适用的场景为：页面生成时不知道 totalPage 和 currentPage（这种模式下设置 data-total-page 和 data-current-page 属性是无效的），或当翻页时不希望刷新当前页面。<br>在“有脚本模式”下，应当在合适的时间调用 render 方法来更新导航条内容，并在 turn 事件的监听器中进行后续处理。
    * @attribute data-total-page
    *   要分页显示的数据的总页数。
    *   仅在“无脚本模式”下，本属性才有效。
@@ -64,8 +64,8 @@
    */
 
   /**
-   * 根据当前页和总页数渲染导航条内容。
-   * @name Paginator#render
+   * 根据当前页和总页数更新导航条内容。
+   * @name Paginator#update
    * @function
    * @param {number} currentPage 当前页码。
    * @param {number} totalPage 总页数。
@@ -95,7 +95,7 @@
         this.fire('turn', {number: targetPage});
         return this;
       },
-      render: function(currentPage, totalPage) {
+      update: function(currentPage, totalPage) {
         // 更新 currentPage 和 totalPage。
         this.targetPage = this.currentPage = currentPage = Math.limit(currentPage, 1, totalPage);
         this.totalPage = totalPage;
@@ -134,7 +134,7 @@
         while (n <= ranges.right.max) {
           items.push(n++);
         }
-        // 渲染导航条内容。
+        // 更新导航条内容。
         var targetUrl = this.targetUrl;
         var elements = this.elements;
         if (targetUrl) {
@@ -149,11 +149,11 @@
             })
             .join('');
         // 触发事件。
-        this.fire('render', {currentPage: currentPage, totalPage: totalPage});
+        this.fire('update', {currentPage: currentPage, totalPage: totalPage});
         return this;
       }
     },
-    events: ['turn', 'render'],
+    events: ['turn', 'update'],
     initialize: function() {
       var $element = this;
 
@@ -203,9 +203,9 @@
         }
       });
 
-      // “无脚本模式”，自动渲染导航条内容。
+      // “无脚本模式”，自动更新导航条内容。
       if (targetUrl) {
-        $element.render($element.currentPage, $element.totalPage);
+        $element.update($element.currentPage, $element.totalPage);
       }
 
     }
