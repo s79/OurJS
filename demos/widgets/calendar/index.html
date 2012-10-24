@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>月历 & 日期选择器</title>
+<script src="../../../dev.js"></script>
+<script src="../../../scripts/framework.js"></script>
+<script src="../../../src/widgets/calendar.js"></script>
+<style>
+.custom { width: 176px; padding: 2px; border: 1px solid silver; border-radius: 3px; }
+.custom table { border-collapse: collapse; width: 176px; }
+.custom table td { border-radius: 0; font-size: 12px; }
+.custom thead td { border-color: steelblue; background: steelblue; color: white; }
+.custom tbody td { color: black; }
+.custom tbody td.sun,
+.custom tbody td.sat { background: infobackground; }
+.custom tbody td.prev,
+.custom tbody td.next { border-color: silver; background: whitesmoke; }
+.custom tbody td.today { background: yellowgreen; font-weight: normal; text-decoration: none; }
+</style>
+</head>
+<body>
+<div id="content">
+  <h1>月历</h1>
+
+  <h2>基本用法</h2>
+  <fieldset>
+    <legend>粗体带下划线的为今天的日期</legend>
+    <div class="widget-calendar"></div>
+  </fieldset>
+
+  <h2>定制月历</h2>
+  <fieldset>
+    <legend>使用新样式覆盖默认样式</legend>
+    <div class="custom widget-calendar" data-first-day="1"></div>
+  </fieldset>
+  <fieldset>
+    <legend>为每月的 10 号添加标记</legend>
+    <div id="custom" class="custom widget-calendar" data-first-day="1"></div>
+    <script>
+    $('#custom').on('cellupdate', function(e) {
+      if (e.date.getDate() === 10) {
+        e.cell.setStyles({color: 'orangered', fontWeight: 'bold'});
+      }
+    });
+    </script>
+  </fieldset>
+
+  <h1 style="margin-top: 100px;">日期选择器</h1>
+
+  <h2>基本用法</h2>
+  <ul>
+    <li>支持滚轮翻月，Shift + 滚轮翻年。</li>
+  </ul>
+  <fieldset>
+    <legend>如果今天在可选时间范围内则“今天”按钮可用</legend>
+    <input type="text" value="" readonly class="widget-datepicker" data-min-date="2000-01-01" data-max-date="2099-12-31">
+  </fieldset>
+
+</div>
+</body>
+</html>
