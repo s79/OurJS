@@ -5,6 +5,13 @@
 >IE 自动填充未触发 change 事件。
 >移出不常用代码到 utilities 目录。
 
+>2012-10-24
+widget-calendar
+Widget 元素中原本不存在的元素（即初始化或执行某个方法后动态创建的元素）统一以 key-value 的形式保存到本元素的 elements 属性中。
+
+>2012-10-23
+修改 $ 函数的 wrappers。
+
 >2012-10-21
 widget-paginator 支持两种模式
 

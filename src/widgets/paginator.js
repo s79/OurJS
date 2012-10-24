@@ -136,13 +136,14 @@
         }
         // 渲染导航条内容。
         var targetUrl = this.targetUrl;
+        var elements = this.elements;
         if (targetUrl) {
-          this.prevButton.href = currentPage === 1 ? 'javascript:void(\'prev\');'/* TODO: preventDefault */ : targetUrl.replace(/{page}/, currentPage - 1);
-          this.nextButton.href = currentPage === totalPage ? 'javascript:void(\'next\');'/* TODO: preventDefault */ : targetUrl.replace(/{page}/, currentPage + 1);
+          elements.prevButton.href = currentPage === 1 ? 'javascript:void(\'prev\');'/* TODO: preventDefault */ : targetUrl.replace(/{page}/, currentPage - 1);
+          elements.nextButton.href = currentPage === totalPage ? 'javascript:void(\'next\');'/* TODO: preventDefault */ : targetUrl.replace(/{page}/, currentPage + 1);
         }
-        this.prevButton[currentPage === 1 ? 'addClass' : 'removeClass']('disabled');
-        this.nextButton[currentPage === totalPage ? 'addClass' : 'removeClass']('disabled');
-        this.pageNumberContainer.innerHTML = items
+        elements.prevButton[currentPage === 1 ? 'addClass' : 'removeClass']('disabled');
+        elements.nextButton[currentPage === totalPage ? 'addClass' : 'removeClass']('disabled');
+        elements.pageNumberContainer.innerHTML = items
             .map(function(number) {
               return Number.isNaN(number) ? '<span>...</span>' : '<a href="' + (targetUrl ? targetUrl.replace(/{page}/, number) : 'javascript:void(\'' + number + '\');') + '" title="第 ' + number + ' 页"' + (number === currentPage ? ' class="current"' : '') + '>' + number + '</a>';
             })
@@ -156,10 +157,17 @@
     initialize: function() {
       var $element = this;
 
+      // 添加新元素。
+      var $prevButton = $('<a href="javascript:void(\'prev\');" class="prev">‹ 上一页</a>').insertTo($element);
+      var $pageNumberContainer = $('<span class="pages"></span>').insertTo($element);
+      var $nextButton = $('<a href="javascript:void(\'next\');" class="next">下一页 ›</a>').insertTo($element);
+
       // 保存属性。
-      var $prevButton = $element.prevButton = $('<a href="javascript:void(\'prev\');" class="prev">‹ 上一页</a>').insertTo($element);
-      var $pageNumberContainer = $element.pageNumberContainer = $('<span class="pages"></span>').insertTo($element);
-      var $nextButton = $element.nextButton = $('<a href="javascript:void(\'next\');" class="next">下一页 ›</a>').insertTo($element);
+      $element.elements = {
+        prevButton: $prevButton,
+        pageNumberContainer: $pageNumberContainer,
+        nextButton: $nextButton
+      };
       $element.targetPage = 0;
 
       // 根据是否配置了 data-target-url 属性确定工作模式。

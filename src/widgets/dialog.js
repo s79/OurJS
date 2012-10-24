@@ -152,8 +152,8 @@
               var clientSize = window.getClientSize();
               // 同时修改三个元素的尺寸，以避免两个子元素在纵向改变窗口大小时高度不随父元素的变化而更新。
               this.setStyles({width: clientSize.width, height: clientSize.height});
-              this.iframeOverlay.setStyle('height', clientSize.height);
-              this.divOverlay.setStyle('height', clientSize.height);
+              this.elements.iframe.setStyle('height', clientSize.height);
+              this.elements.div.setStyle('height', clientSize.height);
             } else {
               this.setStyles({right: 0, bottom: 0});
             }
@@ -166,22 +166,26 @@
       }
     },
     initialize: function() {
+      var $overlay = this;
+
       // 保存属性。
-      var $context = this.context = this.getParent();
-      this.isVisible = false;
+      var $context = $overlay.context = $overlay.getParent();
+      $overlay.isVisible = false;
 
       // 设置样式及内部结构。
       var contextIsBody = $context === document.body;
-      this.setStyles({position: contextIsBody ? 'fixed' : 'absolute'});
+      $overlay.setStyles({position: contextIsBody ? 'fixed' : 'absolute'});
       if (navigator.isIE6) {
         // IE6 使用 IFRAME 元素遮盖 SELECT 元素，在其上覆盖一个 DIV 元素是为了避免鼠标在遮盖范围内点击时触发元素在本文档之外。
-        this.innerHTML = '<iframe frameborder="no" scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></div>';
-        this.iframeOverlay = this.getFirstChild();
-        this.divOverlay = this.getLastChild();
+        $overlay.innerHTML = '<iframe frameborder="no" scrolling="no" style="display: block; width: 100%; height: 100%; filter: alpha(opacity=0);"></iframe><div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: white; filter: alpha(opacity=0);"></div>';
+        $overlay.elements = {
+          iframe: $overlay.getFirstChild(),
+          div: $overlay.getLastChild()
+        };
         // IE6 BODY 的遮盖层在更改视口尺寸时需要调整尺寸。
         if (contextIsBody) {
-          this.resizeInIE6 = function() {
-            this.resize();
+          $overlay.resizeInIE6 = function() {
+            $overlay.resize();
           };
         }
       }
