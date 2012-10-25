@@ -7,16 +7,7 @@
 <script src="../../../scripts/framework.js"></script>
 <script src="../../../src/widgets/calendar.js"></script>
 <style>
-.custom { width: 176px; padding: 2px; border: 1px solid silver; border-radius: 3px; }
-.custom table { border-collapse: collapse; width: 176px; }
-.custom table td { border-radius: 0; font-size: 12px; }
-.custom thead td { border-color: steelblue; background: steelblue; color: white; }
-.custom tbody td { color: black; }
-.custom tbody td.sun,
-.custom tbody td.sat { background: infobackground; }
-.custom tbody td.prev,
-.custom tbody td.next { border-color: silver; background: whitesmoke; }
-.custom tbody td.today { background: yellowgreen; font-weight: normal; text-decoration: none; }
+fieldset { display: inline-block; width: 460px; margin: 0 5px 10px 0; *display: inline; }
 </style>
 </head>
 <body>
@@ -30,16 +21,28 @@
   </fieldset>
 
   <h2>定制月历</h2>
+  <style>
+  .custom { width: 176px; padding: 5px; border: 1px solid silver; border-radius: 3px; }
+  .custom table { border-collapse: collapse; width: 176px; }
+  .custom table td { border: none; border-radius: 0; font-size: 12px; }
+  .custom tbody td { border-top: 1px solid silver; color: black; }
+  .custom tbody td.sun,
+  .custom tbody td.sat { background: infobackground; }
+  .custom tbody td.prev,
+  .custom tbody td.next { border-color: silver; background: whitesmoke; }
+  .custom tbody td.today { background: yellowgreen; font-weight: normal; text-decoration: none; }
+  </style>
   <fieldset>
     <legend>使用新样式覆盖默认样式</legend>
     <div class="custom widget-calendar" data-first-day="1"></div>
   </fieldset>
   <fieldset>
-    <legend>为每月的 10 号添加标记</legend>
-    <div id="custom" class="custom widget-calendar" data-first-day="1"></div>
+    <legend>并为每月的 10 - 15 号添加标记</legend>
+    <div id="labeled" class="custom widget-calendar" data-first-day="1"></div>
     <script>
-    $('#custom').on('cellupdate', function(e) {
-      if (e.date.getDate() === 10) {
+    $('#labeled').on('cellupdate', function(e) {
+      var date = e.date.getDate();
+      if (date >= 10 && date <= 15) {
         e.cell.setStyles({color: 'orangered', fontWeight: 'bold'});
       }
     });
@@ -54,9 +57,33 @@
   </ul>
   <fieldset>
     <legend>如果今天在可选时间范围内则“今天”按钮可用</legend>
-    <input type="text" value="" readonly class="widget-datepicker" data-min-date="2000-01-01" data-max-date="2099-12-31">
+    <input type="text" value="" readonly class="widget-datepicker" data-min3-date="2000-01-01" data-max3-date="2099-12-31">
   </fieldset>
-
 </div>
+<style>
+.datepicker-panel { position: absolute; left: 100px; bottom: 100px; width: 218px; padding: 6px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); border: 1px solid silver; border-radius: 3px; background: whitesmoke; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
+.datepicker-panel div.control_set { position: relative; height: 22px; line-height: 22px; text-align: center; }
+.datepicker-panel span.btn { position: absolute; top: 0; width: 28px; height: 20px; border: 1px solid silver; border-radius: 2px; background: white; color: black; line-height: 20px; }
+.datepicker-panel span.btn:hover { border-color: firebrick; }
+.datepicker-panel span.disabled,
+.datepicker-panel span.disabled:hover { border-color: whitesmoke; background: whitesmoke; color: gainsboro; }
+.datepicker-panel span.prev_year { left: 1px; }
+.datepicker-panel span.prev_month { left: 32px; }
+.datepicker-panel span.next_year { right: 1px; }
+.datepicker-panel span.next_month { right: 32px; }
+
+.datepicker-panel table { margin: 2px 0; }
+.datepicker-panel thead td { border-color: whitesmoke; }
+.datepicker-panel tbody td { background: white; }
+.datepicker-panel tbody td:hover,
+.datepicker-panel tbody td.selected { border-color: firebrick !important; }
+.datepicker-panel tbody td.selected { background: crimson; }
+.datepicker-panel tbody td.disabled { border-color: whitesmoke !important; background: whitesmoke; }
+
+.datepicker-panel td.today { font-weight: normal; text-decoration: none; }
+.datepicker-panel span.clear { left: 1px; width: 61px; }
+.datepicker-panel span.today { right: 1px; width: 61px; }
+</style>
+<script src="../../../src/widgets/datepicker.js"></script>
 </body>
 </html>

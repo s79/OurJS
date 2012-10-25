@@ -6,42 +6,9 @@
 
 (function() {
 //==================================================[控件 - 遮盖层]
-  /**
-   * 遮盖层
-   * @name Overlay
-   * @constructor
-   * @private
-   * @description
-   *   为元素添加 'widget-overlay' 类，即可使该元素成为遮盖层控件。
-   *   遮盖层用于遮盖模态对话框下边、其父元素内的其他内容。当其父元素为 BODY 时，将覆盖整个视口。
-   *   遮盖层在显示/隐藏时是否使用动画取决于调用它的对话框是否启用了动画。
-   *   需要定义其他的样式时，可以通过 CSS 进行修改，或者直接修改遮盖层元素的 style 属性。
-   *   问题：
-   *     IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
-   *     这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲覆盖区域不是 BODY，但其中有 SELECT 元素时出现。
-   *     上述情况很少见，因此未处理此问题。
-   *     如果需要处理，去掉 IE6 fixed positioned 相关代码中的“启用/禁用表达式”部分即可。
-   * @see http://w3help.org/zh-cn/causes/RM8015
-   */
-
-  /**
-   * 重新定位遮盖层的层级，如果当前 context 下不再有其他对话框，则隐藏遮盖层。
-   * @name TabPanel#reposition
-   * @function
-   * @private
-   * @returns {Element} 本元素。
-   */
-
-  /**
-   * 调整遮盖层尺寸。
-   * @name TabPanel#resize
-   * @function
-   * @private
-   * @returns {Element} 本元素。
-   */
-
   var $ = document.$;
 
+//--------------------------------------------------[freezeFocusArea]
   // 限定不可聚焦的区域。参数 config 包含 enable 和 disable 两个元素。如果省略此参数，则取消限定。
   var $before;
   var $after;
@@ -113,6 +80,40 @@
   };
 
 //--------------------------------------------------[Overlay]
+  /**
+   * 遮盖层
+   * @name Overlay
+   * @constructor
+   * @private
+   * @description
+   *   为元素添加 'widget-overlay' 类，即可使该元素成为遮盖层控件。
+   *   遮盖层用于遮盖模态对话框下边、其父元素内的其他内容。当其父元素为 BODY 时，将覆盖整个视口。
+   *   遮盖层在显示/隐藏时是否使用动画取决于调用它的对话框是否启用了动画。
+   *   需要定义其他的样式时，可以通过 CSS 进行修改，或者直接修改遮盖层元素的 style 属性。
+   *   问题：
+   *     IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
+   *     这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲覆盖区域不是 BODY，但其中有 SELECT 元素时出现。
+   *     上述情况很少见，因此未处理此问题。
+   *     如果需要处理，去掉 IE6 fixed positioned 相关代码中的“启用/禁用表达式”部分即可。
+   * @see http://w3help.org/zh-cn/causes/RM8015
+   */
+
+  /**
+   * 重新定位遮盖层的层级，如果当前 context 下不再有其他对话框，则隐藏遮盖层。
+   * @name TabPanel#reposition
+   * @function
+   * @private
+   * @returns {Element} 本元素。
+   */
+
+  /**
+   * 调整遮盖层尺寸。
+   * @name TabPanel#resize
+   * @function
+   * @private
+   * @returns {Element} 本元素。
+   */
+
   Widget.register('overlay', {
     css: [
       '.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
@@ -197,6 +198,9 @@
 
 (function() {
 //==================================================[控件 - 模态对话框]
+  var $ = document.$;
+
+//--------------------------------------------------[Dialog]
   /**
    * 模态对话框。
    * @name Dialog
@@ -270,9 +274,6 @@
    *   如果对话框已经关闭，则调用此方法无效。
    */
 
-  var $ = document.$;
-
-//--------------------------------------------------[Dialog]
   Widget.register('dialog', {
     css: [
       '.widget-dialog { display: none; outline: none; }'

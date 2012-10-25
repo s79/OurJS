@@ -10,43 +10,9 @@
 </head>
 <body>
 <div id="content">
-  <h1>月历 & 日期选择器</h1>
-
-  <h2>月历</h2>
-  <!-- 月历 { -->
-  <style>
-  #container { padding: 10px; }
-  #container .calendar { float: left; }
-  </style>
-  <fieldset>
-    <legend>月历，支持滚轮翻月，Shift + 滚轮翻年。</legend>
-    <div id="container"></div>
-  </fieldset>
-  <script>
-  execute(function($) {
-    window.calendar = new Calendar('calendar', {minDate: '2011-10-15', maxDate: '2012-06-30'});
-    calendar.getElement().insertTo($('#container'));
-    calendar.render();
-  });
-  </script>
-  <!-- } 月历 -->
-
   <!-- 日期选择器 { -->
   <style>
   .date_picker input { width: 100px; height: 20px; padding: 0 2px; border: 1px solid gainsboro; background: url(calendar.png) no-repeat right center; font-size: 13px; line-height: 20px; cursor: pointer; }
-  .date_picker .calendar { display: none; position: absolute; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); }
-  .date_picker .calendar td.prev_month.enabled:hover,
-  .date_picker .calendar td.next_month.enabled:hover { background: transparent; border-color: yellowgreen; }
-  .date_picker .calendar td.enabled:hover { background: greenyellow; border-color: yellowgreen; }
-  .date_picker .calendar td.prev_month.selected,
-  .date_picker .calendar td.next_month.selected,
-  .date_picker .calendar td.prev_month.selected:hover,
-  .date_picker .calendar td.next_month.selected:hover { background: transparent; border-color: maroon; }
-  .date_picker .calendar td.selected,
-  .date_picker .calendar td.selected:hover { background: #FF7B3A; border-color: maroon; font-weight: bold; text-decoration: underline; }
-  .date_picker .calendar td.today { font-weight: normal; text-decoration: none; }
-  .date_picker .calendar span.clear { left: 1px; width: 61px; }
-  .date_picker .calendar span.today { right: 1px; width: 61px; }
   </style>
   <fieldset>
     <legend>日期选择器，范围 2000-01-01 ~ 2099-12-31，“今天”按钮可用。</legend>

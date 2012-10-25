@@ -6,6 +6,7 @@
 
 (function() {
 //==================================================[控件 - 分页导航条]
+//--------------------------------------------------[Paginator]
   /**
    * 分页导航条。
    * @name Paginator
@@ -72,7 +73,6 @@
    * @returns {Element} 本元素。
    */
 
-//--------------------------------------------------[Paginator]
   Widget.register('paginator', {
     css: [
       '.widget-paginator { font-size: 14px; line-height: 16px; text-align: center; }',

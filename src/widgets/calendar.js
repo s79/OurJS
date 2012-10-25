@@ -6,6 +6,7 @@
 
 (function() {
 //==================================================[控件 - 月历]
+//--------------------------------------------------[Calendar]
   /**
    * 月历。
    * @name Calendar
@@ -16,17 +17,17 @@
    * @attribute data-first-day
    *   指定每周的第一天是星期几，取值范围为 0 - 6。
    *   如果不指定本属性，则使用 0 作为默认值，即每周的第一天为星期日。
-   * @fires show
+   * @fires update
    *   {string} month 显示的月份，格式为 YYYY-MM 的字符串。
-   *   调用 show 方法后触发。
+   *   调用 update 方法后触发。
    * @fires cellupdate
    *   {Element} cell 已更新的单元格。
    *   {Date} date 已更新的日期。
-   *   日期单元格更新后触发。每次调用 show 方法时，每个日期单元格都会更新一次。
+   *   日期单元格更新后触发。每次调用 update 方法时，每个日期单元格都会更新一次。
    * @description
    *   为元素添加 'widget-calendar' 类，即可使该元素成为月历控件。
    *   当月历控件初始化时，会根据 data-month 的配置来显示指定月份的月历。
-   *   如果需要更改月历控件显示的月份，调用 show 方法即可。
+   *   如果需要更改月历控件显示的月份，调用 update 方法即可。
    */
 
   /**
@@ -37,21 +38,20 @@
 
   /**
    * 显示指定的月份。
-   * @name Calendar#show
+   * @name Calendar#update
    * @function
    * @param {string} [month] 月份，格式为 YYYY-MM 的字符串。
    *   若该参数没有指定，则使用当前已显示的月份（即刷新当前的月历）。
    * @returns {Element} 本元素。
    */
 
-//--------------------------------------------------[Calendar]
   Widget.register('calendar', {
     css: [
       '.widget-calendar table { table-layout: fixed; border-collapse: separate; border-spacing: 1px; width: 218px; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }',
       '.widget-calendar table td { padding: 0; border: 1px solid silver; border-radius: 2px; text-align: center; }',
       '.widget-calendar thead td { border-color: white; color: navy; font-weight: bold; }',
       '.widget-calendar tbody td { color: black; }',
-      '.widget-calendar tbody td.prev, .widget-calendar tbody td.next { border-color: gainsboro; color: gainsboro; }',
+      '.widget-calendar tbody td.prev, .widget-calendar tbody td.next { color: silver; }',
       '.widget-calendar tbody td.today { font-weight: bold; text-decoration: underline; }'
     ],
     config: {
@@ -59,7 +59,7 @@
       firstDay: 0
     },
     methods: {
-      show: function(month) {
+      update: function(month) {
         var $element = this;
 
         // 输出星期类名与文字。
@@ -108,13 +108,13 @@
         });
 
         // 触发事件。
-        $element.fire('show', {month: $element.month});
+        $element.fire('update', {month: $element.month});
 
         return $element;
 
       }
     },
-    events: ['show', 'cellupdate'],
+    events: ['update', 'cellupdate'],
     initialize: function() {
       var $element = this;
 
@@ -142,7 +142,7 @@
       }
 
       // 显示指定月份的月历。
-      $element.show();
+      $element.update();
 
     }
   });

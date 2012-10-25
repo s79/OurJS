@@ -4,6 +4,7 @@
 >Dialog 使用新版 freezeFocusArea。
 >IE 自动填充未触发 change 事件。
 >移出不常用代码到 utilities 目录。
+>控件文档 - 使用场景 - 要求 - 新增特性 - 新增方法 - 新增事件
 
 >2012-10-24
 widget-calendar
