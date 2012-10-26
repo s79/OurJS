@@ -1507,8 +1507,10 @@
         i = 0;
         length = delegateCount;
       }
-      while (i < length) {
-        handler = handlers[i++];
+      // TODO: 监听器内部添加或删除同类型的监听器时，i 和 length 都会有变化。此处需要重新设计。不能再把普通和代理的监听器放在一个数组内。
+      // TODO: 应改为先收集符合条件的监听器，然后统一派发。这样本次事件中发生的变化也要到下次才生效。
+      // TODO: 暂时这样修改，可以最大限度避免监听器内部删除同类型的监听器时出错。
+      while (i < length && (handler = handlers[i++])) {
         selector = handler.selector;
         // 如果是代理事件监听，则过滤出符合条件的元素。
         if (!selector || (filters[selector] || (filters[selector] = function(simpleSelector) {

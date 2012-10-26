@@ -1,10 +1,14 @@
 ﻿>[LOW]动画支持复合属性。
 >[LOW]Animation.createStyleRenderer 在首帧才收集样式。
 >[LOW]Configurable 考虑去掉，目前看来用处不大。
+>事件监听器先收集再派发。
 >Dialog 使用新版 freezeFocusArea。
 >IE 自动填充未触发 change 事件。
 >移出不常用代码到 utilities 目录。
 >控件文档 - 使用场景 - 要求 - 新增特性 - 新增方法 - 新增事件
+
+>2012-10-25
+widget-datepicker
 
 >2012-10-24
 widget-calendar
