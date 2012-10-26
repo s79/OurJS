@@ -121,7 +121,7 @@
         });
       });
 
-      // 绑定事件。
+      // 添加事件监听器。
       var timer;
       $element
           .on('click.tabpanel:relay(.tab)', function(event) {

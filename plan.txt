@@ -52,7 +52,7 @@ DONE: 以上取消，因为 IE6 IE7 IE8 无法避免，在这些浏览器中，�
 TODO: [LOW] fadeIn/fadeOut 逻辑合并；animation.stop 方法缺少恢复初始状态的功能（考虑到通过事件添加的非线性变换，此功能难以实现，暂建议在 playstart 事件发生时手动处理）。
 DONE: 已实现。
 
-TODO: 绑定事件时增加 :once 特性。
+TODO: 添加事件监听器时增加 :once 特性。
 DONE: 以上取消，它使 API 变复杂。可以通过 label 来手动实现 once 或者 twice 之类的功能。
 
 TODO: components 的 options 参数，应区分为“可改写”和“不可改写”两种，“不可改写”的不要附加在实例上。

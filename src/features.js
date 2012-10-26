@@ -160,7 +160,7 @@
    * 删除本对象上已添加的事件监听器。
    * @name Observable.prototype.off
    * @function
-   * @param {string} name 事件名称。本对象上绑定的所有名称与 name 匹配的监听器都将被删除。
+   * @param {string} name 事件名称。本对象上添加的所有名称与 name 匹配的监听器都将被删除。
    *   使用逗号分割多个事件名称，即可同时删除多种名称的事件监听器。
    * @returns {Object} 本对象。
    */

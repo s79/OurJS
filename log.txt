@@ -457,7 +457,7 @@ Object.merge
 这样处理之后，创建组件的实例时“选项”和“事件监听”就可以在代码中更明显的区分开。
 修改前：
 1. 组件的事件处理仅提供一个回调函数，必须处理多种情况时，只能使用新的函数来包装原有的函数。
-2. 创建组件时的语法将选项和事件处理函数混在一起，最初的考虑是它们都是可选的。如下：
+2. 创建组件时的语法将选项和事件监听器混在一起，最初的考虑是它们都是可选的。如下：
 var componentA = new ComponentA(param1, param2, {
   option1: value1,
   option2: value2,
@@ -481,7 +481,7 @@ var componentA = new ComponentA(param1, param2, {
     .on('eventName2', function(e) {
       // ...
     });
-3. 修改后，创建组件的实例时由于尚未绑定任何事件，因此不要在组件的初始化函数中设计有触发事件的行为，事件的触发点应该为调用某方法后。
+3. 修改后，创建组件的实例时由于尚未监听任何事件，因此不要在组件的初始化函数中设计有触发事件的行为，事件的触发点应该为调用某方法后。
 4. 对于非组件，有回调的时候仍使用参数形式，传入对应的 onEventType 来完成，因为非组件是一次性运行的，不能重用，这样处理便于理解。
 
 >2012-03-28
@@ -696,7 +696,7 @@ pool - item(uid) - manager(type): {
 
 Lv1:
 内置 - Direct & 自定义事件
-  1 个，绑定的事件发生时触发。
+  1 个，监听的事件发生时触发。
 
 Lv2:
 内置 - 需 Fix
@@ -767,7 +767,7 @@ pool = {
     type(事件类型): {
       'dispatcher': (普通事件调度器 = 仅在 type in generalEvents 时存在的 DOM 事件监听器),
       'listeners': [
-        listener(事件监听器 - 并未绑定到 DOM 树上),
+        listener(事件监听器 - 并非直接监听 DOM 对象),
         ...
       ],
       'filters': [
@@ -800,7 +800,7 @@ removeListener
 pool = {
   item(元素的 __uid__ 属性值): {
     type(事件类型): [
-      listener(事件监听器 - 并未绑定到 DOM 树上),
+      listener(事件监听器 - 并非直接监听 DOM 对象),
     ].handler(普通事件处理器 = 仅在 type in generalEvents 时存在的 DOM 事件监听器),
     ...
   }

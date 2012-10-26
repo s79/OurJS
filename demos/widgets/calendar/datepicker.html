@@ -117,7 +117,7 @@
           return this;
         }
       });
-      // 绑定选择事件并阻止 $datePicker 内的 click 事件向外传播。
+      // 监听选择事件并阻止 $datePicker 内的 click 事件向外传播。
       var $datePicker = datePicker.getElement()
           .on('click:relay(.enabled)', function(e) {
             datePicker.setValue(this.title);

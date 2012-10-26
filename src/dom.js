@@ -867,7 +867,7 @@
    * @name Element.prototype.clone
    * @function
    * @param {boolean} [recursive] 是否进行深克隆。
-   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上绑定的所有事件监听器。
+   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上的所有事件监听器。
    * @returns {Element} 克隆后的元素。
    * @description
    *   如果本元素有 id 属性，需注意克隆元素的 id 属性将与之有相同的值，必要时应进一步处理。
@@ -891,7 +891,7 @@
       if (cloned) {
         // 在 IE6 IE7 IE8 中使用 cloneNode 克隆的节点，会将本元素上使用 attachEvent 添加的事件监听器也一并克隆。
         // 并且在克隆元素上调用 detachEvent 删除这些监听器时，本元素上的监听器也将被一并删除。
-        // 使用以下方法为 IE6 IE7 IE8 清除已绑定的事件监听器，并清除可能存在的 uid 属性。
+        // 使用以下方法为 IE6 IE7 IE8 清除已添加的事件监听器，并清除可能存在的 uid 属性。
         if (navigator.isIElt9) {
           cloned.clearAttributes();
           cloned.mergeAttributes(original);
@@ -1013,7 +1013,7 @@
    * @name Element.prototype.replace
    * @function
    * @param {Element} target 目标元素。
-   * @param {boolean} [keepListeners] 是否保留目标元素及后代元素上绑定的所有事件监听器。
+   * @param {boolean} [keepListeners] 是否保留目标元素及后代元素上的所有事件监听器。
    * @returns {Element} 本元素。
    */
   Element.prototype.replace = function(target, keepListeners) {
@@ -1033,7 +1033,7 @@
    * 将本元素从文档树中删除。
    * @name Element.prototype.remove
    * @function
-   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上绑定的所有事件监听器。
+   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上的所有事件监听器。
    * @returns {Element} 本元素。
    */
   Element.prototype.remove = function(keepListeners) {
@@ -1049,7 +1049,7 @@
 
 //--------------------------------------------------[Element.prototype.empty]
   /**
-   * 将本元素的内容清空，并删除本元素及后代元素上绑定的所有事件监听器。
+   * 将本元素的内容清空，并删除本元素及后代元素上的所有事件监听器。
    * @name Element.prototype.empty
    * @function
    * @returns {Element} 本元素。
@@ -1077,7 +1077,7 @@
    *     供用户使用的事件类型可能是普通事件、扩展的事件，或是用户自定义的事件。
    *     内部事件模型使用的事件类型不一定与供用户使用的事件类型完全匹配。
    *   事件标签 (labal)：
-   *     标签的意义在于标记一次绑定的行为。
+   *     标签的意义在于标记一次监听的行为。
    *     当用户使用 on 添加一个监听器时，可以指定一个标签，这样可以在使用 off 删除监听器时，通过标签来删除某类事件中特定的监听器。
    *   代理元素选择符 (selector)：
    *     通过在事件名称中加入 :relay(selector) 来指定为符合条件的后代元素代理事件监听。
@@ -1100,7 +1100,7 @@
    *   http://www.w3.org/TR/DOM-Level-3-Events/#events-module
    */
 
-  // 已绑定的事件池。
+  // 事件监听器作用关系对象池。
   /*
    * <Object eventPool> {
    *   <string uid>: <Object item> {
@@ -1488,7 +1488,7 @@
   };
 
   // 将被捕获到的 DOM 事件对象进行包装后派发到目标元素上。
-  // 仅会运行在目标元素上使用 on 绑定的事件监听器，以其他方式绑定的事件监听器不会被运行。
+  // 仅会运行在目标元素上使用 on 添加的事件监听器，以其他方式添加的事件监听器不会被运行。
   var dispatchEvent = function($element, handlers, event, isTriggered) {
     var delegateCount = handlers.delegateCount;
     var $target = delegateCount ? event.target : $element;
@@ -1546,7 +1546,7 @@
     }
   };
 
-  // 删除在目标元素上绑定的所有监听器。
+  // 删除目标元素上的所有事件监听器。
   var removeAllListeners = function(element) {
     var item = eventPool[element.uid];
     if (item) {
@@ -1719,7 +1719,7 @@
             }
             break;
           case 'input':
-            // IE6 IE7 IE8 可以使用 onpropertychange 即时响应用户输入，其他浏览器中可以使用 input 事件即时响应用户输入（需使用 addEventListener 绑定）。
+            // IE6 IE7 IE8 可以使用 onpropertychange 即时响应用户输入，其他浏览器中可以使用 input 事件即时响应用户输入（需使用 addEventListener 添加事件监听器）。
             // 但是 IE9 的 INPUT[type=text|password] 和 TEXTAREA 在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。IE8 的 TEXTAREA 也有以上问题，因此需要添加辅助派发器。
             // 通过 keydown，cut 和 blur 事件能解决按键删除和剪切、菜单剪切、拖拽内容出去的问题，但不能解决菜单删除的问题。
             // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次调用监听器。
@@ -1807,7 +1807,7 @@
    * 删除本元素上已添加的事件监听器。
    * @name Element.prototype.off
    * @function
-   * @param {string} name 事件名称。本元素上绑定的所有名称与 name 匹配的监听器都将被删除。
+   * @param {string} name 事件名称。本元素上添加的所有名称与 name 匹配的监听器都将被删除。
    *   使用逗号分割多个事件名称，即可同时删除多种名称的事件监听器。
    * @returns {Element} 本元素。
    * @example
@@ -2168,7 +2168,7 @@
 
     var isValidating = false;
 
-    // 为控件绑定事件。
+    // 为控件添加事件监听器。
     Object.forEach(rulesets, function(rules, name) {
       Array.from($form.elements[name]).forEach(function(control) {
         var $control = $(control).on('change.validation', function() {
@@ -2186,10 +2186,10 @@
       });
     });
 
-    // 为表单绑定事件。
+    // 为表单添加事件监听器。
     return $form
         .on('submit.validation', function(e) {
-          // 单独绑定一个监听器，以免验证过程发生异常时导致表单被提交。
+          // 单独添加一个监听器，以免验证过程发生异常时导致表单被提交。
           var activeElement = document.activeElement;
           if ($form.contains(activeElement)) {
             activeElement.blur();
@@ -2727,7 +2727,7 @@
    * 实测结果：
    *   X = 页面背景图片固定，背景图直接放在 HTML 上即可，若要放在 BODY 上，还要加上 background-attachment: fixed。
    *   A = 为元素添加 CSS 表达式。
-   *   B = 为元素绑定事件监听器，在监听器中修改元素的位置。
+   *   B = 为元素添加事件监听器，在监听器中修改元素的位置。
    *   X + A 可行，X + B 不可行。
    */
   if (navigator.isIE6) {

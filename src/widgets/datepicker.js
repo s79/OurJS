@@ -39,10 +39,12 @@
   var $clear = controls[6];
   var $today = controls[7];
 
+  // 更新日期选择面板时需要的日期数据。
   var minDate;
   var maxDate;
   var selectedDate;
 
+  // 为月历添加事件监听器。
   $calendar
       .on('update', function(event) {
         // 更新控制区指示。
@@ -206,7 +208,7 @@
     initialize: function() {
       // 另本元素变成只读。
       this.readOnly = true;
-      // 绑定事件。
+      // 添加事件监听器。
       this.on('click.datepicker', activatePanel);
     }
   });

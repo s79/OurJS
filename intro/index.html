@@ -106,7 +106,7 @@ target.fire('foo');
 &lt;div style="position: fixed; right: 0; bottom: 0;"&gt;...&lt;/div&gt;
 // 希望取消固定定位时，可以和其他浏览器一样，通过使用 element.setStyle/setStyles 方法修改 position 的值。
 </pre>
-        <p>IE6 IE7 IE8 的事件模型与其他浏览器不同，但现在可以通过 element.on/off/fire 方法来统一实现事件处理函数的绑定/解除绑定/触发了：</p>
+        <p>IE6 IE7 IE8 的事件模型与其他浏览器不同，但现在可以通过 element.on/off/fire 方法来统一实现事件监听器的添加、删除及触发指定的事件了：</p>
 <pre>
 element.<strong>on</strong>('click', function(e) {...});
 // 事件对象 e 也做了兼容性处理，确保在所有浏览器中有一致的表现。
