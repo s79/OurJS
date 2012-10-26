@@ -346,10 +346,10 @@
 
 //--------------------------------------------------[Array.prototype.forEach]
   /**
-   * 遍历数组，对数组中的每一个元素都执行一次指定的函数。
+   * 遍历数组，对数组中的每一个元素都调用一次指定的函数。
    * @name Array.prototype.forEach
    * @function
-   * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
+   * @param {Function} callback 对数组中的每个元素都调用一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
    * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    * @example
@@ -382,13 +382,13 @@
 
 //--------------------------------------------------[Array.prototype.map]
   /**
-   * 对数组中的每一个元素都执行一次回调函数，并返回一个包含这个回调函数的每次执行后的返回值的新数组。
+   * 对数组中的每一个元素都调用一次回调函数，并返回一个包含这个回调函数的每次调用后的返回值的新数组。
    * @name Array.prototype.map
    * @function
-   * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
+   * @param {Function} callback 对数组中的每个元素都调用一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
    * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
-   * @returns {Array} 包含 callback 的每次执行后的返回值的新数组。
+   * @returns {Array} 包含 callback 的每次调用后的返回值的新数组。
    * @example
    *   var a = [1, 2, 3].map(function(item) {
    *     return item + 10;
@@ -420,13 +420,13 @@
 
 //--------------------------------------------------[Array.prototype.filter]
   /**
-   * 对数组中的每一个元素都执行一次回调函数，并且创建一个新的数组，该数组包含所有回调函数执行后返回值为 true 时对应的原数组元素。
+   * 对数组中的每一个元素都调用一次回调函数，并且创建一个新的数组，该数组包含所有调用回调函数后返回值为 true 时对应的原数组元素。
    * @name Array.prototype.filter
    * @function
-   * @param {Function} callback 对数组中的每个元素都执行一次的回调函数。
+   * @param {Function} callback 对数组中的每个元素都调用一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
    * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
-   * @returns {Array} 包含所有回调函数执行后返回值为 true 时对应的原数组元素的新数组。
+   * @returns {Array} 包含所有调用 callback 后返回值为 true 时对应的原数组元素的新数组。
    * @example
    *   var a = [1, 2, 3].filter(function(item) {
    *     return item % 2 === 1;

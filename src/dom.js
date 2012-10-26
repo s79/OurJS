@@ -820,7 +820,7 @@
    * 获取本元素的所有子元素。
    * @name Element.prototype.getChildren
    * @function
-   * @returns {Array} 包含本元素的所有子元素的数组，数组内各元素的顺序为执行本方法时各元素在文档树中的顺序。
+   * @returns {Array} 包含本元素的所有子元素的数组，数组内各元素的顺序为调用本方法时各元素在文档树中的顺序。
    */
   Element.prototype.getChildren = function() {
     var children = [];
@@ -1490,27 +1490,28 @@
   // 将被捕获到的 DOM 事件对象进行包装后派发到目标元素上。
   // 仅会运行在目标元素上使用 on 添加的事件监听器，以其他方式添加的事件监听器不会被运行。
   var dispatchEvent = function($element, handlers, event, isTriggered) {
+    // 派发时对 handlers 的副本（仅复制了 handlers 的数组部分）操作，以避免在监听器内添加或删除目标元素同类型的监听器时会影响本次派发过程。
+    var handlersCopy = handlers.slice(0);
     var delegateCount = handlers.delegateCount;
     var $target = delegateCount ? event.target : $element;
+    var filters = {};
     var handler;
     var selector;
-    var filters = {};
     var i;
-    var length;
-    while ($target) {
+    var total;
+    // 开始派发。
+    do {
       if ($target === $element) {
         // 普通监听器。
         i = delegateCount;
-        length = handlers.length;
+        total = handlersCopy.length;
       } else {
         // 代理监听器。
         i = 0;
-        length = delegateCount;
+        total = delegateCount;
       }
-      // TODO: 监听器内部添加或删除同类型的监听器时，i 和 length 都会有变化。此处需要重新设计。不能再把普通和代理的监听器放在一个数组内。
-      // TODO: 应改为先收集符合条件的监听器，然后统一派发。这样本次事件中发生的变化也要到下次才生效。
-      // TODO: 暂时这样修改，可以最大限度避免监听器内部删除同类型的监听器时出错。
-      while (i < length && (handler = handlers[i++])) {
+      while (i < total) {
+        handler = handlersCopy[i++];
         selector = handler.selector;
         // 如果是代理事件监听，则过滤出符合条件的元素。
         if (!selector || (filters[selector] || (filters[selector] = function(simpleSelector) {
@@ -1527,8 +1528,8 @@
             }
           }
         }(handler.simpleSelector)))($target)) {
-          // isTriggered 为判断预期的事件是否被触发的函数，返回 false 则忽略该事件。
           if (!isTriggered || isTriggered.call($target, event)) {
+            // 监听器被调用时 this 的值为监听到本次事件的元素。
             if (handler.listener.call($target, event) === false) {
               event.stopPropagation();
               event.preventDefault();
@@ -1539,13 +1540,8 @@
           }
         }
       }
-      // 普通监听器调用完毕或事件传播被阻止时，不必继续传播事件。
-      if ($target === $element || event.isPropagationStopped()) {
-        break;
-      }
-      // 正在调用代理监听器且事件传播进行中时，需要向上传播事件。
-      $target = $target.getParent() || $target === html && $element;
-    }
+      // 如果监听到本次事件的元素不是捕获到本次事件的元素（正在调用代理监听器），且事件可以继续传播时，向上一级元素（到 document 为止）传播事件。
+    } while (!($target === $element || event.isPropagationStopped()) && ($target = $target.getParent() || $target === html && $element));
   };
 
   // 删除目标元素上的所有事件监听器。

@@ -19,7 +19,7 @@
    * 说明：
    *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。
    *   传入函数的参数 x 为时间点，y 为偏移量，它们的值都将从 0 趋向于 1。
-   *   在动画在进行中时，执行动画对象的 stop 方法即可停止的继续调用，但也会阻止事件 end 的触发。
+   *   在动画在进行中时，调用动画对象的 stop 方法即可停止的继续调用，但也会阻止事件 end 的触发。
    *   调用 reverse 可以倒放，但要注意，倒放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
    *   播放一个动画时，调用 play 或 reverse 方法后即同步播放对应方向的首帧，中间帧及末帧由引擎异步播放。
    *   如果一个动画剪辑的持续时间为 0，则 play 时传入的 x 值为 1，reverse 时传入的 x 值为 0。
@@ -335,7 +335,7 @@
           animation.fire('reversestart');
         }
       }
-      // 未挂载到引擎（执行此方法前为暂停/停止状态）。
+      // 未挂载到引擎（调用此方法前为暂停/停止状态）。
       if (!animation.timestamp && (animation.status === PLAYING || animation.status === REVERSING)) {
         var timePoint = animation.timePoint;
         var duration = animation.duration;
