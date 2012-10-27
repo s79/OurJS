@@ -77,11 +77,11 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 #header { position: fixed; left: 0; right: 0; top: 0; z-index: 1000; min-width: 1000px; border-bottom: 2px solid whitesmoke; background: whitesmoke url(../images/menu_bg.png) repeat-x 0 0; -right: auto; -width: 100%; }
 #header div { width: 1000px; height: 36px; margin: auto; }
 /* LOGO */
-#logo { float: left; width: 150px; height: 36px; margin: 0; background: url(../images/logo.png) no-repeat left center; }
+#logo { float: left; width: 128px; height: 36px; margin: 0; background: url(../images/logo.png) no-repeat left center; }
 #logo span { display: none; }
 /* GitHub */
 #github { float: right; margin: 0; padding: 5px 20px 0; border: none; background: none; }
-#github a { display: block; width: 139px; height: 25px; background: url(../images/github.png) no-repeat left top; }
+#github a { display: block; width: 29px; height: 25px; background: url(../images/github.png) no-repeat left top; }
 #github a:hover { background-position: left bottom; }
 #github span { display: none; }
 /* 主菜单 */

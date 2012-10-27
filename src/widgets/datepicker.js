@@ -25,7 +25,7 @@
    *   </div>
    * </div>
    */
-  var $panel = $('<div class="datepicker-panel"><div class="control_set"><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span>-<span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><div class="widget-calendar" data-month="0000-00"></div><div class="control_set"><span class="btn clear" data-action="clear">清除</span><span class="btn today" data-action="today">今天</span></div></div>').insertTo(document.body);
+  var $panel = $('<div class="datepicker-panel"><div class="control_set"><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span>-<span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><div class="widget-calendar" data-month="0000-00"></div><div class="control_set"><span class="btn clear" data-action="clear">清除</span><span class="btn today" data-action="today">今天</span></div></div>');
 
   // 日期选择面板的目标对象。
   var $datePicker;
@@ -87,8 +87,7 @@
       return $panel;
     },
     hide: function() {
-      // 不改变节点位置，以免 IE9- 的单元格中 :hover 样式残留。
-      $panel.setStyles({display: 'none', left: -1000, top: 0});
+      $panel.setStyle('display', 'none');
       $datePicker = null;
       window.off('scroll.datepicker, resize.datepicker');
       document.off('mousedown.datepicker');
@@ -249,6 +248,10 @@
         return false;
       });
 
+  document.on('domready', function() {
+    $panel.insertTo(document.body);
+  });
+
 //--------------------------------------------------[activatePanel]
   // 在指定的日期选择器控件附近显示日期选择面板。
   var activatePanel = function() {
@@ -277,7 +280,7 @@
 
   Widget.register('datepicker', {
     css: [
-      '.datepicker-panel { position: absolute; left: -1000px; top: 0; width: 218px; padding: 6px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); border: 1px solid silver; border-radius: 3px; background: whitesmoke; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }',
+      '.datepicker-panel { display: none; position: absolute; left: 0; top: 0; width: 218px; padding: 6px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); border: 1px solid silver; border-radius: 3px; background: whitesmoke; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }',
       '.datepicker-panel div.control_set { position: relative; height: 22px; line-height: 22px; text-align: center; }',
       '.datepicker-panel span.btn { position: absolute; top: 0; width: 28px; height: 20px; border: 1px solid silver; border-radius: 2px; background: white; color: black; line-height: 20px; }',
       '.datepicker-panel span.btn:hover, .datepicker-panel tbody td:hover { box-shadow: 0 0 2px rgba(178, 34, 34, 0.75); border-color: firebrick; background: lightyellow; }',

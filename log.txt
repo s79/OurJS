@@ -1,11 +1,28 @@
-﻿>[LOW]动画支持复合属性。
->[LOW]Animation.createStyleRenderer 在首帧才收集样式。
->[LOW]Configurable 考虑去掉，目前看来用处不大。
->事件监听器先收集再派发。
+﻿>加入 .resources 目录中的 Utilities placeholder 省略号等。
+>移出不常用代码到 utilities 目录。
+>include (from site.js)
+>加入 slide scroll 动画后全项目搜索 fade 关键字，在相应位置补齐对应的说明。
+>$ 添加白名单。
+&& !(/^(?:object|embed)$/i).test(el.tagName)
+>Overlay 升级，支持移动设备浏览器的特殊视口。
+>表单序列化。
+>History
+>SWFObject
+>动画支持复合属性。
+>Animation.createStyleRenderer 在首帧才收集样式。
 >Dialog 使用新版 freezeFocusArea。
 >IE 自动填充未触发 change 事件。
->移出不常用代码到 utilities 目录。
 >控件文档 - 使用场景 - 要求 - 新增特性 - 新增方法 - 新增事件
+>Sortable (Apply to Array only)
+#1 Switcher -> Switchable (Apply to Array only)
+#2 -Configurable
+#3 -Component
+
+>2012-10-27
+更改目录结构。
+
+>2012-10-26
+修复 dispatchEvent 在监听器内添加或删除目标元素同类型的监听器时会影响本次派发过程的问题。
 
 >2012-10-25
 widget-datepicker

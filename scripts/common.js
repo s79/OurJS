@@ -10,7 +10,11 @@ execute(function($) {
       url: '/OurJS/getting_started/'
     },
     {
-      text: '演示',
+      text: '下载',
+      url: '/OurJS/download/'
+    },
+    {
+      text: '基本功能演示',
       url: '/OurJS/demos/',
       submenu: [
         {
@@ -40,32 +44,36 @@ execute(function($) {
         {
           text: '表单验证',
           url: '/OurJS/demos/validation/'
+        }
+      ]
+    },
+    {
+      text: '自定义控件',
+      url: '/OurJS/widgets/',
+      submenu: [
+        {
+          text: '多页标签面板',
+          url: '/OurJS/widgets/tabpanel/'
         },
         {
-          text: '自定义控件',
-          url: '/OurJS/demos/widgets/',
-          submenu: [
-            {
-              text: '多页标签面板',
-              url: '/OurJS/demos/widgets/tabpanel/'
-            },
-            {
-              text: '模态对话框',
-              url: '/OurJS/demos/widgets/dialog/'
-            },
-            {
-              text: '幻灯片播放器',
-              url: '/OurJS/demos/widgets/slideshow/'
-            },
-            {
-              text: '分页导航条',
-              url: '/OurJS/demos/widgets/paginator/'
-            },
-            {
-              text: '月历 &amp; 日期选择器',
-              url: '/OurJS/demos/widgets/calendar/'
-            }
-          ]
+          text: '模态对话框',
+          url: '/OurJS/widgets/dialog/'
+        },
+        {
+          text: '幻灯片播放器',
+          url: '/OurJS/widgets/slideshow/'
+        },
+        {
+          text: '分页导航条',
+          url: '/OurJS/widgets/paginator/'
+        },
+        {
+          text: '月历',
+          url: '/OurJS/widgets/calendar/'
+        },
+        {
+          text: '日期选择器',
+          url: '/OurJS/widgets/datepicker/'
         }
       ]
     },
@@ -88,17 +96,13 @@ execute(function($) {
       ]
     },
     {
-      text: '下载',
-      url: '/OurJS/download/'
-    },
-    {
       text: '更新日志',
       url: '/OurJS/changelog/'
     }
   ];
 
 //--------------------------------------------------[页头]
-  $('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS"><span>OurJS on GitHub</span></a></h2><ul id="menu"></ul></div></div>').insertTo(document.body, 'top');
+  $('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS" title="View on GitHub"><span>View on GitHub</span></a></h2><ul id="menu"></ul></div></div>').insertTo(document.body, 'top');
 
   // 生成菜单。
   var pathname = location.pathname;
