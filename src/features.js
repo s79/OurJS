@@ -5,64 +5,6 @@
  */
 
 (function() {
-//==================================================[特性 - 可配置的]
-  /*
-   * 特性 - 可配置的。
-   *
-   * 提供实例属性：
-   *   config
-   *   <Object config> {
-   *     key: value
-   *   }
-   *
-   * 提供静态方法：
-   *   applyTo
-   *
-   * 提供原型方法：
-   *   setConfig
-   */
-
-//--------------------------------------------------[Configurable]
-  /**
-   * 创建一个对象，该对象将具备可配置的特性。
-   * @name Configurable
-   * @constructor
-   * @param {Object} defaultConfig 默认配置。
-   * @description
-   *   具备此特性的对象即具备更改配置的能力。
-   *   本特性只能在更改配置时保证配置信息的有效性（无法在配置数据中增加默认配置中不存在的项），开发者应设计可以使更改后的配置能够即时生效的逻辑。
-   */
-  var Configurable = window.Configurable = function(defaultConfig) {
-    this.config = defaultConfig;
-  };
-
-//--------------------------------------------------[Configurable.applyTo]
-  /**
-   * 将可配置的特性应用到目标对象。
-   * @name Configurable.applyTo
-   * @function
-   * @param {Object} target 目标对象。
-   * @returns {Object} 目标对象。
-   */
-  Configurable.applyTo = function(target, defaultConfig) {
-    this.call(target, defaultConfig);
-    Object.mixin(target, this.prototype);
-    return target;
-  };
-
-//--------------------------------------------------[Configurable.prototype.setConfig]
-  /**
-   * 为本对象更改配置。
-   * @name Configurable.prototype.setConfig
-   * @function
-   * @param {Object} config 新配置，用于覆盖旧配置，因此旧配置中原本不存在的属性不会被添加。
-   * @returns {Object} 本对象的当前配置。
-   */
-  Configurable.prototype.setConfig = function(config) {
-    Object.mixin(this.config, config || {}, {whiteList: Object.keys(this.config)});
-    return this.config;
-  };
-
 //==================================================[特性 - 可观察的]
   /*
    * 特性 - 可观察的。
@@ -76,12 +18,12 @@
    *         listener: <Function listener>
    *       }
    *     ]
-   *   };
+   *   }
    *
    * 提供静态方法：
    *   applyTo
    *
-   * 提供原型方法：
+   * 提供实例方法：
    *   on
    *   off
    *   fire

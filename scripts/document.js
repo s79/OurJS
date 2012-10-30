@@ -258,23 +258,11 @@ execute(function($) {
             buildDocument(indexColumns.b, name, true);
           });
       $('<h1>特性</h1>').insertTo(indexColumns.c);
-      [
-        'Configurable',
-        'Observable'
-      ]
-          .forEach(function(name) {
-            buildDocument(indexColumns.c, name, true);
-          });
-      $('<h1>组件</h1>').insertTo(indexColumns.c);
-      [
-        'Component',
-        'Animation',
-        'Request',
-        'Switcher'
-      ]
-          .forEach(function(name) {
-            buildDocument(indexColumns.c, name, true);
-          });
+      buildDocument(indexColumns.c, 'Observable', true);
+      $('<h1>动画</h1>').insertTo(indexColumns.c);
+      buildDocument(indexColumns.c, 'Animation', true);
+      $('<h1>Ajax</h1>').insertTo(indexColumns.c);
+      buildDocument(indexColumns.c, 'Request', true);
       $('<h1>控件</h1>').insertTo(indexColumns.c);
       [
         'Widget'

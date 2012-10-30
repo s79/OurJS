@@ -56,11 +56,10 @@
    * 激活一组“标签面板”。
    * @name TabPanel#activate
    * @function
-   * @param {Element|number} value 要激活的“标签面板”的“标签”元素或“面板”元素，或者它们在所有“标签”和“面板”中的索引值。
-   *   如果指定的值为不是“标签”或“面板”，或者为一个不在有效范围内的数字，则取消激活的“标签面板”。
+   * @param {Element} tab 要激活的“标签面板”中的“标签”元素。
    * @returns {Element} 本元素。
    * @description
-   *   如果要激活的“标签面板”已在激活状态，则调用此方法无效。
+   *   如果指定的值不是“标签”元素或者该标签已在激活状态，则调用此方法无效。
    */
 
   Widget.register('tabpanel', {
@@ -73,17 +72,28 @@
       hoverDelay: NaN
     },
     methods: {
-      activate: function(value) {
-        var index;
-        if (typeof value === 'number') {
-          index = value;
-        } else {
-          index = this.tabs.indexOf(value);
-          if (index === -1) {
-            index = this.panels.indexOf(value);
+      activate: function(tab) {
+        if (tab !== this.activeTab) {
+          var index = this.tabs.indexOf(tab);
+          if (index !== -1) {
+            var inactiveTab = this.activeTab;
+            if (inactiveTab) {
+              inactiveTab.removeClass('active');
+            }
+            var inactivePanel = this.activePanel;
+            if (inactivePanel) {
+              inactivePanel.removeClass('active');
+            }
+            var activeTab = this.activeTab = tab.addClass('active');
+            var activePanel = this.activePanel = this.panels[index].addClass('active');
+            this.fire('activate', {
+              activeTab: activeTab,
+              activePanel: activePanel,
+              inactiveTab: inactiveTab,
+              inactivePanel: inactivePanel
+            });
           }
         }
-        this.switcher.activate(index);
         return this;
       }
     },
@@ -92,41 +102,17 @@
       var $element = this;
 
       // 保存属性。
-      var tabs = $element.tabs = $element.find('.tab');
-      var panels = $element.panels = $element.find('.panel');
+      $element.tabs = $element.find('.tab');
+      $element.panels = $element.find('.panel');
       $element.activeTab = null;
       $element.activePanel = null;
-
-      // 使用 Switcher 实现选项卡切换。
-      var switcher = $element.switcher = new Switcher(tabs).on('activate', function(event) {
-        var activeTab = event.activeItem;
-        var activePanel = activeTab ? panels[tabs.indexOf(activeTab)] : null;
-        var inactiveTab = event.inactiveItem;
-        var inactivePanel = inactiveTab ? panels[tabs.indexOf(inactiveTab)] : null;
-        if (activeTab && activePanel) {
-          activeTab.addClass('active');
-          activePanel.addClass('active');
-          $element.activeTab = activeTab;
-          $element.activePanel = activePanel;
-        }
-        if (inactiveTab && inactivePanel) {
-          inactiveTab.removeClass('active');
-          inactivePanel.removeClass('active');
-        }
-        $element.fire('activate', {
-          activeTab: activeTab,
-          activePanel: activePanel,
-          inactiveTab: inactiveTab,
-          inactivePanel: inactivePanel
-        });
-      });
 
       // 添加事件监听器。
       var timer;
       $element
           .on('click.tabpanel:relay(.tab)', function(event) {
-            if (tabs.contains(this)) {
-              switcher.activate(this);
+            if ($element.tabs.contains(this)) {
+              $element.activate(this);
               // 避免在 IE 中触发 beforeunload 事件，以及链接点击成功后可能出现的音效。
               event.preventDefault();
             }
@@ -135,7 +121,7 @@
             if (Number.isFinite($element.hoverDelay)) {
               var $tab = this;
               timer = setTimeout(function() {
-                switcher.activate($tab);
+                $element.activate($tab);
               }, $element.hoverDelay);
             }
           })
@@ -147,7 +133,7 @@
           });
 
       // 默认激活第一组。
-      $element.activate(0);
+      $element.activate($element.tabs.getFirst());
 
     }
   });

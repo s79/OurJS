@@ -1120,7 +1120,7 @@
    *                                        .useCapture: <boolean useCapture>
    *      .delegateCount: <number delegateCount>
    *   }
-   * };
+   * }
    */
   var eventPool = {};
 
@@ -2749,7 +2749,7 @@
      *     usedValue: <number usedValue>
      *   },
      *   enabled: <boolean enabled>
-     * };
+     * }
      */
 
     // 设置页面背景。

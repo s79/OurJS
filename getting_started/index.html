@@ -170,7 +170,7 @@ $container.addClass('selected');
   </li>
   <li>
     并不是所有的事情都要由 JS 来做。修改恰当的节点，并配合 CSS 的层叠特性，即可以最精简和清晰的逻辑来达到目的。<br>
-    类似的例子见 <a href="../components/validator/" target="_blank" class="link">“UI 组件 - 表单验证器”</a> 中对于各种信息的切换的处理方式。
+    类似的例子见 <a href="../demos/validation/" target="_blank" class="link">“基本功能演示 - 表单验证”</a> 中对于各种信息的切换的处理方式。
   </li>
 </ol>
 
@@ -308,38 +308,6 @@ $element.on('click', function(e) {
 <h2>特性</h2>
 <p>“特性”是指可以应用于任意对象上的功能，目前包括“可配置”和“可观察”两种。</p>
 
-<h3>可配置 - Configurable</h3>
-<p>具备此特性的对象，即拥有更改配置的能力。</p>
-<p>
-  此特性将提供 config 属性用于保存配置信息，并提供 setConfig 方法来更改配置。<br>
-  setConfig 方法仅能限制修改指定的配置，是否能让配置实时生效取决于内部的实现逻辑。
-</p>
-<p>可以使用 Configurable 直接创建一个具备“可配置”特性的对象：</p>
-<pre>
-var configurable = new Configurable({start: 1, data: [0, 1, 2]});
-configurable.setConfig({start: 5, foo: 'bar'});
-// setConfig 方法只能以新配置覆盖旧配置，因此 foo 的设置无效。
-configurable.config.start
-// 5
-configurable.config.foo
-// undefined
-</pre>
-<p>或者将此特性应用于一个已经存在的对象：</p>
-<pre>
-var object = {colors: ['red', 'green']};
-Configurable.applyTo(object, {activeIndex: 0});
-object.showColor = function() {
-  alert(this.colors[this.config.activeIndex]);
-};
-object.showColor();
-// red;
-object.setConfig({activeIndex: 1});
-object.showColor();
-// green;
-</pre>
-<p>“可配置”特性目前主要应用于组件的实例对象上（此特性是被自动应用的），以统一管理组件的配置信息，增强代码的可读性。</p>
-<p>当需要应用在其他情况下时，应注意提供可以让使用 setConfig 更改的新配置可以自动生效的逻辑，以符合“可配置”的本意。</p>
-
 <h3>可观察 - Observable</h3>
 <p>具备此特性的对象，即拥有处理事件的能力。</p>
 <p>
@@ -415,66 +383,6 @@ object.add('blue');
   </li>
 </ul>
 
-<h3>创建组件</h3>
-<p>开发者可以使用组件构造器 Component 来创建新组件：</p>
-<pre>
-var EmployeeFinder = new Component(function(company, config) {
-  this.company = company;
-  this.setConfig(config);
-}, {
-  requirements: []
-}, {
-  find: function(employees) {
-    var requirements = this.config.requirements;
-    var result = employees.filter(function(employee) {
-      return requirements.every(function(requirement) {
-        return employee.abilities.contains(requirement);
-      });
-    });
-    this.fire('find');
-    if (result.length) {
-      this.fire('found', {result: result});
-    } else {
-      this.fire('notfound');
-    }
-  }
-});
-
-var employees = [
-  {name: '张三', abilities: ['HTML', 'PHP', 'AS']},
-  {name: '李四', abilities: ['HTML', 'CSS', 'JS']},
-  {name: '王五', abilities: ['JAVA', 'MYSQL']}
-];
-
-var finder = new EmployeeFinder('有家公司', {requirements: ['HTML']})
-    .on('find', function() {
-      alert('正在为“' + this.company + '”查找符合条件的员工……');
-    })
-    .on('found', function(e) {
-      alert('找到以下 ' + e.result.length + ' 名员工：' + JSON.stringify(e.result, ['name']) + '。');
-    })
-    .on('notfound', function(e) {
-      alert('没有找到。');
-    });
-
-finder.find(employees);
-// 弹出提示“正在为“有家公司”查找符合条件的员工……”，“找到以下 2 名员工：[{"name":"张三"},{"name":"李四"}]。”。
-
-finder.setConfig({requirements: ['HTML', 'JS']});
-finder.find(employees);
-// 弹出提示“正在为“有家公司”查找符合条件的员工……”，“找到以下 1 名员工：[{"name":"李四"}]。”。
-
-finder.setConfig({requirements: ['AS', 'JS']});
-finder.find(employees);
-// 弹出提示“正在为“有家公司”查找符合条件的员工……”，“没有找到。”。
-</pre>
-<p>Component 是<strong>组件</strong>的构造器，调用 new Component 可以得到一个<strong>组件</strong>（函数类型），而不是一个组件的实例。使用<strong>组件</strong>创建的对象才是组件的实例。</p>
-<p>创建新组件时，有以下两点需要注意，以确保新组件和其他组件有一致的行为：</p>
-<ol>
-  <li>如果新组件有可配置项，应保证在调用实例的 setConfig 方法更改配置后，新配置会自动生效（至少应该在下一次访问配置信息时生效）。</li>
-  <li>成功调用每个组件的实例方法时，都应该“主动触发”一个同名的事件。</li>
-</ol>
-
 <h3>动画效果</h3>
 <p>动画效果可以使用 Animation 组件创建。</p>
 <p>
@@ -527,24 +435,6 @@ getUserinfo.send(userid);
 <blockquote>
   <p>相关演示请参考 <a href="../demos/request/" target="_blank" class="link">演示 - Ajax</a>。</p>
 </blockquote>
-
-<h3>切换器</h3>
-<p>Switcher 组件可提供切换的功能，即在一个数组中，确保同一时刻最多只有一个元素是“活动”的。</p>
-<p>简单举例如下：</p>
-<pre>
-var switcher = new Switcher([[0], [1], [2], [3]])
-    .on('activate', function(e) {
-      alert(e.inactiveItem + ' » ' + e.activeItem);
-    });
-
-switcher.activate(2);
-// 弹出提示“null » 2”。
-switcher.activate(3);
-// 弹出提示“2 » 3”。
-switcher.activate(8);
-// 弹出提示“3 » null”。
-</pre>
-<p>这个功能在 WEB 前端的 UI 组件里经常会用到，因此 Switcher 通常都是在其他组件内被创建，并将其功能“组合”需要的地方。</p>
 
 <h3>其他可选组件</h3>
 <p>OurJS 提供的可选组件还有 TabPanel、Slideshow、Dialog、Paginator 等。相关的演示请参考主菜单“UI 组件”下的内容。</p>

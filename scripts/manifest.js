@@ -251,27 +251,12 @@ var manifest = {
     'Event#preventDefault',
     'Event#stopImmediatePropagation'
   ],
-  'Configurable': [
-    '=可配置的=',
-    'Configurable',
-    '=将此特性应用到目标对象=',
-    'Configurable.applyTo',
-    '=具备此特性的对象即具备更改配置的能力=',
-    'Configurable#setConfig'
-  ],
   'Observable': [
-    '=可观察的=',
     'Observable',
-    '=将此特性应用到目标对象=',
     'Observable.applyTo',
-    '=具备此特性的对象即具备处理事件的能力=',
     'Observable#on',
     'Observable#off',
     'Observable#fire'
-  ],
-  'Component': [
-    '=组件构造器=',
-    'Component'
   ],
   'Animation': [
     'Animation',
@@ -288,11 +273,6 @@ var manifest = {
     'Request.config',
     'Request#send',
     'Request#abort'
-  ],
-  'Switcher': [
-    'Switcher',
-    'Switcher#spliceItems',
-    'Switcher#activate'
   ],
   'Widget': [
     'Widget.register',

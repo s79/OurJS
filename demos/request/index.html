@@ -19,7 +19,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
     <legend>使用 Request 对象进行异步请求</legend>
     <div id="logger" style="height: 350px;"></div>
     <blockquote>
-      <button id="send_txt">send (data.txt) x 5 times</button>
+      <button id="send_txt">send (data.txt) x 3 times</button>
       <button id="abort_txt">abort (data.txt)</button>
       <br>
       <button id="send_xml">send (data.xml)</button>
@@ -30,7 +30,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   execute(function($) {
     var logger = new Logger($('#logger'), true);
 
-    var times = 0;
+    var times = 1;
     var requestTXT = new Request('data.txt', {
       useCache: false,
       minTime: 400,
@@ -46,17 +46,17 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
           logger.log('<strong>finish</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
         })
         .on('finish', function(e) {
-          if (times++ < 5) {
+          if (times++ < 3) {
             this.send('{"times": ' + times + '}');
-            if (times === 1 || times === 3) {
+            if (times === 2) {
               this.abort();
             }
           } else {
-            times = 0;
+            times = 1;
           }
         });
     $('#send_txt').on('click', function() {
-      requestTXT.send('{"type": "wait", "orderByTime": "true", "pageSize": 10, "pageIndex": 1}');
+      requestTXT.send('{"times": 1}');
     });
     $('#abort_txt').on('click', function() {
       requestTXT.abort();

@@ -13,10 +13,11 @@
 >Dialog 使用新版 freezeFocusArea。
 >IE 自动填充未触发 change 事件。
 >控件文档 - 使用场景 - 要求 - 新增特性 - 新增方法 - 新增事件
->Sortable (Apply to Array only)
-#1 Switcher -> Switchable (Apply to Array only)
-#2 -Configurable
-#3 -Component
+
+>2012-10-30
+-Switcher (没有合适的地方安排它 && 提供的功能粒度稍粗)
+-Configurable (计划将其修改为全兼容的 getter/setter 特性)
+-Component (现在的 Widget 代替了其主要功能 && Animation 和 Request 不再叫做“组件”)
 
 >2012-10-27
 更改目录结构。

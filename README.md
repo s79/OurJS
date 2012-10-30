@@ -41,7 +41,10 @@ OurJS 只可以和非侵入式设计的框架或类库共存。
     <td>Modularization</td><td>modularization.js</td>
   </tr>
   <tr>
-    <td>Components</td><td>switcher.js<br>request.js<br>animation.js<br>component.js</td>
+    <td>Request</td><td>request.js</td>
+  </tr>
+  <tr>
+    <td>Animation</td><td>animation.js</td>
   </tr>
   <tr>
     <td>Features</td><td>features.js</td>

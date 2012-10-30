@@ -162,8 +162,8 @@
    * @param {string} config.contentType 发送数据的内容类型，默认为 'application/x-www-form-urlencoded'，method 为 'post' 时有效。
    * @param {boolean} config.useCache 是否允许浏览器的缓存生效，默认为 true。
    * @param {boolean} config.async 是否使用异步方式，默认为 true。
-   * @param {number} config.minTime 请求最短时间，单位为 ms，默认为 undefined，即无最短时间限制，async 为 true 时有效。
-   * @param {number} config.maxTime 请求超时时间，单位为 ms，默认为 undefined，即无超时时间限制，async 为 true 时有效。
+   * @param {number} config.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
+   * @param {number} config.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
    * @param {Function} config.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为空字符串。
    *   原始请求数据无特殊要求。
    *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 start 事件对象的 data 属性。
@@ -191,14 +191,16 @@
    * @fires abort
    *   成功调用 abort 方法后触发。
    * @description
+   *   所有 Request 的实例都具备 Observable 特性。
    *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
    *   每发送一个请求必然会收到一个响应，当请求发送后，无论发生何种情况（本次请求超时或被取消）均会触发 finish 事件。
    *   这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
    */
-  var Request = window.Request = new Component(function(url, config) {
+  var Request = window.Request = function(url, config) {
     this.url = url;
-    this.setConfig(config);
-  });
+    this.config = Object.mixin(Object.clone(Request.config), config || {}, {whiteList: Object.keys(Request.config)});
+    Observable.applyTo(this);
+  };
 
 //--------------------------------------------------[Request.config]
   /**
@@ -217,8 +219,8 @@
     contentType: 'application/x-www-form-urlencoded',
     useCache: true,
     async: true,
-    minTime: undefined,
-    maxTime: undefined,
+    minTime: NaN,
+    maxTime: NaN,
     requestParser: function(requestData) {
       return requestData ? requestData + '' : '';
     },
