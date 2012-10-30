@@ -1,1 +1,1 @@
-$('<h1>�����ַ�</h1>').insertTo(document.body, 'top');
+$('<h1>中文字符</h1>').insertTo(document.body, 'top');

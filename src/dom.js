@@ -615,7 +615,7 @@
 
 //--------------------------------------------------[Element.prototype.setData]
   /**
-   * 在本元素中保存一条自定义数据。
+   * 向本元素中保存一条自定义数据。
    * @name Element.prototype.setData
    * @function
    * @param {string} key 数据名，必须为 camel case 形式，并且只能包含英文字母。
@@ -2567,12 +2567,11 @@
 
 //--------------------------------------------------[window.$]
   /**
-   * 根据指定的参数获取/创建一个元素，并对其进行扩展。
+   * 对 document.$ 的引用。
    * @name window.$
    * @function
    * @description
-   *   本方法是对 document.$ 的引用。
-   *   将全局作用域的 $ 作为 document.$ 的别名，便于书写应用代码。
+   *   在编写应用代码时，可以使用 $ 来代替 document.$。
    */
   window.$ = document.$;
 

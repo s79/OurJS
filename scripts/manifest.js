@@ -1,22 +1,25 @@
 var manifest = {
   'Global': [
-    '=自定义扩展=',
     'Global.typeOf',
     'Global.execScript'
   ],
   'Object': [
-    '=ES5=',
-    'Object.keys',
-    '=自定义扩展=',
     'Object.forEach',
     'Object.clone',
-    'Object.mixin'
+    'Object.mixin',
+    '=ES5=',
+    'Object.keys'
   ],
   'Function': [
     '=ES5=',
     'Function#bind'
   ],
   'Array': [
+    'Array.from',
+    'Array#contains',
+    'Array#remove',
+    'Array#getFirst',
+    'Array#getLast',
     '=ES5=',
     'Array.isArray',
     'Array#indexOf',
@@ -25,17 +28,14 @@ var manifest = {
     'Array#some',
     'Array#forEach',
     'Array#map',
-    'Array#filter',
+    'Array#filter'
 //    'Array#reduce',
-//    'Array#reduceRight',
-    '=自定义扩展=',
-    'Array.from',
-    'Array#contains',
-    'Array#remove',
-    'Array#getFirst',
-    'Array#getLast'
+//    'Array#reduceRight'
   ],
   'String': [
+    'String#clean',
+    'String#camelize',
+    'String#dasherize',
     '=ES5=',
     'String#trim',
     'String#toJSON',
@@ -44,42 +44,34 @@ var manifest = {
     'String#startsWith',
     'String#endsWith',
     'String#contains',
-    'String#toArray',
-    '=自定义扩展=',
-    'String#clean',
-    'String#camelize',
-    'String#dasherize'
+    'String#toArray'
   ],
   'Boolean': [
     '=ES5=',
     'Boolean#toJSON'
   ],
   'Number': [
+    'Number#padZero',
     '=ES5=',
     'Number#toJSON',
     '=ES6=',
     'Number.isFinite',
     'Number.isNaN',
     'Number.isInteger',
-    'Number.toInteger',
-    '=自定义扩展=',
-    'Number#padZero'
+    'Number.toInteger'
   ],
   'Math': [
-    '=自定义扩展=',
     'Math.limit',
     'Math.randomRange'
   ],
   'Date': [
+    'Date.from',
+    'Date#format',
     '=ES5=',
     'Date.now',
-    'Date#toJSON',
-    '=自定义扩展=',
-    'Date.from',
-    'Date#format'
+    'Date#toJSON'
   ],
   'RegExp': [
-    '=自定义扩展=',
     'RegExp.escape'
   ],
   'JSON': [
@@ -108,11 +100,9 @@ var manifest = {
     'navigator.isOpera'
   ],
   'location': [
-    '=自定义扩展=',
     'location.parameters'
   ],
   'cookie': [
-    '=自定义扩展=',
     'cookie.getItem',
     'cookie.setItem',
     'cookie.removeItem'
@@ -137,18 +127,20 @@ var manifest = {
     'window.fire'
   ],
   'document': [
-    '=HTML5=',
-    'document.head',
     '=获取和创建元素=',
     'document.$',
+    '=添加样式规则=',
+    'document.addStyleRules',
+    '=加载脚本=',
+    'document.loadScript',
+    '=预加载图片=',
+    'document.preloadImages',
     '=处理事件=',
     'document.on',
     'document.off',
     'document.fire',
-    '=自定义扩展=',
-    'document.addStyleRules',
-    'document.loadScript',
-    'document.preloadImages'
+    '=HTML5=',
+    'document.head'
   ],
   'Element': [
     '=处理类=',
@@ -167,7 +159,7 @@ var manifest = {
     'Element#removeData',
     '=获取坐标信息=',
     'Element#getClientRect',
-    '=比较位置关系=',
+    '=比较在文档树中的位置关系=',
     'Element#compareDocumentPosition',
     'Element#contains',
     '=获取相关元素=',
@@ -181,7 +173,7 @@ var manifest = {
     'Element#getChildCount',
     '=克隆元素=',
     'Element#clone',
-    '=修改内容或位置=',
+    '=修改内容或在文档树中的位置=',
     'Element#innerHTML',
     'Element#outerHTML',
     'Element#innerText',
@@ -205,12 +197,10 @@ var manifest = {
     'Element#cancelAnimation'
   ],
   'HTMLFormElement': [
-    '=自定义扩展=',
     'HTMLFormElement#getFieldValue',
     'HTMLFormElement#setValidationRules'
   ],
   'Event': [
-    '=自定义扩展=',
     'Event#originalEvent',
     'Event#type',
     'Event#isMouseEvent',

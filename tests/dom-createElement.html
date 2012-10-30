@@ -23,8 +23,8 @@ var test1 = function(htmlString) {
 [
   ['<link rel="stylesheet" href="dom-createElement.css">', '[LINK](0)'],
   ['<style>body{color: crimson;}</style>', '[STYLE](0)'],
-//  ['<script src="dom-createElement.js"><' + '/script>', '[SCRIPT](0)'],
-//  ['<script src="dom-createElement.js" defer><' + '/script>', '[SCRIPT](0)'],
+  ['<script src="dom-createElement.js" charset="utf-8"><' + '/script>', '[SCRIPT](0)'],
+  ['<script src="dom-createElement.js" charset="utf-8" defer><' + '/script>', '[SCRIPT](0)'],
 //  ['<script>alert("innerScript");<' + '/script>', '[SCRIPT](0)'],
 //  ['<script defer>alert("innerScript");<' + '/script>', '[SCRIPT](0)'],
   ['<div style="background: white;"> test<p>p</p>  text  <div>  div  </div></div>', '[DIV](2)'],
