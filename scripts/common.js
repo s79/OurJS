@@ -1,4 +1,4 @@
-execute(function($) {
+document.on('domready', function() {
 //--------------------------------------------------[菜单数据]
   var menuData = [
     {
@@ -224,4 +224,4 @@ execute(function($) {
 
   }
 
-}, true);
+});

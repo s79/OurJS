@@ -1,1 +1,1 @@
-document.$('<h1>ÖÐÎÄ×Ö·û</h1>').insertTo(document.body, 'top');
+$('<h1>ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½</h1>').insertTo(document.body, 'top');

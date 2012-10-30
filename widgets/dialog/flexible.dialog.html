@@ -46,7 +46,7 @@ button { display: block; margin-bottom: 20px; padding: 10px 15px; font-size: 14p
 <button id="big">big</button>
 <button id="small">small</button>
 <script>
-execute(function($) {
+(function() {
   var $dialog = $('#dialog');
   var $dialogWrapper = $dialog.getFirstChild();
   var animation = new Animation().addClip(Animation.createStyleRenderer($dialogWrapper, {left: 200, top: 80, width: 640, height: 480, backgroundColor: 'green'}), 0, 2000, 'ease');
@@ -61,7 +61,7 @@ execute(function($) {
     animation.reverse();
   });
 
-});
+})();
 
 </script>
 </body>

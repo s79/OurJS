@@ -57,7 +57,7 @@
     </div>
   </div>
   <script>
-  execute(function($) {
+  (function() {
     var $container = $('#slideshow');
     window.slideshow = new Slideshow({
       slides: $container.find('ul li'),
@@ -68,7 +68,7 @@
       switchMode: 'turning',
       interval: 3000
     });
-  });
+  })();
   </script>
 
 </div>

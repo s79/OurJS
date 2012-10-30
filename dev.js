@@ -14,8 +14,6 @@
     '<script src="/framework/src/animation.js"></script>',
     '<script src="/framework/src/request.js"></script>',
     '<script src="/framework/src/widget.js"></script>',
-    '<script src="/framework/src/modularization.js"></script>',
-    '<script src="/framework/src/execute.js"></script>',
     '<script src="/framework/src/integrated/sizzle.js"></script>'
   ];
   if (!window.JSON) {

@@ -28,7 +28,7 @@ button { display: block; margin-bottom: 20px; padding: 10px 15px; font-size: 14p
 
 <script>
 var dialog = {};
-execute(function($) {
+document.on('domready', function() {
   var uiComponents = $(document.body).find('fieldset');
   uiComponents.forEach(function($uiComponent) {
     switch ($uiComponent.getData('component')) {
@@ -86,16 +86,16 @@ execute(function($) {
 
   }
 
-}, true);
+});
 
 //--------------------------------------------------[居中对话框简易控制]
-execute(function($) {
+(function() {
   $('#toggle').on('click', function() {
     var $help = $('#help');
     $help.offsetWidth ? $help.close() : $help.open();
   });
   alert($('#help').getData('effect'));
-});
+})();
 
 </script>
 </body>

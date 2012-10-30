@@ -542,7 +542,6 @@
    * @description
    *   样式渐变效果渲染器只能指定一个元素。
    */
-  var $ = document.$;
   Animation.createStyleRenderer = function(element, styles) {
     var $element = $(element);
     var map = getStylesMap($element, styles);

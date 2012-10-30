@@ -27,7 +27,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
     </blockquote>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var logger = new Logger($('#logger'), true);
 
     var times = 1;
@@ -81,7 +81,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       requestXML.abort();
     });
 
-  });
+  })();
   </script>
 
 </div>

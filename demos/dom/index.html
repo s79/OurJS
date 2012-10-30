@@ -85,7 +85,7 @@ samp.samples { background: gold; }
     </table>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     $('#c_event')
         .on('mouseenter', function() {
           this.setStyle('color', 'maroon');
@@ -115,7 +115,7 @@ samp.samples { background: gold; }
     $('#clone').on('click', function() {
       $sample.clone(true, true).replace($target.getFirstChild());
     });
-  });
+  })();
   </script>
   <!-- } clone -->
 
@@ -147,14 +147,14 @@ samp.samples { background: gold; }
     </blockquote>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var $sample = $('#i_sample');
     var $target = $('#i_target');
     var $container = $sample.getParent();
     $('#i_controls').on('click:relay(button)', function() {
       eval(this.innerText);
     });
-  });
+  })();
   </script>
   <!-- } insertTo -->
 
@@ -183,7 +183,7 @@ samp.samples { background: gold; }
     </blockquote>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     window.$ = $;
     var $sample = $('#s_sample');
     var targets = $('#s_target').getChildren();
@@ -193,7 +193,7 @@ samp.samples { background: gold; }
     $('#s_controls').on('click:relay(button)', function() {
       eval(this.innerText);
     });
-  });
+  })();
   </script>
   <!-- } swap -->
 
@@ -220,7 +220,7 @@ samp.samples { background: gold; }
     </blockquote>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     window.$ = $;
     var $sample = $('#r_sample');
     var targets = $('#r_target').getChildren();
@@ -230,7 +230,7 @@ samp.samples { background: gold; }
     $('#r_controls').on('click:relay(button)', function() {
       eval(this.innerText);
     });
-  });
+  })();
   </script>
   <!-- } replace -->
 

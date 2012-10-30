@@ -10,8 +10,6 @@
 
 (function() {
 //==================================================[日志记录器]
-  var $ = document.$;
-
   var styleRulesInjected = false;
   var injectedStyleRules = function() {
     if (!styleRulesInjected) {

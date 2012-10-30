@@ -8,7 +8,7 @@
 <label for="switcher"><input id="switcher" type="checkbox">为 window 添加 beforeunload 事件监听器</label>
 <a href="javascript:void('nothing');">点击伪协议的超链接在 IE6 IE7 IE8 IE9 中也会触发 beforeunload 事件</a>
 <script>
-execute(function($) {
+(function() {
   var showMessage = true;
   $('#switcher')
       .on('change', function() {
@@ -34,7 +34,7 @@ execute(function($) {
   document.on('click', function(e) {
 //    e.preventDefault();
   });
-});
+})();
 </script>
 </body>
 </html>

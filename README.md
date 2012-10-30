@@ -35,12 +35,6 @@ OurJS 只可以和非侵入式设计的框架或类库共存。
     <td>Integrated</td><td>integrated\sizzle.js<br>integrated\json2.js</td>
   </tr>
   <tr>
-    <td>Code Block Management</td><td>execute.js</td>
-  </tr>
-  <tr>
-    <td>Modularization</td><td>modularization.js</td>
-  </tr>
-  <tr>
     <td>Request</td><td>request.js</td>
   </tr>
   <tr>

@@ -8,12 +8,12 @@
 //==================================================[请求 HTTP 资源]
   /*
    * 调用流程：
-   *   var request = new Request(url, config);
+   *   var request = new Request(url, options);
    *   request.send(requestData)<send> -> requestParser(requestData)<start> -> responseParser(responseData)<finish>
    *                                                                        -> request.abort()<abort>
    *
    * 说明：
-   *   用户使用 send 方法传递的请求数据与服务端返回的响应数据均不可预期，因此可以通过修改配置中的 requestParser 和 responseParser 这两个函数以对它们进行预处理。
+   *   用户使用 send 方法传递的请求数据与服务端返回的响应数据均不可预期，因此可以通过修改选项中的 requestParser 和 responseParser 这两个函数以对它们进行预处理。
    *
    * 更新记录：
    *   版本 20120208 的实现是每个 request 仅创建一个 XHR 对象，多次发送请求则重复使用。
@@ -70,11 +70,11 @@
 
   // 获取响应信息，state 可能是 DONE、ABORT 或 TIMEOUT。
   var getResponse = function(request, state) {
-    var config = request.config;
+    var options = request.options;
     // 处理请求的最短和最长时间。
-    if (config.async) {
+    if (options.async) {
       // 由于 getResponse(request, DONE) 在 send 方法中有两个入口，因此在此处对 minTime 进行延时处理。
-      if (Number.isFinite(config.minTime)) {
+      if (Number.isFinite(options.minTime)) {
         if (request.minTimeTimer) {
           // 已经限定过请求的最短时间。此时 ABORT 或 TIMEOUT 状态在有意如此操作或设置的情况下，可能比延迟的 DONE 状态来的早。
           // 但因为此时请求已经完成，所以要把本次调用的 state 重置为 DONE。
@@ -85,7 +85,7 @@
           // 这种情况需要限定请求的最短时间。
           request.minTimeTimer = setTimeout(function() {
             getResponse(request, DONE);
-          }, Math.max(0, config.minTime - (Date.now() - request.timestamp)));
+          }, Math.max(0, options.minTime - (Date.now() - request.timestamp)));
           return;
         }
       }
@@ -139,7 +139,7 @@
     delete request.xhr;
     activeRequests.remove(request);
     // 触发 finish 事件。
-    request.fire('finish', config.responseParser.call(request, {
+    request.fire('finish', options.responseParser.call(request, {
       status: status,
       statusText: statusText,
       headers: headers,
@@ -154,21 +154,21 @@
    * @name Request
    * @constructor
    * @param {string} url 请求地址。
-   * @param {Object} [config] 配置信息。
-   * @param {string} config.username 用户名，默认为空字符串，即不指定用户名。
-   * @param {string} config.password 密码，默认为空字符串，即不指定密码。
-   * @param {string} config.method 请求方法，默认为 'get'。
-   * @param {Object} config.headers 要设置的 request headers，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
-   * @param {string} config.contentType 发送数据的内容类型，默认为 'application/x-www-form-urlencoded'，method 为 'post' 时有效。
-   * @param {boolean} config.useCache 是否允许浏览器的缓存生效，默认为 true。
-   * @param {boolean} config.async 是否使用异步方式，默认为 true。
-   * @param {number} config.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
-   * @param {number} config.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {Function} config.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为空字符串。
+   * @param {Object} [options] 可选项。
+   * @param {string} options.username 用户名，默认为空字符串，即不指定用户名。
+   * @param {string} options.password 密码，默认为空字符串，即不指定密码。
+   * @param {string} options.method 请求方法，默认为 'get'。
+   * @param {Object} options.headers 要设置的 request headers，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
+   * @param {string} options.contentType 发送数据的内容类型，默认为 'application/x-www-form-urlencoded'，method 为 'post' 时有效。
+   * @param {boolean} options.useCache 是否允许浏览器的缓存生效，默认为 true。
+   * @param {boolean} options.async 是否使用异步方式，默认为 true。
+   * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
+   * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
+   * @param {Function} options.requestParser 请求数据解析器，传入请求数据，该函数应返回解析后的字符串数据，默认将请求数据转换为字符串，若请求数据为空则转换为空字符串。
    *   原始请求数据无特殊要求。
    *   解析后的请求数据应该是一个字符串，并且该字符串会被赋予 start 事件对象的 data 属性。
    *   该函数被调用时 this 的值为本组件的实例对象。
-   * @param {Function} config.responseParser 响应数据解析器，传入响应数据，该函数应返回解析后的对象数据，默认无特殊处理。
+   * @param {Function} options.responseParser 响应数据解析器，传入响应数据，该函数应返回解析后的对象数据，默认无特殊处理。
    *   原始响应数据中包含以下属性：
    *   {number} responseData.status 状态码。
    *   {string} responseData.statusText 状态描述。
@@ -196,19 +196,21 @@
    *   每发送一个请求必然会收到一个响应，当请求发送后，无论发生何种情况（本次请求超时或被取消）均会触发 finish 事件。
    *   这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
    */
-  var Request = window.Request = function(url, config) {
+  var Request = window.Request = function(url, options) {
     this.url = url;
-    this.config = Object.mixin(Object.clone(Request.config), config || {}, {whiteList: Object.keys(Request.config)});
+    this.options = Object.mixin(Object.clone(Request.options), options || {}, {whiteList: Object.keys(Request.options)});
     Observable.applyTo(this);
   };
 
-//--------------------------------------------------[Request.config]
+//--------------------------------------------------[Request.options]
   /**
-   * 默认配置。
-   * @name Request.config
+   * 默认选项。
+   * @name Request.options
    * @type Object
+   * @description
+   *   修改 Request.options 即可更改 Request 的默认选项，新的默认选项仅对后续创建的实例生效。
    */
-  Request.config = {
+  Request.options = {
     username: '',
     password: '',
     method: 'get',
@@ -241,7 +243,7 @@
    */
   Request.prototype.send = function(requestData) {
     var request = this;
-    var config = request.config;
+    var options = request.options;
     var xhr = request.xhr = getXHRObject();
     // 只有进行中的请求有 timestamp 属性，需等待此次交互结束（若设置了 minTime 则交互结束的时间可能被延长）才能再次发起请求。若无 xhr 对象，则无法发起请求。
     if (request.timestamp || !xhr) {
@@ -250,40 +252,40 @@
     // 触发 send 事件。
     request.fire('send', {data: requestData});
     // 处理请求数据。
-    requestData = config.requestParser.call(request, requestData);
+    requestData = options.requestParser.call(request, requestData);
     // 触发 start 事件。
     request.fire('start', {data: requestData});
     // 创建请求。
     var url = request.url;
-    var method = config.method.toLowerCase();
-    var async = config.async;
+    var method = options.method.toLowerCase();
+    var async = options.async;
     if (method === 'get' && requestData) {
       url += (url.contains('?') ? '&' : '?') + requestData;
       requestData = '';
     }
-    if (!config.useCache) {
+    if (!options.useCache) {
       url += (url.contains('?') ? '&' : '?') + '_=' + (++uid).toString(36);
     }
     // http://bugs.jquery.com/ticket/2865
-    if (config.username) {
-      xhr.open(method, url, async, config.username, config.password);
+    if (options.username) {
+      xhr.open(method, url, async, options.username, options.password);
     } else {
       xhr.open(method, url, async);
     }
     // 设置请求头。
     if (method === 'post') {
-      xhr.setRequestHeader('Content-Type', config.contentType);
+      xhr.setRequestHeader('Content-Type', options.contentType);
     }
-    Object.forEach(config.headers, function(value, key) {
+    Object.forEach(options.headers, function(value, key) {
       xhr.setRequestHeader(key, value);
     });
     // 发送请求。
     xhr.send(requestData || null);
     request.timestamp = Date.now();
-    if (async && Number.isFinite(config.maxTime)) {
+    if (async && Number.isFinite(options.maxTime)) {
       request.maxTimeTimer = setTimeout(function() {
         getResponse(request, TIMEOUT);
-      }, Math.max(0, config.maxTime));
+      }, Math.max(0, options.maxTime));
     }
     activeRequests.push(request);
     // 获取响应。

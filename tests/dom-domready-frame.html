@@ -10,15 +10,13 @@ iframe { display: block; width: 300px; height: 200px; border: 1px solid black; }
 img { display: none; }
 </style>
 <script>
-execute(function($) {
 //--------------------------------------------------[domready]
-  document.on('domready', function() {
-    top.log('<span class="frame domready">' + $('#domready').value + '</span>');
-  });
+document.on('domready', function() {
+  top.log('<span class="frame domready">' + $('#domready').value + '</span>');
+});
 //--------------------------------------------------[load]
-  window.on('load', function() {
-    top.log('<span class="frame load">' + $('#load').value + '</span>');
-  });
+window.on('load', function() {
+  top.log('<span class="frame load">' + $('#load').value + '</span>');
 });
 
 </script>

@@ -10,10 +10,10 @@
 <script src="../scripts/log.js"></script>
 <div id="log" style="height: 200px;"></div>
 <script>
-execute(function($) {
+(function() {
   var logger = new Logger($('#log'));
   logger.log('<em>!</em>text <var>var</var> <dfn class="true">dfn</dfn> <dfn class="false">dfn</dfn>');
-});
+})();
 </script>
 </body>
 </html>

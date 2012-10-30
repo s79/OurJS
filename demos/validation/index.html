@@ -206,7 +206,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
     </form>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
 //--------------------------------------------------[输出日志]
     var logger = new Logger($('#logger').setStyles({float: 'right', width: 343, height: $('#form_table').offsetHeight - 2}), true);
 
@@ -367,7 +367,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
       console.log(e.type, this.value);
     });
 
-  });
+  })();
   </script>
 
 </div>

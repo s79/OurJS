@@ -7,7 +7,6 @@
 </head>
 <body>
 <script>
-var $ = document.$;
 // 测试 IE6 内存泄漏。
 function leak() {
   var $e = $('<a href="javascript:alert(0);"><h1>This is a <span>test</span>.</h1></a>').insertTo(document.body);
@@ -64,7 +63,6 @@ for (var i = 0; i < 100; i++) {
 //  console.log(e.timeStamp);
 //}
 //
-//var $ = document.$;
 //function leak() {
 //  var $e = $('<a href="javascript:alert(0);"><h1>This is a <span>test</span>.</h1></a>').insertTo(document.body);
 //  $e.longString = new Array(1000).join('abcdefghijklmnopqrstuvwxyz');

@@ -79,7 +79,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; text-al
     </blockquote>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     $('#local_storage_set').on('click', function() {
       var $form = $('#form_local_storage_set');
       localStorage.setItem($form.key.value, $form.value.value);
@@ -100,7 +100,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; text-al
       localStorage.clear();
     });
 
-  });
+  })();
   </script>
   <!-- } localStorage -->
 </div>

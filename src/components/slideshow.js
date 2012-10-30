@@ -4,7 +4,7 @@
  * @version 20120709
  */
 
-execute(function($) {
+(function() {
 //==================================================[Slideshow]
   /*
    * 创建幻灯片播放器。
@@ -164,4 +164,4 @@ execute(function($) {
 //--------------------------------------------------[Slideshow]
   window.Slideshow = Slideshow;
 
-});
+})();

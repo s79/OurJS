@@ -51,7 +51,7 @@ dd em.false { color: tomato; }
     </div>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var $logger = $('#on_off_logger');
     var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
@@ -81,7 +81,7 @@ dd em.false { color: tomato; }
       logger.log('已删除“bar”的所有<em>logText</em>监听器。');
     });
 
-  });
+  })();
   </script>
   <!-- } on/off -->
 
@@ -108,7 +108,7 @@ dd em.false { color: tomato; }
     </div>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var $logger = $('#form_logger');
     var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
@@ -134,7 +134,7 @@ dd em.false { color: tomato; }
       logger.log('输出 focusin/focusout 的日志信息 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
     });
 
-  });
+  })();
   </script>
   <!-- } focusin/focusout/input/change -->
 
@@ -151,7 +151,7 @@ dd em.false { color: tomato; }
     </div>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var $overLogger = $('#over_logger');
     var $hoverLogger = $('#hover_logger');
     var height = $overLogger.getNextSibling().offsetHeight - 2;
@@ -170,7 +170,7 @@ dd em.false { color: tomato; }
           hoverLogger.log('<em>' + e.type + '</em>' + e.target.nodeName);
         });
 
-  });
+  })();
   </script>
   <!-- } mouseenter/mouseleave -->
 
@@ -191,7 +191,7 @@ dd em.false { color: tomato; }
     </blockquote>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var $container = $('#container');
     var $drag = $('#drag');
 
@@ -242,7 +242,7 @@ dd em.false { color: tomato; }
       this.disabled = true;
     });
 
-  });
+  })();
   </script>
   <!-- } mousedragstart/mousedrag/mousedragend -->
 
@@ -259,7 +259,7 @@ dd em.false { color: tomato; }
     </div>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var $logger = $('#prevent_default_logger');
     var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
@@ -277,7 +277,7 @@ dd em.false { color: tomato; }
       logger.log('阻止测试链接的默认行为 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
     });
 
-  });
+  })();
   </script>
   <!-- } preventDefault -->
 
@@ -297,7 +297,7 @@ dd em.false { color: tomato; }
     </div>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var $logger = $('#propagation_logger');
     var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
@@ -315,7 +315,7 @@ dd em.false { color: tomato; }
       logger.log('取消 P 元素的事件传播 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
     });
 
-  });
+  })();
   </script>
   <!-- } stopPropagation -->
 
@@ -331,7 +331,7 @@ dd em.false { color: tomato; }
     </div>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var $logger = $('#stop_immediate_propagation_logger');
     var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
@@ -352,7 +352,7 @@ dd em.false { color: tomato; }
     var $stopImmediatePropagation = $('#stop_immediate_propagation').on('change', function(e) {
       logger.log('在第一个事件监听器中立即阻止事件的传播 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
     });
-  });
+  })();
   </script>
   <!-- } stopImmediatePropagation -->
 
@@ -365,7 +365,7 @@ dd em.false { color: tomato; }
     </div>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     $('#relay')
         .on('mouseenter:relay(dfn)', function() {
           this.morph({width: 150}).highlight();
@@ -373,7 +373,7 @@ dd em.false { color: tomato; }
         .on('mouseleave:relay(dfn)', function() {
           this.morph({width: 100}).highlight('red', 'color');
         });
-  });
+  })();
   </script>
   <!-- } delegate -->
 
@@ -403,7 +403,7 @@ dd em.false { color: tomato; }
     </blockquote>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var getText = function(event, properties) {
       var text = '';
       properties.forEach(function(property) {
@@ -464,7 +464,7 @@ dd em.false { color: tomato; }
           });
     });
 
-  });
+  })();
   </script>
   <!-- } properties -->
 

@@ -107,7 +107,7 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
     </blockquote>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     var cookieLogger = new Logger($('#cookie_logger'));
 
     function showAllCookies() {
@@ -139,7 +139,7 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
 
     showAllCookies();
 
-  });
+  })();
   </script>
   <!-- } cookie -->
 
@@ -206,7 +206,7 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
     </blockquote>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     $('#local_storage_set').on('click', function() {
       var $form = $('#form_local_storage_set');
       localStorage.setItem($form.key.value, $form.value.value);
@@ -227,7 +227,7 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
       localStorage.clear();
     });
 
-  });
+  })();
   </script>
   <iframe src="another_path/" width="500" height="300" frameborder="no" scrolling="no"></iframe>
   <!-- } localStorage -->

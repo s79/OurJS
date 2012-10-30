@@ -2570,8 +2570,6 @@
    * 根据指定的参数获取/创建一个元素，并对其进行扩展。
    * @name window.$
    * @function
-   * @param {string|Element} e 不同类型的元素表示。
-   * @returns {Element} 扩展后的元素。
    * @description
    *   本方法是对 document.$ 的引用。
    *   将全局作用域的 $ 作为 document.$ 的别名，便于书写应用代码。

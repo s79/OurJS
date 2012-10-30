@@ -37,7 +37,6 @@
    * @param {*} [expression2] 要记录的第二个表达式的值。
    * @param {*} […] 要记录的第 n 个表达式的值。
    */
-  var $ = document.$;
 
   // 空函数。
   var empty = function() {

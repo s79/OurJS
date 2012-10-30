@@ -19,7 +19,7 @@ var { color: tomato; }
 #log { position: absolute; left: 500px; top: 0; }
 </style>
 <script>
-execute(function($) {
+(function() {
 //--------------------------------------------------[log]
   var startTime = Date.now();
 
@@ -51,7 +51,8 @@ execute(function($) {
     });
     top.log('<span class="top load">' + $('#load').value + '</span>');
   });
-});
+
+})();
 </script>
 </head>
 <body>

@@ -1558,7 +1558,6 @@
    * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
    */
   if ('Element' in window) {
-    var $ = document.$;
     Element.prototype.find = function(selector) {
       return Sizzle(selector, this).map(function(element) {
         return $(element);

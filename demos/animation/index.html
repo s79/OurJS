@@ -44,7 +44,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   </div>
 </fieldset>
 <script>
-execute(function($) {
+(function() {
   var $logger = $('#morph_logger');
   var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
@@ -93,7 +93,7 @@ execute(function($) {
     });
   });
 
-});
+})();
 </script>
 <!-- } morph -->
 
@@ -115,7 +115,7 @@ execute(function($) {
   </div>
 </fieldset>
 <script>
-execute(function($) {
+(function() {
   var $logger = $('#highlight_logger');
   var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
@@ -144,7 +144,7 @@ execute(function($) {
     });
   });
 
-});
+})();
 </script>
 <!-- } highlight -->
 
@@ -175,7 +175,7 @@ execute(function($) {
   </div>
 </fieldset>
 <script>
-execute(function($) {
+(function() {
   var $logger = $('#fade_logger');
   var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
@@ -246,7 +246,7 @@ execute(function($) {
     });
   });
 
-});
+})();
 </script>
 <!-- } fade -->
 
@@ -280,7 +280,7 @@ execute(function($) {
   </div>
 </fieldset>
 <script>
-execute(function($) {
+(function() {
   var $logger = $('#menu_logger');
   var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
@@ -297,7 +297,7 @@ execute(function($) {
         });
   });
 
-});
+})();
 </script>
 <!-- } play/reverse -->
 
@@ -325,7 +325,7 @@ execute(function($) {
   </div>
 </fieldset>
 <script>
-execute(function($) {
+(function() {
 //--------------------------------------------------[animation]
   var $foo = $('#foo').setStyle('opacity', 0);
   var $bar = $('#bar').setStyle('opacity', 0);
@@ -461,7 +461,7 @@ execute(function($) {
   var $logger = $('#complex_logger');
   var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
-});
+})();
 </script>
 <!-- complex { -->
 
@@ -497,7 +497,7 @@ execute(function($) {
   </blockquote>
 </fieldset>
 <script>
-execute(function($) {
+(function() {
   var $canvas = $('#canvas');
   var $controls = $('#timing_controls');
   var buttons = $controls.find('button');
@@ -531,7 +531,7 @@ execute(function($) {
     return false;
   });
 
-});
+})();
 </script>
 <!-- } timing_functions -->
 

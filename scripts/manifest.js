@@ -2,13 +2,7 @@ var manifest = {
   'Global': [
     '=自定义扩展=',
     'Global.typeOf',
-    'Global.execScript',
-    'Global.getNamespace',
-    '=模块化=',
-    'Global.declareModule',
-    'Global.runApplication',
-    '=执行代码块=',
-    'Global.execute'
+    'Global.execScript'
   ],
   'Object': [
     '=ES5=',
@@ -270,7 +264,7 @@ var manifest = {
   ],
   'Request': [
     'Request',
-    'Request.config',
+    'Request.options',
     'Request#send',
     'Request#abort'
   ],
@@ -303,12 +297,14 @@ var manifest = {
     'Paginator#totalPage',
     'Paginator#currentPage',
     'Paginator#turn',
-    'Paginator#render'
+    'Paginator#update'
   ],
-  'Calendar': [
+  '月历': [
     'Calendar',
-    'Calendar.config',
-    'Calendar#getElement',
-    'Calendar#render'
+    'Calendar#month',
+    'Calendar#update'
+  ],
+  '日期选择器': [
+    'DatePicker'
   ]
 };

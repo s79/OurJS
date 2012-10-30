@@ -11,7 +11,7 @@
 if (navigator.isIElt9) {
   document.createElement('include');
 }
-execute(function($) {
+document.on('domready', function() {
   function include(target) {
     new Request(target.getAttribute('src'), {useCache: false, async: false})
         .on('finish', function(e) {
@@ -25,7 +25,7 @@ execute(function($) {
   while (includeElement = includeElements[0]) {
     include(includeElements[0]);
   }
-}, true);
+});
 </script>
 </head>
 <body>
@@ -36,14 +36,14 @@ execute(function($) {
 <h2>END</h2>
 
 <style>
-h1\:2 {color: red;}
+h1\:2 { color: red; }
 </style>
-<wb:share-button size="big" ></wb:share-button>
+<wb:share-button size="big"></wb:share-button>
 
 <h1:2 id="h12">h1</h1:2>
 
 <script>
-document.$('#h12').insertAdjacentHTML( 'afterEnd', '888');
+$('#h12').insertAdjacentHTML('afterEnd', '888');
 </script>
 </body>
 </html>

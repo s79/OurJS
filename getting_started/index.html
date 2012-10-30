@@ -12,13 +12,13 @@ ul.downloads { list-style: none; padding-left: 1em; }
 em { font-style: normal; text-decoration: underline; }
 </style>
 <script>
-execute(function($) {
+document.on('domready', function() {
   // 代码高亮。
   $(document.body).find('pre').forEach(function($pre) {
     $pre.addClass('prettyprint');
   });
   prettyPrint();
-}, true);
+});
 </script>
 </head>
 <body>
@@ -119,7 +119,7 @@ var $container = document.$('#container');
 var $message = document.$('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd&gt;&lt;/dd&gt;&lt;/dl&gt;');
 // 创建一个 DL 元素。虽然每次只能创建一个元素，但这个元素可以包含任意多的后代元素。
 </pre>
-<p>像很多库一样，OurJS 也可以使用 $ 来代替 document.$，以简化编码。具体做法请参考下文“<strong>使用 execute 方法执行代码块</strong>”一节中的内容。</p>
+<p>像很多库一样，OurJS 也可以使用 $ 来代替 document.$，以便于使用。</p>
 <blockquote>
   <p>
     从本节开始，你会发现一些变量以 $ 开头，如上边两个例子中的 $container 和 $message，OurJS 的所有演示代码（也包括源码）中都会使用这样的方式来标识一个元素对象，以使代码更易读。<br>
@@ -306,7 +306,7 @@ $element.on('click', function(e) {
 </blockquote>
 
 <h2>特性</h2>
-<p>“特性”是指可以应用于任意对象上的功能，目前包括“可配置”和“可观察”两种。</p>
+<p>“特性”是指可以应用于任意对象上的功能。将某种“特性”应用到某个对象后，该对象将具备特定的功能。</p>
 
 <h3>可观察 - Observable</h3>
 <p>具备此特性的对象，即拥有处理事件的能力。</p>
@@ -351,27 +351,29 @@ object.add('blue');
 </pre>
 <p>“可观察”特性目前也是主要应用于组件的实例对象上（此特性是被自动应用的），以统一管理组件的信息交互。</p>
 
-<h2>组件</h2>
-<p>“组件”是指提供某种特定功能的一类构造器对象，每种组件都可以有多个实例共存。</p>
-<p>一些组件会依赖其他的组件，每个组件也都可以扩充为功能更强大的新组件。</p>
-<p>所有组件的实例都具备“可配置”和“可观察”的特性。</p>
+<del>
+  <h2>组件</h2>
+  <p>“组件”是指提供某种特定功能的一类构造器对象，每种组件都可以有多个实例共存。</p>
+  <p>一些组件会依赖其他的组件，每个组件也都可以扩充为功能更强大的新组件。</p>
+  <p>所有组件的实例都具备“可配置”和“可观察”的特性。</p>
 
-<h4>更改配置</h4>
-<p>
-  有可配置项的组件的构造器都有一个 config 属性，这是该组件的默认配置。<br>
-  修改 config 属性即可更改该组件的默认配置，若 config 为空对象则表示该组件没有可配置项。使用这种方式指定的配置对后续创建的实例均生效。
-</p>
-<pre>Request.<strong>config</strong>.method = 'post';</pre>
-<p>
-  在创建组件的实例时，可以通过指定 config 参数来更改默认配置（没有可配置项的组件除外）。<br>
-  通过 config 参数指定的配置仅对本次创建的实例生效。
-</p>
-<pre>var request = new Request('/product/getfriends', <strong>{method: 'get'}</strong>);</pre>
-<p>
-  所有组件的实例都有 setConfig 方法，可以为该实例更改配置。<br>
-  更改后的配置将在该实例上直接生效。
-</p>
-<pre>request.<strong>setConfig({headers: {uid: 12345}})</strong>;</pre>
+  <h4>更改配置</h4>
+  <p>
+    有可配置项的组件的构造器都有一个 config 属性，这是该组件的默认配置。<br>
+    修改 config 属性即可更改该组件的默认配置，若 config 为空对象则表示该组件没有可配置项。使用这种方式指定的配置对后续创建的实例均生效。
+  </p>
+  <pre>Request.<strong>config</strong>.method = 'post';</pre>
+  <p>
+    在创建组件的实例时，可以通过指定 config 参数来更改默认配置（没有可配置项的组件除外）。<br>
+    通过 config 参数指定的配置仅对本次创建的实例生效。
+  </p>
+  <pre>var request = new Request('/product/getfriends', <strong>{method: 'get'}</strong>);</pre>
+  <p>
+    所有组件的实例都有 setConfig 方法，可以为该实例更改配置。<br>
+    更改后的配置将在该实例上直接生效。
+  </p>
+  <pre>request.<strong>setConfig({headers: {uid: 12345}})</strong>;</pre>
+</del>
 
 <h4>处理事件</h4>
 <ul>
@@ -431,7 +433,7 @@ getUserinfo.send(userid);
   因此 Request 组件设计为每发送一个请求就必然会收到一个响应，发送请求后，无论何种情况（本次请求超时或被取消）均会触发 finish 事件。这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
 </p>
 <p>在 finish 事件的监听器中可以根据传入的事件对象进行后续处理，或者使用 responseParser 进行预处理，必要时还可以根据情况添加自定义事件，如 success、failure、timeout 等。</p>
-<p>如果在当前项目中与服务端的数据交互格式有明确的约定，那么可以将通用的处理逻辑设置到 Request 组件的默认配置中，以实现为该项目定制的异步交互组件。</p>
+<p>如果在当前项目中与服务端的数据交互格式有明确的约定，那么可以将通用的处理逻辑设置到 Request 组件的默认选项中，以实现为该项目定制的异步交互组件。</p>
 <blockquote>
   <p>相关演示请参考 <a href="../demos/request/" target="_blank" class="link">演示 - Ajax</a>。</p>
 </blockquote>
@@ -442,40 +444,6 @@ getUserinfo.send(userid);
 <blockquote>
   <p>组件的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 右列的《组件》部分。</p>
 </blockquote>
-
-<h2>使用 execute 方法执行代码块</h2>
-<p>通常，为了减少全局变量的数量和避免不同代码块之间的变量名有冲突，会使用一个匿名函数来执行一个相对独立的代码块：</p>
-<pre>
-(function() {
-  var localVariable = 'localVariable';
-  // 这个变量仅在本函数内有效。
-})();
-</pre>
-<p>使用 execute 方法可以达到相同目的，除此之外还有以下好处：</p>
-<p>函数 codeBlock 被调用时，将传入 document.$ 作为参数，因此可以通过在该函数的形参中写上一个 $，以便在函数内直接使用 $ 而不必担心与其他脚本库的 $ 冲突：</p>
-<pre>
-execute(function(<strong>$</strong>) {
-  <strong>$</strong>('#container').addClass('selected');
-  // 在包含代码块的匿名函数使用 $ 代替 document.$，以简化编码。
-});
-</pre>
-<p>可选参数 waitingForDomReady 可以控制包含代码块的匿名函数的执行时机：</p>
-<pre>
-execute(function(<strong>$</strong>) {
-  <strong>$</strong>('&lt;span class="icon"&gt;&lt;/span&gt;').insertTo(<strong>$</strong>('#test'), 'top');
-}, <strong>true</strong>);
-// 包含代码块的匿名函数将在 DOM 树解析完成后执行。
-</pre>
-<p>OurJS 没有任何标志性的命名空间或变量，使用 execute 方法来执行一个代码块是 OurJS 的一个明显特点。</p>
-
-<h2>模块和应用</h2>
-<p>“模块”和“应用”是面对复杂的项目时应该使用的策略。在 OurJS 中对它们的定义如下：</p>
-<p>
-  “模块”即可分离的业务逻辑，将整个项目中相对独立的部分编写为一个模块以实现解耦。<br>
-  各模块之间相互不依赖，也不能通信。这种隔离的设计有利于各模块的独立开发和测试，同时也可以减少项目变更时某一部分代码的修改对其他部分造成的影响。
-</p>
-<p>“应用”是连接各“模块”的桥梁。“模块”只能与“应用”通信，反之亦然。可以同时存在多个“应用”，但需要注意在“应用”的代码中仅应处理各“模块”的信息，而不应该有其他业务逻辑。</p>
-<p>关于“模块”和“应用”的例子，可以参考主菜单“参考文档 - API 参考”页内的脚本。</p>
 
 </div>
 </body>

@@ -12,7 +12,6 @@
    * 扩展方法：
    *   typeOf
    *   execScript
-   *   getNamespace
    */
 
   /**
@@ -125,26 +124,6 @@
       window.eval(code);
     };
   }
-
-//--------------------------------------------------[getNamespace]
-  /**
-   * 获取一个命名空间，如果该命名空间不存在，将创建并返回这个命名空间。
-   * @name getNamespace
-   * @memberOf Global
-   * @function
-   * @param {string} namespace 命名空间的字符串形式。
-   * @returns {Object} 命名空间对象。
-   * @example
-   *   var finale = getNamespace('data.championship.finale');
-   *   finale.getRankingList = function() {...};
-   */
-  window.getNamespace = function(namespace) {
-    var o = window;
-    namespace.split('.').forEach(function(item) {
-      o = item in o ? o[item] : o[item] = {};
-    });
-    return o;
-  };
 
 //==================================================[navigator 扩展]
   /*

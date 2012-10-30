@@ -23,7 +23,7 @@
     <div id="ua_info_logger"></div>
   </fieldset>
   <script>
-  execute(function($) {
+  (function() {
     // navigator.* 预览。
     var navigatorLogger = new Logger($('#navigator_logger'));
     ['inStandardsMode', 'isIE10', 'isIElt10', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'].forEach(function(key) {
@@ -36,7 +36,7 @@
     uaInfoLogger.log('<var>' + navigator.userAgent + '</var>');
     uaInfoLogger.log(JSON.stringify(navigator.userAgentInfo));
 
-  });
+  })();
   </script>
 
 </div>

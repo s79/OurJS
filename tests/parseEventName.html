@@ -25,18 +25,16 @@ p.error { color: red; }
   </form>
 </div>
 <script>
-execute(function($) {
-  $('#d').on('input:relay(input)', function(e) {
-    console.log(this.tagName + ': ' + e.type);
-  });
-  $('#ul').on('mousedrag.test:relay(a)', function(e) {
-    console.log('● CLICKED: a');
-    e.preventDefault();
-  });
-  $('#ul').on('click:relay(li>span a), click.test:relay(li:even span)', function(e) {
-    console.log('● -> ' + this.nodeName);
-    e.preventDefault();
-  });
+$('#d').on('input:relay(input)', function(e) {
+  console.log(this.tagName + ': ' + e.type);
+});
+$('#ul').on('mousedrag.test:relay(a)', function(e) {
+  console.log('● CLICKED: a');
+  e.preventDefault();
+});
+$('#ul').on('click:relay(li>span a), click.test:relay(li:even span)', function(e) {
+  console.log('● -> ' + this.nodeName);
+  e.preventDefault();
 });
 
 //--------------------------------------------------[parseEventName]
