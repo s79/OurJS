@@ -276,7 +276,7 @@ var buildDocument = function() {
   buildSymbol(indexColumns.c, 'Observable', true);
   $('<h1>动画</h1>').insertTo(indexColumns.c);
   buildSymbol(indexColumns.c, 'Animation', true);
-  $('<h1>Ajax</h1>').insertTo(indexColumns.c);
+  $('<h1>远程请求</h1>').insertTo(indexColumns.c);
   [
     'Request',
     'JSONPRequest'

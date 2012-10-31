@@ -412,8 +412,8 @@ $menu
   <p>相关演示请参考 <a href="../demos/animation/" target="_blank" class="link">演示 - 动画</a>。</p>
 </blockquote>
 
-<h3>Ajax</h3>
-<p>Ajax 功能是通过 Request 组件实现的。</p>
+<h3>远程请求</h3>
+<p>远程请求是通过 Request 组件实现的。</p>
 <p>Request 组件用于对一个指定的资源发起请求，并获取响应数据。每个 Request 的实例都对应一个资源，实例创建后可以重复使用：</p>
 <pre>
 var getUserinfo = new Request('path/to/userinfo', {
@@ -435,7 +435,7 @@ getUserinfo.send(userid);
 <p>在 finish 事件的监听器中可以根据传入的事件对象进行后续处理，或者使用 responseParser 进行预处理，必要时还可以根据情况添加自定义事件，如 success、failure、timeout 等。</p>
 <p>如果在当前项目中与服务端的数据交互格式有明确的约定，那么可以将通用的处理逻辑设置到 Request 组件的默认选项中，以实现为该项目定制的异步交互组件。</p>
 <blockquote>
-  <p>相关演示请参考 <a href="../demos/request/" target="_blank" class="link">演示 - Ajax</a>。</p>
+  <p>相关演示请参考 <a href="../demos/request/" target="_blank" class="link">基本功能演示 - 远程请求</a>。</p>
 </blockquote>
 
 <h3>其他可选组件</h3>

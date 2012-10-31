@@ -1,5 +1,5 @@
 /**
- * @fileOverview 从指定的资源获取数据。
+ * @fileOverview 从远程资源获取数据。
  * @author sundongguo@gmail.com
  * @version 20120921
  */

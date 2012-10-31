@@ -38,7 +38,7 @@ document.on('domready', function() {
           url: '/OurJS/demos/animation/'
         },
         {
-          text: 'Ajax',
+          text: '远程请求',
           url: '/OurJS/demos/request/'
         },
         {
