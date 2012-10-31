@@ -277,7 +277,13 @@ var buildDocument = function() {
   $('<h1>动画</h1>').insertTo(indexColumns.c);
   buildSymbol(indexColumns.c, 'Animation', true);
   $('<h1>Ajax</h1>').insertTo(indexColumns.c);
-  buildSymbol(indexColumns.c, 'Request', true);
+  [
+    'Request',
+    'JSONPRequest'
+  ]
+      .forEach(function(name) {
+        buildSymbol(indexColumns.c, name, true);
+      });
   $('<h1>控件</h1>').insertTo(indexColumns.c);
   [
     'Widget'

@@ -2062,7 +2062,7 @@
    *     <tr><td><dfn>maxLength</dfn></td><td>Array</td><td>当该域只包含一个文本控件时，限定输入文本的最大长度，否则限定选择项的最多数目。数组的第一个元素为 number 类型。</td></tr>
    *     <tr><td><dfn>type</dfn></td><td>Array</td><td>限定数据的类型。数组的第一个元素为 string 类型，可以为 number/date/email/phone 中的任一个。</td></tr>
    *     <tr><td><dfn>custom</dfn></td><td>Function</td><td>用来对该域的值进行进一步验证的函数，该函数被调用时传入该域的值，其 this 的值为本表单元素，返回值应为一个“错误信息”字符串，为空则表示验证通过。</td></tr>
-   *     <tr><td><dfn>remote</dfn></td><td>Object</td><td>指定对该域的值进行服务端验证，包含两个属性：url 和 config，详细内容请参考 Request 组件。注意利用 config.requestParser 和 config.responseParser 对请求和响应数据进行预处理。该域的值将被作为参数传入 send 方法，finish 事件对象应具备 errorMessage 属性（“错误信息”字符串），为空则表示验证通过。</td></tr>
+   *     <tr><td><dfn>remote</dfn></td><td>Object</td><td>指定对该域的值进行服务端验证，包含两个属性：url 和 options，详细内容请参考 Request 组件。注意利用 options.requestParser 和 options.responseParser 对请求和响应数据进行预处理。该域的值将被作为参数传入 send 方法，finish 事件对象应具备 errorMessage 属性（“错误信息”字符串），为空则表示验证通过。</td></tr>
    *   </table>
    *   进行验证的步骤为 required - equals - minLength - maxLength - type - custom - remote。
    *   若不需要某种类型的验证，在 <var>rules</var> 中省略对应的项即可。
@@ -2136,7 +2136,7 @@
       if (rules.lastRequest) {
         rules.lastRequest.off('finish').abort();
       }
-      rules.lastRequest = new Request(remote.url, remote.config)
+      rules.lastRequest = new Request(remote.url, remote.options)
           .on('finish', function(e) {
             delete rules.lastRequest;
             var errorMessage = e.errorMessage;

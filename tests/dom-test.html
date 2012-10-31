@@ -89,9 +89,9 @@ l2.assert('$y.getData(\'whatData\') === \'WHAT?\'');
 l2.assert('document.createElement(\'var\').ownerDocument === window.document');
 
 document.loadScript('dom-createElement.js', {
-  charset: 'gb2312',
+  charset: 'utf-8',
   onLoad: function() {
-    l2.assert("'" + this.nodeName + "' === 'SCRIPT' && '" + this.charset + "' === 'gb2312'");
+    l2.assert("'" + this.nodeName + "' === 'SCRIPT' && '" + this.charset + "' === 'utf-8'");
   }
 });
 

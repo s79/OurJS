@@ -16,7 +16,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 
   <h2>Request</h2>
   <fieldset>
-    <legend>使用 Request 对象进行异步请求</legend>
+    <legend>使用 Request 进行同域请求</legend>
     <div id="logger" style="height: 350px;"></div>
     <blockquote>
       <button id="send_txt">send (data.txt) x 3 times</button>
@@ -40,10 +40,10 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       }
     })
         .on('start', function(e) {
-          logger.log('<strong>start</strong>' + e.data);
+          logger.log('<strong>' + e.type + '</strong>' + e.data);
         })
         .on('finish', function(e) {
-          logger.log('<strong>finish</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
+          logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
         })
         .on('finish', function(e) {
           if (times++ < 3) {
@@ -69,16 +69,43 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       maxTime: 600
     })
         .on('start', function(e) {
-          logger.log('<em>start</em>' + e.data);
+          logger.log('<em>' + e.type + '</em>' + e.data);
         })
         .on('finish', function(e) {
-          logger.log('<em>finish</em>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
+          logger.log('<em>' + e.type + '</em>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
         });
     $('#send_xml').on('click', function() {
       requestXML.send();
     });
     $('#abort_xml').on('click', function() {
       requestXML.abort();
+    });
+
+  })();
+  </script>
+
+  <h2>JSONPRequest</h2>
+  <fieldset>
+    <legend>使用 JSONPRequest 进行跨域请求</legend>
+    <div id="logger_jsonprequest" style="height: 350px;"></div>
+    <blockquote>
+      <button id="send">send</button>
+    </blockquote>
+  </fieldset>
+  <script>
+  (function() {
+    var logger = new Logger($('#logger_jsonprequest'), true);
+
+    var jsonpRequest = new JSONPRequest('http://www.highcharts.com/samples/data/jsonp.php?filename=aapl-c.json')
+        .on('send, start', function(e) {
+          logger.log('<em>' + e.type + '</em>' + e.data);
+        })
+        .on('finish', function(e) {
+          logger.log('<em>' + e.type + '</em>' + e.data.length);
+        });
+
+    $('#send').on('click', function() {
+      jsonpRequest.send('a=100000');
     });
 
   })();

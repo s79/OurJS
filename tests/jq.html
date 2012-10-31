@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>jQuery</title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script src="../dev.js"></script>
 <style>
 div { padding: 10px; border: 1px solid black; background: white; }
@@ -101,5 +101,16 @@ jQuery('#id4').on('focus', function(e) {
   console.log('focus:', e.target.tagName);
 });
 </script>
+
+<script>
+/**
+ * jQuery 提供的 abort 方法这样调用的话会出错。
+ */
+var jsonpRequest = jQuery.getJSON('http://www.highcharts.com/samples/data/jsonp.php?filename=aapl-c.json&callback=?', function(data) {
+  console.warn(data.length);
+});
+jsonpRequest.abort();
+</script>
+
 </body>
 </html>
