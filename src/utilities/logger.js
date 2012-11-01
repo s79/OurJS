@@ -15,12 +15,12 @@
     if (!styleRulesInjected) {
       document.addStyleRules([
         '.logger { position: relative; border: 1px solid silver; background: #252525; }',
-        '.logger div.output { height: 100%; overflow-y: auto; color: #8CC; font: 12px/12px Consolas, "Lucida Console", Courier, SimSun, monospace; white-space: pre-wrap; word-wrap: break-word; }',
+        '.logger div.output { height: 100%; overflow-x: hidden; overflow-y: auto; color: #8CC; font: 12px/12px Consolas, "Lucida Console", Courier, SimSun, monospace; white-space: pre-wrap; word-wrap: break-word; }',
         '.logger a { display: none; position: absolute; right: -1px; bottom: -18px; padding: 2px 5px; background: whitesmoke; border: 1px solid silver; border-radius: 0 0 2px 2px; color: black; text-decoration: none; font-size: 12px; line-height: 12px; }',
         '.logger a:hover { background: white; }',
         '.logger table { border-collapse: sperate; border-spacing: 2px; margin: 2px; }',
         '.logger td { padding: 2px; border: none; font-size: 12px; }',
-        '.logger p { margin: 2px; padding: 2px; }',
+        '.logger p { margin: 2px; padding: 2px; word-wrap: break-word; word-break: break-all; }',
         '.logger strong, .logger em { display: inline-block; margin-right: 2px; padding: 0 3px; border-radius: 8px; color: black; font-weight: bold; }',
         '.logger strong { background: gold; }',
         '.logger em { background: dodgerblue; }',

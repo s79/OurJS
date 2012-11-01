@@ -259,12 +259,6 @@ var manifest = {
     'Request#send',
     'Request#abort'
   ],
-  'JSONPRequest': [
-    'JSONPRequest',
-    'JSONPRequest.options',
-    'JSONPRequest#ongoing',
-    'JSONPRequest#send'
-  ],
   'Widget': [
     'Widget.register',
     'Widget.parse'

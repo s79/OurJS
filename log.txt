@@ -14,6 +14,14 @@
 >IE 自动填充未触发 change 事件。
 >控件文档 - 使用场景 - 要求 - 新增特性 - 新增方法 - 新增事件
 
+>2012-11-01
+将 JSONPRequest 合并到 Request 中。
+去掉 requestParser 和 responseParser，他们应写在应用代码中，基础 API 不提供此类过滤功能。
+去掉 start 事件，增加 timeout 和 success 事件。
+
+>2012-10-31
++JSONPRequest
+
 >2012-10-30
 -Switcher
 没有合适的地方安排它，并且它提供的功能粒度稍粗。

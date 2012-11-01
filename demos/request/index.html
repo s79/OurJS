@@ -17,10 +17,9 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   <h2>Request</h2>
   <fieldset>
     <legend>使用 Request 进行同域请求</legend>
-    <div id="logger" style="height: 350px;"></div>
+    <div id="logger" style="height: 200px;"></div>
     <blockquote>
       <button id="send_txt">send (data.txt) x 3 times</button>
-      <button id="abort_txt">abort (data.txt)</button>
       <br>
       <button id="send_xml">send (data.xml)</button>
       <button id="abort_xml">abort (data.xml)</button>
@@ -31,23 +30,16 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
     var logger = new Logger($('#logger'), true);
 
     var times = 1;
-    var requestTXT = new Request('data.txt', {
-      useCache: false,
-      minTime: 400,
-      maxTime: 600,
-      requestParser: function(data) {
-        return typeof data === 'string' ? data : JSON.stringify(data);
-      }
-    })
-        .on('start', function(e) {
-          logger.log('<strong>' + e.type + '</strong>' + e.data);
+    var requestTXT = new Request('data.txt', {useCache: false})
+        .on('send', function(e) {
+          logger.log('<em>' + e.type + '</em>' + e.data);
         })
-        .on('finish', function(e) {
+        .on('complete', function(e) {
           logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
         })
-        .on('finish', function(e) {
+        .on('complete', function(e) {
           if (times++ < 3) {
-            this.send('{"times": ' + times + '}');
+            this.send({times: times});
             if (times === 2) {
               this.abort();
             }
@@ -56,23 +48,15 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
           }
         });
     $('#send_txt').on('click', function() {
-      requestTXT.send('{"times": 1}');
-    });
-    $('#abort_txt').on('click', function() {
-      requestTXT.abort();
+      requestTXT.send({times: 1});
     });
 
-    var requestXML = new Request('data.xml', {
-      method: 'get',
-      useCache: true,
-      minTime: 500,
-      maxTime: 600
-    })
-        .on('start', function(e) {
-          logger.log('<em>' + e.type + '</em>' + e.data);
+    var requestXML = new Request('data.xml', {minTime: 500})
+        .on('send, success, abort, timeout', function(e) {
+          logger.log('<em>' + e.type + '</em>');
         })
-        .on('finish', function(e) {
-          logger.log('<em>' + e.type + '</em>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
+        .on('complete', function(e) {
+          logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
         });
     $('#send_xml').on('click', function() {
       requestXML.send();
@@ -84,28 +68,36 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   })();
   </script>
 
-  <h2>JSONPRequest</h2>
+  <h2>JSONP</h2>
   <fieldset>
-    <legend>使用 JSONPRequest 进行跨域请求</legend>
-    <div id="logger_jsonprequest" style="height: 350px;"></div>
+    <legend>使用 JSONP 模式进行跨域请求</legend>
+    <div id="logger_jsonprequest" style="height: 200px;"></div>
     <blockquote>
       <button id="send">send</button>
+      <button id="abort">abort</button>
     </blockquote>
   </fieldset>
   <script>
   (function() {
     var logger = new Logger($('#logger_jsonprequest'), true);
 
-    var jsonpRequest = new JSONPRequest('http://www.highcharts.com/samples/data/jsonp.php?filename=aapl-c.json')
-        .on('send, start', function(e) {
-          logger.log('<em>' + e.type + '</em>' + e.data);
+    var getList = new Request('http://www.highcharts.com/samples/data/jsonp.php', {
+      mode: 'jsonp',
+      minTime: 2000,
+      maxTime: 5000
+    })
+        .on('send, success, abort, timeout', function(e) {
+          logger.log('<em>' + e.type + '</em>' + (e.data ? e.data.length : null));
         })
-        .on('finish', function(e) {
-          logger.log('<em>' + e.type + '</em>' + e.data.length);
+        .on('complete', function(e) {
+          logger.log('<strong>' + e.type + '</strong>' + (e.data ? e.data.length : null));
         });
 
     $('#send').on('click', function() {
-      jsonpRequest.send('a=100000');
+      getList.send('filename=aapl-c.json');
+    });
+    $('#abort').on('click', function() {
+      getList.abort();
     });
 
   })();
