@@ -2644,6 +2644,7 @@
    *     <li>如果添加了多个监听器，则只有最后添加的生效。</li>
    *     <li>可以删除当前生效的监听器。</li>
    *   </ul>
+   * @see http://w3help.org/zh-cn/causes/BX2047
    */
   window.on = function(name, listener) {
     var filteredName = name.split(separator)
@@ -2654,6 +2655,7 @@
               // 不会传入事件对象。
               return listener.call(window);
             };
+            // TODO: A 上的非 http https 的协议在 document 上把 event preventDefault 掉。
             return false;
           }
           return true;

@@ -138,8 +138,8 @@
         var targetUrl = this.targetUrl;
         var elements = this.elements;
         if (targetUrl) {
-          elements.prevButton.href = currentPage === 1 ? 'javascript:void(\'prev\');'/* TODO: preventDefault */ : targetUrl.replace(/{page}/, currentPage - 1);
-          elements.nextButton.href = currentPage === totalPage ? 'javascript:void(\'next\');'/* TODO: preventDefault */ : targetUrl.replace(/{page}/, currentPage + 1);
+          elements.prevButton.href = currentPage === 1 ? 'javascript:void(\'prev\');' : targetUrl.replace(/{page}/, currentPage - 1);
+          elements.nextButton.href = currentPage === totalPage ? 'javascript:void(\'next\');' : targetUrl.replace(/{page}/, currentPage + 1);
         }
         elements.prevButton[currentPage === 1 ? 'addClass' : 'removeClass']('disabled');
         elements.nextButton[currentPage === totalPage ? 'addClass' : 'removeClass']('disabled');
