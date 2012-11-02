@@ -426,7 +426,7 @@ var getUserinfo = new Request('path/to/userinfo', {
       ...
     });
 ...
-getUserinfo.send(userid);
+getUserinfo.send({userid: 32768});
 </pre>
 <p>从数据交互的角度看，一次请求有“成功”、“失败”、“超时”三种状态，因此大多数库中都预置了这些类型的事件或回调。</p>
 <p>

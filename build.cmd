@@ -4,7 +4,7 @@ cd src
 echo /*!>%ourjs%
 echo. * OurJS>>%ourjs%
 echo. *  Released under the MIT License.>>%ourjs%
-echo. *  Version: %date:~0,4%%date:~5,2%>>%ourjs%
+echo. *  Version: %date:~0,4%%date:~5,2%%date:~8,2%>>%ourjs%
 echo. */>>%ourjs%
 copy/y/b %ourjs% + lang.js + browser.js + dom.js + features.js + animation.js + request.js + widget.js + integrated\json2.js + integrated\sizzle.js %ourjs%
 set yuicompressor_path=D:\ProgramFiles\JSFileCompressor\yuicompressor-2.4.7\build

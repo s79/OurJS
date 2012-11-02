@@ -5,28 +5,6 @@
 <title>include</title>
 <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=" type="text/javascript" charset="utf-8"></script>
 <script src="../our.js"></script>
-<script>
-// 使用 <include file="/path/to/file">XXX</include> 引入模版文件，注意避免模版文件之间的循环引用。
-// TODO: STYLE 标签目前可以支持，但 SCRIPT 需要处理，LINK 待测。
-if (navigator.isIElt9) {
-  document.createElement('include');
-}
-document.on('domready', function() {
-  function include(target) {
-    new Request(target.getAttribute('src'), {useCache: false, async: false})
-        .on('finish', function(e) {
-          target.outerHTML = e.status === 200 ? e.text : '<ins style="padding: 0 1em; border: 1px solid red; background: yellow; color: red; font: bold 14px/20px Verdana, Arial, serif; text-decoration: none;">include error: ' + this.url + '</ins>';
-        })
-        .send();
-  }
-
-  var includeElements = document.getElementsByTagName('include');
-  var includeElement;
-  while (includeElement = includeElements[0]) {
-    include(includeElements[0]);
-  }
-});
-</script>
 </head>
 <body>
 <h1>include</h1>
@@ -47,3 +25,4 @@ $('#h12').insertAdjacentHTML('afterEnd', '888');
 </script>
 </body>
 </html>
+<script src="_include.js"></script>

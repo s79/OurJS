@@ -7,17 +7,12 @@
 (function() {
 //==================================================[远程请求]
   /*
-   * 更新记录：
-   *   版本 20120208 的实现是每个 request 仅创建一个 XHR 对象，多次发送请求则重复使用。
-   *   考虑到同一 request 的不同请求调用 setRequestHeader 时传入的值可能不同，版本 20120921 修改为不重用 XHR 对象，以免出现预料外的问题。
-   *
-   * 注意：
-   *   IE6 IE7 IE8 IE9 均不支持 overrideMimeType，因此本组件不提供此功能。
-   *   同样的原因，W3C 的 XMLHttpRequest 草案中提及的，其他不能被上述浏览器支持的相关内容也不提供。
+   * W3C 的 XMLHttpRequest Level 2 草案中提及的，不能被 IE6 IE7 IE8 IE9 支持的相关内容暂不予提供。
+   * http://www.w3.org/TR/XMLHttpRequest/
    */
 
   // 请求状态。
-  var DONE = 0;
+  var COMPLETE = 0;
   var ABORT = -498;
   var TIMEOUT = -408;
 
@@ -82,20 +77,20 @@
       var delayTime = request.minTime - (Date.now() - request.timestamp);
       if (delayTime > 0) {
         request.minTimeTimer = setTimeout(function() {
-          requestComplete(request, DONE);
+          requestComplete(request, COMPLETE);
         }, delayTime);
         return;
       }
     }
-    requestComplete(request, DONE);
+    requestComplete(request, COMPLETE);
   };
 
-  // 请求已完成，state 可能是 DONE、ABORT 或 TIMEOUT。
+  // 请求已完成，state 可能是 COMPLETE、ABORT 或 TIMEOUT。
   var requestComplete = function(request, state) {
     // 取消最短时间设置。
     if (request.minTimeTimer) {
-      // 本次请求已经完成，但可能在等待过程中调用 abort 方法或设置了更短的 maxTime，导致 state 为 ABORT 或 TIMEOUT，所以要把 state 重置为 DONE。
-      state = DONE;
+      // 本次请求已经完成，但可能在等待过程中调用 abort 方法或设置了更短的 maxTime，导致 state 为 ABORT 或 TIMEOUT，所以要把 state 重置为 COMPLETE。
+      state = COMPLETE;
       clearTimeout(request.minTimeTimer);
       delete request.minTimeTimer;
     }
@@ -121,7 +116,7 @@
         var xhr = request.xhr;
         delete request.xhr;
         xhr.onreadystatechange = empty;
-        if (state === DONE) {
+        if (state === COMPLETE) {
           // 请求已完成，获取数据。
           // http://helpful.knobs-dials.com/index.php/Component_returned_failure_code:_0x80040111_(NS_ERROR_NOT_AVAILABLE)
           try {
@@ -147,9 +142,9 @@
         break;
       case 'jsonp':
         responseData.data = null;
-        if (state === DONE) {
+        if (state === COMPLETE) {
           // 请求已完成，获取数据。
-          responseData.status = DONE;
+          responseData.status = COMPLETE;
           responseData.statusText = 'OK';
           responseData.data = request.receivedData;
         } else {
@@ -163,8 +158,8 @@
     }
     // 触发事件。
     switch (state) {
-      case DONE:
-        request.fire('success', responseData);
+      case COMPLETE:
+        request.fire('complete', responseData);
         break;
       case ABORT:
         responseData.status = ABORT;
@@ -177,7 +172,7 @@
         request.fire('timeout', responseData);
         break;
     }
-    request.fire('complete', responseData);
+    request.fire('finish', responseData);
   };
 
 //--------------------------------------------------[Request]
@@ -189,6 +184,7 @@
    * @param {Object} [options] 可选项。
    * @param {string} options.mode 请求模式，使用 'xhr' 则为 XHR 模式，使用 'jsonp' 则为 JSONP 模式，默认为 'xhr'，大小写不敏感。
    * @param {string} options.method 请求方法，在 XHR 模式下可以使用 'get' 和 'post'，默认为 'get'，在 JSONP 模式下永远为 'get'，大小写不敏感。
+   *   如果使用 'get' 方式，应将整个 URL 的长度控制在 2048 个字符以内。
    * @param {boolean} options.useCache 是否允许浏览器的缓存生效，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 false。
    * @param {boolean} options.async 是否使用异步方式，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 true。
    * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
@@ -198,25 +194,25 @@
    * @param {Object} options.headers 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
    * @param {string} options.contentType 发送数据的内容类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
    * @param {string} options.prefixKey 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
-   * @fires send
+   * @fires start
    *   {string} event.data 解析后的待发送数据。
-   *   请求开始发送时触发。
+   *   请求开始时触发。
    * @fires abort
    *   请求被取消时触发。
    * @fires timeout
    *   请求超时时触发。
-   * @fires success
-   *   请求成功时触发。
    * @fires complete
    *   请求完成时触发。
-   *   只要调用了 send 方法就必然会触发此事件。在调用 abort 方法取消请求，或请求超时的情况下，也会得到请求结果（此时的状态码分别为 -498 和 -408）。
-   *   这样设计的好处是在请求完成时可以统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
+   * @fires finish
+   *   请求结束时触发。
+   *   只要请求已开始，此事件就必然会被触发（跟随在 abort、timeout 或 complete 任一事件之后）。
+   *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
    * @description
    *   所有 Request 的实例都具备 Observable 特性。
    *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
-   *   创建 Request 时，可以选择使用 XHR 模式和 JSONP 模式。XHR 模式不能跨域，仅请求同域的资源时可用。JSONP 模式仅应在跨域请求时使用，服务端在设计对应的接口时，应以 JSONP 的格式返回数据。如果服务端没有返回任何文本数据（如仅返回状态码），JSONP 请求将出现错误。
-   *   由于 JSONP 请求的原理是直接执行另一个域内的脚本，因此它并不安全。如果通过 JSONP 请求的域遭到攻击，本域也可能会受到影响。
-   *   两种模式的请求结果略有差异，它们都会被传入 abort、timeout、success 和 complete 事件监听器中。
+   *   创建 Request 时，可以选择使用 XHR 模式（同域请求时）或 JSONP 模式（跨域请求时）。
+   *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。由于 JSONP 请求的原理是直接执行另一个域内的脚本，因此它并不安全。如果该域遭到攻击，本域也可能会受到影响。
+   *   两种模式的请求结果略有差异，它们都会被传入 abort、timeout、complete 和 finish 事件监听器中。
    *   XHR 模式的请求结果中包含以下属性：
    *   {number} status 状态码。
    *   {string} statusText 状态描述。
@@ -303,7 +299,7 @@
         requestData = null;
       }
       // 触发 send 事件。
-      request.fire('send', {data: requestData});
+      request.fire('start', {data: requestData});
       // 请求开始进行。
       request.ongoing = true;
       request.timestamp = Date.now();

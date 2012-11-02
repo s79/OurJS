@@ -295,14 +295,12 @@ dl.strong .strong { color: #333; font-weight: bold; }
               url: 'remote.txt',
               options: {
                 useCache: false,
-                minTime: 1000,
-                requestParser: function(data) {
-                  return 'value=' + data;
-                },
-                responseParser: function(data) {
-                  var value = $('#form').elements.account.value;
-                  return {errorMessage: value.startsWith('our') ? '' : JSON.parse(data.text).errorMessage + '（以 our 开头即可通过验证）'};
-                }
+                minTime: 1000
+              },
+              valueKey: 'value',
+              validateResult: function(e) {
+                var value = $('#form').elements.account.value;
+                return value.startsWith('our') ? '' : JSON.parse(e.text).errorMessage + '（以 our 开头即可通过验证）';
               }
             }
           },
@@ -338,7 +336,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
           }
         })
         .on('fieldvalidate', function(e) {
-          if(e.name === 'account') {
+          if (e.name === 'account') {
             getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
           }
           logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');

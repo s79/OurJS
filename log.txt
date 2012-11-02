@@ -1,6 +1,6 @@
 ﻿>加入 .resources 目录中的 Utilities placeholder 省略号等。
 >移出不常用代码到 utilities 目录。
->include (from site.js)
+>include (tests)
 >加入 slide scroll 动画后全项目搜索 fade 关键字，在相应位置补齐对应的说明。
 >$ 添加白名单。
 && !(/^(?:object|embed)$/i).test(el.tagName)
@@ -17,7 +17,7 @@
 >2012-11-01
 将 JSONPRequest 合并到 Request 中。
 去掉 requestParser 和 responseParser，他们应写在应用代码中，基础 API 不提供此类过滤功能。
-去掉 start 事件，增加 timeout 和 success 事件。
+事件名改为 start、abort、timeout、complete 和 finish。
 
 >2012-10-31
 +JSONPRequest
@@ -138,6 +138,8 @@ Validator -> Form.setValidationRules
 
 >2012-09-21
 Animation 和 Request 修改。
+Request 版本 20120208 的实现是每个 request 仅创建一个 XHR 对象，多次发送请求则重复使用。
+考虑到同一 request 的不同请求调用 setRequestHeader 时传入的值可能不同，修改为不重用 XHR 对象，以免出现预料外的问题。
 
 >2012-09-20
 +Array.prototype.remove

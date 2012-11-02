@@ -19,7 +19,8 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
     <legend>使用 Request 进行同域请求</legend>
     <div id="logger" style="height: 200px;"></div>
     <blockquote>
-      <button id="send_txt">send (data.txt) x 3 times</button>
+      <button id="send_txt">send (data.txt)</button>
+      <button id="send_txt_abort">send and abort (data.txt)</button>
       <br>
       <button id="send_xml">send (data.xml)</button>
       <button id="abort_xml">abort (data.xml)</button>
@@ -29,40 +30,39 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   (function() {
     var logger = new Logger($('#logger'), true);
 
-    var times = 1;
-    var requestTXT = new Request('data.txt', {useCache: false})
-        .on('send', function(e) {
-          logger.log('<em>' + e.type + '</em>' + e.data);
+    var getTXT = new Request('data.txt', {useCache: false})
+        .on('start', function(e) {
+          logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
         })
-        .on('complete', function(e) {
-          logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
-        })
-        .on('complete', function(e) {
-          if (times++ < 3) {
-            this.send({times: times});
-            if (times === 2) {
-              this.abort();
-            }
-          } else {
-            times = 1;
-          }
-        });
-    $('#send_txt').on('click', function() {
-      requestTXT.send({times: 1});
-    });
-
-    var requestXML = new Request('data.xml', {minTime: 500})
-        .on('send, success, abort, timeout', function(e) {
+        .on('abort, timeout, complete', function(e) {
           logger.log('<em>' + e.type + '</em>');
         })
-        .on('complete', function(e) {
+        .on('finish', function(e) {
+          logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
+        });
+    $('#send_txt').on('click', function() {
+      getTXT.send({type: 'Normal.'});
+    });
+    $('#send_txt_abort').on('click', function() {
+      getTXT.send({type: 'Call abort method immediately.'});
+      getTXT.abort();
+    });
+
+    var getXML = new Request('data.xml', {minTime: 500})
+        .on('start', function(e) {
+          logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
+        })
+        .on('abort, timeout, complete', function(e) {
+          logger.log('<em>' + e.type + '</em>');
+        })
+        .on('finish', function(e) {
           logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
         });
     $('#send_xml').on('click', function() {
-      requestXML.send();
+      getXML.send();
     });
     $('#abort_xml').on('click', function() {
-      requestXML.abort();
+      getXML.abort();
     });
 
   })();
@@ -86,15 +86,18 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       minTime: 2000,
       maxTime: 5000
     })
-        .on('send, success, abort, timeout', function(e) {
-          logger.log('<em>' + e.type + '</em>' + (e.data ? e.data.length : null));
+        .on('start', function(e) {
+          logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
         })
-        .on('complete', function(e) {
-          logger.log('<strong>' + e.type + '</strong>' + (e.data ? e.data.length : null));
+        .on('abort, timeout, complete', function(e) {
+          logger.log('<em>' + e.type + '</em>');
+        })
+        .on('finish', function(e) {
+          logger.log('<strong>' + e.type + '</strong>' + (e.data ? 'data.length=<var>' + e.data.length + '</var>' : ''));
         });
 
     $('#send').on('click', function() {
-      getList.send('filename=aapl-c.json');
+      getList.send({filename: 'aapl-c.json'});
     });
     $('#abort').on('click', function() {
       getList.abort();
