@@ -208,7 +208,7 @@
       }
       Object.forEach(params, function(value, key) {
         // 当前值和增量，数字类型。
-        var currentValue = el.attr(key);
+        var currentValue = el[el.attr ? 'attr' : 'getStyle'](key);
         var increment = params[key] - currentValue;
         // 要变化的值，若增量为零则不添加。
         if (increment) {
@@ -221,10 +221,10 @@
             .addClip(
             Animation.createBasicRenderer(function(x, y) {
               Object.forEach(morphing, function(value, key) {
-                el.attr(key, value[0] + value[1] * y);
+                el[el.attr ? 'attr' : 'setStyle'](key, value[0] + value[1] * y);
               });
               if (paths) {
-                el.attr('d', pathAnimation.step(paths[0], paths[1], y, paths[2]));
+                el[el.attr ? 'attr' : 'setStyle']('d', pathAnimation.step(paths[0], paths[1], y, paths[2]));
               }
             }), 0, duration, 'linear')
             .on('playfinish', function() {
