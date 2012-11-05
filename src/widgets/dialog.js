@@ -15,10 +15,10 @@
   var focusedByUser = true;
   var freezeFocusArea = function(config) {
     if (config) {
-      var $enable = $(config.enable);
-      var $disable = $(config.disable);
+      var $enable = document.$(config.enable);
+      var $disable = document.$(config.disable);
       // 将两个辅助文本框固定定位，以免在切换焦点时发生滚动。
-      $before = $before || $('<input type="text" readonly style="position: fixed; top: 0; left: -10000px; -position: absolute;">')
+      $before = $before || document.$('<input type="text" readonly style="position: fixed; top: 0; left: -10000px; -position: absolute;">')
           .on('focus', function() {
             if (focusedByUser) {
               focusedByUser = false;
@@ -33,7 +33,7 @@
               return false;
             }
           });
-      $after = $after || $('<input type="text" readonly style="position: fixed; top: 0; left: -10000px; -position: absolute;">')
+      $after = $after || document.$('<input type="text" readonly style="position: fixed; top: 0; left: -10000px; -position: absolute;">')
           .on('focus', function() {
             if (focusedByUser) {
               focusedByUser = false;
@@ -408,7 +408,7 @@
       var $context = this.context = this.getParent();
       // pinnedTarget 必须是 context 的后代元素。
       var $pinnedTarget;
-      this.pinnedTarget = (this.pinnedTarget && ($pinnedTarget = $('#' + this.pinnedTarget)) && $context.contains($pinnedTarget)) ? $pinnedTarget : $context;
+      this.pinnedTarget = (this.pinnedTarget && ($pinnedTarget = document.$('#' + this.pinnedTarget)) && $context.contains($pinnedTarget)) ? $pinnedTarget : $context;
       // IE6 不使用动画。
       if (navigator.isIE6) {
         this.animation = 'none';
@@ -426,7 +426,7 @@
         }
         // 为 $context 添加遮盖层和对话框公用的属性。
         $context.dialogs = [];
-        Widget.parse($context.overlay = $('<div class="widget-overlay"></div>').insertTo($context).on('click.overlay', function() {
+        Widget.parse($context.overlay = document.$('<div class="widget-overlay"></div>').insertTo($context).on('click.overlay', function() {
           $context.dialogs.getLast().focus();
         }));
       }

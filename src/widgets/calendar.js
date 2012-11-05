@@ -120,7 +120,7 @@
       var $element = this;
 
       // 添加新元素。
-      var $table = $('<table><thead></thead><tbody></tbody></table>').insertTo($element);
+      var $table = document.$('<table><thead></thead><tbody></tbody></table>').insertTo($element);
       var $thead = $table.getFirstChild();
       var $tbody = $table.getLastChild();
       var tr = $thead.insertRow(-1);

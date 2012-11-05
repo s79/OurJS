@@ -112,7 +112,7 @@
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为控件，因此仅应在必要时调用本方法。
    */
   Widget.parse = function(element, recursive) {
-    var $element = $(element);
+    var $element = document.$(element);
 
     if (!$element.widgetType) {
       var classNames = $element.className.clean().split(' ');

@@ -1560,7 +1560,7 @@
   if ('Element' in window) {
     Element.prototype.find = function(selector) {
       return Sizzle(selector, this).map(function(element) {
-        return $(element);
+        return document.$(element);
       });
     };
   } else {

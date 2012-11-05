@@ -43,13 +43,13 @@
   };
 
   // 创建必需的 DOM 对象。
-  var $console = $('<form action="" style="display:none; position:absolute; right:0; bottom:0; width:1000px; margin:0; padding:0;">' +
+  var $console = document.$('<form action="" style="display:none; position:absolute; right:0; bottom:0; width:1000px; margin:0; padding:0;">' +
       '<textarea id="console_output" readonly style="display:block; width:100%; height:120px; margin:0 0 -3px; border:1px solid gray; background:#252525; color:#A4C639; font:12px Consolas, \'Lucida Console\', Courier, SimSun, monospace;"></textarea>' +
       '<input id="console_input" type="text" style="display:block; width:100%; margin:0; border:1px solid gray; background:#252525; color:#F5F5F5; font:12px Consolas, \'Lucida Console\', Courier, SimSun, monospace;">' +
       '</form>')
       .insertTo(document.head);
-  var $input = $('#console_input');
-  var $output = $('#console_output');
+  var $input = document.$('#console_input');
+  var $output = document.$('#console_output');
   $output.value = '';
   var scriptContainer = document.createElement('div');
   // 必须插入文档，否则脚本执行后的结果将丢失。
@@ -131,7 +131,7 @@
   var bodyPaddingBottom = 0;
   var showConsole = function() {
     $console.setStyle('display', 'block');
-    $(document.body).setStyle('paddingBottom', bodyPaddingBottom + 150);
+    document.$(document.body).setStyle('paddingBottom', bodyPaddingBottom + 150);
 //    window.scrollBy(0, 150);
     $input.select();
     $output.scrollTop = 2147483647;
@@ -139,7 +139,7 @@
   };
   var hideConsole = function() {
     $console.setStyle('display', 'none');
-    $(document.body).setStyle('paddingBottom', 0);
+    document.$(document.body).setStyle('paddingBottom', 0);
 //    window.scrollBy(0, -150);
     localStorage.setItem('consoleIsOpen', 'false');
   };
@@ -147,7 +147,7 @@
   // 初始化界面。
   window.attachEvent('onload', function() {
     // 更新文档树及数据。
-    var $body = $(document.body);
+    var $body = document.$(document.body);
     $console.setStyle('position', 'fixed').insertTo($body);
     bodyPaddingBottom = parseInt($body.getStyle('paddingBottom'), 10) || 0;
     // 启用打开/关闭控制台的快捷键 F12。

@@ -47,7 +47,7 @@
     adapterRun: function(el, method) {
       // This currently works for getting inner width and height. If adding
       // more methods later, we need a conditional implementation for each.
-      return(method === 'width' || method === 'height') ? parseInt($(el).getStyle(method), 10) : null;
+      return(method === 'width' || method === 'height') ? parseInt(document.$(el).getStyle(method), 10) : null;
     },
 
     /**
@@ -186,7 +186,7 @@
      * Get the offset of an element relative to the top left corner of the viewport.
      */
     offset: function(el) {
-      return $(el).getClientRect();
+      return document.$(el).getClientRect();
     },
 
     /**

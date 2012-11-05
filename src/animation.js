@@ -543,7 +543,7 @@
    *   样式渐变效果渲染器只能指定一个元素。
    */
   Animation.createStyleRenderer = function(element, styles) {
-    var $element = $(element);
+    var $element = document.$(element);
     var map = getStylesMap($element, styles);
     var renderer = function(x, y) {
       Object.forEach(map.before, function(beforeValue, name) {

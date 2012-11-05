@@ -46,10 +46,10 @@
    */
   var Logger = window.Logger = function(container, enableClearButton) {
     var logger = this;
-    var $container = $(container);
-    logger.outputElement = $('<div class="output"></div>').insertTo($container.addClass('logger'));
+    var $container = document.$(container);
+    logger.outputElement = document.$('<div class="output"></div>').insertTo($container.addClass('logger'));
     if (enableClearButton) {
-      logger.clearButton = $('<a href="javascript:clear();">clear</a>')
+      logger.clearButton = document.$('<a href="javascript:clear();">clear</a>')
           .on('click', function(e) {
             e.preventDefault();
             logger.clear();
@@ -79,7 +79,7 @@
    * @returns {Object} Logger 对象。
    */
   Logger.prototype.log = function(message) {
-    $('<p>' + message + '</p>').insertTo(this.outputElement);
+    document.$('<p>' + message + '</p>').insertTo(this.outputElement);
     this.outputElement.scrollTop += 10000;
     return this;
   };
@@ -94,7 +94,7 @@
    */
   Logger.prototype.assert = function(expression) {
     var result = !!eval(expression);
-    $('<p class="' + result + '"><em>' + (result ? '√' : 'X') + '</em><span></span></p>')
+    document.$('<p class="' + result + '"><em>' + (result ? '√' : 'X') + '</em><span></span></p>')
         .insertTo(this.outputElement)
         .getLastChild().innerText = expression;
     this.outputElement.scrollTop += 10000;
@@ -116,7 +116,7 @@
   Logger.prototype.list = function() {
     var lastChild = this.outputElement.getLastChild();
     if (!lastChild || lastChild.nodeName !== 'TABLE') {
-      $('<table><tbody></tbody></table>').insertTo(this.outputElement);
+      document.$('<table><tbody></tbody></table>').insertTo(this.outputElement);
     }
     var tbody = this.outputElement.getLastChild().getLastChild();
     var tr = tbody.insertRow(-1);

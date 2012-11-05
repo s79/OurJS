@@ -158,9 +158,9 @@
       var $element = this;
 
       // 添加新元素。
-      var $prevButton = $('<a href="javascript:void(\'prev\');" class="prev">‹ 上一页</a>').insertTo($element);
-      var $pageNumberContainer = $('<span class="pages"></span>').insertTo($element);
-      var $nextButton = $('<a href="javascript:void(\'next\');" class="next">下一页 ›</a>').insertTo($element);
+      var $prevButton = document.$('<a href="javascript:void(\'prev\');" class="prev">‹ 上一页</a>').insertTo($element);
+      var $pageNumberContainer = document.$('<span class="pages"></span>').insertTo($element);
+      var $nextButton = document.$('<a href="javascript:void(\'next\');" class="next">下一页 ›</a>').insertTo($element);
 
       // 保存属性。
       $element.elements = {

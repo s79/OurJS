@@ -14,6 +14,10 @@
 >IE 自动填充未触发 change 事件。
 >控件文档 - 使用场景 - 要求 - 新增特性 - 新增方法 - 新增事件
 
+>2012-11-05
+源码中用到 $ 的地方改为其原名 document.$。
+未使用 var $ = document.$，性能开销不大，但可读性更好（更明确）。
+
 >2012-11-01
 将 JSONPRequest 合并到 Request 中。
 去掉 requestParser 和 responseParser，他们应写在应用代码中，基础 API 不提供此类过滤功能。
@@ -34,7 +38,7 @@ Animation 和 Request 不再叫做“组件”。
 本方法极少用到。
 -execute
 execute 是 对 jQuery 兼容的临时性解决方案，目前功能已经比较完善，可以弃用。
-此后的代码不应再担心 $ 被占用的问题，不用再写 var $ = document.$; 这样的代码。遇到冲突时，在对方的库中想办法解决。
+需要与 jQuery 并存时，仍需要 var $ = document.$; 保持兼容，独立代码直接使用 $ 即可。
 -declareModule
 -runApplication
 由于“模块”和“应用”机制的实用性欠佳，因此将删除它们。
