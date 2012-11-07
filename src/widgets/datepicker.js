@@ -163,13 +163,17 @@
     },
     setValue: function(value) {
       if ($datePicker.value !== value) {
+        var oldValue = $datePicker.value;
         $datePicker.highlight('red', 'color').value = value;
+        $datePicker.fire('valuechange', {oldValue: oldValue, newValue: value});
       }
       return $panel;
     },
     clearValue: function() {
       if ($datePicker.value !== '') {
+        var oldValue = $datePicker.value;
         $datePicker.highlight('whitesmoke').value = '';
+        $datePicker.fire('valuechange', {oldValue: oldValue, newValue: ''});
       }
       return $panel;
     }
@@ -180,7 +184,7 @@
         // 为日期选择器赋值。
         var value = this.title;
         if (value) {
-          $panel.setValue(value).hide();
+          $panel.hide().setValue(value);
         }
         return false;
       })
@@ -216,10 +220,10 @@
               ++year;
               break;
             case 'clear':
-              $panel.clearValue().hide();
+              $panel.hide().clearValue();
               return false;
             case 'today':
-              $panel.setValue(today.format()).hide();
+              $panel.hide().setValue(today.format());
               return false;
           }
           $panel.update(year + '-' + month.padZero(2));
@@ -272,6 +276,10 @@
    * @attribute data-max-date
    *   指定允许选择的最大日期，格式为 YYYY-MM-DD。
    *   如果不指定本属性，则使用 '9999-12-31' 作为默认值。
+   * @fires valuechange
+   *   选定的值改变时触发。
+   *   {string} oldValue 旧值。
+   *   {string} newValue 新值。
    * @description
    *   为 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为日期选择器控件。
    *   当该元素成为日期选择器控件后，将不能再由键盘输入值，但当点击该元素时，将弹出日期选择面板，在面板中选中的日期将自动回填到该元素中。
