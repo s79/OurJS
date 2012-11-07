@@ -88,7 +88,6 @@
     },
     hide: function() {
       $panel.setStyle('display', 'none');
-      $datePicker = null;
       window.off('scroll.datepicker, resize.datepicker');
       document.off('mousedown.datepicker');
       if ($panel.repositionTimer) {
