@@ -1,0 +1,247 @@
+/**
+ * @fileOverview 控件 - 幻灯片播放器。
+ * @author sundongguo@gmail.com
+ * @version 20121108
+ */
+
+(function() {
+//==================================================[控件 - 幻灯片播放器]
+//--------------------------------------------------[Slideshow]
+  /**
+   * 幻灯片播放器。
+   * @name Slideshow
+   * @constructor
+   * @attribute data-animation
+   *   幻灯片切换时使用的动画效果，可选项有 'none'，'fade', 'cover' 和 'slide'。
+   *   如果不指定本属性，则使用 'fade'。
+   *   当动画效果为 'slide' 时，所有幻灯片将被从左到右浮动排列；其他情况下所有幻灯片将绝对定位在其容器的左上角。
+   * @attribute data-hover-delay
+   *   以毫秒为单位的“指示器”鼠标悬停播放延时，仅在“指示器”存在时有效。
+   *   如果指定本属性，则启用鼠标悬停播放（建议设置为 '200' - '400' 之间的数值）。
+   *   如果不指定本属性，则由鼠标点击播放。
+   * @attribute data-interval
+   *   以毫秒为单位的幻灯片自动播放间隔。
+   *   如果不指定本属性，则使用 '5000'，即每 5 秒更换一张幻灯片。
+   *   自动播放的计时器将在鼠标进入本控件的区域后被停止，并在鼠标离开本控件的区域后重新计时。
+   * @fires show
+   *   {Element} activeSlide 当前播放的“幻灯片”。
+   *   {Element} activePointer 当前播放的“指示器”。
+   *   {Element} inactiveSlide 上一个播放的“幻灯片”。
+   *   {Element} inactivePointer 上一个播放的“指示器”。
+   *   成功调用 show 方法后触发。
+   * @fires showprevious
+   *   调用 showPrevious 方法后触发。
+   * @fires shownext
+   *   调用 showNext 方法后触发。
+   * @description
+   *   为元素添加 'widget-slideshow' 类，即可使该元素成为幻灯片播放器控件。
+   *   其子元素中包含类名 'slides' 的为“幻灯片”的容器，包含类名 'slide' 的为“幻灯片”，包含类名 'pointers' 的为幻灯片的“指示器”的容器，包含类名 'pointer' 的为幻灯片的“指示器”，包含类名 'prev' 的为“播放上一张”按钮，包含 'next' 的为“播放下一张”按钮。
+   *   所有“幻灯片”元素应有共同的父元素，并且他们的渲染尺寸也应该与其父元素的渲染尺寸一致。
+   *   所有“指示器”元素应有共同的父元素，并且数量应和“幻灯片”的数量一致。
+   *   上述内容中，只有“幻灯片”和“幻灯片”的容器是必选的，其他均可以省略。如果“幻灯片”只有一个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，他们也将不可见。
+   *   当前播放的“幻灯片”和“指示器”会被自动加入 'active' 类。
+   */
+
+  /**
+   * 包含所有“幻灯片”元素的数组。
+   * @name Slideshow#slides
+   * @type Array
+   */
+
+  /**
+   * 包含所有“指示器”元素的数组。
+   * @name Slideshow#pointers
+   * @type Array
+   */
+
+  /**
+   * 当前播放的“幻灯片”元素。
+   * @name Slideshow#activeSlide
+   * @type Element
+   */
+
+  /**
+   * 当前播放的“指示器”元素。
+   * @name Slideshow#activePointer
+   * @type Element
+   */
+
+  /**
+   * 播放指定的“幻灯片”。
+   * @name Slideshow#show
+   * @function
+   * @param {number} index 要播放的“幻灯片”在所有“幻灯片”中的索引值。
+   * @returns {Element} 本元素。
+   * @description
+   *   如果指定的索引值与当前播放的索引值相同，则调用此方法无效。
+   */
+
+  /**
+   * 播放上一张“幻灯片”。
+   * @name Slideshow#showPrevious
+   * @function
+   * @returns {Element} 本元素。
+   * @description
+   *   播放完第一张后，将开始播放最后一张。
+   */
+
+  /**
+   * 播放下一张“幻灯片”。
+   * @name Slideshow#showNext
+   * @function
+   * @returns {Element} 本元素。
+   * @description
+   *   播放完最后一张后，将开始播放第一张。
+   */
+
+  Widget.register('slideshow', {
+    css: [
+      '.widget-slideshow { display: block; }',
+      '.widget-slideshow .slides { display: block; position: relative; }',
+      '.widget-slideshow .slide { display: block; position: absolute; left: 0; top: 0; z-index: auto; }'
+    ],
+    config: {
+      animation: 'fade',
+      hoverDelay: NaN,
+      interval: 5000
+    },
+    methods: {
+      show: function(index) {
+        if (index > -1 && index < this.slides.length) {
+          var $inactiveSlide = this.activeSlide;
+          var $inactivePointer = this.activePointer;
+          var $activeSlide = this.activeSlide = this.slides[index];
+          var $activePointer = this.activePointer = this.pointers[index];
+          var $slideContainer = $activeSlide.getParent();
+          var inactiveIndex = this.activeIndex;
+          this.activeIndex = index;
+          switch (this.animation) {
+            case 'fade':
+              $activeSlide.insertTo($slideContainer).setStyle('opacity', 0).morph({opacity: 1});
+              break;
+            case 'cover':
+              $activeSlide.insertTo($slideContainer).setStyle('opacity', 0).setStyles({left: $activeSlide.offsetWidth * (index > inactiveIndex ? 1 : -1)}).morph({left: 0, opacity: 1});
+              break;
+            case 'slide':
+              $slideContainer.morph({left: -$activeSlide.offsetWidth * index});
+              break;
+            default:
+              $activeSlide.insertTo($slideContainer);
+          }
+          $activeSlide.addClass('active');
+          if ($activePointer) {
+            $activePointer.addClass('active');
+          }
+          $inactiveSlide.removeClass('active');
+          if ($inactivePointer) {
+            $inactivePointer.removeClass('active');
+          }
+          this.fire('show', {
+            activeSlide: $activeSlide,
+            activePointer: $activePointer,
+            inactiveSlide: $inactiveSlide,
+            inactivePointer: $inactivePointer
+          });
+        }
+        return this;
+      },
+      showPrevious: function() {
+        var index = this.activeIndex - 1;
+        if (index === -1) {
+          index = this.slides.length - 1;
+        }
+        this.show(index).fire('showprevious');
+        return this;
+      },
+      showNext: function() {
+        var index = this.activeIndex + 1;
+        if (index === this.slides.length) {
+          index = 0;
+        }
+        this.show(index).fire('shownext');
+        return this;
+      }
+    },
+    events: ['show', 'showprevious', 'shownext'],
+    initialize: function() {
+      var $element = this;
+
+      // 保存属性。
+      var slides = $element.find('.slide');
+      var pointers = $element.find('.pointer');
+      var $activeSlide = slides.getFirst();
+      var $activePointer = pointers.getFirst() || null;
+      Object.mixin($element, {
+        slides: slides,
+        pointers: pointers,
+        activeIndex: 0,
+        activeSlide: $activeSlide,
+        activePointer: $activePointer
+      });
+
+      // 默认显示第一张。
+      $activeSlide.addClass('active');
+      if ($activePointer) {
+        $activePointer.addClass('active');
+      }
+
+      // 设置幻灯片样式。
+      if ($element.animation === 'slide') {
+        $activeSlide.getParent().setStyles({width: $activeSlide.offsetWidth * slides.length, height: $activeSlide.offsetHeight});
+        slides.forEach(function($slide) {
+          $slide.setStyles({position: 'static', float: 'left'});
+        });
+      }
+
+      // 通过点击或指向“指示器”播放对应的“幻灯片”。
+      var hoverTimer;
+      $element
+          .on('click.slideshow:relay(.pointer)', function(event) {
+            if (pointers.contains(this)) {
+              $element.show(pointers.indexOf(this));
+              event.preventDefault();
+            }
+          })
+          .on('mouseenter.slideshow:relay(.pointer)', function() {
+            if (Number.isFinite($element.hoverDelay)) {
+              var $pointer = this;
+              hoverTimer = setTimeout(function() {
+                $pointer.fire('click');
+              }, $element.hoverDelay);
+            }
+          })
+          .on('mouseleave.slideshow:relay(.pointer)', function() {
+            if (hoverTimer) {
+              clearTimeout(hoverTimer);
+              hoverTimer = undefined;
+            }
+          });
+
+      // 通过点击“播放上一张”和“播放下一张”按钮播放对应的“幻灯片”。
+      $element
+          .on('click.slideshow:relay(.prev)', function(event) {
+            $element.showPrevious();
+            event.preventDefault();
+          })
+          .on('click.slideshow:relay(.next)', function(event) {
+            $element.showNext();
+            event.preventDefault();
+          });
+
+      // 自动播放下一张。
+      var autoPlayTimer;
+      $element
+          .on('mouseenter.slideshow', function() {
+            clearInterval(autoPlayTimer);
+          })
+          .on('mouseleave.slideshow', function() {
+            autoPlayTimer = setInterval(function() {
+              $element.showNext();
+            }, $element.interval);
+          })
+          .fire('mouseleave');
+
+    }
+  });
+
+})();

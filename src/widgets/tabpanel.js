@@ -102,12 +102,14 @@
       var $element = this;
 
       // 保存属性。
-      $element.tabs = $element.find('.tab');
-      $element.panels = $element.find('.panel');
-      $element.activeTab = null;
-      $element.activePanel = null;
+      Object.mixin($element, {
+        tabs: $element.find('.tab'),
+        panels: $element.find('.panel'),
+        activeTab: null,
+        activePanel: null
+      });
 
-      // 添加事件监听器。
+      // 通过点击或指向“标签”激活对应的“标签面板”。
       var timer;
       $element
           .on('click.tabpanel:relay(.tab)', function(event) {

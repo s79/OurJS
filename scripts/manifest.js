@@ -271,10 +271,15 @@ var manifest = {
     'TabPanel#activePanel',
     'TabPanel#activate'
   ],
-  'Slideshow': [
+  '幻灯片播放器': [
     'Slideshow',
-    'Slideshow.config',
-    'Slideshow#show'
+    'Slideshow#slides',
+    'Slideshow#pointers',
+    'Slideshow#activeSlide',
+    'Slideshow#activePointer',
+    'Slideshow#show',
+    'Slideshow#showPrevious',
+    'Slideshow#showNext'
   ],
   '模态对话框': [
     'Dialog',

@@ -287,7 +287,7 @@ var buildDocument = function() {
       });
   [
     '多页标签面板',
-    'Slideshow',
+    '幻灯片播放器',
     '模态对话框',
     '分页导航条',
     '月历',
