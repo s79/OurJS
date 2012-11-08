@@ -600,13 +600,11 @@
    * @function
    * @param {string} key 数据名。
    * @returns {string} 数据值。
-   * @description
-   *   注意：
-   *   Chrome 在 dataset 中不存在名称为 key 的值时，返回空字符串，Firefox Safari Opera 返回 undefined。此处均返回 undefined。
+   *   如果指定的数据名不存在，返回 undefined。
    * @see http://www.w3.org/TR/html5/global-attributes.html#embedding-custom-non-visible-data-with-the-data-attributes
    */
   Element.prototype.getData = 'dataset' in html ? function(key) {
-    return this.dataset[key] || undefined;
+    return this.dataset[key];
   } : function(key) {
     key = parseDataKey(key);
     var value = this.getAttribute(key);
