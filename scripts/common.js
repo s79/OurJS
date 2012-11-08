@@ -1,5 +1,9 @@
 document.on('domready', function() {
-//--------------------------------------------------[菜单数据]
+//--------------------------------------------------[页头]
+  $('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS" title="View on GitHub"><span>View on GitHub</span></a></h2><ul id="menu"></ul></div></div>').insertTo(document.body, 'top');
+
+//--------------------------------------------------[菜单]
+  // 菜单数据。
   var menuData = [
     {
       text: '简介',
@@ -101,18 +105,11 @@ document.on('domready', function() {
     }
   ];
 
-//--------------------------------------------------[页头]
-  $('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS" title="View on GitHub"><span>View on GitHub</span></a></h2><ul id="menu"></ul></div></div>').insertTo(document.body, 'top');
-
   // 生成菜单。
-  var pathname = location.pathname;
-  var isCurrent = function(href) {
-    return pathname.contains(href);
-  };
   var getMenuHTML = function(menu) {
     var html = '';
     menu.forEach(function(menu) {
-      html = html.concat('<li><a href="' + menu.url + '"' + (isCurrent(menu.url) ? ' class="current"' : '') + '>' + menu.text + '</a>' + (menu.submenu ? '<ul>' + getMenuHTML(menu.submenu) + '</ul>' : '') + '</li>');
+      html = html.concat('<li><a href="' + menu.url + '"' + (location.pathname.contains(menu.url) ? ' class="current"' : '') + '>' + menu.text + '</a>' + (menu.submenu ? '<ul>' + getMenuHTML(menu.submenu) + '</ul>' : '') + '</li>');
     });
     return html;
   };
@@ -159,28 +156,6 @@ document.on('domready', function() {
 //--------------------------------------------------[页脚]
   $('<div id="footer"><span>©2012 <a href="https://github.com/s79">s79</a>. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>').insertTo(document.body);
 
-//--------------------------------------------------[书签]
-  document.on('click:relay(a)', function() {
-    var href = this.href;
-    if (href.contains('#')) {
-      var $target = $(href.slice(href.indexOf('#')));
-      if ($target) {
-        var scrollTop = window.getPageOffset().y;
-        var top = $target.getClientRect().top + scrollTop;
-        new Animation()
-            .addClip(
-            Animation.createBasicRenderer(function(x, y) {
-              window.scrollTo(0, scrollTop + ((top - 50) - scrollTop) * y);
-            }), 0, 200, 'easeInOut')
-            .on('playfinish', function() {
-              $target.highlight('yellow', 'backgroundColor', {duration: 1000})
-            })
-            .play();
-        return false;
-      }
-    }
-  });
-
 //--------------------------------------------------[提纲]
   var $content = $('#content');
 
@@ -223,5 +198,27 @@ document.on('domready', function() {
         });
 
   }
+
+//--------------------------------------------------[书签]
+  document.on('click:relay(a)', function() {
+    var href = this.href;
+    if (href.contains('#')) {
+      var $target = $(href.slice(href.indexOf('#')));
+      if ($target) {
+        var scrollTop = window.getPageOffset().y;
+        var top = $target.getClientRect().top + scrollTop;
+        new Animation()
+            .addClip(
+            Animation.createBasicRenderer(function(x, y) {
+              window.scrollTo(0, scrollTop + ((top - 50) - scrollTop) * y);
+            }), 0, 200, 'easeInOut')
+            .on('playfinish', function() {
+              $target.highlight('yellow', 'backgroundColor', {duration: 1000})
+            })
+            .play();
+        return false;
+      }
+    }
+  });
 
 });

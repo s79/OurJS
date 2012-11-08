@@ -1,4 +1,4 @@
-var manifest = {
+var apiList = {
   'Global': [
     'Global.typeOf',
     'Global.execScript'

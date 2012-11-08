@@ -184,7 +184,7 @@ var buildSymbol = function() {
     // 本类对象的标题。
     var $indexFieldset = $('<fieldset' + (isBuiltIn ? '' : ' class="optional"') + '><legend><a href="#' + name.toLowerCase() + '"><dfn>' + name + '</dfn></a>' + (isBuiltIn ? '' : '<span>(可选)</span>') + '</legend></fieldset>');
     var $detailsDiv = $('<div id="' + name.toLowerCase() + '" class="details"><h1><dfn>' + name + '</dfn></h1></div>');
-    if (!manifest[name]) {
+    if (!apiList[name]) {
       return;
     }
     // 本类对象包含的内容分组。
@@ -196,7 +196,7 @@ var buildSymbol = function() {
     // 注解信息（可以作用于一类对象内的多个 API）。
     var comment = '';
     var lastGroupName;
-    manifest[name].forEach(function(name) {
+    apiList[name].forEach(function(name) {
       if (name.startsWith('=') && name.endsWith('=')) {
         $('<h2>' + name.slice(1, -1) + '</h2>').insertTo($indexFieldset);
       } else {
@@ -312,7 +312,7 @@ document.on('domready', function() {
     '.widget-overlay { opacity: 0.05; filter: alpha(opacity=5); }'
   ]);
 
-  // 获取滚动条宽度。
+  // 滚动条宽度。
   var scrollbarWidth = function() {
     var $outer = $('<div></div>').setStyles({position: 'absolute', top: 0, left: -10000, width: 100, height: 100, overflow: 'scroll'});
     var $inner = $('<div></div>').setStyles({height: 200});
