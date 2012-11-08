@@ -124,6 +124,8 @@
           parser($element);
           $element.widgetType = type;
           break;
+        } else {
+          navigator.warn('Widget parser "' + type + '" is not found.');
         }
       }
     }

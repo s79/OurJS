@@ -280,6 +280,7 @@
    *   选定的值改变时触发。
    *   {string} oldValue 旧值。
    *   {string} newValue 新值。
+   * @requires Calendar
    * @description
    *   为 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为日期选择器控件。
    *   当该元素成为日期选择器控件后，将不能再由键盘输入值，但当点击该元素时，将弹出日期选择面板，在面板中选中的日期将自动回填到该元素中。
