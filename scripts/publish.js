@@ -163,10 +163,9 @@ function filterSymbol(source) {
   symbols[name] = {
 //    author: source.author,
     name: name,
+    category: source.isa === 'CONSTRUCTOR' ? 'constructor' : (name.indexOf('#') === -1 ? 'static' : 'instance'),
     type: source.type,
-    isStatic: name.indexOf('#') === -1,
     isFunction: (source.isa === 'CONSTRUCTOR' || source.isa === 'FUNCTION'),
-    isConstructor: source.isa === 'CONSTRUCTOR',
     parameters: source.params.map(function(item) {
       var newItem = {};
       newItem.type = item.type;
