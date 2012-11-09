@@ -1,5 +1,5 @@
 /**************************************************
- * �����ҳ�浼����
+ * ×é¼þ£ºҳÃ浼º½¡£
  **************************************************/
 var PageNavigator = function() {
   function getPageNavItem_(currentPage, totalPage, options) {
@@ -71,8 +71,8 @@ var PageNavigator = function() {
     }
     var pageItems = getPageNavItem_(this.current, this.total, {edgeEntries: 1, sideEntries: 4});
     var ellipsis = '<span>...</span>';
-    var prev = '<img src="images/arrow_prev.gif" alt="��һҳ"><a href="javascript:void(\'prev\');" class="prev' + (this.current == 1 ? ' disabled' : '') + '">��һҳ</a><span>|</span>';
-    var next = '<span>|</span><a href="javascript:void(\'next\');" class="next' + (this.current == this.total ? ' disabled' : '') + '">��һҳ</a><img src="images/arrow_next.gif" alt="��һҳ">';
+    var prev = '<img src="images/arrow_prev.gif" alt="ÉÏһҳ"><a href="javascript:void(\'prev\');" class="prev' + (this.current == 1 ? ' disabled' : '') + '">ÉÏһҳ</a><span>|</span>';
+    var next = '<span>|</span><a href="javascript:void(\'next\');" class="next' + (this.current == this.total ? ' disabled' : '') + '">ÏÂһҳ</a><img src="images/arrow_next.gif" alt="ÏÂһҳ">';
     var html = [prev];
     for (var i = 0, l = pageItems.length; i < l; i++) {
       var pageItem = pageItems[i];

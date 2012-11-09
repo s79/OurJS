@@ -122,9 +122,11 @@
           .on('mouseenter.tabpanel:relay(.tab)', function() {
             if (Number.isFinite($element.hoverDelay)) {
               var $tab = this;
-              timer = setTimeout(function() {
-                $element.activate($tab);
-              }, $element.hoverDelay);
+              if (!timer) {
+                timer = setTimeout(function() {
+                  $element.activate($tab);
+                }, $element.hoverDelay);
+              }
             }
           })
           .on('mouseleave.tabpanel:relay(.tab)', function() {

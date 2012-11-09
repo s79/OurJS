@@ -38,7 +38,7 @@
    *   其子元素中包含类名 'slides' 的为“幻灯片”的容器，包含类名 'slide' 的为“幻灯片”，包含类名 'pointers' 的为幻灯片的“指示器”的容器，包含类名 'pointer' 的为幻灯片的“指示器”，包含类名 'prev' 的为“播放上一张”按钮，包含 'next' 的为“播放下一张”按钮。
    *   所有“幻灯片”元素应有共同的父元素，并且他们的渲染尺寸也应该与其父元素的渲染尺寸一致。
    *   所有“指示器”元素应有共同的父元素，并且数量应和“幻灯片”的数量一致。
-   *   上述内容中，只有“幻灯片”和“幻灯片”的容器是必选的，其他均可以省略。如果“幻灯片”只有一个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，他们也将不可见。
+   *   上述内容中，只有“幻灯片”和“幻灯片”的容器是必选的，其他均可以省略。如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，他们也将不可见。
    *   当前播放的“幻灯片”和“指示器”会被自动加入 'active' 类。
    */
 
@@ -98,7 +98,8 @@
     css: [
       '.widget-slideshow { display: block; }',
       '.widget-slideshow .slides { display: block; position: relative; }',
-      '.widget-slideshow .slide { display: block; position: absolute; left: 0; top: 0; z-index: auto; }'
+      '.widget-slideshow .slide { display: block; position: absolute; left: 0; top: 0; z-index: auto; }',
+      '.slideshow-single .pointers, .slideshow-single .prev, .slideshow-single .next { display: none !important; }'
     ],
     config: {
       animation: 'fade',
@@ -186,7 +187,9 @@
       }
 
       // 设置幻灯片样式。
-      if ($element.animation === 'slide') {
+      if (slides.length < 2) {
+        $element.addClass('slideshow-single');
+      } else if ($element.animation === 'slide') {
         $activeSlide.getParent().setStyles({width: $activeSlide.offsetWidth * slides.length, height: $activeSlide.offsetHeight});
         slides.forEach(function($slide) {
           $slide.setStyles({position: 'static', float: 'left'});
@@ -205,9 +208,11 @@
           .on('mouseenter.slideshow:relay(.pointer)', function() {
             if (Number.isFinite($element.hoverDelay)) {
               var $pointer = this;
-              hoverTimer = setTimeout(function() {
-                $pointer.fire('click');
-              }, $element.hoverDelay);
+              if (!hoverTimer) {
+                hoverTimer = setTimeout(function() {
+                  $pointer.fire('click');
+                }, $element.hoverDelay);
+              }
             }
           })
           .on('mouseleave.slideshow:relay(.pointer)', function() {
@@ -232,12 +237,17 @@
       var autoPlayTimer;
       $element
           .on('mouseenter.slideshow', function() {
-            clearInterval(autoPlayTimer);
+            if (autoPlayTimer) {
+              clearInterval(autoPlayTimer);
+              autoPlayTimer = undefined;
+            }
           })
           .on('mouseleave.slideshow', function() {
-            autoPlayTimer = setInterval(function() {
-              $element.showNext();
-            }, $element.interval);
+            if (!autoPlayTimer) {
+              autoPlayTimer = setInterval(function() {
+                $element.showNext();
+              }, $element.interval);
+            }
           })
           .fire('mouseleave');
 

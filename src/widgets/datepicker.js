@@ -71,9 +71,11 @@
     show: function() {
       $panel.setStyle('display', 'block');
       window.on('scroll.datepicker, resize.datepicker', navigator.isIE6 ? function() {
-        $panel.repositionTimer = setTimeout(function() {
-          $panel.reposition();
-        }, 0);
+        if (!$panel.repositionTimer) {
+          $panel.repositionTimer = setTimeout(function() {
+            $panel.reposition();
+          }, 0);
+        }
       } : function() {
         $panel.reposition();
       });
@@ -92,7 +94,7 @@
       document.off('mousedown.datepicker');
       if ($panel.repositionTimer) {
         clearTimeout($panel.repositionTimer);
-        $panel.repositionTimer = null;
+        $panel.repositionTimer = undefined;
       }
       return $panel;
     },

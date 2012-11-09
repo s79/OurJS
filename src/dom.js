@@ -1650,7 +1650,7 @@
             // 只支持鼠标左键的拖拽，拖拽过程中松开左键、按下其他键、或当前窗口失去焦点都将导致拖拽事件结束。
             // 注意：应避免在拖拽进行时删除本组事件的监听器，否则可能导致拖拽动作无法正常完成。
             var dragHandlers = {};
-            var dragState = null;
+            var dragState;
             var dragStart = function(e) {
               var event = new Event(e, 'mousedragstart');
               if (event.leftButton) {

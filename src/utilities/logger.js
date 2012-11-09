@@ -58,13 +58,18 @@
       var timer;
       $container
           .on('mouseenter', function() {
-            clearTimeout(timer);
+            if (timer) {
+              clearTimeout(timer);
+              timer = undefined;
+            }
             logger.clearButton.fade('in');
           })
           .on('mouseleave', function() {
-            timer = setTimeout(function() {
-              logger.clearButton.fade('out');
-            }, 1000);
+            if (!timer) {
+              timer = setTimeout(function() {
+                logger.clearButton.fade('out');
+              }, 1000);
+            }
           });
     }
     injectedStyleRules();
