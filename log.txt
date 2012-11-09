@@ -1,5 +1,10 @@
 ﻿
 
+>2012-11-09
+APIReference 相关文件和代码修改。
+Slideshow 幻灯片小于两张时静态化。
+修改所有代码中的 timer。
+
 >2012-11-08
 widget-slideshow
 
