@@ -165,17 +165,15 @@
     },
     setValue: function(value) {
       if ($datePicker.value !== value) {
-        var oldValue = $datePicker.value;
         $datePicker.highlight('red', 'color').value = value;
-        $datePicker.fire('valuechange', {oldValue: oldValue, newValue: value});
+        $datePicker.fire('change');
       }
       return $panel;
     },
     clearValue: function() {
       if ($datePicker.value !== '') {
-        var oldValue = $datePicker.value;
         $datePicker.highlight('whitesmoke').value = '';
-        $datePicker.fire('valuechange', {oldValue: oldValue, newValue: ''});
+        $datePicker.fire('change');
       }
       return $panel;
     }
@@ -278,10 +276,9 @@
    * @attribute data-max-date
    *   指定允许选择的最大日期，格式为 YYYY-MM-DD。
    *   如果不指定本属性，则使用 '9999-12-31' 作为默认值。
-   * @fires valuechange
+   * @fires change
    *   选定的值改变时触发。
-   *   {string} oldValue 旧值。
-   *   {string} newValue 新值。
+   *   本事件用于模拟真实发生在表单域元素上的 change 事件。
    * @requires Calendar
    * @description
    *   为 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为日期选择器控件。
