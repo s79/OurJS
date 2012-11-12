@@ -44,10 +44,6 @@ document.on('domready', function() {
         {
           text: '远程请求',
           url: '/OurJS/demos/request/'
-        },
-        {
-          text: '表单验证',
-          url: '/OurJS/demos/validation/'
         }
       ]
     },
@@ -78,6 +74,10 @@ document.on('domready', function() {
         {
           text: '日期选择器',
           url: '/OurJS/widgets/datepicker/'
+        },
+        {
+          text: '表单验证器',
+          url: '/OurJS/widgets/validator/'
         }
       ]
     },

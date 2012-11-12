@@ -1,5 +1,9 @@
 ﻿
 
+>2012-11-10
+Form.setValidationRules -> widget-validator
+DatePicker 的 valuechange 事件名改为 change。
+
 >2012-11-09
 APIReference 相关文件和代码修改。
 Slideshow 幻灯片小于两张时静态化。

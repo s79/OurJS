@@ -198,7 +198,7 @@ var apiList = {
   ],
   'HTMLFormElement': [
     'HTMLFormElement#getFieldValue',
-    'HTMLFormElement#setValidationRules'
+    'HTMLFormElement#serialize'
   ],
   'Event': [
     'Event#originalEvent',
@@ -302,5 +302,12 @@ var apiList = {
   ],
   '日期选择器': [
     'DatePicker'
+  ],
+  '表单验证器': [
+    'Validator',
+    'Validator#addValidationRules',
+    'Validator#removeValidationRules',
+    'Validator#setValidationMessages',
+    'Validator#restoreValidationMessages'
   ]
 };

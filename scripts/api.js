@@ -216,7 +216,7 @@ document.on('domready', function() {
       c: $('#column_c')
     };
 
-    $('<h1>JS 原生对象</h1>').insertTo(indexColumns.a);
+    $('<h1>JS Native Objects</h1>').insertTo(indexColumns.a);
     [
       'Global',
       'Object',
@@ -233,7 +233,7 @@ document.on('domready', function() {
         .forEach(function(name) {
           buildSymbol(indexColumns.a, name, true);
         });
-    $('<h1>浏览器内置对象</h1>').insertTo(indexColumns.a);
+    $('<h1>Browser Built-in Objects</h1>').insertTo(indexColumns.a);
     [
       'navigator',
       'location',
@@ -243,7 +243,7 @@ document.on('domready', function() {
         .forEach(function(name) {
           buildSymbol(indexColumns.a, name, true);
         });
-    $('<h1>DOM 对象</h1>').insertTo(indexColumns.b);
+    $('<h1>Document Object</h1>').insertTo(indexColumns.b);
     [
       'window',
       'document',
@@ -254,13 +254,13 @@ document.on('domready', function() {
         .forEach(function(name) {
           buildSymbol(indexColumns.b, name, true);
         });
-    $('<h1>特性</h1>').insertTo(indexColumns.c);
+    $('<h1>Features</h1>').insertTo(indexColumns.c);
     buildSymbol(indexColumns.c, 'Observable', true);
-    $('<h1>动画</h1>').insertTo(indexColumns.c);
+    $('<h1>Animation</h1>').insertTo(indexColumns.c);
     buildSymbol(indexColumns.c, 'Animation', true);
-    $('<h1>远程请求</h1>').insertTo(indexColumns.c);
+    $('<h1>Request</h1>').insertTo(indexColumns.c);
     buildSymbol(indexColumns.c, 'Request', true);
-    $('<h1>控件</h1>').insertTo(indexColumns.c);
+    $('<h1>Widgets</h1>').insertTo(indexColumns.c);
     [
       'Widget'
     ]
@@ -273,7 +273,8 @@ document.on('domready', function() {
       '模态对话框',
       '分页导航条',
       '月历',
-      '日期选择器'
+      '日期选择器',
+      '表单验证器'
     ]
         .forEach(function(name) {
           buildSymbol(indexColumns.c, name, false);
