@@ -1095,12 +1095,14 @@
    *     将 trigger 作为原生事件的监听器添加到某个节点，当确定事件发生时，trigger 会调用 fire 方法创建、派发并在相应的节点上分发 event。
    *     这种情况下，event 将使用本模型提供的传播机制在 DOM 树中传播（不依赖任何 e），并且 event 会自动分发给相应的 listener。
    *     在本次事件的生命周期内，只会有一个 event 被创建。
+   *     不使用原生事件模型是因为 IE6 IE7 IE8 通过 document.createEventObject 方法创建的 e 无法执行默认行为，也不能通过 e 来传递自定义参数属性。另外 window 对象也没有提供 fireEvent 方法。
+   *     要避免以上问题，现阶段较好的方式是不使用原生事件模型。
    *   “协同”模式
    *     将 distributor 作为原生事件的监听器添加到某个节点，当确定事件发生时，distributor 会自动在其所属的节点上根据 e 来创建并分发 event。
    *     这种 event 不会在 DOM 树中传播，真正传播的是 e，但 event 的一些方法中有对 e 的相应方法的引用，因此调用这些方法时也会影响 e 的行为。
+   *     在本次事件的生命周期内，可能会有多个 event 被创建，每个 event 只在创建它的节点上被重用。
    *     这样处理是因为 IE6 IE7 IE8 中，原生事件模型分发给每个监听器的 e 都是不同的，因此无法实现封装一次多处调用。
    *     其他浏览器虽然没有上述问题，但为了保持一致并简化代码逻辑，也不做处理。事实上同一事件被不同节点监听的情况相对来说并不常见。
-   *     在本次事件的生命周期内，可能会有多个 event 被创建，每个 event 只在创建它的节点上被重用。
    *   两种模式的流程：
    *     “独立”模式 = trigger 调用 fire 方法创建和派发 event -> event 传播到相应的节点后自动调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
    *     “协同”模式 = 浏览器创建和派发 e -> e 传播到相应的节点 -> 分发器 distributor 根据 e 创建 event 后调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
@@ -1581,8 +1583,7 @@
             }, 0);
           }
         }
-      },
-      relatedEvents: ['mousedrag', 'mousedragend']
+      }
     },
     mousedrag: {
       trigger: function(e) {
@@ -1592,8 +1593,7 @@
         event.offsetY = event.pageY - dragState.startY;
         dragState.lastEvent = event;
         dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
-      },
-      relatedEvents: ['mousedragstart', 'mousedragend']
+      }
     },
     mousedragend: {
       trigger: function() {
@@ -1612,8 +1612,7 @@
         removeEventListener(document, 'mousedown', eventHelper.mousedragend.trigger);
         removeEventListener(document, 'mouseup', eventHelper.mousedragend.trigger);
         removeEventListener(window, 'blur', eventHelper.mousedragend.trigger);
-      },
-      relatedEvents: ['mousedragstart', 'mousedrag']
+      }
     },
     focusin: {
       count: 0,
@@ -1763,33 +1762,35 @@
             // 拖动相关事件，为避免覆盖 HTML5 草案中引入的同名事件，加入前缀 mouse。
             // 只支持鼠标左键的拖拽，拖拽过程中松开左键、按下其他键、或当前窗口失去焦点都将导致拖拽事件结束。
             // 应避免在拖拽进行时删除本组事件的监听器，否则可能导致拖拽动作无法正常完成。
-            addEventListener($element, 'mousedown', eventHelper.mousedragstart.trigger);
-            // 这三个事件是关联的，其中 mousedragstart 的 trigger 会动态添加/删除其他事件的 trigger。
-            // 向这三个关联事件中添加第一个监听器时，即创建上述三个 trigger，在这三个关联事件中删除最后一个监听器时，即删除上述三个 trigger。
-            eventHelper[type].relatedEvents.forEach(function(type) {
-              var handlers = [];
-              handlers.distributor = null;
-              handlers.delegateCount = 0;
-              item[type] = handlers;
-            });
+            // 使用触发器。
+            // 这三个事件是关联的，其中 mousedragstart 的触发器会动态添加/删除另外两个事件的触发器。
+            // 向这三个关联事件中添加第一个监听器时，即创建触发器。
             distributor = null;
+            addEventListener($element, 'mousedown', eventHelper.mousedragstart.trigger);
+            // 创建另外两个事件的处理器组。
+            ['mousedragstart', 'mousedrag', 'mousedragend'].remove(type).forEach(function(relatedType) {
+              var handlers = [];
+              handlers.delegateCount = 0;
+              item[relatedType] = handlers;
+            });
             break;
           case 'focusin':
           case 'focusout':
             // 后代元素获得/失去焦点，目前仅 Firefox 不支持，监听 focus/blur 的捕获阶段模拟。
             if (navigator.isFirefox) {
+              // 使用触发器。
+              distributor = null;
               if (eventHelper[type].count === 0) {
                 addEventListener(document, type === 'focusin' ? 'focus' : 'blur', eventHelper[type].trigger, true);
               }
               eventHelper[type].count++;
-              distributor = null;
             }
             break;
           case 'input':
             // IE6 IE7 IE8 可以使用 onpropertychange 即时响应用户输入，其他浏览器中可以使用 input 事件即时响应用户输入（需使用 addEventListener 添加事件监听器）。
-            // 但是 IE9 的 INPUT[type=text|password] 和 TEXTAREA 在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。IE8 的 TEXTAREA 也有以上问题。
+            // 但是 IE9 的 INPUT[type=text|password] 和 TEXTAREA 在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。IE8 的 TEXTAREA 也有这个问题。
             // 通过 keydown，cut 和 blur 事件能解决按键删除和剪切、菜单剪切、拖拽内容出去的问题，但不能解决菜单删除的问题。
-            // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次调用监听器。
+            // 一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次调用监听器。
             // TODO: Safari 5.1.7 的表单自动填充不触发 change 和 input 事件。
             var nodeName = $element.nodeName;
             var controlType = $element.type;
@@ -1837,10 +1838,10 @@
             }
             break;
         }
-        // 如果有分发器则将其作为原生事件的监听器。
+        // 如果有分发器则将其作为指定类型的原生事件的监听器。
         if (distributor) {
-          handlers.distributor = distributor;
           addEventListener($element, distributor.type, distributor);
+          handlers.distributor = distributor;
         }
         // 初始化代理计数器。
         handlers.delegateCount = 0;
@@ -1852,8 +1853,9 @@
         handler.selector = selector;
         var match;
         if (match = selector.match(simpleSelectorPattern)) {
-          // 保存简单选择器以在执行过滤时使用效率更高的方式。（tagName 必为字符串，className 可能为 undefined。）
+          // 保存简单选择器以在执行过滤时使用效率更高的方式。
           handler.simpleSelector = {
+            // tagName 必为字符串，className 可能为 undefined。
             tagName: match[1].toUpperCase(),
             className: match[2] || ''
           };
@@ -1921,22 +1923,23 @@
       }
       // 若处理器组为空，则删除触发器或分发器的注册并删除处理器组。
       if (handlers.length === 0) {
-        var distributor = handlers.distributor;
+        // 删除可能存在的触发器。
         switch (type) {
           case 'mousedragstart':
           case 'mousedrag':
           case 'mousedragend':
-            // 必须在这组关联事件的最后一个监听器被删除后才能删除分发器。
-            var listenerCount = 0;
-            eventHelper[type].relatedEvents.forEach(function(type) {
-              listenerCount += item[type].length;
+            // 在这三个关联事件中删除最后一个监听器后，才删除触发器。
+            var relatedTypes = ['mousedragstart', 'mousedrag', 'mousedragend'].remove(type);
+            var handlerCount = 0;
+            relatedTypes.forEach(function(relatedType) {
+              handlerCount += item[relatedType].length;
             });
-            if (listenerCount) {
+            if (handlerCount) {
               return;
             }
             removeEventListener($element, 'mousedown', eventHelper.mousedragstart.trigger);
-            // 删除另外两个关联事件的项。
-            eventHelper[type].relatedEvents.forEach(function(type) {
+            // 删除另外两个事件的处理器组。
+            relatedTypes.forEach(function(type) {
               delete item[type];
             });
             break;
@@ -1961,10 +1964,11 @@
             }
             removeEventListener($element, distributor.type, distributor);
             break;
-          default:
-            if (distributor) {
-              removeEventListener($element, distributor.type, distributor);
-            }
+        }
+        // 删除可能存在的分发器。
+        var distributor = handlers.distributor;
+        if (distributor) {
+          removeEventListener($element, distributor.type, distributor);
         }
         delete item[type];
       }
