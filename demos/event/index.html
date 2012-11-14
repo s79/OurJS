@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>事件</title>
-<script src="../../our.js"></script>
+<script src="../../dev.js"></script>
 <script src="../../scripts/framework.js"></script>
 <script src="../../src/utilities/logger.js"></script>
 <style>
@@ -19,7 +19,6 @@ button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
 .container span,
 .container var { float: left; display: block; width: 100px; height: 30px; margin: 0 5px 5px 0; background: gainsboro; line-height: 30px; text-align: center; cursor: default; -display: inline; }
 .container p { clear: both; height: 30px; margin: 0 5px 0 0; background: darkseagreen; font: 12px/30px Verdana; text-align: center; cursor: default; }
-.dragging { border-color: dodgerblue !important; }
 dl { float: left; width: 210px; margin: 0 5px 5px 0; border: 1px solid silver; background: #252525; color: #8CC; -display: inline; *margin-bottom: 0; }
 dt { height: 16px; padding: 5px; border-bottom: 1px solid silver; background: whitesmoke; color: #333; text-align: center; line-height: 16px; }
 dd { height: 128px; padding: 5px; font: 12px/12px Consolas, 'Lucida Console', Courier, SimSun, monospace; }
@@ -98,7 +97,7 @@ dd em.false { color: tomato; }
         <input name="state" type="radio" value="radio_1" checked>
         <input name="state" type="radio" value="radio_2">
         <input name="state" type="radio" value="radio_3"><br>
-        <input type="text" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
+        <input id="stop" type="text" value="本元素的 focusin/focusout 事件传播被阻止" readonly class="input" style="width: 250px; border: 1px solid silver;"><br>
         <input type="password" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
         <textarea class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;"></textarea>
       </div>
@@ -117,7 +116,10 @@ dd em.false { color: tomato; }
       if ($disableFocusLogging.checked) {
         logger.log('<em>' + e.type + '</em>');
       }
-      this.morph({backgroundColor: e.type === 'focusin' ? 'gold' : 'whitesmoke'})
+      this.morph({backgroundColor: e.type === 'focusin' ? 'gold' : 'whitesmoke'});
+    });
+    $('#stop').on('focusin, focusout', function(e) {
+      e.stopPropagation();  // TODO: 修改实现方式以支持本方法。
     });
     $formEvents.find('input[type=checkbox], input[type=radio]').forEach(function($control) {
       $control.on('change', function(e) {
@@ -160,14 +162,14 @@ dd em.false { color: tomato; }
 
     $('#hover_outer')
         .on('mouseover, mouseout', function(e) {
-          overLogger.log('<strong>' + e.type + '</strong>' + e.target.nodeName);
+          overLogger.log((e.type === 'mouseover' ? '<strong>mouseover</strong>' : '<em>mouseover</em>') + e.target.nodeName);
         })
         .on('mouseenter, mouseleave', function(e) {
-          hoverLogger.log('<em>' + e.type + '</em>' + e.target.nodeName);
+          hoverLogger.log((e.type === 'mouseenter' ? '<strong>mouseenter</strong>' : '<em>mouseleave</em>') + e.target.nodeName);
         });
     $('#hover_inner')
         .on('mouseenter, mouseleave', function(e) {
-          hoverLogger.log('<em>' + e.type + '</em>' + e.target.nodeName);
+          hoverLogger.log((e.type === 'mouseenter' ? '<strong>mouseenter</strong>' : '<em>mouseleave</em>') + e.target.nodeName);
         });
 
   })();
@@ -175,70 +177,60 @@ dd em.false { color: tomato; }
   <!-- } mouseenter/mouseleave -->
 
   <!-- mousedragstart/mousedrag/mousedragend { -->
+  <style>
+  .draggable { position: absolute; left: 0; top: 0; width: 160px; height: 80px; padding: 3px; border: 2px solid lightslategray; background: lightsteelblue; cursor: default; }
+  .dragging { z-index: 10; background: skyblue; border-color: dodgerblue; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
+  </style>
   <fieldset>
     <legend>自定义事件 mousedragstart/mousedrag/mousedragend</legend>
     <div id="container" style="position: relative; height: 160px; border: 2px solid lightslategray; background: whitesmoke;">
-      <div id="drag" style="position: absolute; left: 0; top: 0; width: 160px; height: 100px; padding: 3px; border: 2px solid lightsteelblue; background: lightsteelblue; cursor: default;">
-        <div id="handle_1" class="draggable">Draggable</div>
-        <div id="handle_2" class="draggable">Draggable</div>
-        <div id="msg_blue">[蓝.坐标]</div>
-        <div id="msg_gray">[灰.偏移]</div>
-      </div>
+      <div id="drag_msg" style="position: absolute; left: 0; bottom: 0; padding: 5px;">[偏移量] 0 : 0</div>
+      <div style="left: 0;" class="draggable">Draggable</div>
+      <div style="left: 200px;" class="draggable">Draggable (只能纵向)</div>
+      <div style="left: 400px;" class="draggable">Draggable (步长为 35)</div>
     </div>
     <blockquote>
-      <button id="freez">解除以上蓝方块拖动</button>
-      <button id="clear">解除以上蓝方块代理</button>
+      <button id="clear">解除拖动代理</button>
     </blockquote>
   </fieldset>
   <script>
   (function() {
     var $container = $('#container');
-    var $drag = $('#drag');
-
-    // 自身。
+    var $sample = $container.getLastChild();
     var currentX = 0;
     var currentY = 0;
-    var maxX = $container.clientWidth - $drag.offsetWidth;
-    var maxY = $container.clientHeight - $drag.offsetHeight;
-    $drag
-        .on('mousedragstart', function() {
-          currentX = $drag.offsetLeft;
-          currentY = $drag.offsetTop;
+    var maxX = $container.clientWidth - $sample.offsetWidth;
+    var maxY = $container.clientHeight - $sample.offsetHeight;
+    $container
+        .on('mousedrag', function(e) {
+          $('#drag_msg').innerHTML = '[偏移量] ' + e.offsetX + ' : ' + e.offsetY;
+        })
+        .on('mousedragstart:relay(.draggable)', function(e) {
+          currentX = parseInt(this.getStyle('left'), 10);
+          currentY = parseInt(this.getStyle('top'), 10);
           this.addClass('dragging');
         })
-        .on('mousedrag', function(e) {
-          var x = Math.limit(currentX + e.offsetX, 0, maxX);
-          var y = Math.limit(currentY + e.offsetY, 0, maxY);
-          this.setStyles({left: x, top: y});
-          $('#msg_blue').innerHTML = '[蓝.坐标]' + x + ':' + y;
-        })
-        .on('mousedragend', function(e) {
-          this.removeClass('dragging');
-        });
-    $container.on('mousedrag', function(e) {
-      $('#msg_gray').innerHTML = '[灰.偏移]' + e.offsetX + ':' + e.offsetY;
-    });
-
-    // 代理。
-    $drag
-        .on('mousedragstart:relay(.draggable)', function(e) {
-          this.setStyle('background', 'greenyellow').innerHTML = 'START';
-//          return false;
-        })
         .on('mousedrag:relay(.draggable)', function(e) {
-          this.innerHTML = e.offsetX + ':' + e.offsetY;
+          this.setStyles({
+            left: Math.limit(currentX + e.offsetX, 0, maxX),
+            top: Math.limit(currentY + e.offsetY, 0, maxY)
+          });
         })
         .on('mousedragend:relay(.draggable)', function(e) {
-          this.setStyle('background', 'transparent').innerHTML = 'END';
+          this.removeClass('dragging');
+        })
+        .getLastChild()
+        .on('mousedrag', function(e) {
+          e.offsetX -= e.offsetX % 35;
+          e.offsetY -= e.offsetY % 35;
+        })
+        .getPreviousSibling()
+        .on('mousedrag', function(e) {
+          e.offsetX = 0;
         });
 
-    // 解除。
-    $('#freez').on('click', function() {
-      $drag.off('mousedragstart, mousedrag, mousedragend');
-      this.disabled = true;
-    });
     $('#clear').on('click', function() {
-      $drag.off('mousedragstart:relay(.draggable), mousedrag:relay(.draggable), mousedragend:relay(.draggable)');
+      $container.off('mousedragstart:relay(.draggable), mousedrag:relay(.draggable), mousedragend:relay(.draggable)');
       this.disabled = true;
     });
 
@@ -361,7 +353,7 @@ dd em.false { color: tomato; }
   <fieldset>
     <legend>红色边框的元素为其所有标签名为 DFN 的后代元素代理监听 mouseenter 和 mouseleave 事件</legend>
     <div id="relay" class="container" style="padding-bottom: 0; *padding-bottom: 5px;">
-      <bdo>bdo</bdo><dfn><strong>dfn</strong></dfn><cite>cite</cite><dfn><em>dfn</em></dfn><kbd>kbd</kbd><dfn><sup>dfn</sup></dfn><span>span</span><dfn><sub>dfn</sub></dfn>
+      <bdo>bdo</bdo><dfn id="stop_mouseleave" title="mouseenter 事件传播被阻止">dfn</dfn><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><dfn>dfn</dfn><span>span</span><dfn>dfn</dfn>
     </div>
   </fieldset>
   <script>
@@ -373,6 +365,9 @@ dd em.false { color: tomato; }
         .on('mouseleave:relay(dfn)', function() {
           this.morph({width: 100}).highlight('red', 'color');
         });
+    $('#stop_mouseleave').on('mouseenter', function(e) {
+      e.stopPropagation();
+    });
   })();
   </script>
   <!-- } delegate -->
@@ -445,20 +440,25 @@ dd em.false { color: tomato; }
             onFinish: function() {
               $fireEvent.disabled = false;
               document.fire('mousedown', {
-                which: 1024,
-                ctrlKey: '恭',
-                altKey: '喜',
-                shiftKey: '发',
-                metaKey: '财',
-                clientX: '礼',
-                clientY: '乐',
-                screenX: '射',
-                screenY: '御',
-                pageX: '书',
-                pageY: '数',
+                // 这三个属性不能自定义。
+                type: '#',
+                target: '#',
+                originalEvent: '#',
+                // 其他属性都可以自定义。
+                which: '*',
+                ctrlKey: '*',
+                altKey: '*',
+                shiftKey: '*',
+                metaKey: '*',
+                clientX: '*',
+                clientY: '*',
+                screenX: '*',
+                screenY: '*',
+                pageX: '*',
+                pageY: '*',
                 leftButton: '这些属性值是由 fire 方法传递过来的。',
                 middleButton: '系统事件并未触发。',
-                rightButton: '区别方式见 API 文档。'
+                rightButton: '除 type、target 和 originalEvent 外可以定义任何属性。'
               });
             }
           });

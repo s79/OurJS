@@ -1,5 +1,8 @@
 ﻿
 
+>2012-11-14
+更新事件模型，修改一些名称，修改事件传播的方式，归纳为两种处理模式。
+
 >2012-11-10
 Form.setValidationRules -> widget-validator
 DatePicker 的 valuechange 事件名改为 change。
@@ -777,7 +780,7 @@ jQuery('#i2').on('change', function(e) {
 jQuery('#i2').off('click');
 */
 因此每个 category 必然有至少一个 dispatcher。
-另外 jQuery 向派发器中仅传递目标元素，因此每个元素只使用一个公用的 dispatcher，并为此建立了原生事件类型-自定时间类型的哈希表。
+另外 jQuery 向派发器中仅传递目标元素，因此每个元素只使用一个公用的 dispatcher，并为此建立了原生事件类型-自定事件类型的哈希表。
 （垂直+变种结构）
 本方案要向派发器中传递目标元素及事件类型，因此都使用各自的 dispatcher。
 （平铺结构）

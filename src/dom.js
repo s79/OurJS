@@ -1064,28 +1064,70 @@
   /*
    * 事件的兼容性处理。
    *
-   * 事件兼容性的处理在与 DOM 相关的问题中比较复杂，这里提供的方案中，有以下几个主要概念：
-   *   处理器 (handler)：
-   *     包含派发器、事件名称、监听器等信息。
-   *   派发器 (dispatcher)：
-   *     封装事件对象，在条件满足的时候将事件对象派发给相应的监听器。
-   *   事件名称 (name)：
-   *     由事件的类型、可选的标签和代理元素选择符组成的字符串。
-   *   事件类型 (type)：
-   *     供用户使用的事件类型可能是普通事件、扩展的事件，或是用户自定义的事件。
-   *     内部事件模型使用的事件类型不一定与供用户使用的事件类型完全匹配。
-   *   事件标签 (labal)：
-   *     标签的意义在于标记一次监听的行为。
-   *     当用户使用 on 添加一个监听器时，可以指定一个标签，这样可以在使用 off 删除监听器时，通过标签来删除某类事件中特定的监听器。
-   *   代理元素选择符 (selector)：
-   *     通过在事件名称中加入 :relay(selector) 来指定为符合条件的后代元素代理事件监听。
-   *   监听器 (listener)：
-   *     用户使用 on 添加的普通或代理监听器。在对应的事件触发时，会传入封装后的事件对象。
-   *     用户可以调用该事件对象的方法来阻止其传播，或取消其默认行为。
-   *     如果用户在一个事件的监听器中返回布尔值 false，该事件将停止传播并取消默认行为。
+   * 这里提供了一套完整的事件模型，其中相关名词的简称与解释如下：
+   *   原生事件对象 (e)：
+   *     原生的 DOM 事件对象。
    *   事件对象 (event)：
-   *     供用户使用的事件对象是封装后的，以屏蔽浏览器差异，并为扩展的事件提供必要的信息。
-   *     原始事件对象不直接对外暴露，该对象上可能有用的特性已被复制到封装后的对象上。必须访问原始事件对象时，可以通过调用 event.originalEvent 来得到它。
+   *     本事件模型提供的对象，包含与此事件有关的信息，是 Event 的实例。
+   *     大多数内置事件的 event 都是对 e 的封装（不直接扩展 e 是因为 e 的一些属性是只读的），可以通过访问 event.originalEvent 得到 e。
+   *     自定义事件和少数内置事件产生的 event 不是对 e 的封装，也有一些特殊类型的事件并不产生 event。
+   *   触发器 (trigger)：
+   *     作为原生事件的监听器存在的一个函数，他会在确定一个事件发生时，调用 fire 方法创建、派发并在相应的节点上分发 event。
+   *   分发器 (distributor)：
+   *     作为原生事件的监听器存在的一个函数，他会在确定一个事件发生时，只在其所属的节点上创建并分发 event。
+   *   监听器 (listener)：
+   *     监听事件的函数，有普通和代理两种类型，在对应的 event 分发到 listener 时被调用，并传入这个 event 作为其唯一的参数。
+   *     在 listener 中可以调用 event 的方法来阻止其继续传播，或取消其默认行为。
+   *     如果一个 listener 返回了 false，则该 event 将停止传播并取消默认行为。
+   *   事件名称 (name)：
+   *     由 type、可选的 label 和 selector 组成的、描述特定类型的事件监听行为的字符串。
+   *   事件类型 (type)：
+   *     事件的类型，分为“内置”和“自定义”两种。
+   *   事件标签 (labal)：
+   *     用于辅助描述特定类型的事件监听行为。
+   *     当使用 on 方法为同一个类型的事件添加多个 listener 时，可以指定一个 label，以便使用 off 方法时能够明确的删除该 listener 而不会误删其它的 listener。
+   *   代理元素选择符 (selector)：
+   *     通过在 name 中加入 :relay(selector) 来指定为符合条件的后代元素代理事件监听。
+   *     指定了代理元素选择符的 listener 即代理 listener。
+   *
+   * 本事件模型提供了两种模式来创建、派发与分发事件对象：
+   *   “独立”模式
+   *     将 trigger 作为原生事件的监听器添加到某个节点，当确定事件发生时，trigger 会调用 fire 方法创建、派发并在相应的节点上分发 event。
+   *     这种情况下，event 将使用本模型提供的传播机制在 DOM 树中传播（不依赖任何 e），并且 event 会自动分发给相应的 listener。
+   *     在本次事件的生命周期内，只会有一个 event 被创建。
+   *   “协同”模式
+   *     将 distributor 作为原生事件的监听器添加到某个节点，当确定事件发生时，distributor 会自动在其所属的节点上根据 e 来创建并分发 event。
+   *     这种 event 不会在 DOM 树中传播，真正传播的是 e，但 event 的一些方法中有对 e 的相应方法的引用，因此调用这些方法时也会影响 e 的行为。
+   *     这样处理是因为 IE6 IE7 IE8 中，原生事件模型分发给每个监听器的 e 都是不同的，因此无法实现封装一次多处调用。
+   *     其他浏览器虽然没有上述问题，但为了保持一致并简化代码逻辑，也不做处理。事实上同一事件被不同节点监听的情况相对来说并不常见。
+   *     在本次事件的生命周期内，可能会有多个 event 被创建，每个 event 只在创建它的节点上被重用。
+   *   两种模式的流程：
+   *     “独立”模式 = trigger 调用 fire 方法创建和派发 event -> event 传播到相应的节点后自动调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
+   *     “协同”模式 = 浏览器创建和派发 e -> e 传播到相应的节点 -> 分发器 distributor 根据 e 创建 event 后调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
+   *   两种模式的应用场景：
+   *     1. 自定义事件使用“独立”模式来处理。
+   *     2. 对于没有明显兼容性问题（只考虑 e 的冒泡阶段）的内置事件，使用“协同”模式来处理。
+   *     3. 对于有兼容性问题的事件，根据解决方案的不同，有以下两种情况：
+   *        3.1 能够以一个其他原生事件来模拟，并且可以依赖 e 的传播机制的，使用“独立”模式来处理。
+   *            如 mousewheel/mouseenter/mouseleave 事件的解决方案。
+   *        3.2 以一个或多个原生事件来模拟，但是不能依赖 e 的传播机制的（在确认事件发生时 e 可能已经传播到文档树的顶层了），则使用“协同”模式来处理。
+   *            如 mousedragstart/mousedrag/mousedragend/focusin/focusout/change 等事件的处理方式。
+   *            在一些特殊的情况下，如果 e 被意外的阻止传播，可能会导致结果与预期的不符。
+   *
+   * 添加或删除 listener：
+   *   通过调用 on 或 off 方法来添加或删除指定的 listener。
+   *
+   * 触发事件：
+   *   有两种方式触发一个事件：
+   *   1. 使用 fire 方法来触发一个事件。
+   *      通过这种方式触发的事件，将使用“独立”模式来处理。
+   *      这种方式不会触发任何原生事件，也不会执行此类事件的默认行为。
+   *   2. 对于一些内置事件，可以在相应的元素上调用与要触发的 type 同名的方法（如果有）来触发。
+   *      通过这种方式触发的事件，将使用“协同”模式来处理。
+   *      这种方式会同时触发原生事件，并且会执行其默认行为。
+   *   两种方式的应用场景：
+   *     当只希望调用某类事件的监听器时，应使用方式 1。
+   *     除了调用某类事件的监听器，还希望该事件的默认行为生效时，应使用方式 2。
    *
    * 扩展方法：
    *   Element.prototype.on
@@ -1098,7 +1140,7 @@
    *   http://www.w3.org/TR/DOM-Level-3-Events/#events-module
    */
 
-  // 事件监听器作用关系对象池。
+  // 事件监听器对象池。
   /*
    * <Object eventPool> {
    *   <string uid>: <Object item> {
@@ -1113,14 +1155,18 @@
    *         }
    *       }
    *     ]
-   *      .dispatcher: <Function dispatcher>
+   *      .distributor: <Function distributor>
    *                                        .type: <string type>
-   *                                        .useCapture: <boolean useCapture>
+   *      .distributor: null
    *      .delegateCount: <number delegateCount>
    *   }
    * }
    */
   var eventPool = {};
+  window.p = eventPool;  // TODO: For test.
+
+  // 供内部调用的标记值。
+  var INTERNAL_IDENTIFIER_EVENT = {};
 
   var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 4, 'change': 4, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
   var returnTrue = function() {
@@ -1134,17 +1180,16 @@
    * 事件包装对象。
    * @name Event
    * @constructor
-   * @param {Object} e 原始事件对象。
    * @param {string} type 事件类型。
+   * @param {Object} e 原生事件对象。
    * @description
-   *   当事件对象通过调用 Element/document/window 的 fire 方法传递到监听器时，其属性可能会被重写。
-   *   在一些需要获取浏览器提供的真实事件属性时，可以通过事件对象的 originalEvent.type 属性来辨别事件的真实类型，由上述 fire 方法生成的事件对象的对应属性为空字符串。
+   *   如果事件对象是通过调用 Element/document/window 的 fire 方法产生的，其除了 originalEvent、type 和 target 之外的其他属性值均可能会被重写。
    */
-  function Event(e, type) {
+  function Event(type, e) {
     if (!e) {
       e = window.event;
     }
-    // 保存原始事件对象。
+    // 保存原生事件对象。
     this.originalEvent = e;
     // 事件类型，这时候的 type 就是调用 on 时使用的事件类型。
     this.type = type;
@@ -1166,7 +1211,7 @@
     }
     // 发生时间。
     this.timeStamp = e.timeStamp || Date.now();
-    // 鼠标和键盘事件，由 fire 方法传递过来的模拟事件对象没有以下信息。
+    // 鼠标和键盘事件，由 fire 方法产生的事件对象可能没有以下信息。
     if (this.isMouseEvent || this.isKeyboardEvent) {
       this.ctrlKey = e.ctrlKey;
       this.altKey = e.altKey;
@@ -1207,9 +1252,11 @@
   }
 
   /**
-   * 原始事件对象。
+   * 原生事件对象。
    * @name Event#originalEvent
    * @type Object
+   * @description
+   *   使用 fire 方法创建的事件对象的 originalEvent.type 为空字符串。
    */
 
   /**
@@ -1364,18 +1411,20 @@
 
   Object.mixin(Event.prototype, {
     /**
-     * 阻止事件的传递，被阻止传递的事件将不会向其他元素传递。
+     * 阻止事件的传播，被阻止传播的事件将不会向其他元素传播。
      * @name Event.prototype.stopPropagation
      * @function
      */
     stopPropagation: function() {
       var e = this.originalEvent;
-      e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+      if (e) {
+        e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+      }
       this.isPropagationStopped = returnTrue;
     },
 
     /**
-     * 查询事件的传递是否已被阻止。
+     * 查询事件的传播是否已被阻止。
      * @name Event.prototype.isPropagationStopped
      * @function
      * @returns {boolean} 查询结果。
@@ -1389,7 +1438,9 @@
      */
     preventDefault: function() {
       var e = this.originalEvent;
-      e.preventDefault ? e.preventDefault() : e.returnValue = false;
+      if (e) {
+        e.preventDefault ? e.preventDefault() : e.returnValue = false;
+      }
       this.isDefaultPrevented = returnTrue;
     },
 
@@ -1402,7 +1453,7 @@
     isDefaultPrevented: returnFalse,
 
     /**
-     * 立即阻止事件的传递，被立即阻止传递的事件不仅不会向其他元素传递，也不会在当前元素上触发其他事件监听器。
+     * 立即阻止事件的传播，被立即阻止传播的事件不仅不会向其他元素传播，也不会在当前元素上被分发到其他的监听器。
      * @name Event.prototype.stopImmediatePropagation
      * @function
      */
@@ -1412,7 +1463,7 @@
     },
 
     /**
-     * 查询事件的传递是否已被立即阻止。
+     * 查询事件的传播是否已被立即阻止。
      * @name Event.prototype.isImmediatePropagationStopped
      * @function
      * @returns {boolean} 查询结果。
@@ -1437,7 +1488,7 @@
     return result;
   };
 
-  // 添加和删除事件监听器。
+  // 添加和删除原生事件监听器。
   var addEventListener = 'addEventListener' in window ? function($element, eventType, eventListener, useCapture) {
     $element.addEventListener(eventType, eventListener, useCapture);
   } : function($element, eventType, eventListener) {
@@ -1449,46 +1500,9 @@
     $element.detachEvent('on' + eventType, eventListener);
   };
 
-  // 特殊事件处理。
-  var eventHelper = {
-    mousedragstart: {related: ['mousedrag', 'mousedragend']},
-    mousedrag: {related: ['mousedragstart', 'mousedragend']},
-    mousedragend: {related: ['mousedragstart', 'mousedrag']},
-    input: {
-      dispatchers: {},
-      setup: function($element) {
-        $element.currentValue = $element.value;
-        addEventListener(document, 'selectionchange', this.dispatchers[$element.uid] = function() {
-          if ($element.currentValue !== $element.value) {
-            $element.currentValue = $element.value;
-            $element.fire('input');
-          }
-        });
-      },
-      teardown: function($element) {
-        removeEventListener(document, 'selectionchange', this.dispatchers[$element.uid]);
-        delete this.dispatchers[$element.uid];
-      }
-    },
-    change: {
-      dispatcher: function(e) {
-        if (e.propertyName === 'checked') {
-          e.srcElement.changed = true;
-        }
-      },
-      setup: function($element) {
-        addEventListener($element, 'propertychange', this.dispatcher);
-      },
-      teardown: function($element) {
-        removeEventListener($element, 'propertychange', this.dispatcher);
-      }
-    }
-  };
-
-  // 将被捕获到的 DOM 事件对象进行包装后派发到目标元素上。
-  // 仅会运行在目标元素上使用 on 添加的事件监听器，以其他方式添加的事件监听器不会被运行。
-  var dispatchEvent = function($element, handlers, event, isTriggered) {
-    // 派发时对 handlers 的副本（仅复制了 handlers 的数组部分）操作，以避免在监听器内添加或删除目标元素同类型的监听器时会影响本次派发过程。
+  // 将事件对象分发给目标元素上添加的此类型事件的监听器（仅分发给使用 on 方法添加的监听器）。
+  var distributeEvent = function($element, handlers, event, isTriggered) {
+    // 分发时对 handlers 的副本（仅复制了 handlers 的数组部分）操作，以避免在监听器内添加或删除目标元素同类型的监听器时会影响本次分发过程。
     var handlersCopy = handlers.slice(0);
     var delegateCount = handlers.delegateCount;
     var $target = delegateCount ? event.target : $element;
@@ -1497,7 +1511,7 @@
     var selector;
     var i;
     var total;
-    // 开始派发。
+    // 开始分发。
     do {
       if ($target === $element) {
         // 普通监听器。
@@ -1541,6 +1555,110 @@
       // 如果监听到本次事件的元素不是捕获到本次事件的元素（正在调用代理监听器），且事件可以继续传播时，向上一级元素（到 document 为止）传播事件。
     } while (!($target === $element || event.isPropagationStopped()) && ($target = $target.getParent() || $target === html && $element));
   };
+
+  // 特殊事件处理。
+  var dragState;
+  var eventHelper = {
+    mousedragstart: {
+      trigger: function(e) {
+        if (!dragState) {
+          var event = new Event('mousedragstart', e);
+          if (event.leftButton) {
+            event.offsetX = event.offsetY = 0;
+            var $target = event.target;
+            if ($target.setCapture) {
+              $target.setCapture();
+            }
+            event.preventDefault();
+            dragState = {target: $target, startX: event.pageX, startY: event.pageY};
+            dragState.lastEvent = event;
+            $target.fire(INTERNAL_IDENTIFIER_EVENT, event);
+            setTimeout(function() {
+              addEventListener(document, 'mousemove', eventHelper.mousedrag.trigger);
+              addEventListener(document, 'mousedown', eventHelper.mousedragend.trigger);
+              addEventListener(document, 'mouseup', eventHelper.mousedragend.trigger);
+              addEventListener(window, 'blur', eventHelper.mousedragend.trigger);
+            }, 0);
+          }
+        }
+      },
+      relatedEvents: ['mousedrag', 'mousedragend']
+    },
+    mousedrag: {
+      trigger: function(e) {
+        var event = new Event('mousedrag', e);
+        event.target = dragState.target;
+        event.offsetX = event.pageX - dragState.startX;
+        event.offsetY = event.pageY - dragState.startY;
+        dragState.lastEvent = event;
+        dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
+      },
+      relatedEvents: ['mousedragstart', 'mousedragend']
+    },
+    mousedragend: {
+      trigger: function() {
+        var $target = dragState.target;
+        if ($target.releaseCapture) {
+          $target.releaseCapture();
+        }
+        // 使用上一个拖拽相关事件作为 mousedragend 的事件对象，以确保任何情况下都有鼠标坐标相关信息。
+        var event = dragState.lastEvent;
+        // 避免上一个拖拽相关事件的传播或默认行为被阻止。
+        event.isPropagationStopped = event.isDefaultPrevented = event.isImmediatePropagationStopped = returnFalse;
+        event.type = 'mousedragend';
+        dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
+        dragState = null;
+        removeEventListener(document, 'mousemove', eventHelper.mousedrag.trigger);
+        removeEventListener(document, 'mousedown', eventHelper.mousedragend.trigger);
+        removeEventListener(document, 'mouseup', eventHelper.mousedragend.trigger);
+        removeEventListener(window, 'blur', eventHelper.mousedragend.trigger);
+      },
+      relatedEvents: ['mousedragstart', 'mousedrag']
+    },
+    focusin: {
+      count: 0,
+      trigger: function(e) {
+        e.target.fire('focusin');
+      }
+    },
+    focusout: {
+      count: 0,
+      trigger: function(e) {
+        e.target.fire('focusout');
+      }
+    },
+    input: {
+      triggers: {},
+      setup: function($element) {
+        $element.currentValue = $element.value;
+        addEventListener(document, 'selectionchange', this.triggers[$element.uid] = function() {
+          if ($element.currentValue !== $element.value) {
+            $element.currentValue = $element.value;
+            $element.fire('input');
+          }
+        });
+      },
+      teardown: function($element) {
+        removeEventListener(document, 'selectionchange', this.triggers[$element.uid]);
+        delete this.triggers[$element.uid];
+      }
+    },
+    change: {
+      trigger: function(e) {
+        if (e.propertyName === 'checked') {
+          e.srcElement.changed = true;
+        }
+      },
+      setup: function($element) {
+        addEventListener($element, 'propertychange', this.trigger);
+      },
+      teardown: function($element) {
+        removeEventListener($element, 'propertychange', this.trigger);
+      }
+    }
+  };
+
+  window.h = eventHelper;  // TODO: For test.
 
   // 删除目标元素上的所有事件监听器。
   var removeAllListeners = function(element) {
@@ -1602,121 +1720,74 @@
     // 同时为多个事件类型添加监听器。
     name.split(separator).forEach(function(name) {
       // 取出事件类型和选择符。
-      var eventName = parseEventName(name);
-      var type = eventName.type;
-      var selector = eventName.selector;
+      var parsedEventName = parseEventName(name);
+      var type = parsedEventName.type;
+      var selector = parsedEventName.selector;
       // 获取对应的处理器组，以添加处理器。
       var handlers = item[type] || (item[type] = []);
-      // 首次注册此类型的事件。
-      if (!handlers.dispatcher) {
-        // 普通事件使用默认的派发器。
-        var dispatcher = function(e) {
-          dispatchEvent($element, handlers, new Event(e, type));
+      // 首次注册此类型的事件需要添加触发器或分发器。
+      if (!('delegateCount' in handlers)) {
+        // 默认使用以下分发器。
+        var distributor = function(e) {
+          distributeEvent($element, handlers, new Event(type, e));
         };
-        dispatcher.type = type;
-        dispatcher.useCapture = false;
-        // 特殊事件使用定制的派发器。
+        distributor.type = type;
         switch (type) {
           case 'mousewheel':
             // 鼠标滚轮事件，Firefox 的事件类型为 DOMMouseScroll。
-            dispatcher = function(e) {
-              var event = new Event(e, type);
+            distributor = function(e) {
+              var event = new Event(type, e);
               var originalEvent = event.originalEvent;
               var wheel = 'wheelDelta' in originalEvent ? -originalEvent.wheelDelta : originalEvent.detail || 0;
               event.wheelUp = wheel < 0;
               event.wheelDown = wheel > 0;
-              dispatchEvent($element, handlers, event);
+              distributeEvent($element, handlers, event);
             };
-            dispatcher.type = navigator.isFirefox ? 'DOMMouseScroll' : 'mousewheel';
+            distributor.type = navigator.isFirefox ? 'DOMMouseScroll' : 'mousewheel';
             break;
           case 'mouseenter':
           case 'mouseleave':
             // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
-            dispatcher = function(e) {
-              dispatchEvent($element, handlers, new Event(e, type), function(event) {
+            distributor = function(e) {
+              distributeEvent($element, handlers, new Event(type, e), function(event) {
                 var $relatedTarget = event.relatedTarget;
                 // 加入 this.contains 的判断，避免 window 和一些浏览器的 document 对象调用出错。
                 return !$relatedTarget || this.contains && !this.contains($relatedTarget);
               });
             };
-            dispatcher.type = type === 'mouseenter' ? 'mouseover' : 'mouseout';
+            distributor.type = type === 'mouseenter' ? 'mouseover' : 'mouseout';
             break;
           case 'mousedragstart':
           case 'mousedrag':
           case 'mousedragend':
             // 拖动相关事件，为避免覆盖 HTML5 草案中引入的同名事件，加入前缀 mouse。
-            // 这三个事件是关联的，使用同一个派发器，这个派发器会动态添加/删除其他辅助派发器。
-            // 向这三个关联事件中添加第一个监听器时，即创建上述公用的派发器，在这三个关联事件中删除最后一个监听器时，即删除上述公用的派发器。
             // 只支持鼠标左键的拖拽，拖拽过程中松开左键、按下其他键、或当前窗口失去焦点都将导致拖拽事件结束。
-            // 注意：应避免在拖拽进行时删除本组事件的监听器，否则可能导致拖拽动作无法正常完成。
-            var dragHandlers = {};
-            var dragState;
-            var dragStart = function(e) {
-              var event = new Event(e, 'mousedragstart');
-              if (event.leftButton) {
-                event.offsetX = event.offsetY = 0;
-                dispatchEvent($element, dragHandlers.mousedragstart, event);
-                if (!event.isDefaultPrevented()) {
-                  var $target = event.target;
-                  if ($target.setCapture) {
-                    $target.setCapture();
-                  }
-                  event.preventDefault();
-                  dragState = {target: $target, startX: event.pageX, startY: event.pageY};
-                  dragState.lastEvent = event;
-                  setTimeout(function() {
-                    addEventListener(document, 'mousemove', drag);
-                    addEventListener(document, 'mousedown', dragEnd);
-                    addEventListener(document, 'mouseup', dragEnd);
-                    addEventListener(window, 'blur', dragEnd);
-                  }, 0);
-                }
-              }
-            };
-            var drag = function(e) {
-              var event = new Event(e, 'mousedrag');
-              event.target = dragState.target;
-              event.offsetX = event.pageX - dragState.startX;
-              event.offsetY = event.pageY - dragState.startY;
-              dispatchEvent($element, dragHandlers.mousedrag, event);
-              dragState.lastEvent = event;
-            };
-            var dragEnd = function(e) {
-              var $target = dragState.target;
-              if ($target.releaseCapture) {
-                $target.releaseCapture();
-              }
-              var event = dragState.lastEvent;
-              event.type = 'mousedragend';
-              dispatchEvent($element, dragHandlers.mousedragend, event);
-              dragState = null;
-              removeEventListener(document, 'mousemove', drag);
-              removeEventListener(document, 'mousedown', dragEnd);
-              removeEventListener(document, 'mouseup', dragEnd);
-              removeEventListener(window, 'blur', dragEnd);
-            };
-            dispatcher = dragStart;
-            dispatcher.type = 'mousedown';
-            dragHandlers[type] = handlers;
-            // HACK：这三个关联事件有相同的派发器和各自的处理器组，此处分别创建另外两个关联事件的项和处理器组。
-            eventHelper[type].related.forEach(function(type) {
+            // 应避免在拖拽进行时删除本组事件的监听器，否则可能导致拖拽动作无法正常完成。
+            addEventListener($element, 'mousedown', eventHelper.mousedragstart.trigger);
+            // 这三个事件是关联的，其中 mousedragstart 的 trigger 会动态添加/删除其他事件的 trigger。
+            // 向这三个关联事件中添加第一个监听器时，即创建上述三个 trigger，在这三个关联事件中删除最后一个监听器时，即删除上述三个 trigger。
+            eventHelper[type].relatedEvents.forEach(function(type) {
               var handlers = [];
-              handlers.dispatcher = dispatcher;
+              handlers.distributor = null;
               handlers.delegateCount = 0;
-              dragHandlers[type] = item[type] = handlers;
+              item[type] = handlers;
             });
+            distributor = null;
             break;
           case 'focusin':
           case 'focusout':
             // 后代元素获得/失去焦点，目前仅 Firefox 不支持，监听 focus/blur 的捕获阶段模拟。
             if (navigator.isFirefox) {
-              dispatcher.type = type === 'focusin' ? 'focus' : 'blur';
-              dispatcher.useCapture = true;
+              if (eventHelper[type].count === 0) {
+                addEventListener(document, type === 'focusin' ? 'focus' : 'blur', eventHelper[type].trigger, true);
+              }
+              eventHelper[type].count++;
+              distributor = null;
             }
             break;
           case 'input':
             // IE6 IE7 IE8 可以使用 onpropertychange 即时响应用户输入，其他浏览器中可以使用 input 事件即时响应用户输入（需使用 addEventListener 添加事件监听器）。
-            // 但是 IE9 的 INPUT[type=text|password] 和 TEXTAREA 在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。IE8 的 TEXTAREA 也有以上问题，因此需要添加辅助派发器。
+            // 但是 IE9 的 INPUT[type=text|password] 和 TEXTAREA 在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。IE8 的 TEXTAREA 也有以上问题。
             // 通过 keydown，cut 和 blur 事件能解决按键删除和剪切、菜单剪切、拖拽内容出去的问题，但不能解决菜单删除的问题。
             // 除了 setInterval 轮询 value 外的一个更好的办法是通过监听 document 的 selectionchange 事件来解决捷键剪切、菜单剪切、菜单删除、拖拽内容出去的问题，再通过这些元素的 propertychange 事件处理其他情况。但此时需要避免两个事件都触发的时候导致两次调用监听器。
             // TODO: Safari 5.1.7 的表单自动填充不触发 change 和 input 事件。
@@ -1725,51 +1796,53 @@
             if (navigator.isIElt10 && (nodeName === 'TEXTAREA' || nodeName === 'INPUT' && (controlType === 'text' || controlType === 'password'))) {
               if (navigator.isIE9) {
                 eventHelper.input.setup($element);
-                dispatcher = function(e) {
+                distributor = function(e) {
                   $element.currentValue = $element.value;
-                  dispatchEvent($element, handlers, new Event(e, type));
+                  distributeEvent($element, handlers, new Event(type, e));
                 };
-                dispatcher.type = 'input';
+                distributor.type = 'input';
               } else if (navigator.isIE8 && nodeName === 'TEXTAREA') {
                 eventHelper.input.setup($element);
-                dispatcher = function(e) {
+                distributor = function(e) {
                   if (e.propertyName === 'value' && $element.currentValue !== $element.value) {
                     $element.currentValue = $element.value;
-                    dispatchEvent($element, handlers, new Event(e, type));
+                    distributeEvent($element, handlers, new Event(type, e));
                   }
                 };
-                dispatcher.type = 'propertychange';
+                distributor.type = 'propertychange';
               } else {
-                dispatcher = function(e) {
+                distributor = function(e) {
                   if (e.propertyName === 'value') {
-                    dispatchEvent($element, handlers, new Event(e, type));
+                    distributeEvent($element, handlers, new Event(type, e));
                   }
                 };
-                dispatcher.type = 'propertychange';
+                distributor.type = 'propertychange';
               }
             }
             break;
           case 'change':
             // TODO: 一些浏览器拖拽内容出去时有不触发事件的问题，IE6 IE7 IE8 IE9 Safari 5.1.7 的表单自动填充不触发事件，目前尚未处理。
             // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
-            // 需要添加辅助派发器。
+            // 使用触发器。
             if (navigator.isIElt9 && $element.nodeName === 'INPUT' && ($element.type === 'checkbox' || $element.type === 'radio')) {
               eventHelper.change.setup($element);
-              dispatcher = function(e) {
+              distributor = function(e) {
                 var target = e.srcElement;
                 if (target.changed) {
                   target.changed = false;
-                  dispatchEvent($element, handlers, new Event(e, type));
+                  distributeEvent($element, handlers, new Event(type, e));
                 }
               };
-              dispatcher.type = 'click';
+              distributor.type = 'click';
             }
             break;
         }
-        // 绑定派发器。
-        addEventListener($element, dispatcher.type, dispatcher, dispatcher.useCapture);
-        // 确定管理器组的派发器和代理计数器。
-        handlers.dispatcher = dispatcher;
+        // 如果有分发器则将其作为原生事件的监听器。
+        if (distributor) {
+          handlers.distributor = distributor;
+          addEventListener($element, distributor.type, distributor);
+        }
+        // 初始化代理计数器。
         handlers.delegateCount = 0;
       }
       // 添加处理器（允许重复添加同一个监听器 - W3C 的事件模型不允许多次添加同一个监听器）。
@@ -1846,45 +1919,52 @@
           i++;
         }
       }
-      // 若处理器组为空，则删除派发器的注册并删除处理器组。
+      // 若处理器组为空，则删除触发器或分发器的注册并删除处理器组。
       if (handlers.length === 0) {
-        var dispatcher = handlers.dispatcher;
+        var distributor = handlers.distributor;
         switch (type) {
           case 'mousedragstart':
           case 'mousedrag':
           case 'mousedragend':
-            // 必须在这组关联事件的最后一个监听器被删除后才清理派发器。
+            // 必须在这组关联事件的最后一个监听器被删除后才能删除分发器。
             var listenerCount = 0;
-            eventHelper[type].related.forEach(function(type) {
+            eventHelper[type].relatedEvents.forEach(function(type) {
               listenerCount += item[type].length;
             });
             if (listenerCount) {
               return;
             }
-            removeEventListener($element, dispatcher.type, dispatcher);
-            // HACK：分别删除另外两个关联事件的触发器及项。
-            eventHelper[type].related.forEach(function(type) {
-              var dispatcher = item[type].dispatcher;
-              removeEventListener($element, dispatcher.type, dispatcher);
+            removeEventListener($element, 'mousedown', eventHelper.mousedragstart.trigger);
+            // 删除另外两个关联事件的项。
+            eventHelper[type].relatedEvents.forEach(function(type) {
               delete item[type];
             });
             break;
+          case 'focusin':
+          case 'focusout':
+            if (navigator.isFirefox) {
+              eventHelper[type].count--;
+              if (eventHelper[type].count === 0) {
+                removeEventListener(document, type === 'focusin' ? 'focus' : 'blur', eventHelper[type].trigger, true);
+              }
+            }
+            break;
           case 'input':
-            // 需要删除辅助派发器。
-            if (eventHelper.input.dispatchers[uid]) {
+            if (eventHelper.input.triggers[uid]) {
               eventHelper.input.teardown($element);
             }
-            removeEventListener($element, dispatcher.type, dispatcher);
+            removeEventListener($element, distributor.type, distributor);
             break;
           case 'change':
-            // 需要删除辅助派发器。
             if (navigator.isIElt9 && $element.nodeName === 'INPUT' && ($element.type === 'checkbox' || $element.type === 'radio')) {
               eventHelper.change.teardown($element);
             }
-            removeEventListener($element, dispatcher.type, dispatcher);
+            removeEventListener($element, distributor.type, distributor);
             break;
           default:
-            removeEventListener($element, dispatcher.type, dispatcher, dispatcher.useCapture);
+            if (distributor) {
+              removeEventListener($element, distributor.type, distributor);
+            }
         }
         delete item[type];
       }
@@ -1903,30 +1983,22 @@
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
-   *   data 的属性会被追加到事件对象中，但名称为 originalEvent 的属性除外。
+   *   data 的属性会被追加到事件对象中，但名称为 originalEvent、type、target 的属性除外。如果不希望事件在 DOM 树中传播，指定其 bubbles 属性为 false 即可。
    * @returns {Object} 事件对象。
    * @description
-   *   调用本方法时，仅会运行本元素上使用 on 方法添加的此类事件的监听器，并且其默认行为也将被阻止（因为这个事件并不是由用户的操作触发的）。
-   *   如果需要执行某种行为，可以直接在目标元素上调用对应的方法，如 click、select、submit 等，注意这样做可能会触发多个事件。
+   *   调用本方法时，仅会调用使用 on 方法添加的监听器，并且其默认行为也将被阻止（因为这个事件并不是由用户的操作触发的）。
+   *   如果需要执行此类事件的默认行为，可以直接在目标元素上调用对应的方法（如 click、select、submit 等），这种情况下除了会调用使用 on 方法添加的监听器之外，使用其他方式添加的监听器也可能被调用。
    */
   Element.prototype.fire = function(type, data) {
+    // 仅供内部使用的另一种调用方式：data 是一个事件对象。
+    var event = type === INTERNAL_IDENTIFIER_EVENT ? data : Object.mixin(new Event(type, {type: '', target: this}), data || {}, {blackList: ['originalEvent', 'type', 'target']});
+    // 传播事件并返回传播后的事件对象。
+    var $element = this;
     var item;
     var handlers;
-    var dummyEvent = {
-      // 使用空字符串作为虚拟事件的标识符。
-      type: '',
-      target: this,
-      // 添加这两个属性以确保可以和真实事件一样支持 stopPropagation，preventDefault 和 stopImmediatePropagation 方法。
-      stopPropagation: returnTrue,
-      preventDefault: returnTrue
-    };
-    // 避免事件对象的 originalEvent 属性被参数 data 的同名属性覆盖。
-    var event = Object.mixin(new Event(dummyEvent, type), data || {}, {blackList: ['originalEvent']});
-    // 模拟事件的冒泡传播。
-    var $element = this;
     while ($element) {
-      if (handlers = (item = eventPool[$element.uid]) && item[type]) {
-        dispatchEvent($element, handlers, event);
+      if (handlers = (item = eventPool[$element.uid]) && item[event.type]) {
+        distributeEvent($element, handlers, event);
       }
       if (!event.bubbles || event.isPropagationStopped() || $element === window) {
         break;
@@ -2220,14 +2292,14 @@
    *   <ul>
    *     <li>在文档可用时触发，只能添加监听器，不能删除监听器，因此不能使用标签。</li>
    *     <li>不会有事件对象作为参数传入监听器。</li>
-   *     <li>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即运行。</li>
+   *     <li>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即被调用。</li>
    *   </ul>
    */
   var domready = function() {
     // 保存 domready 事件的监听器。
     var listeners = [];
 
-    // 派发 domready 事件，监听器在运行后会被删除。
+    // 调用监听器。
     var callListener = function(listener) {
       // 将 listener 的 this 设置为 document。
       // 不会传入事件对象。
@@ -2236,8 +2308,8 @@
       }, 0);
     };
 
-    // 派发 domready 事件，监听器在运行后会被删除。
-    var dispatchEvent = function() {
+    // 分发 domready 事件，监听器在调用后会被删除。
+    var distributeEvent = function() {
       // IE6 IE7 IE8 可能调用两次。
       if (listeners) {
         // http://bugs.jquery.com/ticket/5443
@@ -2245,32 +2317,32 @@
           listeners.forEach(callListener);
           listeners = null;
         } else {
-          setTimeout(dispatchEvent, 10);
+          setTimeout(distributeEvent, 10);
         }
       }
     };
 
-    // 视情况绑定及清理派发器。
-    var dispatcher;
+    // 视情况绑定及清理分发器。
+    var distributor;
     if ('addEventListener' in document) {
-      dispatcher = function() {
-        document.removeEventListener('DOMContentLoaded', dispatcher, false);
-        window.removeEventListener('load', dispatcher, false);
-        dispatchEvent();
+      distributor = function() {
+        document.removeEventListener('DOMContentLoaded', distributor, false);
+        window.removeEventListener('load', distributor, false);
+        distributeEvent();
       };
-      document.addEventListener('DOMContentLoaded', dispatcher, false);
-      window.addEventListener('load', dispatcher, false);
+      document.addEventListener('DOMContentLoaded', distributor, false);
+      window.addEventListener('load', distributor, false);
     } else {
       // 第二个参数在 doScrollCheck 成功时使用。
-      dispatcher = function(_, domIsReady) {
+      distributor = function(_, domIsReady) {
         if (domIsReady || document.readyState === 'complete') {
-          document.detachEvent('onreadystatechange', dispatcher);
-          window.detachEvent('onload', dispatcher);
-          dispatchEvent();
+          document.detachEvent('onreadystatechange', distributor);
+          window.detachEvent('onload', distributor);
+          distributeEvent();
         }
       };
-      document.attachEvent('onreadystatechange', dispatcher);
-      window.attachEvent('onload', dispatcher);
+      document.attachEvent('onreadystatechange', distributor);
+      window.attachEvent('onload', distributor);
       // http://javascript.nwbox.com/IEContentLoaded/
       if (window == top && html.doScroll) {
         (function doScrollCheck() {
@@ -2280,7 +2352,7 @@
             setTimeout(doScrollCheck, 10);
             return;
           }
-          dispatcher(null, true);
+          distributor(null, true);
         })();
       }
     }
@@ -2321,7 +2393,7 @@
 
 //--------------------------------------------------[document.fire]
   /**
-   * 触发 document 的某类事件，运行相关的事件监听器。
+   * 触发 document 的某类事件，调用相关的事件监听器。
    * @name document.fire
    * @function
    * @param {string} type 事件类型。
@@ -2481,7 +2553,7 @@
 
 //--------------------------------------------------[window.fire]
   /**
-   * 触发 window 的某类事件，运行相关的事件监听器。
+   * 触发 window 的某类事件，调用相关的事件监听器。
    * @name window.fire
    * @function
    * @param {string} type 事件类型。
