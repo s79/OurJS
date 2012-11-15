@@ -59,13 +59,13 @@ OurJS 只可以和非侵入式设计的框架或类库共存。
 
 <table>
   <tr>
-    <td>控件</td><td>src/widgets/*.js</td>
+    <td>Widgets</td><td>src/widgets/*.js</td>
   </tr>
   <tr>
-    <td>实用工具</td><td>src/utilities/*.js</td>
+    <td>Utilities</td><td>src/utilities/*.js</td>
   </tr>
   <tr>
-    <td>适配器</td><td>src/adapters/*.js</td>
+    <td>Adapters</td><td>src/adapters/*.js</td>
   </tr>
 </table>
 

@@ -48,7 +48,7 @@ document.on('domready', function() {
       ]
     },
     {
-      text: '控件',
+      text: 'Widgets',
       url: '/OurJS/widgets/',
       submenu: [
         {

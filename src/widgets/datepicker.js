@@ -1,13 +1,13 @@
 ﻿/**
- * @fileOverview 控件 - 日期选择器。
+ * @fileOverview Widget - 日期选择器。
  * @author sundongguo@gmail.com
  * @version 20121025
  */
 
 (function() {
-//==================================================[控件 - 日期选择器]
+//==================================================[Widget - 日期选择器]
 //--------------------------------------------------[$panel]
-  // 所有的日期选择器控件公用一个日期选择面板。
+  // 所有的日期选择器公用一个日期选择面板。
   /*
    * 日期选择面板的结构：
    * <div class="datepicker-panel">
@@ -48,7 +48,7 @@
   var $clear = controls[6];
   var $today = controls[7];
 
-  // 解析 Calendar 控件。
+  // 解析月历。
   Widget.parse($calendar.on('cellupdate', function(event) {
     var $cell = event.cell;
     var date = event.date;
@@ -256,7 +256,7 @@
   });
 
 //--------------------------------------------------[activatePanel]
-  // 在指定的日期选择器控件附近显示日期选择面板。
+  // 在指定的日期选择器附近显示日期选择面板。
   var activatePanel = function() {
     minDate = Date.from(this.getData('minDate') || '1900-01-01');
     maxDate = Date.from(this.getData('maxDate') || '9999-12-31');
@@ -281,8 +281,9 @@
    *   本事件用于模拟真实发生在表单域元素上的 change 事件。
    * @requires Calendar
    * @description
-   *   为 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为日期选择器控件。
-   *   当该元素成为日期选择器控件后，将不能再由键盘输入值，但当点击该元素时，将弹出日期选择面板，在面板中选中的日期将自动回填到该元素中。
+   *   为 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为日期选择器。
+   *   日期选择器仍是一个表单控件。
+   *   当该元素成为日期选择器后，将不能再由键盘输入值，但当点击该元素时，将弹出日期选择面板，在面板中选中的日期将自动回填到该元素中。
    */
 
   Widget.register('datepicker', {
