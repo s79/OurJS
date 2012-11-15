@@ -282,7 +282,7 @@
    * @name Request.prototype.send
    * @function
    * @param {Object} [requestData] 要发送的数据。
-   *   数据格式为 {key1: value1, key2: [value21, value22, ...], ...}，其中所有 value 都可以为任意基本类型的数据（在发送时他们都将被强制转换为字符串类型），另外 key 和 value 均不必做百分比编码。
+   *   数据格式为 {key1: value1, key2: [value21, value22, ...], ...}，其中所有 value 都可以为任意基本类型的数据（在发送时它们都将被强制转换为字符串类型），另外 key 和 value 均不必做百分比编码。
    *   本方法的参数不允许使用字符串类型的数据，因为无法判断指定的字符串值是否需要做百分比编码。
    * @returns {Object} Request 对象。
    * @description

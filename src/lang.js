@@ -87,7 +87,7 @@
    */
   if (!Object.keys) {
     Object.keys = function(object) {
-      if (typeof object != 'object' && typeof object != 'function' || object === null) {
+      if (typeof object !== 'object' && typeof object !== 'function' || object === null) {
         throw new TypeError('Object.keys called on non-object');
       }
       var keys = [];

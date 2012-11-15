@@ -322,7 +322,7 @@
     var animation = this;
     var isPlayMethod = reverse !== INTERNAL_IDENTIFIER_REVERSE;
     var status = animation.status;
-    if (isPlayMethod && status != PLAYING && status != END_POINT || !isPlayMethod && status != REVERSING && status != START_POINT) {
+    if (isPlayMethod && status !== PLAYING && status !== END_POINT || !isPlayMethod && status !== REVERSING && status !== START_POINT) {
       // 触发事件。
       if (isPlayMethod) {
         animation.status = PLAYING;
