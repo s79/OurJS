@@ -90,23 +90,46 @@ dd em.false { color: tomato; }
     <legend>focusin/focusout/input/change</legend>
     <div id="form_logger" class="logger"></div>
     <div class="demo">
-      <div id="form_events" style="padding: 5px; border: 1px solid silver; background: whitesmoke;">
-        <input type="checkbox" value="checkbox_1" checked>
-        <input type="checkbox" value="checkbox_2">
-        <input type="checkbox" value="checkbox_3"><br>
+      <form id="form_events" method="get" action="." style="padding: 5px; border: 1px solid silver; background: whitesmoke;">
+        <input id="labeled" type="checkbox" value="checkbox_1" checked><label for="labeled">labeled</label><br>
+        <input id="default_prevented" type="checkbox" value="checkbox_2"><label for="default_prevented">change 事件的默认行为被阻止（change 事件没有默认行为）</label><br>
+        <input type="checkbox" value="checkbox_3">
+        <input type="checkbox" value="checkbox_4">
+        <input type="checkbox" value="checkbox_5">
         <input name="state" type="radio" value="radio_1" checked>
         <input name="state" type="radio" value="radio_2">
         <input name="state" type="radio" value="radio_3"><br>
+        <select name="choice">
+          <option value="select_1">select_1</option>
+          <option value="select_2">select_2</option>
+          <option value="select_3">select_3</option>
+        </select>
+        <select name="multiple_choice" multiple>
+          <option value="select_1">select_1</option>
+          <option value="select_2">select_2</option>
+          <option value="select_3">select_3</option>
+        </select>
+        <br>
         <input id="stop" type="text" value="本元素的 focusin/focusout 事件传播被阻止" readonly class="input" style="width: 250px; border: 1px solid silver;"><br>
         <input type="password" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
         <textarea class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;"></textarea>
-      </div>
+        <textarea id="textarea" class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;">textarea</textarea>
+      </form>
       <blockquote>
-        <label><input id="disable_focus_logging" type="checkbox" style="vertical-align: text-bottom;"> 输出 focusin/focusout 的日志信息</label>
+        <button id="set_value">使用脚本给 TEXTAREA 赋值 (不应该触发 input 事件)</button>
+        <br>
+        <p><label><input id="disable_focus_logging" type="checkbox" style="vertical-align: text-bottom;"> 输出 focusin/focusout 的日志信息</label></p>
       </blockquote>
     </div>
   </fieldset>
   <script>
+  //  document.on('beforeactivate', function(e) {
+  //    console.log('1', e.target.nodeName);
+  //  });
+  //  document.on('beforedeactivate', function(e) {
+  //    console.log('0', e.target.nodeName);
+  //  });
+
   (function() {
     var $logger = $('#form_logger');
     var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
@@ -118,18 +141,24 @@ dd em.false { color: tomato; }
       }
       this.morph({backgroundColor: e.type === 'focusin' ? 'gold' : 'whitesmoke'});
     });
+    $formEvents.on('change', function(e) {
+      setTimeout(function() {  // 防止 IE6 闪烁。
+        logger.log('<strong>' + e.type + '</strong>' + e.target.nodeName + ' value=<var>' + e.target.value + '</var> checked=<var>' + e.target.checked + '</var>');
+      }, 0);
+    });
+    $formEvents.on('input', function(e) {
+      logger.log('<em>' + e.type + '</em>' + e.target.type + ' value=<var>' + e.target.value + '</var>');
+    });
+    $('#default_prevented').on('change', function(e) {
+      e.preventDefault();
+    });
     $('#stop').on('focusin, focusout', function(e) {
-      e.stopPropagation();  // TODO: 修改实现方式以支持本方法。
+      e.stopPropagation();
     });
-    $formEvents.find('input[type=checkbox], input[type=radio]').forEach(function($control) {
-      $control.on('change', function(e) {
-        logger.log('<strong>' + e.type + '</strong>' + this.nodeName + ' value=<var>' + this.value + '</var> checked=<var>' + this.checked + '</var>');
-      });
-    });
-    $formEvents.find('input[type=text], input[type=password], textarea').forEach(function($control) {
-      $control.on('input', function(e) {
-        logger.log('<strong>' + e.type + '</strong>' + this.type + ' value=<var>' + this.value + '</var>');
-      });
+
+    var $textarea = $('#textarea');
+    $('#set_value').on('click', function(e) {
+      logger.log('$textarea.value = <var>' + ($textarea.value = '使用脚本赋的新值') + '</var>');
     });
 
     var $disableFocusLogging = $('#disable_focus_logging').on('change', function(e) {
