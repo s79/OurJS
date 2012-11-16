@@ -11,7 +11,7 @@ document.on('domready', function() {
     },
     {
       text: '入门指南',
-      url: '/OurJS/getting_started/'
+      url: '/OurJS/guide/'
     },
     {
       text: '下载',
