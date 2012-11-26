@@ -5,6 +5,7 @@
 <title>表单验证</title>
 <script src="../../dev.js"></script>
 <script src="../../scripts/framework.js"></script>
+<script src="../../src/widgets/validator.js"></script>
 <script src="../../src/utilities/logger.js"></script>
 <style>
   /* 表单 */
@@ -52,7 +53,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
   <h2>Form Validation</h2>
   <fieldset>
     <legend>使用 htmlFormElement.setValidationRules 来添加验证规则</legend>
-    <form id="form" method="get" action="/">
+    <form id="form" method="get" action="/" class="widget-validator">
       <div id="logger"></div>
       <table id="form_table">
         <colgroup>
@@ -206,7 +207,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
     </form>
   </fieldset>
   <script>
-  (function() {
+  document.on('domready', function() {
 //--------------------------------------------------[输出日志]
     var logger = new Logger($('#logger').setStyles({float: 'right', width: 343, height: $('#form_table').offsetHeight - 2}), true);
 
@@ -285,91 +286,83 @@ dl.strong .strong { color: #333; font-weight: bold; }
         });
 
     // 添加验证规则。
-//    $form
-//        .setValidationRules({
-//          account: {
-//            required: [true, '请输入帐号'],
-//            minLength: [3, '帐号应在 3 位以上'],
-//            maxLength: [20, '帐号应在 20 位以内'],
-//            remote: {
-//              url: 'remote.txt',
-//              options: {
-//                useCache: false,
-//                minTime: 1000
-//              },
-//              valueKey: 'value',
-//              validateResult: function(e) {
-//                var value = $('#form').elements.account.value;
-//                return value.startsWith('our') ? '' : JSON.parse(e.text).errorMessage + '（以 our 开头即可通过验证）';
-//              }
-//            }
-//          },
-//          password: {
-//            required: [true, '请输入密码']
-//          },
-//          'password_confirm': {
-//            equals: ['password', '两次输入的密码不一致']
-//          },
-//          email: {
-//            type: ['email', '错误的 EMail 地址']
-//          },
-//          age: {
-//            type: ['number', '年龄只能在 18 - 28 之间'],
-//            custom: function(value) {
-//              return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
-//            }
-//          },
-//          games: {
-//          },
-//          colors: {
-//            minLength: [2, '请选择 2 项'],
-//            maxLength: [2, '请选择 2 项']
-//          },
-//          numbers: {
-//            required: [true, '必选项（被禁用的控件选定了也无效）']
-//          },
-//          description: {
-//            maxLength: [20, '自我介绍应限制在 20 字以内'],
-//            custom: function(value) {
-//              return value.contains(' ') ? '不能包含空格' : '';
-//            }
-//          }
-//        })
-//        .on('fieldvalidate', function(e) {
-//          if (e.name === 'account') {
-//            getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
-//          }
-//          logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
-//        })
-//        .on('fieldvalidated', function(e) {
-//          var passed = !e.errorMessage;
-//          var $td = getMessageBox(e.name);
-//          $td.removeClass('valid, invalid, validating').addClass(passed ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
-//          if (!passed) {
-//            $td.find('.invalid')[0].innerText = e.errorMessage;
-//          }
-//          logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + passed + '">' + (e.errorMessage || 'passed') + '</dfn>');
-//        })
-//        .on('validate, validated', function(e) {
-//          logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
-//        });
-    /*
-     logger.log('age: <var>' + $form.getFieldValue('age') + '</var>');
-     logger.log('os: <var>' + $form.getFieldValue('os') + '</var>');
-     logger.log('games: <var>' + $form.getFieldValue('games') + '</var>');
-     logger.log('colors: <var>' + $form.getFieldValue('colors') + '</var>');
-     logger.log('numbers: <var>' + $form.getFieldValue('numbers') + '</var>');
-     logger.log('description: <var>' + $form.getFieldValue('description') + '</var>');
-     */
-    $($form.elements.account).on('change', function(e) {
-      console.log(e.type, this.value);
-    });
+    $form
+        .addValidationRules({
+          account: {
+            required: true,
+            minLength: 3,
+            maxLength: 20,
+            remote: {
+              url: 'remote.txt',
+              options: {
+                useCache: false,
+                minTime: 1000
+              },
+              valueKey: 'value',
+              validateResult: function(e) {
+                var value = $('#form').elements.account.value;
+                return value.startsWith('our') ? '' : JSON.parse(e.text).errorMessage + '（以 our 开头即可通过验证）';
+              }
+            }
+          },
+          password: {
+            required: true
+          },
+          'password_confirm': {
+            equals: 'password'
+          },
+          email: {
+            type: 'email'
+          },
+          age: {
+            type: 'number',
+            custom: function(value) {
+              return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
+            }
+          },
+          games: {
+          },
+          colors: {
+            minLength: 2,
+            maxLength: 2
+          },
+          numbers: {
+            required: true
+          },
+          description: {
+            maxLength: 20,
+            custom: function(value) {
+              return value.contains(' ') ? '不能包含空格' : '';
+            }
+          }
+        })
+        .on('fieldvalidate', function(e) {
+          if (e.name === 'account') {
+            getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
+          }
+          logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
+        })
+        .on('fieldvalidated', function(e) {
+          var passed = !e.errorMessage;
+          var $td = getMessageBox(e.name);
+          $td.removeClass('valid, invalid, validating').addClass(passed ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
+          if (!passed) {
+            $td.find('.invalid')[0].innerText = e.errorMessage;
+          }
+          logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + passed + '">' + (e.errorMessage || 'passed') + '</dfn>');
+        })
+        .on('validate, validated', function(e) {
+          logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
+        });
 
-    $form.on('change', function(e) {
-      console.log(e.type, e.target);
-    });
+//    logger.log('age: <var>' + $form.getFieldValue('age') + '</var>');
+//    logger.log('os: <var>' + $form.getFieldValue('os') + '</var>');
+//    logger.log('games: <var>' + $form.getFieldValue('games') + '</var>');
+//    logger.log('colors: <var>' + $form.getFieldValue('colors') + '</var>');
+//    logger.log('numbers: <var>' + $form.getFieldValue('numbers') + '</var>');
+//    logger.log('description: <var>' + $form.getFieldValue('description') + '</var>');
 
-  })();
+  });
   </script>
 
 </div>
