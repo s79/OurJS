@@ -331,7 +331,7 @@ document.on('domready', function() {
             });
         // 按下 ESC 键或点击细节面板外即关闭细节面板。
         $html.on('keydown.deatilsPanel, mousedown.deatilsPanel', function(e) {
-          if (e.isMouseEvent && !$panel.contains(e.target) || e.which === 27) {
+          if (e.type === 'mousedown' && !$panel.contains(e.target) || e.which === 27) {
             $panel.hide();
           }
         });

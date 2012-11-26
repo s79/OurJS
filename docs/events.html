@@ -25,16 +25,16 @@ col.type { width: 200px; }
   <table>
     <colgroup>
       <col class="type">
-      <col class="isMouseEvent">
-      <col class="isKeyboardEvent">
-      <col class="canNotBubble">
+      <col class="mouse">
+      <col class="keyboard">
+      <col class="bubbling">
     </colgroup>
     <thead>
       <tr>
-        <th title="事件类型。">type</th>
-        <th title="鼠标事件。">isMouseEvent</th>
-        <th title="键盘事件。">isKeyboardEvent</th>
-        <th title="不可冒泡，不可代理。">canNotBubble</th>
+        <th>事件类型</th>
+        <th>鼠标事件</th>
+        <th>键盘事件</th>
+        <th>可以冒泡<br>(可以代理)</th>
       </tr>
     </thead>
     <tbody id="list"></tbody>
@@ -42,50 +42,50 @@ col.type { width: 200px; }
 
   <h2>自定义事件</h2>
   <p>如果使用自定义事件，需要注意避免使用上边的列表中的事件类型，以免被用户的正常操作意外的触发。</p>
+  <p>自定义事件默认都不是键盘事件或鼠标事件，并且都是可以冒泡的。</p>
 
   <script>
   //--------------------------------------------------[Data]
-  // 低位 - 高位。
   var events = [
-    ['mousedown', 1, 0, 0],
-    ['mouseup', 1, 0, 0],
-    ['click', 1, 0, 0],
-    ['dblclick', 1, 0, 0],
-    ['contextmenu', 1, 0, 0],
-    ['mousemove', 1, 0, 0],
-    ['mouseover', 1, 0, 0],
-    ['mouseout', 1, 0, 0],
-    ['mousewheel', 1, 0, 0],
-    ['mouseenter', 1, 0, 0],
-    ['mouseleave', 1, 0, 0],
-    ['mousedragstart', 1, 0, 0],
-    ['mousedrag', 1, 0, 0],
-    ['mousedragend', 1, 0, 0],
-//  ['mousedragenter', 1, 0, 0],
-//  ['mousedragover', 1, 0, 0],
-//  ['mousedragleave', 1, 0, 0],
-//  ['mousedrop', 1, 0, 0],
-    ['keydown', 0, 1, 0],
-    ['keyup', 0, 1, 0],
-    ['keypress', 0, 1, 0],
-    ['focus', 0, 0, 1],
-    ['blur', 0, 0, 1],
-    ['focusin', 0, 0, 0],
-    ['focusout', 0, 0, 0],
-    ['select', 0, 0, 1],
+    ['mousedown', 1, 0, 1],
+    ['mouseup', 1, 0, 1],
+    ['click', 1, 0, 1],
+    ['dblclick', 1, 0, 1],
+    ['contextmenu', 1, 0, 1],
+    ['mousemove', 1, 0, 1],
+    ['mouseover', 1, 0, 1],
+    ['mouseout', 1, 0, 1],
+    ['mousewheel', 1, 0, 1],
+    ['mouseenter', 1, 0, 1],
+    ['mouseleave', 1, 0, 1],
+    ['mousedragstart', 1, 0, 1],
+    ['mousedrag', 1, 0, 1],
+    ['mousedragend', 1, 0, 1],
+//  ['mousedragenter', 1, 0, 1],
+//  ['mousedragover', 1, 0, 1],
+//  ['mousedragleave', 1, 0, 1],
+//  ['mousedrop', 1, 0, 1],
+    ['keydown', 0, 1, 1],
+    ['keyup', 0, 1, 1],
+    ['keypress', 0, 1, 1],
+    ['focus', 0, 0, 0],
+    ['blur', 0, 0, 0],
+    ['focusin', 0, 0, 1],
+    ['focusout', 0, 0, 1],
     ['input', 0, 0, 1],
     ['change', 0, 0, 1],
-    ['submit', 0, 0, 1],
-    ['reset', 0, 0, 1],
-    ['scroll', 0, 0, 1],
-    ['resize', 0, 0, 1],
-    ['load', 0, 0, 1],
-    ['unload', 0, 0, 1],
-    ['error', 0, 0, 1],
-    // document 上的特殊事件。
-    ['domready', 0, 0, 1],
-    // window 上的特殊事件。
-    ['beforeunload', 0, 0, 1]
+    ['select', 0, 0, 0],
+    ['submit', 0, 0, 0],
+    ['reset', 0, 0, 0],
+    ['scroll', 0, 0, 0],
+    ['load', 0, 0, 0],
+    // window 的特殊事件。
+    ['unload', 0, 0, 0],
+    ['beforeunload', 0, 0, 0],
+    ['resize', 0, 0, 0],
+    ['error', 0, 0, 0],
+    // document 的特殊事件。
+    ['domready', 0, 0, 0]
   ];
 
   //--------------------------------------------------[List]
@@ -114,7 +114,7 @@ col.type { width: 200px; }
       eventsObject[item[0]] = mask;
     });
 
-//  console.log(JSON.stringify(eventsObject));
+//    console.log(JSON.stringify(eventsObject));
 
   })();
 

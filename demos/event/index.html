@@ -91,8 +91,8 @@ dd em.false { color: tomato; }
     <div id="form_logger" class="logger"></div>
     <div class="demo">
       <form id="form_events" method="get" action="." style="padding: 5px; border: 1px solid silver; background: whitesmoke;">
-        <input id="labeled" type="checkbox" value="checkbox_1" checked><label for="labeled">labeled</label><br>
-        <input id="default_prevented" type="checkbox" value="checkbox_2"><label for="default_prevented">change 事件的默认行为被阻止（change 事件没有默认行为）</label><br>
+        <input id="labeled" type="checkbox" value="checkbox_1" checked> <label for="labeled">labeled</label><br>
+        <input id="default_prevented" type="checkbox" value="checkbox_2"> <label for="default_prevented">&lt;- change 事件的默认行为被阻止（change 事件没有默认行为）</label><br>
         <input type="checkbox" value="checkbox_3">
         <input type="checkbox" value="checkbox_4">
         <input type="checkbox" value="checkbox_5">
@@ -109,46 +109,49 @@ dd em.false { color: tomato; }
           <option value="select_2">select_2</option>
           <option value="select_3">select_3</option>
         </select>
+        <button type="submit">提交表单 (测试自动完成功能)</button>
         <br>
-        <input id="stop" type="text" value="本元素的 focusin/focusout 事件传播被阻止" readonly class="input" style="width: 250px; border: 1px solid silver;"><br>
-        <input type="password" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
-        <textarea class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;"></textarea>
-        <textarea id="textarea" class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;">textarea</textarea>
+        <input id="stop" name="account" type="text" value="" class="input" style="width: 250px; border: 1px solid silver;"> <label for="stop">&lt;- focusin/focusout 事件的传播被阻止</label><br>
+        <input name="email" type="text" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
+        <input name="password" type="password" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
+        <textarea name="info" class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;"></textarea>
+        <textarea id="textarea" name="info" class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;">textarea</textarea>
       </form>
       <blockquote>
-        <button id="set_value">使用脚本给 TEXTAREA 赋值 (不应该触发 input 事件)</button>
+        <button id="set_value">一秒钟后使用脚本给 TEXTAREA 赋值 (不应该触发 input 事件)</button>
         <br>
-        <p><label><input id="disable_focus_logging" type="checkbox" style="vertical-align: text-bottom;"> 输出 focusin/focusout 的日志信息</label></p>
+        <label><input id="enable_focus_logging" type="checkbox" style="vertical-align: text-bottom;"> 输出 focusin/focusout 的日志信息</label><br>
+        <label><input id="enable_input_logging" type="checkbox" checked style="vertical-align: text-bottom;"> 输出 input 的日志信息</label><br>
+        <label><input id="enable_change_logging" type="checkbox" checked style="vertical-align: text-bottom;"> 输出 change 的日志信息</label>
       </blockquote>
     </div>
   </fieldset>
   <script>
-  //  document.on('beforeactivate', function(e) {
-  //    console.log('1', e.target.nodeName);
-  //  });
-  //  document.on('beforedeactivate', function(e) {
-  //    console.log('0', e.target.nodeName);
-  //  });
-
   (function() {
     var $logger = $('#form_logger');
     var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
-    var $formEvents = $('#form_events');
-    $formEvents.on('focusin, focusout', function(e) {
-      if ($disableFocusLogging.checked) {
-        logger.log('<em>' + e.type + '</em>');
-      }
-      this.morph({backgroundColor: e.type === 'focusin' ? 'gold' : 'whitesmoke'});
-    });
-    $formEvents.on('change', function(e) {
-      setTimeout(function() {  // 防止 IE6 闪烁。
-        logger.log('<strong>' + e.type + '</strong>' + e.target.nodeName + ' value=<var>' + e.target.value + '</var> checked=<var>' + e.target.checked + '</var>');
-      }, 0);
-    });
-    $formEvents.on('input', function(e) {
-      logger.log('<em>' + e.type + '</em>' + e.target.type + ' value=<var>' + e.target.value + '</var>');
-    });
+    $('#form_events')
+        .on('focusin, focusout', function(e) {
+          var $target = e.target;
+          if (/text|password|textarea/.test($target.type)) {
+            $target.morph({backgroundColor: e.type === 'focusin' ? 'honeydew' : 'white'});
+          }
+          if ($enableFocusLogging.checked) {
+            logger.log('<em>' + e.type + '</em>');
+          }
+        })
+        .on('input', function(e) {
+          if ($enableInputLogging.checked) {
+            logger.log('<em>' + e.type + '</em>' + e.target.type + ' value=<var>' + e.target.value + '</var>');
+          }
+        })
+        .on('change', function(e) {
+          if ($enableChangeLogging.checked) {
+            logger.log('<strong>' + e.type + '</strong>' + e.target.type + ' value=<var>' + e.target.value + '</var>' + ('radio/checkbox'.contains(e.target.type) ? ' checked=<var>' + e.target.checked + '</var>' : ''));
+          }
+        });
+
     $('#default_prevented').on('change', function(e) {
       e.preventDefault();
     });
@@ -158,11 +161,19 @@ dd em.false { color: tomato; }
 
     var $textarea = $('#textarea');
     $('#set_value').on('click', function(e) {
-      logger.log('$textarea.value = <var>' + ($textarea.value = '使用脚本赋的新值') + '</var>');
+      setTimeout(function() {
+        logger.log('$textarea.value=<var>' + ($textarea.value = '使用脚本赋的新值') + '</var>');
+      }, 1000);
     });
 
-    var $disableFocusLogging = $('#disable_focus_logging').on('change', function(e) {
-      logger.log('输出 focusin/focusout 的日志信息 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+    var $enableFocusLogging = $('#enable_focus_logging').on('change', function(e) {
+      logger.log('输出 focusin/focusout 的日志信息: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+    });
+    var $enableInputLogging = $('#enable_input_logging').on('change', function(e) {
+      logger.log('输出 input 的日志信息: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+    });
+    var $enableChangeLogging = $('#enable_change_logging').on('change', function(e) {
+      logger.log('输出 change 的日志信息: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
     });
 
   })();
@@ -295,7 +306,7 @@ dd em.false { color: tomato; }
         });
 
     var $preventDefault = $('#prevent_default').on('change', function(e) {
-      logger.log('阻止测试链接的默认行为 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+      logger.log('阻止测试链接的默认行为: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
     });
 
   })();
@@ -333,7 +344,7 @@ dd em.false { color: tomato; }
     });
 
     var $stopPropagation = $('#stop_propagation').on('change', function(e) {
-      logger.log('取消 P 元素的事件传播 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+      logger.log('取消 P 元素的事件传播: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
     });
 
   })();
@@ -371,7 +382,7 @@ dd em.false { color: tomato; }
         });
 
     var $stopImmediatePropagation = $('#stop_immediate_propagation').on('change', function(e) {
-      logger.log('在第一个事件监听器中立即阻止事件的传播 = <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+      logger.log('在第一个事件监听器中立即阻止事件的传播: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
     });
   })();
   </script>

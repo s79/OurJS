@@ -60,9 +60,7 @@
    * @name Element
    * @namespace
    */
-  if (!window.Element) {
-    window.Element = {prototype: {}};
-  }
+  var Element = window.Element || (window.Element = {prototype: {}});
 
 //--------------------------------------------------[HTMLFormElement]
   /**
@@ -70,9 +68,7 @@
    * @name HTMLFormElement
    * @namespace
    */
-  if (!window.HTMLFormElement) {
-    window.HTMLFormElement = {prototype: {}};
-  }
+  var HTMLFormElement = window.HTMLFormElement || (window.HTMLFormElement = {prototype: {}});
 
 //--------------------------------------------------[$ <内部方法>]
   /**
@@ -1071,8 +1067,10 @@
    *     本事件模型提供的对象，包含与此事件有关的信息，是 Event 的实例。
    *     大多数内置事件的 event 都是对 e 的封装（不直接扩展 e 是因为 e 的一些属性是只读的），可以通过访问 event.originalEvent 得到 e。
    *     自定义事件和少数内置事件产生的 event 不是对 e 的封装，也有一些特殊类型的事件并不产生 event。
+   *   派发 (dispatch)：
+   *     使用指定的类型和参数创建事件对象，并使其在 DOM 树中传播。
    *   触发器 (trigger)：
-   *     作为原生事件的监听器存在的一个或多个函数，在确定一个事件发生时，触发器会调用 fire 方法创建、派发并在相应的节点上分发 event。
+   *     作为原生事件的监听器存在的一个或多个函数，在确定一个事件发生时，触发器会调用 fire 方法派发并在相应的节点上分发 event。
    *   分发器 (distributor)：
    *     作为原生事件的监听器存在的一个函数，在确定一个事件发生时，分发器会在其所属的节点上创建并分发 event。
    *   监听器 (listener)：
@@ -1080,19 +1078,19 @@
    *     在 listener 中可以调用 event 的方法来阻止其继续传播，或取消其默认行为。
    *     如果一个 listener 返回了 false，则该 event 将停止传播并取消默认行为。
    *   事件名称 (name)：
-   *     由 type、可选的 label 和 selector 组成的、描述特定类型的事件监听行为的字符串。
+   *     由 type、可选的 label 和 selector 组成的、描述特定的事件的字符串。
    *   事件类型 (type)：
    *     事件的类型，分为“内置”和“自定义”两种。
    *   事件标签 (labal)：
-   *     用于辅助描述特定类型的事件监听行为。
-   *     当使用 on 方法为同一个类型的事件添加多个 listener 时，可以指定一个 label，以便使用 off 方法时能够明确的删除该 listener 而不会误删其它的 listener。
+   *     用于标记事件的不同应用场景。
+   *     当使用 on 方法为同一个类型的事件添加多个 listener 时，可以通过指定不同的 label 来将标记这类事件各自的应用场景，以便使用 off 方法时能够明确的删除该场景下的 listener 而不会误删其它的 listener。
    *   代理元素选择符 (selector)：
    *     通过在 name 中加入 :relay(selector) 来指定为符合条件的后代元素代理事件监听。
    *     指定了代理元素选择符的 listener 即代理 listener。
    *
-   * 本事件模型提供了两种模式来创建、派发与分发事件对象：
+   * 本事件模型提供了两种模式来派发与分发事件对象：
    *   “独立”模式
-   *     将 trigger 作为原生事件的监听器添加到某个节点，当确定事件发生时，trigger 会调用 fire 方法创建、派发并在相应的节点上分发 event。
+   *     将 trigger 作为原生事件的监听器添加到某个节点，当确定事件发生时，trigger 会调用 fire 方法派发并在相应的节点上分发 event。
    *     这种情况下，event 将使用本模型提供的传播机制在 DOM 树中传播（不依赖任何 e），并且 event 会自动分发给相应的 listener。
    *     在本次事件的生命周期内，只会有一个 event 被创建。
    *     不使用原生事件模型是因为 IE6 IE7 IE8 通过 document.createEventObject 方法创建的 e 无法执行默认行为，也不能通过 e 来传递自定义参数属性。另外 window 对象也没有提供 fireEvent 方法。
@@ -1104,8 +1102,8 @@
    *     这样处理是因为 IE6 IE7 IE8 中，原生事件模型分发给每个监听器的 e 都是不同的，因此无法实现封装一次多处调用。
    *     其他浏览器虽然没有上述问题，但为了保持一致并简化代码逻辑，也不做处理。事实上同一事件被不同节点监听的情况相对来说并不常见。
    *   两种模式的流程：
-   *     “独立”模式 = trigger 调用 fire 方法创建和派发 event -> event 传播到相应的节点后自动调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
-   *     “协同”模式 = 浏览器创建和派发 e -> e 传播到相应的节点 -> 分发器 distributor 根据 e 创建 event 后调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
+   *     “独立”模式 = trigger 调用 fire 方法派发 event -> event 传播到相应的节点后自动调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
+   *     “协同”模式 = 浏览器派发 e -> e 传播到相应的节点 -> 分发器 distributor 根据 e 创建 event 后调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
    *   两种模式的应用场景：
    *     1. 自定义事件使用“独立”模式来处理。
    *     2. 对于没有明显兼容性问题（只考虑 e 的冒泡阶段）的内置事件，使用“协同”模式来处理。
@@ -1142,7 +1140,7 @@
    *   http://www.w3.org/TR/DOM-Level-3-Events/#events-module
    */
 
-  // 事件监听器对象池。
+  // 监听器对象池。
   /*
    * <Object eventPool> {
    *   <string uid>: <Object item> {
@@ -1165,12 +1163,14 @@
    * }
    */
   var eventPool = {};
-  window.p = eventPool;  // TODO: For test.
+  window.p = function($element) {  // TODO: For test.
+    return eventPool[$element.uid];
+  };
 
   // 供内部调用的标记值。
   var INTERNAL_IDENTIFIER_EVENT = {};
 
-  var EVENT_CODES = {'mousedown': 1, 'mouseup': 1, 'click': 1, 'dblclick': 1, 'contextmenu': 1, 'mousemove': 1, 'mouseover': 1, 'mouseout': 1, 'mousewheel': 1, 'mouseenter': 1, 'mouseleave': 1, 'mousedragstart': 1, 'mousedrag': 1, 'mousedragend': 1, 'keydown': 2, 'keyup': 2, 'keypress': 2, 'focus': 4, 'blur': 4, 'focusin': 0, 'focusout': 0, 'select': 4, 'input': 0, 'change': 0, 'submit': 4, 'reset': 4, 'scroll': 4, 'resize': 4, 'load': 4, 'unload': 4, 'error': 4, 'domready': 4, 'beforeunload': 4};
+  var EVENT_CODES = {'mousedown': 5, 'mouseup': 5, 'click': 5, 'dblclick': 5, 'contextmenu': 5, 'mousemove': 5, 'mouseover': 5, 'mouseout': 5, 'mousewheel': 5, 'mouseenter': 5, 'mouseleave': 5, 'mousedragstart': 5, 'mousedrag': 5, 'mousedragend': 5, 'keydown': 6, 'keyup': 6, 'keypress': 6, 'focus': 0, 'blur': 0, 'focusin': 4, 'focusout': 4, 'input': 4, 'change': 4, 'select': 0, 'submit': 0, 'reset': 0, 'scroll': 0, 'load': 0, 'unload': 0, 'beforeunload': 0, 'resize': 0, 'error': 0, 'domready': 0};
   var returnTrue = function() {
     return true;
   };
@@ -1191,35 +1191,29 @@
     if (!e) {
       e = window.event;
     }
+    // 事件代码包含三个二进制位，分别是 鼠标事件 键盘事件 可以冒泡。默认为 100 (4)，即可以冒泡。
+    var code = EVENT_CODES[type] || 4;
     // 保存原生事件对象。
     this.originalEvent = e;
     // 事件类型，这时候的 type 就是调用 on 时使用的事件类型。
     this.type = type;
-    // 事件代码，用于分组处理事件及确定是否可冒泡。
-    var code = EVENT_CODES[type] || 0;
-    this.isMouseEvent = !!(code & 1);
-    this.isKeyboardEvent = !!(code & 2);
-    this.bubbles = !(code & 4);
+    // 是否可冒泡。
+    this.bubbles = !!(code & 4);
     // 目标元素。
     var target = 'target' in e ? e.target : e.srcElement || document;
     if (target.nodeType === 3) {
       target = target.parentNode;
     }
     this.target = $(target);
-    // 相关元素。
-    var relatedTarget = 'relatedTarget' in e ? e.relatedTarget : ('fromElement' in e ? (e.fromElement === target ? e.toElement : e.fromElement) : null);
-    if (relatedTarget) {
-      this.relatedTarget = $(relatedTarget);
-    }
     // 发生时间。
     this.timeStamp = e.timeStamp || Date.now();
     // 鼠标和键盘事件，由 fire 方法产生的事件对象可能没有以下信息。
-    if (this.isMouseEvent || this.isKeyboardEvent) {
+    if (code & 3) {
       this.ctrlKey = e.ctrlKey;
       this.altKey = e.altKey;
       this.shiftKey = e.shiftKey;
       this.metaKey = e.metaKey;
-      if (this.isMouseEvent) {
+      if (code & 1) {
         // 坐标。
         this.clientX = e.clientX || 0;
         this.clientY = e.clientY || 0;
@@ -1247,6 +1241,8 @@
           this.rightButton = !!(button & 2);
           this.which = this.leftButton ? 1 : this.middleButton ? 2 : this.rightButton ? 3 : 0;
         }
+        // 相关元素。
+        this.relatedTarget = $('relatedTarget' in e ? e.relatedTarget : ('fromElement' in e ? (e.fromElement === target ? e.toElement : e.fromElement) : null));
       } else {
         this.which = e.which || e.charCode || e.keyCode || 0;
       }
@@ -1268,18 +1264,6 @@
    */
 
   /**
-   * 是否为鼠标事件。
-   * @name Event#isMouseEvent
-   * @type boolean
-   */
-
-  /**
-   * 是否为键盘事件。
-   * @name Event#isKeyboardEvent
-   * @type boolean
-   */
-
-  /**
    * 是否可以冒泡，不冒泡的事件不能使用代理事件监听。
    * @name Event#bubbles
    * @type boolean
@@ -1288,12 +1272,6 @@
   /**
    * 触发事件的对象。
    * @name Event#target
-   * @type Element
-   */
-
-  /**
-   * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
-   * @name Event#relatedTarget
    * @type Element
    */
 
@@ -1394,6 +1372,12 @@
    */
 
   /**
+   * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
+   * @name Event#relatedTarget
+   * @type Element
+   */
+
+  /**
    * 事件发生时鼠标滚轮是否正在向上滚动，仅在 mousewheel 类型的事件对象上有效。
    * @name Event#wheelUp
    * @type boolean
@@ -1474,20 +1458,20 @@
 
   });
 
-  // 解析事件名称。
+  // 解析事件名称，取出相关的属性。
   var eventNamePattern = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
   var parseEventName = function(eventName) {
-    var result = {};
+    var attributes = {};
     var match;
     if (eventName && (match = eventName.match(eventNamePattern))) {
-      result.type = match[1];
-      result.label = match[2] || '';
-      result.selector = match[3] || '';
+      attributes.type = match[1];
+      attributes.label = match[2] || '';
+      attributes.selector = match[3] || '';
     }
-    if (result.type + result.label + (result.selector ? ':relay(' + result.selector + ')' : '') !== eventName) {
-      throw new Error('Invalid event name "' + eventName + '"');
+    if (attributes.type + attributes.label + (attributes.selector ? ':relay(' + attributes.selector + ')' : '') !== eventName) {
+      throw new Error('Invalid listener name "' + eventName + '"');
     }
-    return result;
+    return attributes;
   };
 
   // 添加和删除原生事件监听器。
@@ -1615,7 +1599,7 @@
       removeEventListener(window, 'blur', mouseDragEndTrigger);
     };
     return {
-      setup: function($element) {
+      add: function($element) {
         // 向这三个关联事件中添加第一个监听器时，即创建 mousedragstart 触发器，该触发器会动态添加/删除另外两个事件的触发器。
         addEventListener($element, 'mousedown', mouseDragStartTrigger);
         // 创建另外两个事件的处理器组。
@@ -1628,7 +1612,7 @@
           }
         });
       },
-      teardown: function($element) {
+      remove: function($element) {
         // 在这三个关联事件中删除最后一个监听器后，才删除他们的触发器。
         var item = eventPool[$element.uid];
         var handlerCount = 0;
@@ -1642,6 +1626,7 @@
             delete item[type];
           });
         }
+        return false;
       }
     };
   }();
@@ -1654,179 +1639,233 @@
         e.target.fire(type);
       };
       triggers[type] = {
-        setup: function() {
-          // 在当前文档内第一次添加本类型的事件监听器时，启用模拟。
+        add: function() {
+          // 在当前文档内第一次添加本类型事件的监听器时，启用模拟。
           if (++count === 1) {
             addEventListener(document, originalType, trigger, true);
           }
         },
-        teardown: function() {
-          // 在当前文档内添加的本类型事件监听器全部被删除时，停用模拟。
+        remove: function() {
+          // 在当前文档内添加的本类型事件的监听器全部被删除时，停用模拟。
           if (--count === 0) {
-            addEventListener(document, originalType, trigger, true);
+            removeEventListener(document, originalType, trigger, true);
           }
         }
       };
     });
   }
 
-  // 使 IE6 IE7 IE8 支持 input 事件，并修复 IE9 的 input 事件的 bug。
-  // IE6 IE7 IE8 可以使用 propertychange 事件监听用户输入，其他浏览器可以使用 input 事件监听用户输入（需使用 addEventListener 添加事件监听器）。
-  // 但是 IE9 的可输入元素在删除文本内容时（按键 Backspace 和 Delete、右键菜单删除/剪切、拖拽内容出去）不触发 input 事件和 propertychange 事件。
-  // 通过 keydown，cut 和 blur 事件虽然能解决按键删除和剪切、菜单剪切、拖拽内容出去的问题，但不能解决菜单删除的问题，因此需要监听 document 的 selectionchange 事件。
-  // TODO: IE6 IE7 IE8 在使用脚本更改可输入元素的值时，也会触发 input 事件。
-  // TODO: Safari 5.1.7 的表单自动填充不触发 change 和 input 事件。
-  // TODO: 不使用 propertychange 事件修复，在监听的节点添加 beforeactive 监听器并阻止事件冒泡。
-  if (navigator.isIElt10) {
-    triggers.input = function() {
-      var count = 0;
-      var $activeInputElement;
-      // 判断一个元素是否为可输入元素。
-      var isInputElement = function(element) {
-        var nodeName = element.nodeName;
-        var controlType = element.type;
-        return nodeName === 'TEXTAREA' || nodeName === 'INPUT' && (controlType === 'text' || controlType === 'password');
-      };
-      // 添加通用触发器。
-      // 此时 IE9 的可输入元素在删除内容时仍不会触发 input 事件，因此还需要一个辅助触发器来辅助触发事件。
-      var addGeneralTrigger = function(element) {
-        var $element = $(element);
-        if (navigator.isIE9) {
-          addEventListener($element, 'input', function() {
-            console.log('input: input');
-            $element.fire('input');
-          });
-        } else {
-          addEventListener($element, 'propertychange', function(e) {
-            if (e.propertyName === 'value') {
-              console.log('input: propertychange');
-              $element.fire('input');
-            }
-          });
-        }
-      };
-      // 辅助触发器。
-      var assistantTrigger = function($element) {
-        if ($element.currentValue !== $element.value) {
-          $element.currentValue = $element.value;
-          console.log('input: selectionchange');
-          $element.fire('input');
-        }
-      };
-      // 在未添加触发器的可输入元素被激活或被拖入内容时，添加通用触发器。
-      var fixAndSetActiveInputElement = function(e) {
-        var element = e.srcElement;
-        if (isInputElement(element)) {
-          if (!element.inputEventFixed) {
-            addGeneralTrigger(element);
-            console.warn('fixAndSetActiveInputElement: ' + e.type);
-            element.inputEventFixed = true;
-          }
-          // 标记当前活动的可输入元素，供 IE9 需要的辅助触发器使用。
-          if (navigator.isIE9) {
-            element.currentValue = element.value;
-            $activeInputElement = element;
-          }
-        }
-      };
-      // 清除当前活动的可输入元素。
-      var clearActiveInputElement = function(e) {
-        var element = e.srcElement;
-        // IE9 拖拽内容到其他可输入元素的时候，源元素不会触发 input 事件（或 propertychange 事件）。
-        // 并且由于 $activeInputElement 已被改为目标元素，runAssistantTrigger 并不能检查到源元素。这里延时执行运行辅助触发器，针对此问题再次检查。
-        if (element.inputEventFixed) {
-          setTimeout(function() {
-            assistantTrigger(element);
-          }, 0);
-        }
-        if (element === $activeInputElement) {
-          $activeInputElement = null;
-        }
-      };
-      // 文档的选区发生变化时触发，用于辅助修复 IE9 的可输入元素在删除内容时不会触发 input 事件的问题。
-      var runAssistantTrigger = function() {
-        if ($activeInputElement) {
-          assistantTrigger($activeInputElement);
-        }
-      };
-      // 发布接口。
-      return {
-        setup: function() {
-          // 在当前文档内第一次添加 input 事件监听器时，对全文档内所有可输入元素进行事件模拟及修复。
-          if (++count === 1) {
-            addEventListener(html, 'drop', fixAndSetActiveInputElement);
-            addEventListener(document, 'beforeactivate', fixAndSetActiveInputElement);
-            if (navigator.isIE9) {
-              addEventListener(document, 'beforedeactivate', clearActiveInputElement);
-              addEventListener(document, 'selectionchange', runAssistantTrigger);
-            }
-          }
-        },
-        teardown: function() {
-          // 在当前文档内添加的 input 事件监听器全部被删除时，停用事件模拟及修复。已添加过触发器的可输入元素不作处理。
-          if (--count === 0) {
-            removeEventListener(html, 'drop', fixAndSetActiveInputElement);
-            removeEventListener(document, 'beforeactivate', fixAndSetActiveInputElement);
-            if (navigator.isIE9) {
-              removeEventListener(document, 'beforedeactivate', clearActiveInputElement);
-              removeEventListener(document, 'selectionchange', runAssistantTrigger);
-            }
-          }
-        }
-      };
-    }();
-  }
+  // 修复 IE6 IE7 IE8 IE9 的 input 和 change 事件，以及 Firefox 的 change 事件。
+  if (navigator.isIElt10 || navigator.isFirefox) {
+    // 判断一个元素是否为可输入元素。
+    var isInputElement = function(element) {
+      var nodeName = element.nodeName;
+      var controlType = element.type;
+      return nodeName === 'TEXTAREA' || nodeName === 'INPUT' && (controlType === 'text' || controlType === 'password');
+    };
 
-  // 修复 IE6 IE7 IE8 的 change 事件。
-  // IE6 IE7 IE8 的 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发，并且 change 事件不会冒泡。
-  // TODO: 一些浏览器拖拽内容出去时有不触发事件的问题，IE6 IE7 IE8 IE9 和 Safari 5.1.7 的表单自动填充不触发 change 事件。
-  if (navigator.isIElt9) {
-    triggers.change = function() {
-      var count = 0;
-      var formControlNodeNamePattern = /^(?:INPUT|TEXTAREA|SELECT)$/;
-      var fixFormControls = function(e) {
-        var element = e.srcElement;
-        if (!element.changeEventFixed && formControlNodeNamePattern.test(element.nodeName)) {
-          var $element = $(element);
-          if ($element.type === 'checkbox' || $element.type === 'radio') {
-            addEventListener($element, 'propertychange', function(e) {
-              if (e.propertyName === 'checked') {
-                e.srcElement.checkedStateChanged = true;
-              }
-            });
-            addEventListener($element, 'click', function(e) {
-              var $element = e.srcElement;
-              if ($element.checkedStateChanged) {
-                $element.checkedStateChanged = false;
+    if (navigator.isIElt10) {
+      // 使 IE6 IE7 IE8 支持 input 事件，并修复 IE9 的 input 事件的 bug。
+      // IE6 IE7 IE8 不支持此事件，其他浏览器支持（需使用 addEventListener 添加监听器）。
+      // 但 IE9 的可输入元素在删除文本内容时（按键 Backspace 和 Delete、菜单删除/剪切、拖拽内容出去）不触发 input 事件。
+      // 为使代码更简洁，此处对上述浏览器使用同一套解决方案来模拟 input 事件，而不为 IE9 单独做修复。
+      // 不能使用 propertychange 事件模拟，因为控件值有可能是脚本修改的，而 input 事件仅应在用户进行修改动作时触发。
+      // 在本模拟方式依赖的事件中，如果阻止 beforeactivate、beforedeactivate 和 dragend 事件的传播，将导致事件模拟失败。
+      // 修复后，唯一与标准 input 事件不同的行为是：当用户的焦点在一个可输入元素中时，该元素的值被脚本更改，之后用户的焦点没有离开本元素，并更改了光标的位置，此时会不正确的触发 input 事件。
+      // 如果上述问题出现了，避免的方式是在使用脚本赋值前或赋值后调用控件的 blur 方法。
+      // 另外，当使用表单自动完成功能时，IE6 IE7 IE8 IE9 Safari 5.1.7 (自动模式) Opera 12.02 (非第一次) 不触发 input 事件。
+      // 考虑到大多数 input 事件是应用到 password 和 textarea 类型的控件，上述自动完成的问题影响并不大，目前未处理。
+      // Opera 12.02 拖拽出去后，源控件不触发 input 事件，目标控件如果是 textarea 也不会触发 input 事件，目前未处理。
+      triggers.input = function() {
+        var count = 0;
+        var $active;
+        // 触发器。
+        var checkValue = function($element) {
+          if ($element._valueBeforeInput_ !== $element.value) {
+            $element._valueBeforeInput_ = $element.value;
+            $element.fire('input');
+          }
+        };
+        // 获取活动的可输入元素。
+        var setActiveInputElement = function(e) {
+          var element = e.srcElement;
+          if (isInputElement(element)) {
+            var $element = $(element);
+            // 如果是拖拽内容进来，本监听器会被连续调用两次，触发 drop 事件时值仍是原始值，赋新值之后才触发 beforeactivate 事件。
+            if (e.type === 'drop') {
+              $element._dropForInput_ = true;
+            }
+            if (e.type === 'beforeactivate' && $element._dropForInput_) {
+              $element._dropForInput_ = false;
+              checkValue($element);
+            } else {
+              $element._valueBeforeInput_ = $element.value;
+            }
+            $active = $element;
+          }
+        };
+        // 清除活动的可输入元素。
+        var clearActiveInputElement = function(e) {
+          if (e.srcElement === $active) {
+            $active = null;
+          }
+        };
+        // 按键触发器，针对按下按键的情况进行检查。
+        var onKeyDown = function(e) {
+          if (e.srcElement === $active) {
+            var $element = $active;
+            setTimeout(function() {
+              checkValue($element);
+            }, 0);
+          }
+        };
+        // 拖拽触发器，针对拖拽内容出去的情况进行检查。
+        var onDragEnd = function(e) {
+          var element = e.srcElement;
+          if ('_valueBeforeInput_' in element) {
+            setTimeout(function() {
+              checkValue(element);
+            }, 0);
+          }
+        };
+        // 选区改变触发器，针对快捷键和菜单修改内容的情况进行检查。
+        var onSelectionChange = function() {
+          if ($active) {
+            checkValue($active);
+          }
+        };
+        // 发布接口。
+        return {
+          add: function() {
+            // 在当前文档内第一次添加 input 事件的监听器时，对全文档内所有可输入元素进行事件模拟及修复。
+            if (++count === 1) {
+              addEventListener(html, 'drop', setActiveInputElement);
+              addEventListener(document, 'beforeactivate', setActiveInputElement);
+              addEventListener(document, 'beforedeactivate', clearActiveInputElement);
+              addEventListener(document, 'selectionchange', onSelectionChange);
+              addEventListener(document, 'keydown', onKeyDown);
+              addEventListener(html, 'dragend', onDragEnd);
+            }
+          },
+          remove: function() {
+            // 在当前文档内添加的 input 事件的监听器全部被删除时，停用事件模拟及修复。已添加过触发器的可输入元素不作处理。
+            if (--count === 0) {
+              removeEventListener(html, 'drop', setActiveInputElement);
+              removeEventListener(document, 'beforeactivate', setActiveInputElement);
+              removeEventListener(document, 'beforedeactivate', clearActiveInputElement);
+              removeEventListener(document, 'selectionchange', onSelectionChange);
+              removeEventListener(document, 'keydown', onKeyDown);
+              removeEventListener(html, 'dragend', onDragEnd);
+            }
+          }
+        };
+      }();
+
+      // 修复 IE6 IE7 IE8 IE9 的 change 事件。
+      // IE6 IE7 IE8 的 change 事件不会冒泡，并且 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
+      // IE6 IE7 IE8 IE9 的可输入元素使用表单自动完成和拖拽内容出去后不会触发 change 事件。
+      // 修复后，唯一与标准 change 事件不同的行为是：当用户的焦点在一个可输入元素中时，该元素的值被脚本更改，之后用户未做任何修改，焦点即离开本元素，此时会不正确的触发 change 事件。
+      // 如果上述问题出现了，避免的方式是在使用脚本赋值前或赋值后调用控件的 blur 方法。
+      // 另外，当使用表单自动完成功能时，Safari 5.1.7 (自动模式) 不触发 change 事件，目前未处理。
+      triggers.change = function() {
+        // 修复 IE6 IE7 IE8 的 radio、checkbox 类型的控件上的 change 事件在失去焦点后才触发以及 select-one、select-multiple 类型的控件上的 change 事件不冒泡的问题。
+        // 对于 IE9 的这些类型的控件，与 IE6 IE7 IE8 的 select-one、select-multiple 类型的控件的处理方式保持一致。
+        // 虽然 IE9 的 change 事件可以冒泡，但为简化代码，不再对其做分支处理。
+        var fixChangeEvent = function(e) {
+          var element = e.srcElement;
+          var nodeName = element.nodeName;
+          var type = element.type;
+          if (!element._changeEventFixed_ && (nodeName === 'INPUT' && (type === 'radio' || type === 'checkbox') || nodeName === 'SELECT')) {
+            var $element = $(element);
+            if (navigator.isIElt9 && nodeName === 'INPUT') {
+              addEventListener($element, 'propertychange', function(e) {
+                if (e.propertyName === 'checked') {
+                  e.srcElement._checkedStateChanged_ = true;
+                }
+              });
+              addEventListener($element, 'click', function(e) {
+                var $element = e.srcElement;
+                if ($element._checkedStateChanged_) {
+                  $element._checkedStateChanged_ = false;
+                  $element.fire('change');
+                }
+              });
+            } else {
+              addEventListener($element, 'change', function(e) {
+                e.srcElement.fire('change');
+              });
+            }
+            $element._changeEventFixed_ = true;
+          }
+        };
+        // 修复 IE6 IE7 IE8 IE9 的 text、password、textarea 类型的控件使用表单自动完成和拖拽内容出去后不会触发 change 事件的问题以及 IE6 IE7 IE8 这些类型的控件上的 change 事件不冒泡的问题。
+        // 虽然这些情况下 IE9 的 change 事件可以冒泡，但为简化代码，不再对其做分支处理。
+        var count = 0;
+        var saveOldValue = function(e) {
+          var element = e.srcElement;
+          if (isInputElement(element)) {
+            // 如果是拖拽内容进来，本监听器会被连续调用两次，触发 drop 事件时值仍是原始值，赋新值之后才触发 beforeactivate 事件。
+            if (element._dropForChange_) {
+              element._dropForChange_ = false;
+            } else {
+              element._valueBeforeChange_ = element.value;
+            }
+            if (e.type === 'drop') {
+              element._dropForChange_ = true;
+            }
+          }
+        };
+        var checkNewValue = function(e) {
+          var element = e.srcElement;
+          if (isInputElement(element)) {
+            var $element = $(element);
+            setTimeout(function() {
+              if ($element._valueBeforeChange_ !== $element.value) {
+                $element._valueBeforeChange_ = $element.value;
                 $element.fire('change');
               }
-            });
-          } else {
-            addEventListener($element, 'change', function(e) {
-              e.srcElement.fire('change');
-            });
+            }, 0);
           }
-          $element.changeEventFixed = true;
-        }
-      };
-      return {
-        setup: function() {
-          // 在当前文档内第一次添加 change 事件监听器时，对全文档内所有表单元素进行修复。
-          if (++count === 1) {
-            addEventListener(document, 'beforeactivate', fixFormControls);
+        };
+        return {
+          add: function($element) {
+            addEventListener($element, 'beforeactivate', fixChangeEvent);
+            // 在当前文档内第一次添加 change 事件的监听器时，对全文档内所有可输入元素进行修复（这种修复不会在目标元素上添加新监听器）。
+            if (++count === 1) {
+              addEventListener(html, 'drop', saveOldValue);
+              addEventListener(document, 'beforeactivate', saveOldValue);
+              addEventListener(document, 'beforedeactivate', checkNewValue);
+            }
+          },
+          remove: function($element) {
+            removeEventListener($element, 'beforeactivate', fixChangeEvent);
+            // 在当前文档内添加的 change 事件的监听器全部被删除时，停用可输入元素的修复。
+            if (--count === 0) {
+              removeEventListener(html, 'drop', saveOldValue);
+              removeEventListener(document, 'beforeactivate', saveOldValue);
+              removeEventListener(document, 'beforedeactivate', checkNewValue);
+            }
           }
-        },
-        teardown: function() {
-          // 在当前文档内添加的 change 事件监听器全部被删除时，停用修复。已添加过触发器的表单元素不作处理。
-          if (--count === 0) {
-            removeEventListener(document, 'beforeactivate', fixFormControls);
-          }
-        }
-      };
-    }();
-  }
+        };
+      }();
 
-  window.t = triggers;  // TODO: For test.
+    }
+
+    // 修复 Firefox 拖拽内容到控件内不触发 change 事件的问题。
+    // 修复依赖的事件触发并不频繁，因此直接修复，不使用触发器。
+    if (navigator.isFirefox) {
+      // Firefox 的拖动方式为复制一份而不是移动，并且如果不是控件内拖拽，焦点不会移动到 drop 的控件内，因此可以直接触发 change 事件。
+      addEventListener(document, 'drop', function(e) {
+        var $element = e.target;
+        if (isInputElement($element) && $element !== document.activeElement) {
+          setTimeout(function() {
+            $element.fire('change');
+          }, 0);
+        }
+      });
+    }
+
+  }
 
   // 删除目标元素上的所有事件监听器。
   var removeAllListeners = function(element) {
@@ -1850,15 +1889,15 @@
    * @name Element.prototype.on
    * @function
    * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var>:relay(<var>selector</var>)</dfn>，详细信息请参考下表。
-   *   使用逗号分割多个事件名称，即可同时为多个事件注册同一个监听器。
+   *   使用逗号分割多个事件名称，即可使用一个监听器监听该元素上的多个事件。
    *   对于为不保证所有浏览器均可以冒泡的事件类型指定了代理监听的情况，会给出警告信息。
    *   <table>
    *     <tr><th>组成部分</th><th>是否必选</th><th>详细描述</th></tr>
    *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型。</td></tr>
-   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>给事件类型加上标签，以便调用 off 方法时精确匹配要删除的事件监听器。<br>不打算删除的事件监听器没有必要指定标签。</td></tr>
+   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用的场景，以便调用 off 方法时精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
    *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
    *   </table>
-   * @param {Function} listener 事件监听器。
+   * @param {Function} listener 监听器。
    *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。
    *   该函数被调用时 this 的值为监听到本次事件的元素，即：
    *   <ul>
@@ -1869,13 +1908,13 @@
    * @returns {Element} 本元素。
    * @example
    *   $('#test').on('click', onClick);
-   *   // 为 id 为 test 的元素添加 click 事件监听器。
+   *   // 为 id 为 test 的元素添加 click 事件的监听器。
    * @example
    *   $('#test').on('click.temp', onClick);
-   *   // 为 id 为 test 的元素添加 click 事件监听器，并为其指定一个标签 temp。
+   *   // 为 id 为 test 的元素添加 click 事件的监听器，并为其指定一个标签 temp。
    * @example
    *   $('#test').on('click:relay(a)', onClick);
-   *   // 为 id 为 test 的元素添加一个代理事件监听器，为该元素所有的后代 A 元素代理 click 事件的监听。
+   *   // 为 id 为 test 的元素添加一个代理监听器，为该元素所有的后代 A 元素代理 click 事件的监听。
    * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
    */
@@ -1885,19 +1924,19 @@
     var $element = $(this);
     var uid = $element.uid;
     var item = eventPool[uid] || (eventPool[uid] = {});
-    // 同时为多个事件类型添加监听器。
+    // 使用一个监听器监听该元素上的多个事件。
     name.split(separator).forEach(function(name) {
       // 取出事件类型和选择符。
-      var parsedEventName = parseEventName(name);
-      var type = parsedEventName.type;
-      var selector = parsedEventName.selector;
+      var attributes = parseEventName(name);
+      var type = attributes.type;
+      var selector = attributes.selector;
       // 获取对应的处理器组，以添加处理器。
       var handlers = item[type] || (item[type] = []);
       // 首次注册此类型的事件需要添加触发器或分发器。
       if (!('delegateCount' in handlers)) {
         if (triggers[type]) {
           // 如果有触发器则添加触发器。
-          triggers[type].setup($element);
+          triggers[type].add($element);
         } else {
           // 使用分发器。
           var distributor;
@@ -1956,7 +1995,7 @@
         }
         handlers.splice(handlers.delegateCount++, 0, handler);
         // 为不保证所有浏览器均可以冒泡的事件类型指定代理监听时，给出警告信息。
-        if (EVENT_CODES[type] & 4) {
+        if (!(EVENT_CODES[type] & 4)) {
           navigator.warn('Incompatible event delegation type "' + name + '".');
         }
       } else {
@@ -1973,17 +2012,17 @@
    * @name Element.prototype.off
    * @function
    * @param {string} name 事件名称。本元素上添加的所有名称与 name 匹配的监听器都将被删除。
-   *   使用逗号分割多个事件名称，即可同时删除多种名称的事件监听器。
+   *   使用逗号分割多个事件名称，即可同时删除该元素上的多个监听器。
    * @returns {Element} 本元素。
    * @example
    *   $('#test').off('click');
-   *   // 为 id 为 test 的元素删除名为 click 的事件监听器。
+   *   // 为 id 为 test 的元素删除名为 click 的监听器。
    * @example
    *   $('#test').off('click.temp');
-   *   // 为 id 为 test 的元素删除名为 click.temp 的事件监听器。
+   *   // 为 id 为 test 的元素删除名为 click.temp 的监听器。
    * @example
    *   $('#test').off('click:relay(a)');
-   *   // 为 id 为 test 的元素删除名为 click:relay(a) 的事件监听器。
+   *   // 为 id 为 test 的元素删除名为 click:relay(a) 的监听器。
    */
   Element.prototype.off = function(name) {
     var $element = this;
@@ -2019,7 +2058,10 @@
       if (handlers.length === 0) {
         if (triggers[type]) {
           // 如果有触发器则删除触发器。
-          triggers[type].teardown($element);
+          if (triggers[type].remove($element) === false) {
+            // 拖拽的三个关联事件的触发器会自己管理它们的处理器组，返回 false 避免其中某个事件的处理器组被删除。
+            return;
+          }
         } else {
           // 删除分发器。
           var distributor = handlers.distributor;
@@ -2344,8 +2386,8 @@
    * 为 document 添加事件监听器。
    * @name document.on
    * @function
-   * @param {string} name 事件名称，格式请参考 Element.prototype.on 的同名参数。
-   * @param {Function} listener 事件监听器，细节请参考 Element.prototype.on 的同名参数。
+   * @param {string} name 事件名称，细节请参考 Element.prototype.on 的同名参数。
+   * @param {Function} listener 监听器，细节请参考 Element.prototype.on 的同名参数。
    * @returns {Object} document 对象。
    * @description
    *   特殊事件：domready
@@ -2446,14 +2488,14 @@
    * 删除 document 上已添加的事件监听器。
    * @name document.off
    * @function
-   * @param {string} name 事件名称，格式请参考 Element.prototype.off 的同名参数。
+   * @param {string} name 事件名称，细节请参考 Element.prototype.off 的同名参数。
    * @returns {Object} document 对象。
    */
   document.off = Element.prototype.off;
 
 //--------------------------------------------------[document.fire]
   /**
-   * 触发 document 的某类事件，调用相关的事件监听器。
+   * 触发 document 的某类事件。
    * @name document.fire
    * @function
    * @param {string} type 事件类型。
@@ -2553,8 +2595,8 @@
    * 为 window 添加事件监听器。
    * @name window.on
    * @function
-   * @param {string} name 事件名称，格式请参考 Element.prototype.on 的同名参数。
-   * @param {Function} listener 事件监听器，细节请参考 Element.prototype.on 的同名参数。
+   * @param {string} name 事件名称，细节请参考 Element.prototype.on 的同名参数。
+   * @param {Function} listener 监听器，细节请参考 Element.prototype.on 的同名参数。
    * @returns {Object} window 对象。
    * @description
    *   特殊事件：beforeunload
@@ -2592,7 +2634,7 @@
    * 删除 window 上已添加的事件监听器。
    * @name window.off
    * @function
-   * @param {string} name 事件名称，格式请参考 Element.prototype.off 的同名参数。
+   * @param {string} name 事件名称，细节请参考 Element.prototype.off 的同名参数。
    * @returns {Object} window 对象。
    */
   window.off = function(name) {
@@ -2613,7 +2655,7 @@
 
 //--------------------------------------------------[window.fire]
   /**
-   * 触发 window 的某类事件，调用相关的事件监听器。
+   * 触发 window 的某类事件。
    * @name window.fire
    * @function
    * @param {string} type 事件类型。
@@ -2700,18 +2742,18 @@
 
     // IE6 获取 position 特性时的特殊处理。
     specialCSSPropertyGetter.position = function($element) {
-      return $element.fixedData ? 'fixed' : $element.currentStyle.position;
+      return $element._fixedData_ ? 'fixed' : $element.currentStyle.position;
     };
 
     // IE6 设置 position 特性时的特殊处理。
     specialCSSPropertySetter.position = function($element, propertyValue) {
       // 本元素的偏移量数据，如果未启用修复则不存在。
-      var fixedData = $element.fixedData;
+      var fixedData = $element._fixedData_;
       if (propertyValue.toLowerCase() === 'fixed') {
         // 设置固定定位。
         if (!fixedData) {
           // 启用修复。
-          fixedData = $element.fixedData = {left: {}, right: {}, top: {}, bottom: {}, enabled: false};
+          fixedData = $element._fixedData_ = {left: {}, right: {}, top: {}, bottom: {}, enabled: false};
           var offset = {};
           var currentStyle = $element.currentStyle;
           fixedData.left.specifiedValue = offset.left = currentStyle.left;
@@ -2753,7 +2795,7 @@
 
     // IE6 设置 display 特性时的特殊处理。
     specialCSSPropertySetter.display = function($element, propertyValue) {
-      var fixedData = $element.fixedData;
+      var fixedData = $element._fixedData_;
       // 仅在本元素已启用修复的情况下需要进行的处理。
       if (fixedData) {
         if (propertyValue.toLowerCase() === 'none') {
@@ -2776,13 +2818,13 @@
 
     // IE6 获取 left/right/top/bottom 特性时的特殊处理。
     var getOffset = function($element, propertyName) {
-      var fixedData = $element.fixedData;
+      var fixedData = $element._fixedData_;
       return fixedData ? fixedData[propertyName].specifiedValue : $element.currentStyle[propertyName];
     };
 
     // IE6 设置 left/right/top/bottom 特性时的特殊处理。
     var setOffset = function($element, propertyName, propertyValue) {
-      var fixedData = $element.fixedData;
+      var fixedData = $element._fixedData_;
       // 仅在本元素已启用修复的情况下需要进行的处理。
       if (fixedData) {
         fixedData[propertyName].specifiedValue = propertyValue;
