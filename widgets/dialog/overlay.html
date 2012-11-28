@@ -15,16 +15,16 @@ select { width: 100px; background: orangered; }
 #varOverlay { background: springgreen; opacity: 0.75; filter: alpha(opacity = 75); }
 </style>
 <script>
-Widget.parsers.overlay.methods.test = function(element) {
-  if (!this.context.dialogs) {
-    this.context.dialogs = [];
+var testOverlay = function($overlay, element) {
+  if (!$overlay.context.dialogs) {
+    $overlay.context.dialogs = [];
   }
   if (element) {
-    this.context.dialogs.push(element);
+    $overlay.context.dialogs.push(element);
   } else {
-    this.context.dialogs.pop();
+    $overlay.context.dialogs.pop();
   }
-  this.reposition();
+  $overlay.reposition();
 };
 </script>
 </head>
@@ -90,16 +90,16 @@ window.on('scroll', function() {
 });
 </script>
 
-<button style="left: 100px; top: 100px;" onmouseover="bodyOverlay.test(div);">bodyOverlay 开</button>
-<button style="left: 250px; top: 100px;" onmouseover="bodyOverlay.test();">bodyOverlay 关</button>
-<button style="left: 100px; top: 150px;" onmouseover="divOverlay.test(palceholder_B);">divOverlay 开</button>
-<button style="left: 250px; top: 150px;" onmouseover="divOverlay.test();">divOverlay 关</button>
-<button style="left: 100px; top: 200px;" onmouseover="h1Overlay.test(palceholder_B);">h1Overlay 开</button>
-<button style="left: 250px; top: 200px;" onmouseover="h1Overlay.test();">h1Overlay 关</button>
-<button style="left: 100px; top: 250px;" onmouseover="spanOverlay.test(palceholder_A);">spanOverlay 开</button>
-<button style="left: 250px; top: 250px;" onmouseover="spanOverlay.test();">spanOverlay 关</button>
-<button style="left: 100px; top: 300px;" onmouseover="varOverlay.test(palceholder_A);">varOverlay 开</button>
-<button style="left: 250px; top: 300px;" onmouseover="varOverlay.test();">varOverlay 关</button>
+<button style="left: 100px; top: 100px;" onmouseover="testOverlay(bodyOverlay, div);">bodyOverlay 开</button>
+<button style="left: 250px; top: 100px;" onmouseover="testOverlay(bodyOverlay);">bodyOverlay 关</button>
+<button style="left: 100px; top: 150px;" onmouseover="testOverlay(divOverlay, palceholder_B);">divOverlay 开</button>
+<button style="left: 250px; top: 150px;" onmouseover="testOverlay(divOverlay);">divOverlay 关</button>
+<button style="left: 100px; top: 200px;" onmouseover="testOverlay(h1Overlay, palceholder_B);">h1Overlay 开</button>
+<button style="left: 250px; top: 200px;" onmouseover="testOverlay(h1Overlay);">h1Overlay 关</button>
+<button style="left: 100px; top: 250px;" onmouseover="testOverlay(spanOverlay, palceholder_A);">spanOverlay 开</button>
+<button style="left: 250px; top: 250px;" onmouseover="testOverlay(spanOverlay);">spanOverlay 关</button>
+<button style="left: 100px; top: 300px;" onmouseover="testOverlay(varOverlay, palceholder_A);">varOverlay 开</button>
+<button style="left: 250px; top: 300px;" onmouseover="testOverlay(varOverlay);">varOverlay 关</button>
 <button style="left: 175px; top: 350px;" onclick="div.setStyle('position', 'fixed');">div.position=fixed</button>
 <button style="left: 175px; top: 400px;" onclick="div.setStyle('position', 'absolute');">div.position=absolute</button>
 <button style="left: 175px; top: 450px;" onclick="div.setStyle('display', 'block');">div.display=block</button>

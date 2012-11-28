@@ -74,7 +74,7 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 .container { overflow: hidden; *zoom: 1; }
 
 /* 页头 */
-#header { position: fixed; left: 0; right: 0; top: 0; z-index: 1000; min-width: 1000px; border-bottom: 2px solid whitesmoke; background: whitesmoke url(../images/menu.png) repeat-x 0 0; -right: auto; -width: 100%; }
+#header { position: fixed; left: 0; right: 0; top: 0; z-index: 1000; min-width: 1000px; border-bottom: 1px solid whitesmoke; background: whitesmoke url(../images/menu.png) repeat-x 0 0; -right: auto; -width: 100%; }
 #header div { width: 1000px; height: 36px; margin: auto; }
 /* LOGO */
 #logo { float: left; width: 128px; height: 36px; margin: 0; background: url(../images/logo.png) no-repeat left center; }

@@ -118,14 +118,16 @@
       var classNames = $element.className.clean().split(' ');
       var className;
       while (className = classNames.shift()) {
-        var type = className.replace('widget-', '');
-        var parser = Widget.parsers[type];
-        if (parser) {
-          parser($element);
-          $element.widgetType = type;
-          break;
-        } else {
-          navigator.warn('Widget parser "' + type + '" is not found.');
+        if (className.startsWith('widget-')) {
+          var type = className.replace('widget-', '');
+          var parser = Widget.parsers[type];
+          if (parser) {
+            parser($element);
+            $element.widgetType = type;
+            break;
+          } else {
+            navigator.warn('Widget parser "' + type + '" is not found.');
+          }
         }
       }
     }

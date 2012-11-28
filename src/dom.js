@@ -245,10 +245,10 @@
    * @param {string} position 要插入的位置，可选值请参考下表。
    *   <table>
    *     <tr><th>可选值</th><th>含义</th></tr>
-   *     <tr><td><dfn>beforebegin</dfn></td><td>将文本插入到本元素之前。</td></tr>
-   *     <tr><td><dfn>afterbegin</dfn></td><td>将文本插入到本元素的第一个子元素之前。</td></tr>
-   *     <tr><td><dfn>beforeend</dfn></td><td>将文本插入到本元素的最后一个子元素之后。</td></tr>
-   *     <tr><td><dfn>afterend</dfn></td><td>将文本插入到本元素之后。</td></tr>
+   *     <tr><td><dfn>beforeBegin</dfn></td><td>将文本插入到本元素之前。</td></tr>
+   *     <tr><td><dfn>afterBegin</dfn></td><td>将文本插入到本元素的第一个子元素之前。</td></tr>
+   *     <tr><td><dfn>beforeEnd</dfn></td><td>将文本插入到本元素的最后一个子元素之后。</td></tr>
+   *     <tr><td><dfn>afterEnd</dfn></td><td>将文本插入到本元素之后。</td></tr>
    *   </table>
    * @param {Element} text 文本。
    */
@@ -276,10 +276,10 @@
    * @param {string} position 要插入的位置，可选值请参考下表。
    *   <table>
    *     <tr><th>可选值</th><th>含义</th></tr>
-   *     <tr><td><dfn>beforebegin</dfn></td><td>将目标元素插入到本元素之前。</td></tr>
-   *     <tr><td><dfn>afterbegin</dfn></td><td>将目标元素插入到本元素的第一个子元素之前。</td></tr>
-   *     <tr><td><dfn>beforeend</dfn></td><td>将目标元素插入到本元素的最后一个子元素之后。</td></tr>
-   *     <tr><td><dfn>afterend</dfn></td><td>将目标元素插入到本元素之后。</td></tr>
+   *     <tr><td><dfn>beforeBegin</dfn></td><td>将目标元素插入到本元素之前。</td></tr>
+   *     <tr><td><dfn>afterBegin</dfn></td><td>将目标元素插入到本元素的第一个子元素之前。</td></tr>
+   *     <tr><td><dfn>beforeEnd</dfn></td><td>将目标元素插入到本元素的最后一个子元素之后。</td></tr>
+   *     <tr><td><dfn>afterEnd</dfn></td><td>将目标元素插入到本元素之后。</td></tr>
    *   </table>
    * @param {Element} target 目标元素。
    * @returns {Element} 目标元素。
