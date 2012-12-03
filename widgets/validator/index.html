@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>表单验证</title>
+<title>表单验证器</title>
 <script src="../../dev.js"></script>
 <script src="../../scripts/framework.js"></script>
 <script src="../../src/widgets/validator.js"></script>
@@ -19,20 +19,20 @@ th { text-align: right; }
 th.submit { text-align: center; }
 textarea { resize: none; }
   /* 提示信息 */
-p.validating,
-p.hint { border: 1px solid #BCE8F1; background: #D9EDF7; color: #3A87AD; }
-p.valid { border: 1px solid #D6E9C6; background: #DFF0D8; color: #468847; }
-p.invalid { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
 td p { display: none; float: left; margin: 0; padding: 3px 10px; border-radius: 2px; font-size: 12px; line-height: 1; }
-td.hint p.hint,
-td.valid p.valid,
-td.validating p.validating,
-td.invalid p.invalid { display: block; }
-td.hint p.valid,
-td.hint p.validating,
-td.hint p.invalid,
-td.validating p.valid,
-td.validating p.invalid { display: none; }
+td p.input,
+td p.validating { border: 1px solid #BCE8F1; background: #D9EDF7; color: #3A87AD; }
+td p.valid { border: 1px solid #D6E9C6; background: #DFF0D8; color: #468847; }
+td p.w-message { border: 1px solid #EED3D7; background: #F2DEDE; color: #B94A48; }
+td.w-input p.input,
+td.w-validating p.validating,
+td.w-valid p.valid,
+td.w-invalid p.w-message { display: block; }
+td.w-input p.validating,
+td.w-input p.valid,
+td.w-input p.w-message,
+td.w-validating p.valid,
+td.w-validating p.w-message { display: none; }
   /* 密码强度 */
 dl { margin: 2px 0; font-size: 12px; }
 dt { float: left; padding-right: 5px; font-weight: normal; }
@@ -48,7 +48,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
 </head>
 <body>
 <div id="content">
-  <h1>表单验证</h1>
+  <h1>表单验证器</h1>
 
   <h2>Form Validation</h2>
   <fieldset>
@@ -65,11 +65,11 @@ dl.strong .strong { color: #333; font-weight: bold; }
           <tr>
             <th>帐号：</th>
             <td><input name="account" type="text" value=""></td>
-            <td>
-              <p class="hint">请输入 3 - 20 字的帐号名</p>
+            <td class="w-state" data-for="account">
+              <p class="input">请输入 3 - 20 字的帐号名</p>
               <p class="validating">验证中……</p>
-              <p class="valid">√ 可以使用</p>
-              <p class="invalid"></p>
+              <p class="valid">可以使用</p>
+              <p class="w-message" data-for="account"></p>
             </td>
           </tr>
           <tr>
@@ -83,37 +83,33 @@ dl.strong .strong { color: #333; font-weight: bold; }
                 <dd class="strong">强</dd>
               </dl>
             </td>
-            <td>
-              <p class="hint">请输入密码</p>
-              <p class="valid">√</p>
-              <p class="invalid"></p>
+            <td class="w-state" data-for="password">
+              <p class="input">请输入密码</p>
+              <p class="w-message" data-for="password"></p>
             </td>
           </tr>
           <tr>
             <th>重复密码：</th>
             <td><input name="password_confirm" type="password"></td>
-            <td>
-              <p class="hint">请重复输入密码以确保您刚才没有输错</p>
-              <p class="valid">√</p>
-              <p class="invalid"></p>
+            <td class="w-state" data-for="password_confirm">
+              <p class="input">请重复输入密码以确保您刚才没有输错</p>
+              <p class="w-message" data-for="password_confirm"></p>
             </td>
           </tr>
           <tr>
             <th>EMail：</th>
             <td><input name="email" type="text"></td>
-            <td>
-              <p class="hint">请输入您的 EMail 地址</p>
-              <p class="valid">√</p>
-              <p class="invalid"></p>
+            <td class="w-state" data-for="email">
+              <p class="input">请输入您的 EMail 地址</p>
+              <p class="w-message" data-for="email"></p>
             </td>
           </tr>
           <tr>
             <th>年龄：</th>
             <td><input name="age" type="text" value="28"></td>
-            <td>
-              <p class="hint">请输入年龄</p>
-              <p class="valid">√</p>
-              <p class="invalid"></p>
+            <td class="w-state" data-for="age">
+              <p class="input">请输入年龄</p>
+              <p class="w-message" data-for="age"></p>
             </td>
           </tr>
           <tr>
@@ -127,9 +123,8 @@ dl.strong .strong { color: #333; font-weight: bold; }
                 <option value="MacOS">MacOS</option>
               </select>
             </td>
-            <td>
-              <p class="valid">√</p>
-              <p class="invalid"></p>
+            <td class="w-state" data-for="os">
+              <p class="w-message" data-for="os"></p>
             </td>
           </tr>
           <tr>
@@ -148,8 +143,8 @@ dl.strong .strong { color: #333; font-weight: bold; }
                 </optgroup>
               </select>
             </td>
-            <td>
-              <p class="valid">√</p>
+            <td class="w-state" data-for="games">
+              <p class="w-message" data-for="games"></p>
             </td>
           </tr>
           <tr>
@@ -159,9 +154,8 @@ dl.strong .strong { color: #333; font-weight: bold; }
               <label><input name="colors" value="绿色" type="checkbox">绿色</label>
               <label><input name="colors" value="蓝色" type="checkbox">蓝色</label>
             </td>
-            <td>
-              <p class="valid">√</p>
-              <p class="invalid"></p>
+            <td class="w-state" data-for="colors">
+              <p class="w-message" data-for="colors"></p>
             </td>
           </tr>
           <tr>
@@ -181,19 +175,17 @@ dl.strong .strong { color: #333; font-weight: bold; }
               </select>
               <input name="numbers" type="text" value="">
             </td>
-            <td>
-              <p class="hint">多类型混合的表单域</p>
-              <p class="valid">√</p>
-              <p class="invalid"></p>
+            <td class="w-state" data-for="numbers">
+              <p class="input">多类型混合的表单域</p>
+              <p class="w-message" data-for="numbers"></p>
             </td>
           </tr>
           <tr>
             <th>自我介绍：</th>
             <td><textarea name="description" rows="5" cols="25">普通玩家</textarea></td>
-            <td>
-              <p class="hint">请输入 20 字以内的自我介绍</p>
-              <p class="valid">√</p>
-              <p class="invalid"></p>
+            <td class="w-state" data-for="description">
+              <p class="input">请输入 20 字以内的自我介绍</p>
+              <p class="w-message" data-for="description"></p>
             </td>
           </tr>
           <tr>
@@ -208,10 +200,13 @@ dl.strong .strong { color: #333; font-weight: bold; }
   </fieldset>
   <script>
   document.on('domready', function() {
+    var $form = $('#form');
+
 //--------------------------------------------------[输出日志]
     var logger = new Logger($('#logger').setStyles({float: 'right', width: 343, height: $('#form_table').offsetHeight - 2}), true);
 
 //--------------------------------------------------[密码强度检测]
+
     var repeatedCharactersPattern = /(.)\1+/g;
     var getPasswordStrengthScore = function(password) {
       var score = 0;
@@ -244,10 +239,6 @@ dl.strong .strong { color: #333; font-weight: bold; }
       return Math.floor(Math.pow(base, exponent));
     };
 
-//--------------------------------------------------[表单验证]
-    var $form = $('#form');
-
-    // 密码强度检测。
     // 中等强度密码参考分值，由 6 位包含小写字母和大写字母的字符组成，且其中没有连续的重复字符。
     var mediumValue = Math.pow(52, 6);
     // 高强度密码参考分值，由 8 位包含数字、小写字母、大写字母和标点符号的字符组成，且其中没有连续的重复字符。
@@ -258,33 +249,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
       $passwordStrength.className = score >= strongValue ? 'strong' : (score >= mediumValue ? 'medium' : (score > 1 ? 'weak' : ''));
     });
 
-    // 显示提示信息。
-    var textControls = ['text', 'password', 'textarea'];
-    var getMessageBox = function(name) {
-      var control = $form.elements[name];
-      control = control.nodeType ? control : control[0];
-      var $parent = control;
-      while ($parent && $parent.nodeName !== 'TD') {
-        $parent = $parent.getParent();
-      }
-      return $parent.getNextSibling();
-    };
-    $form
-        .on('focusin, focusout', function(e) {
-          var $target = e.target;
-          var name = $target.name;
-          var controlType = name ? $target.type : undefined;
-          if (textControls.contains(controlType)) {
-            getMessageBox(name)[e.type === 'focusin' ? 'addClass' : 'removeClass']('hint');
-          }
-        })
-        .on('reset', function() {
-          Object.forEach(this.validationRulesets, function(rule, name) {
-            getMessageBox(name).removeClass('hint, valid, invalid');
-          });
-          $passwordStrength.removeClass('weak, medium, strong');
-        });
-
+//--------------------------------------------------[表单验证器]
     // 添加验证规则。
     $form
         .addValidationRules({
@@ -312,6 +277,7 @@ dl.strong .strong { color: #333; font-weight: bold; }
             equals: 'password'
           },
           email: {
+            required: true,
             type: 'email'
           },
           age: {
@@ -320,7 +286,11 @@ dl.strong .strong { color: #333; font-weight: bold; }
               return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
             }
           },
+          os: {
+            required: true
+          },
           games: {
+            required: true
           },
           colors: {
             minLength: 2,
@@ -337,22 +307,18 @@ dl.strong .strong { color: #333; font-weight: bold; }
           }
         })
         .on('fieldvalidate', function(e) {
-          if (e.name === 'account') {
-            getMessageBox(e.name).removeClass('valid, invalid').addClass('validating');
-          }
           logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
         })
         .on('fieldvalidated', function(e) {
           var passed = !e.errorMessage;
-          var $td = getMessageBox(e.name);
-          $td.removeClass('valid, invalid, validating').addClass(passed ? (e.value.length > 0 ? 'valid' : '') : 'invalid');
-          if (!passed) {
-            $td.find('.invalid')[0].innerText = e.errorMessage;
-          }
           logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + passed + '">' + (e.errorMessage || 'passed') + '</dfn>');
         })
         .on('validate, validated', function(e) {
           logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
+        })
+        .on('reset', function() {
+          // 清除密码强度提示信息。
+          $passwordStrength.removeClass('weak, medium, strong');
         });
 
 //    logger.log('age: <var>' + $form.getFieldValue('age') + '</var>');
