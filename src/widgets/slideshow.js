@@ -181,6 +181,9 @@
       });
 
       // 默认显示第一张。
+      if ($element.animation !== 'slide') {
+        $activeSlide.insertTo($activeSlide.getParent());
+      }
       $activeSlide.addClass('active');
       if ($activePointer) {
         $activePointer.addClass('active');

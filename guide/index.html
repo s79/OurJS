@@ -31,7 +31,7 @@ document.on('domready', function() {
 <pre>
 &lt;script src="path/to/our.js"&gt;&lt;/script&gt;
 </pre>
-<p>如果还需要使用组件，组件的脚本也要引入。如需要使用 TabPanel 组件：</p>
+<p>如果还需要使用 Widget，相应的脚本也要引入。如需要使用 TabPanel：</p>
 <pre>
 &lt;script src="path/to/our.js"&gt;&lt;/script&gt;
 &lt;script src="path/to/tabpanel.js"&gt;&lt;/script&gt;
@@ -44,7 +44,7 @@ document.on('domready', function() {
 <p>要下载 OurJS，请<a href="../download/" target="_blank" class="link">点击此处</a>。</p>
 
 <h2>处理 JS 原生对象</h2>
-<p>OurJS 为了增强 JavaScript 的处理能力，为各原生对象提供了多种扩展方法。调用这些方法时，和调用它们的原生方法一样方便：</p>
+<p>OurJS 为了增强 JavaScript 的处理能力，为各原生对象提供了多种扩展方法：</p>
 <pre>
 var list = [0, 1, 2, 3, 4];
 list.reverse().getLast();
@@ -55,11 +55,11 @@ Object.mixin(defaultConfig, newConfig, {whiteList: Object.keys(defaultConfig)});
 // 让 newConfig 覆盖 defaultConfig 的同名属性。
 </pre>
 <pre>
-var day = Date.from('2010-03-17 20:23:00', 'YYYY-MM-DD hh:mm:ss').getDay();
+var day = Date.from('2010-03-17 20:23:00').getDay();
 // day 的值为 3，2010年3月17日是星期三。
 </pre>
 <blockquote>
-  <p>JS 原生对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 左列的《JS 原生对象》部分。</p>
+  <p>JS 原生对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 左列的“JS Native Objects”部分。</p>
 </blockquote>
 
 <h2>处理浏览器内置对象</h2>
@@ -78,19 +78,19 @@ var username = localStorage.getItem('username');
 // IE6 IE7 中原本是不支持 localStorage 的，但 OurJS 对它们进行了增强，使其可以像现代浏览器一样支持本地存储（可以跨路径）。
 </pre>
 <blockquote>
-  <p>相关演示请参考 <a href="../demos/navigator/" target="_blank" class="link">演示 - 浏览器信息</a> 和 <a href="../demos/storage/" target="_blank" class="link">演示 - 存储</a>。</p>
+  <p>相关演示请参考 <a href="../demos/navigator/" target="_blank" class="link">基本功能演示 - 浏览器信息</a> 和 <a href="../demos/storage/" target="_blank" class="link">基本功能演示 - 存储</a>。</p>
 </blockquote>
 <blockquote>
-  <p>浏览器内置对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 左列的《浏览器内置对象》部分。</p>
+  <p>浏览器内置对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 左列的“Browser Built-in Objects”部分。</p>
 </blockquote>
 
 <h2>获取、创建和处理 DOM 对象</h2>
 <p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>、<strong>元素</strong>和<strong>事件</strong>四种类型<sup>1</sup>。</p>
-<p>其中窗口和文档对象也是特殊的浏览器内置对象，和其他浏览器内置对象一样，它们在页面中也是唯一的实例，可以通过访问 window 和 document 来直接获取<sup>2</sup>。</p>
+<p>其中窗口和文档对象也是特殊的浏览器内置对象，它们在页面中也是唯一的<sup>2</sup>实例，可以通过访问 window 和 document 来直接获取。</p>
 <p>元素对象有多个实例，它们通常都是 DOM 树上的节点。可以创建新的元素对象，也可以对现有的元素对象进行修改或删除。</p>
 <p>事件对象是在窗口、文档和元素对象发生事件时被自动创建的。它们会以参数的形式被传入对应的监听器，并可以在这个监听器中进行后续处理。</p>
 <ol class="comment">
-  <li>OurJS 并没有针对除文档和元素外的其他节点类型进行扩展，因为极少需要直接操作这些类型的数据。当必须处理这些类型时，使用原生 DOM 方法即可。</li>
+  <li>OurJS 并没有针对除文档和元素外的其他节点类型进行扩展，因为极少需要直接操作这些类型的数据。</li>
   <li>如果页面中有通过 frame 嵌入的另一个页面，那么这个被嵌入的页面有其自己的窗口和文档对象。</li>
 </ol>
 
@@ -110,26 +110,44 @@ var pageOffset = window.getPageOffset();
 </pre>
 
 <h3>为文档对象扩充的方法</h3>
-<p>可以通过 document.$ 来获取和创建元素。使用这个方法每次只能获取或创建一个元素：</p>
+<p>可以通过 document.$ 来获取和创建元素：</p>
 <pre>
 var $container = document.$('#container');
 // 获取 id 为 container 的元素。这相当于 document.getElementById('container')。
 </pre>
 <pre>
 var $message = document.$('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd&gt;&lt;/dd&gt;&lt;/dl&gt;');
-// 创建一个 DL 元素。虽然每次只能创建一个元素，但这个元素可以包含任意多的后代元素。
+// 创建一个包含了 DT 和 DD 元素的 DL 元素。
 </pre>
-<p>像很多库一样，OurJS 也可以使用 $ 来代替 document.$，以便于使用。</p>
+<p>可以使用 $ 来代替 document.$，以便于使用。</p>
 <blockquote>
   <p>
-    从本节开始，你会发现一些变量以 $ 开头，如上边两个例子中的 $container 和 $message，OurJS 的所有演示代码（也包括源码）中都会使用这样的方式来标识一个元素对象，以使代码更易读。<br>
+    从这里开始，你会发现一些变量以 $ 开头，如上边两个例子中的 $container 和 $message，OurJS 的所有演示代码（也包括源码）中都会使用这样的方式来标识一个元素对象，以使代码更易读。<br>
     实际开发中，在为元素类型的变量或形参命名时（不包括属性名），也建议这么做。
   </p>
 </blockquote>
+<p>需要动态添加新的样式规则时，可以调用以下方法：</p>
+<pre>
+document.addStyleRules([
+  '#id .class_name { display: block; }',
+  '#id .class_name a { text-decoration: none; }'
+]);
+// 数组的每一项为一条规则。
+</pre>
+<p>需要动态加载新的脚本时，可以调用以下方法：</p>
+<pre>
+document.loadScript('http://your.domain/path/to/data.js', {
+  charset: 'gbk',
+  onLoad: function() {
+    ...
+  }
+});
+// 这个方法不受同源策略的限制，可以加载任何位置的脚本。
+</pre>
 
 <h3>为元素对象扩充的方法</h3>
 <p>OurJS 为元素类型的对象扩展了很多方法，如处理类和样式、获取位置和尺寸、获取相关元素、修改内容或位置等。</p>
-<p>调用为元素扩展的方法时，也和调用它们的原生方法或属性一样方便：</p>
+<p>调用为元素扩展的方法时，和调用它们的原生方法或属性一样方便：</p>
 <pre>
 if ($input.offsetWidth) {
   $input.addClass('active').focus();
@@ -139,44 +157,44 @@ if ($input.offsetWidth) {
 <blockquote>
   <p>相关演示请参考 <a href="../demos/dom/" target="_blank" class="link">演示 - DOM</a>。</p>
 </blockquote>
+
+<h3>对元素对象进行单个或批量操作</h3>
 <p>
   上一节中提到，OurJS 提供的获取和创建元素的 API document.$ 每次只能获取或创建一个元素。<br>
   OurJS 在处理元素时，所有相关的 API 也都是针对单个元素进行的。
 </p>
-<p>虽然可以通过调用一个元素的 find 或 getChildren 方法来获取一批元素（实际是一个数组），但 OurJS 并没有提供“批量操作元素”的方法<sup>1</sup>。如果一定要对一批元素进行操作，则需要遍历这些元素，并对其中的每一个单独进行操作：</p>
-<pre>
-$container.find('li').forEach(function($item) {
-  $item.setStyles({color: 'silver', font-style: 'italic'}));
-});
-// 修改 id 为“container”的元素的所有后代 LI 元素的样式。
-</pre>
-<p>这点和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路 —— 恰当的设计可以避免很多需要“批量操作元素”的场景。</p>
-<p>如上例可以修改为：</p>
+<p>虽然可以通过调用一个元素的 find 或 getChildren 方法来获取一批元素（实际是一个数组），但 OurJS 并没有提供“批量操作元素”的方法。如果一定要对一批元素进行操作，则需要遍历这些元素，并对其中的每一个单独进行操作：</p>
 <pre>
 &lt;style&gt;
-.selected li { color: silver; font-style: italic; }
+.highlight_word { background: yellow; color: red; }
 &lt;/style&gt;
 ...
 &lt;script&gt;
-$container.addClass('selected');
+$container.find('span.word').forEach(function($item) {
+  $item.addClass('highlight_word');
+});
 &lt;/script&gt;
 </pre>
-<p>即通过修改 $container 的 class 属性来改变这个 DOM 树分支的“状态”，再配合 CSS 来达到目的<sup>2</sup>。</p>
-<ol class="comment">
-  <li>
-    OurJS 不提倡对元素批量进行操作。批量操作会降低代码的可控性，还可能带来性能问题。<br>
-    而只针对单一元素进行操作则更加严谨和高效，能杜绝不易察觉的误操作，并避开了提供针对元素集合进行操作的 API 时会面临的“get first set all”还是“get all set all”的两难抉择。<br>
-    越是复杂的需求，就应该越少去批量的操作元素，修改文档树上相关节点的位置和状态是更好的方式。
-  </li>
-  <li>
-    并不是所有的事情都要由 JS 来做。修改恰当的节点，并配合 CSS 的层叠特性，即可以最精简和清晰的逻辑来达到目的。<br>
-    类似的例子见 <a href="../demos/validation/" target="_blank" class="link">“基本功能演示 - 表单验证”</a> 中对于各种信息的切换的处理方式。
-  </li>
-</ol>
+<p>
+  OurJS 不提倡对元素进行批量操作。批量操作从代码上看意图不够清晰和直接，性能开销也较大。<br>
+  而只针对单一元素进行操作则更加严谨和高效，能杜绝不易察觉的误操作，并避开了提供针对元素集合进行操作的 API 时会面临的“get first set all”还是“get all set all”的两难抉择。
+</p>
+<p>这点和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路 —— 恰当的设计可以避免很多需要“批量操作元素”的场景，修改文档树上相关节点的状态是更好的方式。</p>
+<p>如上例可以修改为：</p>
+<pre>
+&lt;style&gt;
+.highlight span.word { color: silver; font-style: italic; }
+&lt;/style&gt;
+...
+&lt;script&gt;
+$container.addClass('highlight');
+&lt;/script&gt;
+</pre>
+<p>即通过修改 $container 的 class 属性来改变这个 DOM 树分支的“状态”，再配合 CSS 来达到目的。</p>
 
 <h3>处理事件</h3>
-<p>OurJS 提供了一套完整的事件管理机制，对常见的事件做了兼容性处理，并提供了一些可以简化组件开发的自定义事件。</p>
-<p>窗口、文档和元素对象都可能发生事件并产生事件对象，它们都有 on、off 和 fire 方法来添加事件监听器、删除事件监听器和触发一个事件。</p>
+<p>OurJS 提供了一套完整的事件模型，并对一些常见的事件类型做了兼容性处理。</p>
+<p>窗口、文档和元素对象都可能发生事件并产生事件对象，它们都有 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</p>
 
 <h4>添加一个事件监听器</h4>
 <p>使用 on 方法来添加事件监听器：</p>
@@ -210,19 +228,20 @@ $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
 </pre>
 <p>在 IE6 IE7 IE8 中，发生在元素对象上的事件如果可以传递，则只能传递到 document 对象，而不会传递到 window 对象，因此不要让 window 对象为其他元素代理事件监听，以保持兼容。</p>
 <ol class="comment">
-  <li>这个语法参考自 MooTools。</li>
+  <li>这个语法来自 MooTools。</li>
 </ol>
 
 <h4>删除已添加的事件监听器</h4>
 <p>要选择性的删除已添加的、特定的一个或多个监听器时，首先在添加这些监听器时应使用“标签”来对它们进行标记。<br>“事件类型”、“标签”和“代理选择符”的组合称为“事件名”，在调用 off 方法删除事件时就是以“事件名”为依据对指定的监听器进行删除的：</p>
 <pre>
 $element.on('input', listener1).on('input<strong>.foo</strong>', listener2);
-// .foo 就是 listener2 的标签。listener1 没有指定标签。
+// 为 $element 添加两个事件监听器 listener1 和 listener2，它们监听的事件名分别为 'input' 和 'input<strong>.foo</strong>'。
 ...
 $element.on('input', listener3);
+// 再为 $element 添加一个事件监听器 listener3，它监听的事件名仍为 'input'。
 ...
 $element.off('input');
-// 删除在 $element 上添加的所有名为“input”的监听器（listener1 和 listener3），此时名为“input.foo”的监听器 listener2 仍然生效。
+// 删除在 $element 上添加的所有监听 'input' 事件（注意 'input' 是事件名而不是事件类型）的监听器，即 listener1 和 listener3，此时监听 'input<strong>.foo</strong>' 事件的监听器 listener2 仍然生效。
 </pre>
 <p>可以同时设定“标签”和“代理选择符”，注意“标签”在前，“代理选择符”在后：</p>
 <pre>
@@ -261,8 +280,8 @@ $a.fire('click');
 </ol>
 
 <h4>事件对象</h4>
-<p>除了少数特殊事件（window 的 beforeunload 和 document 的 domready）外，其他所有事件的监听器均会被传入本次事件发生时所产生的事件对象。</p>
-<p>所有事件对象都有其特定的一些属性，使用 fire 方法触发的事件产生的事件对象也不例外：</p>
+<p>除了少数特殊类型的事件外（如 window 的 beforeunload 和 document 的 domready），其他所有事件的监听器均会被传入本次事件发生时所产生的事件对象。</p>
+<p>所有事件对象都有一些特定的属性，使用 fire 方法触发的事件产生的事件对象也不例外：</p>
 <pre>
 document.on('mousewheel', function(e) {
   if (e.shiftKey && e.wheelUp) {
@@ -293,7 +312,6 @@ $element.on('click', function(e) {
 });
 // 监听器返回 false 即代表调用了事件对象的 stopPropagation 和 preventDefault 方法。
 </pre>
-<p>另外，OurJS 还为事件对象扩展了 DOM3 引入的一些新方法，如当一个被监听对象有多个监听器时，在一个监听器中调用 event.stopImmediatePropagation() 方法即可阻止事件传递到后续监听器中。</p>
 <blockquote>
   <p>相关演示请参考 <a href="../demos/event/" target="_blank" class="link">演示 - 事件</a>。</p>
 </blockquote>
@@ -302,7 +320,7 @@ $element.on('click', function(e) {
 </blockquote>
 
 <blockquote>
-  <p>DOM 对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 中列的《DOM 对象》部分。</p>
+  <p>DOM 对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 中列的“Document Object”部分。</p>
 </blockquote>
 
 <h2>特性</h2>
@@ -413,9 +431,9 @@ $menu
 </blockquote>
 
 <del>
-<h3>远程请求（需要修改）</h3>
-<p>远程请求是通过 Request 组件实现的。</p>
-<p>Request 组件用于对一个指定的资源发起请求，并获取响应数据。每个 Request 的实例都对应一个资源，实例创建后可以重复使用：</p>
+  <h3>远程请求（需要修改）</h3>
+  <p>远程请求是通过 Request 组件实现的。</p>
+  <p>Request 组件用于对一个指定的资源发起请求，并获取响应数据。每个 Request 的实例都对应一个资源，实例创建后可以重复使用：</p>
 <pre>
 var getUserinfo = new Request('path/to/userinfo', {
   method: 'post',
@@ -428,23 +446,23 @@ var getUserinfo = new Request('path/to/userinfo', {
 ...
 getUserinfo.send({userid: 32768});
 </pre>
-<p>从数据交互的角度看，一次请求有“成功”、“失败”、“超时”三种状态，因此大多数库中都预置了这些类型的事件或回调。</p>
-<p>
-  从应用的角度看，对一个资源的请求结果未必只有以上三种状态，响应状态码是 200 的情况未必代表“操作成功”。<br>
-  因此 Request 组件设计为每发送一个请求就必然会收到一个响应，发送请求后，无论何种情况（本次请求超时或被取消）均会触发 finish 事件。这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
-</p>
-<p>在 finish 事件的监听器中可以根据传入的事件对象进行后续处理，或者使用 responseParser 进行预处理，必要时还可以根据情况添加自定义事件，如 success、failure、timeout 等。</p>
-<p>如果在当前项目中与服务端的数据交互格式有明确的约定，那么可以将通用的处理逻辑设置到 Request 组件的默认选项中，以实现为该项目定制的异步交互组件。</p>
-<blockquote>
-  <p>相关演示请参考 <a href="../demos/request/" target="_blank" class="link">基本功能演示 - 远程请求</a>。</p>
-</blockquote>
+  <p>从数据交互的角度看，一次请求有“成功”、“失败”、“超时”三种状态，因此大多数库中都预置了这些类型的事件或回调。</p>
+  <p>
+    从应用的角度看，对一个资源的请求结果未必只有以上三种状态，响应状态码是 200 的情况未必代表“操作成功”。<br>
+    因此 Request 组件设计为每发送一个请求就必然会收到一个响应，发送请求后，无论何种情况（本次请求超时或被取消）均会触发 finish 事件。这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
+  </p>
+  <p>在 finish 事件的监听器中可以根据传入的事件对象进行后续处理，或者使用 responseParser 进行预处理，必要时还可以根据情况添加自定义事件，如 success、failure、timeout 等。</p>
+  <p>如果在当前项目中与服务端的数据交互格式有明确的约定，那么可以将通用的处理逻辑设置到 Request 组件的默认选项中，以实现为该项目定制的异步交互组件。</p>
+  <blockquote>
+    <p>相关演示请参考 <a href="../demos/request/" target="_blank" class="link">基本功能演示 - 远程请求</a>。</p>
+  </blockquote>
 </del>
 
 <h3>其他可选组件</h3>
 <p>OurJS 提供的可选组件还有 TabPanel、Slideshow、Dialog、Paginator 等。相关的演示请参考主菜单“UI 组件”下的内容。</p>
 
 <blockquote>
-  <p>组件的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 右列的《组件》部分。</p>
+  <p>组件的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 右列的“组件”部分。</p>
 </blockquote>
 
 </div>

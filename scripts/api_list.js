@@ -225,7 +225,6 @@ var apiList = {
     'Event#wheelUp',
     'Event#wheelDown',
     'Event#which',
-    '=DOM3=',
     'Event#isPropagationStopped',
     'Event#isDefaultPrevented',
     'Event#isImmediatePropagationStopped',
@@ -304,8 +303,6 @@ var apiList = {
   '表单验证器': [
     'Validator',
     'Validator#addValidationRules',
-    'Validator#removeValidationRules',
-    'Validator#setValidationMessages',
-    'Validator#restoreValidationMessages'
+    'Validator#removeValidationRules'
   ]
 };

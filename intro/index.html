@@ -33,7 +33,7 @@ document.on('domready', function() {
   <ul>
     <li>
       <p class="referral">
-        <strong>目标能否达成</strong><br>
+        <strong>预期目标能否达成</strong><br>
         能够“帮助开发者顺利的达成预期目标”是所有框架或类库都会努力追求的，但若从功能和细节的完善度上来讲，仍各有千秋。<br>
         如果功能或细节不够完善，可能导致最终实现与期望的结果出现偏差，甚至无法实现某些需求。
       </p>
@@ -41,7 +41,7 @@ document.on('domready', function() {
     </li>
     <li>
       <p class="referral">
-        <strong>过程是否轻松</strong><br>
+        <strong>开发过程是否轻松</strong><br>
         每个人都希望开发过程是轻松愉快的。<br>
         如果感觉到被束缚住，或者意外频发，整个开发过程难免会感觉疲惫。
       </p>
@@ -49,7 +49,7 @@ document.on('domready', function() {
     </li>
     <li>
       <p class="referral">
-        <strong>维护是否便利</strong><br>
+        <strong>后期维护是否便利</strong><br>
         项目的代码应该有良好的可读性，功能有良好的可扩展性。<br>
         如果代码的耦合度很高，或有不易于扩展的结构，那么这个产品的后期维护将成为令人头疼的问题。
       </p>
@@ -63,8 +63,7 @@ document.on('domready', function() {
   <p>OurJS 是一个适用于 WEB 开发的 JavaScript 框架，它能让开发者使用可预期的 API 自由的编程，写出具备良好的兼容性、可读性和扩展性的代码。</p>
   <blockquote>
     <p>
-      OurJS 目前完全兼容 PC 端的 IE6+、Firefox、Chrome、Safari、Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。<br>
-      稍后还会对移动设备提供支持。
+      OurJS 目前完全兼容 PC 端的 IE6+、Firefox、Chrome、Safari、Opera 以及其他使用 Trident 和 WebKit 内核的浏览器（稍后还会对移动设备提供支持）。
     </p>
   </blockquote>
 
@@ -72,10 +71,10 @@ document.on('domready', function() {
   <h3><strong>化繁为简</strong> —— 以简单直接的方式，提供易于理解和使用的功能。</h3>
   <ul>
     <li>
-      <p class="referral">让旧浏览器能尽可能多的使用新的标准 API。</p>
-      <p class="comment">这样可以减少 OurJS 的自定义 API 的数量。</p>
+      <p class="referral">提供尽可能少的自定义 API 的数量。</p>
+      <p class="comment">一些标准（或已成为事实标准的） API 不能被所有浏览器兼容，因此 OurJS 为各浏览器做了补缺处理，以让尽可能多的标准 API 能够在各浏览器中通用。这样就不必提供具有类似功能的新 API 了，标准 API 更易于记忆和使用。</p>
       <div class="comment">
-        <p>数组的 forEach 方法是 ECMAScript 5 引入的，本来只有在较新版本的浏览器中才能使用，但现在可以在旧浏览器中使用了：</p>
+        <p>数组的 forEach 方法是 ECMAScript 5 引入的，IE6 IE7 IE8 并不支持，只有在较新版本的浏览器中才能使用，但现在可以放心使用了：</p>
         <pre>anArray.<strong>forEach</strong>(function(item) {...});</pre>
         <p>ECMAScript 5 的 JSON 对象原本在 IE6 IE7 中是不支持的，但现在它们支持了：</p>
         <pre>var data = <strong>JSON</strong>.parse('{"state": "active", "score": 32768}');</pre>
@@ -85,15 +84,7 @@ document.on('domready', function() {
     </li>
     <li>
       <p class="referral">不模拟其他语言的“类”和“继承”的机制。</p>
-      <p class="comment">使用 JS 自身的特性为对象扩充功能更加直观和灵活，没必要以蹩脚的方式去效仿其他语言的“类”和“继承”。</p>
-      <div class="comment">
-        <p>如果一个对象需要处理事件的能力，这样做就可以实现了：</p>
-<pre>
-<strong>Observable</strong>.applyTo(target);
-target.on('foo', onFoo);
-target.fire('foo');
-</pre>
-      </div>
+      <p class="comment">使用 JS 自身的特性为对象扩充功能更加直观和灵活，没必要刻意去效仿其他语言的特性。</p>
     </li>
     <li>
       <p class="referral">避免使用包装对象。</p>
@@ -104,7 +95,7 @@ target.fire('foo');
         <p>IE6 本来并不支持 CSS2 引入的固定定位，但现在支持了：</p>
 <pre>
 &lt;div style="position: fixed; right: 0; bottom: 0;"&gt;...&lt;/div&gt;
-// 希望取消固定定位时，可以和其他浏览器一样，通过使用 element.setStyle/setStyles 方法修改 position 的值。
+// 希望取消固定定位时，可以使用 element.setStyle/setStyles 方法修改 position 的值。
 </pre>
         <p>IE6 IE7 IE8 的事件模型与其他浏览器不同，但现在可以通过 element.on/off/fire 方法来统一实现事件监听器的添加、删除及触发指定的事件了：</p>
 <pre>
@@ -115,19 +106,15 @@ element.<strong>on</strong>('click', function(e) {...});
     </li>
     <li>
       <p class="referral">为常用的功能提供 Widgets 以简化开发。</p>
-      <p class="comment">Widgets 就像使用具备特定功能的 HTML 元素一样容易使用，甚至不需要写脚本去初始化它们。</p>
+      <p class="comment">Widget 是指一类特殊的元素，当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并会触发新的事件。<br>一些 Widgets 甚至不需要写任何脚本去初始化它们。</p>
       <div class="comment">
         <p>如果要在页面内实现一个模态对话框，这样写就可以了：</p>
 <pre>
 &lt;div id="notice" class="widget-dialog"&gt;...&lt;/div&gt;
 ...
-&lt;a href="javascript:notice.open();"&gt;查看通知&lt;a&gt;
+&lt;a href="javascript:$('#notice').open();"&gt;查看通知&lt;a&gt;
 </pre>
       </div>
-    </li>
-    <li>
-      <p class="referral">提供“模块-应用”机制来梳理复杂的逻辑。</p>
-      <p class="comment">各模块可以独立进行开发和测试，应用做的事情就是将各模块拼装起来。</p>
     </li>
   </ul>
   <blockquote>
@@ -155,7 +142,7 @@ element.<strong>on</strong>('click', function(e) {...});
   <ul>
     <li>
       <p class="referral">
-        OurJS 通过<strong title="对于一些在新的规范（以及稳定版本的草案）中定义的，或已成为事实标准的特性，在尚未支持的浏览器上通过技术手段予以补缺。">补缺</strong>和<strong title="对于有规范支持但无法通过技术手段实现补缺的，或者无规范支持仅为方便使用而提供的特性，以扩展的方式提供。">扩展</strong>的方式提供的 API 均与原生 JS 和 DOM 的风格一致，让开发者能够使用最流畅自然的语法来编写代码。
+        OurJS 提供的 API 均与原生 JS 和 DOM 的风格一致，让开发者能够使用最流畅自然的语法来编写代码。
       </p>
     </li>
     <li>
@@ -188,7 +175,7 @@ element.<strong>on</strong>('click', function(e) {...});
   <h3><strong>易于扩展</strong> —— 不论是要扩展框架本身，还是扩展应用，OurJS 均提供了简易的方式。</h3>
   <ul>
     <li>
-      <p class="referral">要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（尽量避免扩展 Object 的 prototype）。</p>
+      <p class="referral">要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（避免扩展 Object 的 prototype）。</p>
       <p class="comment">OurJS 并没有提供特别的方法来做这件事情，使用 JS 固有的方式，可以让代码更加简单易读。</p>
     </li>
     <li>
@@ -197,10 +184,6 @@ element.<strong>on</strong>('click', function(e) {...});
         Observable 提供的事件机制可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。<br>
         OurJS 并没有提供“继承”机制，建议使用更灵活的“组合”方式进行扩展。
       </p>
-    </li>
-    <li>
-      <p class="referral">在需要扩展应用的功能时，为其添加新的“模块”，并添加新的“应用”函数来处理新的逻辑即可。</p>
-      <p class="comment">这样做可以避免新增的逻辑影响以前的代码，并且只对新的“模块”进行单独的测试即可。<br>灵活使用“模块-应用”机制，可以游刃有余的应对频繁改动的项目。</p>
     </li>
   </ul>
 
@@ -234,10 +217,10 @@ element.<strong>on</strong>('click', function(e) {...});
     <li>
       JavaScript 框架提供 API 的风格有三种：静态方法、包装对象和原型扩展。<br>
       为了提供<strong>流畅自然的语法</strong>，并保持 <strong>API 的一致性</strong>，OurJS 优先使用了“原型扩展”这种方式。<br>
-      一些无法使用“原型扩展”的功能使用“静态方法”提供，如 Object.mixin，Date.from 等。<br>
+      一些不适合使用“原型扩展”方式提供的的功能使用“静态方法”提供，如 Object.mixin，Date.from 等。<br>
       只有事件对象使用了“包装对象”方式，这是因为在处理浏览器兼容性问题时必须修改某些属性，而它们中的一部分在原生 DOM 事件对象中是只读的。
     </li>
-    <li>可以和 jQuery 共存，并且彼此互不影响。</li>
+    <li>可以和 jQuery 共存。</li>
   </ol>
 
 </div>
