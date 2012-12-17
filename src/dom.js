@@ -1163,9 +1163,6 @@
    * }
    */
   var eventPool = {};
-  window.p = function($element) {  // TODO: For test.
-    return eventPool[$element.uid];
-  };
 
   // 供内部调用的标记值。
   var INTERNAL_IDENTIFIER_EVENT = {};
@@ -1932,49 +1929,52 @@
       var selector = attributes.selector;
       // 获取对应的处理器组，以添加处理器。
       var handlers = item[type] || (item[type] = []);
-      // 首次注册此类型的事件需要添加触发器或分发器。
+      // 首次注册此类型的事件。
       if (!('delegateCount' in handlers)) {
-        if (triggers[type]) {
-          // 如果有触发器则添加触发器。
-          triggers[type].add($element);
-        } else {
-          // 使用分发器。
-          var distributor;
-          switch (type) {
-            case 'mousewheel':
-              // 鼠标滚轮事件，Firefox 的事件类型为 DOMMouseScroll。
-              distributor = function(e) {
-                var event = new Event(type, e);
-                var originalEvent = event.originalEvent;
-                var wheel = 'wheelDelta' in originalEvent ? -originalEvent.wheelDelta : originalEvent.detail || 0;
-                event.wheelUp = wheel < 0;
-                event.wheelDown = wheel > 0;
-                distributeEvent($element, handlers, event);
-              };
-              distributor.type = navigator.isFirefox ? 'DOMMouseScroll' : 'mousewheel';
-              break;
-            case 'mouseenter':
-            case 'mouseleave':
-              // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
-              distributor = function(e) {
-                distributeEvent($element, handlers, new Event(type, e), function(event) {
-                  var $relatedTarget = event.relatedTarget;
-                  // 加入 this.contains 的判断，避免 window 和一些浏览器的 document 对象调用出错。
-                  return !$relatedTarget || this.contains && !this.contains($relatedTarget);
-                });
-              };
-              distributor.type = type === 'mouseenter' ? 'mouseover' : 'mouseout';
-              break;
-            default:
-              // 通用分发器。
-              distributor = function(e) {
-                distributeEvent($element, handlers, new Event(type, e));
-              };
-              distributor.type = type;
+        // 为兼容事件列表中的事件类型添加触发器或分发器。
+        if (EVENT_CODES.hasOwnProperty(type)) {
+          if (triggers[type]) {
+            // 添加触发器。
+            triggers[type].add($element);
+          } else {
+            // 添加分发器。
+            var distributor;
+            switch (type) {
+              case 'mousewheel':
+                // 鼠标滚轮事件，Firefox 的事件类型为 DOMMouseScroll。
+                distributor = function(e) {
+                  var event = new Event(type, e);
+                  var originalEvent = event.originalEvent;
+                  var wheel = 'wheelDelta' in originalEvent ? -originalEvent.wheelDelta : originalEvent.detail || 0;
+                  event.wheelUp = wheel < 0;
+                  event.wheelDown = wheel > 0;
+                  distributeEvent($element, handlers, event);
+                };
+                distributor.type = navigator.isFirefox ? 'DOMMouseScroll' : 'mousewheel';
+                break;
+              case 'mouseenter':
+              case 'mouseleave':
+                // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
+                distributor = function(e) {
+                  distributeEvent($element, handlers, new Event(type, e), function(event) {
+                    var $relatedTarget = event.relatedTarget;
+                    // 加入 this.contains 的判断，避免 window 和一些浏览器的 document 对象调用出错。
+                    return !$relatedTarget || this.contains && !this.contains($relatedTarget);
+                  });
+                };
+                distributor.type = type === 'mouseenter' ? 'mouseover' : 'mouseout';
+                break;
+              default:
+                // 通用分发器。
+                distributor = function(e) {
+                  distributeEvent($element, handlers, new Event(type, e));
+                };
+                distributor.type = type;
+            }
+            // 将分发器作为指定类型的原生事件的监听器。
+            addEventListener($element, distributor.type, distributor);
+            handlers.distributor = distributor;
           }
-          // 将分发器作为指定类型的原生事件的监听器。
-          addEventListener($element, distributor.type, distributor);
-          handlers.distributor = distributor;
         }
         // 初始化代理计数器。
         handlers.delegateCount = 0;
@@ -2054,18 +2054,21 @@
           i++;
         }
       }
-      // 若处理器组为空，则删除触发器或分发器的注册并删除处理器组。
+      // 处理器组为空。
       if (handlers.length === 0) {
-        if (triggers[type]) {
-          // 如果有触发器则删除触发器。
-          if (triggers[type].remove($element) === false) {
-            // 拖拽的三个关联事件的触发器会自己管理它们的处理器组，返回 false 避免其中某个事件的处理器组被删除。
-            return;
+        // 为兼容事件列表中的事件类型删除触发器或分发器的注册。
+        if (EVENT_CODES.hasOwnProperty(type)) {
+          if (triggers[type]) {
+            // 删除触发器。
+            if (triggers[type].remove($element) === false) {
+              // 拖拽的三个关联事件的触发器会自己管理它们的处理器组，返回 false 避免其中某个事件的处理器组被删除。
+              return;
+            }
+          } else {
+            // 删除分发器。
+            var distributor = handlers.distributor;
+            removeEventListener($element, distributor.type, distributor);
           }
-        } else {
-          // 删除分发器。
-          var distributor = handlers.distributor;
-          removeEventListener($element, distributor.type, distributor);
         }
         // 删除处理器组。
         delete item[type];

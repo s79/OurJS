@@ -22,10 +22,21 @@
    *   {Element} inactivePanel 上一个激活的“面板”。
    *   成功调用 activate 方法后触发。
    * @description
+   *   “标签面板”其实是“标签”和“面板”的配对组合：每一个“标签”都对应唯一一个“面板”。
+   *   用户可以通过激活一个“标签”来查看其对应的“面板”中包含的内容。同一时刻只有一组“标签面板”能够被激活，默认是第一组。
+   *   <strong>启用方式：</strong>
    *   为元素添加 'widget-tabpanel' 类，即可使该元素成为多页标签面板。
-   *   其子元素中包含类名 'tab' 的为“标签”，包含类名 'panel' 的为“面板”。
+   *   <strong>结构约定：</strong>
+   *   多页标签面板的后代元素中，包含类名 'tab' 的为“标签”，包含类名 'panel' 的为“面板”。
    *   “标签”和“面板”必须按顺序一一对应。一个“标签”和一个“面板”组成一组“标签面板”。
-   *   同一时刻只有一组“标签面板”被激活， 被激活的“标签”和“面板”会被自动加入 'active' 类。只有被激活的“标签面板”中的“面板”才会显示（display: block），其余的“面板”将被隐藏（display: none）。
+   *   <strong>新增行为：</strong>
+   *   当一个标签被点击（或在鼠标移入标签范围内到达指定的时间）时，这个“标签”所属的“标签面板”会被激活，被激活的“标签”和“面板”会被自动加入 'active' 类。
+   *   <strong>默认样式：</strong>
+   *   <pre>
+   *   .widget-tabpanel { display: block; }
+   *   .widget-tabpanel .panel { display: none; }
+   *   .widget-tabpanel .active { display: block; }
+   *   </pre>
    */
 
   /**

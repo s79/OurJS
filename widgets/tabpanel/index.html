@@ -5,40 +5,40 @@
 <title>多页标签面板</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
+<script src="../../scripts/demoarea.js"></script>
+<script src="../../scripts/prettify.js"></script>
 <script src="../../src/widgets/tabpanel.js"></script>
+<link rel="stylesheet" href="../../stylesheets/prettify.css">
 <style>
-.widget-tabpanel { width: 400px; height: 300px; border: 1px solid darkblue; }
-.widget-tabpanel .tabs { list-style: none; padding: 0; overflow: hidden; *zoom: 1; }
-.widget-tabpanel .tab { float: left; width: 50px; margin-right: 2px; }
-.widget-tabpanel .tab a { display: block; height: 20px; background: darkgray; color: black; font: 14px/20px Verdana; text-align: center; text-decoration: none; cursor: default; }
-.widget-tabpanel .tab a:hover { background: silver; }
-.widget-tabpanel .tabs .active a,
-.widget-tabpanel .tabs .active a:hover { color: black; background: gainsboro; }
-.widget-tabpanel .panels { }
-.widget-tabpanel .panel { height: 280px; background: gainsboro; font-size: 100px; line-height: 280px; text-align: center; }
+iframe { width: 958px; height: 350px; }
 </style>
 </head>
 <body>
-<div id="content">
+<div id="content" data-outline="enabled">
   <h1>多页标签面板（选项卡）</h1>
 
-  <h2>TABPANEL</h2>
-  <div class="widget-tabpanel" data-hover-delay="200">
-    <ul class="tabs">
-      <li class="tab"><a href="javascript:void('switchTab');">1</a></li>
-      <li class="tab"><a href="javascript:void('switchTab');">2</a></li>
-      <li class="tab"><a href="javascript:void('switchTab');">3</a></li>
-      <li class="tab"><a href="javascript:void('switchTab');">4</a></li>
-      <li class="tab"><a href="javascript:void('switchTab');">5</a></li>
-    </ul>
-    <div class="panels">
-      <div class="panel">一</div>
-      <div class="panel">二</div>
-      <div class="panel">三</div>
-      <div class="panel">四</div>
-      <div class="panel">五</div>
-    </div>
-  </div>
+  <h2>基本应用</h2>
+  <ul>
+    <li>适用于绝大多数场景。</li>
+    <li>不需要写脚本。</li>
+  </ul>
+
+  <h3>鼠标点击切换选项卡</h3>
+  <div class="widget-demoarea" data-src="1.html"></div>
+
+  <h3>鼠标悬停（200 毫秒）切换选项卡</h3>
+  <div class="widget-demoarea" data-src="2.html"></div>
+
+  <h2>高级应用</h2>
+  <ul>
+    <li>通过编写脚本来满足更多需求。</li>
+  </ul>
+
+  <h3>激活指定的标签</h3>
+  <div class="widget-demoarea" data-src="3.html"></div>
+
+  <h3>监听事件</h3>
+  <div class="widget-demoarea" data-src="4.html"></div>
 
 </div>
 </body>

@@ -8,7 +8,6 @@
 <script src="../scripts/prettify.js"></script>
 <link rel="stylesheet" href="../stylesheets/prettify.css">
 <style>
-ul.downloads { list-style: none; padding-left: 1em; }
 em { font-style: normal; text-decoration: underline; }
 </style>
 <script>
@@ -332,28 +331,13 @@ $element.on('click', function(e) {
   此特性将提供 events 属性用于保存事件相关的信息，并提供 on/off/fire 方法来处理事件。<br>
   这几个方法与 DOM 对象处理事件的同名方法用途基本一致。
 </p>
-<p>与 DOM 的事件机制相比，Observable 提供的事件机制有以下几点区别：</p>
+<p>由于 DOM 对象本身有自己的事件模型，通常此特性是应用在 JS 对象上的。与 DOM 的事件模型相比，Observable 提供的事件模型有以下几点区别：</p>
 <ol>
-  <li>事件对象的创建方式不同。DOM 事件是在特定的行为发生时由浏览器自动创建的，而在 Observable 提供的事件机制下，事件对象需要通过主动调用 fire 方法来创建。</li>
-  <li>事件对象的传播机制不同。一些 DOM 事件可以在 DOM 树中传递，因此这些 DOM 事件是“可代理”的，而 Observable 提供的事件机制没有此特性，因此 Observable 提供的 on 方法不像 DOM 对象的 on 方法那样可以使用“代理选择符”。</li>
+  <li>事件对象的创建方式不同。DOM 事件是在特定的行为发生时由浏览器自动创建的，而在 Observable 提供的事件模型中，事件对象需要通过主动调用 fire 方法来创建。</li>
+  <li>事件对象的传播机制不同。一些 DOM 事件可以在 DOM 树中传递，因此这些 DOM 事件是“可代理”的，而 Observable 提供的事件对象没有此特性，因此 Observable 提供的 on 方法不像 DOM 对象的 on 方法那样可以使用“代理选择符”。</li>
   <li>两者的事件对象的属性和方法不同。Observable 提供的事件对象默认只有 type 和 target 两个属性，但可以通过 fire 方法附加其他自定义属性。</li>
 </ol>
-<p>可以使用 Observable 直接创建一个具备“可观察”特性的对象：</p>
-<pre>
-var observable = new Observable();
-observable.on('foo', function(e) {
-  alert('本监听器稍后会被删除！');
-});
-observable.on('foo.hasLabel', function(e) {
-  alert('事件类型为 ' + e.type + '，数据为 ' + e.data + '。');
-});
-// 添加了两个类型为“foo”的监听器，其中一个设置了标签。
-observable.off('foo');
-// 删除名为“foo”的监听器，名为“foo.hasLabel”的监听器仍然生效。
-observable.fire('foo', {data: 'bar'});
-// 名为“foo.hasLabel”的监听器被触发，弹出提示“事件类型为 foo，数据为 bar。”
-</pre>
-<p>或者将此特性应用于一个已经存在的对象：</p>
+<p>使用方法如下：</p>
 <pre>
 var object = {colors: ['red', 'green']};
 Observable.applyTo(object);
@@ -367,48 +351,44 @@ object.on('add', function(e) {
 object.add('blue');
 // 弹出提示“添加了一个新颜色：blue。”
 </pre>
-<p>“可观察”特性目前也是主要应用于组件的实例对象上（此特性是被自动应用的），以统一管理组件的信息交互。</p>
 
-<del>
-  <h2>组件</h2>
-  <p>“组件”是指提供某种特定功能的一类构造器对象，每种组件都可以有多个实例共存。</p>
-  <p>一些组件会依赖其他的组件，每个组件也都可以扩充为功能更强大的新组件。</p>
-  <p>所有组件的实例都具备“可配置”和“可观察”的特性。</p>
+<h2>动画</h2>
+<p>OurJS 提供了一套功能强大，控制灵活的动画引擎。</p>
+<p>在使用动画时，根据关注点的不同，有“关注当前元素的动画效果（在 Element.prototype 上提供的动画）”和“关注整体的动画效果（使用 Animation 创建的动画）”两种类型。</p>
+<p>无论哪种类型的动画，都会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。</p>
+<p>如果页面中的多个（任何类型的）动画同时处于播放状态，动画引擎将同频同步播放这些动画的每一帧，以减少浏览器 reflow 和 repaint 的次数，提高渲染效率，使动画能够播放得更流畅。</p>
+<p>另外，动画的控速函数 100% 兼容 CSS3 的 transition-timing-function。</p>
 
-  <h4>更改配置</h4>
-  <p>
-    有可配置项的组件的构造器都有一个 config 属性，这是该组件的默认配置。<br>
-    修改 config 属性即可更改该组件的默认配置，若 config 为空对象则表示该组件没有可配置项。使用这种方式指定的配置对后续创建的实例均生效。
-  </p>
-  <pre>Request.<strong>config</strong>.method = 'post';</pre>
-  <p>
-    在创建组件的实例时，可以通过指定 config 参数来更改默认配置（没有可配置项的组件除外）。<br>
-    通过 config 参数指定的配置仅对本次创建的实例生效。
-  </p>
-  <pre>var request = new Request('/product/getfriends', <strong>{method: 'get'}</strong>);</pre>
-  <p>
-    所有组件的实例都有 setConfig 方法，可以为该实例更改配置。<br>
-    更改后的配置将在该实例上直接生效。
-  </p>
-  <pre>request.<strong>setConfig({headers: {uid: 12345}})</strong>;</pre>
-</del>
 
-<h4>处理事件</h4>
+<h3>在 Element.prototype 上提供的动画</h3>
+<p>在 Element.prototype 提供的动画主要有 morph/highlight/fade 几种类型，分别用于平滑渐变、高亮、淡入淡出的动画效果。</p>
+<p>此类动画是为大多数常见的需求定制的，有灵活的配置，并可以很方便的调用。<p>
+<p>他们的特点有：</p>
 <ul>
-  <li>
-    <p>所有组件的实例都可以通过 on、off 和 fire 方法来处理事件。每个实例都可以处理任意多类型的事件，每一类事件都可以添加任意多的监听器。</p>
-  </li>
-  <li>
-    <p>调用每个组件的实例方法时，都会“主动触发”一个同名的事件，并会在随后根据情况同步或异步的“被动触发”表示处理过程或结果的事件。</p>
-  </li>
+  <li>关注点是当前元素，即只能改变当前元素的样式。</li>
+  <li>每次运行都是以元素的当前状态为起点。</li>
+  <li>同类动画效果可以合并。</li>
 </ul>
+<p>简单举例如下：</p>
+<pre>
+$element.morph({width: '+=100'}, {duration: 2000});
+// 每次调用都会在两秒内将 $element 的宽度增加 100px。
+// 如果在一次调用的 1 秒后再次调用（此时将停止之前尚未播放完毕的动画），$element 将以第二次调用的时间点的当前宽度作为起始宽度，在两秒内将其宽度再增加 100px。
+</pre>
 
-<h3>动画效果</h3>
-<p>动画效果可以使用 Animation 组件创建。</p>
+<h3>使用 Animation 创建的动画</h3>
+<p>此类动画用于需要精确控制动画播放的场景。</p>
 <p>
   可以为 Animation 的实例添加多个动画剪辑，以实现复杂的动画效果和动画队列。<br>
-  Animation 支持多种事件，还提供了灵活的控制手段，可以随时暂停或倒放：
+  所有 Animation 的实例都具备 Observable 特性。Animation 还提供了灵活的控制手段，可以随时暂停或倒放。
 </p>
+<p>他们的特点有：</p>
+<ul>
+  <li>关注点是动画效果，可以改变多个元素的样式。</li>
+  <li>创建时即确定起始和结束状态，可以精确控制，如暂停和倒放。</li>
+  <li>支持多个动画剪辑，支持多种事件，能实现复杂的动画效果和动画队列。</li>
+</ul>
+<p>简单举例如下：</p>
 <pre>
 var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {
   borderLeftWidth: 10,
@@ -422,22 +402,29 @@ $menu
     .on('mouseleave', function() {
       animation.reverse();
     });
+// 本例的动画效果只影响一个元素，通过添加多个动画剪辑，可以同时影响任意数目的元素。
+// 鼠标进入该元素后可以在任意时间离开，动画将在相应的时间点开始反向播放到初始状态。
 </pre>
-<p>当动画开始播放时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。</p>
-<p>如果页面中的多个动画同时处于播放状态，动画引擎将同频同步播放这些动画的每一帧，以减少浏览器 reflow 和 repaint 的次数，提高渲染效率，使动画能够更流畅的播放。</p>
-<p>Animation 还封装了常见的针对某一个元素的动画，并以 Element.prototype.morph/highlight/fade 等形式提供了快捷的 API。</p>
+
 <blockquote>
   <p>相关演示请参考 <a href="../demos/animation/" target="_blank" class="link">演示 - 动画</a>。</p>
 </blockquote>
 
-<del>
-  <h3>远程请求（需要修改）</h3>
-  <p>远程请求是通过 Request 组件实现的。</p>
-  <p>Request 组件用于对一个指定的资源发起请求，并获取响应数据。每个 Request 的实例都对应一个资源，实例创建后可以重复使用：</p>
+<h2>远程请求</h2>
+<p>远程请求是通过 Request 对象来实现的。</p>
+<p>所有 Request 的实例都具备 Observable 特性，并且每个实例都对应一个资源，实例创建后可以重复使用。</p>
+<p>从数据交互的角度看，一次请求有“成功”、“失败”、“超时”三种状态，因此大多数库中都预置了这些类型的事件或回调。</p>
+<p>
+  从应用的角度看，对一个资源的请求结果未必只有以上三种状态，响应状态码是 200 的情况未必代表“操作成功”。<br>
+  因此 Request 设计为每发送一个请求就必然会收到一个响应，发送请求后，无论何种情况（本次请求超时或被取消）均会触发 finish 事件。这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
+</p>
+<p>在触发 finish 事件之前，根据请求的实际状态，会首先触发 abort（请求被取消）、timeout（请求超时）和complete（请求完成）事件。</p>
+<p>根据 Request 使用场景的不同，有 XHR 和 JSONP 两种模式。</p>
+
+<h3>XHR 模式</h3>
+<p>如果请求的资源在本域内，应使用 XHR 模式。当不指定 mode 选项或将其指定为 'xhr' 时，即启用 XHR 模式：</p>
 <pre>
 var getUserinfo = new Request('path/to/userinfo', {
-  method: 'post',
-  contentType: 'application/json',
   maxTime: 5000,
 })
     .on('finish', function(e) {
@@ -446,23 +433,78 @@ var getUserinfo = new Request('path/to/userinfo', {
 ...
 getUserinfo.send({userid: 32768});
 </pre>
-  <p>从数据交互的角度看，一次请求有“成功”、“失败”、“超时”三种状态，因此大多数库中都预置了这些类型的事件或回调。</p>
-  <p>
-    从应用的角度看，对一个资源的请求结果未必只有以上三种状态，响应状态码是 200 的情况未必代表“操作成功”。<br>
-    因此 Request 组件设计为每发送一个请求就必然会收到一个响应，发送请求后，无论何种情况（本次请求超时或被取消）均会触发 finish 事件。这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
-  </p>
-  <p>在 finish 事件的监听器中可以根据传入的事件对象进行后续处理，或者使用 responseParser 进行预处理，必要时还可以根据情况添加自定义事件，如 success、failure、timeout 等。</p>
-  <p>如果在当前项目中与服务端的数据交互格式有明确的约定，那么可以将通用的处理逻辑设置到 Request 组件的默认选项中，以实现为该项目定制的异步交互组件。</p>
-  <blockquote>
-    <p>相关演示请参考 <a href="../demos/request/" target="_blank" class="link">基本功能演示 - 远程请求</a>。</p>
-  </blockquote>
-</del>
+<p>XHR 模式的 Request 可以通过 async 选项即可指定使用同步或异步方式。</p>
 
-<h3>其他可选组件</h3>
-<p>OurJS 提供的可选组件还有 TabPanel、Slideshow、Dialog、Paginator 等。相关的演示请参考主菜单“UI 组件”下的内容。</p>
+<h3>JSONP 模式</h3>
+<p>如果请求的资源不在本域内，应使用 JSONP 模式。将 mode 选项指定为 'jsonp' 时，即启用 JSONP 模式：</p>
+<pre>
+var getUserinfo = new Request('http://another.domain/path/to/userinfo', {
+  mode: 'jsonp',
+  maxTime: 5000,
+})
+    .on('finish', function(e) {
+      ...
+    });
+...
+getUserinfo.send({userid: 32768});
+</pre>
+<p>JSONP 模式的 Request 将永远使用异步方式进行数据交互，并且请求方法永远为 get。</p>
 
 <blockquote>
-  <p>组件的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 右列的“组件”部分。</p>
+  <p>相关演示请参考 <a href="../demos/request/" target="_blank" class="link">基本功能演示 - 远程请求</a>。</p>
+</blockquote>
+
+<h2>Widgets</h2>
+<p>Widgets 即常见的、可重用的功能模块。是 OurJS 为简化开发而设计的一个重要角色。</p>
+<p>
+  OurJS 提供的 Widgets 是一类特殊的元素，可以把 Widget 视为元素的“升级版”。<br>
+  当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
+  由于 Widgets 的本质仍然是元素，因此其新增的事件类型仍使用 OurJS 提供的事件模型，即这些事件产生的事件对象是可以在 DOM 树中传递的，并且可以被代理。
+</p>
+<p>一些 Widgets 甚至不需要写任何脚本去初始化，使用起来很简单。</p>
+
+<h3>基本用法</h3>
+<p>以“模态对话框（Dialog）”为例，要将一个元素“升级”为 Dialog Widget，首先应确保页面载入了对应的 Widget 解析脚本：</p>
+<pre>&lt;script src="path/to/widgets/dialog.js"&gt;&lt;/script&gt;</pre>
+<p>然后在目标元素上添加 widget-<strong title="Widget 的类型">type</strong> 类，并使用 data-<strong title="Widget 配置项">config</strong>=<strong title="Widget 配置项的值">"value"</strong> 属性来定义 Widget 的配置即可：</p>
+<pre>&lt;div id="notice" class="widget-dialog" data-animation="slide"&gt;&lt;/div&gt;</pre>
+<p>这样，该元素就变成了一个 Dialog Widget，并具备了 Dialog Widget 提供的新特性（具体请参考“Widget - 模态对话框”的说明文档）。对这个 Dialog Widget 的操作在 domready 事件发生后即可进行。</p>
+
+<h3>定制和扩展</h3>
+<p>Widget 仅为元素提供了新的行为，其外观仍需定制：</p>
+<pre>
+&lt;style&gt;
+#notice { width: 600px; height: 400px; background: steelblue; }
+&lt;/style&gt;
+</pre>
+<p>这样这个“模态对话框”就具备了新的外观。</p>
+<p>当需要打开这个“模态对话框”的时候，可以调用该元素新增的 open 方法来实现：</p>
+<pre>
+var $notice = $('#notice');
+$notice.open();
+// 这个“模态对话框”将根据其配置，在相应的位置显示。
+</pre>
+<p>如果需要在这个“模态对话框”关闭的时候执行某个方法，可以在它的事件监听器中处理：</p>
+<pre>
+var $notice = $('#notice').on('close', function() {
+  // 进行必要的处理。
+});
+...
+$notice.open();
+...
+$notice.close();
+// 执行该元素的 close 方法时，会自动触发 close 事件（这个事件是可以冒泡和被代理的）。
+</pre>
+
+<h3>创建新的 Widget</h3>
+<p>当需要创建新的 Widget 时，使用 Widget.register(type, parser) 方法即可。该方法的参数请参考 API 文档。</p>
+
+<blockquote>
+  <p>关于 Widgets 的更多说明信息及演示请参考 <a href="../widgets/" target="_blank" class="link">Widgets</a> 菜单中的各项内容。</p>
+</blockquote>
+
+<blockquote>
+  <p>Widgets 的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 右列的“Widgets”部分。</p>
 </blockquote>
 
 </div>
