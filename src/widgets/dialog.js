@@ -221,18 +221,24 @@
    * @fires reposition
    *   成功调用 reposition 方法后触发。
    * @description
-   *   为元素添加 widget-dialog 类，即可使该元素成为模态对话框。
-   *   当对话框弹出时，为突出对话框内容，将在对话框之下创建遮盖层，以阻止用户对遮盖部分内容的操作。
-   *   遮盖层遮盖的范围为其父元素的渲染范围。如果对话框元素的父元素是 BODY，遮盖层将遮盖整个视口。
-   *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。
-   *   当对话框元素的父元素不是 BODY 时，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
+   *   模态对话框可以突出显示一部分内容并遮盖其余内容，强迫用户优先对突出显示的部分进行操作。
+   *   <strong>启用方式：</strong>
+   *   为元素添加 'widget-dialog' 类，即可使该元素成为模态对话框。
+   *   <strong>结构约定：</strong>
+   *   对话框的默认状态为关闭。因此对话框元素的 display 将被设置为 'none'。
+   *   仅当对话框元素的“定位参考元素”为 BODY 时，其 position 才可以选择设置 'absolute' 或 'fixed'，其余情况均会被重设为 'absolute'。
+   *   对话框元素的 zIndex 值会被自动指定。
+   *   如果对话框元素的父元素不是 BODY 且其 position 为 'static'，将修改其 position 为 'relative'，以使其创建 stacking context。
+   *   如果对话框元素的父元素不是 BODY，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
    *   对话框的一些数据保存在其父元素中，因此不要修改对话框元素在文档树中的位置！
-   *   <ul>
-   *     <li>对话框的默认状态为关闭。因此对话框元素的 display 将被设置为 none。</li>
-   *     <li>仅当对话框元素的“定位参考元素”为 BODY 时，其 position 才可以选择设置 absolute 或 fixed，其余情况均会被重设为 absolute。</li>
-   *     <li>对话框元素的 zIndex 值会被自动指定。</li>
-   *     <li>如果对话框元素的父元素不是 BODY 且其 position 为 static，将修改其 position 为 relative，以使其创建 stacking context。</li>
-   *   </ul>
+   *   <strong>新增行为：</strong>
+   *   当对话框弹出时将自动生成一个遮盖层，遮盖层遮盖的范围为对话框父元素的渲染范围。如果对话框元素的父元素是 BODY，遮盖层将遮盖整个视口。
+   *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。当一组对话框重叠显示时，遮盖层只有一个，且只遮盖后打开的对话框。
+   *   <strong>默认样式：</strong>
+   *   <pre>
+   *   .widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }
+   *   .widget-dialog { display: none; outline: none; }
+   *   </pre>
    * @example
    *   &lt;div id="notice" class="widget-dialog" data-offset-y="100" onopen="alert('open');"&gt;...&lt;/div&gt;
    */

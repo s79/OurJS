@@ -1,4 +1,7 @@
 document.on('domready', function() {
+  var $content = $('#content');
+  var $details = $('#details');
+
 //==================================================[创建 API 文档]
   function buildAPIReference() {
 //--------------------------------------------------[格式化 API 信息并注入页面]
@@ -132,7 +135,7 @@ document.on('domready', function() {
       return symbol && symbol.examples.length ?
           '<dl><dt>示例：</dt><dd>' + symbol.examples.map(
               function(example) {
-                return '<pre class="prettyprint">' + example + '</pre>';
+                return '<pre>' + example + '</pre>';
               }
           ).join('') + '</dd></dl>' :
           '';
@@ -205,7 +208,7 @@ document.on('domready', function() {
           lastGroupName = groupName;
         }
       });
-      $detailsContent.insertTo($('#details'));
+      $detailsContent.insertTo($details);
       $indexFieldset.insertTo($container);
     }
 
@@ -394,12 +397,13 @@ document.on('domready', function() {
   }
 
 //==================================================[初始化页面]
-  var $content = $('#content');
-
   // 创建 API 文档。
   buildAPIReference();
 
   // 代码高亮。
+  $details.find('pre').forEach(function($pre) {
+    $pre.addClass('prettyprint');
+  });
   prettyPrint();
 
   // 创建 API 细节面板。

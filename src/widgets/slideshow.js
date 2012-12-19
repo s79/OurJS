@@ -22,7 +22,6 @@
    * @attribute data-interval
    *   以毫秒为单位的幻灯片自动播放间隔。
    *   如果不指定本属性，则使用 '5000'，即每 5 秒更换一张幻灯片。
-   *   自动播放的计时器将在鼠标进入本元素的区域后被停止，并在鼠标离开本元素的区域后重新计时。
    * @fires show
    *   {Element} activeSlide 当前播放的“幻灯片”。
    *   {Element} activePointer 当前播放的“指示器”。
@@ -34,12 +33,24 @@
    * @fires shownext
    *   调用 showNext 方法后触发。
    * @description
+   *   幻灯片播放器用于播放一组“幻灯片”。一个“幻灯片”对应一个可选的“指示器”，它们的内容都是可以定制的。
+   *   <strong>启用方式：</strong>
    *   为元素添加 'widget-slideshow' 类，即可使该元素成为幻灯片播放器。
-   *   其子元素中包含类名 'slides' 的为“幻灯片”的容器，包含类名 'slide' 的为“幻灯片”，包含类名 'pointers' 的为幻灯片的“指示器”的容器，包含类名 'pointer' 的为幻灯片的“指示器”，包含类名 'prev' 的为“播放上一张”按钮，包含 'next' 的为“播放下一张”按钮。
+   *   <strong>结构约定：</strong>
+   *   幻灯片播放器的后代元素中，类名包含 'slides' 的为“幻灯片”的容器，类名包含 'slide' 的为“幻灯片”，类名包含 'pointers' 的为幻灯片的“指示器”的容器，类名包含 'pointer' 的为幻灯片的“指示器”，类名包含 'prev' 的为“播放上一张”按钮，包含 'next' 的为“播放下一张”按钮。
    *   所有“幻灯片”元素应有共同的父元素，并且它们的渲染尺寸也应该与其父元素的渲染尺寸一致。
    *   所有“指示器”元素应有共同的父元素，并且数量应和“幻灯片”的数量一致。
    *   上述内容中，只有“幻灯片”和“幻灯片”的容器是必选的，其他均可以省略。如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，它们也将不可见。
-   *   当前播放的“幻灯片”和“指示器”会被自动加入 'active' 类。
+   *   <strong>新增行为：</strong>
+   *   每隔一定的时间后（取决于 data-interval 的设定值），当前“幻灯片”都会自动更换。当前播放的“幻灯片”和“指示器”会被自动加入 'active' 类。
+   *   自动播放的计时器将在鼠标进入本元素的区域后被停止，并在鼠标离开本元素的区域后重新计时。
+   *   <strong>默认样式：</strong>
+   *   <pre>
+   *   .widget-slideshow { display: block; }
+   *   .widget-slideshow .slides { display: block; position: relative; }
+   *   .widget-slideshow .slide { display: block; position: absolute; left: 0; top: 0; z-index: auto; }
+   *   .slideshow-single .pointers, .slideshow-single .prev, .slideshow-single .next { display: none !important; }
+   *   </pre>
    */
 
   /**

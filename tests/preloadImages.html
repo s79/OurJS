@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>preloadImages</title>
+<script src="../dev.js"></script>
+</head>
+<body>
+<script>
+var count = 0;
+document.preloadImages([
+  '../widgets/dialog/dialog_bg_1.png',
+  '../widgets/dialog/dialog_bg_2.png',
+  '../widgets/dialog/dialog_bg_3.png',
+  '../widgets/dialog/dialog_bg_4.png',
+  'http://images-cdn.digu.com/3a78ccb98dbb42b287e7545a1232e7230007.gif'
+], function() {
+  count++;
+  $('<h1>[' + count + ']</h1>').insertTo(document.body);
+  $(this).insertTo(document.body);
+});
+</script>
+</body>
+</html>

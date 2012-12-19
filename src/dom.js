@@ -2377,10 +2377,19 @@
    * @name document.preloadImages
    * @function
    * @param {Array} urlArray 包含需预加载的图片路径的数组。
+   * @param {Function} [onLoad] 每个图片加载完毕后的回调。
+   *   该函数被调用时 this 的值为已完成加载的 IMG 元素。
    */
-  document.preloadImages = function(urlArray) {
+  document.preloadImages = function(urlArray, onLoad) {
     urlArray.forEach(function(url) {
-      new Image().src = url;
+      var img = new Image();
+      if (onLoad) {
+        img.onload = function() {
+          img.onload = null;
+          onLoad.call(img);
+        };
+      }
+      img.src = url;
     });
   };
 

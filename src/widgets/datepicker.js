@@ -281,9 +281,35 @@
    *   本事件用于模拟真实发生在表单域元素上的 change 事件。
    * @requires Calendar
    * @description
+   *   日期选择器可以通过点选的方式来选择一个日期，它仍是一个表单控件。
+   *   <strong>启用方式：</strong>
    *   为 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为日期选择器。
-   *   日期选择器仍是一个表单控件。
+   *   <strong>结构约定：</strong>
+   *   日期选择器初始化时会在文档中自动创建一个元素，并利用它来进行日期的点选。
+   *   其中类名包含 'btn' 的为按钮，类名包含 'prev_year' 的为“上一年”按钮，类名包含 'prev_month' 的为“上一月”按钮，类名包含 'next_month' 的为“下一月”按钮，类名包含 'next_year' 的为“下一年”按钮，类名包含 'clear' 的为“清除”按钮，类名包含 'today' 的为“今天”按钮。
+   *   按钮的容器的类名为 'control_set'（共两个）。
+   *   如果一个按钮处于禁用状态，将自动为其添加类名 'disabled'。
+   *   在这个自动创建的元素中，还包含一个月历 Widget，关于它的结构约定及其他信息，请参阅月历 Widget 的相关说明。
+   *   <strong>新增行为：</strong>
    *   当该元素成为日期选择器后，将不能再由键盘输入值，但当点击该元素时，将弹出日期选择面板，在面板中选中的日期将自动回填到该元素中。
+   *   <strong>默认样式：</strong>
+   *   <pre>
+   *   .datepicker-panel { display: none; position: absolute; left: 0; top: 0; width: 218px; padding: 6px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); border: 1px solid silver; border-radius: 3px; background: whitesmoke; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
+   *   .datepicker-panel div.control_set { position: relative; height: 22px; line-height: 22px; text-align: center; }
+   *   .datepicker-panel span.btn { position: absolute; top: 0; width: 28px; height: 20px; border: 1px solid silver; border-radius: 2px; background: white; color: black; line-height: 20px; }
+   *   .datepicker-panel span.btn:hover, .datepicker-panel tbody td:hover { box-shadow: 0 0 2px rgba(178, 34, 34, 0.75); border-color: firebrick; background: lightyellow; }
+   *   .datepicker-panel span.disabled, .datepicker-panel span.disabled:hover, .datepicker-panel tbody td.disabled, .datepicker-panel tbody td.disabled:hover { box-shadow: none; border-color: whitesmoke; background: whitesmoke; color: gainsboro; }
+   *   .datepicker-panel span.prev_year { left: 1px; }
+   *   .datepicker-panel span.prev_month { left: 32px; }
+   *   .datepicker-panel span.next_year { right: 1px; }
+   *   .datepicker-panel span.next_month { right: 32px; }
+   *   .datepicker-panel table { margin: 2px 0; }
+   *   .datepicker-panel thead td { border-color: whitesmoke; }
+   *   .datepicker-panel tbody td { background: white; }
+   *   .datepicker-panel tbody td.selected, .datepicker-panel tbody td.selected:hover { box-shadow: none; border-color: firebrick; background: crimson; color: white; font-weight: bold; }
+   *   .datepicker-panel span.clear { left: 1px; width: 61px; }
+   *   .datepicker-panel span.today { right: 1px; width: 61px; }
+   *   </pre>
    */
 
   Widget.register('datepicker', {

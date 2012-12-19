@@ -26,9 +26,25 @@
    *   {Date} date 已更新的日期。
    *   日期单元格更新后触发。每次调用 update 方法时，每个日期单元格都会更新一次。
    * @description
+   *   月历可以显示指定月份的日期排列情况。
+   *   <strong>启用方式：</strong>
    *   为元素添加 'widget-calendar' 类，即可使该元素成为月历。
-   *   当月历初始化时，会根据 data-month 的配置来显示指定月份的月历（在 data-month 不为 '0000-00' 的情况下）。
+   *   <strong>结构约定：</strong>
+   *   当月历初始化时，会根据 data-month 的配置自动在其内部创建一个表格元素，来显示指定月份的日期排列（在 data-month 不为 '0000-00' 的情况下）。
+   *   其中每个单元格都有用于表示星期几的类名 'sun'、'mon'、'tues'、'wed'、'thurs'、'fri'、'sat'。
+   *   上一个月的日期所在的单元格会被添加类名 'prev'，下一个月的日期所在的单元格会被添加类名 'next'。
+   *   今天的日期所在的单元格会被添加类名 'today'。
+   *   <strong>新增行为：</strong>
    *   如果需要更改月历显示的月份，调用 update 方法即可。
+   *   <strong>默认样式：</strong>
+   *   <pre>
+   *   .widget-calendar table { table-layout: fixed; border-collapse: separate; border-spacing: 1px; width: 218px; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
+   *   .widget-calendar table td { padding: 0; border: 1px solid silver; border-radius: 2px; text-align: center; }
+   *   .widget-calendar thead td { border-color: white; color: navy; font-weight: bold; }
+   *   .widget-calendar tbody td { color: black; }
+   *   .widget-calendar tbody td.prev, .widget-calendar tbody td.next { color: silver; }
+   *   .widget-calendar tbody td.today { font-weight: bold; text-decoration: underline; }
+   *   </pre>
    */
 
   /**

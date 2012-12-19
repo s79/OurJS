@@ -19,15 +19,13 @@
    *   如果不指定本属性，则使用 2 作为默认值。
    * @attribute data-target-url
    *   点击页码链接后跳转到的地址，在地址字符串中使用 {page} 表示当前页码。
-   *   是否指定本属性将导致分页导航条具备不同的行为。
-   *   如果指定本属性，即进入“无脚本模式”，此时当点击页码链接时，将直接跳转到指定的 url 地址，而不会触发 turn 事件。<br>这种模式适用的场景为：页面由服务端代码输出，知道 totalPage 和 currentPage（通过设置 data-total-page 和 data-current-page 属性来指定），且翻页时需要刷新页面。<br>在“无脚本模式”下，不必使用任何 JS 代码来处理导航条内容。
-   *   如果不指定本属性，即进入“有脚本模式”，此时当点击页码链接时，会触发 turn 事件，但会阻止点击链接的默认行为。<br>这种模式适用的场景为：页面生成时不知道 totalPage 和 currentPage（这种模式下设置 data-total-page 和 data-current-page 属性是无效的），或当翻页时不希望刷新当前页面。<br>在“有脚本模式”下，应当在合适的时间调用 update 方法来更新导航条内容，并在 turn 事件的监听器中进行后续处理。
+   *   如果指定本属性，即表示使用“静态模式”。
    * @attribute data-total-page
    *   要分页显示的数据的总页数。
-   *   仅在“无脚本模式”下，本属性才有效。
+   *   仅在“静态模式”下，本属性才有效。
    * @attribute data-current-page
    *   要分页显示的数据的当前页码。
-   *   仅在“无脚本模式”下，本属性才有效。
+   *   仅在“静态模式”下，本属性才有效。
    * @fires turn
    *   {number} targetPage 目标页码。
    *   调用 turn 方法后触发。
@@ -36,12 +34,30 @@
    *   {number} totalPage 总页数。
    *   调用 update 方法后触发。
    * @description
+   *   分页导航条有两种模式：“静态模式”和“动态模式”。使用哪种模式取决于是否为本元素指定了 <dfn>data-target-url</dfn> 属性。
+   *   “静态模式”适用的场景为：页面由服务端代码输出，知道 totalPage 和 currentPage（通过设置 <dfn>data-total-page</dfn> 和 <dfn>data-current-page</dfn> 属性来指定），且翻页时需要刷新页面。
+   *   在“静态模式”下，不必使用任何 JS 代码来处理导航条内容。
+   *   “动态模式”适用的场景为：页面加载时不知道 totalPage 和 currentPage，或当翻页时不希望刷新当前页面。
+   *   在“动态模式”下，应当在合适的时间调用 update 方法来更新导航条内容，并在 turn 事件的监听器中进行后续处理。
+   *   <strong>启用方式：</strong>
    *   为元素添加 'widget-paginator' 类，即可使该元素成为分页导航条。
-   *   分页导航条有两种模式：“无脚本模式”和“有脚本模式”。使用哪种模式取决于是否为本元素指定了 data-target-url 属性。
+   *   <strong>结构约定：</strong>
+   *   <strong>结构约定：</strong>
    *   当分页导航条初始化时，会自动创建其内部的元素。
    *   其中“上一页”按钮的类名为 'prev'，“下一页”按钮的类名为 'next'，页码的容器的类名为 'pages'。
    *   如果一个按钮处于禁用状态，将自动为其添加类名 'disabled'。
    *   表示当前页的页码元素将被自动添加类名 'current'。
+   *   <strong>新增行为：</strong>
+   *   在“静态模式”下，点击页码不会触发 turn 事件，页面将直接跳转到指定的 url 地址。
+   *   在“动态模式”下，点击页码会自动调用 turn 方法，并触发 turn 事件，此点击事件的默认行为会被阻止。
+   *   <strong>默认样式：</strong>
+   *   <pre>
+   *   .widget-paginator { font-size: 14px; line-height: 16px; text-align: center; }
+   *   .widget-paginator a:link, .widget-paginator a:visited, .widget-paginator a:hover, .widget-paginator a:active { display: inline-block; margin: 2px; padding: 2px 5px; border: 1px solid silver; background: white; color: black; text-decoration: none; }
+   *   .widget-paginator a:hover { border-color: firebrick; text-decoration: none; }
+   *   .widget-paginator a.current:link, .widget-paginator a.current:visited, .widget-paginator a.current:hover, .widget-paginator a.current:active { border-color: firebrick; background: crimson; color: white; }
+   *   .widget-paginator a.disabled:link, .widget-paginator a.disabled:visited, .widget-paginator a.disabled:hover, .widget-paginator a.disabled:active { border-color: gainsboro; color: gainsboro; cursor: default; }
+   *   </pre>
    */
 
   /**
@@ -203,7 +219,7 @@
         }
       });
 
-      // “无脚本模式”，自动更新导航条内容。
+      // “静态模式”，自动更新导航条内容。
       if (targetUrl) {
         $element.update($element.currentPage, $element.totalPage);
       }
