@@ -5,7 +5,7 @@
 <title>dom-test</title>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 <script src="../dev.js"></script>
-<script src="../src/utilities/logger.js"></script>
+<script src="../scripts/logger.js"></script>
 </head>
 
 text_before
@@ -34,67 +34,70 @@ b
 
 <div id="y" style="float: right; position: absolute; right: 10%; top: 0; z-index: 79; border: 1px dotted black; opacity: .25; filter: alpha(opacity = 25) progid:DXImageTransform.Microsoft.MotionBlur(strength = 50); zoom: 1;" data-my-data="myData" data-A="a">(#y) heading_one</div>
 
-<div id="logger_1" style="position: absolute; left: 10px; top: 150px;"></div>
-<div id="logger_2" style="position: absolute; left: 400px; top: 150px;"></div>
+<div id="logger_1" class="widget-logger" style="position: absolute; left: 10px; top: 150px;"></div>
+<div id="logger_2" class="widget-logger" style="position: absolute; left: 400px; top: 150px;"></div>
 
 <script>
-//--------------------------------------------------[test1]
-var l1 = new Logger($('#logger_1'));
-
-l1.list('=取值=', '=OurJS=', '=jQuery=');
-l1.list('x.float:', $('#x').getStyle('float'), jQuery('#x').css('float'));
-l1.list('x.opacity:', $('#x').getStyle('opacity'), jQuery('#x').css('opacity'));
-l1.list('x.zoom:', $('#x').getStyle('zoom'), jQuery('#x').css('zoom'));
-l1.list('y.float:', $('#y').getStyle('float'), jQuery('#y').css('float'));
-l1.list('y.opacity:', $('#y').getStyle('opacity'), jQuery('#y').css('opacity'));
-l1.list('y.zIndex:', $('#y').getStyle('zIndex'), jQuery('#y').css('zIndex'));
-l1.list('y.borderRightStyle:', $('#y').getStyle('borderRightStyle'), jQuery('#y').css('borderRightStyle'));
-
-//--------------------------------------------------[test2]
-var l2 = new Logger($('#logger_2'));
-
 var $html = $(document.documentElement);
 var $head = $(document.head);
 var $body = $(document.body);
-l2.assert('\'innerText\' in $head');
-l2.assert('\'outerText\' in $head');
-l2.assert('\'outerHTML\' in $head');
-
 var $x = $('#x');
 var $y = $('#y');
-l2.assert('$html.contains($body)');
-l2.assert('$body.contains($x)');
-l2.assert('$x.contains($x)');
-l2.assert('!$y.contains($html)');
-l2.assert('!$x.contains($y)');
 
-l2.assert('$y.getData(\'MyData\') === undefined');
-l2.assert('$y.getData(\'myData\') === \'myData\'');
-l2.assert('$y.getData(\'A\') === undefined');
-l2.assert('$y.getData(\'a\') === \'a\'');
+document.on('domready', function() {
+//--------------------------------------------------[test1]
+  var $l1 = $('#logger_1');
 
-$y.removeData('MyData');
-l2.log('$y.removeData(\'MyData\')');
-l2.assert('$y.getData(\'myData\') === \'myData\'');
+  $l1.list('=取值=', '=OurJS=', '=jQuery=');
+  $l1.list('x.float:', $('#x').getStyle('float'), jQuery('#x').css('float'));
+  $l1.list('x.opacity:', $('#x').getStyle('opacity'), jQuery('#x').css('opacity'));
+  $l1.list('x.zoom:', $('#x').getStyle('zoom'), jQuery('#x').css('zoom'));
+  $l1.list('y.float:', $('#y').getStyle('float'), jQuery('#y').css('float'));
+  $l1.list('y.opacity:', $('#y').getStyle('opacity'), jQuery('#y').css('opacity'));
+  $l1.list('y.zIndex:', $('#y').getStyle('zIndex'), jQuery('#y').css('zIndex'));
+  $l1.list('y.borderRightStyle:', $('#y').getStyle('borderRightStyle'), jQuery('#y').css('borderRightStyle'));
 
-$y.removeData('myData');
-l2.log('$y.removeData(\'myData\')');
-l2.assert('$y.getData(\'myData\') === undefined');
+//--------------------------------------------------[test2]
+  var $l2 = $('#logger_2');
 
-$y.setData('whatData', 'WHAT?');
-l2.log('$y.setData(\'whatData\', \'WHAT?\')');
-l2.assert('$y.getData(\'whatData\') === \'WHAT?\'');
+  $l2.assert('\'innerText\' in $head');
+  $l2.assert('\'outerText\' in $head');
+  $l2.assert('\'outerHTML\' in $head');
+
+  $l2.assert('$html.contains($body)');
+  $l2.assert('$body.contains($x)');
+  $l2.assert('$x.contains($x)');
+  $l2.assert('!$y.contains($html)');
+  $l2.assert('!$x.contains($y)');
+
+  $l2.assert('$y.getData(\'MyData\') === undefined');
+  $l2.assert('$y.getData(\'myData\') === \'myData\'');
+  $l2.assert('$y.getData(\'A\') === undefined');
+  $l2.assert('$y.getData(\'a\') === \'a\'');
+
+  $y.removeData('MyData');
+  $l2.log('$y.removeData(\'MyData\')');
+  $l2.assert('$y.getData(\'myData\') === \'myData\'');
+
+  $y.removeData('myData');
+  $l2.log('$y.removeData(\'myData\')');
+  $l2.assert('$y.getData(\'myData\') === undefined');
+
+  $y.setData('whatData', 'WHAT?');
+  $l2.log('$y.setData(\'whatData\', \'WHAT?\')');
+  $l2.assert('$y.getData(\'whatData\') === \'WHAT?\'');
 
 // This test will be true in all browsers.
-l2.assert('document.createElement(\'var\').ownerDocument === window.document');
+  $l2.assert('document.createElement(\'var\').ownerDocument === window.document');
 
-document.loadScript('dom-createElement.js', {
-  charset: 'utf-8',
-  onLoad: function() {
-    l2.assert("'" + this.nodeName + "' === 'SCRIPT' && '" + this.charset + "' === 'utf-8'");
-  }
+  document.loadScript('dom-createElement.js', {
+    charset: 'utf-8',
+    onLoad: function() {
+      $l2.assert("'" + this.nodeName + "' === 'SCRIPT' && '" + this.charset + "' === 'utf-8'");
+    }
+  });
+
 });
-
 </script>
 
 </body>

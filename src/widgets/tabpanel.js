@@ -32,7 +32,7 @@
    *   <strong>新增行为：</strong>
    *   当一个标签被点击（或在鼠标移入标签范围内到达指定的时间）时，这个“标签”所属的“标签面板”会被激活，被激活的“标签”和“面板”会被自动加入 'active' 类。
    *   <strong>默认样式：</strong>
-   *   <pre>
+   *   <pre class="lang-css">
    *   .widget-tabpanel { display: block; }
    *   .widget-tabpanel .panel { display: none; }
    *   .widget-tabpanel .active { display: block; }

@@ -5,7 +5,7 @@
 <title>浏览器信息</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../src/utilities/logger.js"></script>
+<script src="../../scripts/logger.js"></script>
 <style>
 </style>
 </head>
@@ -16,27 +16,27 @@
   <h2>在 navigator 上扩展的属性</h2>
   <fieldset>
     <legend>navigator.* - 根据浏览器特性判断得到的结果 (准确)</legend>
-    <div id="navigator_logger"></div>
+    <div id="navigator_logger" class="widget-logger"></div>
   </fieldset>
   <fieldset>
     <legend>navigator.userAgentInfo.* - 从 UA 中得到的结果 (仅供参考)</legend>
-    <div id="ua_info_logger"></div>
+    <div id="ua_info_logger" class="widget-logger"></div>
   </fieldset>
   <script>
-  (function() {
+  document.on('domready', function() {
     // navigator.* 预览。
-    var navigatorLogger = new Logger($('#navigator_logger'));
+    var $navigatorLogger = $('#navigator_logger');
     ['inStandardsMode', 'isIE10', 'isIElt10', 'isIE9', 'isIElt9', 'isIE8', 'isIElt8', 'isIE7', 'isIE6', 'isFirefox', 'isChrome', 'isSafari', 'isOpera'].forEach(function(key) {
       var value = navigator[key];
-      navigatorLogger.list('<div style="text-align: right;">' + key + ':</div>', value);
+      $navigatorLogger.list('<div style="text-align: right;">' + key + ':</div>', value);
     });
 
     // navigator.userAgent 和 navigator.userAgentInfo.* 预览。
-    var uaInfoLogger = new Logger($('#ua_info_logger'));
-    uaInfoLogger.log('<var>' + navigator.userAgent + '</var>');
-    uaInfoLogger.log(JSON.stringify(navigator.userAgentInfo));
+    var $uaInfoLogger = $('#ua_info_logger');
+    $uaInfoLogger.log('<var>' + navigator.userAgent + '</var>');
+    $uaInfoLogger.log(JSON.stringify(navigator.userAgentInfo));
 
-  })();
+  });
   </script>
 
 </div>

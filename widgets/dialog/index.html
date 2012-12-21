@@ -5,79 +5,85 @@
 <title>模态对话框</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../src/widgets/dialog.js"></script>
-<script src="../../src/utilities/logger.js"></script>
+<script src="../../scripts/demoarea.js"></script>
+<script src="../../src/widgets/tabpanel.js"></script>
 <style>
-
+iframe { width: 958px; height: 350px; }
 </style>
 </head>
 <body>
-<div id="content">
+<div id="content" data-outline="enabled">
   <h1>模态对话框</h1>
+  <blockquote>
+    <p>
+      注意：<br>
+      一个 Widget 本身仍是一个元素。<br>
+      当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并会触发新的事件。<br>
+      可以根据情况使利用这些新增的特性。<br>
+      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如为某部分增加内容和改变样式）。
+    </p>
+  </blockquote>
 
-  <h2>DIALOG</h2>
-  <p style="text-align: center;">
-    <button class="action" onclick="dialogA.open();">dialogA.open()</button>
-  </p>
-  <div id="container" style="border: 2px solid darkseagreen; background: whitesmoke;">
-    <fieldset>
-      <legend>对话框出现时遮罩下边的元素不能通过 tab 键获取焦点</legend>
-      <input type="button" value="button">
-      <input type="text" value="text">
-      <select>
-        <option>IE6 SELECT</option>
-      </select>
-      <a href="#">link</a>
-    </fieldset>
-    <div id="logger" style="height: 450px;"></div>
-  </div>
+  <h2>对话框弹出时禁止对整个视口或指定元素的操作</h2>
+  <ul>
+    <li>当对话框弹出时将自动生成一个遮盖层，遮盖层遮盖的范围为对话框父元素的渲染范围。被遮盖的部分将无法使用键盘或鼠标进行操作。</li>
+    <li>“模态”对话框的遮盖层是一定会出现的，不能将其屏蔽。</li>
+    <li>当前打开的对话框会在遮盖层上方显示。</li>
+  </ul>
+
+  <h3>禁止对整个视口的操作</h3>
+  <p>如果对话框元素的父元素是 BODY，遮盖层将遮盖整个视口。这种情况下当对话框弹出时，将只能对此对话框进行操作。</p>
+  <div class="widget-demoarea" data-src="1.html"></div>
+
+  <h3>禁止对指定元素的操作</h3>
+  <p>如果对话框元素的父元素不是 BODY，遮盖层将只遮盖其父元素。这种情况下当对话框弹出时，除此对话框外，还可以对页面中未被遮盖的部分进行操作。</p>
+  <div class="widget-demoarea" data-src="2.html"></div>
+
+  <h2>跟随视口滚动或固定显示</h2>
+  <ul>
+    <li>对话框元素的父元素是 BODY 时，可以通过设置对话框的 position 为 'fixed' 来使其固定显示。</li>
+    <li>如果对话框元素的父元素不是 BODY，则无法使固定其显示位置，只能跟随视口滚动。</li>
+  </ul>
+
+  <h3>跟随视口一起滚动</h3>
+  <p>对话框默认情况下会跟随视口一起滚动。</p>
+  <div class="widget-demoarea" data-src="3.html"></div>
+
+  <h3>视口滚动时位置保持不变</h3>
+  <p>将对话框元素的 position 样式设置为 fixed 即可固定其显示位置。只有对话框的父元素是 BODY 时这样设置才有效。</p>
+  <div class="widget-demoarea" data-src="4.html"></div>
+
+  <h2>指定对话框的显示位置</h2>
+  <ul>
+    <li>默认情况下对话框的“定位参考元素”为其父元素，但可以通过 data-pinned-target 属性来指定其他的“定位参考元素”。</li>
+    <li>默认情况下对话框的中心点与其“定位参考元素”的中心点重合，如果其“定位参考元素”为 BODY，则对话框的中心点与视口的中心点重合。</li>
+  </ul>
+
+  <h3>设置“定位参考元素”</h3>
+  <p>通过配置对话框的 data-pinned-target 属性来指定其“定位参考元素”，“定位参考元素”只能是对话框的父元素或其父元素的后代元素。</p>
+  <div class="widget-demoarea" data-src="5.html"></div>
+
+  <h3>设置偏移量</h3>
+  <p>通过配置对话框的 data-offset-x 属性和 data-offset-y 属性来指定对话框的左边和顶边与其“定位参考元素”的左边和顶边的差值，指定的差值的单位是像素。</p>
+  <div class="widget-demoarea" data-src="6.html"></div>
+
+  <h2>使用不同的动画效果</h2>
+  <ul>
+    <li>可以通过配置对话框的 data-animation 属性来指定打开和关闭对话框时使用的动画效果。可选项有 'none'，'fade' 和 'slide'。</li>
+  </ul>
+
+  <h3>启用滑动效果 (slide)</h3>
+  <div class="widget-demoarea" data-src="7.html"></div>
+
+  <h2>多个对话框层叠显示</h2>
+  <ul>
+    <li>当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。</li>
+  </ul>
+
+  <h3>两个对话框层叠</h3>
+  <p>当一组对话框重叠显示时，遮盖层只有一个，且只有最后打开的对话框才可以操作。</p>
+  <div class="widget-demoarea" data-src="8.html"></div>
 
 </div>
-
-<!-- dialog_a { -->
-<div id="dialog_a" class="widget-dialog" style="position:fixed; width: 600px; height: 400px; background: steelblue;" data-pinned-target="logger" data-animation="slide">
-  <select>
-    <option>IE6 SELECT</option>
-  </select>
-  <p style="text-align: center;">
-    <button class="action" onclick="dialogA.close();">dialogA.close()</button>
-    <button class="action" onclick="dialogB.open();">dialogB.open()</button>
-  </p>
-</div>
-<!-- } dialog_a -->
-
-<!-- dialog_b { -->
-<div id="dialog_b" class="widget-dialog" style="position: fixed; width: 400px; height: 200px; background: mediumorchid;" data-animation="fade">
-  <p style="text-align: center;">
-    <button class="action" onclick="dialogB.close();">dialogB.close()</button>
-  </p>
-  <p style="text-align: center;">
-    <button class="action" onclick="animation.play();">变长</button>
-    <button class="action" onclick="animation.reverse();">变短</button>
-  </p>
-</div>
-<!-- } dialog_b -->
-
-<script>
-//--------------------------------------------------[TEST]
-var logger = new Logger($('#logger'), true);
-
-var dialogA = $('#dialog_a')
-    .on('open', function(e) {
-      logger.log('<em>' + e.type + '</em> ' + e.target.id);
-    })
-    .on('close', function(e) {
-      logger.log('<em>' + e.type + '</em>' + e.target.id);
-    });
-
-var dialogB = $('#dialog_b');
-
-var animation = new Animation()
-    .addClip(Animation.createStyleRenderer(dialogB, {height: 400}), 0, 200, 'ease')
-    .on('step', function() {
-      dialogB.reposition();
-    });
-</script>
-
 </body>
 </html>

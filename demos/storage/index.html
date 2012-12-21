@@ -5,7 +5,7 @@
 <title>存储</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../src/utilities/logger.js"></script>
+<script src="../../scripts/logger.js"></script>
 <style>
 fieldset { display: inline-block; width: 200px; margin: 5px; }
 table th { width: 50px; text-align: left; }
@@ -16,25 +16,76 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
 </head>
 <body>
 <div id="content">
-  <h1>存储</h1>
+<h1>存储</h1>
 
-  <!-- cookie { -->
-  <h2>对 cookie 的操作</h2>
-  <fieldset style="display: block; width: auto;">
-    <legend>当前可见的 cookie</legend>
-    <div id="cookie_logger" style="width: 936px; min-height: 100px;"></div>
-  </fieldset>
-  <fieldset>
-    <legend>cookie.setItem</legend>
-    <form id="form_cookie_set">
-      <table>
+<!-- cookie { -->
+<h2>对 cookie 的操作</h2>
+<fieldset style="display: block; width: auto;">
+  <legend>当前可见的 cookie</legend>
+  <div id="cookie_logger" class="widget-logger" style="width: 936px; min-height: 100px;"></div>
+</fieldset>
+<fieldset>
+  <legend>cookie.setItem</legend>
+  <form id="form_cookie_set">
+    <table>
+      <tr>
+        <th>name:</th>
+        <td><input name="name" type="text" value=""></td>
+      </tr>
+      <tr>
+        <th>value:</th>
+        <td><input name="value" type="text" value=""></td>
+      </tr>
+      <tr>
+        <th>path:</th>
+        <td><input name="path" type="text" value=""></td>
+      </tr>
+      <tr>
+        <th>domain:</th>
+        <td><input name="domain" type="text" value=""></td>
+      </tr>
+      <tr>
+        <th>secure:</th>
+        <td><input name="secure" type="text" value=""></td>
+      </tr>
+      <tr>
+        <th>expires:</th>
+        <td><input name="expires" type="text" value="" title="YYYY-MM-DD hh:mm:ss (本地时间)"></td>
+      </tr>
+    </table>
+  </form>
+  <blockquote>
+    <button id="cookie_set" type="button">setItem</button>
+  </blockquote>
+</fieldset>
+<fieldset>
+  <legend>cookie.getItem</legend>
+  <form id="form_cookie_get">
+    <table>
+      <tbody>
         <tr>
           <th>name:</th>
           <td><input name="name" type="text" value=""></td>
         </tr>
         <tr>
           <th>value:</th>
-          <td><input name="value" type="text" value=""></td>
+          <td><input name="value" type="text" value="" disabled></td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  <blockquote>
+    <button id="cookie_get" type="button">getItem</button>
+  </blockquote>
+</fieldset>
+<fieldset>
+  <legend>cookie.removeItem</legend>
+  <form id="form_cookie_remove">
+    <table>
+      <tbody>
+        <tr>
+          <th>name:</th>
+          <td><input name="name" type="text" value=""></td>
         </tr>
         <tr>
           <th>path:</th>
@@ -48,189 +99,138 @@ iframe { display: block; width: 958px; height: 200px; border: 1px solid black; }
           <th>secure:</th>
           <td><input name="secure" type="text" value=""></td>
         </tr>
-        <tr>
-          <th>expires:</th>
-          <td><input name="expires" type="text" value="" title="YYYY-MM-DD hh:mm:ss (本地时间)"></td>
-        </tr>
-      </table>
-    </form>
-    <blockquote>
-      <button id="cookie_set" type="button">setItem</button>
-    </blockquote>
-  </fieldset>
-  <fieldset>
-    <legend>cookie.getItem</legend>
-    <form id="form_cookie_get">
-      <table>
-        <tbody>
-          <tr>
-            <th>name:</th>
-            <td><input name="name" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>value:</th>
-            <td><input name="value" type="text" value="" disabled></td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
-    <blockquote>
-      <button id="cookie_get" type="button">getItem</button>
-    </blockquote>
-  </fieldset>
-  <fieldset>
-    <legend>cookie.removeItem</legend>
-    <form id="form_cookie_remove">
-      <table>
-        <tbody>
-          <tr>
-            <th>name:</th>
-            <td><input name="name" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>path:</th>
-            <td><input name="path" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>domain:</th>
-            <td><input name="domain" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>secure:</th>
-            <td><input name="secure" type="text" value=""></td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
-    <blockquote>
-      <button id="cookie_remove" type="button">removeItem</button>
-    </blockquote>
-  </fieldset>
-  <script>
-  (function() {
-    var cookieLogger = new Logger($('#cookie_logger'));
+      </tbody>
+    </table>
+  </form>
+  <blockquote>
+    <button id="cookie_remove" type="button">removeItem</button>
+  </blockquote>
+</fieldset>
+<script>
+document.on('domready', function() {
+  var $cookieLogger = $('#cookie_logger');
 
-    function showAllCookies() {
-      cookieLogger.clear();
-      document.cookie.split(/\s*;\s*/).forEach(function(item) {
-        var seperatorIndex = item.indexOf('=');
-        cookieLogger.log('<strong>' + item.slice(0, seperatorIndex) + '</strong>' + item.slice(seperatorIndex + 1));
-      });
-    }
-
-    $('#cookie_set').on('click', function() {
-      var $form = $('#form_cookie_set');
-      cookie.setItem($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: $form.expires.value});
-      showAllCookies();
+  function showAllCookies() {
+    $cookieLogger.clear();
+    document.cookie.split(/\s*;\s*/).forEach(function(item) {
+      var seperatorIndex = item.indexOf('=');
+      $cookieLogger.log('<strong>' + item.slice(0, seperatorIndex) + '</strong>' + item.slice(seperatorIndex + 1));
     });
+  }
 
-    $('#cookie_get').on('click', function() {
-      var $form = $('#form_cookie_get');
-      var value = cookie.getItem($form.name.value);
-      $form.value.value = value || '';
-      showAllCookies();
-    });
-
-    $('#cookie_remove').on('click', function() {
-      var $form = $('#form_cookie_remove');
-      cookie.removeItem($form.name.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value});
-      showAllCookies();
-    });
-
+  $('#cookie_set').on('click', function() {
+    var $form = $('#form_cookie_set');
+    cookie.setItem($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: $form.expires.value});
     showAllCookies();
+  });
 
-  })();
-  </script>
-  <!-- } cookie -->
+  $('#cookie_get').on('click', function() {
+    var $form = $('#form_cookie_get');
+    var value = cookie.getItem($form.name.value);
+    $form.value.value = value || '';
+    showAllCookies();
+  });
 
-  <!-- localStorage { -->
-  <h2>使 IE6 IE7 支持 localStorage</h2>
-  <fieldset>
-    <legend>localStorage.setItem</legend>
-    <form id="form_local_storage_set">
-      <table>
-        <tbody>
-          <tr>
-            <th>key:</th>
-            <td><input name="key" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>value:</th>
-            <td><input name="value" type="text" value=""></td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
-    <blockquote>
-      <button id="local_storage_set" type="button">setItem</button>
-    </blockquote>
-  </fieldset>
-  <fieldset>
-    <legend>localStorage.getItem</legend>
-    <form id="form_local_storage_get">
-      <table>
-        <tbody>
-          <tr>
-            <th>key:</th>
-            <td><input name="key" type="text" value=""></td>
-          </tr>
-          <tr>
-            <th>value:</th>
-            <td><input name="value" type="text" value="" disabled></td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
-    <blockquote>
-      <button id="local_storage_get" type="button">getItem</button>
-    </blockquote>
-  </fieldset>
-  <fieldset>
-    <legend>localStorage.removeItem</legend>
-    <form id="form_local_storage_remove">
-      <table>
+  $('#cookie_remove').on('click', function() {
+    var $form = $('#form_cookie_remove');
+    cookie.removeItem($form.name.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value});
+    showAllCookies();
+  });
+
+  showAllCookies();
+
+});
+</script>
+<!-- } cookie -->
+
+<!-- localStorage { -->
+<h2>使 IE6 IE7 支持 localStorage</h2>
+<fieldset>
+  <legend>localStorage.setItem</legend>
+  <form id="form_local_storage_set">
+    <table>
+      <tbody>
         <tr>
           <th>key:</th>
           <td><input name="key" type="text" value=""></td>
         </tr>
-      </table>
-    </form>
-    <blockquote>
-      <button id="local_storage_remove" type="button">removeItem</button>
-    </blockquote>
-  </fieldset>
-  <fieldset>
-    <legend>localStorage.clear</legend>
-    <blockquote>
-      <button id="local_storage_clear" type="button">clear</button>
-    </blockquote>
-  </fieldset>
-  <script>
-  (function() {
-    $('#local_storage_set').on('click', function() {
-      var $form = $('#form_local_storage_set');
-      localStorage.setItem($form.key.value, $form.value.value);
-    });
+        <tr>
+          <th>value:</th>
+          <td><input name="value" type="text" value=""></td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  <blockquote>
+    <button id="local_storage_set" type="button">setItem</button>
+  </blockquote>
+</fieldset>
+<fieldset>
+  <legend>localStorage.getItem</legend>
+  <form id="form_local_storage_get">
+    <table>
+      <tbody>
+        <tr>
+          <th>key:</th>
+          <td><input name="key" type="text" value=""></td>
+        </tr>
+        <tr>
+          <th>value:</th>
+          <td><input name="value" type="text" value="" disabled></td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  <blockquote>
+    <button id="local_storage_get" type="button">getItem</button>
+  </blockquote>
+</fieldset>
+<fieldset>
+  <legend>localStorage.removeItem</legend>
+  <form id="form_local_storage_remove">
+    <table>
+      <tr>
+        <th>key:</th>
+        <td><input name="key" type="text" value=""></td>
+      </tr>
+    </table>
+  </form>
+  <blockquote>
+    <button id="local_storage_remove" type="button">removeItem</button>
+  </blockquote>
+</fieldset>
+<fieldset>
+  <legend>localStorage.clear</legend>
+  <blockquote>
+    <button id="local_storage_clear" type="button">clear</button>
+  </blockquote>
+</fieldset>
+<script>
+(function() {
+  $('#local_storage_set').on('click', function() {
+    var $form = $('#form_local_storage_set');
+    localStorage.setItem($form.key.value, $form.value.value);
+  });
 
-    $('#local_storage_get').on('click', function() {
-      var $form = $('#form_local_storage_get');
-      var value = localStorage.getItem($form.key.value);
-      $form.value.value = value || '';
-    });
+  $('#local_storage_get').on('click', function() {
+    var $form = $('#form_local_storage_get');
+    var value = localStorage.getItem($form.key.value);
+    $form.value.value = value || '';
+  });
 
-    $('#local_storage_remove').on('click', function() {
-      var $form = $('#form_local_storage_remove');
-      localStorage.removeItem($form.key.value);
-    });
+  $('#local_storage_remove').on('click', function() {
+    var $form = $('#form_local_storage_remove');
+    localStorage.removeItem($form.key.value);
+  });
 
-    $('#local_storage_clear').on('click', function() {
-      localStorage.clear();
-    });
+  $('#local_storage_clear').on('click', function() {
+    localStorage.clear();
+  });
 
-  })();
-  </script>
-  <iframe src="another_path/" width="500" height="300" frameborder="no" scrolling="no"></iframe>
-  <!-- } localStorage -->
+})();
+</script>
+<iframe src="another_path/" width="500" height="300" frameborder="no" scrolling="no"></iframe>
+<!-- } localStorage -->
 
 </div>
 </body>

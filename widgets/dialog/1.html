@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dialog</title>
+<script src="../../our.js"></script>
+<script src="../../src/widgets/dialog.js"></script>
+<style>
+blockquote { margin: 25px 50px; padding: 10px; border: 2px solid darkseagreen; background: whitesmoke; font: 14px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+.widget-dialog { width: 320px; height: 240px; background: steelblue; }
+</style>
+</head>
+<body>
+<!-- 测试遮盖层的功能 { -->
+<blockquote>
+  对话框出现时遮盖层下边的元素不能通过 tab 键获取焦点：
+  <a href="#">link</a>
+  <button>button</button>
+  <input type="text" value="text">
+  <select>
+    <option>IE6 SELECT</option>
+  </select>
+</blockquote>
+<!-- } 测试遮盖层的功能 -->
+
+<!-- 模态对话框 { -->
+<div id="test" class="widget-dialog">
+  <button id="close">关闭对话框</button>
+</div>
+<!-- } 模态对话框 -->
+
+<button id="open">打开对话框</button>
+
+<script>
+var $test = $('#test');
+$('#open').on('click', function(e) {
+  $test.open();
+});
+$('#close').on('click', function(e) {
+  $test.close();
+});
+</script>
+
+</body>
+</html>

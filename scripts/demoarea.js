@@ -21,13 +21,14 @@
   Widget.register('demoarea', {
     css: [
       '.widget-demoarea { display: block; }',
-      '.widget-demoarea iframe { display: none; border: 1px solid gainsboro; background: whitesmoke; }',
+      '.widget-demoarea .panels { border: 1px solid gainsboro; }',
+      '.widget-demoarea iframe { display: none; background: whitesmoke; }',
       '.widget-demoarea iframe.active { display: block; }',
-      '.widget-demoarea div { height: 31px; }',
+      '.widget-demoarea .tabs { height: 31px; }',
       '.widget-demoarea span { position: relative; z-index: 100; float: right; height: 20px; padding: 5px 10px; border: 1px solid white; border-top: none; line-height: 20px; }',
       '.widget-demoarea .tab { cursor: default; color: #333; }',
       '.widget-demoarea .tab:hover { border-color: whitesmoke; background: whitesmoke; color: #396686; }',
-      '.widget-demoarea .active, .widget-demoarea .active:hover { margin-top: -1px; padding-top: 6px; border-color: gainsboro; background: whitesmoke; color: #333; }'
+      '.widget-demoarea span.active, .widget-demoarea span.active:hover { margin-top: -1px; padding-top: 6px; border-color: gainsboro; background: whitesmoke; color: #333; }'
     ],
     config: {
       src: ''
@@ -36,10 +37,8 @@
       var src = this.src;
 
       // 创建内部结构。
-      var $iframe = $('<iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe>').insertTo(this);
-      $iframe.clone().insertTo(this);
-      this.insertAdjacentHTML('beforeEnd', '<div><span class="tab">效果预览</span><span class="tab">查看源码</span><span><a href="' + src + '" target="_blank" class="link">在新页面打开</a></span></div>');
-      $iframe.src = src;
+      this.insertAdjacentHTML('beforeEnd', '<div class="panels"><iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe><iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe></div><div class="tabs"><span class="tab">效果预览</span><span class="tab">查看源码</span><span><a href="' + src + '" target="_blank" class="link">在新页面打开</a></span></div>');
+      this.getFirstChild().getFirstChild().src = src;
 
       // 使用 TabPanel 实现切换功能。
       Widget.parsers.tabpanel(this);

@@ -5,10 +5,10 @@
 <title>动画</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../src/utilities/logger.js"></script>
+<script src="../../scripts/logger.js"></script>
 <style>
+.widget-logger { float: right; width: 407px; }
 .demo { float: left; width: 534px; }
-.logger { float: right; width: 407px; }
 div.notice { margin: 30px 0; padding: 5px; border: 1px solid #EEE8AA; border-radius: 2px; background-color: #FFFFE1; }
 div.notice p { margin: 0; }
 div.notice ul { list-style: circle; }
@@ -35,21 +35,20 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 <!-- morph { -->
 <fieldset>
   <legend>Element.prototype.morph</legend>
-  <div id="morph_logger" class="logger"></div>
+  <div id="morph_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
     <div id="morph_sample" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
     <blockquote>
-      <button id="morph">morph(...)</button>
+      <button id="morph_button">morph(...)</button>
     </blockquote>
   </div>
 </fieldset>
 <script>
-(function() {
+document.on('domready', function() {
   var $logger = $('#morph_logger');
-  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
   var $sample = $('#morph_sample');
-  $('#morph').on('click', function() {
+  $('#morph_button').on('click', function() {
     $sample.morph({
       // 可以使用相对长度。
       width: '+=100',
@@ -67,11 +66,11 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       duration: 1000,
       timingFunction: 'bounceIn',
       onStart: function() {
-        logger.log('<strong>onStart</strong>(' + (++this.innerText) + ')');
+        $logger.log('<strong>onStart</strong>(' + (++this.innerText) + ')');
       },
       onFinish: function() {
-        logger.log('<strong>onFinish</strong>');
-        logger.log('回退动画开始播放。');
+        $logger.log('<strong>onFinish</strong>');
+        $logger.log('回退动画开始播放。');
         this.morph({
           width: 160,
           borderLeftWidth: 0,
@@ -82,10 +81,10 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
           opacity: 1
         }, {
           onStart: function() {
-            logger.log('<em>onStart</em>(回退)');
+            $logger.log('<em>onStart</em>(回退)');
           },
           onFinish: function() {
-            logger.log('<em>onFinish</em>(回退)');
+            $logger.log('<em>onFinish</em>(回退)');
             this.highlight('aqua').innerText = '0';
           }
         });
@@ -93,7 +92,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
     });
   });
 
-})();
+});
 </script>
 <!-- } morph -->
 
@@ -105,7 +104,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 <!-- highlight { -->
 <fieldset>
   <legend>Element.prototype.highlight</legend>
-  <div id="highlight_logger" class="logger"></div>
+  <div id="highlight_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
     <div id="highlight_sample" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
     <blockquote>
@@ -115,19 +114,18 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   </div>
 </fieldset>
 <script>
-(function() {
+document.on('domready', function() {
   var $logger = $('#highlight_logger');
-  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
   var $sample = $('#highlight_sample');
   $('#highlight_red').on('click', function() {
     $sample.highlight('orangered', 'backgroundColor', {
       onStart: function() {
-        logger.log('<strong>onStart</strong>(orangered)');
+        $logger.log('<strong>onStart</strong>(orangered)');
       },
       onFinish: function() {
         this.innerText = 'R';
-        logger.log('<strong>onFinish</strong>(orangered)');
+        $logger.log('<strong>onFinish</strong>(orangered)');
       }
     });
   });
@@ -135,16 +133,16 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   $('#highlight_green').on('click', function() {
     $sample.highlight('greenyellow', 'backgroundColor', {
       onStart: function() {
-        logger.log('<em>onStart</em>(greenyellow)');
+        $logger.log('<em>onStart</em>(greenyellow)');
       },
       onFinish: function() {
         this.innerText = 'G';
-        logger.log('<em>onFinish</em>(greenyellow)');
+        $logger.log('<em>onFinish</em>(greenyellow)');
       }
     });
   });
 
-})();
+});
 </script>
 <!-- } highlight -->
 
@@ -156,7 +154,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 <!-- fade { -->
 <fieldset>
   <legend>Element.prototype.fade</legend>
-  <div id="fade_logger" class="logger"></div>
+  <div id="fade_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
     <div style="height: 88px;">
       <div style="float: left; padding: 2px; border: 2px solid black;">
@@ -175,9 +173,8 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   </div>
 </fieldset>
 <script>
-(function() {
+document.on('domready', function() {
   var $logger = $('#fade_logger');
-  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
   var $sample = $('#fade_sample');
   var $pointer = $('#opacity_value');
@@ -206,11 +203,11 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       duration: 1500,
       timingFunction: 'bounceIn',
       onStart: function() {
-        logger.log('<strong>onStart</strong>fade(\'in\')');
+        $logger.log('<strong>onStart</strong>fade(\'in\')');
         startUpdate();
       },
       onFinish: function() {
-        logger.log('<strong>onFinish</strong>fade(\'in\')');
+        $logger.log('<strong>onFinish</strong>fade(\'in\')');
         stopUpdate();
       }
     });
@@ -221,11 +218,11 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       duration: 750,
       timingFunction: 'cubicBezier(.25,1.25,.75,-0.25)',
       onStart: function() {
-        logger.log('<strong>onStart</strong>fade(\'out\')');
+        $logger.log('<strong>onStart</strong>fade(\'out\')');
         startUpdate();
       },
       onFinish: function() {
-        logger.log('<strong>onFinish</strong>fade(\'out\')');
+        $logger.log('<strong>onFinish</strong>fade(\'out\')');
         stopUpdate();
       }
     });
@@ -236,17 +233,17 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       duration: 1000,
       timingFunction: 'ease',
       onStart: function() {
-        logger.log('<em>onStart</em>fade(\'toggle\')');
+        $logger.log('<em>onStart</em>fade(\'toggle\')');
         startUpdate();
       },
       onFinish: function() {
-        logger.log('<em>onFinish</em>fade(\'toggle\')');
+        $logger.log('<em>onFinish</em>fade(\'toggle\')');
         stopUpdate();
       }
     });
   });
 
-})();
+});
 </script>
 <!-- } fade -->
 
@@ -268,7 +265,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 </style>
 <fieldset>
   <legend>播放过程中可以随时倒放</legend>
-  <div id="menu_logger" class="logger"></div>
+  <div id="menu_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
     <ul id="sample_menu">
       <li>菜单一</li>
@@ -280,31 +277,30 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   </div>
 </fieldset>
 <script>
-(function() {
+document.on('domready', function() {
   var $logger = $('#menu_logger');
-  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
 
   $('#sample_menu').getChildren().forEach(function($menu) {
     var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
     $menu
         .on('mouseenter', function() {
           animation.play();
-          logger.log('<strong>play</strong>' + this.innerText);
+          $logger.log('<strong>play</strong>' + this.innerText);
         })
         .on('mouseleave', function() {
           animation.reverse();
-          logger.log('<em>reverse</em>' + this.innerText);
+          $logger.log('<em>reverse</em>' + this.innerText);
         });
   });
 
-})();
+});
 </script>
 <!-- } play/reverse -->
 
 <!-- complex { -->
 <fieldset style="position: relative;">
   <legend style="text-align: left;">支持多个影片剪辑和多种事件</legend>
-  <div id="complex_logger" class="logger"></div>
+  <div id="complex_logger" class="widget-logger" data-clearable></div>
   <div class="demo" style="text-align: center;">
     <div style="position: relative; width: 200px; height: 50px; margin: auto;">
       <div id="foo" style="display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; border: 0 solid greenyellow; background: silver; color: red; font: 12px/20px Verdana; text-align: center; overflow: hidden;">FOO</div>
@@ -325,7 +321,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   </div>
 </fieldset>
 <script>
-(function() {
+document.on('domready', function() {
 //--------------------------------------------------[animation]
   var $foo = $('#foo').setStyle('opacity', 0);
   var $bar = $('#bar').setStyle('opacity', 0);
@@ -347,7 +343,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       }), 300, 400, 'cubicBezier(.6,0,.6,1.35)')
       .addClip(
       Animation.createBasicRenderer(function(x, y) {
-        logger.log('x=<var>' + x + '</var> y=<var>' + y + '</var>');
+        $logger.log('x=<var>' + x + '</var> y=<var>' + y + '</var>');
       }), 500, 0, 'linear')
       .addClip(
       Animation.createStyleRenderer($foo, {
@@ -371,39 +367,39 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
         backgroundColor: 'crimson'
       }), 700, 300, 'ease')
       .on('play', function() {
-        logger.log('<strong>play</strong>');
+        $logger.log('<strong>play</strong>');
 //        this.stop();
       })
       .on('playstart', function() {
         $foo.setStyle('display', 'block');
-        logger.log('<strong>playstart</strong>');
+        $logger.log('<strong>playstart</strong>');
 //        this.reverse();
       })
       .on('playfinish', function() {
-        logger.log('<strong>playfinish</strong>');
+        $logger.log('<strong>playfinish</strong>');
 //        this.reverse();
       })
       .on('reverse', function() {
-        logger.log('<strong>reverse</strong>');
+        $logger.log('<strong>reverse</strong>');
 //        this.play();
       })
       .on('reversestart', function() {
-        logger.log('<strong>reversestart</strong>');
+        $logger.log('<strong>reversestart</strong>');
 //        this.pause();
       })
       .on('reversefinish', function() {
-        logger.log('<strong>reversefinish</strong>');
+        $logger.log('<strong>reversefinish</strong>');
 //        this.play();
       })
       .on('step', function() {
 //        logger.log('<strong>step</strong>');
       })
       .on('pause', function() {
-        logger.log('<strong>pause</strong>');
+        $logger.log('<strong>pause</strong>');
 //        this.play();
       })
       .on('stop', function() {
-        logger.log('<strong>stop</strong>');
+        $logger.log('<strong>stop</strong>');
 //        this.play();
       });
 
@@ -453,15 +449,15 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
     }
   });
   $('#animation_controls').on('click:relay(button)', function() {
-    logger.log('<em>' + this.innerText + '</em>');
+    $logger.log('<em>' + this.innerText + '</em>');
     animation[this.innerText]();
   });
 
 //--------------------------------------------------[logger]
   var $logger = $('#complex_logger');
-  var logger = new Logger($logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2), true);
+  $logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2);
 
-})();
+});
 </script>
 <!-- complex { -->
 

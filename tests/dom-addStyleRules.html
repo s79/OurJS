@@ -4,16 +4,15 @@
 <meta charset="utf-8">
 <title>dom-createElement</title>
 <script src="../dev.js"></script>
-<script src="../scripts/log.js"></script>
+<script src="../scripts/logger.js"></script>
 </head>
 <body>
-<script src="../scripts/log.js"></script>
-<div id="log" style="height: 200px;"></div>
+<div id="logger" class="widget-logger" style="height: 200px;"></div>
 <script>
-(function() {
-  var logger = new Logger($('#log'));
-  logger.log('<em>!</em>text <var>var</var> <dfn class="true">dfn</dfn> <dfn class="false">dfn</dfn>');
-})();
+document.on('domready', function() {
+  var $logger = $('#logger');
+  $logger.log('<em>!</em>text <var>var</var> <dfn class="true">dfn</dfn> <dfn class="false">dfn</dfn>');
+});
 </script>
 </body>
 </html>

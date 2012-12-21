@@ -37,7 +37,7 @@
    *   <strong>新增行为：</strong>
    *   如果需要更改月历显示的月份，调用 update 方法即可。
    *   <strong>默认样式：</strong>
-   *   <pre>
+   *   <pre class="lang-css">
    *   .widget-calendar table { table-layout: fixed; border-collapse: separate; border-spacing: 1px; width: 218px; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
    *   .widget-calendar table td { padding: 0; border: 1px solid silver; border-radius: 2px; text-align: center; }
    *   .widget-calendar thead td { border-color: white; color: navy; font-weight: bold; }

@@ -293,7 +293,7 @@
    *   <strong>新增行为：</strong>
    *   当该元素成为日期选择器后，将不能再由键盘输入值，但当点击该元素时，将弹出日期选择面板，在面板中选中的日期将自动回填到该元素中。
    *   <strong>默认样式：</strong>
-   *   <pre>
+   *   <pre class="lang-css">
    *   .datepicker-panel { display: none; position: absolute; left: 0; top: 0; width: 218px; padding: 6px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); border: 1px solid silver; border-radius: 3px; background: whitesmoke; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
    *   .datepicker-panel div.control_set { position: relative; height: 22px; line-height: 22px; text-align: center; }
    *   .datepicker-panel span.btn { position: absolute; top: 0; width: 28px; height: 20px; border: 1px solid silver; border-radius: 2px; background: white; color: black; line-height: 20px; }

@@ -8,21 +8,21 @@
 <style>
 .widget-tabpanel { width: 400px; }
 .widget-tabpanel .tabs { list-style: none; position: relative; z-index: 100; margin: 0; padding: 0; height: 31px; }
-.widget-tabpanel .tab { float: left; margin-right: -1px; }
-.widget-tabpanel .tab a { display: block; height: 20px; padding: 5px 10px; border: 1px solid silver; border-bottom: none; background: whitesmoke; color: dimgray; font: 14px/20px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; text-decoration: none; white-space: nowrap; text-align: center; cursor: default; }
+.widget-tabpanel .tab { float: left; margin-right: -1px; border: 1px solid silver; border-bottom: none; }
+.widget-tabpanel .tab a { position: relative; float: left; height: 20px; padding: 5px 10px; background: whitesmoke; color: dimgray; font: 14px/20px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; text-decoration: none; white-space: nowrap; text-align: center; cursor: default; outline: none; }
 .widget-tabpanel .tab a:hover { background: white; }
 .widget-tabpanel .tabs .active a,
-.widget-tabpanel .tabs .active a:hover { padding-bottom: 6px; background: white; color: black; }
+.widget-tabpanel .tabs .active a:hover { top: 1px; padding: 4px 10px 6px; background: white; color: black; }
 .widget-tabpanel .panels { position: relative; z-index: 10; border: 1px solid silver; }
-.widget-tabpanel .panel { height: 267px; background: white; font-size: 100px; line-height: 267px; text-align: center; }
+.widget-tabpanel .panel { height: 250px; background: white; font-size: 100px; line-height: 250px; text-align: center; }
 </style>
 </head>
 <body>
 <div class="widget-tabpanel" data-hover-delay="200">
   <ul class="tabs">
-    <li class="tab"><a href="javascript:void('switchTab');">默认选中第一个</a></li>
-    <li class="tab"><a href="javascript:void('switchTab');">第 2 个</a></li>
-    <li class="tab"><a href="javascript:void('switchTab');">No.3</a></li>
+    <li class="tab"><a href="javascript:void('switchTab');" hidefocus>默认选中第一个</a></li>
+    <li class="tab"><a href="javascript:void('switchTab');" hidefocus>第 2 个</a></li>
+    <li class="tab"><a href="javascript:void('switchTab');" hidefocus>No.3</a></li>
   </ul>
   <div class="panels">
     <div class="panel">一</div>

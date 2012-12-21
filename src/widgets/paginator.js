@@ -51,7 +51,7 @@
    *   在“静态模式”下，点击页码不会触发 turn 事件，页面将直接跳转到指定的 url 地址。
    *   在“动态模式”下，点击页码会自动调用 turn 方法，并触发 turn 事件，此点击事件的默认行为会被阻止。
    *   <strong>默认样式：</strong>
-   *   <pre>
+   *   <pre class="lang-css">
    *   .widget-paginator { font-size: 14px; line-height: 16px; text-align: center; }
    *   .widget-paginator a:link, .widget-paginator a:visited, .widget-paginator a:hover, .widget-paginator a:active { display: inline-block; margin: 2px; padding: 2px 5px; border: 1px solid silver; background: white; color: black; text-decoration: none; }
    *   .widget-paginator a:hover { border-color: firebrick; text-decoration: none; }

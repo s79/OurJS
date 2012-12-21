@@ -113,7 +113,7 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 #footer a:visited { color: #102197; }
 
 /* 文章提纲 */
-#outline { position: fixed; top: 120px; width: 32px; }
+#outline { position: fixed; z-index: 10000; top: 120px; width: 32px; }
 #outline a.control { display: block; position: relative; z-index: 10; width: 14px; padding: 12px 9px; border: 1px solid gainsboro; border-radius: 3px; background: whitesmoke; line-height: 16px; text-decoration: none; }
 #outline div { display: none; position: absolute; right: -10px; top: -16px; z-index: 5; width: 800px; border: 1px solid gainsboro; border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); background: #FBFBFB; }
 #outline ul { height: 100%; margin: 16px 50px 16px 16px; padding: 0; overflow-y: auto; }
@@ -122,6 +122,8 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 #outline ul .h3 { padding-left: 32px; }
 #outline ul .dt { padding-left: 60px; }
 #outline li a:visited { color: #102197; }
+#outline .h3 a,
+#outline .h3 a:visited,
 #outline .dt a,
 #outline .dt a:visited { color: #333; }
 #outline.shown a.control { background: white; }

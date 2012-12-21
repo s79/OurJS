@@ -5,7 +5,7 @@
 <title>远程请求</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../src/utilities/logger.js"></script>
+<script src="../../scripts/logger.js"></script>
 <style>
 blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 </style>
@@ -17,46 +17,46 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   <h2>Request</h2>
   <fieldset>
     <legend>使用 Request 进行同域请求</legend>
-    <div id="logger" style="height: 200px;"></div>
+    <div id="logger_xhr" class="widget-logger" style="height: 200px;" data-clearable></div>
     <blockquote>
       <button id="send_txt">send (data.txt)</button>
-      <button id="send_txt_abort">send and abort (data.txt)</button>
+      <button id="send_abort_txt">send and abort (data.txt)</button>
       <br>
       <button id="send_xml">send (data.xml)</button>
       <button id="abort_xml">abort (data.xml)</button>
     </blockquote>
   </fieldset>
   <script>
-  (function() {
-    var logger = new Logger($('#logger'), true);
+  document.on('domready', function() {
+    var $logger = $('#logger_xhr');
 
     var getTXT = new Request('data.txt', {useCache: false})
         .on('start', function(e) {
-          logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
+          $logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
         })
         .on('abort, timeout, complete', function(e) {
-          logger.log('<em>' + e.type + '</em>');
+          $logger.log('<em>' + e.type + '</em>');
         })
         .on('finish', function(e) {
-          logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
+          $logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
         });
     $('#send_txt').on('click', function() {
       getTXT.send({type: 'Normal.'});
     });
-    $('#send_txt_abort').on('click', function() {
+    $('#send_abort_txt').on('click', function() {
       getTXT.send({type: 'Call abort method immediately.'});
       getTXT.abort();
     });
 
     var getXML = new Request('data.xml', {minTime: 500})
         .on('start', function(e) {
-          logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
+          $logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
         })
         .on('abort, timeout, complete', function(e) {
-          logger.log('<em>' + e.type + '</em>');
+          $logger.log('<em>' + e.type + '</em>');
         })
         .on('finish', function(e) {
-          logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
+          $logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
         });
     $('#send_xml').on('click', function() {
       getXML.send();
@@ -65,21 +65,21 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       getXML.abort();
     });
 
-  })();
+  });
   </script>
 
   <h2>JSONP</h2>
   <fieldset>
     <legend>使用 JSONP 模式进行跨域请求</legend>
-    <div id="logger_jsonprequest" style="height: 200px;"></div>
+    <div id="logger_jsonp" class="widget-logger" style="height: 200px;" data-clearable></div>
     <blockquote>
-      <button id="send">send</button>
-      <button id="abort">abort</button>
+      <button id="send_jsonp">send</button>
+      <button id="abort_jsonp">abort</button>
     </blockquote>
   </fieldset>
   <script>
-  (function() {
-    var logger = new Logger($('#logger_jsonprequest'), true);
+  document.on('domready', function() {
+    var $logger = $('#logger_jsonp');
 
     var getList = new Request('http://www.highcharts.com/samples/data/jsonp.php', {
       mode: 'jsonp',
@@ -87,23 +87,23 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       maxTime: 5000
     })
         .on('start', function(e) {
-          logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
+          $logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
         })
         .on('abort, timeout, complete', function(e) {
-          logger.log('<em>' + e.type + '</em>');
+          $logger.log('<em>' + e.type + '</em>');
         })
         .on('finish', function(e) {
-          logger.log('<strong>' + e.type + '</strong>' + (e.data ? 'data.length=<var>' + e.data.length + '</var>' : ''));
+          $logger.log('<strong>' + e.type + '</strong>' + (e.data ? 'data.length=<var>' + e.data.length + '</var>' : ''));
         });
 
-    $('#send').on('click', function() {
+    $('#send_jsonp').on('click', function() {
       getList.send({filename: 'aapl-c.json'});
     });
-    $('#abort').on('click', function() {
+    $('#abort_jsonp').on('click', function() {
       getList.abort();
     });
 
-  })();
+  });
   </script>
 
 </div>

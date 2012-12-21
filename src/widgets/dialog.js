@@ -204,6 +204,7 @@
    * @attribute data-pinned-target
    *   对话框的“定位参考元素”的 id。
    *   如果不指定本属性，则以父元素作为“定位参考元素”。
+   *   “定位参考元素”只能是对话框的父元素或其父元素的后代元素。
    * @attribute data-offset-x
    *   对话框的左边与其“定位参考元素”的左边的横向差值。
    *   如果不指定本属性，对话框的中心点在横向将与其“定位参考元素”的中心点重合。
@@ -235,7 +236,7 @@
    *   当对话框弹出时将自动生成一个遮盖层，遮盖层遮盖的范围为对话框父元素的渲染范围。如果对话框元素的父元素是 BODY，遮盖层将遮盖整个视口。
    *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。当一组对话框重叠显示时，遮盖层只有一个，且只遮盖后打开的对话框。
    *   <strong>默认样式：</strong>
-   *   <pre>
+   *   <pre class="lang-css">
    *   .widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }
    *   .widget-dialog { display: none; outline: none; }
    *   </pre>
@@ -369,7 +370,7 @@
           var expectedX;
           var expectedY;
           var pinnedTargetClientRect = {};
-          if (isFixedPositioned) {
+          if (this.pinnedTarget === document.body) {
             var viewportClientSize = window.getClientSize();
             pinnedTargetClientRect.left = 0;
             pinnedTargetClientRect.top = 0;

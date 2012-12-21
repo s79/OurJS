@@ -2105,7 +2105,8 @@
       if (handlers = (item = eventPool[$element.uid]) && item[event.type]) {
         distributeEvent($element, handlers, event);
       }
-      if (!event.bubbles || event.isPropagationStopped() || $element === window) {
+      // IE6 中即便 $element 就是 window，表达式 $element == window 也返回 false。
+      if (!event.bubbles || event.isPropagationStopped() || $element.uid === 'window') {
         break;
       }
       $element = $element === document ? window : $element.getParent() || $element === html && document || null;

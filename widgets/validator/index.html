@@ -5,8 +5,8 @@
 <title>表单验证器</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
+<script src="../../scripts/logger.js"></script>
 <script src="../../src/widgets/validator.js"></script>
-<script src="../../src/utilities/logger.js"></script>
 <style>
   /* 表单 */
 form { position: relative; }
@@ -48,278 +48,278 @@ dl.strong .strong { color: #333; font-weight: bold; }
 </head>
 <body>
 <div id="content">
-  <h1>表单验证器</h1>
+<h1>表单验证器</h1>
 
-  <h2>Form Validation</h2>
-  <fieldset>
-    <legend>使用 htmlFormElement.setValidationRules 来添加验证规则</legend>
-    <form id="form" method="get" action="/" class="widget-validator">
-      <div id="logger"></div>
-      <table id="form_table">
-        <colgroup>
-          <col class="key">
-          <col class="value">
-          <col class="message">
-        </colgroup>
-        <tbody>
-          <tr>
-            <th>帐号：</th>
-            <td><input name="account" type="text" value=""></td>
-            <td class="w-state" data-for="account">
-              <p class="input">请输入 3 - 20 字的帐号名</p>
-              <p class="validating">验证中……</p>
-              <p class="valid">可以使用</p>
-              <p class="w-message" data-for="account"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>密码：</th>
-            <td>
-              <input name="password" type="text">
-              <dl id="password_strength">
-                <dt>密码强度</dt>
-                <dd class="weak">弱</dd>
-                <dd class="medium">中</dd>
-                <dd class="strong">强</dd>
-              </dl>
-            </td>
-            <td class="w-state" data-for="password">
-              <p class="input">请输入密码</p>
-              <p class="w-message" data-for="password"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>重复密码：</th>
-            <td><input name="password_confirm" type="password"></td>
-            <td class="w-state" data-for="password_confirm">
-              <p class="input">请重复输入密码以确保您刚才没有输错</p>
-              <p class="w-message" data-for="password_confirm"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>EMail：</th>
-            <td><input name="email" type="text"></td>
-            <td class="w-state" data-for="email">
-              <p class="input">请输入您的 EMail 地址</p>
-              <p class="w-message" data-for="email"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>年龄：</th>
-            <td><input name="age" type="text" value="28"></td>
-            <td class="w-state" data-for="age">
-              <p class="input">请输入年龄</p>
-              <p class="w-message" data-for="age"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>操作系统：</th>
-            <td>
-              <select name="os">
-                <option value="" selected>请选择</option>
-                <option value="Win98">Win98</option>
-                <option value="WinXP">WinXP</option>
-                <option value="Win7">Win7</option>
-                <option value="MacOS">MacOS</option>
-              </select>
-            </td>
-            <td class="w-state" data-for="os">
-              <p class="w-message" data-for="os"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>玩过的游戏：</th>
-            <td>
-              <select name="games" size="8" multiple>
-                <option value="pal">仙剑奇侠传</option>
-                <option value="tomb">古墓丽影</option>
-                <optgroup label="Blizzard">
-                  <option value="sc" selected>星际争霸</option>
-                  <option value="wow" selected disabled>魔兽世界</option>
-                </optgroup>
-                <optgroup label="id Software" disabled>
-                  <option value="doom" selected>毁灭战士</option>
-                  <option value="quake" selected>雷神之锤</option>
-                </optgroup>
-              </select>
-            </td>
-            <td class="w-state" data-for="games">
-              <p class="w-message" data-for="games"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>喜欢的颜色：</th>
-            <td>
-              <label><input name="colors" value="红色" type="checkbox">红色</label>
-              <label><input name="colors" value="绿色" type="checkbox">绿色</label>
-              <label><input name="colors" value="蓝色" type="checkbox">蓝色</label>
-            </td>
-            <td class="w-state" data-for="colors">
-              <p class="w-message" data-for="colors"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>喜欢的数字：</th>
-            <td>
-              <label><input name="numbers" value="一" type="radio" checked disabled>一</label>
-              <label><input name="numbers" value="二" type="radio">二</label>
-              <label><input name="numbers" value="三" type="radio">三</label><br>
-              <label><input name="numbers" value="四" type="checkbox" checked disabled>四</label>
-              <label><input name="numbers" value="五" type="checkbox">五</label>
-              <label><input name="numbers" value="六" type="checkbox">六</label><br>
-              <select name="numbers" disabled>
-                <option value="">这里也能选</option>
-                <option value="七" selected>七</option>
-                <option value="八">八</option>
-                <option value="九">九</option>
-              </select>
-              <input name="numbers" type="text" value="">
-            </td>
-            <td class="w-state" data-for="numbers">
-              <p class="input">多类型混合的表单域</p>
-              <p class="w-message" data-for="numbers"></p>
-            </td>
-          </tr>
-          <tr>
-            <th>自我介绍：</th>
-            <td><textarea name="description" rows="5" cols="25">普通玩家</textarea></td>
-            <td class="w-state" data-for="description">
-              <p class="input">请输入 20 字以内的自我介绍</p>
-              <p class="w-message" data-for="description"></p>
-            </td>
-          </tr>
-          <tr>
-            <th colspan="3" class="submit">
-              <button type="reset">复位表单</button>
-              <button id="btn_submit" type="submit">确定提交</button>
-            </th>
-          </tr>
-        </tbody>
-      </table>
-    </form>
-  </fieldset>
-  <script>
-  document.on('domready', function() {
-    var $form = $('#form');
+<h2>Form Validation</h2>
+<fieldset>
+<legend>使用 htmlFormElement.setValidationRules 来添加验证规则</legend>
+<form id="form" method="get" action="/" class="widget-validator">
+<div id="logger" class="widget-logger" style="float: right; width: 343px;" data-clearable></div>
+<table id="form_table">
+<colgroup>
+  <col class="key">
+  <col class="value">
+  <col class="message">
+</colgroup>
+<tbody>
+<tr>
+  <th>帐号：</th>
+  <td><input name="account" type="text" value=""></td>
+  <td class="w-state" data-for="account">
+    <p class="input">请输入 3 - 20 字的帐号名</p>
+    <p class="validating">验证中……</p>
+    <p class="valid">可以使用</p>
+    <p class="w-message" data-for="account"></p>
+  </td>
+</tr>
+<tr>
+  <th>密码：</th>
+  <td>
+    <input name="password" type="text">
+    <dl id="password_strength">
+      <dt>密码强度</dt>
+      <dd class="weak">弱</dd>
+      <dd class="medium">中</dd>
+      <dd class="strong">强</dd>
+    </dl>
+  </td>
+  <td class="w-state" data-for="password">
+    <p class="input">请输入密码</p>
+    <p class="w-message" data-for="password"></p>
+  </td>
+</tr>
+<tr>
+  <th>重复密码：</th>
+  <td><input name="password_confirm" type="password"></td>
+  <td class="w-state" data-for="password_confirm">
+    <p class="input">请重复输入密码以确保您刚才没有输错</p>
+    <p class="w-message" data-for="password_confirm"></p>
+  </td>
+</tr>
+<tr>
+  <th>EMail：</th>
+  <td><input name="email" type="text"></td>
+  <td class="w-state" data-for="email">
+    <p class="input">请输入您的 EMail 地址</p>
+    <p class="w-message" data-for="email"></p>
+  </td>
+</tr>
+<tr>
+  <th>年龄：</th>
+  <td><input name="age" type="text" value="28"></td>
+  <td class="w-state" data-for="age">
+    <p class="input">请输入年龄</p>
+    <p class="w-message" data-for="age"></p>
+  </td>
+</tr>
+<tr>
+  <th>操作系统：</th>
+  <td>
+    <select name="os">
+      <option value="" selected>请选择</option>
+      <option value="Win98">Win98</option>
+      <option value="WinXP">WinXP</option>
+      <option value="Win7">Win7</option>
+      <option value="MacOS">MacOS</option>
+    </select>
+  </td>
+  <td class="w-state" data-for="os">
+    <p class="w-message" data-for="os"></p>
+  </td>
+</tr>
+<tr>
+  <th>玩过的游戏：</th>
+  <td>
+    <select name="games" size="8" multiple>
+      <option value="pal">仙剑奇侠传</option>
+      <option value="tomb">古墓丽影</option>
+      <optgroup label="Blizzard">
+        <option value="sc" selected>星际争霸</option>
+        <option value="wow" selected disabled>魔兽世界</option>
+      </optgroup>
+      <optgroup label="id Software" disabled>
+        <option value="doom" selected>毁灭战士</option>
+        <option value="quake" selected>雷神之锤</option>
+      </optgroup>
+    </select>
+  </td>
+  <td class="w-state" data-for="games">
+    <p class="w-message" data-for="games"></p>
+  </td>
+</tr>
+<tr>
+  <th>喜欢的颜色：</th>
+  <td>
+    <label><input name="colors" value="红色" type="checkbox">红色</label>
+    <label><input name="colors" value="绿色" type="checkbox">绿色</label>
+    <label><input name="colors" value="蓝色" type="checkbox">蓝色</label>
+  </td>
+  <td class="w-state" data-for="colors">
+    <p class="w-message" data-for="colors"></p>
+  </td>
+</tr>
+<tr>
+  <th>喜欢的数字：</th>
+  <td>
+    <label><input name="numbers" value="一" type="radio" checked disabled>一</label>
+    <label><input name="numbers" value="二" type="radio">二</label>
+    <label><input name="numbers" value="三" type="radio">三</label><br>
+    <label><input name="numbers" value="四" type="checkbox" checked disabled>四</label>
+    <label><input name="numbers" value="五" type="checkbox">五</label>
+    <label><input name="numbers" value="六" type="checkbox">六</label><br>
+    <select name="numbers" disabled>
+      <option value="">这里也能选</option>
+      <option value="七" selected>七</option>
+      <option value="八">八</option>
+      <option value="九">九</option>
+    </select>
+    <input name="numbers" type="text" value="">
+  </td>
+  <td class="w-state" data-for="numbers">
+    <p class="input">多类型混合的表单域</p>
+    <p class="w-message" data-for="numbers"></p>
+  </td>
+</tr>
+<tr>
+  <th>自我介绍：</th>
+  <td><textarea name="description" rows="5" cols="25">普通玩家</textarea></td>
+  <td class="w-state" data-for="description">
+    <p class="input">请输入 20 字以内的自我介绍</p>
+    <p class="w-message" data-for="description"></p>
+  </td>
+</tr>
+<tr>
+  <th colspan="3" class="submit">
+    <button type="reset">复位表单</button>
+    <button id="btn_submit" type="submit">确定提交</button>
+  </th>
+</tr>
+</tbody>
+</table>
+</form>
+</fieldset>
+<script>
+document.on('domready', function() {
+  var $form = $('#form');
 
 //--------------------------------------------------[输出日志]
-    var logger = new Logger($('#logger').setStyles({float: 'right', width: 343, height: $('#form_table').offsetHeight - 2}), true);
+  var $logger = $('#logger');
 
 //--------------------------------------------------[密码强度检测]
 
-    var repeatedCharactersPattern = /(.)\1+/g;
-    var getPasswordStrengthScore = function(password) {
-      var score = 0;
-      // 以密码包含的，各字符类型所包含的字符种类之和作为底数。
-      var types = [0, 0, 0, 0];
-      var charCode;
-      var n = password.length;
-      while (n) {
-        charCode = password.charCodeAt(--n);
-        if (charCode >= 48 && charCode <= 57) {
-          types[0] = 10;
-        } else if (charCode >= 65 && charCode <= 90) {
-          types[1] = 26;
-        } else if (charCode >= 97 && charCode <= 122) {
-          types[2] = 26;
-        } else {
-          types[3] = 32;
-        }
+  var repeatedCharactersPattern = /(.)\1+/g;
+  var getPasswordStrengthScore = function(password) {
+    var score = 0;
+    // 以密码包含的，各字符类型所包含的字符种类之和作为底数。
+    var types = [0, 0, 0, 0];
+    var charCode;
+    var n = password.length;
+    while (n) {
+      charCode = password.charCodeAt(--n);
+      if (charCode >= 48 && charCode <= 57) {
+        types[0] = 10;
+      } else if (charCode >= 65 && charCode <= 90) {
+        types[1] = 26;
+      } else if (charCode >= 97 && charCode <= 122) {
+        types[2] = 26;
+      } else {
+        types[3] = 32;
       }
-      var base = types[0] + types[1] + types[2] + types[3];
-      // 以密码长度作为指数。
-      var exponent = password.length;
-      var repeatedCharacters = password.match(repeatedCharactersPattern);
-      if (repeatedCharacters) {
-        repeatedCharacters.forEach(function(match) {
-          // n 个连续字符按 1 + n * 0.2 个字符计算。
-          exponent -= (match.length - 1) * .8;
-        });
-      }
-      return Math.floor(Math.pow(base, exponent));
-    };
+    }
+    var base = types[0] + types[1] + types[2] + types[3];
+    // 以密码长度作为指数。
+    var exponent = password.length;
+    var repeatedCharacters = password.match(repeatedCharactersPattern);
+    if (repeatedCharacters) {
+      repeatedCharacters.forEach(function(match) {
+        // n 个连续字符按 1 + n * 0.2 个字符计算。
+        exponent -= (match.length - 1) * .8;
+      });
+    }
+    return Math.floor(Math.pow(base, exponent));
+  };
 
-    // 中等强度密码参考分值，由 6 位包含小写字母和大写字母的字符组成，且其中没有连续的重复字符。
-    var mediumValue = Math.pow(52, 6);
-    // 高强度密码参考分值，由 8 位包含数字、小写字母、大写字母和标点符号的字符组成，且其中没有连续的重复字符。
-    var strongValue = Math.pow(94, 8);
-    var $passwordStrength = $('#password_strength');
-    $($form.elements.password).on('input', function(e) {
-      var score = getPasswordStrengthScore(this.value);
-      $passwordStrength.className = score >= strongValue ? 'strong' : (score >= mediumValue ? 'medium' : (score > 1 ? 'weak' : ''));
-    });
+  // 中等强度密码参考分值，由 6 位包含小写字母和大写字母的字符组成，且其中没有连续的重复字符。
+  var mediumValue = Math.pow(52, 6);
+  // 高强度密码参考分值，由 8 位包含数字、小写字母、大写字母和标点符号的字符组成，且其中没有连续的重复字符。
+  var strongValue = Math.pow(94, 8);
+  var $passwordStrength = $('#password_strength');
+  $($form.elements.password).on('input', function(e) {
+    var score = getPasswordStrengthScore(this.value);
+    $passwordStrength.className = score >= strongValue ? 'strong' : (score >= mediumValue ? 'medium' : (score > 1 ? 'weak' : ''));
+  });
 
 //--------------------------------------------------[表单验证器]
-    // 添加验证规则。
-    $form
-        .addValidationRules({
-          account: {
-            required: true,
-            minLength: 3,
-            maxLength: 20,
-            remote: {
-              url: 'remote.txt',
-              options: {
-                useCache: false,
-                minTime: 1000
-              },
-              valueKey: 'value',
-              validateResult: function(e) {
-                var value = $('#form').elements.account.value;
-                return value.startsWith('our') ? '' : JSON.parse(e.text).errorMessage + '（以 our 开头即可通过验证）';
-              }
-            }
-          },
-          password: {
-            required: true
-          },
-          'password_confirm': {
-            equals: 'password'
-          },
-          email: {
-            required: true,
-            type: 'email'
-          },
-          age: {
-            type: 'number',
-            custom: function(value) {
-              return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
-            }
-          },
-          os: {
-            required: true
-          },
-          games: {
-            required: true
-          },
-          colors: {
-            minLength: 2,
-            maxLength: 2
-          },
-          numbers: {
-            required: true
-          },
-          description: {
-            maxLength: 20,
-            custom: function(value) {
-              return value.contains(' ') ? '不能包含空格' : '';
+  // 添加验证规则。
+  $form
+      .addValidationRules({
+        account: {
+          required: true,
+          minLength: 3,
+          maxLength: 20,
+          remote: {
+            url: 'remote.txt',
+            options: {
+              useCache: false,
+              minTime: 1000
+            },
+            valueKey: 'value',
+            validateResult: function(e) {
+              var value = $('#form').elements.account.value;
+              return value.startsWith('our') ? '' : JSON.parse(e.text).errorMessage + '（以 our 开头即可通过验证）';
             }
           }
-        })
-        .on('fieldvalidate', function(e) {
-          logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
-        })
-        .on('fieldvalidated', function(e) {
-          var passed = !e.errorMessage;
-          logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + passed + '">' + (e.errorMessage || 'passed') + '</dfn>');
-        })
-        .on('validate, validated', function(e) {
-          logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
-        })
-        .on('reset', function() {
-          // 清除密码强度提示信息。
-          $passwordStrength.removeClass('weak, medium, strong');
-        });
+        },
+        password: {
+          required: true
+        },
+        'password_confirm': {
+          equals: 'password'
+        },
+        email: {
+          required: true,
+          type: 'email'
+        },
+        age: {
+          type: 'number',
+          custom: function(value) {
+            return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
+          }
+        },
+        os: {
+          required: true
+        },
+        games: {
+          required: true
+        },
+        colors: {
+          minLength: 2,
+          maxLength: 2
+        },
+        numbers: {
+          required: true
+        },
+        description: {
+          maxLength: 20,
+          custom: function(value) {
+            return value.contains(' ') ? '不能包含空格' : '';
+          }
+        }
+      })
+      .on('fieldvalidate', function(e) {
+        $logger.log('<em>?</em>' + e.name + ' <var>' + e.value + '</var>');
+      })
+      .on('fieldvalidated', function(e) {
+        var passed = !e.errorMessage;
+        $logger.log('<em>!</em>' + e.name + ' <var>' + e.value + '</var> <dfn class="' + passed + '">' + (e.errorMessage || 'passed') + '</dfn>');
+      })
+      .on('validate, validated', function(e) {
+        $logger.log('<strong>' + e.type + '</strong>' + (e.type === 'validated' ? ' <dfn class="' + e.result + '">' + e.result + '</dfn>' : ''));
+      })
+      .on('reset', function() {
+        // 清除密码强度提示信息。
+        $passwordStrength.removeClass('weak, medium, strong');
+      });
 
 //    logger.log('age: <var>' + $form.getFieldValue('age') + '</var>');
 //    logger.log('os: <var>' + $form.getFieldValue('os') + '</var>');
@@ -328,8 +328,8 @@ dl.strong .strong { color: #333; font-weight: bold; }
 //    logger.log('numbers: <var>' + $form.getFieldValue('numbers') + '</var>');
 //    logger.log('description: <var>' + $form.getFieldValue('description') + '</var>');
 
-  });
-  </script>
+});
+</script>
 
 </div>
 </body>

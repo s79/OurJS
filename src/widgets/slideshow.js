@@ -45,7 +45,7 @@
    *   每隔一定的时间后（取决于 data-interval 的设定值），当前“幻灯片”都会自动更换。当前播放的“幻灯片”和“指示器”会被自动加入 'active' 类。
    *   自动播放的计时器将在鼠标进入本元素的区域后被停止，并在鼠标离开本元素的区域后重新计时。
    *   <strong>默认样式：</strong>
-   *   <pre>
+   *   <pre class="lang-css">
    *   .widget-slideshow { display: block; }
    *   .widget-slideshow .slides { display: block; position: relative; }
    *   .widget-slideshow .slide { display: block; position: absolute; left: 0; top: 0; z-index: auto; }

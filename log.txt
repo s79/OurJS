@@ -1,5 +1,9 @@
 
 
+>2012-12-21
+修改文档及演示代码
+Logger -> widget-logger
+
 >2012-12-19
 document.preloadImages 加入 onLoad 参数。
 

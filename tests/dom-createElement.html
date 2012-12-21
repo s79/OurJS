@@ -4,69 +4,70 @@
 <meta charset="utf-8">
 <title>dom-createElement</title>
 <script src="../dev.js"></script>
-<script src="../src/utilities/logger.js"></script>
+<script src="../scripts/logger.js"></script>
 </head>
 <body>
-<div id="logger" style="position: absolute; left: 200px; top: 50px;"></div>
+<div id="logger" class="widget-logger" style="position: absolute; left: 200px; top: 50px;"></div>
 <script>
-var body = document.body;
-var logger = new Logger($('#logger'));
+document.on('domready', function() {
+  var body = document.body;
+  var logger = $('#logger');
 
 //--------------------------------------------------[测试：$ - nodeName & getChildCount]
-logger.log('//--------------------------------------------------[测试：$ - nodeName & getChildCount]');
+  logger.log('//--------------------------------------------------[测试：$ - nodeName & getChildCount]');
 
-var test1 = function(htmlString) {
-  var $element = $(htmlString).insertTo(body);
-  return '[' + $element.nodeName + '](' + $element.getChildCount() + ')';
-};
+  window.test1 = function(htmlString) {
+    var $element = $(htmlString).insertTo(body);
+    return '[' + $element.nodeName + '](' + $element.getChildCount() + ')';
+  };
 
-[
-  ['<link rel="stylesheet" href="dom-createElement.css">', '[LINK](0)'],
-  ['<style>body{color: crimson;}</style>', '[STYLE](0)'],
-  ['<script src="dom-createElement.js" charset="utf-8"><' + '/script>', '[SCRIPT](0)'],
-  ['<script src="dom-createElement.js" charset="utf-8" defer><' + '/script>', '[SCRIPT](0)'],
+  [
+    ['<link rel="stylesheet" href="dom-createElement.css">', '[LINK](0)'],
+    ['<style>body{color: crimson;}</style>', '[STYLE](0)'],
+    ['<script src="dom-createElement.js" charset="utf-8"><' + '/script>', '[SCRIPT](0)'],
+    ['<script src="dom-createElement.js" charset="utf-8" defer><' + '/script>', '[SCRIPT](0)'],
 //  ['<script>alert("innerScript");<' + '/script>', '[SCRIPT](0)'],
 //  ['<script defer>alert("innerScript");<' + '/script>', '[SCRIPT](0)'],
-  ['<div style="background: white;"> test<p>p</p>  text  <div>  div  </div></div>', '[DIV](2)'],
-  ['<span style="background: whitesmoke;">test<var>var</var>text<del>del</del>text</span>', '[SPAN](2)'],
-  ['<table style="background: gainsboro;"><tr><td>table</td></tr></table>', '[TABLE](1)']
-]
-    .forEach(function(item) {
-      logger.assert("test1('" + item[0] + "') === '" + item[1] + "'");
-    });
+    ['<div style="background: white;"> test<p>p</p>  text  <div>  div  </div></div>', '[DIV](2)'],
+    ['<span style="background: whitesmoke;">test<var>var</var>text<del>del</del>text</span>', '[SPAN](2)'],
+    ['<table style="background: gainsboro;"><tr><td>table</td></tr></table>', '[TABLE](1)']
+  ]
+      .forEach(function(item) {
+        logger.assert("test1('" + item[0] + "') === '" + item[1] + "'");
+      });
 
 //--------------------------------------------------[测试：$ - nodeName & innerText]
-logger.log('//--------------------------------------------------[测试：$ - nodeName & innerText]');
+  logger.log('//--------------------------------------------------[测试：$ - nodeName & innerText]');
 
-var test2 = function(htmlString) {
-  var $element = $(htmlString).insertTo(body);
-  return '[' + $element.nodeName + ']' + $element.innerText.trim();
-};
+  window.test2 = function(htmlString) {
+    var $element = $(htmlString).insertTo(body);
+    return '[' + $element.nodeName + ']' + $element.innerText.trim();
+  };
 
-[
-  ['<area shape="rect" coords="0,0,82,126" href="">', '[AREA]'],
-  ['<legend>~legend~</legend>', '[LEGEND]~legend~'],
-  ['<option>~option~</option>', '[OPTION]~option~'],
-  ['<optgroup>~optgroup~</optgroup>', '[OPTGROUP]~optgroup~'],
-  ['<caption>~caption~</caption>', '[CAPTION]~caption~'],
-  ['<colgroup></colgroup>', '[COLGROUP]'],
-  ['<col>', '[COL]'],
-  ['<thead></thead>', '[THEAD]'],
-  ['<tfoot></tfoot>', '[TFOOT]'],
-  ['<tbody><tr><td><table><tr><td>~tbody&gt;tr&gt;td~</td></tr></table></td></tr></tbody>', '[TBODY]~tbody>tr>td~'],
-  ['<tr></tr>', '[TR]'],
-  ['<th>~th~</th>', '[TH]~th~'],
-  ['<td>~td~</td>', '[TD]~td~']
-]
-    .forEach(function(item) {
-      logger.assert("test2('" + item[0] + "') === '" + item[1] + "'");
-    });
+  [
+    ['<area shape="rect" coords="0,0,82,126" href="">', '[AREA]'],
+    ['<legend>~legend~</legend>', '[LEGEND]~legend~'],
+    ['<option>~option~</option>', '[OPTION]~option~'],
+    ['<optgroup>~optgroup~</optgroup>', '[OPTGROUP]~optgroup~'],
+    ['<caption>~caption~</caption>', '[CAPTION]~caption~'],
+    ['<colgroup></colgroup>', '[COLGROUP]'],
+    ['<col>', '[COL]'],
+    ['<thead></thead>', '[THEAD]'],
+    ['<tfoot></tfoot>', '[TFOOT]'],
+    ['<tbody><tr><td><table><tr><td>~tbody&gt;tr&gt;td~</td></tr></table></td></tr></tbody>', '[TBODY]~tbody>tr>td~'],
+    ['<tr></tr>', '[TR]'],
+    ['<th>~th~</th>', '[TH]~th~'],
+    ['<td>~td~</td>', '[TD]~td~']
+  ]
+      .forEach(function(item) {
+        logger.assert("test2('" + item[0] + "') === '" + item[1] + "'");
+      });
 
 //--------------------------------------------------[测试：$('<>')]
-logger.log('--------------------------------------------------[测试：$(\'<>\')]');
+  logger.log('--------------------------------------------------[测试：$(\'<>\')]');
+  logger.assert("$('<>').insertTo(document.body).innerText === '<>'");
 
-logger.assert("$('<>').insertTo(body).innerText === '<>'");
-
+});
 </script>
 </body>
 </html>

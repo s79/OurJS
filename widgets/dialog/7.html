@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dialog</title>
+<script src="../../our.js"></script>
+<script src="../../src/widgets/dialog.js"></script>
+<style>
+.widget-dialog { width: 320px; height: 240px; background: steelblue; }
+</style>
+</head>
+<body>
+<!-- 模态对话框 { -->
+<div id="test" class="widget-dialog" data-animation="slide">
+  <button id="close">关闭对话框</button>
+</div>
+<!-- } 模态对话框 -->
+
+<button id="open">打开对话框</button>
+
+<script>
+var $test = $('#test');
+$('#open').on('click', function(e) {
+  $test.open();
+});
+$('#close').on('click', function(e) {
+  $test.close();
+});
+</script>
+
+</body>
+</html>
