@@ -191,7 +191,9 @@
    */
 
 //--------------------------------------------------[JSON.toString]
-  if (!window.JSON) {
+  // IE8 的较低子版本中使用内置的 JSON.stringify 方法处理表单控件的空值时有 BUG。
+  // http://tech.groups.yahoo.com/group/json/message/1268
+  if (!window.JSON || navigator.isIE8) {
     window.JSON = {
       toString: function() {
         return '[object JSON]';
