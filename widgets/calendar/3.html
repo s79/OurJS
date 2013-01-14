@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Calendar</title>
+<script src="../../our.js"></script>
+<script src="../../src/widgets/calendar.js"></script>
+<style>
+.custom { width: 176px; padding: 5px; border: 1px solid silver; border-radius: 3px; }
+.custom table { border-collapse: collapse; width: 176px; }
+.custom table td { border: none; border-radius: 0; font-size: 12px; }
+.custom tbody td { border-top: 1px solid silver; color: black; }
+.custom tbody td.sun,
+.custom tbody td.sat { background: infobackground; }
+.custom tbody td.prev,
+.custom tbody td.next { border-color: silver; background: whitesmoke; }
+.custom tbody td.today { background: yellowgreen; font-weight: normal; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="custom widget-calendar" data-first-day="1"></div>
+
+</body>
+</html>

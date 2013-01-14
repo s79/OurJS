@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Slideshow</title>
+<script src="../../our.js"></script>
+<script src="../../src/widgets/slideshow.js"></script>
+<style>
+.slideshow { position: relative; width: 540px; height: 80px; overflow: hidden; }
+.slideshow .slides { list-style: none; margin: 0; padding: 0; }
+.slideshow .slide { width: 540px; height: 80px; margin: 0; background: black; color: white; text-align: center; line-height: 80px; }
+.slideshow .pointers { position: absolute; right: 10px; bottom: 5px; z-index: 10; }
+.slideshow .pointer { float: left; width: 12px; height: 12px; margin-right: 2px; overflow: hidden; color: white; font-size: 12px; line-height: 12px; font-family: Tahoma, Verdana, Arial, serif; text-align: center; text-decoration: none; cursor: default; opacity: .3; filter: alpha(opacity = 30); }
+.slideshow .pointer:hover { opacity: .5; filter: alpha(opacity = 50); }
+.slideshow .pointers a.active,
+.slideshow .pointers a.active:hover { opacity: .75; filter: alpha(opacity = 75); }
+</style>
+</head>
+<body>
+<div class="widget-slideshow slideshow" data-animation="cover" data-hover-delay="100" data-interval="3000">
+  <ul class="slides">
+    <li class="slide" style="background: darkred;">一</li>
+    <li class="slide" style="background: darkgreen;">二</li>
+    <li class="slide" style="background: darkblue;">三</li>
+  </ul>
+  <div class="pointers">
+    <a href="javascript:void('1');" hidefocus class="pointer">●</a>
+    <a href="javascript:void('2');" hidefocus class="pointer">●</a>
+    <a href="javascript:void('3');" hidefocus class="pointer">●</a>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,75 +1,47 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <title>分页导航条</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../src/widgets/dialog.js"></script>
-<script src="../../src/widgets/paginator.js"></script>
+<script src="../../scripts/demoarea.js"></script>
+<script src="../../src/widgets/tabpanel.js"></script>
 <style>
-.container { padding: 80px 0 20px; }
-.container .widget-overlay { background: white; opacity: 0.5; filter: alpha(opacity = 50); }
-.widget-dialog { padding: 5px 20px; border: 1px solid black; background: white; color: black; font-size: 14px; }
+iframe { width: 958px; height: 200px; }
 </style>
 </head>
 <body>
-<div id="content">
+<div id="content" data-outline="enabled">
   <h1>分页导航条</h1>
+  <blockquote>
+    <p>
+      注意：<br>
+      一个 Widget 本身仍是一个元素。<br>
+      当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
+      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
+    </p>
+  </blockquote>
 
-  <h2>无脚本模式</h2>
+  <h2>静态模式</h2>
+  <p>适用场景：页面由服务端代码输出，知道 totalPage 和 currentPage（通过设置 data-total-page 和 data-current-page 属性来指定），且翻页时需要刷新页面。</p>
   <ul>
-    <li>适用于数据内容由服务端直接输出的场景。</li>
-    <li>服务端将“总页数”，“当前页”以及“链接地址”写入目标元素的 data-target-url、data-total-page 和 data-current-page 属性，即可启用此模式。</li>
+    <li>服务端将“总页数”，“当前页”以及“链接地址”写入分页导航条元素的 data-target-url、data-total-page 和 data-current-page 属性，即可启用此模式。</li>
     <li>在此模式下，不必使用任何 JS 代码来处理导航条内容。</li>
   </ul>
-  <fieldset>
-    <legend>点击页码会导致页面刷新</legend>
-    <div class="container">
-      <script>
-      (function() {
-        // 注意：以下 document.write 为模拟服务端的输出，实际使用时不必使用脚本。
-        var totalPage = 30;
-        var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 1, 1, totalPage);
-        document.write('<div class="widget-paginator" data-target-url="?page={page}" data-total-page="' + totalPage + '" data-current-page="' + currentPage + '"></div>');
-      })();
-      </script>
-    </div>
-  </fieldset>
 
-  <h2>有脚本模式</h2>
+  <h3>点击页码会导致页面刷新</h3>
+  <div class="widget-demoarea" data-src="1.html"></div>
+
+  <h2>动态模式</h2>
+  <p>适用场景：页面加载时不知道 totalPage 和 currentPage，或当翻页时不希望刷新当前页面。</p>
   <ul>
-    <li>适用于数据内容是由客户端通过远程请求获取的场景。</li>
-    <li>省略目标元素的 data-target-url、data-total-page 和 data-current-page 属性，即可启用此模式。</li>
+    <li>省略分页导航条元素的 data-target-url、data-total-page 和 data-current-page 属性，即可启用此模式。</li>
     <li>在此模式下，应当在合适的时间调用 update 方法来更新导航条内容，并在 turn 事件的监听器中进行后续处理。</li>
   </ul>
-  <fieldset>
-    <legend>点击页码不会刷新当前页面</legend>
-    <div class="container">
-      <div id="loading" class="widget-dialog">Loading...</div>
-      <div id="paginator" class="widget-paginator"></div>
-    </div>
-    <script>
-    document.on('domready', function() {
-      var totalPage = 10;
-      var currentPage = 5;
-      var $loading = $('#loading');
-      var $paginator = $('#paginator');
-      // 添加翻页事件监听器。
-      $paginator.on('turn', function(e) {
-        // 检测到翻页事件，在此处请求新页的数据。
-        $loading.open();
-        // 模拟 500 毫秒后收到新页的数据，更新导航条。
-        setTimeout(function() {
-          $loading.close();
-          $paginator.update(e.number, totalPage);
-        }, 500);
-      });
-      // 需要手动更新导航条。
-      $paginator.update(currentPage, totalPage);
-    });
-    </script>
-  </fieldset>
+
+  <h3>点击页码不会刷新当前页面</h3>
+  <div class="widget-demoarea" data-src="2.html"></div>
 
 </div>
 </body>

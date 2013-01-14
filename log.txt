@@ -1,5 +1,8 @@
 
 
+>2013-01-14
+修复 IE8 的较低子版本中使用内置的 JSON.stringify 方法处理表单控件的空值时出现的 BUG。
+
 >2012-12-21
 修改文档及演示代码
 Logger -> widget-logger

@@ -5,80 +5,53 @@
 <title>幻灯片播放器</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../src/widgets/slideshow.js"></script>
+<script src="../../scripts/demoarea.js"></script>
+<script src="../../src/widgets/tabpanel.js"></script>
 <style>
-.slideshow { position: relative; width: 512px; height: 288px; overflow: hidden; background: black; }
-.slideshow .slides { list-style: none; padding: 0; }
-.slideshow .slide { }
-.slideshow .pointers { position: absolute; right: 10px; bottom: 10px; z-index: 10; }
-.slideshow .pointer { float: left; width: 30px; height: 5px; margin-right: 2px; overflow: hidden; background: silver; cursor: default; opacity: .3; filter: alpha(opacity = 30); }
-.slideshow .pointer:hover { background: gainsboro; opacity: .5; filter: alpha(opacity = 50); }
-.slideshow .pointers a.active,
-.slideshow .pointers a.active:hover { color: black; background: whitesmoke; opacity: .75; filter: alpha(opacity = 75); }
-.slideshow img { display: block; width: 512px; height: 288px; }
-.slideshow a { outline: none; }
-.slideshow a.btn { display: none; position: absolute; top: 112px; z-index: 50; width: 64px; height: 64px; overflow: hidden; border: 2px solid darkgray; border-radius: 35px; background: black; color: white; font-size: 60px; line-height: 50px; text-align: center; text-decoration: none; opacity: .5; filter: alpha(opacity = 50); }
-.slideshow a.btn:hover { opacity: .75; filter: alpha(opacity = 75); }
-.slideshow a.btn span { display: block; width: 64px; height: 64px; background: url(buttons.png) no-repeat; }
-.slideshow a.prev { left: 10px; }
-.slideshow a.prev span { background-position: -2px 0; }
-.slideshow a.next { right: 10px; }
-.slideshow a.next span { background-position: -62px 0; }
+iframe { width: 958px; height: 350px; }
 </style>
 </head>
 <body>
-<div id="content">
+<div id="content" data-outline="enabled">
   <h1>幻灯片播放器</h1>
+  <blockquote>
+    <p>
+      注意：<br>
+      一个 Widget 本身仍是一个元素。<br>
+      当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
+      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
+    </p>
+  </blockquote>
 
-  <h2>无脚本模式</h2>
-  <div id="has_control_buttons" class="widget-slideshow slideshow" data-animation="slide" data-hover-delay="100" data-interval="1000">
-    <ul class="slides">
-      <li class="slide"><a href="javascript:alert('1');"><img src="1.jpg" galleryimg="no"></a></li>
-      <li class="slide"><a href="javascript:alert('2');"><img src="2.jpg" galleryimg="no"></a></li>
-      <li class="slide"><a href="javascript:alert('3');"><img src="3.jpg" galleryimg="no"></a></li>
-      <li class="slide"><a href="javascript:alert('4');"><img src="4.jpg" galleryimg="no"></a></li>
-      <li class="slide"><a href="javascript:alert('5');"><img src="5.jpg" galleryimg="no"></a></li>
-    </ul>
-    <div class="pointers">
-      <a href="javascript:void('1');" hidefocus class="pointer"></a>
-      <a href="javascript:void('2');" hidefocus class="pointer"></a>
-      <a href="javascript:void('3');" hidefocus class="pointer"></a>
-      <a href="javascript:void('4');" hidefocus class="pointer"></a>
-      <a href="javascript:void('5');" hidefocus class="pointer"></a>
-    </div>
-    <div>
-      <a id="control_prev" href="javascript:void('prev');" hidefocus class="btn prev"><span></span></a>
-      <a id="control_next" href="javascript:void('next');" hidefocus class="btn next"><span></span></a>
-    </div>
-  </div>
+  <h2>基本应用</h2>
+  <ul>
+    <li>适用于绝大多数场景。</li>
+    <li>不需要写脚本。</li>
+  </ul>
 
-  <script>
-  (function() {
-    var $prev = $('#control_prev');
-    var $next = $('#control_next');
-    $('#has_control_buttons')
-        .on('mouseenter', function() {
-          $prev.fade('in');
-          $next.fade('in');
-        })
-        .on('mouseleave', function() {
-          $prev.fade('out');
-          $next.fade('out');
-        })/*
-     .on('show', function(e) {
-     e.activePointer.highlight();
-     })*/
-        .on('mousewheel.slideshow', function(event) {
-          if (event.wheelUp) {
-            this.showPrevious();
-          }
-          if (event.wheelDown) {
-            this.showNext();
-          }
-          event.preventDefault();
-        });
-  })();
-  </script>
+  <h3>鼠标指向“指示器”即可激活对应的“幻灯片”</h3>
+  <p>通过可配置项 data-interval 来指定自动切换的时间，本例为 3000 毫秒。</p>
+  <p>通过可配置项 data-hover-delay 来指定鼠标在“指示器”上悬停切换的时间，本例为 100 毫秒。</p>
+  <div class="widget-demoarea" data-src="1.html"></div>
+
+  <h3>更改切换动画</h3>
+  <p>可以通过配置幻灯片播放器的 data-animation 属性来指定幻灯片切换时使用的动画效果。可选项有 'none'，'fade', 'cover' 和 'slide'。</p>
+  <p>本例将上例的 data-animation 属性值修改为 'cover'。</p>
+  <div class="widget-demoarea" data-src="2.html"></div>
+
+  <h3>只有一张幻灯片的情况</h3>
+  <p>如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，它们也将不可见。</p>
+  <p>这种情况下，“幻灯片播放器”相当于一个静态的元素，不会进行自动播放。</p>
+  <p>本例将上例的“幻灯片”和“指示器”的数量都修改为一个。</p>
+  <div class="widget-demoarea" data-src="3.html"></div>
+
+  <h2>高级应用</h2>
+  <ul>
+    <li>通过编写脚本来满足更多需求。</li>
+  </ul>
+
+  <h3>鼠标移入显示翻页按钮并支持滚轮翻页</h3>
+  <div class="widget-demoarea" data-src="4.html"></div>
 
 </div>
 </body>

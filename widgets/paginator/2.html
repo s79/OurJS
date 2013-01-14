@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Paginator</title>
+<script src="../../our.js"></script>
+<script src="../../src/widgets/dialog.js"></script>
+<script src="../../src/widgets/paginator.js"></script>
+<style>
+.container { padding: 120px 0 20px; font-size: 14px; font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+.container .widget-overlay { background: white; opacity: 0.5; filter: alpha(opacity = 50); }
+.widget-dialog { padding: 5px 20px; border: 1px solid black; background: white; color: black; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="loading" class="widget-dialog">Loading...</div>
+  <div id="paginator" class="widget-paginator"></div>
+</div>
+<script>
+document.on('domready', function() {
+  var totalPage = 10;
+  var currentPage = 5;
+  var $loading = $('#loading');
+  var $paginator = $('#paginator');
+  // 添加翻页事件监听器。
+  $paginator.on('turn', function(e) {
+    // 检测到翻页事件，在此处请求新页的数据。
+    $loading.open();
+    // 模拟 500 毫秒后收到新页的数据，更新导航条。
+    setTimeout(function() {
+      $loading.close();
+      $paginator.update(e.number, totalPage);
+    }, 500);
+  });
+  // 需要手动更新导航条。
+  $paginator.update(currentPage, totalPage);
+});
+</script>
+
+</body>
+</html>

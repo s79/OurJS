@@ -5,49 +5,50 @@
 <title>月历</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/framework.js"></script>
-<script src="../../src/widgets/calendar.js"></script>
+<script src="../../scripts/demoarea.js"></script>
+<script src="../../src/widgets/tabpanel.js"></script>
 <style>
-fieldset { display: inline-block; width: 460px; margin: 0 5px 10px 0; *display: inline; }
+iframe { width: 958px; height: 200px; }
 </style>
 </head>
 <body>
-<div id="content">
+<div id="content" data-outline="enabled">
   <h1>月历</h1>
+  <blockquote>
+    <p>
+      注意：<br>
+      一个 Widget 本身仍是一个元素。<br>
+      当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
+      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
+    </p>
+  </blockquote>
 
-  <h2>基本用法</h2>
-  <fieldset>
-    <legend>粗体带下划线的为今天的日期</legend>
-    <div class="widget-calendar"></div>
-  </fieldset>
+  <h2>基本应用</h2>
 
-  <h2>定制月历</h2>
-  <style>
-  .custom { width: 176px; padding: 5px; border: 1px solid silver; border-radius: 3px; }
-  .custom table { border-collapse: collapse; width: 176px; }
-  .custom table td { border: none; border-radius: 0; font-size: 12px; }
-  .custom tbody td { border-top: 1px solid silver; color: black; }
-  .custom tbody td.sun,
-  .custom tbody td.sat { background: infobackground; }
-  .custom tbody td.prev,
-  .custom tbody td.next { border-color: silver; background: whitesmoke; }
-  .custom tbody td.today { background: yellowgreen; font-weight: normal; text-decoration: none; }
-  </style>
-  <fieldset>
-    <legend>使用新样式覆盖默认样式</legend>
-    <div class="custom widget-calendar" data-first-day="1"></div>
-  </fieldset>
-  <fieldset>
-    <legend>并为每月的 10 - 15 号添加标记</legend>
-    <div id="labeled" class="custom widget-calendar" data-first-day="1"></div>
-    <script>
-    $('#labeled').on('cellupdate', function(e) {
-      var date = e.date.getDate();
-      if (date >= 10 && date <= 15) {
-        e.cell.setStyles({color: 'orangered', fontWeight: 'bold'});
-      }
-    });
-    </script>
-  </fieldset>
+  <h3>显示当前月份</h3>
+  <p>粗体带下划线的为今天的日期。</p>
+  <div class="widget-demoarea" data-src="1.html"></div>
+
+  <h3>指定要显示的月份</h3>
+  <p>通过可配置项 data-month 来指定要显示哪一个月份的日期排列情况，格式为 YYYY-MM。</p>
+  <p>本例指定为 '1900-01'。</p>
+  <div class="widget-demoarea" data-src="2.html"></div>
+
+  <h2>高级应用</h2>
+
+  <h3>自定义月历的样式</h3>
+  <p>通过可配置项 data-first-day 来指定每周的第一天是星期几，本例设为 1。</p>
+  <p>使用新样式覆盖默认样式。</p>
+  <div class="widget-demoarea" data-src="3.html"></div>
+  <p>并为每月的 10 - 15 号添加标记。</p>
+  <div class="widget-demoarea" data-src="4.html"></div>
+
+  <h3>监听事件</h3>
+  <p>可以为 update 和 cellupdate 事件添加监听器。</p>
+  <p>本例通过监听 update 事件，在指定的位置显示当前月份。</p>
+  <div class="widget-demoarea" data-src="5.html"></div>
+  <p>本例通过监听 cellupdate 事件，在每个单元格显示对应的日期（title 属性）。</p>
+  <div class="widget-demoarea" data-src="6.html"></div>
 
 </div>
 </body>

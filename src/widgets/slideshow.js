@@ -119,7 +119,7 @@
     },
     methods: {
       show: function(index) {
-        if (index > -1 && index < this.slides.length) {
+        if (index !== this.activeIndex && index > -1 && index < this.slides.length) {
           var $inactiveSlide = this.activeSlide;
           var $inactivePointer = this.activePointer;
           var $activeSlide = this.activeSlide = this.slides[index];
@@ -203,67 +203,70 @@
       // 设置幻灯片样式。
       if (slides.length < 2) {
         $element.addClass('slideshow-single');
-      } else if ($element.animation === 'slide') {
-        $activeSlide.getParent().setStyles({width: $activeSlide.offsetWidth * slides.length, height: $activeSlide.offsetHeight});
-        slides.forEach(function($slide) {
-          $slide.setStyles({position: 'static', float: 'left'});
-        });
-      }
+      } else {
+        if ($element.animation === 'slide') {
+          $activeSlide.getParent().setStyles({width: $activeSlide.offsetWidth * slides.length, height: $activeSlide.offsetHeight});
+          slides.forEach(function($slide) {
+            $slide.setStyles({position: 'static', float: 'left'});
+          });
+        }
 
-      // 通过点击或指向“指示器”播放对应的“幻灯片”。
-      var hoverTimer;
-      $element
-          .on('click.slideshow:relay(.pointer)', function(event) {
-            if (pointers.contains(this)) {
-              $element.show(pointers.indexOf(this));
-              event.preventDefault();
-            }
-          })
-          .on('mouseenter.slideshow:relay(.pointer)', function() {
-            if (Number.isFinite($element.hoverDelay)) {
-              var $pointer = this;
-              if (!hoverTimer) {
-                hoverTimer = setTimeout(function() {
-                  $pointer.fire('click');
-                }, $element.hoverDelay);
+        // 通过点击或指向“指示器”播放对应的“幻灯片”。
+        var hoverTimer;
+        $element
+            .on('click.slideshow:relay(.pointer)', function(event) {
+              if (pointers.contains(this)) {
+                $element.show(pointers.indexOf(this));
+                event.preventDefault();
               }
-            }
-          })
-          .on('mouseleave.slideshow:relay(.pointer)', function() {
-            if (hoverTimer) {
-              clearTimeout(hoverTimer);
-              hoverTimer = undefined;
-            }
-          });
+            })
+            .on('mouseenter.slideshow:relay(.pointer)', function() {
+              if (Number.isFinite($element.hoverDelay)) {
+                var $pointer = this;
+                if (!hoverTimer) {
+                  hoverTimer = setTimeout(function() {
+                    $pointer.fire('click');
+                  }, $element.hoverDelay);
+                }
+              }
+            })
+            .on('mouseleave.slideshow:relay(.pointer)', function() {
+              if (hoverTimer) {
+                clearTimeout(hoverTimer);
+                hoverTimer = undefined;
+              }
+            });
 
-      // 通过点击“播放上一张”和“播放下一张”按钮播放对应的“幻灯片”。
-      $element
-          .on('click.slideshow:relay(.prev)', function(event) {
-            $element.showPrevious();
-            event.preventDefault();
-          })
-          .on('click.slideshow:relay(.next)', function(event) {
-            $element.showNext();
-            event.preventDefault();
-          });
+        // 通过点击“播放上一张”和“播放下一张”按钮播放对应的“幻灯片”。
+        $element
+            .on('click.slideshow:relay(.prev)', function(event) {
+              $element.showPrevious();
+              event.preventDefault();
+            })
+            .on('click.slideshow:relay(.next)', function(event) {
+              $element.showNext();
+              event.preventDefault();
+            });
 
-      // 自动播放下一张。
-      var autoPlayTimer;
-      $element
-          .on('mouseenter.slideshow', function() {
-            if (autoPlayTimer) {
-              clearInterval(autoPlayTimer);
-              autoPlayTimer = undefined;
-            }
-          })
-          .on('mouseleave.slideshow', function() {
-            if (!autoPlayTimer) {
-              autoPlayTimer = setInterval(function() {
-                $element.showNext();
-              }, $element.interval);
-            }
-          })
-          .fire('mouseleave');
+        // 自动播放下一张。
+        var autoPlayTimer;
+        $element
+            .on('mouseenter.slideshow', function() {
+              if (autoPlayTimer) {
+                clearInterval(autoPlayTimer);
+                autoPlayTimer = undefined;
+              }
+            })
+            .on('mouseleave.slideshow', function() {
+              if (!autoPlayTimer) {
+                autoPlayTimer = setInterval(function() {
+                  $element.showNext();
+                }, $element.interval);
+              }
+            })
+            .fire('mouseleave');
+
+      }
 
     }
   });
