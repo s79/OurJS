@@ -1,6 +1,6 @@
 document.on('domready', function() {
 //--------------------------------------------------[页头]
-  $('<div id="header"><div><h1 id="logo"><span>OurJS</span></h1><h2 id="github"><a href="https://github.com/s79/OurJS" title="View on GitHub"><span>View on GitHub</span></a></h2><ul id="menu"></ul></div></div>').insertTo(document.body, 'top');
+  $('<div id="header"><div><h1 id="logo"><a href="/OurJS/"><span>OurJS</span></a></h1><h2 id="github"><a href="https://github.com/s79/OurJS" title="View on GitHub"><span>View on GitHub</span></a></h2><ul id="menu"></ul></div></div>').insertTo(document.body, 'top');
 
 //--------------------------------------------------[菜单]
   // 菜单数据。
@@ -115,7 +115,6 @@ document.on('domready', function() {
   };
   var $menu = $('#menu');
   $menu.innerHTML = getMenuHTML(menuData);
-  $menu.getFirstChild().addClass('first');
   $menu.find('ul').forEach(function($ul) {
     var $li = $ul.getParent();
     if ($li.getParent() !== $menu) {
@@ -154,7 +153,7 @@ document.on('domready', function() {
       });
 
 //--------------------------------------------------[页脚]
-  $('<div id="footer"><span>©2012 <a href="https://github.com/s79">s79</a>. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>').insertTo(document.body);
+  $('<div id="footer"><span>©2012-2013 <a href="https://github.com/s79">sundongguo</a>. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>').insertTo(document.body);
 
 //--------------------------------------------------[提纲]
   var $content = $('#content');

@@ -217,7 +217,6 @@
             .on('click.slideshow:relay(.pointer)', function(event) {
               if (pointers.contains(this)) {
                 $element.show(pointers.indexOf(this));
-                event.preventDefault();
               }
             })
             .on('mouseenter.slideshow:relay(.pointer)', function() {
@@ -241,11 +240,9 @@
         $element
             .on('click.slideshow:relay(.prev)', function(event) {
               $element.showPrevious();
-              event.preventDefault();
             })
             .on('click.slideshow:relay(.next)', function(event) {
               $element.showNext();
-              event.preventDefault();
             });
 
         // 自动播放下一张。

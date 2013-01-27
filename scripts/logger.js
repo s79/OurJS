@@ -55,10 +55,10 @@
 
   Widget.register('logger', {
     css: [
-      '.widget-logger { position: relative; border: 1px solid silver; background: #252525; }',
+      '.widget-logger { position: relative; border: 1px solid #252525; background: #252525; }',
       '.widget-logger div.output { height: 100%; overflow-x: hidden; overflow-y: auto; color: #8CC; font: 12px/12px Consolas, "Lucida Console", Courier, SimSun, monospace; white-space: pre-wrap; word-wrap: break-word; }',
-      '.widget-logger a { display: none; position: absolute; right: -1px; bottom: -18px; padding: 2px 5px; background: whitesmoke; border: 1px solid silver; border-radius: 0 0 2px 2px; color: black; text-decoration: none; font-size: 12px; line-height: 12px; }',
-      '.widget-logger a:hover { background: white; }',
+      '.widget-logger a:link, .widget-logger a:visited { display: none; position: absolute; left: 5px; bottom: 5px; width: 16px; height: 16px; color: silver; font: 15px/16px Webdings, Verdana, serif; text-decoration: none; text-align: center; }',
+      '.widget-logger a:hover { color: white; text-decoration: none; }',
       '.widget-logger table { border-collapse: sperate; border-spacing: 2px; margin: 2px; }',
       '.widget-logger td { padding: 2px; border: none; font-size: 12px; }',
       '.widget-logger p { margin: 2px; padding: 2px; word-wrap: break-word; word-break: break-all; }',
@@ -133,27 +133,19 @@
 
       // 启用“清空”功能。
       if ($logger.clearable) {
-        $logger.clearButton = document.$('<a href="javascript:clear();">clear</a>')
+        $logger.clearButton = document.$('<a href="javascript:clear();" title="清除日志" hidefocus>x</a>')
             .on('click', function(e) {
               e.preventDefault();
               $logger.clear();
+              this.highlight('tomato', 'color').fade('out');
             })
             .insertTo($logger);
-        var timer;
         $logger
             .on('mouseenter', function() {
-              if (timer) {
-                clearTimeout(timer);
-                timer = undefined;
-              }
-              $logger.clearButton.fade('in');
+              $logger.clearButton.setStyle('left', $logger.outputElement.clientWidth - 21).fade('in');
             })
             .on('mouseleave', function() {
-              if (!timer) {
-                timer = setTimeout(function() {
-                  $logger.clearButton.fade('out');
-                }, 1000);
-              }
+              $logger.clearButton.fade('out');
             });
       }
 

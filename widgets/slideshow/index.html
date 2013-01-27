@@ -7,9 +7,6 @@
 <script src="../../scripts/framework.js"></script>
 <script src="../../scripts/demoarea.js"></script>
 <script src="../../src/widgets/tabpanel.js"></script>
-<style>
-iframe { width: 958px; height: 350px; }
-</style>
 </head>
 <body>
 <div id="content" data-outline="enabled">
@@ -32,26 +29,33 @@ iframe { width: 958px; height: 350px; }
   <h3>鼠标指向“指示器”即可激活对应的“幻灯片”</h3>
   <p>通过可配置项 data-interval 来指定自动切换的时间，本例为 3000 毫秒。</p>
   <p>通过可配置项 data-hover-delay 来指定鼠标在“指示器”上悬停切换的时间，本例为 100 毫秒。</p>
-  <div class="widget-demoarea" data-src="1.html"></div>
+  <div class="widget-demoarea small-size" data-src="basic/fade.html"></div>
 
   <h3>更改切换动画</h3>
   <p>可以通过配置幻灯片播放器的 data-animation 属性来指定幻灯片切换时使用的动画效果。可选项有 'none'，'fade', 'cover' 和 'slide'。</p>
   <p>本例将上例的 data-animation 属性值修改为 'cover'。</p>
-  <div class="widget-demoarea" data-src="2.html"></div>
+  <div class="widget-demoarea small-size" data-src="basic/cover.html"></div>
 
   <h3>只有一张幻灯片的情况</h3>
   <p>如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，它们也将不可见。</p>
   <p>这种情况下，“幻灯片播放器”相当于一个静态的元素，不会进行自动播放。</p>
   <p>本例将上例的“幻灯片”和“指示器”的数量都修改为一个。</p>
-  <div class="widget-demoarea" data-src="3.html"></div>
+  <div class="widget-demoarea small-size" data-src="basic/single.html"></div>
+
+  <h3>加入缩略图</h3>
+  <p>“指示器”也是一个元素，它可以内嵌其他的元素。</p>
+  <p>本例在“指示器”中加入了缩略图和链接。</p>
+  <p>在此基础上自由发挥，可以实现各种外观的“幻灯片播放器”。</p>
+  <div class="widget-demoarea big-size" data-src="thumbnail/"></div>
 
   <h2>高级应用</h2>
   <ul>
     <li>通过编写脚本来满足更多需求。</li>
+    <li>“幻灯片播放器”提供了一些常用的 API，可以根据情况调用。</li>
   </ul>
 
   <h3>鼠标移入显示翻页按钮并支持滚轮翻页</h3>
-  <div class="widget-demoarea" data-src="4.html"></div>
+  <div class="widget-demoarea" data-src="scrollable/"></div>
 
 </div>
 </body>

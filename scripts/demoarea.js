@@ -15,20 +15,23 @@
    *   演示文件的路径，必须指定。
    * @description
    *   为元素添加 'widget-demoarea' 类，即可使该元素成为演示区。
+   *   演示区的宽度是统一的，高度默认为 350px，但可以通过指定 'big-size' 或 'small-size' 类来指定高度为 200px 或 500px。
    * @requires TabPanel
    */
 
   Widget.register('demoarea', {
     css: [
       '.widget-demoarea { display: block; }',
-      '.widget-demoarea .panels { border: 1px solid gainsboro; }',
-      '.widget-demoarea iframe { display: none; background: whitesmoke; }',
+      '.widget-demoarea .panels { border: 2px solid gainsboro; }',
+      '.widget-demoarea iframe { display: none; width: 956px; height: 350px;}',
       '.widget-demoarea iframe.active { display: block; }',
       '.widget-demoarea .tabs { height: 31px; }',
-      '.widget-demoarea span { position: relative; z-index: 100; float: right; height: 20px; padding: 5px 10px; border: 1px solid white; border-top: none; line-height: 20px; }',
+      '.widget-demoarea span { position: relative; z-index: 100; float: right; height: 20px; padding: 5px 10px; border: 2px solid white; border-top: none; line-height: 20px; }',
       '.widget-demoarea .tab { cursor: default; color: #333; }',
       '.widget-demoarea .tab:hover { border-color: whitesmoke; background: whitesmoke; color: #396686; }',
-      '.widget-demoarea span.active, .widget-demoarea span.active:hover { margin-top: -1px; padding-top: 6px; border-color: gainsboro; background: whitesmoke; color: #333; }'
+      '.widget-demoarea span.active, .widget-demoarea span.active:hover { margin-top: -2px; padding-top: 8px; border-color: gainsboro; background: white; color: #333; }',
+      '.big-size iframe { height: 500px;}',
+      '.small-size iframe { height: 200px;}'
     ],
     config: {
       src: ''

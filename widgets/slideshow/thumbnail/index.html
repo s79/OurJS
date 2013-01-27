@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Slideshow</title>
+<script src="../../../our.js"></script>
+<script src="../../../src/widgets/slideshow.js"></script>
+<style>
+.slideshow { position: relative; width: 640px; height: 350px; overflow: hidden; background: black; }
+.slideshow .slides { list-style: none; margin: 0; padding: 0; }
+.slideshow .slide img { display: block; width: 640px; height: 350px; border: none; }
+.slideshow .mask { position: absolute; left: 0; bottom: 0; z-index: 5; width: 640px; height: 90px; background: black; opacity: .6; filter: alpha(opacity = 60); }
+.slideshow .pointers { position: absolute; left: 11px; bottom: 7px;; z-index: 10; }
+.slideshow .pointer { float: left; width: 80px; height: 44px; margin-right: 5px; padding: 7px 2px 2px; background: url(pointer.png) no-repeat left bottom; cursor: default; }
+.slideshow .pointer img { display: block; width: 80px; height: 44px; border: none; }
+.slideshow .pointer span { display: none; position: absolute; left: 0; top: -23px; width: 620px; height: 22px; }
+.slideshow .pointer span a { color: white; font: 16px/22px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; text-decoration: none; }
+.slideshow .pointer span a:hover { text-decoration: underline; }
+.slideshow .pointers .active { background-position: left top; }
+.slideshow .pointers .active span { display: block; }
+</style>
+</head>
+<body>
+<div class="widget-slideshow slideshow" data-animation="fade" data-hover-delay="0" data-interval="3000">
+  <ul class="slides">
+    <li class="slide"><a href="javascript:alert('1');"><img src="1.jpg" galleryimg="no"></a></li>
+    <li class="slide"><a href="javascript:alert('2');"><img src="2.jpg" galleryimg="no"></a></li>
+    <li class="slide"><a href="javascript:alert('3');"><img src="3.jpg" galleryimg="no"></a></li>
+    <li class="slide"><a href="javascript:alert('4');"><img src="4.jpg" galleryimg="no"></a></li>
+    <li class="slide"><a href="javascript:alert('5');"><img src="5.jpg" galleryimg="no"></a></li>
+    <li class="slide"><a href="javascript:alert('6');"><img src="6.jpg" galleryimg="no"></a></li>
+    <li class="slide"><a href="javascript:alert('7');"><img src="7.jpg" galleryimg="no"></a></li>
+  </ul>
+  <div class="mask"></div>
+  <div class="pointers">
+    <div class="pointer">
+      <img src="thumbnail_1.jpg" galleryimg="no">
+      <span><a href="javascript:alert('1');">任他凡事清浊，为你一笑间轮回甘堕。</a></span>
+    </div>
+    <div class="pointer">
+      <img src="thumbnail_2.jpg" galleryimg="no">
+      <span><a href="javascript:alert('2');">如花美眷，似水流年，回得了过去，回不了当初。</a></span>
+    </div>
+    <div class="pointer">
+      <img src="thumbnail_3.jpg" galleryimg="no">
+      <span><a href="javascript:alert('3');">君不见，高堂明镜悲白发，朝如青丝暮成雪！</a></span>
+    </div>
+    <div class="pointer">
+      <img src="thumbnail_4.jpg" galleryimg="no">
+      <span><a href="javascript:alert('4');">天不老，情难绝。心似双丝网，中有千千结。</a></span>
+    </div>
+    <div class="pointer">
+      <img src="thumbnail_5.jpg" galleryimg="no">
+      <span><a href="javascript:alert('5');">四海皆兄弟，谁为行路人。</a></span>
+    </div>
+    <div class="pointer">
+      <img src="thumbnail_6.jpg" galleryimg="no">
+      <span><a href="javascript:alert('6');">天高地迥，绝宇宙之无穷；兴尽悲来，识盈虚之有数。</a></span>
+    </div>
+    <div class="pointer">
+      <img src="thumbnail_7.jpg" galleryimg="no">
+      <span><a href="javascript:alert('7');">煮豆燃豆萁，豆在釜中泣。本是同根生，相煎何太急？</a></span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

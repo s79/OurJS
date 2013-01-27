@@ -30,11 +30,11 @@ a.link { padding-left: 16px; background: url(../images/link.gif) no-repeat left 
 
 /* 标题 */
 h1 { margin-bottom: 30px; font-size: 28px; text-align: center; }
-h2 { margin: 30px 0 20px; background: url(../images/title.gif) no-repeat left bottom; font-size: 18px; }
-h3 { margin: 20px 0 10px; font-size: 16px; }
+h2 { margin: 50px 0 20px; border-bottom: 2px solid silver; font-size: 18px; }
+h3 { margin: 30px 0 10px; font-size: 16px; }
 h4,
 h5,
-h6 { margin: 10px 0 5px; font-size: 14px; }
+h6 { margin: 20px 0 5px; font-size: 14px; }
 
 /* 列表 */
 ul,
@@ -48,7 +48,7 @@ ol ol { list-style-type: decimal; }
 
 /* 段落 */
 fieldset { margin: 10px 0; padding: 5px; border: 1px solid #D5DFE5; border-radius: 2px; }
-legend { margin-left: 5px; color: #ff7300; *margin-left: 0; }
+legend { margin-left: 5px; color: #FF7300; *margin-left: 0; }
 dl { margin: 10px 0; }
 dt { font-weight: bold; }
 dd { padding-left: 2em; }
@@ -74,57 +74,62 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 .container { overflow: hidden; *zoom: 1; }
 
 /* 页头 */
-#header { position: fixed; left: 0; right: 0; top: 0; z-index: 1000; min-width: 1000px; border-bottom: 1px solid whitesmoke; background: whitesmoke url(../images/menu.png) repeat-x 0 0; -right: auto; -width: 100%; }
+#header { position: fixed; left: 0; right: 0; top: 0; z-index: 1000; min-width: 1000px; background: #323232; opacity: 0.95; -right: auto; -width: 100%; }
 #header div { width: 1000px; height: 36px; margin: auto; }
 /* LOGO */
 #logo { float: left; width: 128px; height: 36px; margin: 0; background: url(../images/logo.png) no-repeat left center; }
+#logo a { display: block; width: 79px; height: 36px; margin-left: 12px; }
 #logo span { display: none; }
 /* GitHub */
 #github { float: right; margin: 0; padding: 5px 20px 0; border: none; background: none; }
-#github a { display: block; width: 29px; height: 25px; background: url(../images/github.png) no-repeat left top; }
+#github a { display: block; width: 26px; height: 26px; background: url(../images/github.png) no-repeat left top; }
 #github a:hover { background-position: left bottom; }
 #github span { display: none; }
 /* 主菜单 */
 #menu { float: left; padding: 0; }
-#menu li { float: left; list-style: none; height: 36px; border-right: 1px solid gainsboro; }
+#menu li { float: left; list-style: none; height: 36px; }
 #menu li.hover,
-#menu li:hover { background: white url(../images/menu.png) repeat-x 0 -36px; }
-#menu li.first { border-left: 1px solid gainsboro; }
-#menu li a { display: block; height: 36px; padding: 0 25px; color: #333; font-weight: bold; font-size: 14px; line-height: 36px; text-decoration: none; -float: left; }
-#menu li a.current { background: transparent url(../images/menu_current.png) repeat-x 0 33px; }
+#menu li:hover { background: black; }
+#menu li a { display: block; height: 36px; padding: 0 25px; color: gainsboro; font-weight: bold; font-size: 14px; line-height: 36px; text-decoration: none; -float: left; }
+#menu li a.current { color: #00CCFF !important; }
+#menu li.hover a,
+#menu li:hover a { color: white; }
 /* 子菜单 */
-#menu ul { display: none; position: absolute; z-index: 10; width: 200px; height: auto; margin: -1px auto auto -1px; padding: 0; border: 1px solid gainsboro; box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); -clear: both; }
-#menu ul li { width: 200px; height: 30px; border: none; background: #FBFBFB none; }
-#menu ul li.hover,
-#menu ul li:hover { background: #EEE none; }
+#menu ul { display: none; position: absolute; z-index: 10; width: 200px; height: auto; margin: auto; padding: 0; box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); -clear: both; }
+#menu ul li { width: 200px; height: 30px; border: none; background: #323232; opacity: 0.95; }
 #menu ul li a { width: 200px; height: 30px; padding: 0; line-height: 30px; text-indent: 15px; }
 #menu ul li a.folder { background: transparent url(../images/folder.png) no-repeat right center; }
-#menu ul li a.current { color: #BE1D2C; }
+#menu li.hover ul li a,
+#menu li:hover ul li a { color: gainsboro; }
+#menu li.hover ul li a:hover,
+#menu li:hover ul li a:hover { color: white; }
 /* 二级以上的子菜单 */
-#menu ul ul { margin: -31px auto auto 198px; }
+#menu ul ul { margin: -30px auto auto 200px; }
 
 /* 内容 */
 #content { width: 960px; min-height: 600px; margin: auto auto 42px; padding: 70px 20px 100px; overflow: hidden; color: #333; font-size: 14px; -height: 600px; -overflow: visible; }
 
 /* 页脚 */
-#footer { clear: both; min-width: 1000px; margin-top: -42px; padding: 10px 0; border-top: 1px solid gainsboro; overflow: hidden; background: #F3F3F3; color: #666; text-align: center; }
+#footer { clear: both; min-width: 1000px; margin-top: -42px; padding: 10px 0; overflow: hidden; background: #323232; opacity: 0.95; color: gainsboro; text-align: center; }
 #footer span { font-size: 12px; }
 #footer a:link,
-#footer a:visited { color: #102197; }
+#footer a:visited { color: gainsboro; font-weight: bold; }
+#footer a:hover { color: white; }
 
 /* 文章提纲 */
 #outline { position: fixed; z-index: 10000; top: 120px; width: 32px; }
-#outline a.control { display: block; position: relative; z-index: 10; width: 14px; padding: 12px 9px; border: 1px solid gainsboro; border-radius: 3px; background: whitesmoke; line-height: 16px; text-decoration: none; }
-#outline div { display: none; position: absolute; right: -10px; top: -16px; z-index: 5; width: 800px; border: 1px solid gainsboro; border-radius: 3px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); background: #FBFBFB; }
-#outline ul { height: 100%; margin: 16px 50px 16px 16px; padding: 0; overflow-y: auto; }
+#outline a.control { display: block; position: relative; z-index: 10; width: 14px; padding: 12px 9px; background: #323232; color: gainsboro; font-weight: bold; line-height: 16px; text-decoration: none; }
+#outline div { display: none; position: absolute; right: -10px; top: -16px; z-index: 5; width: 800px; background: #323232; opacity: 0.95; filter: alpha(opacity = 95); }
+#outline ul { height: 100%; margin: 16px 50px 16px 16px; padding: 0; overflow-y: auto; line-height: 1.7; }
 #outline ul .h1 { list-style: none; text-align: center; font-weight: bold; }
-#outline ul .h2 { padding-left: 16px; }
+#outline ul .h2 { padding-left: 16px; font-weight: bold; }
 #outline ul .h3 { padding-left: 32px; }
 #outline ul .dt { padding-left: 60px; }
-#outline li a:visited { color: #102197; }
-#outline .h3 a,
-#outline .h3 a:visited,
-#outline .dt a,
-#outline .dt a:visited { color: #333; }
-#outline.shown a.control { background: white; }
+#outline li a,
+#outline li a:visited { color: gainsboro; }
+#outline li a:hover { color: white; }
+#outline.shown a.control { background: black; color: white; }
 #outline.shown div { display: block; }
+
+/* 日志 */
+.widget-logger div { background: url(../images/logger.png); }

@@ -7,9 +7,6 @@
 <script src="../../scripts/framework.js"></script>
 <script src="../../scripts/demoarea.js"></script>
 <script src="../../src/widgets/tabpanel.js"></script>
-<style>
-iframe { width: 958px; height: 200px; }
-</style>
 </head>
 <body>
 <div id="content" data-outline="enabled">
@@ -27,28 +24,28 @@ iframe { width: 958px; height: 200px; }
 
   <h3>显示当前月份</h3>
   <p>粗体带下划线的为今天的日期。</p>
-  <div class="widget-demoarea" data-src="1.html"></div>
+  <div class="widget-demoarea small-size" data-src="1.html"></div>
 
   <h3>指定要显示的月份</h3>
   <p>通过可配置项 data-month 来指定要显示哪一个月份的日期排列情况，格式为 YYYY-MM。</p>
   <p>本例指定为 '1900-01'。</p>
-  <div class="widget-demoarea" data-src="2.html"></div>
+  <div class="widget-demoarea small-size" data-src="2.html"></div>
 
   <h2>高级应用</h2>
 
   <h3>自定义月历的样式</h3>
   <p>通过可配置项 data-first-day 来指定每周的第一天是星期几，本例设为 1。</p>
   <p>使用新样式覆盖默认样式。</p>
-  <div class="widget-demoarea" data-src="3.html"></div>
+  <div class="widget-demoarea small-size" data-src="3.html"></div>
   <p>并为每月的 10 - 15 号添加标记。</p>
-  <div class="widget-demoarea" data-src="4.html"></div>
+  <div class="widget-demoarea small-size" data-src="4.html"></div>
 
   <h3>监听事件</h3>
   <p>可以为 update 和 cellupdate 事件添加监听器。</p>
   <p>本例通过监听 update 事件，在指定的位置显示当前月份。</p>
-  <div class="widget-demoarea" data-src="5.html"></div>
+  <div class="widget-demoarea small-size" data-src="5.html"></div>
   <p>本例通过监听 cellupdate 事件，在每个单元格显示对应的日期（title 属性）。</p>
-  <div class="widget-demoarea" data-src="6.html"></div>
+  <div class="widget-demoarea small-size" data-src="6.html"></div>
 
 </div>
 </body>
