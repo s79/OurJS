@@ -117,7 +117,7 @@
       if (!month) {
         month = (selectedDate || new Date()).format('YYYY-MM');
       }
-      month = new Date(Math.limit(Date.from(month, 'YYYY-MM').getTime(), minDate.getTime(), maxDate.getTime())).format('YYYY-MM');
+      month = new Date(Math.limit(Date.parseExact(month, 'YYYY-MM').getTime(), minDate.getTime(), maxDate.getTime())).format('YYYY-MM');
       // 更新控制区指示。
       var showYM = month.split('-');
       var showY = Number.toInteger($year.innerText = showYM[0]);
@@ -153,7 +153,7 @@
       } else {
         $clear.removeClass('disabled').title = '清除选定的日期';
       }
-      today = Date.from(new Date().format());
+      today = Date.parseExact(new Date().format());
       if (today < minDate || today > maxDate) {
         $today.addClass('disabled').title = '';
       } else {
@@ -258,9 +258,9 @@
 //--------------------------------------------------[activatePanel]
   // 在指定的日期选择器附近显示日期选择面板。
   var activatePanel = function() {
-    minDate = Date.from(this.getData('minDate') || '1900-01-01');
-    maxDate = Date.from(this.getData('maxDate') || '9999-12-31');
-    selectedDate = this.value ? Date.from(this.value, 'YYYY-MM-DD') : null;
+    minDate = Date.parseExact(this.getData('minDate') || '1900-01-01');
+    maxDate = Date.parseExact(this.getData('maxDate') || '9999-12-31');
+    selectedDate = this.value ? Date.parseExact(this.value, 'YYYY-MM-DD') : null;
     $datePicker = this;
     $panel.show();
   };

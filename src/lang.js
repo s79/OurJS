@@ -690,7 +690,7 @@
    *   Number.prototype.padZero
    *   Math.limit
    *   Math.randomRange
-   *   Date.from
+   *   Date.parseExact
    *   Date.prototype.format
    *   RegExp.escape
    */
@@ -1030,10 +1030,10 @@
     return Math.floor(Math.random() * (max - min + 1) + min);
   };
 
-//--------------------------------------------------[Date.from]
+//--------------------------------------------------[Date.parseExact]
   /**
-   * 将符合某种格式的字符串转换为日期。
-   * @name Date.from
+   * 将以指定格式表示日期的字符串转换为日期对象。
+   * @name Date.parseExact
    * @function
    * @param {string} string 代表日期的字符串，该字符串应该能够通过 Date.prototype.format 生成。
    *   日期字符串中缺失的部分将使用默认值代替，各部分的默认值如下：
@@ -1049,22 +1049,22 @@
    *     <tr><td>时区</td><td>当地时区</td></tr>
    *   </table>
    *   注意：未检查字符串内包含数据的有效性，若数据异常，将得不到预期的日期值。
-   * @param {string} [format] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。格式请参考 Date.prototype.format 的同名参数。
+   * @param {string} [format] 由代表日期字段的标识符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。格式请参考 Date.prototype.format 的同名参数。
    * @param {boolean} [isUTC] 字符串是否为世界标准时间。
    *   当 isUTC 与 string 中已存在的 TZD 标识冲突时，isUTC 将被忽略。
-   * @returns {Date} 转换后的日期。
+   * @returns {Date} 转换后的日期对象。
    * @example
-   *   Date.from('2012-06-25 12:00:00', 'YYYY-MM-DD hh:mm:ss')
+   *   Date.parseExact('2012-06-25 12:00:00', 'YYYY-MM-DD hh:mm:ss')
    *   // 各浏览器中日期的字符串形式略有差异。
    *   // "Mon Jun 25 2012 12:00:00 GMT+0800"
-   *   Date.from('2012-12-21T23:14:35.000+08:00', 'YYYY-MM-DDThh:mm:ss.sTZD', true).format('世界标准时间YYYY年MM月DD日hh点mm分ss秒', true)
+   *   Date.parseExact('2012-12-21T23:14:35.000+08:00', 'YYYY-MM-DDThh:mm:ss.sTZD', true).format('世界标准时间YYYY年MM月DD日hh点mm分ss秒', true)
    *   // "世界标准时间2012年12月21日15点14分35秒"
-   *   Date.from('02-29 16:00', 'MM-DD hh:mm')
+   *   Date.parseExact('02-29 16:00', 'MM-DD hh:mm')
    *   // 年份缺失，使用默认值代替。
    *   // "Wed Feb 29 2012 16:00:00 GMT+0800"
    */
   var timeZoneOffset = new Date().getTimezoneOffset() * 60000;
-  Date.from = function(string, format, isUTC) {
+  Date.parseExact = function(string, format, isUTC) {
     format = format || 'YYYY-MM-DD';
     // 从 string 中参考 format 解析出日期数据。
     var extractedData = {};
@@ -1112,11 +1112,11 @@
 
 //--------------------------------------------------[Date.prototype.format]
   /**
-   * 将日期格式化为字符串。
+   * 将日期对象格式化为字符串。
    * @name Date.prototype.format
    * @function
-   * @param {string} [format] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。
-   *   各标志符及其含义：
+   * @param {string} [format] 由代表日期字段的标识符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。
+   *   各标识符及其含义：
    *   <table>
    *     <tr><th>字符</th><th>含义</th></tr>
    *     <tr><td>YYYY</td><td>四位数年份。</td></tr>
@@ -1166,7 +1166,7 @@
     var date = format.replace(dateFormatPattern, function(key) {
       return keys[key];
     });
-    // IE6 IE7 IE8 的 replace 方法会修改正则表达式对象的 lastIndex 属性，此处手动恢复为 0，以免执行 Date.from(new Date().format()) 时出错。
+    // IE6 IE7 IE8 的 replace 方法会修改正则表达式对象的 lastIndex 属性，此处手动恢复为 0，以免执行 Date.parseExact(new Date().format()) 时出错。
     dateFormatPattern.lastIndex = 0;
     return date;
 

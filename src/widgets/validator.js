@@ -28,7 +28,7 @@
             result = /^([+-]?\d+)(\.\d+)?$/.test(value);
             break;
           case 'date':
-            result = value === Date.from(value).format();
+            result = value === Date.parseExact(value).format();
             break;
           case 'email':
             result = /^([\w-])+@([\w-])+((\.[\w-]+){1,3})$/.test(value);

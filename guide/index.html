@@ -54,7 +54,7 @@ Object.mixin(defaultConfig, newConfig, {whiteList: Object.keys(defaultConfig)});
 // 让 newConfig 覆盖 defaultConfig 的同名属性。
 </pre>
 <pre>
-var day = Date.from('2010-03-17 20:23:00').getDay();
+var day = Date.parseExact('2010-03-17 20:23:00').getDay();
 // day 的值为 3，2010年3月17日是星期三。
 </pre>
 <blockquote>

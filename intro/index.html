@@ -215,7 +215,7 @@ element.<strong>on</strong>('click', function(e) {...});
     <li>
       JavaScript 框架提供 API 的风格有三种：静态方法、包装对象和原型扩展。<br>
       为了提供<strong>流畅自然的语法</strong>，并保持 <strong>API 的一致性</strong>，OurJS 优先使用了“原型扩展”这种方式。<br>
-      一些不适合使用“原型扩展”方式提供的的功能使用“静态方法”提供，如 Object.mixin，Date.from 等。<br>
+      一些不适合使用“原型扩展”方式提供的的功能使用“静态方法”提供，如 Object.mixin，Date.parseExact 等。<br>
       只有事件对象使用了“包装对象”方式，这是因为在处理浏览器兼容性问题时必须修改某些属性，而它们中的一部分在原生 DOM 事件对象中是只读的。
     </li>
     <li>可以和 jQuery 共存。</li>

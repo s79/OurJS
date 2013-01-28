@@ -501,7 +501,7 @@
       item += '; secure';
     }
     if (options.expires) {
-      item += '; expires=' + (typeof options.expires === 'string' ? Date.from(options.expires, 'YYYY-MM-DD hh:mm:ss') : options.expires).toUTCString();
+      item += '; expires=' + (typeof options.expires === 'string' ? Date.parseExact(options.expires, 'YYYY-MM-DD hh:mm:ss') : options.expires).toUTCString();
     }
     document.cookie = item;
   };

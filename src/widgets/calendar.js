@@ -87,7 +87,7 @@
         if (month) {
           $element.month = month;
         }
-        var showDate = Date.from($element.month, 'YYYY-MM');
+        var showDate = Date.parseExact($element.month, 'YYYY-MM');
         var showY = showDate.getFullYear();
         var showM = showDate.getMonth();
 
@@ -95,7 +95,7 @@
         var firstDayOfWeek = $element.firstDay;
         var startIndex = (showDate.getDay() + 7 - firstDayOfWeek) % 7 || 7;
         var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
-        var today = Date.from(new Date().format()).getTime();
+        var today = Date.parseExact(new Date().format()).getTime();
         $element.elements.theadCells.forEach(function($cell, index) {
           $cell.className = dayNames[(index + firstDayOfWeek) % 7];
           $cell.innerText = dayTexts[(index + firstDayOfWeek) % 7];
