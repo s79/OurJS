@@ -824,26 +824,39 @@
 
 //--------------------------------------------------[Array.from]
   /**
-   * 将类数组对象转化为数组，如果该对象不是一个类数组对象，则返回一个仅包含该对象的数组。
+   * 将一个值转化为数组。
    * @name Array.from
    * @function
-   * @param {*} arrayish 要转化为数组的对象。
+   * @param {*} value 要转化为数组的值。
    * @returns {Array} 转化后的数组。
+   * @description
+   *   如果该值为 null 或 undefined，则返回空数组。
+   *   如果该值本身即为一个数组，则直接返回这个数组。
+   *   如果该值有 toArray 方法，则返回调用该方法后的结果。
+   *   如果该值可遍历，则返回一个包含各可遍历项的数组。
+   *   否则，返回一个仅包含该值的数组。
    */
-  Array.from = function(arrayish) {
-    switch (typeOf(arrayish)) {
-      case 'object.Array':
-        return arrayish;
+  Array.from = function(value) {
+    if (value == null) {
+      return [];
+    }
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value.toArray === 'function') {
+      return value.toArray();
+    }
+    switch (typeOf(value)) {
       case 'object.Arguments':
       case 'object.Collection':
       case 'object.Object':
         var i = 0;
-        var length = arrayish.length;
+        var length = value.length;
         if (typeof length === 'number') {
           var result = [];
           while (i < length) {
-            if (!arrayish.hasOwnProperty || arrayish.hasOwnProperty(i)) {
-              result[i] = arrayish[i];
+            if (!value.hasOwnProperty || value.hasOwnProperty(i)) {
+              result[i] = value[i];
             }
             i++;
           }
@@ -851,7 +864,7 @@
           return result;
         }
     }
-    return [arrayish];
+    return [value];
   };
 
 //--------------------------------------------------[Array.prototype.contains]
