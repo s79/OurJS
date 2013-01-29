@@ -20,7 +20,7 @@ pre { margin: 0; padding: 10px; font: 12px Consolas, "Lucida Console", Courier; 
   <tbody id="list">
     <tr>
       <th>value</th>
-      <th>value + ''</th>
+      <th>String(value)</th>
       <th>Object.prototype.toString.call(value)</th>
       <th>typeof value</th>
       <th>期望值</th>
@@ -101,7 +101,7 @@ var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Micr
 ].forEach(function(item) {
       showResult(
           item[0],
-          item[1] + '',
+          String(item[1]),
           (function() {
             try {
               return Object.prototype.toString.call(item[1]);

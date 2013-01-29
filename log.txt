@@ -1,5 +1,10 @@
 
 
+>2013-01-29
+修改 Array.prototype.remove 的返回值。
++Object.toQueryString
++Object.fromQueryString
+
 >2013-01-28
 Date.from -> Date.parseExact
 为 Array.from 增加目标值为 null、undefined 或有 toArray 方法的情况的处理。

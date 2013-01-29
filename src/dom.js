@@ -79,8 +79,7 @@
    * @param {Element} element 要扩展的元素，只能传入 Element、document（事件对象的 target 属性）或 null。
    * @returns {Element} 扩展后的元素。
    * @description
-   *   注意：
-   *   不能获取并扩展其他页面的 DOM 元素！
+   *   注意：不能获取并扩展其他页面的 DOM 元素！
    */
   // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值将作为该元素的 key 使用。
   var uid = 0;
@@ -157,8 +156,7 @@
    * @name Element.prototype.outerHTML
    * @type string
    * @description
-   *   注意：
-   *   getter 在处理空标签及特殊字符时，各浏览器行为不一致。
+   *   注意：getter 在处理空标签及特殊字符时，各浏览器的行为不一致。
    */
 //  if (!('outerHTML' in html)) {
 //    var emptyElementPattern = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
@@ -200,8 +198,7 @@
    * @name Element.prototype.innerText
    * @type string
    * @description
-   *   注意：
-   *   getter 在遇到 BR 元素或换行符时，各浏览器行为不一致。
+   *   注意：getter 在处理 BR 元素或换行符时，各浏览器的行为不一致。
    */
   if (!('innerText' in html)) {
     HTMLElement.prototype.__defineGetter__('innerText', function() {
@@ -220,10 +217,8 @@
    * @name Element.prototype.outerText
    * @type string
    * @description
-   *   注意：
-   *   getter 在遇到 BR 元素或换行符时，各浏览器行为不一致。
-   *   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
    *   与 innerText 不同，如果设置一个元素的 outerText，那么设置的字符串将作为文本节点替换本元素在文档树中的位置。
+   *   注意：getter 在处理 BR 元素或换行符时，各浏览器的行为不一致。
    */
   if (!('outerText' in html)) {
     HTMLElement.prototype.__defineGetter__('outerText', function() {
@@ -469,7 +464,7 @@
       return $element.currentStyle.styleFloat;
     },
     'opacity': function($element) {
-      return $element.filters['alpha'] ? $element.filters['alpha'].opacity / 100 + '' : '1';
+      return $element.filters['alpha'] ? String($element.filters['alpha'].opacity / 100) : '1';
     }
   };
 
@@ -501,13 +496,10 @@
    * 获取本元素的“计算后的样式”中某个特性的值。
    * @name Element.prototype.getStyle
    * @function
-   * @param {string} propertyName 特性名，仅支持 camel case 格式。
+   * @param {string} propertyName 特性名（不支持复合特性），应使用 camel case 格式。
    * @returns {string} 对应的特性值，如果获取的是长度值，其单位未必是 px，可能是其定义时的单位。
    * @description
-   *   实际上各浏览器返回的“计算后的样式”中各特性的值未必是 CSS 规范中描述的 computed values，而可能是 used/actual values。
-   *   注意：
-   *   不要尝试获取复合属性的值，它们存在兼容性问题。
-   *   不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
+   *   注意：不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
    */
   Element.prototype.getStyle = 'getComputedStyle' in window ? function(propertyName) {
     return window.getComputedStyle(this, null).getPropertyValue(propertyName.dasherize()) || '';
@@ -538,13 +530,11 @@
    * 为本元素设置一条行内样式声明。
    * @name Element.prototype.setStyle
    * @function
-   * @param {string} propertyName 特性名，仅支持 camel case 格式。
+   * @param {string} propertyName 特性名（支持复合特性），应使用 camel case 格式。
    * @param {number|string} propertyValue 特性值，若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
    * @returns {Element} 本元素。
    * @description
-   *   注意：
-   *   如果设置的是长度值，若长度单位不是 'px' 则不能省略长度单位。
-   *   可以设置复合属性的值。
+   *   注意：如果设置的是长度值，若长度单位不是 'px' 则不能省略长度单位。
    */
   Element.prototype.setStyle = function(propertyName, propertyValue) {
     if (Number.isFinite(propertyValue) && !numericValues[propertyName]) {
@@ -632,8 +622,7 @@
    * @param {string} key 数据名。
    * @returns {Element} 本元素。
    * @description
-   *   注意：
-   *   IE6 IE7 在 removeAttribute 时，key 参数是大小写敏感的。
+   *   注意：IE6 IE7 在 removeAttribute 时，key 参数是大小写敏感的。
    */
   Element.prototype.removeData = function(key) {
     key = parseDataKey(key);
@@ -653,7 +642,7 @@
 
 //--------------------------------------------------[Element.prototype.getClientRect]
   /*
-   * —— 2009 年的测试结果 (body's direction = ltr) ——
+   * [2009 年的测试结果 (body's direction = ltr)]
    * 测试浏览器：IE6 IE7 IE8 FF3 Safari4 Chrome2 Opera9。
    *
    * 浏览器        compatMode  [+html.border,+body.border]  [+html.border,-body.border]  [-html.border,+body.border]  [-html.border,-body.border]
@@ -667,16 +656,15 @@
    * body.clientLeft 的值取决于 BODY 的 border 属性，如果未设置 BODY 的 border 属性，则 BODY 会继承 HTML 的 border 属性。如果 HTML 的 border 也未设置，则 HTML 的 border 默认值为 medium，计算出来是 2px。
    * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
    * html.clientLeft 在 IE6 中取决于 HTML 的 border 属性，而在 IE7 中的值则始终为 2px。
+   *
+   * [特殊情况]
+   * IE7(IE9 模拟) 的 BODY 的计算样式 direction: rtl 时，如果 HTML 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
    */
   /**
    * 获取本元素的 border-box 在视口中的坐标信息。
    * @name Element.prototype.getClientRect
    * @function
    * @returns {Object} 包含位置（left、right、top、bottom）及尺寸（width、height）的对象，所有属性值均为 number 类型，单位为像素。
-   * @description
-   *   注意：
-   *   不考虑非标准模式。
-   *   标准模式下 IE7(IE9 模拟) 的 BODY 的计算样式 direction: rtl 时，如果 HTML 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
    */
   Element.prototype.getClientRect = navigator.isIElt8 ? function() {
     var clientRect = this.getBoundingClientRect();

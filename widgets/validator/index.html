@@ -283,7 +283,7 @@ document.on('domready', function() {
         age: {
           type: 'number',
           custom: function(value) {
-            return (value === '' || parseInt(value, 10) + '' === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
+            return (value === '' || String(parseInt(value, 10)) === value && value >= 18 && value <= 28) ? '' : '年龄只能在 18 - 28 之间';
           }
         },
         os: {

@@ -5,14 +5,10 @@
  */
 
 (function() {
-  // 内置对象的原型方法。
-  var hasOwnProperty = Object.prototype.hasOwnProperty;
-  var toString = Object.prototype.toString;
-
   // 将提供的值转化为整数。
   // http://es5.github.com/#x9.4
   var toInteger = function(value) {
-    value = Number(value) || 0;
+    value = +value || 0;
     value = Math[value < 0 ? 'ceil' : 'floor'](value);
     return value;
   };
@@ -32,20 +28,6 @@
 
   // 空白字符。
   var WHITESPACES = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF';
-
-  // 辅助解决遍历 bug。
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
-  var hasDontEnumBug = !{toString: null}.propertyIsEnumerable('toString');
-  var DONT_ENUM_PROPERTIES = [
-    'toString',
-    'toLocaleString',
-    'valueOf',
-    'hasOwnProperty',
-    'isPrototypeOf',
-    'propertyIsEnumerable',
-    'constructor'
-  ];
-  var DONT_ENUM_PROPERTIES_LENGTH = DONT_ENUM_PROPERTIES.length;
 
 //==================================================[ES5 补缺]
   /*
@@ -86,6 +68,18 @@
    * @see http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
    */
   if (!Object.keys) {
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
+    var hasDontEnumBug = !{toString: null}.propertyIsEnumerable('toString');
+    var DONT_ENUM_PROPERTIES = [
+      'toString',
+      'toLocaleString',
+      'valueOf',
+      'hasOwnProperty',
+      'isPrototypeOf',
+      'propertyIsEnumerable',
+      'constructor'
+    ];
+    var DONT_ENUM_PROPERTIES_LENGTH = DONT_ENUM_PROPERTIES.length;
     Object.keys = function(object) {
       if (typeof object !== 'object' && typeof object !== 'function' || object === null) {
         throw new TypeError('Object.keys called on non-object');
@@ -173,6 +167,7 @@
    * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
    */
   if (!Array.isArray) {
+    var toString = Object.prototype.toString;
     Array.isArray = function(value) {
       return toString.call(value) === '[object Array]';
     };
@@ -679,6 +674,8 @@
    *   Object.forEach
    *   Object.clone
    *   Object.mixin
+   *   Object.toQueryString
+   *   Object.fromQueryString
    *   Array.from
    *   Array.prototype.contains
    *   Array.prototype.remove
@@ -720,21 +717,9 @@
    * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    */
   Object.forEach = function(object, callback, thisObject) {
-    for (var key in object) {
-      if (hasOwnProperty.call(object, key)) {
-        callback.call(thisObject, object[key], key, object);
-      }
-    }
-    if (hasDontEnumBug) {
-      var i = 0;
-      while (i < DONT_ENUM_PROPERTIES_LENGTH) {
-        var dontEnumProperty = DONT_ENUM_PROPERTIES[i];
-        if (hasOwnProperty.call(object, dontEnumProperty)) {
-          callback.call(thisObject, object[dontEnumProperty], dontEnumProperty, object);
-        }
-        i++;
-      }
-    }
+    Object.keys(object).forEach(function(key) {
+      callback.call(thisObject, object[key], key, object);
+    });
   };
 
 //--------------------------------------------------[Object.clone]
@@ -811,20 +796,18 @@
    *   source 中的 property 会覆盖 destination 中的同名 property。
    *   <table>
    *     <tr><th>destination (before)</th><th>source</th><th>destination (after)</th></tr>
-   *     <tr><td>a: 'a.0'</td><td></td><td>a: 'a.0'</td></tr>
-   *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td>b: 'b.1'</td></tr>
-   *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.1'</td></tr>
+   *     <tr><td>a: 0</td><td></td><td>a: 0</td></tr>
+   *     <tr><td>b: 0</td><td>b: 1</td><td>b: 1</td></tr>
+   *     <tr><td></td><td>c: 1</td><td>c: 1</td></tr>
    *   </table>
    * @example
-   *   var destination = {a: 'a.0'};
-   *   var source = {b: 'b.1'};
-   *   JSON.stringify(Object.mixin(destination, source));
-   *   // {"a":"a.0","b":"b.1"}
+   *   Object.mixin({a: 0}, {b: 1});
+   *   // {a: 0, b: 1}
    * @example
-   *   JSON.stringify(Object.mixin({a: 'a.0', b: 'b.0', c: 'c.0'}, {a: 'a.1', b: 'b.1', c: 'c.1'}, {whiteList: ['a', 'b']}));
-   *   // {"a":"a.1","b":"b.1","c":"c.0"}
-   *   JSON.stringify(Object.mixin({a: 'a.0', b: 'b.0', c: 'c.0'}, {a: 'a.1', b: 'b.1', c: 'c.1'}, {whiteList: ['a', 'b'], blackList: ['b', 'c']}));
-   *   // {"a":"a.1","b":"b.0","c":"c.0"}
+   *   Object.mixin({a: 0, b: 0}, {a: 1, b: 1}, {whiteList: ['a']});
+   *   // {a: 1, b: 0}
+   *   Object.mixin({a: 0, b: 0}, {a: 1, b: 1}, {whiteList: ['a', 'b'], blackList: ['a']});
+   *   // {a: 0, b: 1}
    * */
   Object.mixin = function(destination, source, filter) {
     var keys = Object.keys(source);
@@ -848,19 +831,82 @@
     return destination;
   };
 
+//--------------------------------------------------[Object.toQueryString]
+  /**
+   * 将一个对象转换为用于 HTTP 传输的查询字符串。
+   * @name Object.toQueryString
+   * @function
+   * @param {Object} object 要转换的对象，该对象的每个属性名和属性值都将以键值对的形式被转换为字符串。
+   *   如果某个属性值为 undefined 或 null，则忽略该属性。
+   *   如果某个属性值为数组，则表示其对应的属性名有多个有效值。
+   * @param {boolean} [dontEncode] 转换时不使用 encodeURIComponent 编码。
+   * @returns {string} 转换后的字符串。
+   * @example
+   *   Object.toQueryString({a: undefined, b: null, c: '', d: 100, e: ['Composite Value', true]});
+   *   // "c=&d=100&e=Composite%20Value&e=true"
+   */
+  Object.toQueryString = function(object, dontEncode) {
+    var valuePairs = [];
+    var parseValuePair = function(key, value) {
+      if (value != null) {
+        valuePairs.push(dontEncode ? key + '=' + value : encodeURIComponent(key) + '=' + encodeURIComponent(value));
+      }
+    };
+    Object.forEach(object, function(value, key) {
+      if (Array.isArray(value)) {
+        value.forEach(function(value) {
+          parseValuePair(key, value);
+        });
+      } else {
+        parseValuePair(key, value);
+      }
+    });
+    return valuePairs.join('&');
+  };
+
+//--------------------------------------------------[Object.fromQueryString]
+  /**
+   * 将一个用于 HTTP 传输的查询字符串转换为对象。
+   * @name Object.fromQueryString
+   * @function
+   * @param {string} string 要转换的查询字符串。
+   * @param {boolean} [dontDecode] 转换时不使用 decodeURIComponent 解码。
+   * @returns {Object} 转换后的对象。
+   * @example
+   *   Object.fromQueryString('c=&d=100&e=Composite%20Value&e=true');
+   *   // {c: '', d: '100', e: ['Composite Value', 'true']}
+   */
+  Object.fromQueryString = function(string, dontDecode) {
+    var object = {};
+    string.split('&').forEach(function(item) {
+      var valuePair = item.split('=');
+      var key = valuePair[0];
+      var value = valuePair[1] || '';
+      if (!dontDecode) {
+        key = decodeURIComponent(key);
+        value = decodeURIComponent(value);
+      }
+      if (object.hasOwnProperty(key)) {
+        typeof object[key] === 'string' ? object[key] = [object[key], value] : object[key].push(value);
+      } else {
+        object[key] = value;
+      }
+    });
+    return object;
+  };
+
 //--------------------------------------------------[Array.from]
   /**
    * 将一个值转化为数组。
    * @name Array.from
    * @function
    * @param {*} value 要转化为数组的值。
-   * @returns {Array} 转化后的数组。
-   * @description
-   *   如果该值为 null 或 undefined，则返回空数组。
+   *   如果该值为 undefined 或 null，则返回空数组。
    *   如果该值本身即为一个数组，则直接返回这个数组。
    *   如果该值有 toArray 方法，则返回调用该方法后的结果。
    *   如果该值可遍历，则返回一个包含各可遍历项的数组。
    *   否则，返回一个仅包含该值的数组。
+   * @returns {Array} 由 value 转化而来的数组。
    */
   Array.from = function(value) {
     if (value == null) {
@@ -914,7 +960,7 @@
    * @name Array.prototype.remove
    * @function
    * @param {*} element 指定的元素。
-   * @returns {Array} 本数组。
+   * @returns {boolean} 指定的元素是否存在并被移除。
    * @description
    *   IE6 无法通过 [undefined].remove(undefined) 或 [undefined].remove() 成功移除数组中的元素。
    * @example
@@ -925,8 +971,9 @@
     var index = this.indexOf(element);
     if (index > -1) {
       this.splice(index, 1);
+      return true;
     }
-    return this;
+    return false;
   };
 
 //--------------------------------------------------[Array.prototype.getFirst]
@@ -1025,7 +1072,7 @@
    */
   Number.prototype.padZero = function(digits) {
     var sign = (this < 0) ? '-' : '';
-    var number = Math.abs(this) + '';
+    var number = String(Math.abs(this));
     if (isFinite(this)) {
       var length = number.length - (Math.ceil(this) == this ? 0 : 1);
       if (length < digits) {
@@ -1213,16 +1260,18 @@
 
 //--------------------------------------------------[RegExp.escape]
   /**
-   * 为字符串编码，避免创建正则表达式时破坏预期的结构。
+   * 转义字符串中包含的正则表达式元字符。
    * @name RegExp.escape
    * @function
-   * @param {string} string 要编码的字符串。
-   * @returns {string} 编码后的字符串。
+   * @param {string} string 要转义的字符串。
+   * @returns {string} 转义后的字符串。
+   * @description
+   *   转以后的字符串可以安全的作为正则表达式的一部分使用。
    * @see http://prototypejs.org/
    */
   var regularExpressionMetacharactersPattern = /([.*+?^=!:${}()|[\]\/\\])/g;
   RegExp.escape = function(string) {
-    return (string + '').replace(regularExpressionMetacharactersPattern, '\\$1');
+    return String(string).replace(regularExpressionMetacharactersPattern, '\\$1');
   };
 
 })();

@@ -7,6 +7,8 @@ var apiList = {
     'Object.forEach',
     'Object.clone',
     'Object.mixin',
+    'Object.toQueryString',
+    'Object.fromQueryString',
     '=ES5=',
     'Object.keys'
   ],

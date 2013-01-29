@@ -49,7 +49,7 @@
    *   object.Collection
    *   object.Object
    * @description
-   *   注意：
+   *   特殊情况：
    *   一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
    *   IE6 IE7 IE8 IE9 IE10 中 SELECT.options === SELECT 为 true，因此 SELECT.options 将得到 'object.Node'，而不是预期的 'object.Collection'。
    *   IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
@@ -79,7 +79,7 @@
         type = types[toString.call(value)] || 'object.Object';
         if (type === 'object.Object') {
           // 转化为字符串判断。
-          var string = value + '';
+          var string = String(value);
           if (string === '[object Window]' || string === '[object DOMWindow]') {
             type = 'object.Global';
           } else if (string === '[object JSON]') {
@@ -183,8 +183,7 @@
    * @memberOf navigator
    * @type Object
    * @description
-   *   注意：
-   *   navigator.userAgentInfo 下的三个属性是根据 navigator.userAgent 得到的，仅供参考使用，不建议用在代码逻辑判断中。
+   *   注意：navigator.userAgentInfo 下的三个属性是根据 navigator.userAgent 得到的，仅供参考，不建议作为逻辑判断的依据。
    */
 
   /**
@@ -411,38 +410,19 @@
 
 //--------------------------------------------------[location.parameters]
   /**
-   * 获取当前页面的 Query String 中携带的所有参数。
+   * 通过此对象可以访问当前页面地址中查询字符串所携带的参数。
    * @name parameters
    * @memberOf location
    * @type Object
    * @description
-   *   注意：
-   *   当地址栏的字符有非 ASCII 字符，或有非法的查询字符串时，会有兼容性问题。
+   *   注意：获取的参数值均为原始值（未经过 decodeURIComponent 解码）。
    * @example
    *   // 设页面地址为 test.html?a=ok&b=100&b=128
    *   location.parameters
    *   // {a:'ok', b:['100', '128']}
    * @see http://w3help.org/zh-cn/causes/HD9001
    */
-  Object.mixin(location, function() {
-    // 查找并保存页面参数。
-    var parameters = {};
-    var searchString = location.search.slice(1);
-    if (searchString) {
-      searchString.split('&').forEach(function(item) {
-        var valuePair = item.split('=');
-        var key = valuePair[0];
-        var value = valuePair[1];
-        if (key in parameters) {
-          typeof parameters[key] === 'string' ? parameters[key] = [parameters[key], value] : parameters[key].push(value);
-        } else {
-          parameters[key] = value;
-        }
-      });
-    }
-    // 返回扩展对象。
-    return {parameters: parameters};
-  }());
+  location.parameters = Object.fromQueryString(location.search.slice(1), true);
 
 //==================================================[cookie 扩展]
   /*
@@ -600,9 +580,7 @@
    * @param {string} key 数据名，不能为空字符串。
    * @param {string} value 数据值。
    * @description
-   *   注意：
-   *   与原生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
-   *   可以使用中文 key。
+   *   注意：与原生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
    */
   localStorage.setItem = function(key, value) {
     storeElement.load(STORE_NAME);

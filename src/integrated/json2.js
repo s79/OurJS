@@ -260,7 +260,7 @@
    * @name JSON.stringify
    * @function
    * @param {*} value 要转换的 ECMAScript 值，通常是 Object 或 Array 类型，也可以是 String、Boolean、Number、Date 类型或者 null。
-   * @param {Function|Array} [replacer] 用来过滤/更改转换结果的函数或数组。
+   * @param {Function|Array} [replacer] 用来更改/过滤转换结果的函数或数组。
    *   <dl>
    *     <dt>如果是函数，则：</dt>
    *     <dd>

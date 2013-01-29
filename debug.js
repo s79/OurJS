@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130114
+ *  Version: 20130130
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展。
@@ -10,14 +10,10 @@
  */
 
 (function() {
-  // 内置对象的原型方法。
-  var hasOwnProperty = Object.prototype.hasOwnProperty;
-  var toString = Object.prototype.toString;
-
   // 将提供的值转化为整数。
   // http://es5.github.com/#x9.4
   var toInteger = function(value) {
-    value = Number(value) || 0;
+    value = +value || 0;
     value = Math[value < 0 ? 'ceil' : 'floor'](value);
     return value;
   };
@@ -37,20 +33,6 @@
 
   // 空白字符。
   var WHITESPACES = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF';
-
-  // 辅助解决遍历 bug。
-  // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
-  var hasDontEnumBug = !{toString: null}.propertyIsEnumerable('toString');
-  var DONT_ENUM_PROPERTIES = [
-    'toString',
-    'toLocaleString',
-    'valueOf',
-    'hasOwnProperty',
-    'isPrototypeOf',
-    'propertyIsEnumerable',
-    'constructor'
-  ];
-  var DONT_ENUM_PROPERTIES_LENGTH = DONT_ENUM_PROPERTIES.length;
 
 //==================================================[ES5 补缺]
   /*
@@ -91,6 +73,18 @@
    * @see http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
    */
   if (!Object.keys) {
+    var hasOwnProperty = Object.prototype.hasOwnProperty;
+    var hasDontEnumBug = !{toString: null}.propertyIsEnumerable('toString');
+    var DONT_ENUM_PROPERTIES = [
+      'toString',
+      'toLocaleString',
+      'valueOf',
+      'hasOwnProperty',
+      'isPrototypeOf',
+      'propertyIsEnumerable',
+      'constructor'
+    ];
+    var DONT_ENUM_PROPERTIES_LENGTH = DONT_ENUM_PROPERTIES.length;
     Object.keys = function(object) {
       if (typeof object !== 'object' && typeof object !== 'function' || object === null) {
         throw new TypeError('Object.keys called on non-object');
@@ -178,6 +172,7 @@
    * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
    */
   if (!Array.isArray) {
+    var toString = Object.prototype.toString;
     Array.isArray = function(value) {
       return toString.call(value) === '[object Array]';
     };
@@ -684,6 +679,8 @@
    *   Object.forEach
    *   Object.clone
    *   Object.mixin
+   *   Object.toQueryString
+   *   Object.fromQueryString
    *   Array.from
    *   Array.prototype.contains
    *   Array.prototype.remove
@@ -695,7 +692,7 @@
    *   Number.prototype.padZero
    *   Math.limit
    *   Math.randomRange
-   *   Date.from
+   *   Date.parseExact
    *   Date.prototype.format
    *   RegExp.escape
    */
@@ -725,51 +722,65 @@
    * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
    */
   Object.forEach = function(object, callback, thisObject) {
-    for (var key in object) {
-      if (hasOwnProperty.call(object, key)) {
-        callback.call(thisObject, object[key], key, object);
-      }
-    }
-    if (hasDontEnumBug) {
-      var i = 0;
-      while (i < DONT_ENUM_PROPERTIES_LENGTH) {
-        var dontEnumProperty = DONT_ENUM_PROPERTIES[i];
-        if (hasOwnProperty.call(object, dontEnumProperty)) {
-          callback.call(thisObject, object[dontEnumProperty], dontEnumProperty, object);
-        }
-        i++;
-      }
-    }
+    Object.keys(object).forEach(function(key) {
+      callback.call(thisObject, object[key], key, object);
+    });
   };
 
 //--------------------------------------------------[Object.clone]
   /**
-   * 克隆一个对象，返回克隆后的新对象。
+   * 克隆一个对象。
    * @name Object.clone
    * @function
    * @param {Object} source 原始对象。
-   * @param {boolean} [recursive] 是否进行深克隆。
-   * @returns {Object} 克隆后的新对象。
+   * @param {boolean} [recursively] 是否进行深克隆。
+   * @returns {Object} 克隆对象。
    * @description
-   *   原型链中的 properties 不会被克隆。
+   *   实例关系和原型链都不会被克隆。
+   *   一些类型的值是无法被克隆的，当尝试克隆它们时，会抛出异常，它们是 (传入 typeOf 方法后返回的值)：
+   *   <ul>
+   *     <li>function</li>
+   *     <li>object.Error</li>
+   *     <li>object.Math</li>
+   *     <li>object.JSON</li>
+   *     <li>object.Arguments</li>
+   *     <li>object.Global</li>
+   *     <li>object.Node</li>
+   *     <li>object.Collection</li>
+   *   </ul>
+   *   如果成功对一个对象进行深克隆，则对克隆对象的任何操作都不会影响原始对象。
    */
-  Object.clone = function(source, recursive) {
+  Object.clone = function(source, recursively) {
     var cloning;
-    switch (typeOf(source)) {
-      case 'object.Array':
-        cloning = [];
-        source.forEach(function(item, i) {
-          cloning[i] = recursive ? Object.clone(item, true) : item;
-        });
+    var type = typeOf(source);
+    switch (type) {
+      case 'undefined':
+      case 'boolean':
+      case 'number':
+      case 'string':
+      case 'null':
+        cloning = source;
         break;
+      case 'object.Boolean':
+      case 'object.Number':
+      case 'object.String':
+      case 'object.Date':
+      case 'object.RegExp':
+        cloning = new source.constructor(source.valueOf());
+      case 'object.Array':
+        if (!cloning) {
+          cloning = [];
+        }
       case 'object.Object':
-        cloning = {};
+        if (!cloning) {
+          cloning = {};
+        }
         Object.forEach(source, function(value, key) {
-          cloning[key] = recursive ? Object.clone(value, true) : value;
+          cloning[key] = recursively ? Object.clone(value, true) : value;
         });
         break;
       default:
-        cloning = source;
+        throw new TypeError('Object.clone called on no-cloning type: ' + type);
     }
     return cloning;
   };
@@ -790,20 +801,18 @@
    *   source 中的 property 会覆盖 destination 中的同名 property。
    *   <table>
    *     <tr><th>destination (before)</th><th>source</th><th>destination (after)</th></tr>
-   *     <tr><td>a: 'a.0'</td><td></td><td>a: 'a.0'</td></tr>
-   *     <tr><td>b: 'b.0'</td><td>b: 'b.1'</td><td>b: 'b.1'</td></tr>
-   *     <tr><td></td><td>c: 'c.1'</td><td>c: 'c.1'</td></tr>
+   *     <tr><td>a: 0</td><td></td><td>a: 0</td></tr>
+   *     <tr><td>b: 0</td><td>b: 1</td><td>b: 1</td></tr>
+   *     <tr><td></td><td>c: 1</td><td>c: 1</td></tr>
    *   </table>
    * @example
-   *   var destination = {a: 'a.0'};
-   *   var source = {b: 'b.1'};
-   *   JSON.stringify(Object.mixin(destination, source));
-   *   // {"a":"a.0","b":"b.1"}
+   *   Object.mixin({a: 0}, {b: 1});
+   *   // {a: 0, b: 1}
    * @example
-   *   JSON.stringify(Object.mixin({a: 'a.0', b: 'b.0', c: 'c.0'}, {a: 'a.1', b: 'b.1', c: 'c.1'}, {whiteList: ['a', 'b']}));
-   *   // {"a":"a.1","b":"b.1","c":"c.0"}
-   *   JSON.stringify(Object.mixin({a: 'a.0', b: 'b.0', c: 'c.0'}, {a: 'a.1', b: 'b.1', c: 'c.1'}, {whiteList: ['a', 'b'], blackList: ['b', 'c']}));
-   *   // {"a":"a.1","b":"b.0","c":"c.0"}
+   *   Object.mixin({a: 0, b: 0}, {a: 1, b: 1}, {whiteList: ['a']});
+   *   // {a: 1, b: 0}
+   *   Object.mixin({a: 0, b: 0}, {a: 1, b: 1}, {whiteList: ['a', 'b'], blackList: ['a']});
+   *   // {a: 0, b: 1}
    * */
   Object.mixin = function(destination, source, filter) {
     var keys = Object.keys(source);
@@ -827,28 +836,104 @@
     return destination;
   };
 
+//--------------------------------------------------[Object.toQueryString]
+  /**
+   * 将一个对象转换为用于 HTTP 传输的查询字符串。
+   * @name Object.toQueryString
+   * @function
+   * @param {Object} object 要转换的对象，该对象的每个属性名和属性值都将以键值对的形式被转换为字符串。
+   *   如果某个属性值为 undefined 或 null，则忽略该属性。
+   *   如果某个属性值为数组，则表示其对应的属性名有多个有效值。
+   * @param {boolean} [dontEncode] 转换时不使用 encodeURIComponent 编码。
+   * @returns {string} 转换后的字符串。
+   * @example
+   *   Object.toQueryString({a: undefined, b: null, c: '', d: 100, e: ['Composite Value', true]});
+   *   // "c=&d=100&e=Composite%20Value&e=true"
+   */
+  Object.toQueryString = function(object, dontEncode) {
+    var valuePairs = [];
+    var parseValuePair = function(key, value) {
+      if (value != null) {
+        valuePairs.push(dontEncode ? key + '=' + value : encodeURIComponent(key) + '=' + encodeURIComponent(value));
+      }
+    };
+    Object.forEach(object, function(value, key) {
+      if (Array.isArray(value)) {
+        value.forEach(function(value) {
+          parseValuePair(key, value);
+        });
+      } else {
+        parseValuePair(key, value);
+      }
+    });
+    return valuePairs.join('&');
+  };
+
+//--------------------------------------------------[Object.fromQueryString]
+  /**
+   * 将一个用于 HTTP 传输的查询字符串转换为对象。
+   * @name Object.fromQueryString
+   * @function
+   * @param {string} string 要转换的查询字符串。
+   * @param {boolean} [dontDecode] 转换时不使用 decodeURIComponent 解码。
+   * @returns {Object} 转换后的对象。
+   * @example
+   *   Object.fromQueryString('c=&d=100&e=Composite%20Value&e=true');
+   *   // {c: '', d: '100', e: ['Composite Value', 'true']}
+   */
+  Object.fromQueryString = function(string, dontDecode) {
+    var object = {};
+    string.split('&').forEach(function(item) {
+      var valuePair = item.split('=');
+      var key = valuePair[0];
+      var value = valuePair[1] || '';
+      if (!dontDecode) {
+        key = decodeURIComponent(key);
+        value = decodeURIComponent(value);
+      }
+      if (object.hasOwnProperty(key)) {
+        typeof object[key] === 'string' ? object[key] = [object[key], value] : object[key].push(value);
+      } else {
+        object[key] = value;
+      }
+    });
+    return object;
+  };
+
 //--------------------------------------------------[Array.from]
   /**
-   * 将类数组对象转化为数组，如果该对象不是一个类数组对象，则返回一个仅包含该对象的数组。
+   * 将一个值转化为数组。
    * @name Array.from
    * @function
-   * @param {*} arrayish 要转化为数组的对象。
-   * @returns {Array} 转化后的数组。
+   * @param {*} value 要转化为数组的值。
+   *   如果该值为 undefined 或 null，则返回空数组。
+   *   如果该值本身即为一个数组，则直接返回这个数组。
+   *   如果该值有 toArray 方法，则返回调用该方法后的结果。
+   *   如果该值可遍历，则返回一个包含各可遍历项的数组。
+   *   否则，返回一个仅包含该值的数组。
+   * @returns {Array} 由 value 转化而来的数组。
    */
-  Array.from = function(arrayish) {
-    switch (typeOf(arrayish)) {
-      case 'object.Array':
-        return arrayish;
+  Array.from = function(value) {
+    if (value == null) {
+      return [];
+    }
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value.toArray === 'function') {
+      return value.toArray();
+    }
+    switch (typeOf(value)) {
       case 'object.Arguments':
       case 'object.Collection':
       case 'object.Object':
         var i = 0;
-        var length = arrayish.length;
+        var length = value.length;
         if (typeof length === 'number') {
           var result = [];
           while (i < length) {
-            if (!arrayish.hasOwnProperty || arrayish.hasOwnProperty(i)) {
-              result[i] = arrayish[i];
+            if (!value.hasOwnProperty || value.hasOwnProperty(i)) {
+              result[i] = value[i];
             }
             i++;
           }
@@ -856,7 +941,7 @@
           return result;
         }
     }
-    return [arrayish];
+    return [value];
   };
 
 //--------------------------------------------------[Array.prototype.contains]
@@ -880,7 +965,7 @@
    * @name Array.prototype.remove
    * @function
    * @param {*} element 指定的元素。
-   * @returns {Array} 本数组。
+   * @returns {boolean} 指定的元素是否存在并被移除。
    * @description
    *   IE6 无法通过 [undefined].remove(undefined) 或 [undefined].remove() 成功移除数组中的元素。
    * @example
@@ -891,8 +976,9 @@
     var index = this.indexOf(element);
     if (index > -1) {
       this.splice(index, 1);
+      return true;
     }
-    return this;
+    return false;
   };
 
 //--------------------------------------------------[Array.prototype.getFirst]
@@ -991,7 +1077,7 @@
    */
   Number.prototype.padZero = function(digits) {
     var sign = (this < 0) ? '-' : '';
-    var number = Math.abs(this) + '';
+    var number = String(Math.abs(this));
     if (isFinite(this)) {
       var length = number.length - (Math.ceil(this) == this ? 0 : 1);
       if (length < digits) {
@@ -1035,10 +1121,10 @@
     return Math.floor(Math.random() * (max - min + 1) + min);
   };
 
-//--------------------------------------------------[Date.from]
+//--------------------------------------------------[Date.parseExact]
   /**
-   * 将符合某种格式的字符串转换为日期。
-   * @name Date.from
+   * 将以指定格式表示日期的字符串转换为日期对象。
+   * @name Date.parseExact
    * @function
    * @param {string} string 代表日期的字符串，该字符串应该能够通过 Date.prototype.format 生成。
    *   日期字符串中缺失的部分将使用默认值代替，各部分的默认值如下：
@@ -1054,22 +1140,22 @@
    *     <tr><td>时区</td><td>当地时区</td></tr>
    *   </table>
    *   注意：未检查字符串内包含数据的有效性，若数据异常，将得不到预期的日期值。
-   * @param {string} [format] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。格式请参考 Date.prototype.format 的同名参数。
+   * @param {string} [format] 由代表日期字段的标识符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。格式请参考 Date.prototype.format 的同名参数。
    * @param {boolean} [isUTC] 字符串是否为世界标准时间。
    *   当 isUTC 与 string 中已存在的 TZD 标识冲突时，isUTC 将被忽略。
-   * @returns {Date} 转换后的日期。
+   * @returns {Date} 转换后的日期对象。
    * @example
-   *   Date.from('2012-06-25 12:00:00', 'YYYY-MM-DD hh:mm:ss')
+   *   Date.parseExact('2012-06-25 12:00:00', 'YYYY-MM-DD hh:mm:ss')
    *   // 各浏览器中日期的字符串形式略有差异。
    *   // "Mon Jun 25 2012 12:00:00 GMT+0800"
-   *   Date.from('2012-12-21T23:14:35.000+08:00', 'YYYY-MM-DDThh:mm:ss.sTZD', true).format('世界标准时间YYYY年MM月DD日hh点mm分ss秒', true)
+   *   Date.parseExact('2012-12-21T23:14:35.000+08:00', 'YYYY-MM-DDThh:mm:ss.sTZD', true).format('世界标准时间YYYY年MM月DD日hh点mm分ss秒', true)
    *   // "世界标准时间2012年12月21日15点14分35秒"
-   *   Date.from('02-29 16:00', 'MM-DD hh:mm')
+   *   Date.parseExact('02-29 16:00', 'MM-DD hh:mm')
    *   // 年份缺失，使用默认值代替。
    *   // "Wed Feb 29 2012 16:00:00 GMT+0800"
    */
   var timeZoneOffset = new Date().getTimezoneOffset() * 60000;
-  Date.from = function(string, format, isUTC) {
+  Date.parseExact = function(string, format, isUTC) {
     format = format || 'YYYY-MM-DD';
     // 从 string 中参考 format 解析出日期数据。
     var extractedData = {};
@@ -1117,11 +1203,11 @@
 
 //--------------------------------------------------[Date.prototype.format]
   /**
-   * 将日期格式化为字符串。
+   * 将日期对象格式化为字符串。
    * @name Date.prototype.format
    * @function
-   * @param {string} [format] 由代表日期字段的标志符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。
-   *   各标志符及其含义：
+   * @param {string} [format] 由代表日期字段的标识符和其他字符组成的格式字符串，默认为 'YYYY-MM-DD'。
+   *   各标识符及其含义：
    *   <table>
    *     <tr><th>字符</th><th>含义</th></tr>
    *     <tr><td>YYYY</td><td>四位数年份。</td></tr>
@@ -1171,7 +1257,7 @@
     var date = format.replace(dateFormatPattern, function(key) {
       return keys[key];
     });
-    // IE6 IE7 IE8 的 replace 方法会修改正则表达式对象的 lastIndex 属性，此处手动恢复为 0，以免执行 Date.from(new Date().format()) 时出错。
+    // IE6 IE7 IE8 的 replace 方法会修改正则表达式对象的 lastIndex 属性，此处手动恢复为 0，以免执行 Date.parseExact(new Date().format()) 时出错。
     dateFormatPattern.lastIndex = 0;
     return date;
 
@@ -1179,16 +1265,18 @@
 
 //--------------------------------------------------[RegExp.escape]
   /**
-   * 为字符串编码，避免创建正则表达式时破坏预期的结构。
+   * 转义字符串中包含的正则表达式元字符。
    * @name RegExp.escape
    * @function
-   * @param {string} string 要编码的字符串。
-   * @returns {string} 编码后的字符串。
+   * @param {string} string 要转义的字符串。
+   * @returns {string} 转义后的字符串。
+   * @description
+   *   转以后的字符串可以安全的作为正则表达式的一部分使用。
    * @see http://prototypejs.org/
    */
   var regularExpressionMetacharactersPattern = /([.*+?^=!:${}()|[\]\/\\])/g;
   RegExp.escape = function(string) {
-    return (string + '').replace(regularExpressionMetacharactersPattern, '\\$1');
+    return String(string).replace(regularExpressionMetacharactersPattern, '\\$1');
   };
 
 })();
@@ -1243,7 +1331,7 @@
    *   object.Collection
    *   object.Object
    * @description
-   *   注意：
+   *   特殊情况：
    *   一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
    *   IE6 IE7 IE8 IE9 IE10 中 SELECT.options === SELECT 为 true，因此 SELECT.options 将得到 'object.Node'，而不是预期的 'object.Collection'。
    *   IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
@@ -1273,7 +1361,7 @@
         type = types[toString.call(value)] || 'object.Object';
         if (type === 'object.Object') {
           // 转化为字符串判断。
-          var string = value + '';
+          var string = String(value);
           if (string === '[object Window]' || string === '[object DOMWindow]') {
             type = 'object.Global';
           } else if (string === '[object JSON]') {
@@ -1377,8 +1465,7 @@
    * @memberOf navigator
    * @type Object
    * @description
-   *   注意：
-   *   navigator.userAgentInfo 下的三个属性是根据 navigator.userAgent 得到的，仅供参考使用，不建议用在代码逻辑判断中。
+   *   注意：navigator.userAgentInfo 下的三个属性是根据 navigator.userAgent 得到的，仅供参考，不建议作为逻辑判断的依据。
    */
 
   /**
@@ -1605,38 +1692,19 @@
 
 //--------------------------------------------------[location.parameters]
   /**
-   * 获取当前页面的 Query String 中携带的所有参数。
+   * 通过此对象可以访问当前页面地址中查询字符串所携带的参数。
    * @name parameters
    * @memberOf location
    * @type Object
    * @description
-   *   注意：
-   *   当地址栏的字符有非 ASCII 字符，或有非法的查询字符串时，会有兼容性问题。
+   *   注意：获取的参数值均为原始值（未经过 decodeURIComponent 解码）。
    * @example
    *   // 设页面地址为 test.html?a=ok&b=100&b=128
    *   location.parameters
    *   // {a:'ok', b:['100', '128']}
    * @see http://w3help.org/zh-cn/causes/HD9001
    */
-  Object.mixin(location, function() {
-    // 查找并保存页面参数。
-    var parameters = {};
-    var searchString = location.search.slice(1);
-    if (searchString) {
-      searchString.split('&').forEach(function(item) {
-        var valuePair = item.split('=');
-        var key = valuePair[0];
-        var value = valuePair[1];
-        if (key in parameters) {
-          typeof parameters[key] === 'string' ? parameters[key] = [parameters[key], value] : parameters[key].push(value);
-        } else {
-          parameters[key] = value;
-        }
-      });
-    }
-    // 返回扩展对象。
-    return {parameters: parameters};
-  }());
+  location.parameters = Object.fromQueryString(location.search.slice(1), true);
 
 //==================================================[cookie 扩展]
   /*
@@ -1695,7 +1763,7 @@
       item += '; secure';
     }
     if (options.expires) {
-      item += '; expires=' + (typeof options.expires === 'string' ? Date.from(options.expires, 'YYYY-MM-DD hh:mm:ss') : options.expires).toUTCString();
+      item += '; expires=' + (typeof options.expires === 'string' ? Date.parseExact(options.expires, 'YYYY-MM-DD hh:mm:ss') : options.expires).toUTCString();
     }
     document.cookie = item;
   };
@@ -1794,9 +1862,7 @@
    * @param {string} key 数据名，不能为空字符串。
    * @param {string} value 数据值。
    * @description
-   *   注意：
-   *   与原生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
-   *   可以使用中文 key。
+   *   注意：与原生的 localStorage 不同，IE6 IE7 的实现不允许 `~!@#$%^&*() 等符号出现在 key 中，可以使用 . 和 _ 符号，但不能以 . 和数字开头。
    */
   localStorage.setItem = function(key, value) {
     storeElement.load(STORE_NAME);
@@ -1914,8 +1980,7 @@
    * @param {Element} element 要扩展的元素，只能传入 Element、document（事件对象的 target 属性）或 null。
    * @returns {Element} 扩展后的元素。
    * @description
-   *   注意：
-   *   不能获取并扩展其他页面的 DOM 元素！
+   *   注意：不能获取并扩展其他页面的 DOM 元素！
    */
   // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值将作为该元素的 key 使用。
   var uid = 0;
@@ -1992,8 +2057,7 @@
    * @name Element.prototype.outerHTML
    * @type string
    * @description
-   *   注意：
-   *   getter 在处理空标签及特殊字符时，各浏览器行为不一致。
+   *   注意：getter 在处理空标签及特殊字符时，各浏览器的行为不一致。
    */
 //  if (!('outerHTML' in html)) {
 //    var emptyElementPattern = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
@@ -2035,8 +2099,7 @@
    * @name Element.prototype.innerText
    * @type string
    * @description
-   *   注意：
-   *   getter 在遇到 BR 元素或换行符时，各浏览器行为不一致。
+   *   注意：getter 在处理 BR 元素或换行符时，各浏览器的行为不一致。
    */
   if (!('innerText' in html)) {
     HTMLElement.prototype.__defineGetter__('innerText', function() {
@@ -2055,10 +2118,8 @@
    * @name Element.prototype.outerText
    * @type string
    * @description
-   *   注意：
-   *   getter 在遇到 BR 元素或换行符时，各浏览器行为不一致。
-   *   setter 在特殊元素上调用时（如 body）各浏览器行为不一致。
    *   与 innerText 不同，如果设置一个元素的 outerText，那么设置的字符串将作为文本节点替换本元素在文档树中的位置。
+   *   注意：getter 在处理 BR 元素或换行符时，各浏览器的行为不一致。
    */
   if (!('outerText' in html)) {
     HTMLElement.prototype.__defineGetter__('outerText', function() {
@@ -2304,7 +2365,7 @@
       return $element.currentStyle.styleFloat;
     },
     'opacity': function($element) {
-      return $element.filters['alpha'] ? $element.filters['alpha'].opacity / 100 + '' : '1';
+      return $element.filters['alpha'] ? String($element.filters['alpha'].opacity / 100) : '1';
     }
   };
 
@@ -2336,13 +2397,10 @@
    * 获取本元素的“计算后的样式”中某个特性的值。
    * @name Element.prototype.getStyle
    * @function
-   * @param {string} propertyName 特性名，仅支持 camel case 格式。
+   * @param {string} propertyName 特性名（不支持复合特性），应使用 camel case 格式。
    * @returns {string} 对应的特性值，如果获取的是长度值，其单位未必是 px，可能是其定义时的单位。
    * @description
-   *   实际上各浏览器返回的“计算后的样式”中各特性的值未必是 CSS 规范中描述的 computed values，而可能是 used/actual values。
-   *   注意：
-   *   不要尝试获取复合属性的值，它们存在兼容性问题。
-   *   不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
+   *   注意：不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
    */
   Element.prototype.getStyle = 'getComputedStyle' in window ? function(propertyName) {
     return window.getComputedStyle(this, null).getPropertyValue(propertyName.dasherize()) || '';
@@ -2373,13 +2431,11 @@
    * 为本元素设置一条行内样式声明。
    * @name Element.prototype.setStyle
    * @function
-   * @param {string} propertyName 特性名，仅支持 camel case 格式。
+   * @param {string} propertyName 特性名（支持复合特性），应使用 camel case 格式。
    * @param {number|string} propertyValue 特性值，若为数字，则为期望长度单位的特性值自动添加长度单位 'px'。
    * @returns {Element} 本元素。
    * @description
-   *   注意：
-   *   如果设置的是长度值，若长度单位不是 'px' 则不能省略长度单位。
-   *   可以设置复合属性的值。
+   *   注意：如果设置的是长度值，若长度单位不是 'px' 则不能省略长度单位。
    */
   Element.prototype.setStyle = function(propertyName, propertyValue) {
     if (Number.isFinite(propertyValue) && !numericValues[propertyName]) {
@@ -2467,8 +2523,7 @@
    * @param {string} key 数据名。
    * @returns {Element} 本元素。
    * @description
-   *   注意：
-   *   IE6 IE7 在 removeAttribute 时，key 参数是大小写敏感的。
+   *   注意：IE6 IE7 在 removeAttribute 时，key 参数是大小写敏感的。
    */
   Element.prototype.removeData = function(key) {
     key = parseDataKey(key);
@@ -2488,7 +2543,7 @@
 
 //--------------------------------------------------[Element.prototype.getClientRect]
   /*
-   * —— 2009 年的测试结果 (body's direction = ltr) ——
+   * [2009 年的测试结果 (body's direction = ltr)]
    * 测试浏览器：IE6 IE7 IE8 FF3 Safari4 Chrome2 Opera9。
    *
    * 浏览器        compatMode  [+html.border,+body.border]  [+html.border,-body.border]  [-html.border,+body.border]  [-html.border,-body.border]
@@ -2502,16 +2557,15 @@
    * body.clientLeft 的值取决于 BODY 的 border 属性，如果未设置 BODY 的 border 属性，则 BODY 会继承 HTML 的 border 属性。如果 HTML 的 border 也未设置，则 HTML 的 border 默认值为 medium，计算出来是 2px。
    * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
    * html.clientLeft 在 IE6 中取决于 HTML 的 border 属性，而在 IE7 中的值则始终为 2px。
+   *
+   * [特殊情况]
+   * IE7(IE9 模拟) 的 BODY 的计算样式 direction: rtl 时，如果 HTML 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
    */
   /**
    * 获取本元素的 border-box 在视口中的坐标信息。
    * @name Element.prototype.getClientRect
    * @function
    * @returns {Object} 包含位置（left、right、top、bottom）及尺寸（width、height）的对象，所有属性值均为 number 类型，单位为像素。
-   * @description
-   *   注意：
-   *   不考虑非标准模式。
-   *   标准模式下 IE7(IE9 模拟) 的 BODY 的计算样式 direction: rtl 时，如果 HTML 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
    */
   Element.prototype.getClientRect = navigator.isIElt8 ? function() {
     var clientRect = this.getBoundingClientRect();
@@ -2695,7 +2749,7 @@
    * 克隆本元素。
    * @name Element.prototype.clone
    * @function
-   * @param {boolean} [recursive] 是否进行深克隆。
+   * @param {boolean} [recursively] 是否进行深克隆。
    * @param {boolean} [keepListeners] 是否保留本元素及后代元素上的所有事件监听器。
    * @returns {Element} 克隆后的元素。
    * @description
@@ -2706,11 +2760,11 @@
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9029
    */
-  Element.prototype.clone = function(recursive, keepListeners) {
-    var clonedElement = this.cloneNode(recursive);
+  Element.prototype.clone = function(recursively, keepListeners) {
+    var clonedElement = this.cloneNode(recursively);
     var originalElements = [this];
     var clonedElements = [clonedElement];
-    if (recursive) {
+    if (recursively) {
       originalElements = originalElements.concat(Array.from(this.getElementsByTagName('*')));
       clonedElements = clonedElements.concat(Array.from(clonedElement.getElementsByTagName('*')));
     }
@@ -5375,7 +5429,7 @@
         case TYPE_LENGTH:
           map.before[name] = beforeValue = extractNumberValue(beforeValue);
           if (typeof afterValue === 'string' && relativeLengthPattern.test(afterValue)) {
-            map.after[name] = beforeValue + (+(afterValue.slice(0, 1) + '1') * +afterValue.slice(2));
+            map.after[name] = beforeValue + (+(afterValue.slice(0, 1) + '1') * afterValue.slice(2));
           } else {
             map.after[name] = extractNumberValue(afterValue);
           }
@@ -5924,7 +5978,7 @@
     // 保存请求地址。
     this.url = url;
     // 保存选项数据。
-    options = Object.mixin(Object.clone(Request.options), options || {});
+    options = Object.mixin(Object.clone(Request.options, true), options || {});
     switch (options.mode = options.mode.toLowerCase()) {
       case 'xhr':
         options.method = options.method.toLowerCase();
@@ -6187,11 +6241,11 @@
    * @name Widget.parse
    * @function
    * @param {Element} element 要解析的元素。
-   * @param {boolean} [recursive] 是否解析该元素的后代元素。
+   * @param {boolean} [recursively] 是否解析该元素的后代元素。
    * @description
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为 Widget，因此仅应在必要时调用本方法。
    */
-  Widget.parse = function(element, recursive) {
+  Widget.parse = function(element, recursively) {
     var $element = document.$(element);
 
     if (!$element.widgetType) {
@@ -6212,7 +6266,7 @@
       }
     }
 
-    if (recursive) {
+    if (recursively) {
       $element.find('[class*=widget-]').forEach(function($element) {
         Widget.parse($element);
       });
@@ -6488,7 +6542,7 @@
    * @name JSON.stringify
    * @function
    * @param {*} value 要转换的 ECMAScript 值，通常是 Object 或 Array 类型，也可以是 String、Boolean、Number、Date 类型或者 null。
-   * @param {Function|Array} [replacer] 用来过滤/更改转换结果的函数或数组。
+   * @param {Function|Array} [replacer] 用来更改/过滤转换结果的函数或数组。
    *   <dl>
    *     <dt>如果是函数，则：</dt>
    *     <dd>

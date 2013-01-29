@@ -498,7 +498,7 @@
         case TYPE_LENGTH:
           map.before[name] = beforeValue = extractNumberValue(beforeValue);
           if (typeof afterValue === 'string' && relativeLengthPattern.test(afterValue)) {
-            map.after[name] = beforeValue + (+(afterValue.slice(0, 1) + '1') * +afterValue.slice(2));
+            map.after[name] = beforeValue + (+(afterValue.slice(0, 1) + '1') * afterValue.slice(2));
           } else {
             map.after[name] = extractNumberValue(afterValue);
           }
