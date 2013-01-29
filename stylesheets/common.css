@@ -132,4 +132,4 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 #outline.shown div { display: block; }
 
 /* 日志 */
-.widget-logger div { background: url(../images/logger.png); }
+.widget-logger { background-image: url(../images/logger.png) !important; }

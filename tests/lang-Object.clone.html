@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>dom-test</title>
+<script src="../dev.js"></script>
+<script src="../scripts/logger.js"></script>
+<style>
+body { margin: 10px; }
+.widget-logger { float: left; width: 500px; margin-right: 2px; }
+</style>
+</head>
+<body>
+<div id="logger_1" class="widget-logger"></div>
+<div id="logger_2" class="widget-logger"></div>
+<div id="logger_3" class="widget-logger"></div>
+
+<script>
+var t0, t1;
+
+document.on('domready', function() {
+  var $l1 = $('#logger_1');
+
+  $l1.log('========== undefined, boolean, number, string, null ==========');
+  [undefined, true, 1, 'string', null].forEach(function(item) {
+    t0 = item;
+    t1 = Object.clone(t0, true);
+    $l1.list(typeOf(t0), typeOf(t1));
+    $l1.assert('t0 === t1');
+  });
+
+  $l1.log('========== Boolean, Number, String, Date, RegExp ==========');
+  [Boolean, Number, String, Date, RegExp].forEach(function(item) {
+    t0 = new item(100000000);
+    t0.x = {value: '原始'};
+    t1 = Object.clone(t0, true);
+    $l1.list(typeOf(t0), typeOf(t1));
+    $l1.list(t0, t1);
+    $l1.assert('t0.x.value === \'原始\' && t1.x.value === \'原始\'');
+    t1.x.value = '克隆';
+    $l1.assert('t0.x.value === \'原始\' && t1.x.value === \'克隆\'');
+  });
+
+  var $l2 = $('#logger_2');
+
+  $l2.log('========== Array (深克隆) ==========');
+  t0 = [1, 2, 3, [4, 5, 6]];
+  t0.x = {value: '数组'};
+  t1 = Object.clone(t0, true);
+  $l2.list(typeOf(t0), typeOf(t1));
+  $l2.assert('JSON.stringify(t0) === JSON.stringify(t1)');
+  $l2.assert('t0.x.value === \'数组\' && t1.x.value === \'数组\'');
+  t1.x.value = '新数组';
+  $l2.assert('t0.x.value === \'数组\' && t1.x.value === \'新数组\'');
+
+  $l2.log('========== Object (深克隆) ==========');
+  t0 = {key: 'value', array: ['a', 'b', 'c'], date: new Date(2013, 0, 1)};
+  t0.x = {value: '对象'};
+  t1 = Object.clone(t0, true);
+  $l2.list(typeOf(t0), typeOf(t1));
+  $l2.assert('JSON.stringify(t0) === JSON.stringify(t1)');
+  $l2.assert('t0.x.value === \'对象\' && t1.x.value === \'对象\'');
+  delete t1.x.value;
+  $l2.assert('t0.x.value === \'对象\' && t1.x.value === undefined');
+
+  $l2.log('========== function, Error, Math, JSON, Arguments, Global, Node, Collection ==========');
+  $l2.log('---------- window (浅克隆) ----------');
+  t0 = window;
+  try {
+    t1 = Object.clone(t0, true);
+  } catch (e) {
+    window.e1 = e.message.startsWith('Object.clone called on no-cloning type: ');
+  } finally {
+    $l2.assert('e1 === true');
+  }
+  $l2.log('---------- 对象中有 window 值 (浅克隆) ----------');
+  t0 = {a: 'a', b: 100, c: [1, 2, 3], d: window};
+  t1 = Object.clone(t0, false);
+  $l2.list(t0.a, t0.b, t0.c, t0.d);
+  $l2.list(t1.a, t1.b, t1.c, t1.d);
+  t1.d = 'ok';
+  $l2.assert('t0.d === window && t1.d === \'ok\'');
+  $l2.log('---------- 对象中有 window 值 (深克隆) ----------');
+  t0 = {a: 'a', b: 100, c: [1, 2, 3], d: window};
+  window.e2 = false;
+  try {
+    t1 = Object.clone(t0, true);
+  } catch (e) {
+    window.e2 = e.message.startsWith('Object.clone called on no-cloning type: ');
+  } finally {
+    $l2.assert('e2 === true');
+  }
+
+});
+</script>
+
+</body>
+</html>

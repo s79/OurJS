@@ -739,32 +739,58 @@
 
 //--------------------------------------------------[Object.clone]
   /**
-   * 克隆一个对象，返回克隆后的新对象。
+   * 克隆一个对象。
    * @name Object.clone
    * @function
    * @param {Object} source 原始对象。
-   * @param {boolean} [recursive] 是否进行深克隆。
-   * @returns {Object} 克隆后的新对象。
+   * @param {boolean} [recursively] 是否进行深克隆。
+   * @returns {Object} 克隆对象。
    * @description
-   *   原型链中的 properties 不会被克隆。
+   *   实例关系和原型链都不会被克隆。
+   *   一些类型的值是无法被克隆的，当尝试克隆它们时，会抛出异常，它们是 (传入 typeOf 方法后返回的值)：
+   *   <ul>
+   *     <li>function</li>
+   *     <li>object.Error</li>
+   *     <li>object.Math</li>
+   *     <li>object.JSON</li>
+   *     <li>object.Arguments</li>
+   *     <li>object.Global</li>
+   *     <li>object.Node</li>
+   *     <li>object.Collection</li>
+   *   </ul>
+   *   如果成功对一个对象进行深克隆，则对克隆对象的任何操作都不会影响原始对象。
    */
-  Object.clone = function(source, recursive) {
+  Object.clone = function(source, recursively) {
     var cloning;
-    switch (typeOf(source)) {
-      case 'object.Array':
-        cloning = [];
-        source.forEach(function(item, i) {
-          cloning[i] = recursive ? Object.clone(item, true) : item;
-        });
+    var type = typeOf(source);
+    switch (type) {
+      case 'undefined':
+      case 'boolean':
+      case 'number':
+      case 'string':
+      case 'null':
+        cloning = source;
         break;
+      case 'object.Boolean':
+      case 'object.Number':
+      case 'object.String':
+      case 'object.Date':
+      case 'object.RegExp':
+        cloning = new source.constructor(source.valueOf());
+      case 'object.Array':
+        if (!cloning) {
+          cloning = [];
+        }
       case 'object.Object':
-        cloning = {};
+        if (!cloning) {
+          cloning = {};
+        }
         Object.forEach(source, function(value, key) {
-          cloning[key] = recursive ? Object.clone(value, true) : value;
+          cloning[key] = recursively ? Object.clone(value, true) : value;
         });
         break;
       default:
-        cloning = source;
+        throw new TypeError('Object.clone called on no-cloning type: ' + type);
     }
     return cloning;
   };

@@ -65,7 +65,7 @@ var apiList = {
     'Math.randomRange'
   ],
   'Date': [
-    'Date.from',
+    'Date.parseExact',
     'Date#format',
     '=ES5=',
     'Date.now',

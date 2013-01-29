@@ -228,7 +228,7 @@
     // 保存请求地址。
     this.url = url;
     // 保存选项数据。
-    options = Object.mixin(Object.clone(Request.options), options || {});
+    options = Object.mixin(Object.clone(Request.options, true), options || {});
     switch (options.mode = options.mode.toLowerCase()) {
       case 'xhr':
         options.method = options.method.toLowerCase();

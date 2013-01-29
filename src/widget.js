@@ -107,11 +107,11 @@
    * @name Widget.parse
    * @function
    * @param {Element} element 要解析的元素。
-   * @param {boolean} [recursive] 是否解析该元素的后代元素。
+   * @param {boolean} [recursively] 是否解析该元素的后代元素。
    * @description
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为 Widget，因此仅应在必要时调用本方法。
    */
-  Widget.parse = function(element, recursive) {
+  Widget.parse = function(element, recursively) {
     var $element = document.$(element);
 
     if (!$element.widgetType) {
@@ -132,7 +132,7 @@
       }
     }
 
-    if (recursive) {
+    if (recursively) {
       $element.find('[class*=widget-]').forEach(function($element) {
         Widget.parse($element);
       });

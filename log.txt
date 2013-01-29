@@ -1,5 +1,10 @@
 
 
+>2013-01-28
+Date.from -> Date.parseExact
+为 Array.from 增加目标值为 null、undefined 或有 toArray 方法的情况的处理。
+Object.clone 的行为更明确，当尝试克隆一个无法被克隆的值时会抛出异常。
+
 >2013-01-14
 修复 IE8 的较低子版本中使用内置的 JSON.stringify 方法处理表单控件的空值时出现的 BUG。
 

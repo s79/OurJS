@@ -860,7 +860,7 @@
    * 克隆本元素。
    * @name Element.prototype.clone
    * @function
-   * @param {boolean} [recursive] 是否进行深克隆。
+   * @param {boolean} [recursively] 是否进行深克隆。
    * @param {boolean} [keepListeners] 是否保留本元素及后代元素上的所有事件监听器。
    * @returns {Element} 克隆后的元素。
    * @description
@@ -871,11 +871,11 @@
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9029
    */
-  Element.prototype.clone = function(recursive, keepListeners) {
-    var clonedElement = this.cloneNode(recursive);
+  Element.prototype.clone = function(recursively, keepListeners) {
+    var clonedElement = this.cloneNode(recursively);
     var originalElements = [this];
     var clonedElements = [clonedElement];
-    if (recursive) {
+    if (recursively) {
       originalElements = originalElements.concat(Array.from(this.getElementsByTagName('*')));
       clonedElements = clonedElements.concat(Array.from(clonedElement.getElementsByTagName('*')));
     }
