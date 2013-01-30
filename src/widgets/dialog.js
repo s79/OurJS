@@ -6,77 +6,6 @@
 
 (function() {
 //==================================================[Widget - 遮盖层]
-//--------------------------------------------------[freezeFocusArea]
-  // 限定不可聚焦的区域。参数 config 包含 enable 和 disable 两个元素。如果省略此参数，则取消限定。
-  var $before;
-  var $after;
-  var $enabled;
-  var $disabled;
-  var focusedByUser = true;
-  var freezeFocusArea = function(config) {
-    if (config) {
-      var $enable = document.$(config.enable);
-      var $disable = document.$(config.disable);
-      // 将两个辅助文本框固定定位，以免在切换焦点时发生滚动。
-      $before = $before || document.$('<input type="text" readonly style="position: fixed; top: 0; left: -10000px; -position: absolute;">')
-          .on('focus', function() {
-            if (focusedByUser) {
-              focusedByUser = false;
-              $after.focus();
-            } else {
-              focusedByUser = true;
-            }
-          })
-          .on('keydown', function(event) {
-            if (event.which === 9 && event.shiftKey) {
-              this.fire('focus');
-              return false;
-            }
-          });
-      $after = $after || document.$('<input type="text" readonly style="position: fixed; top: 0; left: -10000px; -position: absolute;">')
-          .on('focus', function() {
-            if (focusedByUser) {
-              focusedByUser = false;
-              $before.focus();
-            } else {
-              focusedByUser = true;
-            }
-          })
-          .on('keydown', function(event) {
-            if (event.which === 9 && !event.shiftKey) {
-              this.fire('focus');
-              return false;
-            }
-          });
-      if ($enable !== $enabled) {
-        if ($disabled) {
-          $disabled.off('focusin.freezeFocusArea');
-        }
-        $disable.on('focusin.freezeFocusArea', function(event) {
-          // 要判断 $after 此时是否可见，在点击某元素导致对话框关闭时，对话框是先隐藏，然后才执行到这里。
-          if (!$enable.contains(event.target) && $after.offsetWidth) {
-            $after.focus();
-          }
-        });
-        $before.insertTo($enable, 'top');
-        $after.insertTo($enable, 'bottom').fire('focus');
-        $enabled = $enable;
-        $disabled = $disable;
-      }
-    } else {
-      if ($disabled) {
-        $disabled.off('focusin.freezeFocusArea');
-        if ($before) {
-          $before.remove(true);
-        }
-        if ($after) {
-          $after.remove(true);
-        }
-        $enabled = $disabled = null;
-      }
-    }
-  };
-
 //--------------------------------------------------[Overlay]
   /**
    * 遮盖层
@@ -121,24 +50,34 @@
         var $dialog = this.context.dialogs.getLast();
         if ($dialog) {
           this.setStyle('zIndex', $dialog.getStyle('zIndex') - 1);
+          $dialog.focus();
           if (!this.isVisible) {
+            // 显示遮盖层。
             if (this.resizeInIE6) {
               window.attachEvent('onresize', this.resizeInIE6);
             }
             this.fade('in', {duration: 100, timingFunction: 'easeOut'});
             this.isVisible = true;
             this.resize();
+            // 锁定可交互区域。
+            this.context.on('focusin.freezeInteractionArea', function(event) {
+              var $activeDialog = this.dialogs.getLast();
+              if (!$activeDialog.contains(event.target) && $activeDialog.offsetWidth) {
+                $activeDialog.focus();
+              }
+            });
           }
-          freezeFocusArea({enable: $dialog, disable: this.context});
         } else {
           if (this.isVisible) {
+            // 隐藏遮盖层。
             if (this.resizeInIE6) {
               window.detachEvent('onresize', this.resizeInIE6);
             }
             this.fade('out', {duration: 100, timingFunction: 'easeIn'});
             this.isVisible = false;
+            // 解锁可交互区域。
+            this.context.off('focusin.freezeInteractionArea');
           }
-          freezeFocusArea();
         }
         return this;
       },
