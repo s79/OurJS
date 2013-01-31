@@ -1,5 +1,11 @@
 
 
+>2013-01-30
+为在 Element.prototype 上提供的动画增加 onStep 回调
+
+>2013-01-30
+更改 Dialog 的锁定可交互区域的实现方式
+
 >2013-01-29
 修改 Array.prototype.remove 的返回值。
 +Object.toQueryString

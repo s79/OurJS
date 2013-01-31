@@ -584,17 +584,16 @@
    *   Element.prototype.morph
    *   Element.prototype.highlight
    *   Element.prototype.fade
+   *   Element.prototype.cancelAnimation
    */
 
   // 空函数。
   var empty = function() {
   };
 
-  // 元素的动画播放列表，供动画合并使用。
-  var animationLists = {};
-  var getAnimationList = function($element) {
-    var uid = $element.uid;
-    return animationLists[uid] || (animationLists[uid] = {});
+  // 获取元素正在播放中的动画列表。
+  var getAnimations = function($element) {
+    return $element._animations_ || ($element._animations_ = {});
   };
 
 //--------------------------------------------------[Element.prototype.morph]
@@ -610,6 +609,8 @@
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
    * @param {Function} options.onStart 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
+   * @param {Function} options.onStep 播放每一帧之后的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
@@ -618,19 +619,22 @@
    */
   Element.prototype.morph = function(styles, options) {
     var $element = this;
-    options = Object.mixin({duration: 400, timingFunction: 'ease', onStart: empty, onFinish: empty}, options || {});
-    var list = getAnimationList($element);
-    var prevMorph = list.morph;
+    options = Object.mixin({duration: 400, timingFunction: 'ease', onStart: empty, onStep: empty, onFinish: empty}, options || {});
+    var animations = getAnimations($element);
+    var prevMorph = animations.morph;
     if (prevMorph) {
       prevMorph.pause();
     }
-    var morph = list.morph = new Animation()
+    var morph = animations.morph = new Animation()
         .addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction)
         .on('playstart', function(event) {
           options.onStart.call($element, event);
         })
+        .on('step', function(event) {
+          options.onStep.call($element, event);
+        })
         .on('playfinish', function(event) {
-          delete list.morph;
+          delete animations.morph;
           options.onFinish.call($element, event);
         });
     morph.play();
@@ -649,6 +653,8 @@
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
+   * @param {Function} options.onStep 播放每一帧之后的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
@@ -659,10 +665,10 @@
     var $element = this;
     color = color || 'yellow';
     property = property || 'backgroundColor';
-    options = Object.mixin({duration: 500, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
+    options = Object.mixin({duration: 500, timingFunction: 'easeIn', onStart: empty, onStep: empty, onFinish: empty}, options || {});
     var originalColor;
-    var list = getAnimationList($element);
-    var prevHighlight = list.highlight;
+    var animations = getAnimations($element);
+    var prevHighlight = animations.highlight;
     if (prevHighlight) {
       prevHighlight.pause();
       if (property === prevHighlight.property) {
@@ -676,14 +682,17 @@
     }
     var styles = {};
     styles[property] = originalColor;
-    var highlight = list.highlight = new Animation()
+    var highlight = animations.highlight = new Animation()
         .on('playstart', function(event) {
           $element.setStyle(property, color);
           this.addClip(Animation.createStyleRenderer($element, styles), 0, options.duration, options.timingFunction);
           options.onStart.call($element, event);
         })
+        .on('step', function(event) {
+          options.onStep.call($element, event);
+        })
         .on('playfinish', function(event) {
-          delete list.highlight;
+          delete animations.highlight;
           options.onFinish.call($element, event);
         });
     highlight.originalColor = originalColor;
@@ -709,6 +718,8 @@
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
+   * @param {Function} options.onStep 播放每一帧之后的回调。
+   *   该函数被调用时 this 的值为本元素。
    * @param {Function} options.onFinish 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
@@ -718,8 +729,8 @@
    */
   Element.prototype.fade = function(mode, options) {
     var $element = this;
-    var list = getAnimationList($element);
-    var prevFade = list.fade;
+    var animations = getAnimations($element);
+    var prevFade = animations.fade;
     // 根据当前已有的信息确定本次调用应为 fade in 模式还是 fade out 模式。
     var shouldBeFadeInMode = prevFade ? !prevFade.isFadeInMode : $element.getStyle('display') === 'none';
     // 实际为 fade in 模式还是 fade out 模式。
@@ -739,7 +750,7 @@
     }
     // 检查是否可以播放 fade 动画。
     if (prevFade || isFadeInMode === shouldBeFadeInMode) {
-      options = Object.mixin({duration: 200, timingFunction: 'easeIn', onStart: empty, onFinish: empty}, options || {});
+      options = Object.mixin({duration: 200, timingFunction: 'easeIn', onStart: empty, onStep: empty, onFinish: empty}, options || {});
       var originalOpacity;
       var percentageNeedsPlay;
       if (prevFade) {
@@ -757,13 +768,16 @@
           $element.setStyles({display: 'block', opacity: 0});
         }
       }
-      var fade = list.fade = new Animation()
+      var fade = animations.fade = new Animation()
           .addClip(Animation.createStyleRenderer($element, {opacity: isFadeInMode ? originalOpacity : 0}), 0, options.duration * percentageNeedsPlay, options.timingFunction)
           .on('playstart', function(event) {
             options.onStart.call($element, event);
           })
+          .on('step', function(event) {
+            options.onStep.call($element, event);
+          })
           .on('playfinish', function(event) {
-            delete list.fade;
+            delete animations.fade;
             // 如果是 fade out 则在播放完毕后恢复原始透明度。
             if (!isFadeInMode) {
               $element.setStyles({display: 'none', opacity: originalOpacity});
@@ -796,11 +810,11 @@
   Element.prototype.cancelAnimation = function() {
     var $element = this;
     var types = Array.from(arguments);
-    var list = getAnimationList($element);
-    Object.forEach(list, function(animation, type) {
+    var animations = getAnimations($element);
+    Object.forEach(animations, function(animation, type) {
       if (types.length === 0 || types.contains(type)) {
         animation.pause();
-        delete list[type];
+        delete animations[type];
         switch (type) {
           case 'morph':
             break;

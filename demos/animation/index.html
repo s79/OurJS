@@ -81,10 +81,13 @@ document.on('domready', function() {
           opacity: 1
         }, {
           onStart: function() {
-            $logger.log('<em>onStart</em>(回退)');
+            $logger.log('<strong>onStart</strong>(回退)');
+          },
+          onStep: function() {
+            $logger.log('<em>onStep</em>' + this.getStyle('width'));
           },
           onFinish: function() {
-            $logger.log('<em>onFinish</em>(回退)');
+            $logger.log('<strong>onFinish</strong>(回退)');
             this.highlight('aqua').innerText = '0';
           }
         });
@@ -133,11 +136,14 @@ document.on('domready', function() {
   $('#highlight_green').on('click', function() {
     $sample.highlight('greenyellow', 'backgroundColor', {
       onStart: function() {
-        $logger.log('<em>onStart</em>(greenyellow)');
+        $logger.log('<strong>onStart</strong>(greenyellow)');
+      },
+      onStep: function() {
+        $logger.log('<em>onStep</em>' + this.getStyle('backgroundColor'));
       },
       onFinish: function() {
         this.innerText = 'G';
-        $logger.log('<em>onFinish</em>(greenyellow)');
+        $logger.log('<strong>onFinish</strong>(greenyellow)');
       }
     });
   });
@@ -233,11 +239,14 @@ document.on('domready', function() {
       duration: 1000,
       timingFunction: 'ease',
       onStart: function() {
-        $logger.log('<em>onStart</em>fade(\'toggle\')');
+        $logger.log('<strong>onStart</strong>fade(\'toggle\')');
         startUpdate();
       },
+      onStep: function() {
+        $logger.log('<em>onStep</em>' + Math.round(this.getStyle('opacity') * 100) + '%');
+      },
       onFinish: function() {
-        $logger.log('<em>onFinish</em>fade(\'toggle\')');
+        $logger.log('<strong>onFinish</strong>fade(\'toggle\')');
         stopUpdate();
       }
     });
