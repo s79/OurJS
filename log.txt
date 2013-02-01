@@ -1,6 +1,10 @@
 
 
->2013-01-30
+>2013-02-01
+转移 src/adapters、src/widgets 和 src/utilities 文件夹的路径。
+修改 widget-dialog 的定位方式并更新演示页面。
+
+>2013-01-31
 为在 Element.prototype 上提供的动画增加 onStep 回调
 
 >2013-01-30

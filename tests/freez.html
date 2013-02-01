@@ -2,48 +2,85 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>freezeFocusArea</title>
+<title>Dialog</title>
 <script src="../dev.js"></script>
+<script src="../widgets/dialog.js"></script>
 <style>
-#dialog_1,
-#dialog_2 { display: block; position: absolute; left: 50px; top: 100px; width: 400px; height: 300px; margin: 50px; border: 1px solid black; background: gray; }
-#dialog_2 { left: 500px; }
-#dialog_1 *:focus,
-#dialog_2 *:focus { background: orangered; }
+blockquote { margin: 10px 50px; padding: 10px; border: 2px solid darkseagreen; background: whitesmoke; font: 14px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+#container { height: 350px; z-index: 10; }
+.widget-dialog { width: 500px; height: 300px; background: steelblue; }
+.widget-dialog:focus,
+.widget-dialog *:focus { background-color: orangered !important; }
+#dialog_b { width: 350px; height: 200px; background: darkmagenta; }
 </style>
 </head>
 <body>
-<fieldset>
-  <legend>焦点锁定时，锁定区域外的部分不能获取焦点（包括通过鼠标点击、使用 tab 键导航和脚本调用 focus 方法）。</legend>
-  <input type="button" value="button">
+<!-- 测试遮盖层的功能 { -->
+<blockquote>
+  这些元素不会被遮盖：
+  <a href="#">link</a>
+  <button>button</button>
   <input type="text" value="text">
-  <input type="text" value="text">
-  <a href="#">a</a>
-</fieldset>
+  <select>
+    <option>IE6 SELECT</option>
+  </select>
+</blockquote>
+<!-- } 测试遮盖层的功能 -->
 
-<button type="button" onclick="freezeFocusArea(null);">取消锁定焦点</button>
+<blockquote id="container">
+  这些元素会被遮盖：
+  <a href="#">link</a>
+  <button>button</button>
+  <!-- 模态对话框 { -->
+  <div id="dialog_a" class="widget-dialog">
+    <fieldset style="clear: both;">
+      <legend>对话框出现时，仅对话框内的部分可以使用 tab 键导航。</legend>
+      <input type="button" value="button">
+      <input type="text" value="tabindex:1" tabindex="1">
+      <input type="text" value="">
+      <a href="#">a</a>
+    </fieldset>
+    <button onclick="$a.close();">dialogA.close()</button>
+    <button onclick="$b.open();">dialogB.open()</button>
+  </div>
+  <div id="dialog_b" class="widget-dialog">
+    <fieldset style="clear: both;">
+      <legend>对话框出现时，仅对话框内的部分可以使用 tab 键导航。</legend>
+      <input type="button" value="button">
+      <input type="text" value="tabindex:2" tabindex="2">
+      <input type="text" value="">
+      <a href="#">a</a>
+    </fieldset>
+    <button onclick="$b.close();">dialogB.close()</button>
+  </div>
+  <!-- } 模态对话框 -->
+</blockquote>
 
-<div id="dialog_1">
-  <button type="button" onclick="freezeFocusArea($('#dialog_1'));">锁定焦点在本对话框内</button>
+<button onclick="$a.open();">dialogA.open()</button>
+
+这些元素会被遮盖：
+<a href="#">link</a>
+<button>button</button>
+<!-- 模态对话框 { -->
+<div id="dialog_c" class="widget-dialog">
   <fieldset style="clear: both;">
     <legend>对话框出现时，仅对话框内的部分可以使用 tab 键导航。</legend>
     <input type="button" value="button">
     <input type="text" value="tabindex:1" tabindex="1">
-    <input type="text" value="tabindex:2" tabindex="2">
+    <input type="text" value="">
     <a href="#">a</a>
   </fieldset>
+  <button onclick="$c.close();">dialogC.close()</button>
 </div>
+<!-- } 模态对话框 -->
 
-<div id="dialog_2">
-  <button type="button" onclick="freezeFocusArea($('#dialog_2'));">锁定焦点在本对话框内</button>
-  <fieldset style="clear: both;">
-    <legend>对话框出现时，仅对话框内的部分可以使用 tab 键导航。</legend>
-    <input type="button" value="button">
-    <input type="text" value="text">
-    <input type="text" value="text">
-    <a href="#">a</a>
-  </fieldset>
-</div>
-<script src="src/components/freeze.js"></script>
+<button onclick="$c.open();">dialogC.open()</button>
+
+<script>
+var $a = $('#dialog_a');
+var $b = $('#dialog_b');
+var $c = $('#dialog_c');
+</script>
+
 </body>
 </html>

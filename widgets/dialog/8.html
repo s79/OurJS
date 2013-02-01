@@ -4,23 +4,22 @@
 <meta charset="utf-8">
 <title>Dialog</title>
 <script src="../../our.js"></script>
-<script src="../../src/widgets/dialog.js"></script>
+<script src="../../widgets/dialog.js"></script>
+<script src="simple_dialog.js"></script>
 <style>
-#dialog_a { position: fixed; width: 360px; height: 270px; background: steelblue; }
-#dialog_b { position: fixed; width: 280px; height: 210px; background: mediumorchid; }
+#dialog_a { position: fixed; width: 360px; height: 270px; }
+#dialog_b { position: fixed; width: 280px; height: 210px; }
 </style>
 </head>
 <body>
 <!-- 模态对话框_A { -->
-<div id="dialog_a" class="widget-dialog" data-animation="slide">
-  <button onclick="dialogA.close();">dialogA.close()</button>
+<div id="dialog_a" class="widget-simple-dialog" data-animation="slide">
   <button onclick="dialogB.open();">dialogB.open()</button>
 </div>
 <!-- } 模态对话框_A -->
 
 <!-- 模态对话框_B { -->
-<div id="dialog_b" class="widget-dialog" data-animation="fade">
-  <button onclick="dialogB.close();">dialogB.close()</button>
+<div id="dialog_b" class="widget-simple-dialog" data-animation="slide">
   <button onclick="animation.play();">变长</button>
   <button onclick="animation.reverse();">变短</button>
 </div>
@@ -30,9 +29,7 @@
 
 <script>
 var dialogA = $('#dialog_a');
-
 var dialogB = $('#dialog_b');
-
 var animation = new Animation()
     .addClip(Animation.createStyleRenderer(dialogB, {height: 320}), 0, 210, 'ease')
     .on('step', function() {

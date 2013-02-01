@@ -137,7 +137,11 @@
             .on('click', function(e) {
               e.preventDefault();
               $logger.clear();
-              this.highlight('tomato', 'color').fade('out');
+              this
+                  .highlight('tomato', 'color', {onFinish: function() {
+                    this.setStyle('color', '');
+                  }})
+                  .fade('out');
             })
             .insertTo($logger);
         $logger

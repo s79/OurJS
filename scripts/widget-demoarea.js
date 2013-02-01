@@ -52,7 +52,7 @@
           var $iframe = e.activePanel;
           if (!$iframe.getData('injected')) {
             var path = location.pathname;
-            $iframe.setData('injected', 'true').src = (path.indexOf('OurJS') === 1 ? '/OurJS/' : '/framework/') + 'scripts/demoarea_view_source.html?src=' + path.slice(0, path.lastIndexOf('/') + 1) + src;
+            $iframe.setData('injected', 'true').src = (path.indexOf('OurJS') === 1 ? '/OurJS/' : '/framework/') + 'scripts/widget-demoarea.html?src=' + path.slice(0, path.lastIndexOf('/') + 1) + src;
           }
         }
       });

@@ -25,47 +25,43 @@ OurJS 只可以和非侵入式设计的框架或类库共存。
 
 ## 文件列表 ##
 
-以下列出的文件位于 `src` 目录内：
+`our.js` 中包含以下列出的所有文件：
 
 <table>
   <tr>
     <th>描述</th><th>文件名</th>
   </tr>
   <tr>
-    <td>Integrated</td><td>integrated\sizzle.js<br>integrated\json2.js</td>
+    <td>Integrated</td><td>src/integrated/sizzle.js<br>src/integrated/json2.js</td>
   </tr>
   <tr>
-    <td>Request</td><td>request.js</td>
+    <td>Request</td><td>src/request.js</td>
   </tr>
   <tr>
-    <td>Animation</td><td>animation.js</td>
+    <td>Animation</td><td>src/animation.js</td>
   </tr>
   <tr>
-    <td>Features</td><td>features.js</td>
+    <td>Features</td><td>src/features.js</td>
   </tr>
   <tr>
-    <td>DOM API Enhancements</td><td>dom.js</td>
+    <td>DOM API Enhancements</td><td>src/dom.js</td>
   </tr>
   <tr>
-    <td>Browser API Enhancements</td><td>browser.js</td>
+    <td>Browser API Enhancements</td><td>src/browser.js</td>
   </tr>
   <tr>
-    <td>JS API Enhancements</td><td>lang.js</td>
+    <td>JS API Enhancements</td><td>src/lang.js</td>
   </tr>
 </table>
 
-`our.js` 中包含以上列出的所有文件。
-以下文件均为可选项，并不包含于 `our.js` 中。
+以下文件均为可选的附加项：
 
 <table>
   <tr>
-    <td>Widgets</td><td>src/widgets/*.js</td>
+    <td>Widgets</td><td>widgets/*.js</td>
   </tr>
   <tr>
-    <td>Utilities</td><td>src/utilities/*.js</td>
-  </tr>
-  <tr>
-    <td>Adapters</td><td>src/adapters/*.js</td>
+    <td>Utilities</td><td>utilities/*.js</td>
   </tr>
 </table>
 

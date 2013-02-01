@@ -2614,11 +2614,10 @@
         .filter(function(name) {
           if (name === 'beforeunload') {
             window.onbeforeunload = function() {
-              // 将 listener 的 this 设置为 window。不使用 call this 也是 window，此处使用以强调意图。
+              // 将 listener 的 this 设置为 window（不调用 call 也是 window）。
               // 不会传入事件对象。
               return listener.call(window);
             };
-            // TODO: A 上的非 http https 的协议在 document 上把 event preventDefault 掉。
             return false;
           }
           return true;

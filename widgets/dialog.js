@@ -144,12 +144,18 @@
    *   对话框的“定位参考元素”的 id。
    *   如果不指定本属性，则以父元素作为“定位参考元素”。
    *   “定位参考元素”只能是对话框的父元素或其父元素的后代元素。
-   * @attribute data-offset-x
+   * @attribute data-left
    *   对话框的左边与其“定位参考元素”的左边的横向差值。
-   *   如果不指定本属性，对话框的中心点在横向将与其“定位参考元素”的中心点重合。
-   * @attribute data-offset-y
+   * @attribute data-right
+   *   对话框的右边与其“定位参考元素”的右边的横向差值。
+   *   如果已指定 data-left， 本属性将被忽略。
+   *   如果 data-left 和本属性均未指定，对话框的中心点在横向将与其“定位参考元素”的中心点重合。
+   * @attribute data-top
    *   对话框的顶边与其“定位参考元素”的顶边的纵向差值。
-   *   如果不指定本属性，对话框的中心点在纵向将与其“定位参考元素”的中心点重合。
+   * @attribute data-bottom
+   *   对话框的底边与其“定位参考元素”的底边的纵向差值。
+   *   如果已指定 data-top， 本属性将被忽略。
+   *   如果 data-top 和本属性均未指定，对话框的中心点在纵向将与其“定位参考元素”的中心点重合。
    * @attribute data-animation
    *   打开和关闭对话框时使用的动画效果，可选项有 'none'，'fade' 和 'slide'。
    *   如果不指定本属性或指定为 'none'，则关闭动画效果。
@@ -180,7 +186,7 @@
    *   .widget-dialog { display: none; outline: none; }
    *   </pre>
    * @example
-   *   &lt;div id="notice" class="widget-dialog" data-offset-y="100" onopen="alert('open');"&gt;...&lt;/div&gt;
+   *   &lt;div id="notice" class="widget-dialog" data-top="100" onopen="alert('open');"&gt;...&lt;/div&gt;
    */
 
   /**
@@ -222,8 +228,10 @@
     ],
     config: {
       pinnedTarget: '',
-      offsetX: NaN,
-      offsetY: NaN,
+      left: NaN,
+      right: NaN,
+      top: NaN,
+      bottom: NaN,
       animation: 'none'
     },
     methods: {
@@ -298,7 +306,6 @@
       },
       reposition: function() {
         if (this.isOpen) {
-          var isFixedPositioned = this.isFixedPositioned;
           // 获取当前位置。
           var dialogClientRect = this.getClientRect();
           var currentX = dialogClientRect.left;
@@ -318,10 +325,10 @@
           } else {
             pinnedTargetClientRect = this.pinnedTarget.getClientRect();
           }
-          expectedX = pinnedTargetClientRect.left + (Number.isFinite(this.offsetX) ? this.offsetX : (pinnedTargetClientRect.width - currentWidth) / 2);
-          expectedY = pinnedTargetClientRect.top + (Number.isFinite(this.offsetY) ? this.offsetY : (pinnedTargetClientRect.height - currentHeight) / 2);
+          expectedX = Math.round(pinnedTargetClientRect.left + (Number.isFinite(this.left) ? this.left : (Number.isFinite(this.right) ? pinnedTargetClientRect.width - currentWidth - this.right : (pinnedTargetClientRect.width - currentWidth) / 2)));
+          expectedY = Math.round(pinnedTargetClientRect.top + (Number.isFinite(this.top) ? this.top : (Number.isFinite(this.bottom) ? pinnedTargetClientRect.height - currentHeight - this.bottom : (pinnedTargetClientRect.height - currentHeight) / 2)));
           // 确保固定定位的对话框显示在视口内。
-          if (isFixedPositioned) {
+          if (this.isFixedPositioned) {
             var leftLimit = 0;
             var rightLimit = leftLimit + pinnedTargetClientRect.width;
             var topLimit = 0;

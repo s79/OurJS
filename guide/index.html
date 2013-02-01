@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>OurJS 入门指南</title>
 <script src="../our.js"></script>
-<script src="../scripts/framework.js"></script>
+<script src="../scripts/common_loader.js"></script>
 <script src="../scripts/prettify.js"></script>
 <link rel="stylesheet" href="../stylesheets/prettify.css">
 <style>
@@ -109,7 +109,7 @@ var pageOffset = window.getPageOffset();
 </pre>
 
 <h3>为文档对象扩充的方法</h3>
-<p>可以通过 document.$ 来获取和创建元素：</p>
+<p>可以通过 document.$ 来获取和创建<strong>一个（而不是多个）</strong>元素：</p>
 <pre>
 var $container = document.$('#container');
 // 获取 id 为 container 的元素。这相当于 document.getElementById('container')。
@@ -172,13 +172,17 @@ if ($input.offsetWidth) {
 $container.find('span.word').forEach(function($item) {
   $item.addClass('highlight_word');
 });
+// 找到 $container 的<em>后代元素中所有类名包含 'word' 的 SPAN 元素</em>，为它们添加 'highlight_word' 类以使它们高亮显示。
 &lt;/script&gt;
 </pre>
 <p>
-  OurJS 不提倡对元素进行批量操作。批量操作从代码上看意图不够清晰和直接，性能开销也较大。<br>
-  而只针对单一元素进行操作则更加严谨和高效，能杜绝不易察觉的误操作，并避开了提供针对元素集合进行操作的 API 时会面临的“get first set all”还是“get all set all”的两难抉择。
+  OurJS 不提倡对元素进行批量操作，批量操作不符合常见的程序设计思路，并且代码的意图也不够明显。<br>
+  OurJS 提倡的是只针对单一元素进行操作，这种做法更加严谨，可以使代码逻辑更加清晰，并能杜绝意料外的误操作。
 </p>
-<p>这点和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路 —— 恰当的设计可以避免很多需要“批量操作元素”的场景，修改文档树上相关节点的状态是更好的方式。</p>
+<p>
+  这种编程风格和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路 —— 恰当的设计可以避免很多需要“批量操作元素”的场景：<br>
+  使用 JS 来修改 DOM 树本质是在修改 DOM 节点的“状态”。通常来讲，同时修改多个节点的“状态”以改变其“含义”甚至“表现”，不如只修改一个节点的“状态”来改变这个分支内特定后代节点的“含义”来的明确和易于掌控，后者更易于理解和维护。
+</p>
 <p>如上例可以修改为：</p>
 <pre>
 &lt;style&gt;
@@ -187,9 +191,9 @@ $container.find('span.word').forEach(function($item) {
 ...
 &lt;script&gt;
 $container.addClass('highlight');
+// 为 $container 添加 'highlight' 类，这样其<em>后代元素中所有类名包含 'word' 的 SPAN 元素</em>都会自动高亮显示。
 &lt;/script&gt;
 </pre>
-<p>即通过修改 $container 的 class 属性来改变这个 DOM 树分支的“状态”，再配合 CSS 来达到目的。</p>
 
 <h3>处理事件</h3>
 <p>OurJS 提供了一套完整的事件模型，并对一些常见的事件类型做了兼容性处理。</p>
@@ -466,12 +470,12 @@ getUserinfo.send({userid: 32768});
 <h3>基本用法</h3>
 <p>以“模态对话框（Dialog）”为例，要将一个元素“升级”为 Dialog Widget，首先应确保页面载入了对应的 Widget 解析脚本：</p>
 <pre>&lt;script src="path/to/widgets/dialog.js"&gt;&lt;/script&gt;</pre>
-<p>然后在目标元素上添加 widget-<strong title="Widget 的类型">type</strong> 类，并使用 data-<strong title="Widget 配置项">config</strong>=<strong title="Widget 配置项的值">"value"</strong> 属性来定义 Widget 的配置即可：</p>
+<p>然后在目标元素上添加一个格式为 widget-<strong title="Widget 的类型">type</strong> 的 class，并使用 data-<strong title="Widget 配置项">config</strong>=<strong title="Widget 配置项的值">"value"</strong> 属性来定义 Widget 的配置即可：</p>
 <pre>&lt;div id="notice" class="widget-dialog" data-animation="slide"&gt;&lt;/div&gt;</pre>
-<p>这样，该元素就变成了一个 Dialog Widget，并具备了 Dialog Widget 提供的新特性（具体请参考“Widget - 模态对话框”的说明文档）。对这个 Dialog Widget 的操作在 domready 事件发生后即可进行。</p>
+<p>这样，目标元素就变成了一个 Dialog Widget，它将具备新的特性（具体请参考“Widget - 模态对话框”的说明文档）。对这个 Dialog Widget 的操作在 domready 事件发生后即可进行。</p>
 
 <h3>定制和扩展</h3>
-<p>Widget 仅为元素提供了新的行为，其外观仍需定制：</p>
+<p>Widget 本质仍是一个元素，因此其外观仍和其他普通元素一样可以定制：</p>
 <pre>
 &lt;style&gt;
 #notice { width: 600px; height: 400px; background: steelblue; }

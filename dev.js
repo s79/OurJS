@@ -14,13 +14,11 @@
     '<script src="/framework/src/animation.js"></script>',
     '<script src="/framework/src/request.js"></script>',
     '<script src="/framework/src/widget.js"></script>',
+    '<script src="/framework/src/integrated/json2.js"></script>',
     '<script src="/framework/src/integrated/sizzle.js"></script>'
   ];
-  if (!window.JSON) {
-    scripts.push('<script src="/framework/src/integrated/json2.js"></script>');
-  }
   if (document.documentElement.currentStyle && !document.documentElement.currentStyle.minWidth) {
-    scripts.push('<script src="/framework/src/utilities/console.js"></script>');
+    scripts.push('<script src="/framework/utilities/console.js"></script>');
   }
   document.write(scripts.join('\n'));
 })();
