@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Autocue</title>
+<script src="../../our.js"></script>
+<script src="../../widgets/autocue.js"></script>
+<style>
+#autocue { width: 500px; height: 20px; background: gainsboro; }
+#autocue li { padding-left: 10px; font: 12px/20px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+</style>
+</head>
+<body>
+<div id="autocue" class="widget-autocue" data-cache-size="3" data-interval="1000"></div>
+<button id="add">添加两条新信息</button>
+<script>
+document.on('domready', function() {
+  var $autocue = $('#autocue').addMessages([1, 2, 3]);
+
+  var message = 3;
+  $('#add').on('click', function() {
+    $autocue.addMessages([++message, ++message]);
+  });
+
+});
+</script>
+</body>
+</html>

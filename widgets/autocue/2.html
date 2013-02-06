@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Autocue</title>
+<script src="../../our.js"></script>
+<script src="../../widgets/autocue.js"></script>
+<style>
+#autocue { width: 500px; height: 20px; background: gainsboro; }
+#autocue li { padding-left: 10px; font: 12px/20px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+</style>
+</head>
+<body>
+<div id="autocue" class="widget-autocue" data-direction="down" data-interval="1000"></div>
+<script>
+document.on('domready', function() {
+  $('#autocue').addMessages([
+    '第一条信息：这是一个<a href="javascript:alert(\'link\');">链接</a>，也可以使用图片。',
+    '这是第二条信息',
+    '这是第三条信息'
+  ]);
+});
+</script>
+</body>
+</html>

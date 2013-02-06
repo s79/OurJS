@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>自动提词机</title>
+<script src="../../our.js"></script>
+<script src="../../scripts/common_loader.js"></script>
+<script src="../../scripts/widget-demoarea.js"></script>
+<script src="../../widgets/tabpanel.js"></script>
+</head>
+<body>
+<div id="content" data-outline="enabled">
+  <h1>自动提词机</h1>
+  <blockquote>
+    <p>
+      注意：<br>
+      一个 Widget 本身仍是一个元素。<br>
+      当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
+      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
+    </p>
+  </blockquote>
+
+  <h2>通过配置项和样式表来定义各种形式的“滚动字幕”</h2>
+
+  <h3>配置项全部使用默认值</h3>
+  <p>“自动提词机”的默认配置既是为单行的“滚动字幕”设计的。</p>
+  <div class="widget-demoarea small-size" data-src="1.html"></div>
+
+  <h3>更改滚动方向</h3>
+  <p>可配置项 data-direction 用来指定字幕滚动的方向，可选项有 'up' 和 'down'。</p>
+  <p>本例在上例代码的基础上，指定 data-direction 的值为 'down'。</p>
+  <p>另外，可配置项 data-interval 用于指定显示每条信息的事件，本例指定为 '1000'，即 1 秒钟。</p>
+  <div class="widget-demoarea small-size" data-src="2.html"></div>
+
+  <h3>添加新信息到信息队列</h3>
+  <p>“自动提词机”播放的信息是位于一个队列中的，可以通过调用它的 addMessages 方法添加新的信息。</p>
+  <p>信息会被缓存起来，缓存条目数量的上限由可配置项 data-cache-size 来指定。如果一条信息已经显示过了，并且当前缓存信息的总条目数超过了上限，那么这条信息将被从缓存中删除，也就是当所有信息播放完毕，再从头播放下一轮时，这条信息将不会再次被播放。</p>
+  <p>为了便于观察变化，本例的 data-cache-size 指定为 3，每次点击“新增信息”按钮，都会顺次添加两个数字到信息队列中。</p>
+  <div class="widget-demoarea small-size" data-src="3.html"></div>
+
+  <h3>一次显示多条信息</h3>
+  <p>可配置项 data-direction 用来指定同时显示的信息条目数。如果指定的值大于当前信息的总数，则重复显示可用的信息，直到已显示的信息条目数到达指定值为止。</p>
+  <p>实际应用中，在指定 data-direction 的数目时，应注意使用 addMessages 方法添加足够多的信息，以免有相同的信息被重复显示出来。</p>
+  <div class="widget-demoarea big-size" data-src="4.html"></div>
+
+</div>
+</body>
+</html>

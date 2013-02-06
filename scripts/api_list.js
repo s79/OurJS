@@ -270,6 +270,13 @@ var apiList = {
     'TabPanel#activePanel',
     'TabPanel#activate'
   ],
+  '模态对话框': [
+    'Dialog',
+    'Dialog#isOpen',
+    'Dialog#open',
+    'Dialog#close',
+    'Dialog#reposition'
+  ],
   '幻灯片播放器': [
     'Slideshow',
     'Slideshow#slides',
@@ -280,12 +287,9 @@ var apiList = {
     'Slideshow#showPrevious',
     'Slideshow#showNext'
   ],
-  '模态对话框': [
-    'Dialog',
-    'Dialog#isOpen',
-    'Dialog#open',
-    'Dialog#close',
-    'Dialog#reposition'
+  '自动提词机': [
+    'Autocue',
+    'Autocue#addMessages'
   ],
   '分页导航条': [
     'Paginator',

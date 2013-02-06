@@ -42,7 +42,6 @@
    *   <strong>启用方式：</strong>
    *   为元素添加 'widget-paginator' 类，即可使该元素成为分页导航条。
    *   <strong>结构约定：</strong>
-   *   <strong>结构约定：</strong>
    *   当分页导航条初始化时，会自动创建其内部的元素。
    *   其中“上一页”按钮的类名为 'prev'，“下一页”按钮的类名为 'next'，页码的容器的类名为 'pages'。
    *   如果一个按钮处于禁用状态，将自动为其添加类名 'disabled'。

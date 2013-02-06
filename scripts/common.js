@@ -64,6 +64,10 @@ document.on('domready', function() {
           url: '/OurJS/widgets/slideshow/'
         },
         {
+          text: '自动提词机',
+          url: '/OurJS/widgets/autocue/'
+        },
+        {
           text: '分页导航条',
           url: '/OurJS/widgets/paginator/'
         },
