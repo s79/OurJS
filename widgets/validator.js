@@ -48,7 +48,7 @@
     var value = $form.getFieldValue(name);
 
     // 取出验证相关的数据。
-    var validationData = $form._validationData_;
+    var validationData = $form.validationData;
     var ruleSet = validationData.rules[name];
     var states = validationData.states;
     var requests = validationData.requests;
@@ -183,7 +183,7 @@
     methods: {
       addValidationRules: function(rules) {
         var $form = this;
-        var validationData = $form._validationData_;
+        var validationData = $form.validationData;
         var associatedFields = validationData.associatedFields;
         var stateIndicators = validationData.stateIndicators;
         var messageContainers = validationData.messageContainers;
@@ -221,7 +221,7 @@
       },
       removeValidationRules: function(names) {
         var $form = this;
-        var validationData = $form._validationData_;
+        var validationData = $form.validationData;
         var rules = validationData.rules;
         var associatedFields = validationData.associatedFields;
         var stateIndicators = validationData.stateIndicators;
@@ -250,7 +250,7 @@
       var $form = this;
 
       // 保存属性。
-      var validationData = $form._validationData_ = {
+      var validationData = $form.validationData = {
         rules: {},
         states: {},
         associatedFields: {},

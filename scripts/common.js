@@ -68,6 +68,10 @@ document.on('domready', function() {
           url: '/OurJS/widgets/autocue/'
         },
         {
+          text: '滚动框',
+          url: '/OurJS/widgets/scrollbox/'
+        },
+        {
           text: '分页导航条',
           url: '/OurJS/widgets/paginator/'
         },
@@ -208,17 +212,11 @@ document.on('domready', function() {
     if (href.contains('#')) {
       var $target = $(href.slice(href.indexOf('#')));
       if ($target) {
-        var scrollTop = window.getPageOffset().y;
-        var top = $target.getClientRect().top + scrollTop;
-        new Animation()
-            .addClip(
-            Animation.createBasicRenderer(function(x, y) {
-              window.scrollTo(0, scrollTop + ((top - 50) - scrollTop) * y);
-            }), 0, 200, 'easeInOut')
-            .on('playfinish', function() {
-              $target.highlight('yellow', 'backgroundColor', {duration: 1000})
-            })
-            .play();
+        $(document.body).smoothScroll(0, $target.getClientRect().top + window.getPageOffset().y - 50, {
+          onFinish: function() {
+            $target.highlight('yellow', 'backgroundColor', {duration: 1000})
+          }
+        });
         return false;
       }
     }

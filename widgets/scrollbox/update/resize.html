@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Scrollbox</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/scrollbox.js"></script>
+<style>
+p { margin: 0; padding: 15px 0; text-align: center; }
+
+/* 设定滚动框元素的外观 */
+.widget-scrollbox { width: 400px; height: 300px; padding: 5px; border: 1px solid black; background-color: whitesmoke; }
+
+/* 自定义滚动条样式 */
+.widget-scrollbox div.track { width: 6px; background-color: transparent; }
+.widget-scrollbox div.track div { width: 6px; }
+.widget-scrollbox div.track .bar { background: transparent; opacity: .80; filter: alpha(opacity = 80); }
+.widget-scrollbox div.track .bar div { width: 6px; background: url(scrollbar.png) repeat-y; }
+.widget-scrollbox div.track .active { width: 6px; background: transparent; opacity: 1; filter: alpha(opacity = 100); }
+.widget-scrollbox .track .bar .top { height: 3px; background-position: 0 0; }
+.widget-scrollbox .track .bar .middle { height: auto; background-position: -6px 0; }
+.widget-scrollbox .track .bar .bottom { height: 3px; background-position: 0 -3px; }
+</style>
+<script>
+</script>
+</head>
+<body>
+<div id="scrollbox" class="widget-scrollbox">
+  <div>
+    <strong>如果内容区域不需要滚动即可完全显示，则滚动条按钮将被隐藏。</strong>
+    <p style="background: mediumturquoise;">START</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p style="background: cornflowerblue;">END</p>
+  </div>
+</div>
+
+<button id="expand">变大</button>
+<button id="shrink">变小</button>
+
+<script>
+document.on('domready', function() {
+  var $scrollbox = $('#scrollbox');
+
+  $('#expand').on('click', function() {
+    $scrollbox.morph({width: 800, height: 420}, {
+      onStep: function() {
+        // 在每一次改变滚动框的尺寸后，调用滚动框的 update 方法，以更新内容和滚动条的位置。
+        this.update();
+      }
+    });
+  });
+
+  $('#shrink').on('click', function() {
+    $scrollbox.morph({width: 400, height: 300}, {
+      onStep: function() {
+        // 在每一次改变滚动框的尺寸后，调用滚动框的 update 方法，以更新内容和滚动条的位置。
+        this.update();
+      }
+    });
+  });
+
+});
+</script>
+
+</body>
+</html>

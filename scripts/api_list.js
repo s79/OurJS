@@ -196,6 +196,7 @@ var apiList = {
     'Element#morph',
     'Element#highlight',
     'Element#fade',
+    'Element#smoothScroll',
     'Element#cancelAnimation'
   ],
   'HTMLFormElement': [
@@ -249,7 +250,8 @@ var apiList = {
     'Animation#pause',
     'Animation#stop',
     'Animation.createBasicRenderer',
-    'Animation.createStyleRenderer'
+    'Animation.createStyleRenderer',
+    'Animation.createScrollRenderer'
   ],
   'Request': [
     'Request',
@@ -290,6 +292,10 @@ var apiList = {
   '自动提词机': [
     'Autocue',
     'Autocue#addMessages'
+  ],
+  '滚动框': [
+    'Scrollbox',
+    'Scrollbox#update'
   ],
   '分页导航条': [
     'Paginator',

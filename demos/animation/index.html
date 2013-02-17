@@ -48,6 +48,7 @@ document.on('domready', function() {
   var $logger = $('#morph_logger');
 
   var $sample = $('#morph_sample');
+
   $('#morph_button').on('click', function() {
     $sample.morph({
       // 可以使用相对长度。
@@ -121,6 +122,7 @@ document.on('domready', function() {
   var $logger = $('#highlight_logger');
 
   var $sample = $('#highlight_sample');
+
   $('#highlight_red').on('click', function() {
     $sample.highlight('orangered', 'backgroundColor', {
       onStart: function() {
@@ -255,6 +257,63 @@ document.on('domready', function() {
 });
 </script>
 <!-- } fade -->
+
+<h2>平滑滚动</h2>
+<ul>
+  <li>如果本元素的动画播放列表中已经存在一个 smoothScroll 动画，则停止旧的，播放新的。</li>
+  <li>如果在 HTML 或 BODY 元素上调用本方法，则滚动整个视口。</li>
+</ul>
+<!-- smoothScroll { -->
+<fieldset>
+  <legend>Element.prototype.smoothScroll</legend>
+  <div id="scroll_logger" class="widget-logger" data-clearable></div>
+  <div class="demo">
+    <div id="scroll_sample" style="width: 160px; height: 80px; overflow: auto; background: gold; font-size: 14px; line-height: 2; text-align: center;">
+      <div style="width: 400px; height: 300px;">
+        text text text text text<br>text text text text text<br>text text text text text<br>text text text text text<br>text text text text text<br>text text text text text<br>text text text text text<br>text text text text text<br>text text text text text<br>text text text text text<br>
+      </div>
+    </div>
+    <blockquote>
+      <button id="scroll_up">smoothScroll(0, 0)</button>
+      <button id="scroll_down">smoothScroll(200, '+=50')</button>
+    </blockquote>
+  </div>
+</fieldset>
+<script>
+document.on('domready', function() {
+  var $logger = $('#scroll_logger');
+
+  var $sample = $('#scroll_sample');
+
+  $('#scroll_up').on('click', function() {
+    $sample.smoothScroll(0, 0, {
+      timingFunction: 'easeOut',
+      onStart: function() {
+        $logger.log('<strong>onStart</strong>(0, 0)');
+      },
+      onStep: function(e) {
+        $logger.log('<em>onStep</em>' + this.scrollLeft + ':' + this.scrollTop);
+      },
+      onFinish: function() {
+        $logger.log('<strong>onFinish</strong>(0, 0)');
+      }
+    });
+  });
+
+  $('#scroll_down').on('click', function() {
+    $sample.smoothScroll(200, '+=50', {
+      onStart: function() {
+        $logger.log('<strong>onStart</strong>(200, \'+=50\')');
+      },
+      onFinish: function() {
+        $logger.log('<strong>onFinish</strong>(200, \'+=50\')');
+      }
+    });
+  });
+
+});
+</script>
+<!-- } smoothScroll -->
 
 <h1 style="margin-top: 100px;">使用 Animation 创建的动画</h1>
 <div class="notice">

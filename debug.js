@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130201
+ *  Version: 20130217
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展。
@@ -5413,38 +5413,34 @@
     return extractedValue;
   };
 
+  // 计算新数字，支持相对数值变化。
+  var relativeValuePattern = /^[+\-]=\d+$/;
+  var calculateNewValue = function(valueBefore, newValue) {
+    return typeof newValue === 'string' && relativeValuePattern.test(newValue) ? valueBefore + (+(newValue.slice(0, 1) + '1') * newValue.slice(2)) : extractNumberValue(newValue);
+  };
+
   // 获取可变样式的映射表。
-  var relativeLengthPattern = /^[+\-]=\d+$/;
-  var getStylesMap = function($element, afterStyles) {
-    var beforeStyles = $element.getStyles(Object.keys(afterStyles));
+  var getStylesMap = function($element, stylesAfter) {
+    var stylesBefore = $element.getStyles(Object.keys(stylesAfter));
     var map = {before: {}, after: {}};
-    Object.forEach(beforeStyles, function(beforeValue, name) {
-      var afterValue = afterStyles[name];
+    Object.forEach(stylesBefore, function(valueBefore, name) {
+      var valueAfter = stylesAfter[name];
       switch (acceptableProperties[name]) {
         case TYPE_NUMBER:
-          map.before[name] = extractNumberValue(beforeValue);
-          map.after[name] = extractNumberValue(afterValue);
+          map.before[name] = extractNumberValue(valueBefore);
+          map.after[name] = extractNumberValue(valueAfter);
           break;
         case TYPE_LENGTH:
-          map.before[name] = beforeValue = extractNumberValue(beforeValue);
-          if (typeof afterValue === 'string' && relativeLengthPattern.test(afterValue)) {
-            map.after[name] = beforeValue + (+(afterValue.slice(0, 1) + '1') * afterValue.slice(2));
-          } else {
-            map.after[name] = extractNumberValue(afterValue);
-          }
+          map.before[name] = valueBefore = extractNumberValue(valueBefore);
+          map.after[name] = calculateNewValue(valueBefore, valueAfter);
           break;
         case TYPE_COLOR:
-          map.before[name] = extractColorValue(beforeValue);
-          map.after[name] = extractColorValue(afterValue);
+          map.before[name] = extractColorValue(valueBefore);
+          map.after[name] = extractColorValue(valueAfter);
           break;
       }
     });
     return map;
-  };
-
-  // 将包含 RGB 整数表示的数组转换为颜色值。
-  var convertToRGBValue = function(colorArray) {
-    return 'rgb(' + colorArray[0] + ', ' + colorArray[1] + ', ' + colorArray[2] + ')';
   };
 
 //--------------------------------------------------[Animation.createBasicRenderer]
@@ -5469,29 +5465,23 @@
    * @param {Element} element 要实施渐变效果的元素。
    * @param {Object} styles 要实施渐变效果的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个预命名颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(正整数R, 正整数G, 正整数B) 格式。
    * @returns {Function} 生成的渲染器。
-   * @description
-   *   样式渐变效果渲染器只能指定一个元素。
    */
   Animation.createStyleRenderer = function(element, styles) {
     var $element = document.$(element);
     var map = getStylesMap($element, styles);
     var renderer = function(x, y) {
-      Object.forEach(map.before, function(beforeValue, name) {
-        var afterValue = map.after[name];
+      Object.forEach(map.before, function(valueBefore, name) {
+        var valueAfter = map.after[name];
         var currentValue;
         switch (acceptableProperties[name]) {
           case TYPE_NUMBER:
-            currentValue = (beforeValue + (afterValue - beforeValue) * y).toFixed(2);
+            currentValue = (valueBefore + (valueAfter - valueBefore) * y).toFixed(2);
             break;
           case TYPE_LENGTH:
-            currentValue = Math.floor(beforeValue + (afterValue - beforeValue) * y) + 'px';  // TODO: 支持多种长度单位。
+            currentValue = Math.floor(valueBefore + (valueAfter - valueBefore) * y) + 'px';  // TODO: 支持多种长度单位。
             break;
           case TYPE_COLOR:
-            currentValue = convertToRGBValue([
-              Math.floor(beforeValue[0] + (afterValue[0] - beforeValue[0]) * y),
-              Math.floor(beforeValue[1] + (afterValue[1] - beforeValue[1]) * y),
-              Math.floor(beforeValue[2] + (afterValue[2] - beforeValue[2]) * y)
-            ]);
+            currentValue = 'rgb(' + Math.floor(valueBefore[0] + (valueAfter[0] - valueBefore[0]) * y) + ', ' + Math.floor(valueBefore[1] + (valueAfter[1] - valueBefore[1]) * y) + ', ' + Math.floor(valueBefore[2] + (valueAfter[2] - valueBefore[2]) * y) + ')';
             break;
         }
         $element.setStyle(name, currentValue);
@@ -5502,6 +5492,43 @@
   };
 
 //--------------------------------------------------[Animation.createScrollRenderer]
+  /**
+   * 创建平滑滚动效果渲染器。
+   * @name Animation.createScrollRenderer
+   * @function
+   * @param {Element} element 要实施滚动效果的元素。
+   * @param {number} x 横向滚动坐标，元素的内容将向指定的坐标平滑滚动。
+   * @param {number} y 纵向滚动坐标，元素的内容将向指定的坐标平滑滚动。
+   * @returns {Function} 生成的渲染器。
+   */
+  Animation.createScrollRenderer = function(element, x, y) {
+    var $element = document.$(element);
+    var leftBefore;
+    var topBefore;
+    var calledByViewport = $element === document.documentElement || $element === document.body;
+    if (calledByViewport) {
+      var pageOffset = window.getPageOffset();
+      leftBefore = pageOffset.x;
+      topBefore = pageOffset.y;
+    } else {
+      leftBefore = $element.scrollLeft;
+      topBefore = $element.scrollTop;
+    }
+    var leftDifference = calculateNewValue(leftBefore, x) - leftBefore;
+    var topDifference = calculateNewValue(topBefore, y) - topBefore;
+    var renderer = function(x, y) {
+      var left = Math.round(leftBefore + leftDifference * y);
+      var top = Math.round(topBefore + topDifference * y);
+      if (calledByViewport) {
+        window.scrollTo(left, top);
+      } else {
+        $element.scrollLeft = left;
+        $element.scrollTop = top;
+      }
+    };
+    renderer.type = 'scroll';
+    return renderer;
+  };
 
 })();
 
@@ -5514,6 +5541,7 @@
    *   Element.prototype.morph
    *   Element.prototype.highlight
    *   Element.prototype.fade
+   *   Element.prototype.smoothScroll
    *   Element.prototype.cancelAnimation
    */
 
@@ -5534,6 +5562,7 @@
    * @param {Object} styles 目标样式，元素将向指定的目标样式渐变。目标样式包含一条或多条要设置的样式声明，与 setStyles 的参数的差异如下：
    *   1. 不能使用复合属性。
    *   2. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
+   *   3. 支持相对长度，如 '+=10' 表示在现有长度的基础上增加 10 像素，'-=10' 表示在现有长度的基础上减少 10 像素。
    * @param {Object} [options] 动画选项。
    * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
@@ -5722,6 +5751,51 @@
     return $element;
   };
 
+//--------------------------------------------------[Element.prototype.smoothScroll]
+  /**
+   * 让本元素播放一个平滑滚动动画。
+   * @name Element.prototype.smoothScroll
+   * @function
+   * @param {number} x 横向滚动坐标，支持相对坐标，如 '+=10' 表示在现有横坐标的基础上向左滚动 10 像素，'-=10' 表示在现有横坐标的基础上向右滚动 10 像素。
+   * @param {number} y 纵向滚动坐标，支持相对坐标，如 '+=10' 表示在现有纵坐标的基础上向下滚动 10 像素，'-=10' 表示在现有纵坐标的基础上向上滚动 10 像素。
+   * @param {Object} [options] 动画选项。
+   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeInOut'。
+   * @param {Function} options.onStart 播放开始时的回调。
+   *   该函数被调用时 this 的值为本元素。
+   * @param {Function} options.onStep 播放每一帧之后的回调。
+   *   该函数被调用时 this 的值为本元素。
+   * @param {Function} options.onFinish 播放完成时的回调。
+   *   该函数被调用时 this 的值为本元素。
+   * @returns {Element} 本元素。
+   * @description
+   *   如果本元素的动画播放列表中已经存在一个 smoothScroll 动画，则停止旧的，播放新的。
+   *   如果在 HTML 或 BODY 元素上调用本方法，则滚动整个视口。
+   */
+  Element.prototype.smoothScroll = function(x, y, options) {
+    var $element = this;
+    options = Object.mixin({duration: 200, timingFunction: 'easeInOut', onStart: empty, onStep: empty, onFinish: empty}, options || {});
+    var animations = getAnimations($element);
+    var prevScroll = animations.smoothScroll;
+    if (prevScroll) {
+      prevScroll.pause();
+    }
+    var smoothScroll = animations.smoothScroll = new Animation()
+        .addClip(Animation.createScrollRenderer($element, x, y), 0, options.duration, options.timingFunction)
+        .on('playstart', function(event) {
+          options.onStart.call($element, event);
+        })
+        .on('step', function(event) {
+          options.onStep.call($element, event);
+        })
+        .on('playfinish', function(event) {
+          delete animations.smoothScroll;
+          options.onFinish.call($element, event);
+        });
+    smoothScroll.play();
+    return $element;
+  };
+
 //--------------------------------------------------[Element.prototype.cancelAnimation]
   /**
    * 取消本元素正在播放的动画。
@@ -5736,6 +5810,7 @@
    *   对于 morph 类型的动画，会在当前帧停止。
    *   对于 highlight 类型的动画，会恢复到动画播放前的状态。
    *   对于 fade 类型的动画，会跳过补间帧直接完成显示/隐藏。
+   *   对于 smoothScroll 类型的动画，会立即停止滚动。
    */
   Element.prototype.cancelAnimation = function() {
     var $element = this;
@@ -5753,6 +5828,8 @@
             break;
           case 'fade':
             $element.setStyles({display: animation.isFadeInMode ? 'block' : 'none', opacity: animation.originalOpacity});
+            break;
+          case 'smoothScroll':
             break;
         }
       }

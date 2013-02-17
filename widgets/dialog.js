@@ -173,7 +173,7 @@
    *   <strong>结构约定：</strong>
    *   对话框的默认状态为关闭。因此对话框元素的 display 将被设置为 'none'。
    *   仅当对话框元素的“定位参考元素”为 BODY 时，其 position 才可以选择设置 'absolute' 或 'fixed'，其余情况均会被重设为 'absolute'。
-   *   对话框元素的 zIndex 值会被自动指定。
+   *   对话框元素的 z-index 值会被自动指定。
    *   如果对话框元素的父元素不是 BODY 且其 position 为 'static'，将修改其 position 为 'relative'，以使其创建 stacking context。
    *   如果对话框元素的父元素不是 BODY，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
    *   对话框的一些数据保存在其父元素中，因此不要修改对话框元素在文档树中的位置！
