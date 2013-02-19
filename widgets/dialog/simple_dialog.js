@@ -15,7 +15,7 @@
           .on('click', function() {
             $dialog.close();
           })
-          .insertTo($dialog, 'top');
+          .insertTo($dialog, 'afterBegin');
       // 主动解析。
       Widget.parsers.dialog($dialog);
     }

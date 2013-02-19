@@ -1,6 +1,6 @@
 document.on('domready', function() {
 //--------------------------------------------------[页头]
-  $('<div id="header"><div><h1 id="logo"><a href="/OurJS/"><span>OurJS</span></a></h1><h2 id="github"><a href="https://github.com/s79/OurJS" title="View on GitHub"><span>View on GitHub</span></a></h2><ul id="menu"></ul></div></div>').insertTo(document.body, 'top');
+  document.body.insertAdjacentHTML('afterBegin', '<div id="header"><div><h1 id="logo"><a href="/OurJS/"><span>OurJS</span></a></h1><h2 id="github"><a href="https://github.com/s79/OurJS" title="View on GitHub"><span>View on GitHub</span></a></h2><ul id="menu"></ul></div></div>');
 
 //--------------------------------------------------[菜单]
   // 菜单数据。
@@ -98,11 +98,11 @@ document.on('domready', function() {
           url: '/OurJS/docs/api.html'
         },
         {
-          text: 'DOM 事件列表',
+          text: '可用事件类型列表',
           url: '/OurJS/docs/events.html'
         },
         {
-          text: '140 个预命名颜色列表',
+          text: '可用颜色名称列表',
           url: '/OurJS/docs/colors.html'
         }
       ]
@@ -161,7 +161,7 @@ document.on('domready', function() {
       });
 
 //--------------------------------------------------[页脚]
-  $('<div id="footer"><span>©2012-2013 <a href="https://github.com/s79">sundongguo</a>. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>').insertTo(document.body);
+  document.body.insertAdjacentHTML('beforeEnd', '<div id="footer"><span>©2012-2013 <a href="https://github.com/s79">sundongguo</a>. Released under the <a href="http://www.opensource.org/licenses/mit-license.php" target="_blank">MIT license</a>.</span></div>');
 
 //--------------------------------------------------[提纲]
   var $content = $('#content');

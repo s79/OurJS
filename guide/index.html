@@ -255,7 +255,7 @@ $element.on('<strong>click.bar:relay(a)</strong>', listener2);
 $element.off('<strong>click.bar:relay(a)</strong>');
 // 删除代理事件监听器 listener2。
 </pre>
-<p>OurJS 没有提直接供删除一个DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器名称，这个设计是为了避免监听器被误删<sup>2</sup>。</p>
+<p>OurJS 没有提直接供删除一个 DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器名称，这个设计是为了避免监听器被误删<sup>2</sup>。</p>
 <ol class="comment">
   <li>在调用一个元素的 replace 或 remove 方法时，可以通过设置参数 keepListeners 为 false 来清除为该元素添加的所有事件监听器。</li>
   <li>要避免一个监听器被误删，应为其指定一个具有明确含义的“标签”，并确保整个应用中不会有其他地方在为这个元素添加事件监听器时使用这个“标签”。</li>
@@ -319,7 +319,7 @@ $element.on('click', function(e) {
   <p>相关演示请参考 <a href="../demos/event/" target="_blank" class="link">演示 - 事件</a>。</p>
 </blockquote>
 <blockquote>
-  <p>一些事件类型只有特定的 DOM 对象才支持，并且不是所有类型的事件都可以被代理。关于 DOM 事件的类型与特征的对应关系，请查阅 <a href="../docs/events.html" target="_blank" class="link">参考文档 - DOM 事件列表</a>。</p>
+  <p>一些事件类型只有特定的 DOM 对象才支持，并且不是所有类型的事件都可以被代理。关于 DOM 事件的类型与特征的对应关系，请查阅 <a href="../docs/events.html" target="_blank" class="link">参考文档 - 可用事件类型列表</a>。</p>
 </blockquote>
 
 <blockquote>

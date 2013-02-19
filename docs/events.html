@@ -2,123 +2,138 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>DOM 事件列表</title>
+<title>可用事件类型列表</title>
 <script src="../our.js"></script>
 <script src="../scripts/common_loader.js"></script>
 <style>
+pre,
+samp { font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+samp,
+var { font-style: italic; }
+samp { color: gray; }
+dfn { color: steelblue; }
+var { color: sienna; }
+table { table-layout: fixed; width: 800px; margin: 50px auto 0; }
 col { width: 100px; }
-col.type { width: 200px; }
+col.type { width: auto; }
 .true { background-color: greenyellow; }
+.false { background-color: whitesmoke; }
 </style>
 </head>
 <body>
 <div id="content">
-  <h1>DOM 事件列表</h1>
+<h1>可用事件类型列表</h1>
 
-  <h2>事件的使用</h2>
-  <p>这里列出的事件，均可以在 window、document 或 Element 类型的对象上调用 on、off 或 fire 方法时使用。</p>
-  <p>OurJS 对常见的 DOM 事件均进行了浏览器兼容性处理，另外，OurJS 也支持自定义事件。<br>这些常见的 DOM 事件和所有自定义事件均可以在主流浏览器中有相同的表现。</p>
+<p>以下列表中的事件类型均可以在“有效类型”的对象上（不同类型的事件应用到的元素类型也不尽相同 - 待添加详细说明）调用 on、off 或 fire 方法时使用，如：</p>
+<pre><samp>window</samp>.<dfn>fire</dfn>('<var><strong>resize</strong></var>);</pre>
+<pre><samp>document</samp>.<dfn>off</dfn>('<var><strong>click</strong>.foo</var>');</pre>
+<pre><samp>$element</samp>.<dfn>on</dfn>('<var><strong>mousedrag</strong>:relay(.draggable)</var>', function(e) {...});</pre>
 
-  <h2>目前支持的 DOM 事件类型</h2>
-  <p>以下列表中，第三列“canNotBubble”为绿色的事件不能被代理。</p>
-  <p>不同类型的事件应用到的元素类型也不尽相同（待添加详细说明）。</p>
-  <table>
-    <colgroup>
-      <col class="type">
-      <col class="mouse">
-      <col class="keyboard">
-      <col class="bubbling">
-    </colgroup>
-    <thead>
-      <tr>
-        <th>事件类型</th>
-        <th>鼠标事件</th>
-        <th>键盘事件</th>
-        <th>可以冒泡<br>(可以代理)</th>
-      </tr>
-    </thead>
-    <tbody id="list"></tbody>
-  </table>
+<p class="referral">
+  除了这里列出的 DOM 事件类型外，OurJS 还支持自定义 DOM 事件类型。<br>
+  为自定义事件类型命名时，注意不要使用以下列表中已存在的事件类型，以免事件被意外的触发。
+</p>
 
-  <h2>自定义事件</h2>
-  <p>如果使用自定义事件，需要注意避免使用上边的列表中的事件类型，以免被用户的正常操作意外的触发。</p>
-  <p>自定义事件默认都不是键盘事件或鼠标事件，并且都是可以冒泡的。</p>
+<table>
+  <colgroup>
+    <col class="type">
+    <col class="mouse">
+    <col class="keyboard">
+    <col class="bubbling">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>事件类型</th>
+      <th>鼠标事件</th>
+      <th>键盘事件</th>
+      <th>可以冒泡<br>(可以代理)</th>
+      <th>应用于</th>
+    </tr>
+  </thead>
+  <tbody id="list"></tbody>
+</table>
 
-  <script>
-  //--------------------------------------------------[Data]
-  var events = [
-    ['mousedown', 1, 0, 1],
-    ['mouseup', 1, 0, 1],
-    ['click', 1, 0, 1],
-    ['dblclick', 1, 0, 1],
-    ['contextmenu', 1, 0, 1],
-    ['mousemove', 1, 0, 1],
-    ['mouseover', 1, 0, 1],
-    ['mouseout', 1, 0, 1],
-    ['mousewheel', 1, 0, 1],
-    ['mouseenter', 1, 0, 1],
-    ['mouseleave', 1, 0, 1],
-    ['mousedragstart', 1, 0, 1],
-    ['mousedrag', 1, 0, 1],
-    ['mousedragend', 1, 0, 1],
-//  ['mousedragenter', 1, 0, 1],
-//  ['mousedragover', 1, 0, 1],
-//  ['mousedragleave', 1, 0, 1],
-//  ['mousedrop', 1, 0, 1],
-    ['keydown', 0, 1, 1],
-    ['keyup', 0, 1, 1],
-    ['keypress', 0, 1, 1],
-    ['focus', 0, 0, 0],
-    ['blur', 0, 0, 0],
-    ['focusin', 0, 0, 1],
-    ['focusout', 0, 0, 1],
-    ['input', 0, 0, 1],
-    ['change', 0, 0, 1],
-    ['select', 0, 0, 0],
-    ['submit', 0, 0, 0],
-    ['reset', 0, 0, 0],
-    ['scroll', 0, 0, 0],
-    ['load', 0, 0, 0],
-    // window 的特殊事件。
-    ['unload', 0, 0, 0],
-    ['beforeunload', 0, 0, 0],
-    ['resize', 0, 0, 0],
-    ['error', 0, 0, 0],
-    // document 的特殊事件。
-    ['domready', 0, 0, 0]
-  ];
+<script>
+//--------------------------------------------------[Data]
+var events = [
+  ['mousedown', 1, 0, 1, 'document, Element'],
+  ['mouseup', 1, 0, 1, 'document, Element'],
+  ['click', 1, 0, 1, 'document, Element'],
+  ['dblclick', 1, 0, 1, 'document, Element'],
+  ['contextmenu', 1, 0, 1, 'document, Element'],
+  ['mousemove', 1, 0, 1, 'document, Element'],
+  ['mouseover', 1, 0, 1, 'document, Element'],
+  ['mouseout', 1, 0, 1, 'document, Element'],
+  ['mousewheel', 1, 0, 1, 'document, Element'],
+  ['mouseenter', 1, 0, 1, 'document, Element'],
+  ['mouseleave', 1, 0, 1, 'document, Element'],
+  ['mousedragstart', 1, 0, 1, 'document, Element'],
+  ['mousedrag', 1, 0, 1, 'document, Element'],
+  ['mousedragend', 1, 0, 1, 'document, Element'],
+//  ['mousedragenter', 1, 0, 1, 'document, Element'],
+//  ['mousedragover', 1, 0, 1, 'document, Element'],
+//  ['mousedragleave', 1, 0, 1, 'document, Element'],
+//  ['mousedrop', 1, 0, 1, 'document, Element'],
+  ['keydown', 0, 1, 1, 'document, Element'],
+  ['keyup', 0, 1, 1, 'document, Element'],
+  ['keypress', 0, 1, 1, 'document, Element'],
+  ['focus', 0, 0, 0, 'document, Element'],
+  ['blur', 0, 0, 0, 'document, Element'],
+  ['focusin', 0, 0, 1, 'Element'],
+  ['focusout', 0, 0, 1, 'Element'],
+  ['input', 0, 0, 1, 'HTMLInputElement, HTMLTextareaElement'],
+  ['change', 0, 0, 1, 'HTMLInputElement, HTMLTextareaElement'],
+  ['select', 0, 0, 0, 'Element'],
+  ['submit', 0, 0, 0, 'HTMLFormElement'],
+  ['reset', 0, 0, 0, 'HTMLFormElement'],
+  ['scroll', 0, 0, 0, 'Element'],
+  ['load', 0, 0, 0, 'window, HTMLImageElement'],
+  // window 的特殊事件。
+  ['unload', 0, 0, 0, 'window'],
+  ['beforeunload', 0, 0, 0, 'window'],
+  ['resize', 0, 0, 0, 'window'],
+  ['error', 0, 0, 0, 'window'],
+  // document 的特殊事件。
+  ['domready', 0, 0, 0, 'document']
+];
 
-  //--------------------------------------------------[List]
-  (function() {
-    var $tbody = $('#list');
-    var $tr;
-    var $td;
-    var operators = [0, 1, 2, 4];
-
-    function showResult(name, mask) {
-      $tr = $tbody.insertRow(-1);
-      for (var i = 0; i < 4; i++) {
-        var result = i === 0 ? name : mask & operators[i];
-        $td = $tr.insertCell(-1);
-        if (result > 0) {
-          $td.className = 'true';
-        }
-        $td.innerHTML = result;
+//--------------------------------------------------[List]
+(function() {
+  var $tbody = $('#list');
+  var $tr;
+  var $td;
+  var operators = [0, 1, 2, 4];
+  var showResult = function(name, mask, applyTo) {
+    $tr = $tbody.insertRow(-1);
+    for (var i = 0; i < 5; i++) {
+      $td = $tr.insertCell(-1);
+      switch (i) {
+        case 0:
+          $td.innerHTML = name;
+          break;
+        case 4:
+          $td.innerHTML = applyTo;
+          break;
+        default:
+          $td.className = (mask & operators[i]) ? 'true' : 'false';
+          break;
       }
     }
+  };
 
-    var eventsObject = {};
-    events.forEach(function(item) {
-      var mask = parseInt(('' + item[3] + item[2] + item[1]), 2);
-      showResult(item[0], mask);
-      eventsObject[item[0]] = mask;
-    });
+  var eventsObject = {};
+  events.forEach(function(item) {
+    var mask = parseInt(('' + item[3] + item[2] + item[1]), 2);
+    showResult(item[0], mask, item[4]);
+    eventsObject[item[0]] = mask;
+  });
+  showResult('<var><strong>其他任意自定义事件类型</strong></var>', 4, 'window, document, Element');
 
-//    console.log(JSON.stringify(eventsObject));
+  console.log(JSON.stringify(eventsObject));
 
-  })();
+})();
+</script>
 
-  </script>
 </div>
 </body>
 </html>

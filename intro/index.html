@@ -24,202 +24,203 @@ document.on('domready', function() {
 </head>
 <body>
 <div id="content" data-outline="enabled">
-  <!--
-  <h1>选择开发框架或类库</h1>
-  <p>现在，JavaScript 的使用人群已经非常广，它在 WEB 开发中有着无可替代的位置，为简化开发而设计的各种框架或类库也层出不穷。</p>
-  <p>在着手一个项目时，怎样选择合适的框架或类库，是一个值得考虑的问题。如果你正面临这个选择，不妨从以下三点进行考量：</p>
-  <ul>
-    <li>
-      <p class="referral">
-        <strong>预期目标能否达成</strong><br>
-        能够“帮助开发者顺利的达成预期目标”是所有框架或类库都会努力追求的，但若从功能和细节的完善度上来讲，仍各有千秋。<br>
-        如果功能或细节不够完善，可能导致最终实现与期望的结果出现偏差，甚至无法实现某些需求。
-      </p>
-      <p class="comment">- 有 BUG！测试一下……似乎做不到……我得去搜一个……只能换一种方式了……好吧，先凑合差不多就行……</p>
-    </li>
-    <li>
-      <p class="referral">
-        <strong>开发过程是否轻松</strong><br>
-        每个人都希望开发过程是轻松愉快的。<br>
-        如果感觉到被束缚住，或者意外频发，整个开发过程难免会感觉疲惫。
-      </p>
-      <p class="comment">- 好长的命名空间……一定要这样么？类？嗯……implement……extend……这还是 JS 吗？我要怎么写才对？噢！原来这个 this 的值是……访问这个属性得拆开包装……</p>
-    </li>
-    <li>
-      <p class="referral">
-        <strong>后期维护是否便利</strong><br>
-        项目的代码应该有良好的可读性，功能有良好的可扩展性。<br>
-        如果代码的耦合度很高，或有不易于扩展的结构，那么这个产品的后期维护将成为令人头疼的问题。
-      </p>
-      <p class="comment">- 什么？又要加功能？呃……看来这部分代码要重构了……最好交给别人去做吧……</p>
-    </li>
-  </ul>
-  <p>如果说以上三点都有其各自的坐标轴，那么每个框架或类库都有其自己的定位。当然，在不同的环境下，没有“最好”的，只有“最合适”的。</p>
-  -->
-
-  <h1>OurJS 简介</h1>
-  <p>OurJS 是一个适用于 WEB 开发的 JavaScript 框架，它能让开发者使用可预期的 API 自由的编程，写出具备良好的兼容性、可读性和扩展性的代码。</p>
-  <blockquote>
-    <p>
-      OurJS 目前完全兼容 PC 端的 IE6+、Firefox、Chrome、Safari、Opera 以及其他使用 Trident 和 WebKit 内核的浏览器（稍后还会对移动设备提供支持）。
+<!--
+<h1>选择开发框架或类库</h1>
+<p>现在，JavaScript 的使用人群已经非常广，它在 WEB 开发中有着无可替代的位置，为简化开发而设计的各种框架或类库也层出不穷。</p>
+<p>在着手一个项目时，怎样选择合适的框架或类库，是一个值得考虑的问题。如果你正面临这个选择，不妨从以下三点进行考量：</p>
+<ul>
+  <li>
+    <p class="referral">
+      <strong>预期目标能否达成</strong><br>
+      能够“帮助开发者顺利的达成预期目标”是所有框架或类库都会努力追求的，但若从功能和细节的完善度上来讲，仍各有千秋。<br>
+      如果功能或细节不够完善，可能导致最终实现与期望的结果出现偏差，甚至无法实现某些需求。
     </p>
-  </blockquote>
+    <p class="comment">- 有 BUG！测试一下……似乎做不到……我得去搜一个……只能换一种方式了……好吧，先凑合差不多就行……</p>
+  </li>
+  <li>
+    <p class="referral">
+      <strong>开发过程是否轻松</strong><br>
+      每个人都希望开发过程是轻松愉快的。<br>
+      如果感觉到被束缚住，或者意外频发，整个开发过程难免会感觉疲惫。
+    </p>
+    <p class="comment">- 好长的命名空间……一定要这样么？类？嗯……implement……extend……这还是 JS 吗？我要怎么写才对？噢！原来这个 this 的值是……访问这个属性得拆开包装……</p>
+  </li>
+  <li>
+    <p class="referral">
+      <strong>后期维护是否便利</strong><br>
+      项目的代码应该有良好的可读性，功能有良好的可扩展性。<br>
+      如果代码的耦合度很高，或有不易于扩展的结构，那么这个产品的后期维护将成为令人头疼的问题。
+    </p>
+    <p class="comment">- 什么？又要加功能？呃……看来这部分代码要重构了……最好交给别人去做吧……</p>
+  </li>
+</ul>
+<p>如果说以上三点都有其各自的坐标轴，那么每个框架或类库都有其自己的定位。当然，在不同的环境下，没有“最好”的，只有“最合适”的。</p>
+-->
 
-  <h2>特点</h2>
-  <h3><strong>化繁为简</strong> —— 以简单直接的方式，提供易于理解和使用的功能。</h3>
-  <ul>
-    <li>
-      <p class="referral">提供尽可能少的自定义 API 的数量。</p>
-      <p class="comment">一些标准（或已成为事实标准的） API 不能被所有浏览器兼容，因此 OurJS 为各浏览器做了补缺处理，以让尽可能多的标准 API 能够在各浏览器中通用。这样就不必提供具有类似功能的新 API 了，标准 API 更易于记忆和使用。</p>
-      <div class="comment">
-        <p>数组的 forEach 方法是 ECMAScript 5 引入的，IE6 IE7 IE8 并不支持，只有在较新版本的浏览器中才能使用，但现在可以放心使用了：</p>
-        <pre>anArray.<strong>forEach</strong>(function(item) {...});</pre>
-        <p>ECMAScript 5 的 JSON 对象原本在 IE6 IE7 中是不支持的，但现在它们支持了：</p>
-        <pre>var data = <strong>JSON</strong>.parse('{"state": "active", "score": 32768}');</pre>
-        <p>HTML5 的 localStorage 对象原本在 IE6 IE7 中是不支持的，但现在它们支持了：</p>
-        <pre><strong>localStorage</strong>.setItem('foo', 'bar');</pre>
-      </div>
-    </li>
-    <li>
-      <p class="referral">不模拟其他语言的“类”和“继承”的机制。</p>
-      <p class="comment">使用 JS 自身的特性为对象扩充功能更加直观和灵活，没必要刻意去效仿其他语言的特性。</p>
-    </li>
-    <li>
-      <p class="referral">避免使用包装对象。</p>
-      <p class="comment">因此不必去关注原始对象与包装对象的区别，也不会出现误用的情况。要操作一个对象，直接调用它的方法或属性即可。</p>
-      <div class="comment">
-        <p>IE6 IE7 本来没有 Element 构造函数，但现在可以通过扩充 Element.prototype 来为页面上的 DOM 元素添加新特性了：</p>
-        <pre>Element.<strong>prototype</strong>.newMethod = function() {...};</pre>
-        <p>IE6 本来并不支持 CSS2 引入的固定定位，但现在支持了：</p>
+<h1>OurJS 简介</h1>
+<p>OurJS 是一个适用于 WEB 开发的 JavaScript 框架，它能让开发者使用可预期的 API 自由的编程，写出具备良好的兼容性、可读性和扩展性的代码。</p>
+<blockquote>
+  <p>
+    OurJS 完全兼容 PC 端的 IE6+、Firefox、Chrome、Safari、Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。
+  </p>
+</blockquote>
+
+<h2>特点</h2>
+<h3><strong>化繁为简</strong> —— 以简单直接的方式，提供易于理解和使用的功能。</h3>
+<ul>
+  <li>
+    <p class="referral">提供尽可能少的自定义 API 的数量。</p>
+    <p class="comment">一些标准（或已成为事实标准的） API 不能被所有浏览器兼容，因此 OurJS 为各浏览器做了补缺处理，以让尽可能多的标准 API 能够在各浏览器中通用。这样就不必提供具有类似功能的新 API 了，标准 API 更易于记忆和使用。</p>
+    <div class="comment">
+      <p>数组的 forEach 方法是 ECMAScript 5 引入的，IE6 IE7 IE8 并不支持，只有在较新版本的浏览器中才能使用，但现在可以放心使用了：</p>
+      <pre>anArray.<strong>forEach</strong>(function(item) {...});</pre>
+      <p>ECMAScript 5 的 JSON 对象原本在 IE6 IE7 中是不支持的，但现在它们支持了：</p>
+      <pre>var data = <strong>JSON</strong>.parse('{"state": "active", "score": 32768}');</pre>
+      <p>HTML5 的 localStorage 对象原本在 IE6 IE7 中是不支持的，但现在它们支持了：</p>
+      <pre><strong>localStorage</strong>.setItem('foo', 'bar');</pre>
+    </div>
+  </li>
+  <li>
+    <p class="referral">不模拟其他语言的“类”和“继承”的机制。</p>
+    <p class="comment">使用 JS 自身的特性为对象扩充功能更加直观和灵活，OurJS 不会刻意效仿其他语言的特性。</p>
+  </li>
+  <li>
+    <p class="referral">避免使用包装对象。</p>
+    <p class="comment">因此不必去关注原始对象与包装对象的区别，也不会出现误用的情况。要操作一个对象，直接调用它的方法或属性即可。</p>
+    <div class="comment">
+      <p>IE6 IE7 本来没有 Element 构造函数，但现在可以通过扩充 Element.prototype 来为页面上的 DOM 元素添加新特性了：</p>
+      <pre>Element.<strong>prototype</strong>.newMethod = function() {...};</pre>
+      <p>IE6 本来并不支持 CSS2 引入的固定定位，但现在支持了：</p>
 <pre>
 &lt;div style="position: fixed; right: 0; bottom: 0;"&gt;...&lt;/div&gt;
 // 希望取消固定定位时，可以使用 element.setStyle/setStyles 方法修改 position 的值。
 </pre>
-        <p>IE6 IE7 IE8 的事件模型与其他浏览器不同，但现在可以通过 element.on/off/fire 方法来统一实现事件监听器的添加、删除及触发指定的事件了：</p>
+      <p>IE6 IE7 IE8 的事件模型与其他浏览器不同，但现在可以通过 element.on/off/fire 方法来统一实现事件监听器的添加、删除及触发指定的事件了：</p>
 <pre>
 element.<strong>on</strong>('click', function(e) {...});
-// 事件对象 e 也做了兼容性处理，确保在所有浏览器中有一致的表现。
+// 事件对象 e 也做了兼容性处理，因此在所有浏览器中也有一致的表现。
 </pre>
-      </div>
-    </li>
-    <li>
-      <p class="referral">为常用的功能提供 Widgets 以简化开发。</p>
-      <p class="comment">Widget 是指一类特殊的元素，当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并会触发新的事件。<br>一些 Widgets 甚至不需要写任何脚本去初始化。</p>
-      <div class="comment">
-        <p>如果要在页面内实现一个模态对话框，这样写就可以了：</p>
+    </div>
+  </li>
+  <li>
+    <p class="referral">为常用的功能提供 Widgets 以简化开发。</p>
+    <p class="comment">Widget 是指一类特殊的元素，当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并会触发新的事件。<br>一些 Widgets 甚至不需要写任何脚本去初始化。</p>
+    <div class="comment">
+      <p>如果要在页面内实现一个模态对话框，这样写就可以了：</p>
 <pre>
 &lt;div id="notice" class="widget-dialog"&gt;...&lt;/div&gt;
 ...
 &lt;a href="javascript:$('#notice').open();"&gt;查看通知&lt;a&gt;
 </pre>
-      </div>
-    </li>
-  </ul>
-  <blockquote>
-    <p>
-      "Entities should not be multiplied unnecessarily." -- Occam's Razor<br>
-      “如无必要，勿增实体。” —— 奥卡姆 剃刀定律
+    </div>
+  </li>
+</ul>
+<blockquote>
+  <p>
+    "Entities should not be multiplied unnecessarily." -- Occam's Razor<br>
+    “如无必要，勿增实体。” —— 奥卡姆 剃刀定律
+  </p>
+  <p>
+    "Everything should be made as simple as possible, but not simpler." -- Albert Einstein<br>
+    “任何事情都应该尽可能的做到简单，简单到极致。” —— 爱因斯坦
+  </p>
+</blockquote>
+
+<h3><strong>功能完善</strong> —— 提供的功能覆盖面广、细节完善，可以满足 WEB 开发中的绝大多数需求。</h3>
+<ul>
+  <li>
+    <p>OurJS 提供的功能包括原生 JS 对象扩展、DOM 对象兼容性处理、客户端参数检测、数据存储、跨域通信、动画、远程请求、模版、Widgets 等。</p>
+  </li>
+  <li>
+    <p>每个功能都经过长期实践，其行为和细节更完善，其设计粒度更符合常见的应用场景。</p>
+  </li>
+</ul>
+
+<h3><strong>风格一致</strong> —— 提供的 API 与原生 JS 和 DOM 的语法习惯一致，便于理解和记忆。</h3>
+<ul>
+  <li>
+    <p class="referral">
+      OurJS 提供的 API 均与原生 JS 和 DOM 的风格一致，让开发者能够使用最流畅自然的语法来编写代码。
     </p>
-    <p>
-      "Everything should be made as simple as possible, but not simpler." -- Albert Einstein<br>
-      “任何事情都应该尽可能的做到简单，简单到极致。” —— 爱因斯坦
-    </p>
-  </blockquote>
+  </li>
+  <li>
+    <p class="referral">有共同点的方法、参数或对象也具备一致的名称，因此它们的行为也是可预期的。</p>
+    <ul class="comment">
+      <li>
+        <p>
+          Array 和 Object 的 forEach 方法的作用均为遍历。<br>
+          它们的 callback、thisObj 参数的作用以及 callback 函数将被传入的参数也完全相同。<br>
+          不同的是 Array 的 forEach 方法是实例方法，而 Object 的 forEach 则为静态方法。
+        </p>
+      </li>
+      <li>
+        <p>
+          cookie 和 localStorage 这两个与存储有关的对象都以 getItem、setItem 和 removeItem 方法来进行获取、修改和删除的操作。<br>
+          并且它们的参数 key 和 value 都代表数据名和数据值，都是字符串类型。
+        </p>
+      </li>
+      <li>
+        <p>
+          DOM 对象和具备 Observable 特性的对象处理事件的方法均为 on、off 和 fire。<br>
+          它们的 name 参数格式略有不同，因为 DOM 事件可以传递，因此有“代理”的概念。<br>
+          它们的 listener 参数的含义和作用则完全一致，并且当 listener 被调用时，this 的值也均为被监听的对象。
+        </p>
+      </li>
+    </ul>
+  </li>
+</ul>
 
-  <h3><strong>功能完善</strong> —— 提供的功能覆盖面广、细节完善，可以满足 WEB 开发中的绝大多数需求。</h3>
-  <ul>
-    <li>
-      <p>OurJS 提供的功能包括原生 JS 对象扩展、DOM 对象兼容性处理、客户端参数检测、数据存储、跨域通信、动画、远程请求、模版、Widgets 等。</p>
-    </li>
-    <li>
-      <p>每个功能都经过长期实践，其行为和细节更完善，其设计粒度更符合常见的应用场景。</p>
-    </li>
-  </ul>
+<h3><strong>易于扩展</strong> —— 不论是要扩展框架本身，还是扩展应用，OurJS 均提供了简易的方式。</h3>
+<ul>
+  <li>
+    <p class="referral">要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（不建议扩展 Object.prototype）。</p>
+    <p class="comment">OurJS 并没有提供特别的方法来做这件事情，使用 JS 固有的方式，可以让代码更加简单易读。</p>
+  </li>
+  <li>
+    <p class="referral">按照 OurJS 的 Widget 编写规范，可以根据需要随时添加新的 Widget。</p>
+    <p class="comment">OurJS 并没有提供“继承”机制，建议使用更灵活的“组合”方式进行扩展。</p>
+  </li>
+  <li>
+    <p class="referral">使用事件系统在各模块间通信。</p>
+    <p class="comment">Observable 提供的事件机制可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。</p>
+  </li>
+</ul>
 
-  <h3><strong>风格一致</strong> —— 提供的 API 与原生 JS 和 DOM 的语法习惯一致，便于理解和记忆。</h3>
-  <ul>
-    <li>
-      <p class="referral">
-        OurJS 提供的 API 均与原生 JS 和 DOM 的风格一致，让开发者能够使用最流畅自然的语法来编写代码。
-      </p>
-    </li>
-    <li>
-      <p class="referral">有共同点的方法、参数或对象也具备一致的名称，因此它们的行为也是可预期的。</p>
-      <ul class="comment">
-        <li>
-          <p>
-            Array 和 Object 的 forEach 方法的作用均为遍历。<br>
-            它们的 callback、thisObj 参数的作用以及 callback 函数将被传入的参数也完全相同。<br>
-            不同的是 Array 的 forEach 方法是实例方法，而 Object 的 forEach 则为静态方法。
-          </p>
-        </li>
-        <li>
-          <p>
-            cookie 和 localStorage 这两个与存储有关的对象都以 getItem、setItem 和 removeItem 方法来进行获取、修改和删除的操作。<br>
-            并且它们的参数 key 和 value 都代表数据名和数据值，都是字符串类型。
-          </p>
-        </li>
-        <li>
-          <p>
-            DOM 对象和具备 Observable 特性的对象处理事件的方法均为 on、off 和 fire。<br>
-            它们的 name 参数格式略有不同，因为 DOM 事件可以传递，因此有“代理”的概念。<br>
-            它们的 listener 参数的含义和作用则完全一致，并且当 listener 被调用时，this 的值也均为被监听的对象。
-          </p>
-        </li>
-      </ul>
-    </li>
-  </ul>
+<h2>要求和限制</h2>
+<h3>OurJS 要求浏览器运行在“标准模式”下。</h3>
+<ul>
+  <li>
+    <p>这样可以确保开发者写出规范的代码，并获得更好的兼容性、发挥浏览器的最大功效。</p>
+  </li>
+  <li>
+    <p class="referral">当浏览器工作在非标准模式下时，开发者将在控制台中（如果有）收到一条警告信息。</p>
+    <p class="comment">浏览器运行的模式是由当前页面文档的 DTD 决定的，在页面文档的头部添加适当的 DTD 以启用浏览器的标准模式（推荐使用 <code>&lt;!DOCTYPE html&gt;</code>）。</p>
+  </li>
+</ul>
 
-  <h3><strong>易于扩展</strong> —— 不论是要扩展框架本身，还是扩展应用，OurJS 均提供了简易的方式。</h3>
-  <ul>
-    <li>
-      <p class="referral">要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（避免扩展 Object 的 prototype）。</p>
-      <p class="comment">OurJS 并没有提供特别的方法来做这件事情，使用 JS 固有的方式，可以让代码更加简单易读。</p>
-    </li>
-    <li>
-      <p class="referral">按照 OurJS 的 Widget 编写规范，可以根据需要随时添加新的 Widget。</p>
-      <p class="comment">
-        Observable 提供的事件机制可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。<br>
-        OurJS 并没有提供“继承”机制，建议使用更灵活的“组合”方式进行扩展。
-      </p>
-    </li>
-  </ul>
-
-  <h2>要求和限制</h2>
-  <h3>OurJS 要求浏览器运行在“标准模式”下。</h3>
-  <ul>
-    <li>
-      <p>这样可以确保开发者写出规范的代码，并获得更好的兼容性、发挥浏览器的最大功效。</p>
-    </li>
-    <li>
-      <p class="referral">当浏览器工作在非标准模式下时，开发者将在控制台中（如果有）收到一条警告信息。</p>
-      <p class="comment">浏览器运行的模式是由当前页面文档的 DTD 决定的，在页面文档的头部添加适当的 DTD 以启用浏览器的标准模式（推荐使用 <code>&lt;!DOCTYPE html&gt;</code>）。</p>
-    </li>
-  </ul>
-
-  <h3>OurJS 只可以和非侵入式设计的框架或类库共存。</h3>
-  <ul>
-    <li>
-      <p>当必须引入其他的框架<sup>1</sup>或类库<sup>2</sup>以满足特定需求时，要注意：OurJS 使用了侵入式设计<sup>3</sup>，因此不能和其他使用同样方式设计的框架共存<sup>4</sup>。</p>
-    </li>
-  </ul>
-  <ol class="comment">
-    <li>
-      “框架”是指面向 WEB 应用的开发平台，通常会提供浏览器兼容性问题的解决方案、扩展语言功能、约定框架自身的扩展方法、提供梳理应用逻辑的模式等。<br>
-      在一个 WEB 应用里，应避免使用多种框架。
-    </li>
-    <li>
-      “类库”是指为解决某一方面的问题而设计的工具集，它们应该是不依赖于任何框架的。<br>
-      在一个 WEB 应用里，可以使用多种类库。
-    </li>
-    <li>
-      JavaScript 框架提供 API 的风格有三种：静态方法、包装对象和原型扩展。<br>
-      为了提供<strong>流畅自然的语法</strong>，并保持 <strong>API 的一致性</strong>，OurJS 优先使用了“原型扩展”这种方式。<br>
-      一些不适合使用“原型扩展”方式提供的的功能使用“静态方法”提供，如 Object.mixin，Date.parseExact 等。<br>
-      只有事件对象使用了“包装对象”方式，这是因为在处理浏览器兼容性问题时必须修改某些属性，而它们中的一部分在原生 DOM 事件对象中是只读的。
-    </li>
-    <li>可以和 jQuery 共存。</li>
-  </ol>
+<h3>OurJS 不能和其他对原型进行了扩展的框架或类库共存。</h3>
+<ul>
+  <li>
+    <p>当必须引入其他的框架<sup>1</sup>或类库<sup>2</sup>以满足特定需求时，要注意：OurJS 对原型进行了扩展<sup>3</sup>，因此不能和其他使用同样方式设计的框架共存<sup>4</sup>。</p>
+  </li>
+</ul>
+<ol class="comment">
+  <li>
+    “框架”是指面向 WEB 应用的开发平台，通常会提供浏览器兼容性问题的解决方案、扩展语言功能、约定框架自身的扩展方法、提供梳理应用逻辑的模式等。<br>
+    在一个 WEB 应用里，应避免使用多种框架。
+  </li>
+  <li>
+    “类库”是指为解决某一方面的问题而设计的工具集，它们应该是不依赖于任何框架的。<br>
+    在一个 WEB 应用里，可以使用多种类库。
+  </li>
+  <li>
+    JavaScript 框架提供 API 的风格有三种：静态方法、包装对象和原型扩展。<br>
+    为了提供<strong>流畅自然的语法</strong>，并保持 <strong>API 的一致性</strong>，OurJS 优先使用了“原型扩展”这种方式。<br>
+    一些不适合使用“原型扩展”方式提供的的功能使用“静态方法”提供，如 Object.mixin，Date.parseExact 等。<br>
+    只有事件对象使用了“包装对象”方式，目前只有这样做才能使事件对象在各浏览器中保持一致，并具备丰富的功能。
+  </li>
+  <li>可以和 jQuery 共存。</li>
+</ol>
 
 </div>
 </body>

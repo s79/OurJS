@@ -7,13 +7,18 @@
 (function() {
 //==================================================[Widget]
   /*
-   * Widget 是指一类特殊的元素，当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并会触发新的事件。
+   * 一个 Widget 本身仍是一个元素。当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。
+   * 这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
+   * 一个 Widget 至少依赖一个已经存在于文档树中的元素，一个元素只能成为一种 Widget。
    * 包含 Widget 解析器的脚本可以根据情况载入。
    *
    * 使一个元素成为 Widget 有以下两种方式：
    *   1. 在编写 HTML 代码时，为该元素添加 widget-<type> 类，并使用 data-<config>="<value>" 来定义 Widget 的配置。
    *   2. 在脚本中创建符合方式 1 的元素，之后调用 Widget.parse(<element>) 方法来解析。
    * 其中 type 为 Widget 的类型，config/value 为 Widget 的配置信息，element 为目标元素。
+   *
+   * 为了使相同类型的 Widget 必定具备相同的新特性，本实现并未提供直接手段对现有的 Widget 进行扩展。
+   * 必须要扩展时，应注册一个新的 Widget 解析器，并在其中调用现有的解析器 Widget.parsers.<type>($element) 来赋予目标元素 <type> 类 Widget 的新特性，即对已有的 Widget 类型进行包装。
    *
    * 提供对象：
    *   Widget

@@ -533,7 +533,7 @@
    * @name Animation.createStyleRenderer
    * @function
    * @param {Element} element 要实施渐变效果的元素。
-   * @param {Object} styles 要实施渐变效果的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个预命名颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(正整数R, 正整数G, 正整数B) 格式。
+   * @param {Object} styles 要实施渐变效果的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(R, G, B) 格式。
    * @returns {Function} 生成的渲染器。
    */
   Animation.createStyleRenderer = function(element, styles) {

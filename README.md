@@ -2,8 +2,7 @@
 
 OurJS 是一个适用于 WEB 开发的 JavaScript 框架，它能让开发者使用可预期的 API 自由的编程，写出具备良好的兼容性、可读性和扩展性的代码。
 
-> 目前完全兼容 PC 端的 IE6+、Firefox、Chrome、Safari、Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。
-> 稍后还会对移动设备提供支持。
+> 完全兼容 PC 端的 IE6+、Firefox、Chrome、Safari、Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。
 
 *更多内容请参考 [OurJS 简介/演示/文档](http://s79.github.com/OurJS/).*
 
@@ -20,7 +19,7 @@ OurJS 是一个适用于 WEB 开发的 JavaScript 框架，它能让开发者使
 
 OurJS 要求浏览器运行在“标准模式”下。
 
-OurJS 只可以和非侵入式设计的框架或类库共存。
+OurJS 不能和其他对原型进行了扩展的框架或类库共存。
 
 
 ## 文件列表 ##

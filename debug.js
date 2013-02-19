@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130217
+ *  Version: 20130219
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展。
@@ -2142,11 +2142,11 @@
    *   <table>
    *     <tr><th>可选值</th><th>含义</th></tr>
    *     <tr><td><dfn>beforeBegin</dfn></td><td>将文本插入到本元素之前。</td></tr>
-   *     <tr><td><dfn>afterBegin</dfn></td><td>将文本插入到本元素的第一个子元素之前。</td></tr>
-   *     <tr><td><dfn>beforeEnd</dfn></td><td>将文本插入到本元素的最后一个子元素之后。</td></tr>
+   *     <tr><td><dfn>afterBegin</dfn></td><td>将文本插入到本元素的所有内容之前。</td></tr>
+   *     <tr><td><dfn>beforeEnd</dfn></td><td>将文本插入到本元素的所有内容之后。</td></tr>
    *     <tr><td><dfn>afterEnd</dfn></td><td>将文本插入到本元素之后。</td></tr>
    *   </table>
-   * @param {Element} text 文本。
+   * @param {Element} text 要插入的文本。
    */
   if (!('insertAdjacentText' in html)) {
     HTMLElement.prototype.insertAdjacentText = function(position, text) {
@@ -2173,8 +2173,8 @@
    *   <table>
    *     <tr><th>可选值</th><th>含义</th></tr>
    *     <tr><td><dfn>beforeBegin</dfn></td><td>将目标元素插入到本元素之前。</td></tr>
-   *     <tr><td><dfn>afterBegin</dfn></td><td>将目标元素插入到本元素的第一个子元素之前。</td></tr>
-   *     <tr><td><dfn>beforeEnd</dfn></td><td>将目标元素插入到本元素的最后一个子元素之后。</td></tr>
+   *     <tr><td><dfn>afterBegin</dfn></td><td>将目标元素插入到本元素的所有内容之前。</td></tr>
+   *     <tr><td><dfn>beforeEnd</dfn></td><td>将目标元素插入到本元素的所有内容之后。</td></tr>
    *     <tr><td><dfn>afterEnd</dfn></td><td>将目标元素插入到本元素之后。</td></tr>
    *   </table>
    * @param {Element} target 目标元素。
@@ -2822,6 +2822,7 @@
    *
    * 扩展方法：
    *   Element.prototype.insertTo
+   *   Element.prototype.swap
    *   Element.prototype.replace
    *   Element.prototype.remove
    *   Element.prototype.empty
@@ -2836,38 +2837,22 @@
    * @param {string} [position] 要插入的位置，可选值请参考下表。
    *   <table>
    *     <tr><th>可选值</th><th>含义</th></tr>
-   *     <tr><td><dfn>before</dfn></td><td>将本元素插入到目标元素之前。</td></tr>
-   *     <tr><td><dfn>top</dfn></td><td>将本元素插入到目标元素的第一个子元素之前。</td></tr>
-   *     <tr><td><dfn>bottom</dfn></td><td>将本元素插入到目标元素的最后一个子元素之后。</td></tr>
-   *     <tr><td><dfn>after</dfn></td><td>将本元素插入到目标元素之后。</td></tr>
+   *     <tr><td><dfn>beforeBegin</dfn></td><td>将本元素插入到目标元素之前。</td></tr>
+   *     <tr><td><dfn>afterBegin</dfn></td><td>将本元素插入到目标元素的所有内容之前。</td></tr>
+   *     <tr><td><dfn>beforeEnd</dfn></td><td>将本元素插入到目标元素的所有内容之后。</td></tr>
+   *     <tr><td><dfn>afterEnd</dfn></td><td>将本元素插入到目标元素之后。</td></tr>
    *   </table>
-   *   如果该参数被省略，则使用 <dfn>bottom</dfn> 作为默认值。
+   *   如果该参数被省略，则使用 <dfn>beforeEnd</dfn> 作为默认值。
    * @returns {Element} 本元素。
    */
   Element.prototype.insertTo = function(target, position) {
-    position = position || 'bottom';
-    switch (position.toLowerCase()) {
-      case 'before':
-        position = 'beforebegin';
-        break;
-      case 'top':
-        position = 'afterbegin';
-        break;
-      case 'bottom':
-        position = 'beforeend';
-        break;
-      case 'after':
-        position = 'afterend';
-        break;
-      default:
-        throw new Error('Invalid position "' + position + '"');
-    }
+    position = position || 'beforeEnd';
     return target.insertAdjacentElement(position, this);
   };
 
 //--------------------------------------------------[Element.prototype.swap]
   /**
-   * 交换本元素目标元素的位置。
+   * 交换本元素和目标元素的位置。
    * @name Element.prototype.swap
    * @function
    * @param {Element} target 目标元素。
@@ -5463,7 +5448,7 @@
    * @name Animation.createStyleRenderer
    * @function
    * @param {Element} element 要实施渐变效果的元素。
-   * @param {Object} styles 要实施渐变效果的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个预命名颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(正整数R, 正整数G, 正整数B) 格式。
+   * @param {Object} styles 要实施渐变效果的样式。支持相对长度值和颜色值，其中相对长度值目前仅支持像素单位，颜色值支持 140 个颜色名称、#RRGGBB 格式、#RGB 格式或 rgb(R, G, B) 格式。
    * @returns {Function} 生成的渲染器。
    */
   Animation.createStyleRenderer = function(element, styles) {
@@ -6231,13 +6216,18 @@
 (function() {
 //==================================================[Widget]
   /*
-   * Widget 是指一类特殊的元素，当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并会触发新的事件。
+   * 一个 Widget 本身仍是一个元素。当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。
+   * 这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
+   * 一个 Widget 至少依赖一个已经存在于文档树中的元素，一个元素只能成为一种 Widget。
    * 包含 Widget 解析器的脚本可以根据情况载入。
    *
    * 使一个元素成为 Widget 有以下两种方式：
    *   1. 在编写 HTML 代码时，为该元素添加 widget-<type> 类，并使用 data-<config>="<value>" 来定义 Widget 的配置。
    *   2. 在脚本中创建符合方式 1 的元素，之后调用 Widget.parse(<element>) 方法来解析。
    * 其中 type 为 Widget 的类型，config/value 为 Widget 的配置信息，element 为目标元素。
+   *
+   * 为了使相同类型的 Widget 必定具备相同的新特性，本实现并未提供直接手段对现有的 Widget 进行扩展。
+   * 必须要扩展时，应注册一个新的 Widget 解析器，并在其中调用现有的解析器 Widget.parsers.<type>($element) 来赋予目标元素 <type> 类 Widget 的新特性，即对已有的 Widget 类型进行包装。
    *
    * 提供对象：
    *   Widget

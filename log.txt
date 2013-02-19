@@ -1,5 +1,8 @@
 
 
+>2013-02-19
+使 insertTo 的 position 参数与 insertAdjacentElement 的同名参数一致。
+
 >2013-02-17
 +Animation.createScrollRenderer
 +Element.prototype.smoothScroll
@@ -164,10 +167,7 @@ UIComponent -> Widget
 W-TABPANEL
 
 >2012-10-12
-+String.prototype.capitalize
-+String.prototype.camelize
-+String.prototype.underscored
-+String.prototype.dasherize
++String.prototype.capitalize/camelize/underscored/dasherize
 
 >2012-10-11
 升级 Highcharts adapter，使其支持 Highstock 最新版。

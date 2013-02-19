@@ -24,7 +24,7 @@
     var showEntries = $autocue.showEntries;
     var count = $viewport.getChildCount();
     if ($autocue.direction === 'down') {
-      $message.insertTo($viewport, 'top');
+      $message.insertTo($viewport, 'afterBegin');
       if (count >= showEntries) {
         $viewport.setStyle('top', -$message.offsetHeight);
         $viewport.morph({top: 0}, {
@@ -34,7 +34,7 @@
         });
       }
     } else {
-      $message.insertTo($viewport, 'bottom');
+      $message.insertTo($viewport);
       if (count >= showEntries) {
         $viewport.morph({top: '-=' + $viewport.getFirstChild().offsetHeight}, {
           onFinish: function() {

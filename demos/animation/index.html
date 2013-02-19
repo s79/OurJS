@@ -488,9 +488,10 @@ document.on('domready', function() {
     if (!$clipPanlel.offsetWidth) {
       $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
     }
+    var $canvas = $('#canvas');
     $clipPanlel.on('click', function() {
       for (var i = 0; i < 299; i++) {
-        $('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>').insertTo($('#canvas'));
+        $('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>').insertTo($canvas);
       }
     });
   });

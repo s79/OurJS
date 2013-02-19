@@ -18,11 +18,9 @@
       if (scrollbarWidth) {
         return scrollbarWidth;
       }
-      var $outer = $('<div></div>').setStyles({position: 'absolute', top: 0, left: -10000, width: 100, height: 100, overflow: 'scroll'});
-      var $inner = $('<div></div>').setStyles({height: 200});
-      $inner.insertTo($outer.insertTo(document.body));
-      scrollbarWidth = 100 - $inner.offsetWidth;
-      $outer.remove();
+      var $box = document.$('<div style="position: absolute; top: 0; left: -10000px; width: 100px; height: 100px; overflow: scroll;"><div style="height: 200px;"></div></div>').insertTo(document.body);
+      scrollbarWidth = 100 - $box.getFirstChild().offsetWidth;
+      $box.remove();
       return scrollbarWidth;
     };
   }();
@@ -107,8 +105,8 @@
           height: clientHeight
         });
         // 调整滚动条按钮的尺寸。
-        // IE7 需要手动触发 reflow 以使滚动条显示正常。
-        var reflowForIE7 = $content.clientWidth;
+        // IE7 需要主动触发 reflow 以使滚动条显示正常。
+        var reflow = $content.offsetWidth;
         var scrollHeight = $content.scrollHeight;
         if (scrollHeight > clientHeight) {
           $bar.setStyle('display', 'block');

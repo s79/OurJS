@@ -214,7 +214,7 @@
         // 通过点击或指向“指示器”播放对应的“幻灯片”。
         var hoverTimer;
         $element
-            .on('click.slideshow:relay(.pointer)', function(event) {
+            .on('click.slideshow:relay(.pointer)', function() {
               if (pointers.contains(this)) {
                 $element.show(pointers.indexOf(this));
               }
@@ -238,10 +238,10 @@
 
         // 通过点击“播放上一张”和“播放下一张”按钮播放对应的“幻灯片”。
         $element
-            .on('click.slideshow:relay(.prev)', function(event) {
+            .on('click.slideshow:relay(.prev)', function() {
               $element.showPrevious();
             })
-            .on('click.slideshow:relay(.next)', function(event) {
+            .on('click.slideshow:relay(.next)', function() {
               $element.showNext();
             });
 
