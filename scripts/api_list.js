@@ -244,6 +244,7 @@ var apiList = {
   ],
   'Animation': [
     'Animation',
+    'Animation.fps',
     'Animation#addClip',
     'Animation#play',
     'Animation#reverse',

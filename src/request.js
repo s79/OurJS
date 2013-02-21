@@ -24,7 +24,7 @@
   };
 
   // 处理请求数据。
-  var parseRequestData = function(requestData) {
+  var serializeRequestData = function(requestData) {
     var valuePairs = [];
     Object.forEach(requestData, function(value, key) {
       key = encodeURIComponent(key);
@@ -193,9 +193,8 @@
    * @param {string} options.password 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
    * @param {Object} options.headers 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
    * @param {string} options.contentType 发送数据的内容类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
-   * @param {string} options.prefixKey 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
+   * @param {string} options.callbackName 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
    * @fires start
-   *   {string} event.data 解析后的待发送数据。
    *   请求开始时触发。
    * @fires abort
    *   请求被取消时触发。
@@ -212,7 +211,7 @@
    *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
    *   创建 Request 时，可以选择使用 XHR 模式（同域请求时）或 JSONP 模式（跨域请求时）。
    *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。由于 JSONP 请求的原理是直接执行另一个域内的脚本，因此它并不安全。如果该域遭到攻击，本域也可能会受到影响。
-   *   两种模式的请求结果略有差异，它们都会被传入 abort、timeout、complete 和 finish 事件监听器中。
+   *   两种模式的请求结果都会被传入 abort、timeout、complete 和 finish 事件监听器中。
    *   XHR 模式的请求结果中包含以下属性：
    *   {number} status 状态码。
    *   {string} statusText 状态描述。
@@ -238,7 +237,7 @@
         options.method = 'get';
         options.useCache = false;
         options.async = true;
-        Object.mixin(this, options, {whiteList: ['mode', 'method', 'useCache', 'async', 'minTime', 'maxTime', 'prefixKey']});
+        Object.mixin(this, options, {whiteList: ['mode', 'method', 'useCache', 'async', 'minTime', 'maxTime', 'callbackName']});
         break;
     }
     /**
@@ -273,7 +272,7 @@
       'Accept': '*/*'
     },
     contentType: 'application/x-www-form-urlencoded',
-    prefixKey: 'callback'
+    callbackName: 'callback'
   };
 
 //--------------------------------------------------[Request.prototype.send]
@@ -292,14 +291,10 @@
     var request = this;
     // 如果请求正在进行中，则需等待此次请求完成后才能再次发起请求（若设置了 minTime 则请求完成的时间可能比交互完成的时间长）。
     if (!request.ongoing) {
-      // 转换请求数据。如果请求数据为空，则统一使用 null 表示。
-      if (requestData) {
-        requestData = parseRequestData(requestData);
-      } else {
-        requestData = null;
-      }
-      // 触发 send 事件。
-      request.fire('start', {data: requestData});
+      // 序列化请求数据。如果请求数据为空，则统一使用 null 表示。
+      requestData = requestData ? serializeRequestData(requestData) : null;
+      // 触发 start 事件。
+      request.fire('start');
       // 请求开始进行。
       request.ongoing = true;
       request.timestamp = Date.now();
@@ -343,7 +338,7 @@
           break;
         case 'jsonp':
           var requestId = '_' + (++uid).toString(36);
-          url += (url.contains('?') ? '&' : '?') + request.prefixKey + '=Request.' + requestId;
+          url += (url.contains('?') ? '&' : '?') + request.callbackName + '=Request.' + requestId;
           // 准备回调函数。
           Request[request.id = requestId] = function(data) {
             delete Request[requestId];

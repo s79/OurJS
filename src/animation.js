@@ -236,7 +236,7 @@
           engine = undefined;
 //          console.warn('>ENGING STOP');
         }
-      }, 16);
+      }, 1000 / Math.limit(Animation.fps, 10, 60));
 //      console.warn('>ENGING START');
     }
 //    console.log('[mountAnimation]: ' + mountedAnimations.length);
@@ -282,6 +282,18 @@
     this.duration = 0;
     Observable.applyTo(this);
   };
+
+//--------------------------------------------------[Animation.fps]
+  /**
+   * 指定动画引擎播放动画时的每秒帧数。
+   * @name fps
+   * @memberOf Animation
+   * @type number
+   * @description
+   *   应指定 10 到 60 之间的数字，默认为 60。
+   *   仅在对性能敏感的环境下，才需要降低这个数值。过低的 fps 将导致动画播放不流畅。
+   */
+  Animation.fps = 60;
 
 //--------------------------------------------------[Animation.prototype.addClip]
   /**
