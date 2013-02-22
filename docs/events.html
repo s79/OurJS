@@ -13,18 +13,22 @@ var { font-style: italic; }
 samp { color: gray; }
 dfn { color: steelblue; }
 var { color: sienna; }
-table { table-layout: fixed; width: 800px; margin: 50px auto 0; }
+table { table-layout: fixed; width: 800px; margin: 50px auto; }
 col { width: 100px; }
 col.type { width: auto; }
-.true { background-color: greenyellow; }
-.false { background-color: whitesmoke; }
+col.appliesto { width: 250px; }
+tr:hover { background: aliceblue; }
+td.satisfied { text-align: center; }
+td.satisfied em { font-style: normal; font-weight: bold; }
+td.satisfied em.true { color: forestgreen; }
+td.satisfied em.false { color: silver; }
 </style>
 </head>
 <body>
 <div id="content">
 <h1>可用事件类型列表</h1>
 
-<p>以下列表中的事件类型均可以在“有效类型”的对象上（不同类型的事件应用到的元素类型也不尽相同 - 待添加详细说明）调用 on、off 或 fire 方法时使用，如：</p>
+<p>以下列表中的事件类型均可以在其“应用于”的对象上调用 on、off 或 fire 方法时使用，如：</p>
 <pre><samp>window</samp>.<dfn>fire</dfn>('<var><strong>resize</strong></var>);</pre>
 <pre><samp>document</samp>.<dfn>off</dfn>('<var><strong>click</strong>.foo</var>');</pre>
 <pre><samp>$element</samp>.<dfn>on</dfn>('<var><strong>mousedrag</strong>:relay(.draggable)</var>', function(e) {...});</pre>
@@ -40,6 +44,8 @@ col.type { width: auto; }
     <col class="mouse">
     <col class="keyboard">
     <col class="bubbling">
+    <col class="cancelable">
+    <col class="appliesto">
   </colgroup>
   <thead>
     <tr>
@@ -47,54 +53,70 @@ col.type { width: auto; }
       <th>鼠标事件</th>
       <th>键盘事件</th>
       <th>可以冒泡<br>(可以代理)</th>
+      <th>可以阻止<br>默认行为</th>
       <th>应用于</th>
     </tr>
   </thead>
   <tbody id="list"></tbody>
 </table>
 
+<p>关于可以阻止默认行为的事件类型：</p>
+<ul>
+  <li>contextmenu：<br>IE8 只要添加了该类事件的监听器，即自动取消默认行为。</li>
+  <li>keydown & keypress：<br>大部分浏览器都禁止取消特殊按键（如 F5 和 Backspace 等）的默认行为。</li>
+</ul>
+<p>关于 error 事件类型：</p>
+<ul>
+  <li>
+    IE6 IE7 IE8 在 window 上添加的原生监听器会传入三个参数 message、url 和 lineNumber，而不是一个事件对象。鉴于极少监听此类型的事件，OurJS 未做修复。<br>
+    必须要监听时，可以使用内联事件监听器，这种监听器在目前所有浏览器下均与上述 IE6 IE7 IE8 的行为保持一致。
+  </li>
+</ul>
+<p>Opera 不支持的事件类型：</p>
+<ul>
+  <li>unload & beforeunload</li>
+</ul>
+
 <script>
 //--------------------------------------------------[Data]
 var events = [
-  ['mousedown', 1, 0, 1, 'document, Element'],
-  ['mouseup', 1, 0, 1, 'document, Element'],
-  ['click', 1, 0, 1, 'document, Element'],
-  ['dblclick', 1, 0, 1, 'document, Element'],
-  ['contextmenu', 1, 0, 1, 'document, Element'],
-  ['mousemove', 1, 0, 1, 'document, Element'],
-  ['mouseover', 1, 0, 1, 'document, Element'],
-  ['mouseout', 1, 0, 1, 'document, Element'],
-  ['mousewheel', 1, 0, 1, 'document, Element'],
-  ['mouseenter', 1, 0, 1, 'document, Element'],
-  ['mouseleave', 1, 0, 1, 'document, Element'],
-  ['mousedragstart', 1, 0, 1, 'document, Element'],
-  ['mousedrag', 1, 0, 1, 'document, Element'],
-  ['mousedragend', 1, 0, 1, 'document, Element'],
-//  ['mousedragenter', 1, 0, 1, 'document, Element'],
-//  ['mousedragover', 1, 0, 1, 'document, Element'],
-//  ['mousedragleave', 1, 0, 1, 'document, Element'],
-//  ['mousedrop', 1, 0, 1, 'document, Element'],
-  ['keydown', 0, 1, 1, 'document, Element'],
-  ['keyup', 0, 1, 1, 'document, Element'],
-  ['keypress', 0, 1, 1, 'document, Element'],
-  ['focus', 0, 0, 0, 'document, Element'],
-  ['blur', 0, 0, 0, 'document, Element'],
-  ['focusin', 0, 0, 1, 'Element'],
-  ['focusout', 0, 0, 1, 'Element'],
-  ['input', 0, 0, 1, 'HTMLInputElement, HTMLTextareaElement'],
-  ['change', 0, 0, 1, 'HTMLInputElement, HTMLTextareaElement'],
-  ['select', 0, 0, 0, 'Element'],
-  ['submit', 0, 0, 0, 'HTMLFormElement'],
-  ['reset', 0, 0, 0, 'HTMLFormElement'],
-  ['scroll', 0, 0, 0, 'Element'],
-  ['load', 0, 0, 0, 'window, HTMLImageElement'],
-  // window 的特殊事件。
-  ['unload', 0, 0, 0, 'window'],
-  ['beforeunload', 0, 0, 0, 'window'],
-  ['resize', 0, 0, 0, 'window'],
-  ['error', 0, 0, 0, 'window'],
-  // document 的特殊事件。
-  ['domready', 0, 0, 0, 'document']
+  ['mousedown', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mouseup', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['click', 1, 0, 1, 1, '<dfn>document</dfn>, <var>Element</var>'],
+  ['dblclick', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['contextmenu', 1, 0, 1, 1, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mousemove', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mouseover', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mouseout', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mouseenter', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mouseleave', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mousewheel', 1, 0, 1, 1, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mousedragstart', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mousedrag', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mousedragend', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+//  ['mousedragenter', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+//  ['mousedragover', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+//  ['mousedragleave', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+//  ['mousedrop', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['keydown', 0, 1, 1, 1, '<dfn>document</dfn>, <var>Element</var>'],
+  ['keypress', 0, 1, 1, 1, '<dfn>document</dfn>, <var>Element</var>'],
+  ['keyup', 0, 1, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['focus', 0, 0, 0, 0, '<dfn>window</dfn>, <var>Element</var>'],
+  ['blur', 0, 0, 0, 0, '<dfn>window</dfn>, <var>Element</var>'],
+  ['focusin', 0, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['focusout', 0, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['input', 0, 0, 1, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>'],
+  ['change', 0, 0, 1, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>'],
+  ['select', 0, 0, 0, 0, '<dfn>INPUT[type=text|password]</dfn>, <dfn>TEXTAREA</dfn>'],
+  ['submit', 0, 0, 0, 1, '<dfn>FORM</dfn>'],
+  ['reset', 0, 0, 0, 1, '<dfn>FORM</dfn>'],
+  ['scroll', 0, 0, 0, 0, '<dfn>window</dfn>, <var>Element</var>'],
+  ['resize', 0, 0, 0, 0, '<dfn>window</dfn>'],
+  ['load', 0, 0, 0, 0, '<dfn>window</dfn>, <dfn>IFRAME</dfn>, <dfn>IMG</dfn>'],
+  ['unload', 0, 0, 0, 0, '<dfn>window</dfn>'],
+  ['error', 0, 0, 0, 0, '<dfn>IMG</dfn>'],
+  ['beforeunload', 0, 0, 0, 0, '<dfn>window</dfn>'],
+  ['domready', 0, 0, 0, 0, '<dfn>document</dfn>']
 ];
 
 //--------------------------------------------------[List]
@@ -103,31 +125,25 @@ var events = [
   var $tr;
   var $td;
   var operators = [0, 1, 2, 4];
-  var showResult = function(name, mask, applyTo) {
+  var showResult = function(data) {
     $tr = $tbody.insertRow(-1);
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 6; i++) {
       $td = $tr.insertCell(-1);
-      switch (i) {
-        case 0:
-          $td.innerHTML = name;
-          break;
-        case 4:
-          $td.innerHTML = applyTo;
-          break;
-        default:
-          $td.className = (mask & operators[i]) ? 'true' : 'false';
-          break;
+      if (i > 0 && i < 5) {
+        $td.className = 'satisfied';
+        $td.innerHTML = data[i] ? '<em class="true">是</em>' : '<em class="false">否</em>';
+      } else {
+        $td.innerHTML = data[i];
       }
     }
   };
 
   var eventsObject = {};
   events.forEach(function(item) {
-    var mask = parseInt(('' + item[3] + item[2] + item[1]), 2);
-    showResult(item[0], mask, item[4]);
-    eventsObject[item[0]] = mask;
+    eventsObject[item[0]] = parseInt(('' + item[3] + item[2] + item[1]), 2);
+    showResult(item);
   });
-  showResult('<var><strong>其他任意自定义事件类型</strong></var>', 4, 'window, document, Element');
+  showResult(['<var><strong>自定义事件类型</strong></var>', 0, 0, 1, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>']);
 
   console.log(JSON.stringify(eventsObject));
 

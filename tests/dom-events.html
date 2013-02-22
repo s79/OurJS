@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>“可用事件类型”的“应用于”元素测试</title>
+<script src="../dev.js"></script>
+<style>
+body { height: 2000px; }
+</style>
+</head>
+<body id="body">
+<h1></h1>
+<input id="text" type="text" value="text">
+<input id="password" type="password" value="12345">
+<input id="checkbox" type="checkbox">
+<input id="radio" type="radio">
+<select id="select" multiple>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+</select>
+<textarea id="textarea">textarea</textarea>
+<span>span</span>
+<img id="img" src="">
+<script>
+//document.on('mousedown, mouseup, click, dblclick, contextmenu, ' +
+//    'mousemove, mouseover, mouseout, ' +
+//    'mousewheel, mouseenter, mouseleave, ' +
+//    'mousedragstart, mousedrag, mousedragend',  function(e) {
+//  console.log(e.type, e.target.nodeName || '?')
+//});
+//$(document.body).on('keydown:relay(*), keyup:relay(*), keypress:relay(*)', function(e) {
+//  console.log(e.type, e.target.nodeName || '?')
+//});
+//window.on('keydown, keyup, keypress', function(e) {
+//  console.log(e.type, e.target.nodeName || '?')
+//});
+//document.on('focus, blur, focusin, focusout', function(e) {
+//  console.log(e.type, e.target.nodeName || '?')
+//});
+//['body', 'text', 'password', 'checkbox', 'radio', 'select', 'textarea'].forEach(function(id) {
+//  $('#' + id).on('select', function(e) {
+//    console.log(e.type, e.target.nodeName || '?')
+//  });
+//});
+//document.on('mousewheel:relay(input)', function(e) {
+//  console.log(e.type, e.target.nodeName || '?');
+//  e.stopPropagation();
+//});
+//document.on('mousewheel', function(e) {
+//  console.log('-> document');
+//  e.stopPropagation();
+//});
+//$('#text').on('mousewheel', function(e) {
+//  console.log(e.type, e.target.nodeName || '?');
+//  e.stopPropagation();
+//});
+//$(document.body).on('keydown:relay(input), keypress:relay(input)', function(e) {
+//  console.log(e.type, e.target.nodeName || '?');
+//  e.preventDefault();
+//});
+//document.on('keydown, keypress', function(e) {
+//  console.log('-> document');
+//});
+
+$('#img')
+    .on('error', function(e) {
+      console.log(e.target.nodeName);
+    })
+    .src = "nonexistent";
+
+//window.on('error', function(e) {
+//  console.warn(e.type);
+//  console.log(typeOf(e.target));
+//});
+//window.on('error.once', function(e) {
+//  console.warn(e.timeStamp);
+//  this.off('error.once');
+//});
+//document.on('click', function() {
+//  throw new Error('<TEST>');
+//});
+</script>
+</body>
+</html>

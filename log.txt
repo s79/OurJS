@@ -1,5 +1,12 @@
 
 
+>2013-02-22
+修复 EVENT_CODE 的 BUG，并增加《可用事件类型列表》的内容。
+
+>2013-02-21
++Animation.fps
+Request options 参数调整
+
 >2013-02-19
 使 insertTo 的 position 参数与 insertAdjacentElement 的同名参数一致。
 

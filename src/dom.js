@@ -1140,7 +1140,7 @@
   // 供内部调用的标记值。
   var INTERNAL_IDENTIFIER_EVENT = {};
 
-  var EVENT_CODES = {'mousedown': 5, 'mouseup': 5, 'click': 5, 'dblclick': 5, 'contextmenu': 5, 'mousemove': 5, 'mouseover': 5, 'mouseout': 5, 'mousewheel': 5, 'mouseenter': 5, 'mouseleave': 5, 'mousedragstart': 5, 'mousedrag': 5, 'mousedragend': 5, 'keydown': 6, 'keyup': 6, 'keypress': 6, 'focus': 0, 'blur': 0, 'focusin': 4, 'focusout': 4, 'input': 4, 'change': 4, 'select': 0, 'submit': 0, 'reset': 0, 'scroll': 0, 'load': 0, 'unload': 0, 'beforeunload': 0, 'resize': 0, 'error': 0, 'domready': 0};
+  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 5, mouseleave: 5, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforeunload: 0, domready: 0};
   var returnTrue = function() {
     return true;
   };
@@ -1162,7 +1162,7 @@
       e = window.event;
     }
     // 事件代码包含三个二进制位，分别是 鼠标事件 键盘事件 可以冒泡。默认为 100 (4)，即可以冒泡。
-    var code = EVENT_CODES[type] || 4;
+    var code = EVENT_CODES.hasOwnProperty(type) ? EVENT_CODES[type] : 4;
     // 保存原生事件对象。
     this.originalEvent = e;
     // 事件类型，这时候的 type 就是调用 on 时使用的事件类型。
@@ -1461,7 +1461,7 @@
     // 分发时对 handlers 的副本（仅复制了 handlers 的数组部分）操作，以避免在监听器内添加或删除目标元素同类型的监听器时会影响本次分发过程。
     var handlersCopy = handlers.slice(0);
     var delegateCount = handlers.delegateCount;
-    var $target = delegateCount ? event.target : $element;
+    var $current = delegateCount ? event.target : $element;
     var filters = {};
     var handler;
     var selector;
@@ -1469,7 +1469,7 @@
     var total;
     // 开始分发。
     do {
-      if ($target === $element) {
+      if ($current === $element) {
         // 普通监听器。
         i = delegateCount;
         total = handlersCopy.length;
@@ -1495,10 +1495,10 @@
               return elements.contains($target);
             }
           }
-        }(handler.simpleSelector)))($target)) {
-          if (!isTriggered || isTriggered.call($target, event)) {
+        }(handler.simpleSelector)))($current)) {
+          if (!isTriggered || isTriggered.call($current, event)) {
             // 监听器被调用时 this 的值为监听到本次事件的元素。
-            if (handler.listener.call($target, event) === false) {
+            if (handler.listener.call($current, event) === false) {
               event.stopPropagation();
               event.preventDefault();
             }
@@ -1509,7 +1509,7 @@
         }
       }
       // 如果监听到本次事件的元素不是捕获到本次事件的元素（正在调用代理监听器），且事件可以继续传播时，向上一级元素（到 document 为止）传播事件。
-    } while (!($target === $element || event.isPropagationStopped()) && ($target = $target.getParent() || $target === html && $element));
+    } while (!($current === $element || event.isPropagationStopped()) && ($current = $current.getParent() || $current === html && $element));
   };
 
   // 触发器。
@@ -2587,6 +2587,9 @@
    * @description
    *   特殊事件：beforeunload
    *   <ul>
+   *     <li>目前 Opera 12.14 仍不支持此事件。</li>
+   *     <li>监听器应返回一个字符串，以使浏览器在离开页面前询问用户是否确认离开，这个字符串在 IE Chrome Safari 中均会作为询问的内容出现。</li>
+   *     <li>Chrome 不允许在监听器中调用 alert、confirm 或 prompt 方法。</li>
    *     <li>该事件只能存在一个监听器，因此不能使用标签。</li>
    *     <li>不会有事件对象作为参数传入监听器。</li>
    *     <li>如果添加了多个监听器，则只有最后添加的生效。</li>

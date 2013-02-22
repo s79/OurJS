@@ -14,7 +14,12 @@ samp { color: gray; }
 dfn { color: steelblue; }
 var { color: sienna; }
 table { margin: 50px auto 0; }
-td { width: 180px; height: 50px; }
+col.color { width: 200px; }
+col.name { width: 160px; }
+col.hex { width: 120px; }
+col.rgb { width: 160px; }
+th { background: whitesmoke; }
+td { height: 30px; }
 </style>
 </head>
 <body>
@@ -26,6 +31,20 @@ td { width: 180px; height: 50px; }
   <pre><samp>$element</samp>.<dfn>morph</dfn>({backgroundColor: <var><strong>color</strong></var>});</pre>
 
   <table>
+    <colgroup>
+      <col class="color">
+      <col class="name">
+      <col class="hex">
+      <col class="rgb">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Color</th>
+        <th>Name</th>
+        <th>Hex</th>
+        <th>RGB</th>
+      </tr>
+    </thead>
     <tbody id="list"></tbody>
   </table>
 
@@ -35,19 +54,25 @@ td { width: 180px; height: 50px; }
 
   //--------------------------------------------------[List]
   (function() {
+    function hexToRGB(hex) {
+      var value = parseInt(hex.substring(1), 16);
+      return [(value & 0xff0000) >> 16, (value & 0xff00) >> 8, value & 0xff];
+    }
+
     var $tbody = $('#list');
     var $tr;
     var $td;
-
-    var columnIndex = 0;
     Object.keys(NAMED_COLORS).sort().forEach(function(name) {
-      if (columnIndex % 5 === 0) {
-        $tr = $tbody.insertRow(-1);
-      }
+      var hex = NAMED_COLORS[name];
+      $tr = $tbody.insertRow(-1);
       $td = $tr.insertCell(-1);
-      $td.innerHTML = $td.style.backgroundColor = name;
-      $td.title = NAMED_COLORS[name];
-      columnIndex++;
+      $td.style.backgroundColor = name;
+      $td = $tr.insertCell(-1);
+      $td.innerHTML = '<dfn>' + name + '</dfn>';
+      $td = $tr.insertCell(-1);
+      $td.innerHTML = hex;
+      $td = $tr.insertCell(-1);
+      $td.innerHTML = '<samp>rgb</samp>(' + hexToRGB(hex).join(' ,') + ')';
     });
 
   })();

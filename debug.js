@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130219
+ *  Version: 20130222
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展。
@@ -3041,7 +3041,7 @@
   // 供内部调用的标记值。
   var INTERNAL_IDENTIFIER_EVENT = {};
 
-  var EVENT_CODES = {'mousedown': 5, 'mouseup': 5, 'click': 5, 'dblclick': 5, 'contextmenu': 5, 'mousemove': 5, 'mouseover': 5, 'mouseout': 5, 'mousewheel': 5, 'mouseenter': 5, 'mouseleave': 5, 'mousedragstart': 5, 'mousedrag': 5, 'mousedragend': 5, 'keydown': 6, 'keyup': 6, 'keypress': 6, 'focus': 0, 'blur': 0, 'focusin': 4, 'focusout': 4, 'input': 4, 'change': 4, 'select': 0, 'submit': 0, 'reset': 0, 'scroll': 0, 'load': 0, 'unload': 0, 'beforeunload': 0, 'resize': 0, 'error': 0, 'domready': 0};
+  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 5, mouseleave: 5, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforeunload: 0, domready: 0};
   var returnTrue = function() {
     return true;
   };
@@ -3063,7 +3063,7 @@
       e = window.event;
     }
     // 事件代码包含三个二进制位，分别是 鼠标事件 键盘事件 可以冒泡。默认为 100 (4)，即可以冒泡。
-    var code = EVENT_CODES[type] || 4;
+    var code = EVENT_CODES.hasOwnProperty(type) ? EVENT_CODES[type] : 4;
     // 保存原生事件对象。
     this.originalEvent = e;
     // 事件类型，这时候的 type 就是调用 on 时使用的事件类型。
@@ -3362,7 +3362,7 @@
     // 分发时对 handlers 的副本（仅复制了 handlers 的数组部分）操作，以避免在监听器内添加或删除目标元素同类型的监听器时会影响本次分发过程。
     var handlersCopy = handlers.slice(0);
     var delegateCount = handlers.delegateCount;
-    var $target = delegateCount ? event.target : $element;
+    var $current = delegateCount ? event.target : $element;
     var filters = {};
     var handler;
     var selector;
@@ -3370,7 +3370,7 @@
     var total;
     // 开始分发。
     do {
-      if ($target === $element) {
+      if ($current === $element) {
         // 普通监听器。
         i = delegateCount;
         total = handlersCopy.length;
@@ -3396,10 +3396,10 @@
               return elements.contains($target);
             }
           }
-        }(handler.simpleSelector)))($target)) {
-          if (!isTriggered || isTriggered.call($target, event)) {
+        }(handler.simpleSelector)))($current)) {
+          if (!isTriggered || isTriggered.call($current, event)) {
             // 监听器被调用时 this 的值为监听到本次事件的元素。
-            if (handler.listener.call($target, event) === false) {
+            if (handler.listener.call($current, event) === false) {
               event.stopPropagation();
               event.preventDefault();
             }
@@ -3410,7 +3410,7 @@
         }
       }
       // 如果监听到本次事件的元素不是捕获到本次事件的元素（正在调用代理监听器），且事件可以继续传播时，向上一级元素（到 document 为止）传播事件。
-    } while (!($target === $element || event.isPropagationStopped()) && ($target = $target.getParent() || $target === html && $element));
+    } while (!($current === $element || event.isPropagationStopped()) && ($current = $current.getParent() || $current === html && $element));
   };
 
   // 触发器。
@@ -4488,6 +4488,9 @@
    * @description
    *   特殊事件：beforeunload
    *   <ul>
+   *     <li>目前 Opera 12.14 仍不支持此事件。</li>
+   *     <li>监听器应返回一个字符串，以使浏览器在离开页面前询问用户是否确认离开，这个字符串在 IE Chrome Safari 中均会作为询问的内容出现。</li>
+   *     <li>Chrome 不允许在监听器中调用 alert、confirm 或 prompt 方法。</li>
    *     <li>该事件只能存在一个监听器，因此不能使用标签。</li>
    *     <li>不会有事件对象作为参数传入监听器。</li>
    *     <li>如果添加了多个监听器，则只有最后添加的生效。</li>
@@ -5151,7 +5154,7 @@
           engine = undefined;
 //          console.warn('>ENGING STOP');
         }
-      }, 16);
+      }, 1000 / Math.limit(Animation.fps, 10, 60));
 //      console.warn('>ENGING START');
     }
 //    console.log('[mountAnimation]: ' + mountedAnimations.length);
@@ -5197,6 +5200,18 @@
     this.duration = 0;
     Observable.applyTo(this);
   };
+
+//--------------------------------------------------[Animation.fps]
+  /**
+   * 指定动画引擎播放动画时的每秒帧数。
+   * @name fps
+   * @memberOf Animation
+   * @type number
+   * @description
+   *   应指定 10 到 60 之间的数字，默认为 60。
+   *   仅在对性能敏感的环境下，才需要降低这个数值。过低的 fps 将导致动画播放不流畅。
+   */
+  Animation.fps = 60;
 
 //--------------------------------------------------[Animation.prototype.addClip]
   /**
@@ -5849,7 +5864,7 @@
   };
 
   // 处理请求数据。
-  var parseRequestData = function(requestData) {
+  var serializeRequestData = function(requestData) {
     var valuePairs = [];
     Object.forEach(requestData, function(value, key) {
       key = encodeURIComponent(key);
@@ -6018,9 +6033,8 @@
    * @param {string} options.password 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
    * @param {Object} options.headers 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
    * @param {string} options.contentType 发送数据的内容类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
-   * @param {string} options.prefixKey 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
+   * @param {string} options.callbackName 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
    * @fires start
-   *   {string} event.data 解析后的待发送数据。
    *   请求开始时触发。
    * @fires abort
    *   请求被取消时触发。
@@ -6037,7 +6051,7 @@
    *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
    *   创建 Request 时，可以选择使用 XHR 模式（同域请求时）或 JSONP 模式（跨域请求时）。
    *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。由于 JSONP 请求的原理是直接执行另一个域内的脚本，因此它并不安全。如果该域遭到攻击，本域也可能会受到影响。
-   *   两种模式的请求结果略有差异，它们都会被传入 abort、timeout、complete 和 finish 事件监听器中。
+   *   两种模式的请求结果都会被传入 abort、timeout、complete 和 finish 事件监听器中。
    *   XHR 模式的请求结果中包含以下属性：
    *   {number} status 状态码。
    *   {string} statusText 状态描述。
@@ -6063,7 +6077,7 @@
         options.method = 'get';
         options.useCache = false;
         options.async = true;
-        Object.mixin(this, options, {whiteList: ['mode', 'method', 'useCache', 'async', 'minTime', 'maxTime', 'prefixKey']});
+        Object.mixin(this, options, {whiteList: ['mode', 'method', 'useCache', 'async', 'minTime', 'maxTime', 'callbackName']});
         break;
     }
     /**
@@ -6098,7 +6112,7 @@
       'Accept': '*/*'
     },
     contentType: 'application/x-www-form-urlencoded',
-    prefixKey: 'callback'
+    callbackName: 'callback'
   };
 
 //--------------------------------------------------[Request.prototype.send]
@@ -6117,14 +6131,10 @@
     var request = this;
     // 如果请求正在进行中，则需等待此次请求完成后才能再次发起请求（若设置了 minTime 则请求完成的时间可能比交互完成的时间长）。
     if (!request.ongoing) {
-      // 转换请求数据。如果请求数据为空，则统一使用 null 表示。
-      if (requestData) {
-        requestData = parseRequestData(requestData);
-      } else {
-        requestData = null;
-      }
-      // 触发 send 事件。
-      request.fire('start', {data: requestData});
+      // 序列化请求数据。如果请求数据为空，则统一使用 null 表示。
+      requestData = requestData ? serializeRequestData(requestData) : null;
+      // 触发 start 事件。
+      request.fire('start');
       // 请求开始进行。
       request.ongoing = true;
       request.timestamp = Date.now();
@@ -6168,7 +6178,7 @@
           break;
         case 'jsonp':
           var requestId = '_' + (++uid).toString(36);
-          url += (url.contains('?') ? '&' : '?') + request.prefixKey + '=Request.' + requestId;
+          url += (url.contains('?') ? '&' : '?') + request.callbackName + '=Request.' + requestId;
           // 准备回调函数。
           Request[request.id = requestId] = function(data) {
             delete Request[requestId];
