@@ -116,33 +116,27 @@
    * @description
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为 Widget，因此仅应在必要时调用本方法。
    */
+  var widgetNamePattern = /\bwidget-([a-z][a-z0-9-]*)\b/;
   Widget.parse = function(element, recursively) {
     var $element = document.$(element);
-
     if (!$element.widgetType) {
-      var classNames = $element.className.clean().split(' ');
-      var className;
-      while (className = classNames.shift()) {
-        if (className.startsWith('widget-')) {
-          var type = className.replace('widget-', '');
-          var parser = Widget.parsers[type];
-          if (parser) {
-            parser($element);
-            $element.widgetType = type;
-            break;
-          } else {
-            navigator.warn('Widget parser "' + type + '" is not found.');
-          }
+      var match = $element.className.match(widgetNamePattern);
+      if (match) {
+        var type = match[1];
+        var parseWidget = Widget.parsers[type];
+        if (parseWidget) {
+          parseWidget($element);
+          $element.widgetType = type;
+        } else {
+          navigator.warn('Widget parser "' + type + '" is not found.');
         }
       }
     }
-
     if (recursively) {
       $element.find('[class*=widget-]').forEach(function($element) {
         Widget.parse($element);
       });
     }
-
   };
 
 //--------------------------------------------------[自动解析]

@@ -43,7 +43,7 @@
 
   Widget.register('overlay', {
     css: [
-      '.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
+      '.widget-overlay { display: none; left: 0; top: 0; outline: none; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
     ],
     methods: {
       reposition: function() {
@@ -128,6 +128,12 @@
         }
       }
 
+      // 使本元素可获得焦点。
+      $overlay.tabIndex = 0;
+      if (navigator.isIElt8) {
+        $overlay.hideFocus = true;
+      }
+
     }
   });
 
@@ -143,7 +149,7 @@
    * @attribute data-pinned-target
    *   对话框的“定位参考元素”的 id。
    *   如果不指定本属性，则以父元素作为“定位参考元素”。
-   *   “定位参考元素”只能是对话框的父元素或其父元素的后代元素。
+   *   “定位参考元素”只能是对话框的父元素或其父元素的后代元素，且不能是对话框自身。
    * @attribute data-left
    *   对话框的左边与其“定位参考元素”的左边的横向差值。
    * @attribute data-right
@@ -172,7 +178,7 @@
    *   为元素添加 'widget-dialog' 类，即可使该元素成为模态对话框。
    *   <strong>结构约定：</strong>
    *   对话框的默认状态为关闭。因此对话框元素的 display 将被设置为 'none'。
-   *   仅当对话框元素的“定位参考元素”为 BODY 时，其 position 才可以选择设置 'absolute' 或 'fixed'，其余情况均会被重设为 'absolute'。
+   *   当对话框元素的“定位参考元素”为 BODY 时，其 position 将被设置为 'fixed'，其余情况均会被设置为 'absolute'。
    *   对话框元素的 z-index 值会被自动指定。
    *   如果对话框元素的父元素不是 BODY 且其 position 为 'static'，将修改其 position 为 'relative'，以使其创建 stacking context。
    *   如果对话框元素的父元素不是 BODY，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
@@ -316,7 +322,7 @@
           var expectedX;
           var expectedY;
           var pinnedTargetClientRect = {};
-          if (this.pinnedTarget === document.body) {
+          if (this.isFixedPositioned) {
             var viewportClientSize = window.getClientSize();
             pinnedTargetClientRect.left = 0;
             pinnedTargetClientRect.top = 0;
@@ -361,13 +367,13 @@
       var $context = this.context = this.getParent();
       // pinnedTarget 必须是 context 的后代元素。
       var $pinnedTarget;
-      this.pinnedTarget = (this.pinnedTarget && ($pinnedTarget = document.$('#' + this.pinnedTarget)) && $context.contains($pinnedTarget)) ? $pinnedTarget : $context;
+      this.pinnedTarget = (this.pinnedTarget && ($pinnedTarget = document.$('#' + this.pinnedTarget)) && ($context.contains($pinnedTarget) && $pinnedTarget !== this)) ? $pinnedTarget : $context;
       // IE6 不使用动画。
       if (navigator.isIE6) {
         this.animation = 'none';
       }
-      // 仅当 pinnedTarget 为 BODY 时才允许 position 设置为 fixed。
-      this.isFixedPositioned = this.pinnedTarget === document.body && this.getStyle('position') === 'fixed';
+      // 当 pinnedTarget 为 BODY 时使用固定定位。
+      this.isFixedPositioned = this.pinnedTarget === document.body;
       // 默认状态为关闭。
       this.isOpen = false;
 
@@ -379,9 +385,7 @@
         }
         // 为 $context 添加遮盖层和对话框公用的属性。
         $context.dialogs = [];
-        Widget.parse($context.overlay = document.$('<div class="widget-overlay"></div>').insertTo($context).on('click.overlay', function() {
-          $context.dialogs.getLast().focus();
-        }));
+        Widget.parse($context.overlay = document.$('<div class="widget-overlay"></div>').insertTo($context));
       }
 
       // 使本元素可获得焦点。

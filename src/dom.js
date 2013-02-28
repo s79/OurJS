@@ -1058,7 +1058,7 @@
    *     用于标记事件的不同应用场景。
    *     当使用 on 方法为同一个类型的事件添加多个 listener 时，可以通过指定不同的 label 来将标记这类事件各自的应用场景，以便使用 off 方法时能够明确的删除该场景下的 listener 而不会误删其它的 listener。
    *   代理元素选择符 (selector)：
-   *     通过在 name 中加入 :relay(selector) 来指定为符合条件的后代元素代理事件监听。
+   *     在 type 之后加上 :relay(selector) 可以让本元素为符合 selector 限定的后代元素代理事件监听。
    *     指定了代理元素选择符的 listener 即代理 listener。
    *
    * 本事件模型提供了两种模式来派发与分发事件对象：
@@ -1865,7 +1865,7 @@
    *     <tr><th>组成部分</th><th>是否必选</th><th>详细描述</th></tr>
    *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型。</td></tr>
    *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用的场景，以便调用 off 方法时精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
-   *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
+   *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>指定让本元素为符合 selector 限定的后代元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
    *   </table>
    * @param {Function} listener 监听器。
    *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。
@@ -2774,7 +2774,7 @@
           $element.style.right = fixedData.right.specifiedValue;
           $element.style.top = fixedData.top.specifiedValue;
           $element.style.bottom = fixedData.bottom.specifiedValue;
-          $element.removeAttribute('fixedData');
+          $element.removeAttribute('_fixedData_');
         }
       }
       // 设置样式。
@@ -2852,7 +2852,9 @@
         element.style.display = 'none';
         setTimeout(function() {
           element.style.display = element.currentStyleDisplayValue;
-          $(element).setStyle('position', 'fixed');
+          if (element.currentStyle.position === 'fixed') {
+            $(element).setStyle('position', 'fixed');
+          }
         }, 0);
       }
       element.style.behavior = 'none';

@@ -1252,7 +1252,7 @@
     var date = format.replace(dateFormatPattern, function(key) {
       return keys[key];
     });
-    // IE6 IE7 IE8 的 replace 方法会修改正则表达式对象的 lastIndex 属性，此处手动恢复为 0，以免执行 Date.parseExact(new Date().format()) 时出错。
+    // IE6 IE7 IE8 对 RegExp 进行操作后，未能立即将其 lastIndex 属性复位。此处手动复位，以免执行 Date.parseExact(new Date().format()) 时出错。
     dateFormatPattern.lastIndex = 0;
     return date;
 
