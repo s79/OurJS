@@ -222,7 +222,7 @@ document.on('mouseenter, mouseleave', listener);
 <h4>事件代理</h4>
 <p>
   事件代理是一个很重要的功能，OurJS 可以在为一个元素添加监听器时，使用“代理选择符”来对指定的后代元素代理事件监听。<br>
-  “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 表示“接替”，selector 可以为任意 CSS 选择符，它们合在一起表示“接替<em>以目标元素为起点，能被 selector 选中的后代元素</em>来处理传播到<em>这些元素</em>的事件”，亦即为这些后代元素代理事件监听：
+  “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 即“接替”，selector 可以为任意 CSS 选择符，它们合在一起表示“接替<em>以目标元素为起点，能被 selector 选中的后代元素</em>来处理传播到<em>这些元素</em>的事件”，亦即为这些后代元素代理事件监听：
 </p>
 <pre>
 $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
@@ -235,7 +235,7 @@ $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
 </ol>
 
 <h4>删除已添加的事件监听器</h4>
-<p>要选择性的删除已添加的、特定的一个或多个监听器时，首先在添加这些监听器时应使用“标签”来对它们进行标记。<br>“事件类型”、“标签”和“代理选择符”的组合称为“事件名”，在调用 off 方法删除事件时就是以“事件名”为依据对指定的监听器进行删除的：</p>
+<p>要选择性的删除已添加的、特定的一个或多个监听器时，首先在添加这些监听器时应使用“标签”来对它们进行标记。<br>“事件类型”、“代理选择符”和“标签”的组合称为“事件名”，在调用 off 方法删除事件时就是以“事件名”为依据对指定的监听器进行删除的：</p>
 <pre>
 $element.on('input', listener1).on('input<strong>.foo</strong>', listener2);
 // 为 $element 添加两个事件监听器 listener1 和 listener2，它们监听的事件名分别为 'input' 和 'input<strong>.foo</strong>'。
@@ -246,13 +246,13 @@ $element.on('input', listener3);
 $element.off('input');
 // 删除在 $element 上添加的所有监听 'input' 事件（注意 'input' 是事件名而不是事件类型）的监听器，即 listener1 和 listener3，此时监听 'input<strong>.foo</strong>' 事件的监听器 listener2 仍然生效。
 </pre>
-<p>可以同时设定“标签”和“代理选择符”，注意“标签”在前，“代理选择符”在后：</p>
+<p>可以同时设定“代理选择符”和“标签”：</p>
 <pre>
-$element.on('click.foo:relay(a)', listener1);
+$element.on('click:relay(a).foo', listener1);
 ...
-$element.on('<strong>click.bar:relay(a)</strong>', listener2);
+$element.on('<strong>click:relay(a).bar</strong>', listener2);
 ...
-$element.off('<strong>click.bar:relay(a)</strong>');
+$element.off('<strong>click:relay(a).bar</strong>');
 // 删除代理事件监听器 listener2。
 </pre>
 <p>OurJS 没有提直接供删除一个 DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器名称，这个设计是为了避免监听器被误删<sup>2</sup>。</p>

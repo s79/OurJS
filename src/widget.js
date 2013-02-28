@@ -87,13 +87,13 @@
       }
       // 为目标元素添加内联事件监听器。
       if (parser.events) {
-        parser.events.forEach(function(name) {
-          var inlineName = 'on' + name;
+        parser.events.forEach(function(type) {
+          var inlineName = 'on' + type;
           var inlineEventListener = $element.getAttribute(inlineName);
           if (typeof inlineEventListener === 'string') {
             $element[inlineName] = new Function(inlineEventListener);
           }
-          $element.on(name + '.inlineEventListener', function(event) {
+          $element.on(type + '.inlineEventListener', function(event) {
             if (this[inlineName]) {
               this[inlineName](event);
             }

@@ -28,50 +28,45 @@ p.error { color: red; }
 $('#d').on('input:relay(input)', function(e) {
   console.log(this.tagName + ': ' + e.type);
 });
-$('#ul').on('mousedrag.test:relay(a)', function(e) {
+$('#ul').on('click:relay(a).test', function(e) {
   console.log('● CLICKED: a');
   e.preventDefault();
 });
-$('#ul').on('click:relay(li>span a), click.test:relay(li:even span)', function(e) {
+$('#ul').on('click:relay(li>span a), click:relay(li:even span).test', function(e) {
   console.log('● -> ' + this.nodeName);
   e.preventDefault();
 });
 
 //--------------------------------------------------[parseEventName]
-var eventNamePattern = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
-var parseEventName = function(eventName) {
-  var result = {};
-  var match;
-  if (eventName && (match = eventName.match(eventNamePattern))) {
-    result.type = match[1];
-    result.label = match[2] || '';
-    result.selector = match[3] || '';
+var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?:\.\w+)?$/;
+var getEventAttributes = function(name) {
+  var match = name.match(eventNamePattern);
+  if (match === null) {
+    throw new SyntaxError('Invalid event name "' + name + '"');
   }
-  if (result.type + result.label + (result.selector ? ':relay(' + result.selector + ')' : '') !== eventName) {
-    throw new SyntaxError('Invalid event name "' + eventName + '"');
-  }
-  return result;
+  return {type: match[1], selector: match[2] || '' };
 };
 
 //--------------------------------------------------[TEST]
 [
   'click',
-  'click.test',
   'click:relay(li.item)',
-  'click:once',
+  'click.test',
+  'click:relay(li.item).test',
   'click.test:relay(li.item)',
+  'click:relay().test',
+  'click:once',
   'click.test:once',
   'click:relay(li.item):once',
-  'click.test:relay(li.item):once',
-  'click.test:relay()',
-  'click.test:relay(li.item:once)',
-  'click.once:relay(li a span .btn)',
+  'click:relay(li.item):once.test',
+  'click:relay(li.item:once).test',
+  'click:relay(li a span .btn).once',
   'click:once:test',
-  '~click.test:relay(li.item):once'
+  '~click'
 ]
     .forEach(function(item) {
       try {
-        parseEventName(item);
+        getEventAttributes(item);
         document.write('<p>' + item + '</p>');
       } catch (e) {
         document.write('<p class="error">' + item + '</p>');

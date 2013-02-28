@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130222
+ *  Version: 20130228
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展。
@@ -1257,7 +1257,7 @@
     var date = format.replace(dateFormatPattern, function(key) {
       return keys[key];
     });
-    // IE6 IE7 IE8 的 replace 方法会修改正则表达式对象的 lastIndex 属性，此处手动恢复为 0，以免执行 Date.parseExact(new Date().format()) 时出错。
+    // IE6 IE7 IE8 对 RegExp 进行操作后，未能立即将其 lastIndex 属性复位。此处手动复位，以免执行 Date.parseExact(new Date().format()) 时出错。
     dateFormatPattern.lastIndex = 0;
     return date;
 
@@ -2801,7 +2801,7 @@
         }
         // 处理事件。
         if (keepListeners) {
-          var item = eventPool[original.uid];
+          var item = eventHandlers[original.uid];
           if (item) {
             var $cloned = $(cloned);
             Object.forEach(item, function(handlers) {
@@ -2952,14 +2952,14 @@
    *     在 listener 中可以调用 event 的方法来阻止其继续传播，或取消其默认行为。
    *     如果一个 listener 返回了 false，则该 event 将停止传播并取消默认行为。
    *   事件名称 (name)：
-   *     由 type、可选的 label 和 selector 组成的、描述特定的事件的字符串。
+   *     由 type、可选的 selector 和 label 组成的、描述特定的事件的字符串。
    *   事件类型 (type)：
    *     事件的类型，分为“内置”和“自定义”两种。
    *   事件标签 (labal)：
    *     用于标记事件的不同应用场景。
    *     当使用 on 方法为同一个类型的事件添加多个 listener 时，可以通过指定不同的 label 来将标记这类事件各自的应用场景，以便使用 off 方法时能够明确的删除该场景下的 listener 而不会误删其它的 listener。
    *   代理元素选择符 (selector)：
-   *     通过在 name 中加入 :relay(selector) 来指定为符合条件的后代元素代理事件监听。
+   *     在 type 之后加上 :relay(selector) 可以让本元素为符合 selector 限定的后代元素代理事件监听。
    *     指定了代理元素选择符的 listener 即代理 listener。
    *
    * 本事件模型提供了两种模式来派发与分发事件对象：
@@ -3016,7 +3016,7 @@
 
   // 监听器对象池。
   /*
-   * <Object eventPool> {
+   * <Object eventHandlers> {
    *   <string uid>: <Object item> {
    *     <string type>: <Array handlers> [
    *       <Object handler> {
@@ -3036,7 +3036,7 @@
    *   }
    * }
    */
-  var eventPool = {};
+  var eventHandlers = {};
 
   // 供内部调用的标记值。
   var INTERNAL_IDENTIFIER_EVENT = {};
@@ -3330,19 +3330,13 @@
   });
 
   // 解析事件名称，取出相关的属性。
-  var eventNamePattern = /^(\w+)(\.\w+)?(?::relay\(([^\)]+)\))?$/;
-  var parseEventName = function(eventName) {
-    var attributes = {};
-    var match;
-    if (eventName && (match = eventName.match(eventNamePattern))) {
-      attributes.type = match[1];
-      attributes.label = match[2] || '';
-      attributes.selector = match[3] || '';
+  var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?:\.\w+)?$/;
+  var getEventAttributes = function(name) {
+    var match = name.match(eventNamePattern);
+    if (match === null) {
+      throw new SyntaxError('Invalid event name "' + name + '"');
     }
-    if (attributes.type + attributes.label + (attributes.selector ? ':relay(' + attributes.selector + ')' : '') !== eventName) {
-      throw new Error('Invalid listener name "' + eventName + '"');
-    }
-    return attributes;
+    return {type: match[1], selector: match[2] || '' };
   };
 
   // 添加和删除原生事件监听器。
@@ -3474,7 +3468,7 @@
         // 向这三个关联事件中添加第一个监听器时，即创建 mousedragstart 触发器，该触发器会动态添加/删除另外两个事件的触发器。
         addEventListener($element, 'mousedown', mouseDragStartTrigger);
         // 创建另外两个事件的处理器组。
-        var item = eventPool[$element.uid];
+        var item = eventHandlers[$element.uid];
         relatedTypes.forEach(function(relatedType) {
           if (!item[relatedType]) {
             var handlers = [];
@@ -3485,7 +3479,7 @@
       },
       remove: function($element) {
         // 在这三个关联事件中删除最后一个监听器后，才删除他们的触发器。
-        var item = eventPool[$element.uid];
+        var item = eventHandlers[$element.uid];
         var handlerCount = 0;
         relatedTypes.forEach(function(relatedType) {
           handlerCount += item[relatedType].length;
@@ -3740,7 +3734,7 @@
 
   // 删除目标元素上的所有事件监听器。
   var removeAllListeners = function(element) {
-    var item = eventPool[element.uid];
+    var item = eventHandlers[element.uid];
     if (item) {
       var types = Object.keys(item);
       var handlers;
@@ -3759,15 +3753,16 @@
    * 为本元素添加事件监听器。
    * @name Element.prototype.on
    * @function
-   * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var>:relay(<var>selector</var>)</dfn>，详细信息请参考下表。
-   *   使用逗号分割多个事件名称，即可使用一个监听器监听该元素上的多个事件。
-   *   对于为不保证所有浏览器均可以冒泡的事件类型指定了代理监听的情况，会给出警告信息。
+   * @param {string} name 事件名称，格式为 <dfn><var>type</var>:relay(<var>selector</var>).<var>label</var></dfn>，详细信息请参考下表：
    *   <table>
    *     <tr><th>组成部分</th><th>是否必选</th><th>详细描述</th></tr>
    *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型。</td></tr>
-   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用的场景，以便调用 off 方法时精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
-   *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>用于指定对本元素的后代元素中符合 selector 要求的元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
+   *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>指定让本元素为符合 selector 限定的后代元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
+   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用场景的标签，以便在调用 off 方法时能够精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
    *   </table>
+   *   其中 <var>type</var> 只能使用英文字母，<var>selector</var> 应为合法的 CSS 选择器，<var>label</var> 可以使用英文字母、数字和下划线。
+   *   使用逗号分割多个事件名称，即可为多种类型的事件注册同一个监听器。
+   *   对于为不保证所有浏览器均可以冒泡的事件类型指定了代理监听的情况，会给出警告信息。
    * @param {Function} listener 监听器。
    *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。
    *   该函数被调用时 this 的值为监听到本次事件的元素，即：
@@ -3781,11 +3776,11 @@
    *   $('#test').on('click', onClick);
    *   // 为 id 为 test 的元素添加 click 事件的监听器。
    * @example
-   *   $('#test').on('click.temp', onClick);
-   *   // 为 id 为 test 的元素添加 click 事件的监听器，并为其指定一个标签 temp。
-   * @example
    *   $('#test').on('click:relay(a)', onClick);
    *   // 为 id 为 test 的元素添加一个代理监听器，为该元素所有的后代 A 元素代理 click 事件的监听。
+   * @example
+   *   $('#test').on('click.temp', onClick);
+   *   // 为 id 为 test 的元素添加 click 事件的监听器，并为其指定一个标签 temp。
    * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
    */
@@ -3794,11 +3789,11 @@
     // 自动扩展本元素，以便于在控制台进行调试。
     var $element = $(this);
     var uid = $element.uid;
-    var item = eventPool[uid] || (eventPool[uid] = {});
+    var item = eventHandlers[uid] || (eventHandlers[uid] = {});
     // 使用一个监听器监听该元素上的多个事件。
     name.split(separator).forEach(function(name) {
       // 取出事件类型和选择符。
-      var attributes = parseEventName(name);
+      var attributes = getEventAttributes(name);
       var type = attributes.type;
       var selector = attributes.selector;
       // 获取对应的处理器组，以添加处理器。
@@ -3892,23 +3887,23 @@
    *   $('#test').off('click');
    *   // 为 id 为 test 的元素删除名为 click 的监听器。
    * @example
-   *   $('#test').off('click.temp');
-   *   // 为 id 为 test 的元素删除名为 click.temp 的监听器。
-   * @example
    *   $('#test').off('click:relay(a)');
    *   // 为 id 为 test 的元素删除名为 click:relay(a) 的监听器。
+   * @example
+   *   $('#test').off('click.temp');
+   *   // 为 id 为 test 的元素删除名为 click.temp 的监听器。
    */
   Element.prototype.off = function(name) {
     var $element = this;
     var uid = $element.uid;
-    var item = eventPool[uid];
+    var item = eventHandlers[uid];
     if (!item) {
       return $element;
     }
     // 同时删除该元素上的多个监听器。
     name.split(separator).forEach(function(name) {
       // 取出事件类型。
-      var type = parseEventName(name).type;
+      var type = getEventAttributes(name).type;
       // 尝试获取对应的处理器组，以删除处理器。
       var handlers = item[type];
       if (!handlers) {
@@ -3950,7 +3945,7 @@
     });
     // 若该项再无其他处理器组，删除该项。
     if (Object.keys(item).length === 0) {
-      delete eventPool[uid];
+      delete eventHandlers[uid];
     }
     return $element;
   };
@@ -3976,7 +3971,7 @@
     var item;
     var handlers;
     while ($element) {
-      if (handlers = (item = eventPool[$element.uid]) && item[event.type]) {
+      if (handlers = (item = eventHandlers[$element.uid]) && item[event.type]) {
         distributeEvent($element, handlers, event);
       }
       // IE6 中即便 $element 就是 window，表达式 $element == window 也返回 false。
@@ -4675,7 +4670,7 @@
           $element.style.right = fixedData.right.specifiedValue;
           $element.style.top = fixedData.top.specifiedValue;
           $element.style.bottom = fixedData.bottom.specifiedValue;
-          $element.removeAttribute('fixedData');
+          $element.removeAttribute('_fixedData_');
         }
       }
       // 设置样式。
@@ -4753,7 +4748,9 @@
         element.style.display = 'none';
         setTimeout(function() {
           element.style.display = element.currentStyleDisplayValue;
-          $(element).setStyle('position', 'fixed');
+          if (element.currentStyle.position === 'fixed') {
+            $(element).setStyle('position', 'fixed');
+          }
         }, 0);
       }
       element.style.behavior = 'none';
@@ -4774,8 +4771,8 @@
    * 特性 - 可观察的。
    *
    * 提供实例属性：
-   *   events
-   *   <Object events> {
+   *   eventHandlers
+   *   <Object eventHandlers> {
    *     <string type>: <Array handlers> [
    *       <Object handler>: {
    *         name: <string name>
@@ -4795,18 +4792,14 @@
 
   var separator = /\s*,\s*/;
 
-  var eventNamePattern = /^(\w+)(\.\w+)?$/;
-  var parseEventName = function(eventName) {
-    var result = {};
-    var match;
-    if (eventName && (match = eventName.match(eventNamePattern))) {
-      result.type = match[1];
-      result.label = match[2] || '';
+  var eventNamePattern = /^([a-zA-Z]+)|\[([a-zA-Z]+(?:&[a-zA-Z]+)+)\](?:\.\w+)?$/;
+  var combinedSeparator = /&/;
+  var getEventType = function(name) {
+    var match = name.match(eventNamePattern);
+    if (match === null) {
+      throw new SyntaxError('Invalid event name "' + name + '"');
     }
-    if (result.type + result.label !== eventName) {
-      throw new SyntaxError('Invalid event name "' + eventName + '"');
-    }
-    return result;
+    return match[1] || match[2].split(combinedSeparator);
   };
 
 //--------------------------------------------------[Observable]
@@ -4818,7 +4811,7 @@
    *   具备此特性的对象即具备处理事件的能力。
    */
   var Observable = window.Observable = function() {
-    this.events = {};
+    this.eventHandlers = {};
   };
 
 //--------------------------------------------------[Observable.applyTo]
@@ -4840,23 +4833,51 @@
    * 为本对象添加事件监听器。
    * @name Observable.prototype.on
    * @function
-   * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var></dfn>，详细信息请参考下表。
-   *   使用逗号分割多个事件名称，即可同时为多个事件注册同一个监听器。
+   * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var></dfn> 或 <dfn>[<var>type1</var>&<var>type2</var>&<var>…</var>].<var>label</var></dfn>，详细信息请参考下表：
    *   <table>
    *     <tr><th></th><th>是否必选</th><th>详细描述</th></tr>
-   *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型</td></tr>
-   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>给事件类型加上标签，以便调用 off 方法时精确匹配要删除的事件监听器。<br>不打算删除的事件监听器没有必要指定标签。</td></tr>
+   *     <tr><td><dfn><var>type</var></dfn></td><td>独立监听器必选</td><td>要监听的事件类型。</td></tr>
+   *     <tr><td><dfn>[<var>type1</var>&<var>type2</var>&<var>…</var>]</dfn></td><td>组合监听器必选</td><td>要监听的事件类型的组合，应至少指定两种类型。<br>仅当指定的所有类型的事件都已发生过时，对应的监听器才会被调用。</td></tr>
+   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用场景的标签，以便在调用 off 方法时能够精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
    *   </table>
-   * @param {Function} listener 事件监听器。
+   *   其中 <var>type</var> 只能使用英文字母，<var>label</var> 可以使用英文字母、数字和下划线。
+   *   使用逗号分割多个事件名称，即可为多种类型的事件注册同一个监听器。
+   * @param {Function} listener 监听器。
+   *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。
+   *   <ul>
+   *     <li>如果是独立监听器，则只传入本次监听到的事件对象。</li>
+   *     <li>如果是组合监听器，则以注册时的次序，逐个传入对应事件类型发生时产生的事件对象。</li>
+   *   </ul>
    *   该函数被调用时 this 的值为本对象。
    * @returns {Object} 本对象。
    */
+  var addListener = function(target, type, name, listener) {
+    var eventHandlers = target.eventHandlers;
+    var handlers = eventHandlers[type] || (eventHandlers[type] = []);
+    handlers.push({name: name, listener: listener});
+  };
   Observable.prototype.on = function(name, listener) {
-    var events = this.events;
+    var target = this;
     name.split(separator).forEach(function(name) {
-      var type = parseEventName(name).type;
-      var handlers = events[type] || (events[type] = []);
-      handlers.push({name: name, listener: listener});
+      var type = getEventType(name);
+      if (typeof type === 'string') {
+        // 独立监听器。
+        addListener(target, type, name, listener);
+      } else {
+        // 组合监听器。
+        var firedEvents = [];
+        type.forEach(function(type, index, types) {
+          addListener(target, type, name, function(event) {
+            firedEvents[index] = event;
+            var current = types.length;
+            while (firedEvents.hasOwnProperty(--current)) {
+            }
+            if (current === -1) {
+              listener.apply(target, firedEvents);
+            }
+          });
+        });
+      }
     });
     return this;
   };
@@ -4867,28 +4888,40 @@
    * @name Observable.prototype.off
    * @function
    * @param {string} name 事件名称。本对象上添加的所有名称与 name 匹配的监听器都将被删除。
-   *   使用逗号分割多个事件名称，即可同时删除多种名称的事件监听器。
+   *   使用逗号分割多个事件名称，即可同时删除该对象上的多个监听器。
    * @returns {Object} 本对象。
    */
+  var removeListener = function(target, type, name) {
+    var eventHandlers = target.eventHandlers;
+    var handlers = eventHandlers[type];
+    if (handlers) {
+      var i = 0;
+      var handler;
+      while (i < handlers.length) {
+        handler = handlers[i];
+        if (handler.name === name) {
+          handlers.splice(i, 1);
+        } else {
+          i++;
+        }
+      }
+      if (handlers.length === 0) {
+        delete eventHandlers[type];
+      }
+    }
+  };
   Observable.prototype.off = function(name) {
-    var events = this.events;
+    var target = this;
     name.split(separator).forEach(function(name) {
-      var type = parseEventName(name).type;
-      var handlers = events[type];
-      if (handlers) {
-        var i = 0;
-        var handler;
-        while (i < handlers.length) {
-          handler = handlers[i];
-          if (handler.name === name) {
-            handlers.splice(i, 1);
-          } else {
-            i++;
-          }
-        }
-        if (handlers.length === 0) {
-          delete events[type];
-        }
+      var type = getEventType(name);
+      if (typeof type === 'string') {
+        // 独立监听器。
+        removeListener(target, type, name);
+      } else {
+        // 组合监听器。
+        type.forEach(function(type) {
+          removeListener(target, type, name);
+        });
       }
     });
     return this;
@@ -4896,7 +4929,7 @@
 
 //--------------------------------------------------[Observable.prototype.fire]
   /**
-   * 触发本对象的某类事件，运行相关的事件监听器。
+   * 触发本对象的某类事件。
    * @name Observable.prototype.fire
    * @function
    * @param {string} type 事件类型。
@@ -4906,7 +4939,7 @@
   Observable.prototype.fire = function(type, data) {
     var target = this;
     var event = Object.mixin({type: type, target: target}, data || {});
-    var handlers = target.events[type];
+    var handlers = target.eventHandlers[type];
     if (handlers) {
       handlers.forEach(function(handler) {
         handler.listener.call(target, event);
@@ -6306,13 +6339,13 @@
       }
       // 为目标元素添加内联事件监听器。
       if (parser.events) {
-        parser.events.forEach(function(name) {
-          var inlineName = 'on' + name;
+        parser.events.forEach(function(type) {
+          var inlineName = 'on' + type;
           var inlineEventListener = $element.getAttribute(inlineName);
           if (typeof inlineEventListener === 'string') {
             $element[inlineName] = new Function(inlineEventListener);
           }
-          $element.on(name + '.inlineEventListener', function(event) {
+          $element.on(type + '.inlineEventListener', function(event) {
             if (this[inlineName]) {
               this[inlineName](event);
             }
@@ -6335,33 +6368,27 @@
    * @description
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为 Widget，因此仅应在必要时调用本方法。
    */
+  var widgetNamePattern = /\bwidget-([a-z][a-z0-9-]*)\b/;
   Widget.parse = function(element, recursively) {
     var $element = document.$(element);
-
     if (!$element.widgetType) {
-      var classNames = $element.className.clean().split(' ');
-      var className;
-      while (className = classNames.shift()) {
-        if (className.startsWith('widget-')) {
-          var type = className.replace('widget-', '');
-          var parser = Widget.parsers[type];
-          if (parser) {
-            parser($element);
-            $element.widgetType = type;
-            break;
-          } else {
-            navigator.warn('Widget parser "' + type + '" is not found.');
-          }
+      var match = $element.className.match(widgetNamePattern);
+      if (match) {
+        var type = match[1];
+        var parseWidget = Widget.parsers[type];
+        if (parseWidget) {
+          parseWidget($element);
+          $element.widgetType = type;
+        } else {
+          navigator.warn('Widget parser "' + type + '" is not found.');
         }
       }
     }
-
     if (recursively) {
       $element.find('[class*=widget-]').forEach(function($element) {
         Widget.parse($element);
       });
     }
-
   };
 
 //--------------------------------------------------[自动解析]

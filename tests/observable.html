@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Observable</title>
+<script src="../dev.js"></script>
+</head>
+<body>
+<button id="foo">FOO</button>
+<button id="bar">BAR</button>
+<button id="test">TEST</button>
+
+<script>
+var o = Observable.applyTo({});
+o.on('foo', function(e) {
+  console.log(e.data);
+});
+o.on('[foo&bar].temp', function(e1, e2) {
+  console.log(e1.data, e2.data);
+});
+o.on('[foo&bar&test]', function(e1, e2, e3) {
+  console.log(e1.data, e2.data, e3.data);
+});
+
+document.getElementById('foo').onclick = function() {
+  o.fire('foo', {data: 'FOO'});
+};
+document.getElementById('bar').onclick = function() {
+  o.fire('bar', {data: 'BAR'});
+};
+document.getElementById('test').onclick = function() {
+  o.fire('test', {data: 'TEST'});
+};
+
+o.off('foo');
+//o.off('[foo&bar].temp');
+//o.off('foo+bar+test');
+
+</script>
+</body>
+</html>

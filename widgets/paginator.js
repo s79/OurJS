@@ -211,7 +211,7 @@
       });
 
       // 翻到指定页。
-      $pageNumberContainer.on('click.paginator:relay(a)', function(event) {
+      $pageNumberContainer.on('click:relay(a).paginator', function(event) {
         if (!targetUrl) {
           $element.turn(Number.toInteger(this.innerText));
           event.preventDefault();

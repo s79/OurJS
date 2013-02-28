@@ -123,14 +123,14 @@
       // 通过点击或指向“标签”激活对应的“标签面板”。
       var timer;
       $element
-          .on('click.tabpanel:relay(.tab)', function(event) {
+          .on('click:relay(.tab).tabpanel', function(event) {
             if ($element.tabs.contains(this)) {
               $element.activate(this);
               // 避免在 IE 中触发 beforeunload 事件，以及链接点击成功后可能出现的音效。
               event.preventDefault();
             }
           })
-          .on('mouseenter.tabpanel:relay(.tab)', function() {
+          .on('mouseenter:relay(.tab).tabpanel', function() {
             if (Number.isFinite($element.hoverDelay)) {
               var $tab = this;
               if (!timer) {
@@ -140,7 +140,7 @@
               }
             }
           })
-          .on('mouseleave.tabpanel:relay(.tab)', function() {
+          .on('mouseleave:relay(.tab).tabpanel', function() {
             if (timer) {
               clearTimeout(timer);
               timer = undefined;

@@ -214,12 +214,12 @@
         // 通过点击或指向“指示器”播放对应的“幻灯片”。
         var hoverTimer;
         $element
-            .on('click.slideshow:relay(.pointer)', function() {
+            .on('click:relay(.pointer).slideshow', function() {
               if (pointers.contains(this)) {
                 $element.show(pointers.indexOf(this));
               }
             })
-            .on('mouseenter.slideshow:relay(.pointer)', function() {
+            .on('mouseenter:relay(.pointer).slideshow', function() {
               if (Number.isFinite($element.hoverDelay)) {
                 var $pointer = this;
                 if (!hoverTimer) {
@@ -229,7 +229,7 @@
                 }
               }
             })
-            .on('mouseleave.slideshow:relay(.pointer)', function() {
+            .on('mouseleave:relay(.pointer).slideshow', function() {
               if (hoverTimer) {
                 clearTimeout(hoverTimer);
                 hoverTimer = undefined;
@@ -238,10 +238,10 @@
 
         // 通过点击“播放上一张”和“播放下一张”按钮播放对应的“幻灯片”。
         $element
-            .on('click.slideshow:relay(.prev)', function() {
+            .on('click:relay(.prev).slideshow', function() {
               $element.showPrevious();
             })
-            .on('click.slideshow:relay(.next)', function() {
+            .on('click:relay(.next).slideshow', function() {
               $element.showNext();
             });
 
