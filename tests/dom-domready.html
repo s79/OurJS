@@ -3,62 +3,54 @@
 <head>
 <meta charset="utf-8">
 <title>test-domready</title>
-<!--<script src="../.references/jquery-1.7.1.js"></script>-->
 <script src="../dev.js"></script>
 <style>
-body { margin: 0; padding: 0; background: white; }
+body { margin: 0; padding: 5px; background: white; }
 iframe { display: block; width: 400px; height: 300px; border: 1px solid black; }
 img { display: none; }
-p { font: 14px/20px Verdana; }
-span { padding: 5px; }
-var { color: tomato; }
-.top { font-weight: bold; color: black; }
-.frame { }
+p { margin: 10px 5px; color: black; font: 14px/20px Verdana; }
+span { padding: 5px; font-weight: bold; }
+button { padding: 5px 10px; overflow: visible; }
+.frame { margin-left: 20px; font-weight: normal; }
+.frame_in_fram { margin-left: 40px; font-weight: normal; }
 .domready { background: greenyellow; }
 .load { background: dodgerblue; }
-#log { position: absolute; left: 500px; top: 0; }
+.delayed { background: indianred; }
+#logger { position: absolute; left: 500px; top: 0; }
 </style>
 <script>
-(function() {
-//--------------------------------------------------[log]
-  var startTime = Date.now();
-
-  window.log = function(message) {
-    $('<p>' + message + ' (' + ((Date.now() - startTime) / 1000).toFixed(2) + ' : ' + document.readyState + ')</p>').insertTo($('#log'));
-  };
+//--------------------------------------------------[print]
+var startTime = Date.now();
+function print(message) {
+  $('<p>' + message + ' (' + ((new Date().getTime() - startTime) / 1000).toFixed(2) + ' : ' + document.readyState + ')</p>').insertTo($('#logger'));
+}
 
 //--------------------------------------------------[domready]
-  document.on('domready', function() {
-    top.log('<span class="top domready">' + $('#domready').value + '</span>');
-    $('<button id="add_again">domready 事件发生之后再为 domready 事件添加一个监听器的测试</button>')
-        .on('click', function() {
-          document.on('domready', function(e) {
-            console.log('DOMREADY 事件发生之后添加的 DOMREADY 监听器', e);
-          });
-        })
-        .insertTo(document.body);
-  });
-//jQuery(function() {
-//  top.log('<span class="top domready">' + $('#domready').value + ' <var>jQuery</var></span>');
-//});
+document.on('domready', function(e) {
+  print('<span class="domready">' + $('#domready').value + ' (type=' + e.type + ')</span>');
+});
+
+document.on('domready.foo', function() {
+  print('<span class="domready">' + $('#domready').value + ' - FOO</span>');
+});
+
+document.on('domready.bar', function() {
+  print('<span class="domready">' + $('#domready').value + ' - BAR</span>');
+});
+
+document.off('domready.bar');
 
 //--------------------------------------------------[load]
-  window.on('load', function(e) {
-    console.log('LOAD', e);
-    document.on('domready', function(e) {
-      console.log('DOMREADY', e);
-      top.log('= 在 window.load 中添加的 document.domready (index) =');
-    });
-    top.log('<span class="top load">' + $('#load').value + '</span>');
-  });
+window.on('load', function() {
+  print('<span class="load">' + document.getElementById('load').value + '</span>');
+});
 
-})();
 </script>
 </head>
 <body>
 <iframe src="dom-domready-frame.html" frameborder="0"></iframe>
 <img src="http://www.abc.com" alt="null">
-<div id="log"></div>
+<div id="logger"></div>
 <input id="domready" type="hidden" value="index - DOM Ready">
 <input id="load" type="hidden" value="index - Loaded">
 </body>

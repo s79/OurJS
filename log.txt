@@ -1,5 +1,8 @@
 
 
+>2013-03-03
+使 document 的 domready 事件与其他事件的行为一致
+
 >2013-02-28
 为 Observable 增加组合事件监听机制
 修改 Element.prototype.on 的事件名称格式

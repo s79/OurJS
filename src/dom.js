@@ -2207,6 +2207,49 @@
 
   document.uid = 'document';
 
+  // 自动触发 domready 事件。
+  var triggerDomReadyEvent;
+  if ('addEventListener' in document) {
+    triggerDomReadyEvent = function() {
+      document.removeEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
+      window.removeEventListener('load', triggerDomReadyEvent, false);
+      document.fire('domready');
+    };
+    document.addEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
+    window.addEventListener('load', triggerDomReadyEvent, false);
+  } else {
+    var doBodyCheck = function() {
+      if (document.body) {
+        document.fire('domready');
+      } else {
+        setTimeout(doBodyCheck, 10);
+      }
+    };
+    triggerDomReadyEvent = function(_, domIsReady) {
+      // http://bugs.jquery.com/ticket/5443
+      if (domIsReady || document.readyState === 'complete') {
+        document.detachEvent('onreadystatechange', triggerDomReadyEvent);
+        window.detachEvent('onload', triggerDomReadyEvent);
+        doBodyCheck();
+      }
+    };
+    document.attachEvent('onreadystatechange', triggerDomReadyEvent);
+    window.attachEvent('onload', triggerDomReadyEvent);
+    // http://javascript.nwbox.com/IEContentLoaded/
+    if (window == top && html.doScroll) {
+      var doScrollCheck = function() {
+        try {
+          html.doScroll('left');
+        } catch (e) {
+          setTimeout(doScrollCheck, 10);
+          return;
+        }
+        triggerDomReadyEvent(null, true);
+      };
+      doScrollCheck();
+    }
+  }
+
 //--------------------------------------------------[document.$]
   /**
    * 根据指定的参数获取/创建一个元素，并对其进行扩展。
@@ -2370,99 +2413,8 @@
    * @param {string} name 事件名称，细节请参考 Element.prototype.on 的同名参数。
    * @param {Function} listener 监听器，细节请参考 Element.prototype.on 的同名参数。
    * @returns {Object} document 对象。
-   * @description
-   *   特殊事件：domready
-   *   <ul>
-   *     <li>在文档可用时触发，只能添加监听器，不能删除监听器，因此不能使用标签。</li>
-   *     <li>不会有事件对象作为参数传入监听器。</li>
-   *     <li>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即被调用。</li>
-   *   </ul>
    */
-  var domready = function() {
-    // 保存 domready 事件的监听器。
-    var listeners = [];
-
-    // 调用监听器。
-    var callListener = function(listener) {
-      // 将 listener 的 this 设置为 document。
-      // 不会传入事件对象。
-      setTimeout(function() {
-        listener.call(document);
-      }, 0);
-    };
-
-    // 分发 domready 事件，监听器在调用后会被删除。
-    var distributeEvent = function() {
-      // IE6 IE7 IE8 可能调用两次。
-      if (listeners) {
-        // http://bugs.jquery.com/ticket/5443
-        if (document.body) {
-          listeners.forEach(callListener);
-          listeners = null;
-        } else {
-          setTimeout(distributeEvent, 10);
-        }
-      }
-    };
-
-    // 视情况绑定及清理分发器。
-    var distributor;
-    if ('addEventListener' in document) {
-      distributor = function() {
-        document.removeEventListener('DOMContentLoaded', distributor, false);
-        window.removeEventListener('load', distributor, false);
-        distributeEvent();
-      };
-      document.addEventListener('DOMContentLoaded', distributor, false);
-      window.addEventListener('load', distributor, false);
-    } else {
-      // 第二个参数在 doScrollCheck 成功时使用。
-      distributor = function(_, domIsReady) {
-        if (domIsReady || document.readyState === 'complete') {
-          document.detachEvent('onreadystatechange', distributor);
-          window.detachEvent('onload', distributor);
-          distributeEvent();
-        }
-      };
-      document.attachEvent('onreadystatechange', distributor);
-      window.attachEvent('onload', distributor);
-      // http://javascript.nwbox.com/IEContentLoaded/
-      if (window == top && html.doScroll) {
-        (function doScrollCheck() {
-          try {
-            html.doScroll('left');
-          } catch (e) {
-            setTimeout(doScrollCheck, 10);
-            return;
-          }
-          distributor(null, true);
-        })();
-      }
-    }
-
-    return {
-      addListener: function(listener) {
-        listeners ? listeners.push(listener) : callListener(listener);
-      }
-    };
-
-  }();
-
-  document.on = function(name, listener) {
-    var filteredName = name.split(separator)
-        .filter(function(name) {
-          if (name === 'domready') {
-            domready.addListener(listener);
-            return false;
-          }
-          return true;
-        })
-        .join(', ');
-    if (filteredName) {
-      Element.prototype.on.call(document, filteredName, listener);
-    }
-    return this;
-  };
+  document.on = Element.prototype.on;
 
 //--------------------------------------------------[document.off]
   /**
@@ -2585,9 +2537,8 @@
    *     <li>目前 Opera 12.14 仍不支持此事件。</li>
    *     <li>监听器应返回一个字符串，以使浏览器在离开页面前询问用户是否确认离开，这个字符串在 IE Chrome Safari 中均会作为询问的内容出现。</li>
    *     <li>Chrome 不允许在监听器中调用 alert、confirm 或 prompt 方法。</li>
-   *     <li>该事件只能存在一个监听器，因此不能使用标签。</li>
    *     <li>不会有事件对象作为参数传入监听器。</li>
-   *     <li>如果添加了多个监听器，则只有最后添加的生效。</li>
+   *     <li>该事件只能存在一个监听器，因此不能使用标签。如果添加了多个监听器，则只有最后添加的生效。</li>
    *     <li>可以删除当前生效的监听器。</li>
    *   </ul>
    * @see http://w3help.org/zh-cn/causes/BX2047

@@ -34,6 +34,9 @@ OurJS 不能和其他对原型进行了扩展的框架或类库共存。
     <td>Integrated</td><td>src/integrated/sizzle.js<br>src/integrated/json2.js</td>
   </tr>
   <tr>
+    <td>Widget</td><td>src/widget.js</td>
+  </tr>
+  <tr>
     <td>Request</td><td>src/request.js</td>
   </tr>
   <tr>
