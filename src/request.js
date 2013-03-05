@@ -23,22 +23,6 @@
   var empty = function() {
   };
 
-  // 处理请求数据。
-  var serializeRequestData = function(requestData) {
-    var valuePairs = [];
-    Object.forEach(requestData, function(value, key) {
-      key = encodeURIComponent(key);
-      if (Array.isArray(value)) {
-        value.forEach(function(item) {
-          valuePairs.push(key + '=' + encodeURIComponent(item));
-        });
-      } else {
-        valuePairs.push(key + '=' + encodeURIComponent(value));
-      }
-    });
-    return valuePairs.join('&');
-  };
-
   // 正在请求中的 XHR 模式的 request 对象。
   // http://bugs.jquery.com/ticket/5280
   var activeXHRModeRequests = [];
@@ -292,7 +276,7 @@
     // 如果请求正在进行中，则需等待此次请求完成后才能再次发起请求（若设置了 minTime 则请求完成的时间可能比交互完成的时间长）。
     if (!request.ongoing) {
       // 序列化请求数据。如果请求数据为空，则统一使用 null 表示。
-      requestData = requestData ? serializeRequestData(requestData) : null;
+      requestData = requestData ? Object.toQueryString(requestData) : null;
       // 触发 start 事件。
       request.fire('start');
       // 请求开始进行。

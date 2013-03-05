@@ -12,15 +12,27 @@
 
 <script>
 var o = Observable.applyTo({});
+
 o.on('foo', function(e) {
   console.log(e.data);
 });
-o.on('[foo&bar].temp', function(e1, e2) {
+o.on('[test>foo]', function(e1, e2) {
   console.log(e1.data, e2.data);
 });
-o.on('[foo&bar&test]', function(e1, e2, e3) {
-  console.log(e1.data, e2.data, e3.data);
+o.on('[test>bar]', function(e1, e2) {
+  console.log(e1.data, e2.data);
 });
+//o.on('[test>foo].temp', function(e1, e2) {
+//  console.log(e1.data, e2.data);
+//});
+
+o.off('foo');
+//o.off('[test>foo].temp');
+
+o.fire('foo', {data: 'FOO_1'});
+o.fire('bar', {data: 'BAR'});
+o.fire('foo', {data: 'FOO_2'});
+//o.fire('test', {data: 'TEST'});
 
 document.getElementById('foo').onclick = function() {
   o.fire('foo', {data: 'FOO'});
@@ -31,10 +43,6 @@ document.getElementById('bar').onclick = function() {
 document.getElementById('test').onclick = function() {
   o.fire('test', {data: 'TEST'});
 };
-
-o.off('foo');
-//o.off('[foo&bar].temp');
-//o.off('foo+bar+test');
 
 </script>
 </body>
