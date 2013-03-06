@@ -1515,6 +1515,14 @@
   triggers.mousedragstart = triggers.mousedrag = triggers.mousedragend = function() {
     var dragState;
     var relatedTypes = ['mousedragstart', 'mousedrag', 'mousedragend'];
+    // 在 Chrome 25 和 Safari 5.1.7 下，如果一个页面是在 frame 中被载入的，那么在该页面中，一旦有一个传递到 document 的 mousedown 事件被阻止了默认行为，则在 document 上后续发生的 mousemove 事件在鼠标指针离开该文档的区域后无法被自动捕获。因此使用以下监听器来避免在拖动过程中选中页面的内容。
+    // http://www.w3help.org/zh-cn/causes/BX2050
+    var unselectableForWebKit = function(e) {
+      e.preventDefault();
+    };
+    if ((navigator.isChrome || navigator.isSafari) && window !== top) {
+      unselectableForWebKit.enabled = true;
+    }
     var mouseDragStartTrigger = function(e) {
       if (!dragState) {
         var event = new Event('mousedragstart', e);
@@ -1524,7 +1532,12 @@
           if ($target.setCapture) {
             $target.setCapture();
           }
-          event.preventDefault();
+          // 避免在拖动过程中选中页面的内容。
+          if (unselectableForWebKit.enabled) {
+            addEventListener(document, 'selectstart', unselectableForWebKit);
+          } else {
+            event.preventDefault();
+          }
           dragState = {target: $target, startX: event.pageX, startY: event.pageY};
           dragState.lastEvent = event;
           $target.fire(INTERNAL_IDENTIFIER_EVENT, event);
@@ -1557,6 +1570,9 @@
       event.type = 'mousedragend';
       dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
       dragState = null;
+      if (unselectableForWebKit.enabled) {
+        removeEventListener(document, 'selectstart', unselectableForWebKit);
+      }
       removeEventListener(document, 'mousemove', mouseDragTrigger);
       removeEventListener(document, 'mousedown', mouseDragEndTrigger);
       removeEventListener(document, 'mouseup', mouseDragEndTrigger);
