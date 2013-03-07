@@ -627,6 +627,9 @@
    *   Element.prototype.cancelAnimation
    */
 
+  // 参数分隔符。
+  var separator = /\s*,\s*/;
+
   // 空函数。
   var empty = function() {
   };
@@ -883,23 +886,21 @@
    * 取消本元素正在播放的动画。
    * @name Element.prototype.cancelAnimation
    * @function
-   * @param {string} [type1] 要停止的第一种动画类型。
-   * @param {string} [type2] 要停止的第二种动画类型。
-   * @param {string} […] 要停止的第 n 种动画类型。
+   * @param {string} [type] 要取消的动画类型，如果要取消多种类型的动画，使用逗号将它们分开即可。
+   *   如果省略该参数，则取消本元素所有正在播放的动画。
    * @returns {Element} 本元素。
    * @description
-   *   如果省略参数，则取消本元素所有正在播放的动画。
    *   对于 morph 类型的动画，会在当前帧停止。
    *   对于 highlight 类型的动画，会恢复到动画播放前的状态。
    *   对于 fade 类型的动画，会跳过补间帧直接完成显示/隐藏。
    *   对于 smoothScroll 类型的动画，会立即停止滚动。
    */
-  Element.prototype.cancelAnimation = function() {
+  Element.prototype.cancelAnimation = function(type) {
     var $element = this;
-    var types = Array.from(arguments);
     var animations = getAnimations($element);
+    var types = type ? type.split(separator) : null;
     Object.forEach(animations, function(animation, type) {
-      if (types.length === 0 || types.contains(type)) {
+      if (types === null || types.contains(type)) {
         animation.pause();
         delete animations[type];
         switch (type) {

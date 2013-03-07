@@ -1,5 +1,8 @@
 
 
+>2013-03-07
+cancelAnimation 改为逗号分割多个类型
+
 >2013-03-05
 使 widget-scrollbox 支持 scrollbarMinHeight 设置
 修复 WebKit 引擎在 frame 中的页面的拖拽事件在离开 frame 区域被中断的问题
