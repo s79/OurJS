@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130228
+ *  Version: 20130311
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展。
@@ -3416,6 +3416,14 @@
   triggers.mousedragstart = triggers.mousedrag = triggers.mousedragend = function() {
     var dragState;
     var relatedTypes = ['mousedragstart', 'mousedrag', 'mousedragend'];
+    // 在 Chrome 25 和 Safari 5.1.7 下，如果一个页面是在 frame 中被载入的，那么在该页面中，一旦有一个传递到 document 的 mousedown 事件被阻止了默认行为，则在 document 上后续发生的 mousemove 事件在鼠标指针离开该文档的区域后无法被自动捕获。因此使用以下监听器来避免在拖动过程中选中页面的内容。
+    // http://www.w3help.org/zh-cn/causes/BX2050
+    var unselectableForWebKit = function(e) {
+      e.preventDefault();
+    };
+    if ((navigator.isChrome || navigator.isSafari) && window !== top) {
+      unselectableForWebKit.enabled = true;
+    }
     var mouseDragStartTrigger = function(e) {
       if (!dragState) {
         var event = new Event('mousedragstart', e);
@@ -3425,7 +3433,12 @@
           if ($target.setCapture) {
             $target.setCapture();
           }
-          event.preventDefault();
+          // 避免在拖动过程中选中页面的内容。
+          if (unselectableForWebKit.enabled) {
+            addEventListener(document, 'selectstart', unselectableForWebKit);
+          } else {
+            event.preventDefault();
+          }
           dragState = {target: $target, startX: event.pageX, startY: event.pageY};
           dragState.lastEvent = event;
           $target.fire(INTERNAL_IDENTIFIER_EVENT, event);
@@ -3458,6 +3471,9 @@
       event.type = 'mousedragend';
       dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
       dragState = null;
+      if (unselectableForWebKit.enabled) {
+        removeEventListener(document, 'selectstart', unselectableForWebKit);
+      }
       removeEventListener(document, 'mousemove', mouseDragTrigger);
       removeEventListener(document, 'mousedown', mouseDragEndTrigger);
       removeEventListener(document, 'mouseup', mouseDragEndTrigger);
@@ -4108,6 +4124,51 @@
 
   document.uid = 'document';
 
+  // 自动触发 domready 事件。
+  var triggerDomReadyEvent;
+  if ('addEventListener' in document) {
+    triggerDomReadyEvent = function() {
+      document.removeEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
+      window.removeEventListener('load', triggerDomReadyEvent, false);
+      document.fire('domready');
+    };
+    document.addEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
+    window.addEventListener('load', triggerDomReadyEvent, false);
+  } else {
+    var doBodyCheck = function() {
+      if (document.body) {
+        document.fire('domready');
+      } else {
+        setTimeout(doBodyCheck, 10);
+      }
+    };
+    triggerDomReadyEvent = function(_, domIsReady) {
+      // http://bugs.jquery.com/ticket/5443
+      if (doBodyCheck && (domIsReady || document.readyState === 'complete')) {
+        document.detachEvent('onreadystatechange', triggerDomReadyEvent);
+        window.detachEvent('onload', triggerDomReadyEvent);
+        doBodyCheck();
+        // 避免多次触发。
+        doBodyCheck = null;
+      }
+    };
+    document.attachEvent('onreadystatechange', triggerDomReadyEvent);
+    window.attachEvent('onload', triggerDomReadyEvent);
+    // http://javascript.nwbox.com/IEContentLoaded/
+    if (window == top && html.doScroll) {
+      var doScrollCheck = function() {
+        try {
+          html.doScroll('left');
+        } catch (e) {
+          setTimeout(doScrollCheck, 10);
+          return;
+        }
+        triggerDomReadyEvent(null, true);
+      };
+      doScrollCheck();
+    }
+  }
+
 //--------------------------------------------------[document.$]
   /**
    * 根据指定的参数获取/创建一个元素，并对其进行扩展。
@@ -4271,99 +4332,8 @@
    * @param {string} name 事件名称，细节请参考 Element.prototype.on 的同名参数。
    * @param {Function} listener 监听器，细节请参考 Element.prototype.on 的同名参数。
    * @returns {Object} document 对象。
-   * @description
-   *   特殊事件：domready
-   *   <ul>
-   *     <li>在文档可用时触发，只能添加监听器，不能删除监听器，因此不能使用标签。</li>
-   *     <li>不会有事件对象作为参数传入监听器。</li>
-   *     <li>如果在此事件触发后添加此类型的监听器，这个新添加的监听器将立即被调用。</li>
-   *   </ul>
    */
-  var domready = function() {
-    // 保存 domready 事件的监听器。
-    var listeners = [];
-
-    // 调用监听器。
-    var callListener = function(listener) {
-      // 将 listener 的 this 设置为 document。
-      // 不会传入事件对象。
-      setTimeout(function() {
-        listener.call(document);
-      }, 0);
-    };
-
-    // 分发 domready 事件，监听器在调用后会被删除。
-    var distributeEvent = function() {
-      // IE6 IE7 IE8 可能调用两次。
-      if (listeners) {
-        // http://bugs.jquery.com/ticket/5443
-        if (document.body) {
-          listeners.forEach(callListener);
-          listeners = null;
-        } else {
-          setTimeout(distributeEvent, 10);
-        }
-      }
-    };
-
-    // 视情况绑定及清理分发器。
-    var distributor;
-    if ('addEventListener' in document) {
-      distributor = function() {
-        document.removeEventListener('DOMContentLoaded', distributor, false);
-        window.removeEventListener('load', distributor, false);
-        distributeEvent();
-      };
-      document.addEventListener('DOMContentLoaded', distributor, false);
-      window.addEventListener('load', distributor, false);
-    } else {
-      // 第二个参数在 doScrollCheck 成功时使用。
-      distributor = function(_, domIsReady) {
-        if (domIsReady || document.readyState === 'complete') {
-          document.detachEvent('onreadystatechange', distributor);
-          window.detachEvent('onload', distributor);
-          distributeEvent();
-        }
-      };
-      document.attachEvent('onreadystatechange', distributor);
-      window.attachEvent('onload', distributor);
-      // http://javascript.nwbox.com/IEContentLoaded/
-      if (window == top && html.doScroll) {
-        (function doScrollCheck() {
-          try {
-            html.doScroll('left');
-          } catch (e) {
-            setTimeout(doScrollCheck, 10);
-            return;
-          }
-          distributor(null, true);
-        })();
-      }
-    }
-
-    return {
-      addListener: function(listener) {
-        listeners ? listeners.push(listener) : callListener(listener);
-      }
-    };
-
-  }();
-
-  document.on = function(name, listener) {
-    var filteredName = name.split(separator)
-        .filter(function(name) {
-          if (name === 'domready') {
-            domready.addListener(listener);
-            return false;
-          }
-          return true;
-        })
-        .join(', ');
-    if (filteredName) {
-      Element.prototype.on.call(document, filteredName, listener);
-    }
-    return this;
-  };
+  document.on = Element.prototype.on;
 
 //--------------------------------------------------[document.off]
   /**
@@ -4486,9 +4456,8 @@
    *     <li>目前 Opera 12.14 仍不支持此事件。</li>
    *     <li>监听器应返回一个字符串，以使浏览器在离开页面前询问用户是否确认离开，这个字符串在 IE Chrome Safari 中均会作为询问的内容出现。</li>
    *     <li>Chrome 不允许在监听器中调用 alert、confirm 或 prompt 方法。</li>
-   *     <li>该事件只能存在一个监听器，因此不能使用标签。</li>
    *     <li>不会有事件对象作为参数传入监听器。</li>
-   *     <li>如果添加了多个监听器，则只有最后添加的生效。</li>
+   *     <li>该事件只能存在一个监听器，因此不能使用标签。如果添加了多个监听器，则只有最后添加的生效。</li>
    *     <li>可以删除当前生效的监听器。</li>
    *   </ul>
    * @see http://w3help.org/zh-cn/causes/BX2047
@@ -4760,15 +4729,17 @@
 
 })();
 /**
- * @fileOverview 特性。
+ * @fileOverview 事件目标。
  * @author sundongguo@gmail.com
  * @version 20120820
  */
 
 (function() {
-//==================================================[特性 - 可观察的]
+//==================================================[事件目标]
   /*
-   * 特性 - 可观察的。
+   * 事件目标是为 JS 对象提供的事件模型中的一个概念。
+   * 在 DOM 范畴内，也有 EventTarget 的概念，但这是一个内部接口，并不暴露在脚本环境中。
+   * 为避免混淆，当提及 EventTarget 对象时，只应指代通过调用本对象的 create 方法而获得的对象。
    *
    * 提供实例属性：
    *   eventHandlers
@@ -4782,7 +4753,7 @@
    *   }
    *
    * 提供静态方法：
-   *   applyTo
+   *   create
    *
    * 提供实例方法：
    *   on
@@ -4792,8 +4763,8 @@
 
   var separator = /\s*,\s*/;
 
-  var eventNamePattern = /^([a-zA-Z]+)|\[([a-zA-Z]+(?:&[a-zA-Z]+)+)\](?:\.\w+)?$/;
-  var combinedSeparator = /&/;
+  var eventNamePattern = /^([a-zA-Z]+)|\[([a-zA-Z]+>[a-zA-Z]+)\](?:\.\w+)?$/;
+  var combinedSeparator = />/;
   var getEventType = function(name) {
     var match = name.match(eventNamePattern);
     if (match === null) {
@@ -4802,96 +4773,14 @@
     return match[1] || match[2].split(combinedSeparator);
   };
 
-//--------------------------------------------------[Observable]
-  /**
-   * 可观察的特性。
-   * @name Observable
-   * @constructor
-   * @description
-   *   具备此特性的对象即具备处理事件的能力。
-   */
-  var Observable = window.Observable = function() {
-    this.eventHandlers = {};
-  };
-
-//--------------------------------------------------[Observable.applyTo]
-  /**
-   * 将可观察的特性应用到目标对象。
-   * @name Observable.applyTo
-   * @function
-   * @param {Object} target 目标对象。
-   * @returns {Object} 目标对象。
-   */
-  Observable.applyTo = function(target) {
-    this.call(target);
-    Object.mixin(target, this.prototype);
-    return target;
-  };
-
-//--------------------------------------------------[Observable.prototype.on]
-  /**
-   * 为本对象添加事件监听器。
-   * @name Observable.prototype.on
-   * @function
-   * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var></dfn> 或 <dfn>[<var>type1</var>&<var>type2</var>&<var>…</var>].<var>label</var></dfn>，详细信息请参考下表：
-   *   <table>
-   *     <tr><th></th><th>是否必选</th><th>详细描述</th></tr>
-   *     <tr><td><dfn><var>type</var></dfn></td><td>独立监听器必选</td><td>要监听的事件类型。</td></tr>
-   *     <tr><td><dfn>[<var>type1</var>&<var>type2</var>&<var>…</var>]</dfn></td><td>组合监听器必选</td><td>要监听的事件类型的组合，应至少指定两种类型。<br>仅当指定的所有类型的事件都已发生过时，对应的监听器才会被调用。</td></tr>
-   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用场景的标签，以便在调用 off 方法时能够精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
-   *   </table>
-   *   其中 <var>type</var> 只能使用英文字母，<var>label</var> 可以使用英文字母、数字和下划线。
-   *   使用逗号分割多个事件名称，即可为多种类型的事件注册同一个监听器。
-   * @param {Function} listener 监听器。
-   *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。
-   *   <ul>
-   *     <li>如果是独立监听器，则只传入本次监听到的事件对象。</li>
-   *     <li>如果是组合监听器，则以注册时的次序，逐个传入对应事件类型发生时产生的事件对象。</li>
-   *   </ul>
-   *   该函数被调用时 this 的值为本对象。
-   * @returns {Object} 本对象。
-   */
   var addListener = function(target, type, name, listener) {
     var eventHandlers = target.eventHandlers;
     var handlers = eventHandlers[type] || (eventHandlers[type] = []);
     handlers.push({name: name, listener: listener});
   };
-  Observable.prototype.on = function(name, listener) {
-    var target = this;
-    name.split(separator).forEach(function(name) {
-      var type = getEventType(name);
-      if (typeof type === 'string') {
-        // 独立监听器。
-        addListener(target, type, name, listener);
-      } else {
-        // 组合监听器。
-        var firedEvents = [];
-        type.forEach(function(type, index, types) {
-          addListener(target, type, name, function(event) {
-            firedEvents[index] = event;
-            var current = types.length;
-            while (firedEvents.hasOwnProperty(--current)) {
-            }
-            if (current === -1) {
-              listener.apply(target, firedEvents);
-            }
-          });
-        });
-      }
-    });
-    return this;
-  };
 
-//--------------------------------------------------[Observable.prototype.off]
-  /**
-   * 删除本对象上已添加的事件监听器。
-   * @name Observable.prototype.off
-   * @function
-   * @param {string} name 事件名称。本对象上添加的所有名称与 name 匹配的监听器都将被删除。
-   *   使用逗号分割多个事件名称，即可同时删除该对象上的多个监听器。
-   * @returns {Object} 本对象。
-   */
-  var removeListener = function(target, type, name) {
+  // listener 参数仅供删除组合事件生成的临时监听器使用。
+  var removeListener = function(target, type, name, listener) {
     var eventHandlers = target.eventHandlers;
     var handlers = eventHandlers[type];
     if (handlers) {
@@ -4899,7 +4788,7 @@
       var handler;
       while (i < handlers.length) {
         handler = handlers[i];
-        if (handler.name === name) {
+        if (!listener && handler.name === name || listener && listener === handler.listener) {
           handlers.splice(i, 1);
         } else {
           i++;
@@ -4910,7 +4799,175 @@
       }
     }
   };
-  Observable.prototype.off = function(name) {
+
+//--------------------------------------------------[EventTarget]
+  /**
+   * 事件目标。
+   * @name EventTarget
+   * @constructor
+   * @description
+   *   通过调用 new EventTarget() 获得的新对象，或经过 EventTarget.create(object) 处理后的 object 对象，都将具备处理事件的能力，它们都可以被叫做一个 EventTarget 对象。
+   *   EventTarget 对象在处理事件时，是工作在 JS 事件模型中的。
+   *   window、document 和 Element 对象也都具备处理事件的能力，但它们是工作在 DOM 事件模型中的。
+   *   这两种事件模型的共同点有：
+   *   <ul>
+   *     <li>均使用 on 方法添加事件监听器。</li>
+   *     <li>均使用 off 方法删除已添加的事件监听器，并且它们的参数的含义也一致。</li>
+   *     <li>均使用 fire 方法触发一个事件，并且它们的参数的含义也一致。</li>
+   *   </ul>
+   *   它们之间的差异：
+   *   <table>
+   *     <tr>
+   *       <th></th>
+   *       <th>DOM 事件模型</th>
+   *       <th>JS 事件模型</th>
+   *     </tr>
+   *     <tr>
+   *       <th>应用范围</th>
+   *       <td>window 对象、document 对象和所有 Element 对象均自动具备 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</td>
+   *       <td>只有 EventTarget 对象才会具备 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>事件对象的<br>创建方式</th>
+   *       <td>可能是在特定的行为发生时由浏览器自动创建的，也可能是由 fire 方法创建的。</td>
+   *       <td>只能由 fire 方法创建。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>事件对象的<br>属性和方法</th>
+   *       <td>事件对象有多个属性和方法，其中“键盘事件”和“鼠标事件”还有各自的附加属性。也可以在调用 fire 方法时附加其他自定义属性。</td>
+   *       <td>事件对象默认只有 type 和 target 两个属性，也可以在调用 fire 方法时附加其他自定义属性。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>事件对象的<br>传播特性</th>
+   *       <td>某些类型的事件对象可以在 DOM 树中传播。</td>
+   *       <td>无此特性。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>事件对象的<br>默认行为</th>
+   *       <td>某些类型的事件对象会有默认行为，并且其中的一部分还可以阻止其默认行为的发生。</td>
+   *       <td>事件对象没有默认行为，通常一个事件都是在某种行为明确的发生之后才触发的。事件对象不会传播，也不会导致其他行为的发生。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>代理事件监听</th>
+   *       <td>可以在调用 on 方法时，使用 :relay(selector) 对可以冒泡的事件进行代理监听。</td>
+   *       <td>不支持。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>组合事件监听</th>
+   *       <td>不支持。</td>
+   *       <td>可以在调用 on 方法时，使用 [masterType>slaveType] 对两种事件进行组合监听。</td>
+   *     </tr>
+   *   </table>
+   */
+  var EventTarget = window.EventTarget = function() {
+    this.eventHandlers = {};
+  };
+
+//--------------------------------------------------[EventTarget.create]
+  /**
+   * 让目标对象成为一个 EventTarget 对象，以具备处理事件的能力。
+   * @name EventTarget.create
+   * @function
+   * @param {Object} target 目标对象。
+   *   目标对象不应该是 window、document 或 Element 对象，因为这些对象已经具备处理事件的能力，并且使用的是 DOM 事件模型，而通过调用本方法得到的对象在处理事件时，将使用 JS 事件模型。
+   * @returns {Object} 目标对象。
+   * @description
+   *   <ul>
+   *     <li>目标对象将被添加实例属性 eventHandlers 用于保存处理事件所必需的数据。</li>
+   *     <li>目标对象将被添加实例方法 on 用于添加事件监听器。</li>
+   *     <li>目标对象将被添加实例方法 off 用于删除事件监听器。</li>
+   *     <li>目标对象将被添加实例方法 fire 用于触发某类事件。</li>
+   *   </ul>
+   */
+  EventTarget.create = function(target) {
+    this.call(target);
+    Object.mixin(target, this.prototype);
+    return target;
+  };
+
+//--------------------------------------------------[EventTarget.prototype.on]
+  /**
+   * 为本对象添加事件监听器。
+   * @name EventTarget.prototype.on
+   * @function
+   * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var></dfn> 或 <dfn>[<var>masterType</var>&gt;<var>slaveType</var>].<var>label</var></dfn>，详细信息请参考下表：
+   *   <table>
+   *     <tr><th></th><th>是否必选</th><th>详细描述</th></tr>
+   *     <tr><td><dfn><var>type</var></dfn></td><td>独立监听器必选</td><td>要监听的事件类型。</td></tr>
+   *     <tr>
+   *       <td><dfn>[<var>masterType</var>&gt;<var>slaveType</var>]</dfn></td>
+   *       <td>组合监听器必选</td>
+   *       <td>
+   *         要监听的事件类型的组合。<br>仅在 masterType 和 slaveType 两种类型的事件均被触发后，监听器才会被调用。
+   *         应用场景：slaveType 事件的处理必须在 masterType 事件发生后才能进行。
+   *         <ul>
+   *           <li>
+   *             在一次组合事件监听中，masterType 事件对象永远是“可组合”的，只需要触发一次 masterType 事件，该事件对象即可以和任意多个 slaveType 事件对象进行组合。
+   *             如果 masterType 先被触发一次或多次，则只保留最新的 masterType 事件对象用于组合。此后每当 slaveType 被触发时，产生的 slaveType 事件对象都会立即与最新的 masterType 事件对象进行组合。
+   *           </li>
+   *           <li>
+   *             在一次组合事件监听中，slaveType 事件对象只能和 masterType 事件对象组合一次。
+   *             如果 slaveType 先被触发一次或多次，则每次触发的 slaveType 事件对象都会自动以队列的形式被保存，并将在 masterType 被触发后按照顺序逐个与最新的 masterType 事件对象进行组合。
+   *           </li>
+   *         </ul>
+   *       </td>
+   *     </tr>
+   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用场景的标签，以便在调用 off 方法时能够精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
+   *   </table>
+   *   其中 <var>type</var>、<var>masterType</var> 和 <var>slaveType</var> 只能使用英文字母，<var>label</var> 可以使用英文字母、数字和下划线。
+   *   使用逗号分割多个事件名称，即可为多种类型的事件注册同一个监听器。
+   * @param {Function} listener 监听器。
+   *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。
+   *   <ul>
+   *     <li>如果是独立监听器，则只传入本次监听到的事件对象。</li>
+   *     <li>如果是组合监听器，则以注册时的次序，逐个传入对应事件类型发生时产生的事件对象。</li>
+   *   </ul>
+   *   该函数被调用时 this 的值为本对象。
+   * @returns {Object} 本对象。
+   */
+  EventTarget.prototype.on = function(name, listener) {
+    var target = this;
+    name.split(separator).forEach(function(name) {
+      var type = getEventType(name);
+      if (typeof type === 'string') {
+        // 独立监听器。
+        addListener(target, type, name, listener);
+      } else {
+        // 组合监听器。
+        var masterType = type[0];
+        var slaveType = type[1];
+        var masterEvent;
+        // 主事件监听器。
+        addListener(target, masterType, name, function(event) {
+          masterEvent = event;
+        });
+        // 从事件监听器。
+        addListener(target, slaveType, name, function(event) {
+          if (masterEvent) {
+            listener.call(target, masterEvent, event);
+          } else {
+            var temporaryListener = function() {
+              listener.call(target, masterEvent, event);
+              removeListener(target, masterType, name, temporaryListener);
+            };
+            addListener(target, masterType, name, temporaryListener);
+          }
+        });
+      }
+    });
+    return this;
+  };
+
+//--------------------------------------------------[EventTarget.prototype.off]
+  /**
+   * 删除本对象上已添加的事件监听器。
+   * @name EventTarget.prototype.off
+   * @function
+   * @param {string} name 事件名称。本对象上添加的所有名称与 name 匹配的监听器都将被删除。
+   *   使用逗号分割多个事件名称，即可同时删除该对象上的多个监听器。
+   * @returns {Object} 本对象。
+   */
+  EventTarget.prototype.off = function(name) {
     var target = this;
     name.split(separator).forEach(function(name) {
       var type = getEventType(name);
@@ -4927,21 +4984,22 @@
     return this;
   };
 
-//--------------------------------------------------[Observable.prototype.fire]
+//--------------------------------------------------[EventTarget.prototype.fire]
   /**
    * 触发本对象的某类事件。
-   * @name Observable.prototype.fire
+   * @name EventTarget.prototype.fire
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    * @returns {Object} 事件对象。
    */
-  Observable.prototype.fire = function(type, data) {
+  EventTarget.prototype.fire = function(type, data) {
     var target = this;
     var event = Object.mixin({type: type, target: target}, data || {});
     var handlers = target.eventHandlers[type];
     if (handlers) {
-      handlers.forEach(function(handler) {
+      // 分发时对 handlers 的副本操作，以避免在监听器内添加或删除监听器时会影响本次分发过程。
+      handlers.slice(0).forEach(function(handler) {
         handler.listener.call(target, event);
       });
     }
@@ -5222,7 +5280,7 @@
    * @fires stop
    *   成功调用 stop 方法后触发。
    * @description
-   *   所有 Animation 的实例都具备 Observable 特性。
+   *   所有 Animation 的实例也都是一个 EventTarget 对象。
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。<br>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
    *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
    */
@@ -5231,7 +5289,7 @@
     this.timePoint = 0;
     this.status = START_POINT;
     this.duration = 0;
-    Observable.applyTo(this);
+    EventTarget.create(this);
   };
 
 //--------------------------------------------------[Animation.fps]
@@ -5578,6 +5636,9 @@
    *   Element.prototype.cancelAnimation
    */
 
+  // 参数分隔符。
+  var separator = /\s*,\s*/;
+
   // 空函数。
   var empty = function() {
   };
@@ -5834,23 +5895,21 @@
    * 取消本元素正在播放的动画。
    * @name Element.prototype.cancelAnimation
    * @function
-   * @param {string} [type1] 要停止的第一种动画类型。
-   * @param {string} [type2] 要停止的第二种动画类型。
-   * @param {string} […] 要停止的第 n 种动画类型。
+   * @param {string} [type] 要取消的动画类型，如果要取消多种类型的动画，使用逗号将它们分开即可。
+   *   如果省略该参数，则取消本元素所有正在播放的动画。
    * @returns {Element} 本元素。
    * @description
-   *   如果省略参数，则取消本元素所有正在播放的动画。
    *   对于 morph 类型的动画，会在当前帧停止。
    *   对于 highlight 类型的动画，会恢复到动画播放前的状态。
    *   对于 fade 类型的动画，会跳过补间帧直接完成显示/隐藏。
    *   对于 smoothScroll 类型的动画，会立即停止滚动。
    */
-  Element.prototype.cancelAnimation = function() {
+  Element.prototype.cancelAnimation = function(type) {
     var $element = this;
-    var types = Array.from(arguments);
     var animations = getAnimations($element);
+    var types = type ? type.split(separator) : null;
     Object.forEach(animations, function(animation, type) {
-      if (types.length === 0 || types.contains(type)) {
+      if (types === null || types.contains(type)) {
         animation.pause();
         delete animations[type];
         switch (type) {
@@ -5894,22 +5953,6 @@
 
   // 空函数。
   var empty = function() {
-  };
-
-  // 处理请求数据。
-  var serializeRequestData = function(requestData) {
-    var valuePairs = [];
-    Object.forEach(requestData, function(value, key) {
-      key = encodeURIComponent(key);
-      if (Array.isArray(value)) {
-        value.forEach(function(item) {
-          valuePairs.push(key + '=' + encodeURIComponent(item));
-        });
-      } else {
-        valuePairs.push(key + '=' + encodeURIComponent(value));
-      }
-    });
-    return valuePairs.join('&');
   };
 
   // 正在请求中的 XHR 模式的 request 对象。
@@ -6080,7 +6123,7 @@
    *   只要请求已开始，此事件就必然会被触发（跟随在 abort、timeout 或 complete 任一事件之后）。
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
    * @description
-   *   所有 Request 的实例都具备 Observable 特性。
+   *   所有 Request 的实例也都是一个 EventTarget 对象。
    *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
    *   创建 Request 时，可以选择使用 XHR 模式（同域请求时）或 JSONP 模式（跨域请求时）。
    *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。由于 JSONP 请求的原理是直接执行另一个域内的脚本，因此它并不安全。如果该域遭到攻击，本域也可能会受到影响。
@@ -6119,8 +6162,8 @@
      * @type boolean
      */
     this.ongoing = false;
-    // 应用 Observable 特性。
-    Observable.applyTo(this);
+    // 使实例对象成为 EventTarget 对象。
+    EventTarget.create(this);
   };
 
 //--------------------------------------------------[Request.options]
@@ -6165,7 +6208,7 @@
     // 如果请求正在进行中，则需等待此次请求完成后才能再次发起请求（若设置了 minTime 则请求完成的时间可能比交互完成的时间长）。
     if (!request.ongoing) {
       // 序列化请求数据。如果请求数据为空，则统一使用 null 表示。
-      requestData = requestData ? serializeRequestData(requestData) : null;
+      requestData = requestData ? Object.toQueryString(requestData) : null;
       // 触发 start 事件。
       request.fire('start');
       // 请求开始进行。

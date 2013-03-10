@@ -235,12 +235,12 @@ var apiList = {
     'Event#preventDefault',
     'Event#stopImmediatePropagation'
   ],
-  'Observable': [
-    'Observable',
-    'Observable.applyTo',
-    'Observable#on',
-    'Observable#off',
-    'Observable#fire'
+  'EventTarget': [
+    'EventTarget',
+    'EventTarget.create',
+    'EventTarget#on',
+    'EventTarget#off',
+    'EventTarget#fire'
   ],
   'Animation': [
     'Animation',

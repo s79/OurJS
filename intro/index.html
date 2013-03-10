@@ -162,7 +162,7 @@ element.<strong>on</strong>('click', function(e) {...});
       </li>
       <li>
         <p>
-          DOM 对象和具备 Observable 特性的对象处理事件的方法均为 on、off 和 fire。<br>
+          DOM 对象和 EventTarget 对象处理事件的方法均为 on、off 和 fire。<br>
           它们的 name 参数格式略有不同，因为 DOM 事件可以传递，因此有“代理”的概念。<br>
           它们的 listener 参数的含义和作用则完全一致，并且当 listener 被调用时，this 的值也均为被监听的对象。
         </p>
@@ -187,8 +187,8 @@ element.<strong>on</strong>('click', function(e) {...});
   <li>
     <p class="referral">使用事件系统在各模块间通信。</p>
     <p class="comment">
-      Observable 提供的事件机制可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。<br>
-      另外，使用“组合事件监听”，可以很容易的实现事件总线、异步队列等功能，这可以为复杂的业务逻辑进行解耦，使代码更容易维护和扩展。
+      EventTarget 对象可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。<br>
+      另外，在 EventTarget 对象上使用“组合事件监听”，可以很容易的实现事件总线、异步队列等功能，这可以为复杂的业务逻辑进行解耦，使代码更容易维护和扩展。
     </p>
   </li>
 </ul>

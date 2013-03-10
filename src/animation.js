@@ -271,7 +271,7 @@
    * @fires stop
    *   成功调用 stop 方法后触发。
    * @description
-   *   所有 Animation 的实例都具备 Observable 特性。
+   *   所有 Animation 的实例也都是一个 EventTarget 对象。
    *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。<br>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
    *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
    */
@@ -280,7 +280,7 @@
     this.timePoint = 0;
     this.status = START_POINT;
     this.duration = 0;
-    Observable.applyTo(this);
+    EventTarget.create(this);
   };
 
 //--------------------------------------------------[Animation.fps]

@@ -43,7 +43,7 @@ OurJS 不能和其他对原型进行了扩展的框架或类库共存。
     <td>Animation</td><td>src/animation.js</td>
   </tr>
   <tr>
-    <td>Features</td><td>src/features.js</td>
+    <td>EventTarget</td><td>src/event_target.js</td>
   </tr>
   <tr>
     <td>DOM API Enhancements</td><td>src/dom.js</td>

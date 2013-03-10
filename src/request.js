@@ -191,7 +191,7 @@
    *   只要请求已开始，此事件就必然会被触发（跟随在 abort、timeout 或 complete 任一事件之后）。
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
    * @description
-   *   所有 Request 的实例都具备 Observable 特性。
+   *   所有 Request 的实例也都是一个 EventTarget 对象。
    *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
    *   创建 Request 时，可以选择使用 XHR 模式（同域请求时）或 JSONP 模式（跨域请求时）。
    *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。由于 JSONP 请求的原理是直接执行另一个域内的脚本，因此它并不安全。如果该域遭到攻击，本域也可能会受到影响。
@@ -230,8 +230,8 @@
      * @type boolean
      */
     this.ongoing = false;
-    // 应用 Observable 特性。
-    Observable.applyTo(this);
+    // 使实例对象成为 EventTarget 对象。
+    EventTarget.create(this);
   };
 
 //--------------------------------------------------[Request.options]

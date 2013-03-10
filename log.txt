@@ -1,5 +1,8 @@
 
 
+>2013-03-10
+Observable -> EventTarget
+
 >2013-03-09
 更新文档
 修复 IE9- 在特定情况下 domready 事件被多次触发的 bug

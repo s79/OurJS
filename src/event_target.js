@@ -1,13 +1,15 @@
 /**
- * @fileOverview 特性。
+ * @fileOverview 事件目标。
  * @author sundongguo@gmail.com
  * @version 20120820
  */
 
 (function() {
-//==================================================[特性 - 可观察的]
+//==================================================[事件目标]
   /*
-   * 特性 - 可观察的。
+   * 事件目标是为 JS 对象提供的事件模型中的一个概念。
+   * 在 DOM 范畴内，也有 EventTarget 的概念，但这是一个内部接口，并不暴露在脚本环境中。
+   * 为避免混淆，当提及 EventTarget 对象时，只应指代通过调用本对象的 create 方法而获得的对象。
    *
    * 提供实例属性：
    *   eventHandlers
@@ -21,7 +23,7 @@
    *   }
    *
    * 提供静态方法：
-   *   applyTo
+   *   create
    *
    * 提供实例方法：
    *   on
@@ -68,36 +70,95 @@
     }
   };
 
-//--------------------------------------------------[Observable]
+//--------------------------------------------------[EventTarget]
   /**
-   * 可观察的特性。
-   * @name Observable
+   * 事件目标。
+   * @name EventTarget
    * @constructor
    * @description
-   *   具备此特性的对象即具备处理事件的能力。
+   *   通过调用 new EventTarget() 获得的新对象，或经过 EventTarget.create(object) 处理后的 object 对象，都将具备处理事件的能力，它们都可以被叫做一个 EventTarget 对象。
+   *   EventTarget 对象在处理事件时，是工作在 JS 事件模型中的。
+   *   window、document 和 Element 对象也都具备处理事件的能力，但它们是工作在 DOM 事件模型中的。
+   *   这两种事件模型的共同点有：
+   *   <ul>
+   *     <li>均使用 on 方法添加事件监听器。</li>
+   *     <li>均使用 off 方法删除已添加的事件监听器，并且它们的参数的含义也一致。</li>
+   *     <li>均使用 fire 方法触发一个事件，并且它们的参数的含义也一致。</li>
+   *   </ul>
+   *   它们之间的差异：
+   *   <table>
+   *     <tr>
+   *       <th></th>
+   *       <th>DOM 事件模型</th>
+   *       <th>JS 事件模型</th>
+   *     </tr>
+   *     <tr>
+   *       <th>应用范围</th>
+   *       <td>window 对象、document 对象和所有 Element 对象均自动具备 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</td>
+   *       <td>只有 EventTarget 对象才会具备 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>事件对象的<br>创建方式</th>
+   *       <td>可能是在特定的行为发生时由浏览器自动创建的，也可能是由 fire 方法创建的。</td>
+   *       <td>只能由 fire 方法创建。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>事件对象的<br>属性和方法</th>
+   *       <td>事件对象有多个属性和方法，其中“键盘事件”和“鼠标事件”还有各自的附加属性。也可以在调用 fire 方法时附加其他自定义属性。</td>
+   *       <td>事件对象默认只有 type 和 target 两个属性，也可以在调用 fire 方法时附加其他自定义属性。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>事件对象的<br>传播特性</th>
+   *       <td>某些类型的事件对象可以在 DOM 树中传播。</td>
+   *       <td>无此特性。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>事件对象的<br>默认行为</th>
+   *       <td>某些类型的事件对象会有默认行为，并且其中的一部分还可以阻止其默认行为的发生。</td>
+   *       <td>事件对象没有默认行为，通常一个事件都是在某种行为明确的发生之后才触发的。事件对象不会传播，也不会导致其他行为的发生。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>代理事件监听</th>
+   *       <td>可以在调用 on 方法时，使用 :relay(selector) 对可以冒泡的事件进行代理监听。</td>
+   *       <td>不支持。</td>
+   *     </tr>
+   *     <tr>
+   *       <th>组合事件监听</th>
+   *       <td>不支持。</td>
+   *       <td>可以在调用 on 方法时，使用 [masterType>slaveType] 对两种事件进行组合监听。</td>
+   *     </tr>
+   *   </table>
    */
-  var Observable = window.Observable = function() {
+  var EventTarget = window.EventTarget = function() {
     this.eventHandlers = {};
   };
 
-//--------------------------------------------------[Observable.applyTo]
+//--------------------------------------------------[EventTarget.create]
   /**
-   * 将可观察的特性应用到目标对象。
-   * @name Observable.applyTo
+   * 让目标对象成为一个 EventTarget 对象，以具备处理事件的能力。
+   * @name EventTarget.create
    * @function
    * @param {Object} target 目标对象。
+   *   目标对象不应该是 window、document 或 Element 对象，因为这些对象已经具备处理事件的能力，并且使用的是 DOM 事件模型，而通过调用本方法得到的对象在处理事件时，将使用 JS 事件模型。
    * @returns {Object} 目标对象。
+   * @description
+   *   <ul>
+   *     <li>目标对象将被添加实例属性 eventHandlers 用于保存处理事件所必需的数据。</li>
+   *     <li>目标对象将被添加实例方法 on 用于添加事件监听器。</li>
+   *     <li>目标对象将被添加实例方法 off 用于删除事件监听器。</li>
+   *     <li>目标对象将被添加实例方法 fire 用于触发某类事件。</li>
+   *   </ul>
    */
-  Observable.applyTo = function(target) {
+  EventTarget.create = function(target) {
     this.call(target);
     Object.mixin(target, this.prototype);
     return target;
   };
 
-//--------------------------------------------------[Observable.prototype.on]
+//--------------------------------------------------[EventTarget.prototype.on]
   /**
    * 为本对象添加事件监听器。
-   * @name Observable.prototype.on
+   * @name EventTarget.prototype.on
    * @function
    * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var></dfn> 或 <dfn>[<var>masterType</var>&gt;<var>slaveType</var>].<var>label</var></dfn>，详细信息请参考下表：
    *   <table>
@@ -134,7 +195,7 @@
    *   该函数被调用时 this 的值为本对象。
    * @returns {Object} 本对象。
    */
-  Observable.prototype.on = function(name, listener) {
+  EventTarget.prototype.on = function(name, listener) {
     var target = this;
     name.split(separator).forEach(function(name) {
       var type = getEventType(name);
@@ -167,16 +228,16 @@
     return this;
   };
 
-//--------------------------------------------------[Observable.prototype.off]
+//--------------------------------------------------[EventTarget.prototype.off]
   /**
    * 删除本对象上已添加的事件监听器。
-   * @name Observable.prototype.off
+   * @name EventTarget.prototype.off
    * @function
    * @param {string} name 事件名称。本对象上添加的所有名称与 name 匹配的监听器都将被删除。
    *   使用逗号分割多个事件名称，即可同时删除该对象上的多个监听器。
    * @returns {Object} 本对象。
    */
-  Observable.prototype.off = function(name) {
+  EventTarget.prototype.off = function(name) {
     var target = this;
     name.split(separator).forEach(function(name) {
       var type = getEventType(name);
@@ -193,16 +254,16 @@
     return this;
   };
 
-//--------------------------------------------------[Observable.prototype.fire]
+//--------------------------------------------------[EventTarget.prototype.fire]
   /**
    * 触发本对象的某类事件。
-   * @name Observable.prototype.fire
+   * @name EventTarget.prototype.fire
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    * @returns {Object} 事件对象。
    */
-  Observable.prototype.fire = function(type, data) {
+  EventTarget.prototype.fire = function(type, data) {
     var target = this;
     var event = Object.mixin({type: type, target: target}, data || {});
     var handlers = target.eventHandlers[type];

@@ -246,7 +246,7 @@ document.on('domready', function() {
         .forEach(function(name) {
           buildSymbol(indexColumns.a, name, true);
         });
-    $('<h1>Document Object</h1>').insertTo(indexColumns.b);
+    $('<h1>DOM Objects</h1>').insertTo(indexColumns.b);
     [
       'window',
       'document',
@@ -257,8 +257,8 @@ document.on('domready', function() {
         .forEach(function(name) {
           buildSymbol(indexColumns.b, name, true);
         });
-    $('<h1>Features</h1>').insertTo(indexColumns.c);
-    buildSymbol(indexColumns.c, 'Observable', true);
+    $('<h1>EventTarget</h1>').insertTo(indexColumns.c);
+    buildSymbol(indexColumns.c, 'EventTarget', true);
     $('<h1>Animation</h1>').insertTo(indexColumns.c);
     buildSymbol(indexColumns.c, 'Animation', true);
     $('<h1>Request</h1>').insertTo(indexColumns.c);

@@ -325,16 +325,18 @@ $element.on('click', function(e) {
 </blockquote>
 
 <blockquote>
-  <p>DOM 对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 中列的“Document Object”部分。</p>
+  <p>DOM 对象的相关 API 请查阅 <a href="../docs/api.html" target="_blank" class="link">参考文档 - API 参考</a> 中列的“DOM Objects”部分。</p>
 </blockquote>
 
-<h2>特性</h2>
-<p>“特性”是指可以应用于任意对象上的功能。将某种“特性”应用到某个对象后，该对象将具备特定的功能。</p>
-
-<h3>可观察 - Observable</h3>
-<p>OurJS 通过此特性为 JS 对象提供了一套事件模型，具备此特性的对象，即拥有处理事件的能力。</p>
-<p>此特性将提供 eventHandlers 属性用于保存事件处理相关的信息，并提供 on/off/fire 方法来处理事件（这几个方法与 DOM 对象处理事件的同名方法用途基本一致）。</p>
-<p class="referral">与 OurJS 为 DOM 对象提供的事件模型不同，本特性提供的事件模型是应用于 JS 对象上的。这两种事件模型有以下几点区别：</p>
+<h2>事件目标</h2>
+<p>OurJS 为 DOM 对象和 JS 对象分别提供了各自的事件模型，其中能够使用 JS 事件模型的对象，可以通过调用 new EventTarget() 获得，或对一个已有的对象 object 使用 EventTarget.create(object) 方法处理后获得。</p>
+<p class="referral">这两种事件模型的共同点有：</p>
+<ul>
+  <li>均使用 on 方法添加事件监听器。</li>
+  <li>均使用 off 方法删除已添加的事件监听器，并且它们的参数的含义也一致。</li>
+  <li>均使用 fire 方法触发一个事件，并且它们的参数的含义也一致。</li>
+</ul>
+<p class="referral">它们之间的差异：</p>
 <table>
   <colgroup>
     <col>
@@ -344,11 +346,16 @@ $element.on('click', function(e) {
   <thead>
     <tr>
       <th></th>
-      <th>为 DOM 对象提供的事件模型</th>
-      <th>为 JS 对象提供的事件模型</th>
+      <th>DOM 事件模型</th>
+      <th>JS 事件模型</th>
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <th>应用范围</th>
+      <td>window 对象、document 对象和所有 Element 对象均自动具备 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</td>
+      <td>只有 EventTarget 对象才会具备 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</td>
+    </tr>
     <tr>
       <th>事件对象的<br>创建方式</th>
       <td>可能是在特定的行为发生时由浏览器自动创建的，也可能是由 fire 方法创建的。</td>
@@ -356,13 +363,13 @@ $element.on('click', function(e) {
     </tr>
     <tr>
       <th>事件对象的<br>属性和方法</th>
-      <td>事件对象有多个属性和方法，其中“键盘事件”和“鼠标事件”还有各自的附加属性。所有类型的事件对象都可以在调用 fire 方法时附加其他自定义属性。</td>
+      <td>事件对象有多个属性和方法，其中“键盘事件”和“鼠标事件”还有各自的附加属性。也可以在调用 fire 方法时附加其他自定义属性。</td>
       <td>事件对象默认只有 type 和 target 两个属性，也可以在调用 fire 方法时附加其他自定义属性。</td>
     </tr>
     <tr>
       <th>事件对象的<br>传播特性</th>
       <td>某些类型的事件对象可以在 DOM 树中传播。</td>
-      <td>事件对象没有传播的特性。</td>
+      <td>无此特性。</td>
     </tr>
     <tr>
       <th>事件对象的<br>默认行为</th>
@@ -372,20 +379,20 @@ $element.on('click', function(e) {
     <tr>
       <th>代理事件监听</th>
       <td>可以在调用 on 方法时，使用 :relay(selector) 对可以冒泡的事件进行代理监听。</td>
-      <td>不支持代理事件监听。</td>
+      <td>不支持。</td>
     </tr>
     <tr>
       <th>组合事件监听</th>
-      <td>不支持组合事件监听。</td>
+      <td>不支持。</td>
       <td>可以在调用 on 方法时，使用 [masterType>slaveType] 对两种事件进行组合监听。</td>
     </tr>
   </tbody>
 </table>
 
-<p>使用方法如下：</p>
+<p>举例如下：</p>
 <pre>
 var object = {colors: ['red', 'green']};
-Observable.applyTo(object);
+EventTarget.create(object);
 object.add = function(color) {
   this.colors.push(color);
   this.fire('add', {value: color});
@@ -425,7 +432,7 @@ $element.morph({width: '+=100'}, {duration: 2000});
 <p>这种动画的配置和使用稍复杂一些，但却能提供更精确的控制手段和更丰富的事件。</p>
 <p>
   可以为 Animation 的实例添加多个动画剪辑，以实现复杂的动画效果和动画队列。<br>
-  所有 Animation 的实例都具备 Observable 特性。Animation 还提供了灵活的控制手段，可以随时暂停或倒放。
+  所有 Animation 的实例也都是一个 EventTarget 对象。Animation 还提供了灵活的控制手段，可以随时暂停或倒放。
 </p>
 <p>它们的特点是：</p>
 <ul>
@@ -457,7 +464,7 @@ $menu
 
 <h2>远程请求</h2>
 <p>远程请求是通过 Request 对象来实现的。</p>
-<p>所有 Request 的实例都具备 Observable 特性，并且每个实例都对应一个资源，实例创建后可以重复使用。</p>
+<p>所有 Request 的实例也都是一个 EventTarget 对象，并且每个实例都对应一个资源，实例创建后可以重复使用。</p>
 <p>从数据交互的角度看，一次请求有“成功”、“失败”、“超时”三种状态，因此大多数库中都预置了这些类型的事件或回调。</p>
 <p>
   从应用的角度看，对一个资源的请求结果未必只有以上三种状态，响应状态码是 200 的情况未必代表“操作成功”。<br>
