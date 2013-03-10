@@ -18,7 +18,15 @@
 </style>
 </head>
 <body>
-<div class="custom widget-calendar" data-first-day="1"></div>
+<div id="labeled" class="custom widget-calendar"></div>
+<script>
+$('#labeled').on('cellupdate', function(e) {
+  var date = e.date.getDate();
+  if (date >= 10 && date <= 15) {
+    e.cell.setStyles({color: 'orangered', fontWeight: 'bold'});
+  }
+});
+</script>
 
 </body>
 </html>

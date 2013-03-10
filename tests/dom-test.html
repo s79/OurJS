@@ -83,9 +83,9 @@ document.on('domready', function() {
   $l2.log('$y.removeData(\'myData\')');
   $l2.assert('$y.getData(\'myData\') === undefined');
 
-  $y.setData('whatData', 'WHAT?');
-  $l2.log('$y.setData(\'whatData\', \'WHAT?\')');
-  $l2.assert('$y.getData(\'whatData\') === \'WHAT?\'');
+  $y.setData('whatData', 'WHAT>"');
+  $l2.log('$y.setData(\'whatData\', \'WHAT>"\')');
+  $l2.assert('$y.getData(\'whatData\') === \'WHAT>"\'');
 
 // This test will be true in all browsers.
   $l2.assert('document.createElement(\'var\').ownerDocument === window.document');

@@ -15,9 +15,13 @@
   <p id="month"></p>
 </div>
 <script>
-$('#calendar').on('update', function(e) {
-  $('#month').highlight('red', 'color').innerText = e.month;
-});
+$('#calendar')
+    .on('update', function(e) {
+      $('#month').highlight('red', 'color').innerText = e.month;
+    })
+    .on('cellupdate', function(e) {
+      e.cell.title = e.date.format();
+    });
 </script>
 
 </body>

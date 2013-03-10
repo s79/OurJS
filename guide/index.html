@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="../stylesheets/prettify.css">
 <style>
 em { font-style: normal; text-decoration: underline; }
+col.list { width: 430px; }
+td { vertical-align: top; }
 </style>
 <script>
 document.on('domready', function() {
@@ -43,7 +45,7 @@ document.on('domready', function() {
 <p>要下载 OurJS，请<a href="../download/" target="_blank" class="link">点击此处</a>。</p>
 
 <h2>处理 JS 原生对象</h2>
-<p>OurJS 为了增强 JavaScript 的处理能力，为各原生对象提供了多种扩展方法：</p>
+<p>OurJS 为各原生对象提供了多种扩展方法，以增强 JavaScript 的处理能力：</p>
 <pre>
 var list = [0, 1, 2, 3, 4];
 list.reverse().getLast();
@@ -196,7 +198,7 @@ $container.addClass('highlight');
 </pre>
 
 <h3>处理事件</h3>
-<p>OurJS 提供了一套完整的事件模型，并对一些常见的事件类型做了兼容性处理。</p>
+<p>OurJS 为 DOM 对象提供了一套完整的事件模型，并对一些常见的事件类型做了兼容性处理。</p>
 <p>窗口、文档和元素对象都可能发生事件并产生事件对象，它们都有 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</p>
 
 <h4>添加一个事件监听器</h4>
@@ -273,17 +275,17 @@ $a.fire('click');
 </pre>
 <p>
   当需要一个元素执行某种行为时，不应该使用 fire 方法，而应该直接调用对应的方法，如 click、select、submit 等。<br>
-  大部分此类方法在调用后，也会触发同名事件<sup>1</sup>。
+  这些方法在调用后，大多数情况下也会触发一个同名事件<sup>1</sup>。
 </p>
 <ol class="comment">
   <li>
-    目前在所有浏览器中，调用 submit 方法都不会触发 submit 事件，这是为了兼容旧页面而特地设计的特征。<br>
+    目前在所有浏览器中，调用 submit 方法都不会触发 submit 事件，这是为了兼容互联网上的旧页面而有意设计的特征。<br>
     在目前互联网上存在的页面中，大量页面都在表单对象的 onsubmit 属性上添加了验证表单域的函数，并在函数中直接阻止事件对象的默认行为，当验证通过时再调用 submit 方法来提交表单（而不是在验证失败时阻止事件对象的默认行为），如果此时再触发 submit 事件，在这些页面上就会导致死循环。
   </li>
 </ol>
 
 <h4>事件对象</h4>
-<p>除了少数特殊类型的事件外（如 window 的 beforeunload 和 document 的 domready），其他所有事件的监听器均会被传入本次事件发生时所产生的事件对象。</p>
+<p>除了少数特殊类型的事件外（如 window 的 beforeunload 事件），其他所有类型的事件监听器被调用时，均会被传入本次事件发生时产生的事件对象。</p>
 <p>所有事件对象都有一些特定的属性，使用 fire 方法触发的事件产生的事件对象也不例外：</p>
 <pre>
 document.on('mousewheel', function(e) {
@@ -330,17 +332,56 @@ $element.on('click', function(e) {
 <p>“特性”是指可以应用于任意对象上的功能。将某种“特性”应用到某个对象后，该对象将具备特定的功能。</p>
 
 <h3>可观察 - Observable</h3>
-<p>具备此特性的对象，即拥有处理事件的能力。</p>
-<p>
-  此特性将提供 events 属性用于保存事件相关的信息，并提供 on/off/fire 方法来处理事件。<br>
-  这几个方法与 DOM 对象处理事件的同名方法用途基本一致。
-</p>
-<p>由于 DOM 对象本身有自己的事件模型，通常此特性是应用在 JS 对象上的。与 DOM 的事件模型相比，Observable 提供的事件模型有以下几点区别：</p>
-<ol>
-  <li>事件对象的创建方式不同。DOM 事件是在特定的行为发生时由浏览器自动创建的，而在 Observable 提供的事件模型中，事件对象需要通过主动调用 fire 方法来创建。</li>
-  <li>事件对象的传播机制不同。一些 DOM 事件可以在 DOM 树中传递，因此这些 DOM 事件是“可代理”的，而 Observable 提供的事件对象没有此特性，因此 Observable 提供的 on 方法不像 DOM 对象的 on 方法那样可以使用“代理选择符”。</li>
-  <li>两者的事件对象的属性和方法不同。Observable 提供的事件对象默认只有 type 和 target 两个属性，但可以通过 fire 方法附加其他自定义属性。</li>
-</ol>
+<p>OurJS 通过此特性为 JS 对象提供了一套事件模型，具备此特性的对象，即拥有处理事件的能力。</p>
+<p>此特性将提供 eventHandlers 属性用于保存事件处理相关的信息，并提供 on/off/fire 方法来处理事件（这几个方法与 DOM 对象处理事件的同名方法用途基本一致）。</p>
+<p class="referral">与 OurJS 为 DOM 对象提供的事件模型不同，本特性提供的事件模型是应用于 JS 对象上的。这两种事件模型有以下几点区别：</p>
+<table>
+  <colgroup>
+    <col>
+    <col class="list">
+    <col class="list">
+  </colgroup>
+  <thead>
+    <tr>
+      <th></th>
+      <th>为 DOM 对象提供的事件模型</th>
+      <th>为 JS 对象提供的事件模型</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>事件对象的<br>创建方式</th>
+      <td>可能是在特定的行为发生时由浏览器自动创建的，也可能是由 fire 方法创建的。</td>
+      <td>只能由 fire 方法创建。</td>
+    </tr>
+    <tr>
+      <th>事件对象的<br>属性和方法</th>
+      <td>事件对象有多个属性和方法，其中“键盘事件”和“鼠标事件”还有各自的附加属性。所有类型的事件对象都可以在调用 fire 方法时附加其他自定义属性。</td>
+      <td>事件对象默认只有 type 和 target 两个属性，也可以在调用 fire 方法时附加其他自定义属性。</td>
+    </tr>
+    <tr>
+      <th>事件对象的<br>传播特性</th>
+      <td>某些类型的事件对象可以在 DOM 树中传播。</td>
+      <td>事件对象没有传播的特性。</td>
+    </tr>
+    <tr>
+      <th>事件对象的<br>默认行为</th>
+      <td>某些类型的事件对象会有默认行为，并且其中的一部分还可以阻止其默认行为的发生。</td>
+      <td>事件对象没有默认行为，通常一个事件都是在某种行为明确的发生之后才触发的。事件对象不会传播，也不会导致其他行为的发生。</td>
+    </tr>
+    <tr>
+      <th>代理事件监听</th>
+      <td>可以在调用 on 方法时，使用 :relay(selector) 对可以冒泡的事件进行代理监听。</td>
+      <td>不支持代理事件监听。</td>
+    </tr>
+    <tr>
+      <th>组合事件监听</th>
+      <td>不支持组合事件监听。</td>
+      <td>可以在调用 on 方法时，使用 [masterType>slaveType] 对两种事件进行组合监听。</td>
+    </tr>
+  </tbody>
+</table>
+
 <p>使用方法如下：</p>
 <pre>
 var object = {colors: ['red', 'green']};
@@ -357,23 +398,23 @@ object.add('blue');
 </pre>
 
 <h2>动画</h2>
-<p>OurJS 提供了一套功能强大，控制灵活的动画引擎。</p>
-<p>在使用动画时，根据关注点的不同，有“关注当前元素的动画效果（在 Element.prototype 上提供的动画）”和“关注整体的动画效果（使用 Animation 创建的动画）”两种类型。</p>
-<p>无论哪种类型的动画，都会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。</p>
+<p>OurJS 提供了一套功能强大、性能优良、控制灵活的动画引擎。</p>
+<p>动画引擎会以一个预设的最大 FPS（通过 Animation.fps 来指定）来播放动画，播放时实际的 FPS 是一个浮动值，具体视计算机的速度而定。当计算机的速度比期望的慢时，动画会以“跳帧”的方式来播放，这样可以确保整个动画的消耗时间尽可能的接近期望值。</p>
 <p>如果页面中的多个（任何类型的）动画同时处于播放状态，动画引擎将同频同步播放这些动画的每一帧，以减少浏览器 reflow 和 repaint 的次数，提高渲染效率，使动画能够播放得更流畅。</p>
-<p>另外，动画的控速函数 100% 兼容 CSS3 的 transition-timing-function。</p>
-
+<p>动画引擎还支持多种事件的监听或回调，如播放每一桢后和全部播放完毕后等。</p>
+<p>另外，动画引擎的控速函数 100% 兼容 CSS3 的 transition-timing-function。</p>
+<p>在使用动画时，可以根据情况选择<strong>在 Element.prototype 上提供的动画</strong>（关注当前元素的动画效果）或<strong>使用 Animation 创建的动画</strong>（关注整体的动画效果）。</p>
 
 <h3>在 Element.prototype 上提供的动画</h3>
-<p>在 Element.prototype 提供的动画主要有 morph/highlight/fade/smoothScroll 几种类型，分别用于平滑渐变、高亮、淡入淡出、平滑滚动的动画效果。</p>
-<p>此类动画是为大多数常见的需求定制的，有灵活的配置，并可以很方便的调用。<p>
-<p>他们的特点有：</p>
+<p>这种动画很容易配置和使用，并为常用的事件提供了回调函数。</p>
+<p>这种动画分为 morph/highlight/fade/smoothScroll 四种类型，分别用于实现平滑渐变、高亮、淡入淡出、平滑滚动的动画效果。</p>
+<p>它们的特点是：</p>
 <ul>
   <li>关注点是当前元素，即只能改变当前元素的样式。</li>
   <li>每次运行都是以元素的当前状态为起点。</li>
-  <li>同类动画效果可以合并。</li>
+  <li>同类动画在连续调用时，将自动合并播放（停止旧的播放新的），其中 fade 类型的动画还会对时间进行合并处理（新动画的最长播放时间为旧动画的已播放时间）。</li>
 </ul>
-<p>简单举例如下：</p>
+<p>举例如下：</p>
 <pre>
 $element.morph({width: '+=100'}, {duration: 2000});
 // 每次调用都会在两秒内将 $element 的宽度增加 100px。
@@ -381,18 +422,18 @@ $element.morph({width: '+=100'}, {duration: 2000});
 </pre>
 
 <h3>使用 Animation 创建的动画</h3>
-<p>此类动画用于需要精确控制动画播放的场景。</p>
+<p>这种动画的配置和使用稍复杂一些，但却能提供更精确的控制手段和更丰富的事件。</p>
 <p>
   可以为 Animation 的实例添加多个动画剪辑，以实现复杂的动画效果和动画队列。<br>
   所有 Animation 的实例都具备 Observable 特性。Animation 还提供了灵活的控制手段，可以随时暂停或倒放。
 </p>
-<p>他们的特点有：</p>
+<p>它们的特点是：</p>
 <ul>
   <li>关注点是动画效果，可以改变多个元素的样式。</li>
   <li>创建时即确定起始和结束状态，可以精确控制，如暂停和倒放。</li>
   <li>支持多个动画剪辑，支持多种事件，能实现复杂的动画效果和动画队列。</li>
 </ul>
-<p>简单举例如下：</p>
+<p>举例如下：</p>
 <pre>
 var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {
   borderLeftWidth: 10,
@@ -459,20 +500,22 @@ getUserinfo.send({userid: 32768});
 </blockquote>
 
 <h2>Widgets</h2>
-<p>Widgets 即常见的、可重用的功能模块。是 OurJS 为简化开发而设计的一个重要角色。</p>
+<p>OurJS 提供的 Widgets 是一类特殊的元素，可以把一个 Widget 视为一种“<strong>高级可替换元素</strong>”。</p>
 <p>
-  OurJS 提供的 Widgets 是一类特殊的元素，可以把 Widget 视为元素的“升级版”。<br>
   当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
-  由于 Widgets 的本质仍然是元素，因此其新增的事件类型仍使用 OurJS 提供的事件模型，即这些事件产生的事件对象是可以在 DOM 树中传递的，并且可以被代理。
+  由于 Widgets 的本质仍然是元素，因此其新增的事件类型仍使用 OurJS 为 DOM 对象提供的事件模型，即这些事件产生的事件对象是可以在 DOM 树中传递的，并且可以被代理。
 </p>
-<p>一些 Widgets 甚至不需要写任何脚本去初始化，使用起来很简单。</p>
+<p>一些 Widgets 甚至不需要写任何脚本去初始化，即可直接使用。</p>
 
 <h3>基本用法</h3>
 <p>以“模态对话框（Dialog）”为例，要将一个元素“升级”为 Dialog Widget，首先应确保页面载入了对应的 Widget 解析脚本：</p>
 <pre>&lt;script src="path/to/widgets/dialog.js"&gt;&lt;/script&gt;</pre>
-<p>然后在目标元素上添加一个格式为 widget-<strong title="Widget 的类型">type</strong> 的 class，并使用 data-<strong title="Widget 配置项">config</strong>=<strong title="Widget 配置项的值">"value"</strong> 属性来定义 Widget 的配置即可：</p>
+<p>然后在目标元素上添加一个格式为 widget-<strong>type</strong> 的 class，并使用 data-<strong>config</strong>="<strong>value</strong>" 属性来定义 Widget 的配置即可<sup>1</sup>：</p>
 <pre>&lt;div id="notice" class="widget-dialog" data-animation="slide"&gt;&lt;/div&gt;</pre>
 <p>这样，目标元素就变成了一个 Dialog Widget，它将具备新的特性（具体请参考“Widget - 模态对话框”的说明文档）。对这个 Dialog Widget 的操作在 domready 事件发生后即可进行。</p>
+<ol class="comment">
+  <li>其中 <strong>type</strong> 表示 Widget 的类型，<strong>config</strong> 和 <strong>value</strong> 表示 Widget 的可配置项及其值。</li>
+</ol>
 
 <h3>定制和扩展</h3>
 <p>Widget 本质仍是一个元素，因此其外观仍和其他普通元素一样可以定制：</p>
@@ -500,8 +543,8 @@ $notice.close();
 // 执行该元素的 close 方法时，会自动触发 close 事件（这个事件是可以冒泡和被代理的）。
 </pre>
 
-<h3>创建新的 Widget</h3>
-<p>当需要创建新的 Widget 时，使用 Widget.register(type, parser) 方法即可。该方法的参数请参考 API 文档。</p>
+<h3>设计新的 Widget</h3>
+<p>当需要设计新的 Widget 时，可以参考已有的 Widget 代码进行设计。</p>
 
 <blockquote>
   <p>关于 Widgets 的更多说明信息及演示请参考 <a href="../widgets/" target="_blank" class="link">Widgets</a> 菜单中的各项内容。</p>

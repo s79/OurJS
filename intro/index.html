@@ -8,7 +8,7 @@
 <script src="../scripts/prettify.js"></script>
 <link rel="stylesheet" href="../stylesheets/prettify.css">
 <style>
-h3 strong { color: #BE1D2C; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2); }
+strong em { color: #BE1D2C; font-style: normal; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2); }
 .comment p { margin: 0; }
 .comment pre { margin-top: 5px; border-color: silver; background-color: #F8F8F8; }
 </style>
@@ -24,15 +24,14 @@ document.on('domready', function() {
 </head>
 <body>
 <div id="content" data-outline="enabled">
-<!--
-<h1>选择开发框架或类库</h1>
-<p>现在，JavaScript 的使用人群已经非常广，它在 WEB 开发中有着无可替代的位置，为简化开发而设计的各种框架或类库也层出不穷。</p>
-<p>在着手一个项目时，怎样选择合适的框架或类库，是一个值得考虑的问题。如果你正面临这个选择，不妨从以下三点进行考量：</p>
+<h1>OurJS 简介</h1>
+<p>现在，JavaScript 的应用范围已经非常广，它在 WEB 开发中有着无可替代的位置，为简化开发而设计的各种框架或类库也层出不穷。</p>
+<p>在为一个项目选择合适的框架或类库时，不妨从以下三点进行考量：</p>
 <ul>
   <li>
     <p class="referral">
       <strong>预期目标能否达成</strong><br>
-      能够“帮助开发者顺利的达成预期目标”是所有框架或类库都会努力追求的，但若从功能和细节的完善度上来讲，仍各有千秋。<br>
+      所有框架或类库都会努力“帮助开发者顺利的达成预期目标”，但从功能和细节的完善度上来讲，仍各有千秋。<br>
       如果功能或细节不够完善，可能导致最终实现与期望的结果出现偏差，甚至无法实现某些需求。
     </p>
     <p class="comment">- 有 BUG！测试一下……似乎做不到……我得去搜一个……只能换一种方式了……好吧，先凑合差不多就行……</p>
@@ -43,22 +42,24 @@ document.on('domready', function() {
       每个人都希望开发过程是轻松愉快的。<br>
       如果感觉到被束缚住，或者意外频发，整个开发过程难免会感觉疲惫。
     </p>
-    <p class="comment">- 好长的命名空间……一定要这样么？类？嗯……implement……extend……这还是 JS 吗？我要怎么写才对？噢！原来这个 this 的值是……访问这个属性得拆开包装……</p>
+    <p class="comment">- 好长的命名空间……一定要这样么？……implement？extend？我要怎么写才对？噢！原来这个 this 的值是……访问这个属性得拆开包装……</p>
+    <p class="referral">
+      另外，翔实的文档和示例，也可以帮助开发者轻松的解决开发中遇到的问题。<br>
+      如果文档结构不清晰、叙述含糊，不但查找起来耗费精力，在找到目标后也可能依然无法对开发者产生实质性的帮助。
+    </p>
+    <p class="comment">- 这个方法的说明在哪？要在这页全文查找么？……原来有四种写法……还是不明白和另一个方法有什么本质区别……</p>
   </li>
   <li>
     <p class="referral">
       <strong>后期维护是否便利</strong><br>
       项目的代码应该有良好的可读性，功能有良好的可扩展性。<br>
-      如果代码的耦合度很高，或有不易于扩展的结构，那么这个产品的后期维护将成为令人头疼的问题。
+      如果必须依赖大量注释才能看懂代码，或者代码的耦合度很高，那么这个项目的后期维护将成为令人头疼的问题。
     </p>
-    <p class="comment">- 什么？又要加功能？呃……看来这部分代码要重构了……最好交给别人去做吧……</p>
+    <p class="comment">- 什么？又要加功能？呃……看来这部分代码要重构了……还是打个补丁好了……</p>
   </li>
 </ul>
-<p>如果说以上三点都有其各自的坐标轴，那么每个框架或类库都有其自己的定位。当然，在不同的环境下，没有“最好”的，只有“最合适”的。</p>
--->
-
-<h1>OurJS 简介</h1>
-<p>OurJS 是一个适用于 WEB 开发的 JavaScript 框架，它能让开发者使用可预期的 API 自由的编程，写出具备良好的兼容性、可读性和扩展性的代码。</p>
+<p>如果说以上三点都有其各自的坐标轴，那么每个框架或类库都有其自己的定位。当然，在不同的环境下，只有“最合适”的，没有“最好”的。</p>
+<p><strong><em>OurJS</em></strong> 是一个适用于 WEB 开发的 JavaScript 框架，它提供了覆盖面广、细节完善的功能，并能让开发者使用可预期的 API，写出具备良好的兼容性、可读性和扩展性的代码。</p>
 <blockquote>
   <p>
     OurJS 完全兼容 PC 端的 IE6+、Firefox、Chrome、Safari、Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。
@@ -66,15 +67,15 @@ document.on('domready', function() {
 </blockquote>
 
 <h2>特点</h2>
-<h3><strong>化繁为简</strong> —— 以简单直接的方式，提供易于理解和使用的功能。</h3>
+<h3><strong><em>化繁为简</em></strong> —— 以简单直接的方式，提供易于理解和使用的功能。</h3>
 <ul>
   <li>
-    <p class="referral">提供尽可能少的自定义 API 的数量。</p>
+    <p class="referral">提供尽可能少的自定义 API。</p>
     <p class="comment">一些标准（或已成为事实标准的） API 不能被所有浏览器兼容，因此 OurJS 为各浏览器做了补缺处理，以让尽可能多的标准 API 能够在各浏览器中通用。这样就不必提供具有类似功能的新 API 了，标准 API 更易于记忆和使用。</p>
     <div class="comment">
       <p>数组的 forEach 方法是 ECMAScript 5 引入的，IE6 IE7 IE8 并不支持，只有在较新版本的浏览器中才能使用，但现在可以放心使用了：</p>
       <pre>anArray.<strong>forEach</strong>(function(item) {...});</pre>
-      <p>ECMAScript 5 的 JSON 对象原本在 IE6 IE7 中是不支持的，但现在它们支持了：</p>
+      <p>ECMAScript 5 的 JSON 对象原本在 IE6 IE7 中是不支持的，在 IE8 中的实现也有问题，但现在它们都可以完美支持了：</p>
       <pre>var data = <strong>JSON</strong>.parse('{"state": "active", "score": 32768}');</pre>
       <p>HTML5 的 localStorage 对象原本在 IE6 IE7 中是不支持的，但现在它们支持了：</p>
       <pre><strong>localStorage</strong>.setItem('foo', 'bar');</pre>
@@ -93,7 +94,7 @@ document.on('domready', function() {
       <p>IE6 本来并不支持 CSS2 引入的固定定位，但现在支持了：</p>
 <pre>
 &lt;div style="position: fixed; right: 0; bottom: 0;"&gt;...&lt;/div&gt;
-// 希望取消固定定位时，可以使用 element.setStyle/setStyles 方法修改 position 的值。
+&lt;!-- 希望取消固定定位时，可以使用 element.setStyle/setStyles 方法修改 position 的值。 --&gt;
 </pre>
       <p>IE6 IE7 IE8 的事件模型与其他浏览器不同，但现在可以通过 element.on/off/fire 方法来统一实现事件监听器的添加、删除及触发指定的事件了：</p>
 <pre>
@@ -126,17 +127,17 @@ element.<strong>on</strong>('click', function(e) {...});
   </p>
 </blockquote>
 
-<h3><strong>功能完善</strong> —— 提供的功能覆盖面广、细节完善，可以满足 WEB 开发中的绝大多数需求。</h3>
+<h3><strong><em>功能完善</em></strong> —— 提供的功能覆盖面广、细节完善，可以满足 WEB 开发中的绝大多数需求。</h3>
 <ul>
   <li>
     <p>OurJS 提供的功能包括原生 JS 对象扩展、DOM 对象兼容性处理、客户端参数检测、数据存储、跨域通信、动画、远程请求、模版、Widgets 等。</p>
   </li>
   <li>
-    <p>每个功能都经过长期实践，其行为和细节更完善，其设计粒度更符合常见的应用场景。</p>
+    <p>每个功能都经过长期实践，细节更加完善，设计粒度也更符合常见的应用场景。</p>
   </li>
 </ul>
 
-<h3><strong>风格一致</strong> —— 提供的 API 与原生 JS 和 DOM 的语法习惯一致，便于理解和记忆。</h3>
+<h3><strong><em>风格一致</em></strong> —— 提供的 API 与原生 JS 和 DOM 的语法习惯一致，便于理解和记忆。</h3>
 <ul>
   <li>
     <p class="referral">
@@ -170,7 +171,7 @@ element.<strong>on</strong>('click', function(e) {...});
   </li>
 </ul>
 
-<h3><strong>易于扩展</strong> —— 不论是要扩展框架本身，还是扩展应用，OurJS 均提供了简易的方式。</h3>
+<h3><strong><em>易于扩展</em></strong> —— 不论是要扩展框架本身，还是扩展应用，OurJS 均提供了简易的方式。</h3>
 <ul>
   <li>
     <p class="referral">要为基础类型的对象扩展功能，扩展其构造器的 prototype 即可（不建议扩展 Object.prototype）。</p>
@@ -178,11 +179,17 @@ element.<strong>on</strong>('click', function(e) {...});
   </li>
   <li>
     <p class="referral">按照 OurJS 的 Widget 编写规范，可以根据需要随时添加新的 Widget。</p>
-    <p class="comment">OurJS 并没有提供“继承”机制，建议使用更灵活的“组合”方式进行扩展。</p>
+    <p class="comment">
+      使用 Widget 来实现 UI 组件，可以避免同时管理一个 UI 组件的 DOM 对象和逻辑对象而带来的复杂度的增加。<br>
+      可以对已有的 Widget 进行扩展，OurJS 并没有提供“继承”机制，建议使用更灵活的“组合”方式进行扩展。
+    </p>
   </li>
   <li>
     <p class="referral">使用事件系统在各模块间通信。</p>
-    <p class="comment">Observable 提供的事件机制可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。</p>
+    <p class="comment">
+      Observable 提供的事件机制可以处理任意多的事件类型，可以根据情况随时添加新的事件类型，并在对应的监听器中进行必要的处理。<br>
+      另外，使用“组合事件监听”，可以很容易的实现事件总线、异步队列等功能，这可以为复杂的业务逻辑进行解耦，使代码更容易维护和扩展。
+    </p>
   </li>
 </ul>
 

@@ -7,12 +7,7 @@
 <script src="../../widgets/calendar.js"></script>
 </head>
 <body>
-<div id="calendar" class="widget-calendar"></div>
-<script>
-$('#calendar').on('cellupdate', function(e) {
-  e.cell.title = e.date.format();
-});
-</script>
+<div class="widget-calendar" data-first-day="1"></div>
 
 </body>
 </html>

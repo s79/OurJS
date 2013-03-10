@@ -5,10 +5,9 @@
 <title>Dialog</title>
 <script src="../../our.js"></script>
 <script src="../../widgets/dialog.js"></script>
-<script src="simple_dialog.js"></script>
 <style>
 blockquote { margin: 25px 50px; padding: 10px; border: 2px solid darkseagreen; background: whitesmoke; font: 14px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
-#test { width: 360px; height: 270px; }
+#dialog { width: 360px; height: 220px; padding: 10px; border: 5px solid steelblue; background: white; outline: none; font: 14px/30px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
 </style>
 </head>
 <body>
@@ -25,20 +24,15 @@ blockquote { margin: 25px 50px; padding: 10px; border: 2px solid darkseagreen; b
 <!-- } 测试遮盖层的功能 -->
 
 <!-- 模态对话框 { -->
-<div id="test" class="widget-simple-dialog">
-  <div class="content">一二三四五六七八九十</div>
+<div id="dialog" class="widget-dialog">
+  <button onclick="$dialog.close();">关闭对话框</button>
 </div>
 <!-- } 模态对话框 -->
 
-<button id="open">打开对话框</button>
+<button onclick="$dialog.open();">打开对话框</button>
 
 <script>
-document.on('domready', function() {
-  var $test = $('#test');
-  $('#open').on('click', function(e) {
-    $test.open();
-  });
-});
+var $dialog = $('#dialog');
 </script>
 
 </body>

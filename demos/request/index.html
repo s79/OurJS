@@ -15,8 +15,9 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   <h1>远程请求</h1>
 
   <h2>Request</h2>
+  <!-- XHR { -->
   <fieldset>
-    <legend>使用 Request 进行同域请求</legend>
+    <legend>使用 XHR 模式进行同域请求</legend>
     <div id="logger_xhr" class="widget-logger" style="height: 200px;" data-clearable></div>
     <blockquote>
       <button id="send_txt">send (data.txt)</button>
@@ -67,8 +68,9 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 
   });
   </script>
+  <!-- } XHR -->
 
-  <h2>JSONP</h2>
+  <!-- JSONP { -->
   <fieldset>
     <legend>使用 JSONP 模式进行跨域请求</legend>
     <div id="logger_jsonp" class="widget-logger" style="height: 200px;" data-clearable></div>
@@ -105,6 +107,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 
   });
   </script>
+  <!-- } JSONP -->
 
 </div>
 </body>

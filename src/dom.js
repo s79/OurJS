@@ -2243,10 +2243,12 @@
     };
     triggerDomReadyEvent = function(_, domIsReady) {
       // http://bugs.jquery.com/ticket/5443
-      if (domIsReady || document.readyState === 'complete') {
+      if (doBodyCheck && (domIsReady || document.readyState === 'complete')) {
         document.detachEvent('onreadystatechange', triggerDomReadyEvent);
         window.detachEvent('onload', triggerDomReadyEvent);
         doBodyCheck();
+        // 避免多次触发。
+        doBodyCheck = null;
       }
     };
     document.attachEvent('onreadystatechange', triggerDomReadyEvent);
