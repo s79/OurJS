@@ -1,5 +1,5 @@
 /**
- * @fileOverview OurJS 开发版。
+ * @fileOverview OurJS 开发版
  * @author sundongguo@gmail.com
  * @version 20120213
  */

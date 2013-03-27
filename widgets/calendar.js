@@ -1,5 +1,5 @@
 ﻿/**
- * @fileOverview Widget - 月历。
+ * @fileOverview Widget - 月历
  * @author sundongguo@gmail.com
  * @version 20121024
  */

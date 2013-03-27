@@ -1,5 +1,5 @@
 ﻿/**
- * @fileOverview Widget - 滚动框。
+ * @fileOverview Widget - 滚动框
  * @author sundongguo@gmail.com
  * @version 20130216
  */

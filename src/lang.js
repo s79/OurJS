@@ -1,5 +1,5 @@
 /**
- * @fileOverview JavaScript 原生对象补缺及扩展。
+ * @fileOverview JavaScript 原生对象补缺及扩展
  * @version 20111101
  * @author: sundongguo@gmail.com
  */
@@ -808,7 +808,7 @@
    *   // {a: 1, b: 0}
    *   Object.mixin({a: 0, b: 0}, {a: 1, b: 1}, {whiteList: ['a', 'b'], blackList: ['a']});
    *   // {a: 0, b: 1}
-   * */
+   */
   Object.mixin = function(destination, source, filter) {
     var keys = Object.keys(source);
     if (filter) {

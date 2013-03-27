@@ -1,5 +1,5 @@
 /**
- * @fileOverview Widget - 演示区。
+ * @fileOverview Widget - 演示区
  * @author sundongguo@gmail.com
  * @version 20121210
  */

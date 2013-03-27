@@ -1,5 +1,5 @@
 /**
- * @fileOverview Widget - 自动提词机。
+ * @fileOverview Widget - 自动提词机
  * @author sundongguo@gmail.com
  * @version 20120905
  */

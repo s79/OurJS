@@ -1,12 +1,12 @@
 /*!
- * Highcharts adapter for OurJS.
+ * Highcharts adapter for OurJS
  *  Highcharts version: v2.3.3 (2012-06-08 <未测试全部功能>)
  *  Highstock version: v1.2.4 (2012-10-11)
  *  Highcharts license: www.highcharts.com/license
  */
 
 /**
- * @fileOverview 为 Highcharts 提供的适配器。
+ * @fileOverview Highcharts 适配器
  * @author sundongguo@gmail.com
  * @version 20120808
  */

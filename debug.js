@@ -1,10 +1,10 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130311
+ *  Version: 20130326
  */
 /**
- * @fileOverview JavaScript 原生对象补缺及扩展。
+ * @fileOverview JavaScript 原生对象补缺及扩展
  * @version 20111101
  * @author: sundongguo@gmail.com
  */
@@ -813,7 +813,7 @@
    *   // {a: 1, b: 0}
    *   Object.mixin({a: 0, b: 0}, {a: 1, b: 1}, {whiteList: ['a', 'b'], blackList: ['a']});
    *   // {a: 0, b: 1}
-   * */
+   */
   Object.mixin = function(destination, source, filter) {
     var keys = Object.keys(source);
     if (filter) {
@@ -1281,7 +1281,7 @@
 
 })();
 /**
- * @fileOverview 浏览器 API 扩展。
+ * @fileOverview 浏览器 API 扩展
  * @author sundongguo@gmail.com
  * @version 20111201
  */
@@ -1900,7 +1900,7 @@
 
 })();
 /**
- * @fileOverview DOM 对象补缺及扩展。
+ * @fileOverview DOM 对象补缺及扩展
  * @author sundongguo@gmail.com
  * @version 20111115
  */
@@ -4729,15 +4729,15 @@
 
 })();
 /**
- * @fileOverview 事件目标。
+ * @fileOverview EventTarget
  * @author sundongguo@gmail.com
  * @version 20120820
  */
 
 (function() {
-//==================================================[事件目标]
+//==================================================[EventTarget]
   /*
-   * 事件目标是为 JS 对象提供的事件模型中的一个概念。
+   * EventTarget 是为 JS 对象提供的事件模型中的一个概念。
    * 在 DOM 范畴内，也有 EventTarget 的概念，但这是一个内部接口，并不暴露在脚本环境中。
    * 为避免混淆，当提及 EventTarget 对象时，只应指代通过调用本对象的 create 方法而获得的对象。
    *
@@ -4802,62 +4802,12 @@
 
 //--------------------------------------------------[EventTarget]
   /**
-   * 事件目标。
+   * 通过调用 new EventTarget() 获得的新对象，或经过 EventTarget.create(object) 处理后的 object 对象，都将具备处理事件的能力，它们都可以被叫做一个 EventTarget 对象。
    * @name EventTarget
    * @constructor
    * @description
-   *   通过调用 new EventTarget() 获得的新对象，或经过 EventTarget.create(object) 处理后的 object 对象，都将具备处理事件的能力，它们都可以被叫做一个 EventTarget 对象。
    *   EventTarget 对象在处理事件时，是工作在 JS 事件模型中的。
    *   window、document 和 Element 对象也都具备处理事件的能力，但它们是工作在 DOM 事件模型中的。
-   *   这两种事件模型的共同点有：
-   *   <ul>
-   *     <li>均使用 on 方法添加事件监听器。</li>
-   *     <li>均使用 off 方法删除已添加的事件监听器，并且它们的参数的含义也一致。</li>
-   *     <li>均使用 fire 方法触发一个事件，并且它们的参数的含义也一致。</li>
-   *   </ul>
-   *   它们之间的差异：
-   *   <table>
-   *     <tr>
-   *       <th></th>
-   *       <th>DOM 事件模型</th>
-   *       <th>JS 事件模型</th>
-   *     </tr>
-   *     <tr>
-   *       <th>应用范围</th>
-   *       <td>window 对象、document 对象和所有 Element 对象均自动具备 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</td>
-   *       <td>只有 EventTarget 对象才会具备 on、off 和 fire 方法来添加、删除事件监听器和触发一个事件。</td>
-   *     </tr>
-   *     <tr>
-   *       <th>事件对象的<br>创建方式</th>
-   *       <td>可能是在特定的行为发生时由浏览器自动创建的，也可能是由 fire 方法创建的。</td>
-   *       <td>只能由 fire 方法创建。</td>
-   *     </tr>
-   *     <tr>
-   *       <th>事件对象的<br>属性和方法</th>
-   *       <td>事件对象有多个属性和方法，其中“键盘事件”和“鼠标事件”还有各自的附加属性。也可以在调用 fire 方法时附加其他自定义属性。</td>
-   *       <td>事件对象默认只有 type 和 target 两个属性，也可以在调用 fire 方法时附加其他自定义属性。</td>
-   *     </tr>
-   *     <tr>
-   *       <th>事件对象的<br>传播特性</th>
-   *       <td>某些类型的事件对象可以在 DOM 树中传播。</td>
-   *       <td>无此特性。</td>
-   *     </tr>
-   *     <tr>
-   *       <th>事件对象的<br>默认行为</th>
-   *       <td>某些类型的事件对象会有默认行为，并且其中的一部分还可以阻止其默认行为的发生。</td>
-   *       <td>事件对象没有默认行为，通常一个事件都是在某种行为明确的发生之后才触发的。事件对象不会传播，也不会导致其他行为的发生。</td>
-   *     </tr>
-   *     <tr>
-   *       <th>代理事件监听</th>
-   *       <td>可以在调用 on 方法时，使用 :relay(selector) 对可以冒泡的事件进行代理监听。</td>
-   *       <td>不支持。</td>
-   *     </tr>
-   *     <tr>
-   *       <th>组合事件监听</th>
-   *       <td>不支持。</td>
-   *       <td>可以在调用 on 方法时，使用 [masterType>slaveType] 对两种事件进行组合监听。</td>
-   *     </tr>
-   *   </table>
    */
   var EventTarget = window.EventTarget = function() {
     this.eventHandlers = {};
@@ -5008,7 +4958,7 @@
 
 })();
 /**
- * @fileOverview 动画。
+ * @fileOverview 动画
  * @author sundongguo@gmail.com
  * @version 20120412
  */
@@ -5658,7 +5608,7 @@
    *   2. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
    *   3. 支持相对长度，如 '+=10' 表示在现有长度的基础上增加 10 像素，'-=10' 表示在现有长度的基础上减少 10 像素。
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 400。
+   * @param {number} options.duration 播放时间，单位为毫秒，默认为 400。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
    * @param {Function} options.onStart 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
@@ -5702,7 +5652,7 @@
    * @param {string} [color] 高亮颜色，默认为 'yellow'。
    * @param {string} [property] 高亮样式名，默认为 'backgroundColor'。
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 500。
+   * @param {number} options.duration 播放时间，单位为毫秒，默认为 500。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
@@ -5767,7 +5717,7 @@
    *     <tr><td><dfn>out</dfn></td><td>淡出模式。</td></tr>
    *   </table>
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {number} options.duration 播放时间，单位为毫秒，默认为 200。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
    * @param {Function} options.onStart 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
@@ -5853,7 +5803,7 @@
    * @param {number} x 横向滚动坐标，支持相对坐标，如 '+=10' 表示在现有横坐标的基础上向左滚动 10 像素，'-=10' 表示在现有横坐标的基础上向右滚动 10 像素。
    * @param {number} y 纵向滚动坐标，支持相对坐标，如 '+=10' 表示在现有纵坐标的基础上向下滚动 10 像素，'-=10' 表示在现有纵坐标的基础上向上滚动 10 像素。
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位是毫秒，默认为 200。
+   * @param {number} options.duration 播放时间，单位为毫秒，默认为 200。
    * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeInOut'。
    * @param {Function} options.onStart 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
@@ -5931,7 +5881,7 @@
 
 })();
 /**
- * @fileOverview 远程请求。
+ * @fileOverview 远程请求
  * @author sundongguo@gmail.com
  * @version 20120921
  */
@@ -6103,8 +6053,8 @@
    *   如果使用 'get' 方式，应将整个 URL 的长度控制在 2048 个字符以内。
    * @param {boolean} options.useCache 是否允许浏览器的缓存生效，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 false。
    * @param {boolean} options.async 是否使用异步方式，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 true。
-   * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
-   * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
+   * @param {number} options.minTime 请求最短时间，单位为毫秒，默认为 NaN，即无最短时间限制，async 为 true 时有效。
+   * @param {number} options.maxTime 请求超时时间，单位为毫秒，默认为 NaN，即无超时时间限制，async 为 true 时有效。
    * @param {string} options.username 用户名，仅在 XHR 模式下有效，默认为空字符串，即不指定用户名。
    * @param {string} options.password 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
    * @param {Object} options.headers 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
@@ -6294,7 +6244,7 @@
 
 })();
 /**
- * @fileOverview Widget。
+ * @fileOverview Widget
  * @author sundongguo@gmail.com
  * @version 20121008
  */
@@ -6449,7 +6399,7 @@
  */
 
 /**
- * @fileOverview 提供 JSON 对象的补缺。
+ * @fileOverview JSON 对象补缺
  */
 
 /*
@@ -7033,7 +6983,7 @@
  */
 
 /**
- * @fileOverview 提供 CSS 选择器的支持。
+ * @fileOverview CSS 选择器
  */
 
 (function(window, undefined) {

@@ -1,5 +1,5 @@
 /**
- * @fileOverview Widget - 分页导航条。
+ * @fileOverview Widget - 分页导航条
  * @author sundongguo@gmail.com
  * @version 20121021
  */

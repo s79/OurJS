@@ -1,5 +1,5 @@
 /**
- * @fileOverview DOM 对象补缺及扩展。
+ * @fileOverview DOM 对象补缺及扩展
  * @author sundongguo@gmail.com
  * @version 20111115
  */

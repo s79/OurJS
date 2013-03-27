@@ -1,5 +1,5 @@
 /**
- * @fileOverview Widget - 多页标签面板。
+ * @fileOverview Widget - 多页标签面板
  * @author sundongguo@gmail.com
  * @version 20121008
  */

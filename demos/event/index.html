@@ -10,7 +10,7 @@
 .widget-logger { float: right; width: 407px; }
 .demo { float: left; width: 534px; }
 blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
-button samp { padding: 0 5px; border-radius: 3px; background: tomato; }
+button samp { padding: 0 5px; background: tomato; }
 .container { padding: 5px 0 5px 5px; border: 2px solid crimson; background: whitesmoke; *zoom: 1; }
 .container bdo,
 .container cite,
@@ -23,6 +23,7 @@ dl { float: left; width: 210px; margin: 0 5px 5px 0; border: 1px solid silver; b
 dt { height: 16px; padding: 5px; border-bottom: 1px solid silver; background: whitesmoke; color: #333; text-align: center; line-height: 16px; }
 dd { height: 128px; padding: 5px; font: 12px/12px Consolas, 'Lucida Console', Courier, SimSun, monospace; }
 dd p { margin: 2px; padding: 2px; }
+dd var { color: white; }
 dd em { display: inline-block; padding: 0 1px; font-weight: bold; text-decoration: underline; border-radius: 3px; }
 dd em.true { color: yellowgreen; }
 dd em.false { color: tomato; }
@@ -30,58 +31,273 @@ dd em.false { color: tomato; }
 </head>
 <body>
 <div id="content">
-<h1>事件</h1>
+<h1>DOM 事件模型</h1>
 
 <h2>添加和删除事件监听器</h2>
 <!-- on/off { -->
 <fieldset>
   <legend>多监听器添加及删除</legend>
-  <div id="on_off_logger" class="widget-logger" data-clearable></div>
+  <div id="dom_event_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
-    <button id="foo"><samp style="background: mediumseagreen;">~foo~</samp></button>
-    <button id="bar"><samp>-bar-</samp></button>
+    <button id="sample"><samp>$sample</samp></button>
+    <button id="foo"><samp style="background: mediumseagreen;">本元素已添加两个 <em>click</em> 事件监听器 <strong>logId</strong> 和 <strong>logText</strong></samp></button>
+    <blockquote id="dom_on_off_controls">
+      <button><code><samp>$sample</samp>.on('<em>click</em>', <strong>logId</strong>).on('<em>click.logText</em>', <strong>logText</strong>);</code></button>
+      <br>
+      <button><code><samp>$sample</samp>.off('<em>click</em>');</code></button>
+      <br>
+      <button><code><samp>$sample</samp>.off('<em>click.logText</em>');</code></button>
+    </blockquote>
+  </div>
+</fieldset>
+<script>
+var logId = function() {
+  $domEventLogger.log('<strong>id</strong> = <var>' + this.id + '</var>');
+};
+var logText = function() {
+  $domEventLogger.log('<em>text</em> = <var>' + this.innerText + '</var>');
+};
+
+var $domEventLogger = $('#dom_event_logger');
+var $sample = $('#sample');
+
+$('#foo').on('click', logId).on('click', logText);
+
+$('#dom_on_off_controls').on('click:relay(button)', function() {
+  var code = this.innerText;
+  $domEventLogger.log(code);
+  eval(code);
+});
+
+</script>
+<!-- } on/off -->
+
+<h2>事件的默认行为</h2>
+<!-- preventDefault { -->
+<fieldset>
+  <legend>阻止事件的默认行为</legend>
+  <div id="prevent_default_logger" class="widget-logger" data-clearable></div>
+  <div class="demo">
+    <a id="prevent_default_link" href="javascript:alert('链接被点击');">测试链接</a>
     <blockquote>
-      <button id="add">为<samp>bar</samp>添加监听器 logId 和 logText</button>
-      <br>
-      <button id="remove_log_id">解除<samp>bar</samp>的监听器 logId</button>
-      <br>
-      <button id="remove_log_text">解除<samp>bar</samp>的监听器 logText</button>
+      <label><input id="prevent_default_checkbox" type="checkbox" style="vertical-align: text-bottom;"> 阻止测试链接的默认行为</label>（浏览器将不会执行 href 中指定的内容）
     </blockquote>
   </div>
 </fieldset>
 <script>
 document.on('domready', function() {
-  var $logger = $('#on_off_logger');
+  var $logger = $('#prevent_default_logger');
 
-  var logId = function() {
-    $logger.log('<strong>logId</strong>' + this.id);
-  };
-  var logText = function() {
-    $logger.log('<strong>logText</strong>' + this.innerText);
-  };
+  $('#prevent_default_link')
+      .on('click', function(e) {
+        if ($preventDefault.checked) {
+          e.preventDefault();
+        }
+      })
+      .on('click', function() {
+        $logger.log('无论默认行为是否被阻止，监听器都能正常工作。');
+      });
 
-  $('#foo')
-      .on('click', logId)
-      .on('click', logText);
-  $('#add').on('click', function() {
-    $('#bar')
-        .on('click', logId)
-        .on('click.html', logText);
-    $logger.log('已为“bar”添加监听器<em>logId</em>和<em>logText</em>。');
-  });
-
-  $('#remove_log_id').on('click', function() {
-    $('#bar').off('click', logId);
-    $logger.log('已删除“bar”的所有<em>logId</em>监听器。');
-  });
-  $('#remove_log_text').on('click', function() {
-    $('#bar').off('click.html', logText);
-    $logger.log('已删除“bar”的所有<em>logText</em>监听器。');
+  var $preventDefault = $('#prevent_default_checkbox').on('change', function() {
+    $logger.log(this.getParent().innerText.trim() + ': <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
   });
 
 });
 </script>
-<!-- } on/off -->
+<!-- } preventDefault -->
+
+<h2>事件的传播</h2>
+<!-- stopPropagation { -->
+<fieldset>
+  <legend>红色边框的元素上添加了 click 事件监听器</legend>
+  <div id="stop_propagation_logger" class="widget-logger" data-clearable></div>
+  <div class="demo">
+    <div id="stop_propagation" class="container">
+      <bdo>bdo</bdo><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><span>span</span><var>var</var>
+      <p id="propagation_stopped">p</p>
+    </div>
+    <blockquote>
+      <label><input id="stop_propagation_checkbox" type="checkbox" style="vertical-align: text-bottom;"> 取消 P 元素的事件传播</label>
+    </blockquote>
+  </div>
+</fieldset>
+<script>
+document.on('domready', function() {
+  var $logger = $('#stop_propagation_logger');
+
+  $('#stop_propagation').on('click', function(e) {
+    $logger.log('<strong>' + e.target.nodeName + '</strong> &gt; <em>' + this.nodeName + '</em>');
+  });
+
+  $('#propagation_stopped').on('click', function(e) {
+    if ($stopPropagation.checked) {
+      e.stopPropagation();
+    }
+  });
+
+  var $stopPropagation = $('#stop_propagation_checkbox').on('change', function() {
+    $logger.log(this.getParent().innerText.trim() + ': <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+  });
+
+});
+</script>
+<!-- } stopPropagation -->
+
+<!-- stopImmediatePropagation { -->
+<fieldset>
+  <legend>立即停止事件的传播</legend>
+  <div id="stop_immediate_propagation_logger" class="widget-logger" data-clearable></div>
+  <div class="demo">
+    <button id="stop_immediate_propagation_button" style="height: 100px;">本按钮添加了三个事件监听器</button>
+    <blockquote>
+      <label><input id="stop_immediate_propagation_checkbox" type="checkbox" style="vertical-align: text-bottom;"> 在第一个事件监听器中立即阻止事件的传播</label>（后续的监听器将不会被调用）
+    </blockquote>
+  </div>
+</fieldset>
+<script>
+document.on('domready', function() {
+  var $logger = $('#stop_immediate_propagation_logger');
+
+  $('#stop_immediate_propagation_button')
+      .on('click', function(e) {
+        if ($stopImmediatePropagation.checked) {
+          e.stopImmediatePropagation();
+        }
+        $logger.log('<strong>' + e.type + '</strong>第一个监听器已被调用。');
+      })
+      .on('click', function(e) {
+        $logger.log('<em>' + e.type + '</em>第二个监听器已被调用。');
+      })
+      .on('click', function(e) {
+        $logger.log('<em>' + e.type + '</em>第三个监听器已被调用。');
+      });
+
+  var $stopImmediatePropagation = $('#stop_immediate_propagation_checkbox').on('change', function() {
+    $logger.log(this.getParent().innerText.trim() + ': <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+  });
+});
+</script>
+<!-- } stopImmediatePropagation -->
+
+<h2>代理事件监听</h2>
+<!-- delegate { -->
+<fieldset>
+  <legend>红色边框的元素为其所有标签名为 DFN 的后代元素代理监听 mouseenter 和 mouseleave 事件</legend>
+  <div id="relay" class="container" style="padding-bottom: 0; *padding-bottom: 5px;">
+    <bdo>bdo</bdo><dfn id="stop_mouseleave" title="mouseenter 事件传播被阻止">dfn</dfn><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><dfn>dfn</dfn><span>span</span><dfn>dfn</dfn>
+  </div>
+</fieldset>
+<script>
+(function() {
+  $('#relay')
+      .on('mouseenter:relay(dfn)', function() {
+        this.morph({width: 150}).highlight();
+      })
+      .on('mouseleave:relay(dfn)', function() {
+        this.morph({width: 100}).highlight('red', 'color');
+      });
+  $('#stop_mouseleave').on('mouseenter', function(e) {
+    e.stopPropagation();
+  });
+})();
+</script>
+<!-- } delegate -->
+
+<h2>事件对象的属性</h2>
+<!-- properties { -->
+<fieldset>
+  <legend>不同类型的事件对象有不同的属性</legend>
+  <dl>
+    <dt>鼠标和键盘事件共有的属性</dt>
+    <dd id="keyboard_mouse"></dd>
+  </dl>
+  <dl>
+    <dt>鼠标事件特有的属性</dt>
+    <dd id="mouse"></dd>
+  </dl>
+  <dl>
+    <dt>鼠标按键事件特有的属性</dt>
+    <dd id="mouse_press"></dd>
+  </dl>
+  <dl style="margin-right: 0;">
+    <dt>鼠标滚轮事件特有的属性</dt>
+    <dd id="mouse_wheel"></dd>
+  </dl>
+  <blockquote style="clear: both;">
+    <button id="fier_event">一秒钟后触发一个自定义的 mousedown 事件</button>
+    <span id="timer" style="display: inline-block; width: 0; height: 5px; overflow: hidden; vertical-align: bottom;"></span>
+  </blockquote>
+</fieldset>
+<script>
+(function() {
+  var getText = function(event, properties) {
+    var text = '';
+    properties.forEach(function(property) {
+      var value = event[property];
+      if (typeof value === 'boolean') {
+        value = '<em class="' + value + '">' + value + '</em>';
+      }
+      text += '<p>' + property + ': <var>' + value + '</var></p>';
+    });
+    return text;
+  };
+
+  document
+      .on('mousemove, mousedown, keydown', function(e) {
+        $('#keyboard_mouse').innerHTML = getText(e, 'which ctrlKey altKey shiftKey metaKey'.split(' '));
+      })
+      .on('mousemove, mousedown', function(e) {
+        $('#mouse').innerHTML = getText(e, 'clientX clientY screenX screenY pageX pageY'.split(' '));
+      })
+      .on('mousedown', function(e) {
+        $('#mouse_press').innerHTML = getText(e, 'leftButton middleButton rightButton'.split(' '));
+      });
+
+  $('#mouse_wheel').on('mousewheel', function(e) {
+    this.innerHTML = getText(e, 'wheelUp wheelDown'.split(' '));
+    // IE8 会自动 preventDefault，因此建议加上以下这句，以确保各浏览器中行为一致。
+    e.preventDefault();
+  });
+
+  var $fireEvent = $('#fier_event');
+  var $timer = $('#timer');
+  $fireEvent.on('click', function() {
+    $fireEvent.disabled = true;
+    $timer
+        .setStyles({width: 538, backgroundColor: 'lime'})
+        .morph({width: 0, backgroundColor: 'red'}, {
+          duration: 1000,
+          timingFunction: 'linear',
+          onFinish: function() {
+            $fireEvent.disabled = false;
+            document.fire('mousedown', {
+              // 这三个属性不能自定义。
+              type: '#',
+              target: '#',
+              originalEvent: '#',
+              // 其他属性都可以自定义。
+              which: '*',
+              ctrlKey: '*',
+              altKey: '*',
+              shiftKey: '*',
+              metaKey: '*',
+              clientX: '*',
+              clientY: '*',
+              screenX: '*',
+              screenY: '*',
+              pageX: '*',
+              pageY: '*',
+              leftButton: '这些属性值是由 fire 方法传递过来的。',
+              middleButton: '系统事件并未触发。',
+              rightButton: '除 type、target 和 originalEvent 外可以定义任何属性。'
+            });
+          }
+        });
+  });
+
+})();
+</script>
+<!-- } properties -->
 
 <h2>事件的兼容处理</h2>
 <!-- focusin/focusout/input/change { -->
@@ -158,20 +374,20 @@ document.on('domready', function() {
   });
 
   var $textarea = $('#textarea');
-  $('#set_value').on('click', function(e) {
+  $('#set_value').on('click', function() {
     setTimeout(function() {
       $logger.log('$textarea.value=<var>' + ($textarea.value = '使用脚本赋的新值') + '</var>');
     }, 1000);
   });
 
-  var $enableFocusLogging = $('#enable_focus_logging').on('change', function(e) {
-    $logger.log('输出 focusin/focusout 的日志信息: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+  var $enableFocusLogging = $('#enable_focus_logging').on('change', function() {
+    $logger.log(this.getParent().innerText.trim() + ': <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
   });
-  var $enableInputLogging = $('#enable_input_logging').on('change', function(e) {
-    $logger.log('输出 input 的日志信息: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+  var $enableInputLogging = $('#enable_input_logging').on('change', function() {
+    $logger.log(this.getParent().innerText.trim() + ': <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
   });
-  var $enableChangeLogging = $('#enable_change_logging').on('change', function(e) {
-    $logger.log('输出 change 的日志信息: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
+  var $enableChangeLogging = $('#enable_change_logging').on('change', function() {
+    $logger.log(this.getParent().innerText.trim() + ': <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
   });
 
 });
@@ -240,7 +456,7 @@ document.on('domready', function() {
       .on('mousedrag', function(e) {
         $('#drag_msg').innerHTML = '[偏移量] ' + e.offsetX + ' : ' + e.offsetY;
       })
-      .on('mousedragstart:relay(.draggable)', function(e) {
+      .on('mousedragstart:relay(.draggable)', function() {
         currentX = parseInt(this.getStyle('left'), 10);
         currentY = parseInt(this.getStyle('top'), 10);
         this.addClass('dragging');
@@ -251,7 +467,7 @@ document.on('domready', function() {
           top: Math.limit(currentY + e.offsetY, 0, maxY)
         });
       })
-      .on('mousedragend:relay(.draggable)', function(e) {
+      .on('mousedragend:relay(.draggable)', function() {
         this.removeClass('dragging');
       })
       .getLastChild()
@@ -273,232 +489,82 @@ document.on('domready', function() {
 </script>
 <!-- } mousedragstart/mousedrag/mousedragend -->
 
-<h2>事件的默认行为</h2>
-<!-- preventDefault { -->
+<h1 style="margin-top: 100px;">JS 事件模型</h1>
+
+<h2>添加和删除事件监听器</h2>
+<!-- on/off { -->
 <fieldset>
-  <legend>阻止事件的默认行为</legend>
-  <div id="prevent_default_logger" class="widget-logger" data-clearable></div>
+  <legend>多监听器添加及删除</legend>
+  <div id="js_event_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
-    <a id="prevent_default_link" href="javascript:alert('链接被点击');">测试链接</a>
-    <blockquote>
-      <label><input id="prevent_default_checkbox" type="checkbox" style="vertical-align: text-bottom;"> 阻止测试链接的默认行为（浏览器将不会执行 href 中指定的内容）</label>
+    <blockquote id="js_on_off_controls">
+      <button><code><strong>obj</strong>.on('<em>foo</em>', <strong>logProperty</strong>).on('<em>bar.logEvent</em>', <strong>logEvent</strong>);</code></button>
+      <br>
+      <button><code><strong>obj</strong>.off('<em>foo</em>');</code></button>
+      <br>
+      <button><code><strong>obj</strong>.off('<em>bar.logEvent</em>');</code></button>
+      <br>
+      <button><code><strong>obj</strong>.fire('<em>foo</em>');</code></button>
+      <br>
+      <button><code><strong>obj</strong>.fire('<em>bar</em>');</code></button>
     </blockquote>
   </div>
 </fieldset>
 <script>
-document.on('domready', function() {
-  var $logger = $('#prevent_default_logger');
+var $jsEventLogger = $('#js_event_logger');
+var obj = new EventTarget();
+obj.text = 'Hello World!';
 
-  $('#prevent_default_link')
-      .on('click', function(e) {
-        if ($preventDefault.checked) {
-          e.preventDefault();
-        }
-      })
-      .on('click', function(e) {
-        $logger.log('无论默认行为是否被阻止，监听器都能正常工作。');
-      });
+var logProperty = function() {
+  $jsEventLogger.log('<strong>obj.text</strong> = <var>' + this.text + '</var>');
+};
+var logEvent = function(e) {
+  $jsEventLogger.log('<em>Event keys</em> = <var>' + JSON.stringify(Object.keys(e)) + '</var>');
+};
 
-  var $preventDefault = $('#prevent_default_checkbox').on('change', function(e) {
-    $logger.log('阻止测试链接的默认行为: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
-  });
-
+$('#js_on_off_controls').on('click:relay(button)', function() {
+  var code = this.innerText;
+  $jsEventLogger.log(code);
+  eval(code);
 });
-</script>
-<!-- } preventDefault -->
 
-<h2>事件的传播</h2>
-<!-- stopPropagation { -->
+</script>
+<!-- } on/off -->
+
+<h2>组合事件监听</h2>
+<!-- combination { -->
 <fieldset>
-  <legend>红色边框的元素上添加了 click 事件监听器</legend>
-  <div id="stop_propagation_logger" class="widget-logger" data-clearable></div>
+  <legend>监听的组合事件类型为 <code>[test>foo]</code> 和 <code>[test>bar]</code></legend>
+  <div id="js_combination_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
-    <div id="stop_propagation" class="container">
-      <bdo>bdo</bdo><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><span>span</span><var>var</var>
-      <p id="propagation_stopped">p</p>
-    </div>
-    <blockquote>
-      <label><input id="stop_propagation_checkbox" type="checkbox" style="vertical-align: text-bottom;"> 取消 P 元素的事件传播</label>
+    <blockquote id="js_combination_controls">
+      <button><code><strong>eventTarget</strong>.fire('<em>foo</em>', {data: 'A'});</code></button>
+      <br>
+      <button><code><strong>eventTarget</strong>.fire('<em>foo</em>', {data: 'B'});</code></button>
+      <br>
+      <button><code><strong>eventTarget</strong>.fire('<em>bar</em>', {data: 'A'});</code></button>
+      <br>
+      <button><code><strong>eventTarget</strong>.fire('<em>bar</em>', {data: 'B'});</code></button>
+      <br>
+      <button><code><strong>eventTarget</strong>.fire('<em>test</em>', {flag: true});</code></button>
+      <br>
+      <button><code><strong>eventTarget</strong>.fire('<em>test</em>', {flag: false});</code></button>
     </blockquote>
   </div>
 </fieldset>
 <script>
-document.on('domready', function() {
-  var $logger = $('#stop_propagation_logger');
-
-  $('#stop_propagation').on('click', function(e) {
-    $logger.log('<strong>' + e.target.nodeName + '</strong> » <em>' + this.nodeName + '</em>');
-  });
-
-  $('#propagation_stopped').on('click', function(e) {
-    if ($stopPropagation.checked) {
-      e.stopPropagation();
-    }
-  });
-
-  var $stopPropagation = $('#stop_propagation_checkbox').on('change', function(e) {
-    $logger.log('取消 P 元素的事件传播: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
-  });
-
+var $jsCombinationLogger = $('#js_combination_logger');
+var eventTarget = new EventTarget();
+eventTarget.on('[test>foo], [test>bar]', function(e1, e2) {
+  $jsCombinationLogger.log('<strong>' + e1.flag + '</strong>&gt;<strong>' + e2.type + '</strong>-<em>' + e2.data + '</em>');
+});
+$('#js_combination_controls').on('click:relay(button)', function() {
+  var code = this.innerText;
+  $jsCombinationLogger.log(code);
+  eval(code);
 });
 </script>
-<!-- } stopPropagation -->
-
-<!-- stopImmediatePropagation { -->
-<fieldset>
-  <legend>立即停止事件的传播</legend>
-  <div id="stop_immediate_propagation_logger" class="widget-logger" data-clearable></div>
-  <div class="demo">
-    <button id="stop_immediate_propagation_button" style="height: 100px;">本按钮添加了三个事件监听器</button>
-    <blockquote>
-      <label><input id="stop_immediate_propagation_checkbox" type="checkbox" style="vertical-align: text-bottom;"> 在第一个事件监听器中立即阻止事件的传播（后续的监听器将不会被调用）</label>
-    </blockquote>
-  </div>
-</fieldset>
-<script>
-document.on('domready', function() {
-  var $logger = $('#stop_immediate_propagation_logger');
-
-  $('#stop_immediate_propagation_button')
-      .on('click', function(e) {
-        if ($stopImmediatePropagation.checked) {
-          e.stopImmediatePropagation();
-        }
-        $logger.log('<strong>' + e.type + '</strong>第一个监听器已运行。');
-      })
-      .on('click', function(e) {
-        $logger.log('<em>' + e.type + '</em>第二个监听器已运行。');
-      })
-      .on('click', function(e) {
-        $logger.log('<em>' + e.type + '</em>第三个监听器已运行。');
-      });
-
-  var $stopImmediatePropagation = $('#stop_immediate_propagation_checkbox').on('change', function(e) {
-    $logger.log('在第一个事件监听器中立即阻止事件的传播: <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
-  });
-});
-</script>
-<!-- } stopImmediatePropagation -->
-
-<h2>代理事件监听</h2>
-<!-- delegate { -->
-<fieldset>
-  <legend>红色边框的元素为其所有标签名为 DFN 的后代元素代理监听 mouseenter 和 mouseleave 事件</legend>
-  <div id="relay" class="container" style="padding-bottom: 0; *padding-bottom: 5px;">
-    <bdo>bdo</bdo><dfn id="stop_mouseleave" title="mouseenter 事件传播被阻止">dfn</dfn><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><dfn>dfn</dfn><span>span</span><dfn>dfn</dfn>
-  </div>
-</fieldset>
-<script>
-(function() {
-  $('#relay')
-      .on('mouseenter:relay(dfn)', function() {
-        this.morph({width: 150}).highlight();
-      })
-      .on('mouseleave:relay(dfn)', function() {
-        this.morph({width: 100}).highlight('red', 'color');
-      });
-  $('#stop_mouseleave').on('mouseenter', function(e) {
-    e.stopPropagation();
-  });
-})();
-</script>
-<!-- } delegate -->
-
-<h2>事件对象的属性</h2>
-<!-- properties { -->
-<fieldset>
-  <legend>不同类型的事件对象有不同的属性</legend>
-  <dl>
-    <dt>鼠标和键盘事件共有的属性</dt>
-    <dd id="keyboard_mouse"></dd>
-  </dl>
-  <dl>
-    <dt>鼠标事件特有的属性</dt>
-    <dd id="mouse"></dd>
-  </dl>
-  <dl>
-    <dt>鼠标按键事件特有的属性</dt>
-    <dd id="mouse_press"></dd>
-  </dl>
-  <dl style="margin-right: 0;">
-    <dt>鼠标滚轮事件特有的属性</dt>
-    <dd id="mouse_wheel"></dd>
-  </dl>
-  <blockquote style="clear: both;">
-    <button id="fier_event">一秒钟后触发一个自定义的 mousedown 事件</button>
-    <span id="timer" style="display: inline-block; width: 0; height: 5px; overflow: hidden; vertical-align: bottom;"></span>
-  </blockquote>
-</fieldset>
-<script>
-(function() {
-  var getText = function(event, properties) {
-    var text = '';
-    properties.forEach(function(property) {
-      var value = event[property];
-      if (typeof value === 'boolean') {
-        value = '<em class="' + value + '">' + value + '</em>';
-      }
-      text += '<p>' + property + ': ' + value + '</p>';
-    });
-    return text;
-  };
-
-  document
-      .on('mousemove, mousedown, keydown', function(e) {
-        $('#keyboard_mouse').innerHTML = getText(e, 'which ctrlKey altKey shiftKey metaKey'.split(' '));
-      })
-      .on('mousemove, mousedown', function(e) {
-        $('#mouse').innerHTML = getText(e, 'clientX clientY screenX screenY pageX pageY'.split(' '));
-      })
-      .on('mousedown', function(e) {
-        $('#mouse_press').innerHTML = getText(e, 'leftButton middleButton rightButton'.split(' '));
-      });
-
-  $('#mouse_wheel').on('mousewheel', function(e) {
-    this.innerHTML = getText(e, 'wheelUp wheelDown'.split(' '));
-    // IE8 会自动 preventDefault，因此建议加上以下这句，以确保各浏览器中行为一致。
-    e.preventDefault();
-  });
-
-  var $fireEvent = $('#fier_event');
-  var $timer = $('#timer');
-  $fireEvent.on('click', function() {
-    $fireEvent.disabled = true;
-    $timer
-        .setStyles({width: 538, backgroundColor: 'lime'})
-        .morph({width: 0, backgroundColor: 'red'}, {
-          duration: 1000,
-          timingFunction: 'linear',
-          onFinish: function() {
-            $fireEvent.disabled = false;
-            document.fire('mousedown', {
-              // 这三个属性不能自定义。
-              type: '#',
-              target: '#',
-              originalEvent: '#',
-              // 其他属性都可以自定义。
-              which: '*',
-              ctrlKey: '*',
-              altKey: '*',
-              shiftKey: '*',
-              metaKey: '*',
-              clientX: '*',
-              clientY: '*',
-              screenX: '*',
-              screenY: '*',
-              pageX: '*',
-              pageY: '*',
-              leftButton: '这些属性值是由 fire 方法传递过来的。',
-              middleButton: '系统事件并未触发。',
-              rightButton: '除 type、target 和 originalEvent 外可以定义任何属性。'
-            });
-          }
-        });
-  });
-
-})();
-</script>
-<!-- } properties -->
+<!-- } combination -->
 
 </div>
 </body>

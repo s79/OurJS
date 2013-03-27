@@ -1,5 +1,5 @@
 ﻿/**
- * @fileOverview Widget - 日期选择器。
+ * @fileOverview Widget - 日期选择器
  * @author sundongguo@gmail.com
  * @version 20121025
  */

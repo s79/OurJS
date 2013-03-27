@@ -1,9 +1,9 @@
 /*!
- * Console for IE6.
+ * Console for IE6
  */
 
 /**
- * @fileOverview 控制台补缺。
+ * @fileOverview 控制台补缺
  * @author sundongguo@gmail.com
  * @version 20120309
  *          20111108 + fixed + localStorage

@@ -7,7 +7,7 @@
  */
 
 /**
- * @fileOverview 提供 CSS 选择器的支持。
+ * @fileOverview CSS 选择器
  */
 
 (function(window, undefined) {

@@ -1,5 +1,5 @@
 /**
- * @fileOverview Widget - 幻灯片播放器。
+ * @fileOverview Widget - 幻灯片播放器
  * @author sundongguo@gmail.com
  * @version 20121108
  */

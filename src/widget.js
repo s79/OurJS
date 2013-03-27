@@ -1,5 +1,5 @@
 /**
- * @fileOverview Widget。
+ * @fileOverview Widget
  * @author sundongguo@gmail.com
  * @version 20121008
  */

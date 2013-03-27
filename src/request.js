@@ -1,5 +1,5 @@
 /**
- * @fileOverview 远程请求。
+ * @fileOverview 远程请求
  * @author sundongguo@gmail.com
  * @version 20120921
  */
@@ -171,8 +171,8 @@
    *   如果使用 'get' 方式，应将整个 URL 的长度控制在 2048 个字符以内。
    * @param {boolean} options.useCache 是否允许浏览器的缓存生效，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 false。
    * @param {boolean} options.async 是否使用异步方式，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 true。
-   * @param {number} options.minTime 请求最短时间，单位为 ms，默认为 NaN，即无最短时间限制，async 为 true 时有效。
-   * @param {number} options.maxTime 请求超时时间，单位为 ms，默认为 NaN，即无超时时间限制，async 为 true 时有效。
+   * @param {number} options.minTime 请求最短时间，单位为毫秒，默认为 NaN，即无最短时间限制，async 为 true 时有效。
+   * @param {number} options.maxTime 请求超时时间，单位为毫秒，默认为 NaN，即无超时时间限制，async 为 true 时有效。
    * @param {string} options.username 用户名，仅在 XHR 模式下有效，默认为空字符串，即不指定用户名。
    * @param {string} options.password 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
    * @param {Object} options.headers 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。

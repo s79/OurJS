@@ -1,5 +1,5 @@
 /**
- * @fileOverview Widget - 表单验证器。
+ * @fileOverview Widget - 表单验证器
  * @author sundongguo@gmail.com
  * @version 20121008
  */

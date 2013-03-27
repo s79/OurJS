@@ -1,5 +1,5 @@
 /**
- * @fileOverview 浏览器 API 扩展。
+ * @fileOverview 浏览器 API 扩展
  * @author sundongguo@gmail.com
  * @version 20111201
  */

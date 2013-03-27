@@ -1,5 +1,5 @@
 /*!
- * DD_belatedPNG: Adds IE6 support: PNG images for CSS background-image and HTML <IMG/>.
+ * DD_belatedPNG: PNG-24 support for IE6
  *  Author: Drew Diller
  *  Email: drew.diller@gmail.com
  *  URL: http://www.dillerdesign.com/experiment/DD_belatedPNG/
@@ -8,7 +8,7 @@
  */
 
 /**
- * @fileOverview IE6 PNG alpha 透明修复。
+ * @fileOverview IE6 PNG alpha 透明修复
  * @version 0.1 修复了一些 bug，删除了 IE6 启用背景图片缓存的代码。
  */
 

@@ -1,5 +1,5 @@
 /**
- * @fileOverview Widget - 日志记录器。
+ * @fileOverview Widget - 日志记录器
  * @author sundongguo@gmail.com
  * @version 20120806
  */
