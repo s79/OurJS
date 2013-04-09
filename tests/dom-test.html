@@ -100,5 +100,20 @@ document.on('domready', function() {
 });
 </script>
 
+<script>
+console.log($x.style.cssText);
+console.log($x.style.fontSize);
+console.log($x.style.display);
+$x.setStyle('fontSize', '22px');
+$x.setStyle('display', 'table');
+console.log($x.style.fontSize);
+console.log($x.style.display);
+$x.setStyle('fontSize', '');
+$x.setStyle('display', '');
+console.log($x.style.fontSize);
+console.log($x.style.display);
+console.log($x.style.cssText);
+</script>
+
 </body>
 </html>

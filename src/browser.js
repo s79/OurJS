@@ -448,10 +448,11 @@
    * @function
    * @param {string} key 数据名。
    * @returns {string} 数据值。
+   *   如果没有对应的值，返回 null。
    */
   cookie.getItem = function(key) {
     var matchs = document.cookie.match(new RegExp('(?:^|;)\\s*' + RegExp.escape(key) + '=([^;]*)'));
-    return matchs ? decodeURIComponent(matchs[1]) : undefined;
+    return matchs ? decodeURIComponent(matchs[1]) : null;
   };
 
 //--------------------------------------------------[cookie.setItem]
@@ -566,6 +567,7 @@
    * @function
    * @param {string} key 数据名。
    * @returns {string} 数据值。
+   *   如果没有对应的值，返回 null。
    */
   localStorage.getItem = function(key) {
     storeElement.load(STORE_NAME);

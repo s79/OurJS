@@ -267,9 +267,9 @@
    * @param {Object} [requestData] 要发送的数据。
    *   数据格式为 {key1: value1, key2: [value21, value22, ...], ...}，其中所有 value 都可以为任意基本类型的数据（在发送时它们都将被强制转换为字符串类型），另外 key 和 value 均不必做百分比编码。
    *   本方法的参数不允许使用字符串类型的数据，因为无法判断指定的字符串值是否需要做百分比编码。
-   * @returns {Object} Request 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   如果上一次发送的请求尚未完成，则调用此方法无效。
+   *   如果上一次发送的请求尚未完成，则调用本方法无效。
    */
   Request.prototype.send = function(requestData) {
     var request = this;
@@ -339,9 +339,9 @@
           requestComplete(request, TIMEOUT);
         }, Math.max(0, request.maxTime));
       }
+      return true;
     }
-    // 返回实例。
-    return request;
+    return false;
   };
 
 //--------------------------------------------------[Request.prototype.abort]
@@ -349,15 +349,16 @@
    * 取消请求。
    * @name Request.prototype.abort
    * @function
-   * @returns {Object} Request 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   仅在一次异步模式的请求正在进行时，调用此方法才有效。
+   *   仅在一次异步模式的请求正在进行时，调用本方法才有效。
    */
   Request.prototype.abort = function() {
     if (this.ongoing) {
       requestComplete(this, ABORT);
+      return true;
     }
-    return this;
+    return false;
   };
 
 })();

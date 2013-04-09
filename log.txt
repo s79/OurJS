@@ -1,5 +1,18 @@
 
 
+>2013-04-07
+累积更新
++Array.prototype.shuffle
+-Animation.prototype.stop
+使用 cookie.getItem 方法获取不存在的值时将返回 null 而不是 undefined
+Element.prototype.highlight 的初始颜色值由计算后的值改为行内样式的值
+Object.fromQueryString 将忽略非法参数
+dev.js 支持本地运行
+adapter-highcharts 更新
+String.prorotype.camelize 更新
+widget-overlay 不再可获得焦点
+animation 和 request 的各种方法现在都返回布尔值
+
 >2013-03-10
 Observable -> EventTarget
 

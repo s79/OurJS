@@ -43,43 +43,48 @@
 
   Widget.register('overlay', {
     css: [
-      '.widget-overlay { display: none; left: 0; top: 0; outline: none; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
+      '.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
     ],
     methods: {
       reposition: function() {
-        var $dialog = this.context.dialogs.getLast();
+        var $overlay = this;
+        var dialogs = $overlay.context.dialogs;
+        var $dialog = dialogs.getLast();
         if ($dialog) {
-          this.setStyle('zIndex', $dialog.getStyle('zIndex') - 1);
+          $overlay.setStyle('zIndex', $dialog.getStyle('zIndex') - 1);
           $dialog.focus();
-          if (!this.isVisible) {
+          if (!$overlay.isVisible) {
             // 显示遮盖层。
-            if (this.resizeInIE6) {
-              window.attachEvent('onresize', this.resizeInIE6);
+            if ($overlay.resizeInIE6) {
+              window.attachEvent('onresize', $overlay.resizeInIE6);
             }
-            this.fade('in', {duration: 100, timingFunction: 'easeOut'});
-            this.isVisible = true;
-            this.resize();
+            $overlay.fade('in', {duration: 100, timingFunction: 'easeOut'});
+            $overlay.isVisible = true;
+            $overlay.resize();
             // 锁定可交互区域。
-            this.context.on('focusin.freezeInteractionArea', function(event) {
-              var $activeDialog = this.dialogs.getLast();
-              if (!$activeDialog.contains(event.target) && $activeDialog.offsetWidth) {
-                $activeDialog.focus();
+            $overlay.context.on('focusin.freezeInteractionArea', function(event) {
+              var $target = event.target;
+              if ($target !== $overlay) {
+                var $activeDialog = dialogs.getLast();
+                if (!$activeDialog.contains($target) && $activeDialog.offsetWidth) {
+                  $activeDialog.focus();
+                }
               }
             });
           }
         } else {
-          if (this.isVisible) {
+          if ($overlay.isVisible) {
             // 隐藏遮盖层。
-            if (this.resizeInIE6) {
-              window.detachEvent('onresize', this.resizeInIE6);
+            if ($overlay.resizeInIE6) {
+              window.detachEvent('onresize', $overlay.resizeInIE6);
             }
-            this.fade('out', {duration: 100, timingFunction: 'easeIn'});
-            this.isVisible = false;
+            $overlay.fade('out', {duration: 100, timingFunction: 'easeIn'});
+            $overlay.isVisible = false;
             // 解锁可交互区域。
-            this.context.off('focusin.freezeInteractionArea');
+            $overlay.context.off('focusin.freezeInteractionArea');
           }
         }
-        return this;
+        return $overlay;
       },
       resize: function() {
         if (this.isVisible) {
@@ -126,12 +131,6 @@
             $overlay.resize();
           };
         }
-      }
-
-      // 使本元素可获得焦点。
-      $overlay.tabIndex = 0;
-      if (navigator.isIElt8) {
-        $overlay.hideFocus = true;
       }
 
     }
@@ -208,7 +207,7 @@
    * @function
    * @returns {Element} 本元素。
    * @description
-   *   如果对话框已经打开，则调用此方法无效。
+   *   如果对话框已经打开，则调用本方法无效。
    */
 
   /**
@@ -217,7 +216,7 @@
    * @function
    * @returns {Element} 本元素。
    * @description
-   *   如果对话框已经关闭，则调用此方法无效。
+   *   如果对话框已经关闭，则调用本方法无效。
    */
 
   /**
@@ -226,7 +225,7 @@
    * @function
    * @returns {Element} 本元素。
    * @description
-   *   如果对话框已经关闭，则调用此方法无效。
+   *   如果对话框已经关闭，则调用本方法无效。
    */
 
   Widget.register('dialog', {

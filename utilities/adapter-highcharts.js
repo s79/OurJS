@@ -1,6 +1,6 @@
 /*!
  * Highcharts adapter for OurJS
- *  Highcharts version: v2.3.3 (2012-06-08 <未测试全部功能>)
+ *  Highcharts version: v2.3.3 (2012-06-08)
  *  Highstock version: v1.2.4 (2012-10-11)
  *  Highcharts license: www.highcharts.com/license
  */
@@ -8,7 +8,7 @@
 /**
  * @fileOverview Highcharts 适配器
  * @author sundongguo@gmail.com
- * @version 20120808
+ * @version 20130407
  */
 
 (function() {
@@ -16,7 +16,7 @@
   var uid = 0;
   var pathAnimation;
   var copy = function(destination, original) {
-    if (original) {
+    if (original && typeof original !== 'boolean') {
       Object.forEach(original, function(value, key) {
         value = original[key];
         if (value && typeof value === 'object' && value.constructor !== Array && typeof value.nodeType !== 'number') {
@@ -114,11 +114,10 @@
         if (el.fire) {
           el.on(type + label, fn);
         } else {
-          if (!el.events) {
-            el.events = {};
+          if (!el.eventHandlers) {
+            el.eventHandlers = {};
           }
-          // 自定义对象的 events 可能被 Highcharts 占用，且对应的 key 的类型为 function，OurJS 需要数组，因此先将名称进行转义。
-          Observable.prototype.on.call(el, type + '_' + label, fn);
+          EventTarget.prototype.on.call(el, type + label, fn);
         }
       }
     },
@@ -138,13 +137,13 @@
           // 移除所有监听器。
         }
       } else {
-        if (!el.events) {
-          el.events = {};
+        if (!el.eventHandlers) {
+          el.eventHandlers = {};
         }
         if (type) {
-          Observable.prototype.off.call(el, type + '_' + label);
+          EventTarget.prototype.off.call(el, type + label);
         } else {
-          el.events = {};
+          el.eventHandlers = {};
         }
       }
     },
@@ -165,10 +164,10 @@
       if (el.fire) {
         el.fire(type, eventArguments);
       } else {
-        if (!el.events) {
-          el.events = {};
+        if (!el.eventHandlers) {
+          el.eventHandlers = {};
         }
-        Observable.prototype.fire.call(el, type + '_', eventArguments);
+        EventTarget.prototype.fire.call(el, type, eventArguments);
       }
       if (defaultFunction) {
         defaultFunction(eventArguments);
@@ -218,8 +217,7 @@
       });
       if (enabled) {
         el.animation = new Animation()
-            .addClip(
-            Animation.createBasicRenderer(function(x, y) {
+            .addClip(Animation.createBasicRenderer(function(x, y) {
               Object.forEach(morphing, function(value, key) {
                 el[el.attr ? 'attr' : 'setStyle'](key, value[0] + value[1] * y);
               });

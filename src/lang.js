@@ -462,7 +462,7 @@
    * @function
    * @returns {string} 删除两端的空白符后的字符串。
    * @example
-   *   '  hello '.trim();
+   *   ' hello  '.trim();
    *   // 'hello'
    * @see http://blog.stevenlevithan.com/archives/faster-trim-javascript
    * @see http://es5.github.com/#x15.5.4.20
@@ -677,6 +677,7 @@
    *   Object.toQueryString
    *   Object.fromQueryString
    *   Array.from
+   *   Array.prototype.shuffle
    *   Array.prototype.contains
    *   Array.prototype.remove
    *   Array.prototype.getFirst
@@ -881,15 +882,17 @@
     string.split('&').forEach(function(item) {
       var valuePair = item.split('=');
       var key = valuePair[0];
-      var value = valuePair[1] || '';
-      if (!dontDecode) {
-        key = decodeURIComponent(key);
-        value = decodeURIComponent(value);
-      }
-      if (object.hasOwnProperty(key)) {
-        typeof object[key] === 'string' ? object[key] = [object[key], value] : object[key].push(value);
-      } else {
-        object[key] = value;
+      var value = valuePair[1];
+      if (value !== undefined) {
+        if (!dontDecode) {
+          key = decodeURIComponent(key);
+          value = decodeURIComponent(value);
+        }
+        if (object.hasOwnProperty(key)) {
+          typeof object[key] === 'string' ? object[key] = [object[key], value] : object[key].push(value);
+        } else {
+          object[key] = value;
+        }
       }
     });
     return object;
@@ -937,6 +940,32 @@
         }
     }
     return [value];
+  };
+
+//--------------------------------------------------[Array.prototype.shuffle]
+  /**
+   * 随机排序本数组中的各元素。
+   * @name Array.prototype.shuffle
+   * @function
+   * @returns {Array} 随机排序后的本数组。
+   * @example
+   *   [0, 1, 2, 3, 4].shuffle();
+   *   // [4, 0, 2, 1, 3]
+   * @see http://bost.ocks.org/mike/shuffle/
+   */
+  Array.prototype.shuffle = function() {
+    var i = this.length;
+    var random;
+    var temp;
+    if (i > 1) {
+      while (--i) {
+        random = Math.floor(Math.random() * (i + 1));
+        temp = this[i];
+        this[i] = this[random];
+        this[random] = temp;
+      }
+    }
+    return this;
   };
 
 //--------------------------------------------------[Array.prototype.contains]
@@ -1034,14 +1063,20 @@
    *   'HTMLFormElement'.camelize();
    *   // 'htmlFormElement'
    */
-  var firstLetterPattern = /(?:^|\s)(\S)/g;
-  var leadingUppercaseLettersPattern = /[A-Z](?=[^A-Z])|[A-Z]*(?=[A-Z])/;
+  var firstWordLeadingLowercaseLetterPattern = /^[a-z]/;
+  var firstWordLeadingUppercaseLettersPattern = /^[A-Z]*/;
+  var followingWordsFirstLetterPattern = /(?:\s)(\S)/g;
   String.prototype.camelize = function(useUpperCamelCase) {
-    var result = segmentWords(this).replace(firstLetterPattern, function(_, firstLetter) {
+    var result = segmentWords(this);
+    result = useUpperCamelCase ?
+        result.replace(firstWordLeadingLowercaseLetterPattern, function(lowercaseLetter) {
+          return lowercaseLetter.toUpperCase();
+        }) :
+        result.replace(firstWordLeadingUppercaseLettersPattern, function(uppercaseLetter) {
+          return uppercaseLetter.toLowerCase();
+        });
+    return result.replace(followingWordsFirstLetterPattern, function(_, firstLetter) {
       return firstLetter.toUpperCase();
-    });
-    return useUpperCamelCase ? result : result.replace(leadingUppercaseLettersPattern, function(leadingUppercaseLetters) {
-      return leadingUppercaseLetters.toLowerCase();
     });
   };
 
@@ -1269,7 +1304,7 @@
    *   转以后的字符串可以安全的作为正则表达式的一部分使用。
    * @see http://prototypejs.org/
    */
-  var regularExpressionMetacharactersPattern = /([.*+?^=!:${}()|[\]\/\\])/g;
+  var regularExpressionMetacharactersPattern = /([.*+?^${}()|\[\]\/\\])/g;
   RegExp.escape = function(string) {
     return String(string).replace(regularExpressionMetacharactersPattern, '\\$1');
   };

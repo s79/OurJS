@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130326
+ *  Version: 20130409
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展
@@ -467,7 +467,7 @@
    * @function
    * @returns {string} 删除两端的空白符后的字符串。
    * @example
-   *   '  hello '.trim();
+   *   ' hello  '.trim();
    *   // 'hello'
    * @see http://blog.stevenlevithan.com/archives/faster-trim-javascript
    * @see http://es5.github.com/#x15.5.4.20
@@ -682,6 +682,7 @@
    *   Object.toQueryString
    *   Object.fromQueryString
    *   Array.from
+   *   Array.prototype.shuffle
    *   Array.prototype.contains
    *   Array.prototype.remove
    *   Array.prototype.getFirst
@@ -886,15 +887,17 @@
     string.split('&').forEach(function(item) {
       var valuePair = item.split('=');
       var key = valuePair[0];
-      var value = valuePair[1] || '';
-      if (!dontDecode) {
-        key = decodeURIComponent(key);
-        value = decodeURIComponent(value);
-      }
-      if (object.hasOwnProperty(key)) {
-        typeof object[key] === 'string' ? object[key] = [object[key], value] : object[key].push(value);
-      } else {
-        object[key] = value;
+      var value = valuePair[1];
+      if (value !== undefined) {
+        if (!dontDecode) {
+          key = decodeURIComponent(key);
+          value = decodeURIComponent(value);
+        }
+        if (object.hasOwnProperty(key)) {
+          typeof object[key] === 'string' ? object[key] = [object[key], value] : object[key].push(value);
+        } else {
+          object[key] = value;
+        }
       }
     });
     return object;
@@ -942,6 +945,32 @@
         }
     }
     return [value];
+  };
+
+//--------------------------------------------------[Array.prototype.shuffle]
+  /**
+   * 随机排序本数组中的各元素。
+   * @name Array.prototype.shuffle
+   * @function
+   * @returns {Array} 随机排序后的本数组。
+   * @example
+   *   [0, 1, 2, 3, 4].shuffle();
+   *   // [4, 0, 2, 1, 3]
+   * @see http://bost.ocks.org/mike/shuffle/
+   */
+  Array.prototype.shuffle = function() {
+    var i = this.length;
+    var random;
+    var temp;
+    if (i > 1) {
+      while (--i) {
+        random = Math.floor(Math.random() * (i + 1));
+        temp = this[i];
+        this[i] = this[random];
+        this[random] = temp;
+      }
+    }
+    return this;
   };
 
 //--------------------------------------------------[Array.prototype.contains]
@@ -1039,14 +1068,20 @@
    *   'HTMLFormElement'.camelize();
    *   // 'htmlFormElement'
    */
-  var firstLetterPattern = /(?:^|\s)(\S)/g;
-  var leadingUppercaseLettersPattern = /[A-Z](?=[^A-Z])|[A-Z]*(?=[A-Z])/;
+  var firstWordLeadingLowercaseLetterPattern = /^[a-z]/;
+  var firstWordLeadingUppercaseLettersPattern = /^[A-Z]*/;
+  var followingWordsFirstLetterPattern = /(?:\s)(\S)/g;
   String.prototype.camelize = function(useUpperCamelCase) {
-    var result = segmentWords(this).replace(firstLetterPattern, function(_, firstLetter) {
+    var result = segmentWords(this);
+    result = useUpperCamelCase ?
+        result.replace(firstWordLeadingLowercaseLetterPattern, function(lowercaseLetter) {
+          return lowercaseLetter.toUpperCase();
+        }) :
+        result.replace(firstWordLeadingUppercaseLettersPattern, function(uppercaseLetter) {
+          return uppercaseLetter.toLowerCase();
+        });
+    return result.replace(followingWordsFirstLetterPattern, function(_, firstLetter) {
       return firstLetter.toUpperCase();
-    });
-    return useUpperCamelCase ? result : result.replace(leadingUppercaseLettersPattern, function(leadingUppercaseLetters) {
-      return leadingUppercaseLetters.toLowerCase();
     });
   };
 
@@ -1274,7 +1309,7 @@
    *   转以后的字符串可以安全的作为正则表达式的一部分使用。
    * @see http://prototypejs.org/
    */
-  var regularExpressionMetacharactersPattern = /([.*+?^=!:${}()|[\]\/\\])/g;
+  var regularExpressionMetacharactersPattern = /([.*+?^${}()|\[\]\/\\])/g;
   RegExp.escape = function(string) {
     return String(string).replace(regularExpressionMetacharactersPattern, '\\$1');
   };
@@ -1730,10 +1765,11 @@
    * @function
    * @param {string} key 数据名。
    * @returns {string} 数据值。
+   *   如果没有对应的值，返回 null。
    */
   cookie.getItem = function(key) {
     var matchs = document.cookie.match(new RegExp('(?:^|;)\\s*' + RegExp.escape(key) + '=([^;]*)'));
-    return matchs ? decodeURIComponent(matchs[1]) : undefined;
+    return matchs ? decodeURIComponent(matchs[1]) : null;
   };
 
 //--------------------------------------------------[cookie.setItem]
@@ -1848,6 +1884,7 @@
    * @function
    * @param {string} key 数据名。
    * @returns {string} 数据值。
+   *   如果没有对应的值，返回 null。
    */
   localStorage.getItem = function(key) {
     storeElement.load(STORE_NAME);
@@ -2242,7 +2279,7 @@
   }
 
 //--------------------------------------------------[Element.prototype.contains]
-  // 现在都支持此方法。
+  // 目前所有浏览器都支持本方法。
   /**
    * 判断本元素是否包含目标元素。
    * @name Element.prototype.contains
@@ -4352,7 +4389,7 @@
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
-   * @returns {Object} document 对象。
+   * @returns {Object} 事件对象。
    */
   document.fire = Element.prototype.fire;
 
@@ -4513,7 +4550,7 @@
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
-   * @returns {Object} window 对象。
+   * @returns {Object} 事件对象。
    */
   window.fire = Element.prototype.fire;
 
@@ -4968,17 +5005,16 @@
   /*
    * 调用流程：
    *   var animation = new Animation(...).addClip(...);
-   *   animation.play()<play><playstart>          -> (x, y) <step> -> ... -> <playfinish>
-   *   animation.reverse()<reverse><reversestart> -> (x, y) <step> -> ... -> <reversefinish>
-   *                                                               -> animation.pause<pause> -> animation.stop()<stop>
-   *                                                                                         -> animation.play()<play>       -> (x, y) <step> ->>>
-   *                                                                                         -> animation.reverse()<reverse> -> (x, y) <step> ->>>
-   *                                                               -> animation.stop<stop>
+   *   animation.play()<play><playstart>          -> <step> -> ... -> <playfinish>
+   *   animation.reverse()<reverse><reversestart> -> <step> -> ... -> <reversefinish>
+   *                                                        -> animation.pause<pause>
+   *                                                                                  -> animation.play()<play>       -> <step> ->>>
+   *                                                                                  -> animation.reverse()<reverse> -> <step> ->>>
    *
    * 说明：
    *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。
    *   传入函数的参数 x 为时间点，y 为偏移量，它们的值都将从 0 趋向于 1。
-   *   在动画在进行中时，调用动画对象的 stop 方法即可停止的继续调用，但也会阻止事件 end 的触发。
+   *   在动画在进行中时，调用动画对象的 pause 方法即可在当前帧停止动画的播放。
    *   调用 reverse 可以倒放，但要注意，倒放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
    *   播放一个动画时，调用 play 或 reverse 方法后即同步播放对应方向的首帧，中间帧及末帧由引擎异步播放。
    *   如果一个动画剪辑的持续时间为 0，则 play 时传入的 x 值为 1，reverse 时传入的 x 值为 0。
@@ -4986,9 +5022,9 @@
    * 操作 Animation 对象和调用 Element 上的相关动画方法的差别：
    *   当需要定制一个可以精确控制的动画时，建议使用 Animation，Animation 对象中的 Clip 会记录动画创建时的状态，而且不仅可以正向播放，还可以随时回退到起点。
    *   否则应使用 Element 实例上的对应简化动画方法，这些简化方法每次调用都会自动创建新的 Animation 对象，而不保留之前的状态，这样就可以随时以目标元素最新的状态作为起点来播放动画。
-   *   一个明显的差异是为不同类型的样式渐变动画设置相同的相对长度的变化值：
+   *   一个明显的差异是在为不同类型的样式渐变动画设置相同的相对长度的变化值时：
    *   在直接使用 Animation 的情况下，无论如何播放/倒放，目标元素将始终在起点/终点之间渐变。
-   *   在使用 Element.prototype.morph 方法时，传入同样的参数，多次播放时，目标元素将以上一次的终点作为起点，开始渐变。
+   *   在使用 Element.prototype.morph 方法多次播放时，目标元素将以上一次的终点作为起点，开始渐变。
    */
 
   // 供内部调用的标记值。
@@ -5227,15 +5263,21 @@
    *   渲染动画的每一帧之后触发。
    * @fires pause
    *   成功调用 pause 方法后触发。
-   * @fires stop
-   *   成功调用 stop 方法后触发。
    * @description
    *   所有 Animation 的实例也都是一个 EventTarget 对象。
-   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。<br>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
-   *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
+   *   <ul>
+   *     <li>向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。</li>
+   *     <li>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。</li>
+   *     <li>不要在多个剪辑中变更同一个元素的样式。</li>
+   *   </ul>
    */
   var Animation = window.Animation = function() {
     this.clips = [];
+    /**
+     * 当前帧所处的时间点。
+     * @name Animation#timePoint
+     * @type number
+     */
     this.timePoint = 0;
     this.status = START_POINT;
     this.duration = 0;
@@ -5285,9 +5327,9 @@
    * 播放动画。
    * @name Animation.prototype.play
    * @function
-   * @returns {Object} Animation 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   如果当前动画正在播放中，或时间点已到达终点，则调用此方法无效。
+   *   如果当前动画正在播放中，或时间点已到达终点，则调用本方法无效。
    */
   Animation.prototype.play = function(reverse) {
     var animation = this;
@@ -5308,7 +5350,7 @@
           animation.fire('reversestart');
         }
       }
-      // 未挂载到引擎（调用此方法前为暂停/停止状态）。
+      // 未挂载到引擎（调用本方法前为暂停/停止状态）。
       if (!animation.timestamp && (animation.status === PLAYING || animation.status === REVERSING)) {
         var timePoint = animation.timePoint;
         var duration = animation.duration;
@@ -5319,8 +5361,9 @@
           mountAnimation(animation);
         }
       }
+      return true;
     }
-    return animation;
+    return false;
   };
 
 //--------------------------------------------------[Animation.prototype.reverse]
@@ -5328,9 +5371,9 @@
    * 倒放动画。
    * @name Animation.prototype.reverse
    * @function
-   * @returns {Object} Animation 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   如果当前动画正在倒放中，或时间点已到达起点，则调用此方法无效。
+   *   如果当前动画正在倒放中，或时间点已到达起点，则调用本方法无效。
    */
   Animation.prototype.reverse = function() {
     return this.play(INTERNAL_IDENTIFIER_REVERSE);
@@ -5341,9 +5384,9 @@
    * 暂停动画。
    * @name Animation.prototype.pause
    * @function
-   * @returns {Object} Animation 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   仅在动画处于“播放”或“倒放”状态时，调用此方法才有效。
+   *   仅在动画处于“播放”或“倒放”状态时，调用本方法才有效。
    */
   Animation.prototype.pause = function() {
     var animation = this;
@@ -5353,35 +5396,9 @@
       }
       animation.status = PASUING;
       animation.fire('pause');
+      return true;
     }
-    return animation;
-  };
-
-//--------------------------------------------------[Animation.prototype.stop]
-  /**
-   * 停止动画，并将动画的时间点复位至起点。
-   * @name Animation.prototype.stop
-   * @function
-   * @returns {Object} Animation 对象。
-   * @description
-   *   调用此方法时，动画中所有的剪辑都将回到起点状态。
-   *   如果当前动画的时间点在起点，则调用此方法无效。
-   */
-  Animation.prototype.stop = function() {
-    var animation = this;
-    if (animation.status !== START_POINT) {
-      if (animation.timestamp) {
-        unmountAnimation(animation);
-      }
-      animation.timePoint = 0;
-      animation.status = START_POINT;
-      animation.clips.forEach(function(clip) {
-        clip.call(animation, 0, 0);
-        clip.status = BEFORE_START_POINT;
-      });
-      animation.fire('stop');
-    }
-    return animation;
+    return false;
   };
 
 })();
@@ -5681,10 +5698,10 @@
       }
     }
     if (!originalColor) {
-      originalColor = $element.getStyle(property);
+      originalColor = $element.style[property];
     }
     var styles = {};
-    styles[property] = originalColor;
+    styles[property] = $element.getStyle(property);
     var highlight = animations.highlight = new Animation()
         .on('playstart', function(event) {
           $element.setStyle(property, color);
@@ -5695,6 +5712,7 @@
           options.onStep.call($element, event);
         })
         .on('playfinish', function(event) {
+          $element.setStyle(this.property, this.originalColor);
           delete animations.highlight;
           options.onFinish.call($element, event);
         });
@@ -6149,9 +6167,9 @@
    * @param {Object} [requestData] 要发送的数据。
    *   数据格式为 {key1: value1, key2: [value21, value22, ...], ...}，其中所有 value 都可以为任意基本类型的数据（在发送时它们都将被强制转换为字符串类型），另外 key 和 value 均不必做百分比编码。
    *   本方法的参数不允许使用字符串类型的数据，因为无法判断指定的字符串值是否需要做百分比编码。
-   * @returns {Object} Request 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   如果上一次发送的请求尚未完成，则调用此方法无效。
+   *   如果上一次发送的请求尚未完成，则调用本方法无效。
    */
   Request.prototype.send = function(requestData) {
     var request = this;
@@ -6221,9 +6239,9 @@
           requestComplete(request, TIMEOUT);
         }, Math.max(0, request.maxTime));
       }
+      return true;
     }
-    // 返回实例。
-    return request;
+    return false;
   };
 
 //--------------------------------------------------[Request.prototype.abort]
@@ -6231,15 +6249,16 @@
    * 取消请求。
    * @name Request.prototype.abort
    * @function
-   * @returns {Object} Request 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   仅在一次异步模式的请求正在进行时，调用此方法才有效。
+   *   仅在一次异步模式的请求正在进行时，调用本方法才有效。
    */
   Request.prototype.abort = function() {
     if (this.ongoing) {
       requestComplete(this, ABORT);
+      return true;
     }
-    return this;
+    return false;
   };
 
 })();

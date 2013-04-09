@@ -341,7 +341,7 @@
   }
 
 //--------------------------------------------------[Element.prototype.contains]
-  // 现在都支持此方法。
+  // 目前所有浏览器都支持本方法。
   /**
    * 判断本元素是否包含目标元素。
    * @name Element.prototype.contains
@@ -2451,7 +2451,7 @@
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
-   * @returns {Object} document 对象。
+   * @returns {Object} 事件对象。
    */
   document.fire = Element.prototype.fire;
 
@@ -2612,7 +2612,7 @@
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
-   * @returns {Object} window 对象。
+   * @returns {Object} 事件对象。
    */
   window.fire = Element.prototype.fire;
 

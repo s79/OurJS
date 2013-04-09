@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>String.prorotype.camelize</title>
+<script src="../dev.js"></script>
+<script src="../scripts/widget-logger.js"></script>
+<style>
+body { margin: 10px; }
+</style>
+</head>
+<body>
+<div id="logger" class="widget-logger"></div>
+<script>
+document.on('domready', function() {
+  var $logger = $('#logger');
+  [
+    ['This is Our JS', 'this-is-our-js', 'thisIsOurJS', 'ThisIsOurJS'],
+    ['HTMLFormElement', 'html-form-element', 'htmlFormElement', 'HTMLFormElement'],
+    ['HTML FORM ELEMENT', 'html-form-element', 'htmlFORMELEMENT', 'HTMLFORMELEMENT'],
+    ['margin-left is -20px', 'margin-left-is--20px', 'marginLeftIs-20px', 'MarginLeftIs-20px'],
+    ['background-color is backgroundColor', 'background-color-is-background-color', 'backgroundColorIsBackgroundColor', 'BackgroundColorIsBackgroundColor'],
+    ['-----a-----is__  __not_____b--  --', 'a-is-not-b', 'aIsNotB', 'AIsNotB']
+  ]
+      .forEach(function(sample) {
+        $logger.log(sample[0]);
+        $logger.assert('\'' + sample[0] + '\'.dasherize() === \'' + sample[1] + '\'');
+        $logger.assert('\'' + sample[0] + '\'.camelize() === \'' + sample[2] + '\'');
+        $logger.assert('\'' + sample[0] + '\'.camelize(true) === \'' + sample[3] + '\'');
+      });
+});
+</script>
+</body>
+</html>

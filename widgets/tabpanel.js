@@ -70,7 +70,7 @@
    * @param {Element} tab 要激活的“标签面板”中的“标签”元素。
    * @returns {Element} 本元素。
    * @description
-   *   如果指定的值不是“标签”元素或者该标签已在激活状态，则调用此方法无效。
+   *   如果指定的值不是“标签”元素或者该标签已在激活状态，则调用本方法无效。
    */
 
   Widget.register('tabpanel', {

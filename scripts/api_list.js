@@ -18,6 +18,7 @@ var apiList = {
   ],
   'Array': [
     'Array.from',
+    'Array#shuffle',
     'Array#contains',
     'Array#remove',
     'Array#getFirst',
@@ -245,14 +246,14 @@ var apiList = {
   'Animation': [
     'Animation',
     'Animation.fps',
+    'Animation.createBasicRenderer',
+    'Animation.createStyleRenderer',
+    'Animation.createScrollRenderer',
+    'Animation#timePoint',
     'Animation#addClip',
     'Animation#play',
     'Animation#reverse',
-    'Animation#pause',
-    'Animation#stop',
-    'Animation.createBasicRenderer',
-    'Animation.createStyleRenderer',
-    'Animation.createScrollRenderer'
+    'Animation#pause'
   ],
   'Request': [
     'Request',

@@ -3,22 +3,37 @@
  * @author sundongguo@gmail.com
  * @version 20120213
  */
-//==================================================[引入开发中的脚本文件]
-//--------------------------------------------------[import]
+
 (function() {
-  var scripts = [
-    '<script src="/framework/src/lang.js"></script>',
-    '<script src="/framework/src/browser.js"></script>',
-    '<script src="/framework/src/dom.js"></script>',
-    '<script src="/framework/src/event_target.js"></script>',
-    '<script src="/framework/src/animation.js"></script>',
-    '<script src="/framework/src/request.js"></script>',
-    '<script src="/framework/src/widget.js"></script>',
-    '<script src="/framework/src/integrated/json2.js"></script>',
-    '<script src="/framework/src/integrated/sizzle.js"></script>'
+  var ourjs = [
+    'src/lang.js',
+    'src/browser.js',
+    'src/dom.js',
+    'src/event_target.js',
+    'src/animation.js',
+    'src/request.js',
+    'src/widget.js',
+    'src/integrated/json2.js',
+    'src/integrated/sizzle.js'
   ];
   if (document.documentElement.currentStyle && !document.documentElement.currentStyle.minWidth) {
-    scripts.push('<script src="/framework/utilities/console.js"></script>');
+    ourjs.push('utilities/console.js');
   }
-  document.write(scripts.join('\n'));
+  var path = function() {
+    var scripts = document.getElementsByTagName('script');
+    var i = 0;
+    var script;
+    var index;
+    while (script = scripts[i++]) {
+      index = script.src.indexOf('dev.js');
+      if (index > -1) {
+        return script.src.slice(0, index);
+      }
+    }
+    return '';
+  }();
+  var file;
+  while (file = ourjs.shift()) {
+    document.writeln('<script src="' + path + file + '"></script>');
+  }
 })();

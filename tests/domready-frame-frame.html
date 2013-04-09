@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>test-domready</title>
+<title>domready</title>
 <script src="../dev.js"></script>
 <style>
 html,
@@ -14,6 +14,7 @@ img { display: none; }
 document.on('domready', function() {
   top.print('<span class="frame_in_fram domready">' + $('#domready').value + '</span>');
 });
+
 //--------------------------------------------------[load]
 window.on('load', function() {
   top.print('<span class="frame_in_fram load">' + $('#load').value + '</span>');

@@ -9,17 +9,16 @@
   /*
    * 调用流程：
    *   var animation = new Animation(...).addClip(...);
-   *   animation.play()<play><playstart>          -> (x, y) <step> -> ... -> <playfinish>
-   *   animation.reverse()<reverse><reversestart> -> (x, y) <step> -> ... -> <reversefinish>
-   *                                                               -> animation.pause<pause> -> animation.stop()<stop>
-   *                                                                                         -> animation.play()<play>       -> (x, y) <step> ->>>
-   *                                                                                         -> animation.reverse()<reverse> -> (x, y) <step> ->>>
-   *                                                               -> animation.stop<stop>
+   *   animation.play()<play><playstart>          -> <step> -> ... -> <playfinish>
+   *   animation.reverse()<reverse><reversestart> -> <step> -> ... -> <reversefinish>
+   *                                                        -> animation.pause<pause>
+   *                                                                                  -> animation.play()<play>       -> <step> ->>>
+   *                                                                                  -> animation.reverse()<reverse> -> <step> ->>>
    *
    * 说明：
    *   上述步骤到达 (x, y) 时，每个剪辑会以每秒最多 62.5 次的频率被播放（每 16 毫秒一次），实际频率视计算机的速度而定，当计算机的速度比期望的慢时，动画会以“跳帧”的方式来确保整个动画的消耗时间尽可能的接近设定时间。
    *   传入函数的参数 x 为时间点，y 为偏移量，它们的值都将从 0 趋向于 1。
-   *   在动画在进行中时，调用动画对象的 stop 方法即可停止的继续调用，但也会阻止事件 end 的触发。
+   *   在动画在进行中时，调用动画对象的 pause 方法即可在当前帧停止动画的播放。
    *   调用 reverse 可以倒放，但要注意，倒放时，需要对动画剪辑中正向播放时非线性变换的内容也做反向处理。
    *   播放一个动画时，调用 play 或 reverse 方法后即同步播放对应方向的首帧，中间帧及末帧由引擎异步播放。
    *   如果一个动画剪辑的持续时间为 0，则 play 时传入的 x 值为 1，reverse 时传入的 x 值为 0。
@@ -27,9 +26,9 @@
    * 操作 Animation 对象和调用 Element 上的相关动画方法的差别：
    *   当需要定制一个可以精确控制的动画时，建议使用 Animation，Animation 对象中的 Clip 会记录动画创建时的状态，而且不仅可以正向播放，还可以随时回退到起点。
    *   否则应使用 Element 实例上的对应简化动画方法，这些简化方法每次调用都会自动创建新的 Animation 对象，而不保留之前的状态，这样就可以随时以目标元素最新的状态作为起点来播放动画。
-   *   一个明显的差异是为不同类型的样式渐变动画设置相同的相对长度的变化值：
+   *   一个明显的差异是在为不同类型的样式渐变动画设置相同的相对长度的变化值时：
    *   在直接使用 Animation 的情况下，无论如何播放/倒放，目标元素将始终在起点/终点之间渐变。
-   *   在使用 Element.prototype.morph 方法时，传入同样的参数，多次播放时，目标元素将以上一次的终点作为起点，开始渐变。
+   *   在使用 Element.prototype.morph 方法多次播放时，目标元素将以上一次的终点作为起点，开始渐变。
    */
 
   // 供内部调用的标记值。
@@ -268,15 +267,21 @@
    *   渲染动画的每一帧之后触发。
    * @fires pause
    *   成功调用 pause 方法后触发。
-   * @fires stop
-   *   成功调用 stop 方法后触发。
    * @description
    *   所有 Animation 的实例也都是一个 EventTarget 对象。
-   *   向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。<br>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。
-   *   在 step 事件监听器中访问 this.timePoint 可以获得当前帧所处的时间点。
+   *   <ul>
+   *     <li>向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。</li>
+   *     <li>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。</li>
+   *     <li>不要在多个剪辑中变更同一个元素的样式。</li>
+   *   </ul>
    */
   var Animation = window.Animation = function() {
     this.clips = [];
+    /**
+     * 当前帧所处的时间点。
+     * @name Animation#timePoint
+     * @type number
+     */
     this.timePoint = 0;
     this.status = START_POINT;
     this.duration = 0;
@@ -326,9 +331,9 @@
    * 播放动画。
    * @name Animation.prototype.play
    * @function
-   * @returns {Object} Animation 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   如果当前动画正在播放中，或时间点已到达终点，则调用此方法无效。
+   *   如果当前动画正在播放中，或时间点已到达终点，则调用本方法无效。
    */
   Animation.prototype.play = function(reverse) {
     var animation = this;
@@ -349,7 +354,7 @@
           animation.fire('reversestart');
         }
       }
-      // 未挂载到引擎（调用此方法前为暂停/停止状态）。
+      // 未挂载到引擎（调用本方法前为暂停/停止状态）。
       if (!animation.timestamp && (animation.status === PLAYING || animation.status === REVERSING)) {
         var timePoint = animation.timePoint;
         var duration = animation.duration;
@@ -360,8 +365,9 @@
           mountAnimation(animation);
         }
       }
+      return true;
     }
-    return animation;
+    return false;
   };
 
 //--------------------------------------------------[Animation.prototype.reverse]
@@ -369,9 +375,9 @@
    * 倒放动画。
    * @name Animation.prototype.reverse
    * @function
-   * @returns {Object} Animation 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   如果当前动画正在倒放中，或时间点已到达起点，则调用此方法无效。
+   *   如果当前动画正在倒放中，或时间点已到达起点，则调用本方法无效。
    */
   Animation.prototype.reverse = function() {
     return this.play(INTERNAL_IDENTIFIER_REVERSE);
@@ -382,9 +388,9 @@
    * 暂停动画。
    * @name Animation.prototype.pause
    * @function
-   * @returns {Object} Animation 对象。
+   * @returns {boolean} 本方法是否已被成功调用。
    * @description
-   *   仅在动画处于“播放”或“倒放”状态时，调用此方法才有效。
+   *   仅在动画处于“播放”或“倒放”状态时，调用本方法才有效。
    */
   Animation.prototype.pause = function() {
     var animation = this;
@@ -394,35 +400,9 @@
       }
       animation.status = PASUING;
       animation.fire('pause');
+      return true;
     }
-    return animation;
-  };
-
-//--------------------------------------------------[Animation.prototype.stop]
-  /**
-   * 停止动画，并将动画的时间点复位至起点。
-   * @name Animation.prototype.stop
-   * @function
-   * @returns {Object} Animation 对象。
-   * @description
-   *   调用此方法时，动画中所有的剪辑都将回到起点状态。
-   *   如果当前动画的时间点在起点，则调用此方法无效。
-   */
-  Animation.prototype.stop = function() {
-    var animation = this;
-    if (animation.status !== START_POINT) {
-      if (animation.timestamp) {
-        unmountAnimation(animation);
-      }
-      animation.timePoint = 0;
-      animation.status = START_POINT;
-      animation.clips.forEach(function(clip) {
-        clip.call(animation, 0, 0);
-        clip.status = BEFORE_START_POINT;
-      });
-      animation.fire('stop');
-    }
-    return animation;
+    return false;
   };
 
 })();
@@ -722,10 +702,10 @@
       }
     }
     if (!originalColor) {
-      originalColor = $element.getStyle(property);
+      originalColor = $element.style[property];
     }
     var styles = {};
-    styles[property] = originalColor;
+    styles[property] = $element.getStyle(property);
     var highlight = animations.highlight = new Animation()
         .on('playstart', function(event) {
           $element.setStyle(property, color);
@@ -736,6 +716,7 @@
           options.onStep.call($element, event);
         })
         .on('playfinish', function(event) {
+          $element.setStyle(this.property, this.originalColor);
           delete animations.highlight;
           options.onFinish.call($element, event);
         });

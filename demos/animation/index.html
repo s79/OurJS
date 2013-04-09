@@ -291,7 +291,7 @@ document.on('domready', function() {
       onStart: function() {
         $logger.log('<strong>onStart</strong>(0, 0)');
       },
-      onStep: function(e) {
+      onStep: function() {
         $logger.log('<em>onStep</em>' + this.scrollLeft + ':' + this.scrollTop);
       },
       onFinish: function() {
@@ -379,12 +379,11 @@ document.on('domready', function() {
       <div id="type" style="position: absolute; right: 0; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; text-align: left;"></div>
       <div id="timeline" style="position: relative; width: 200px; margin: 0 auto 5px; background: whitesmoke; text-align: left;"></div>
     </div>
-    <p>键盘左 = reverse，键盘下 = pause，键盘右 = play，键盘上 = stop。<br>点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
+    <p>键盘左 = reverse，键盘下 = pause，键盘右 = play。<br>点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
     <blockquote id="animation_controls">
       <button>reverse</button>
       <button>pause</button>
       <button>play</button>
-      <button>stop</button>
     </blockquote>
   </div>
 </fieldset>
@@ -395,39 +394,33 @@ document.on('domready', function() {
   var $bar = $('#bar').setStyle('opacity', 0);
   window.animation = new Animation()
       .addClip(Animation.createStyleRenderer($foo, {opacity: 1}), 0, 700, 'easeOut')
-      .addClip(
-      Animation.createStyleRenderer($foo, {
+      .addClip(Animation.createStyleRenderer($foo, {
         backgroundColor: 'steelblue',
         borderTopColor: 'silver',
         borderRightColor: 'dimgray',
         borderBottomColor: 'dimgray',
         borderLeftColor: 'silver'
       }), 600, 400)
-      .addClip(
-      Animation.createStyleRenderer($foo, {
+      .addClip(Animation.createStyleRenderer($foo, {
         left: '-=160',
         width: '+=300',
         borderWidth: 10
       }), 300, 400, 'cubicBezier(.6,0,.6,1.35)')
-      .addClip(
-      Animation.createBasicRenderer(function(x, y) {
+      .addClip(Animation.createBasicRenderer(function(x, y) {
         $logger.log('x=<var>' + x + '</var> y=<var>' + y + '</var>');
       }), 500, 0, 'linear')
-      .addClip(
-      Animation.createStyleRenderer($foo, {
+      .addClip(Animation.createStyleRenderer($foo, {
         top: '-=150',
         height: '+=100',
         color: 'yellow',
         fontSize: 50,
         lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
       }), 0, 1000, 'cubicBezier(.6,0,.6,1.35)')
-      .addClip(
-      Animation.createStyleRenderer($bar, {
+      .addClip(Animation.createStyleRenderer($bar, {
         backgroundColor: 'gold',
         opacity: 1
       }), 0, 500, 'ease')
-      .addClip(
-      Animation.createStyleRenderer($bar, {
+      .addClip(Animation.createStyleRenderer($bar, {
         top: 20,
         left: '-=160',
         width: 520,
@@ -436,7 +429,6 @@ document.on('domready', function() {
       }), 700, 300, 'ease')
       .on('play', function() {
         $logger.log('<strong>play</strong>');
-//        this.stop();
       })
       .on('playstart', function() {
         $foo.setStyle('display', 'block');
@@ -465,10 +457,6 @@ document.on('domready', function() {
       .on('pause', function() {
         $logger.log('<strong>pause</strong>');
 //        this.play();
-      })
-      .on('stop', function() {
-        $logger.log('<strong>stop</strong>');
-//        this.play();
       });
 
 //--------------------------------------------------[panel]
@@ -496,18 +484,13 @@ document.on('domready', function() {
     });
   });
   var $time = $('<div style="position: absolute; left: 0; top: 0; width: 1px; height: ' + 12 * animation.clips.length + 'px; background: red; overflow: hidden;"></div>').setStyle('opacity', .5).insertTo($timeline);
-  animation.addClip(Animation.createStyleRenderer($time, {left: length - 1}), 0, duration, 'linear').on('stop', function() {
-    $time.setStyle('left', 0);
-  });
+  animation.addClip(Animation.createStyleRenderer($time, {left: length - 1}), 0, duration, 'linear');
 
 //--------------------------------------------------[controls]
   document.on('keydown', function(e) {
     switch (e.which) {
       case 37:
         animation.reverse();
-        return false;
-      case 38:
-        animation.stop();
         return false;
       case 39:
         animation.play();
@@ -516,6 +499,7 @@ document.on('domready', function() {
         animation.pause();
         return false;
     }
+    return true;
   });
   $('#animation_controls').on('click:relay(button)', function() {
     $logger.log('<em>' + this.innerText + '</em>');
@@ -567,11 +551,10 @@ document.on('domready', function() {
   var $controls = $('#timing_controls');
   var buttons = $controls.find('button');
 
-  $controls.on('click:relay(button)', function(e) {
+  $controls.on('click:relay(button)', function() {
     var color = this.getStyle('backgroundColor');
     new Animation()
-        .addClip(
-        Animation.createBasicRenderer(function(x, y) {
+        .addClip(Animation.createBasicRenderer(function(x, y) {
           x = Math.floor(x * 299);
           y = Math.floor(y * 299);
           $('<div></div>').setStyles({left: x, bottom: y, backgroundColor: color}).insertTo($canvas);
