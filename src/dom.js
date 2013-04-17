@@ -609,7 +609,7 @@
   Element.prototype.setData = function(key, value) {
     key = parseDataKey(key);
     if (key) {
-      this.setAttribute(key, value);
+      this.setAttribute(key, String(value));
     }
     return this;
   };

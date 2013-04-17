@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
+<title>beforeunload</title>
 <script src="../dev.js"></script>
 </head>
 <body>
@@ -17,9 +18,9 @@
             console.log('this = ' + typeOf(this));
             console.log('e = ' + e);
             if (showMessage) {
-              var message = '您正在应战中，请勿离开此页，否则将做失败处理！';
+              var message = '离开此页面将导致未保存的数据丢失！';
               if (navigator.isFirefox) {
-                alert(message + '\n如果要继续游戏，请在稍后的对话框中点击“留在页面”。\n如果确定要离开，请在稍后的对话框中点击“离开页面”按钮。');
+                alert(message + '\n如果要留在此页面，请在稍后的对话框中点击“留在页面”按钮。\n如果确定要离开，请在稍后的对话框中点击“离开页面”按钮。');
               }
               return message;
             }

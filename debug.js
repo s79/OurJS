@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130409
+ *  Version: 20130417
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展
@@ -2547,7 +2547,7 @@
   Element.prototype.setData = function(key, value) {
     key = parseDataKey(key);
     if (key) {
-      this.setAttribute(key, value);
+      this.setAttribute(key, String(value));
     }
     return this;
   };

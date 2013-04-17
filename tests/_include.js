@@ -1,5 +1,7 @@
 /**
- * 使用 <include file="/path/to/file"><!-- 注释信息 --></include> 引入模版文件，注意避免模版文件之间的循环引用。
+ * 使用 <include file="/path/to/file"><!-- 注释信息 --></include> 引入模版文件。
+ * 注意避免模版文件之间的循环引用。
+ * 另外模版文件中不能有脚本调用 document.write 方法，也不应该监听 document 的 domready 事件。
  */
 
 if (navigator.isIElt9) {

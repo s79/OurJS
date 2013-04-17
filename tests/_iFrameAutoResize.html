@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iFrameAutoResize</title>
+<style>
+body { background: white; }
+iframe { float: left; width: 500px; height: 100px; }
+div { float: left; font: 14px Verdana, sans-serif; text-align: left; }
+</style>
+</head>
+<body>
+<iframe id="iframe" frameborder="0" scrolling="auto" src="_iFrameAutoResize-iframe.html"></iframe>
+<div id="logger"></div>
+<script>
+var startTime = new Date().getTime();
+function log(message) {
+  document.getElementById('logger').innerHTML += '[' + (new Date().getTime() - startTime) + ']' + message + '<br>';
+}
+
+window.onload = function() {
+  log("主页面 - Loaded");
+};
+
+//--------------------------------------------------[iFrameAutoResize]
+function iFrameAutoResize(iframe) {
+  var resizeIframe = function() {
+    var iframeDocument = iframe.contentWindow.document;
+    iframe.style.height = '100px';
+    iframe.style.height = Math.max((iframeDocument.documentElement.clientHeight ? Math.max(iframeDocument.body.scrollHeight, iframeDocument.documentElement.scrollHeight) : iframeDocument.body.scrollHeight)) + 'px';
+  };
+  iframe.onload = function() {
+    log('= iframe.onload');
+    resizeIframe();
+  };
+  iframe.onreadystatechange = function() {
+    log('~ ' + this.readyState);
+    if (this.readyState === 'complete') {
+      resizeIframe();
+    }
+  };
+}
+
+//--------------------------------------------------[Test]
+iFrameAutoResize(document.getElementById('iframe'));
+</script>
+</body>
+</html>

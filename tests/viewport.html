@@ -2,16 +2,18 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>dom-viewport</title>
+<title>viewport</title>
 <script src="../dev.js"></script>
 <style>
-html { margin: 2px; padding: 3px; border: 5px solid blue; }  /* 10 */
-body { margin: 7px; padding: 11px; border: 13px solid red; }  /* 31 */
-/*html, body { margin: 0; padding: 0; border: 0; }*/
+html { margin: 2px; padding: 3px; border: 5px solid blue; }
+  /* 10 */
+body { margin: 7px; padding: 11px; border: 13px solid red; }
+  /* 31 */
+  /*html, body { margin: 0; padding: 0; border: 0; }*/
 #log { position: absolute; left: 190px; top: 80px; width: 200px; height: 30px; background: white; color: #000; font: 14px/30px Verdana; text-align: center; }
-#size_400x200 { position: absolute; left: 0; top: 0; width: 400px; height: 200px; background: #ffd711; opacity: 0.5; filter: alpha(opacity = 50); }
-#size_2000x2000 { display: none; width: 2000px; height: 2000px; background: black; opacity: 0.75; filter: alpha(opacity = 75); }
-table { position: absolute; left: 10px; top: 5px; border-collapse: collapse; border: 1px solid black; opacity: 0.75; filter: alpha(opacity = 75); }
+#size_400x200 { position: absolute; left: 0; top: 0; width: 400px; height: 200px; background: #ffd711; opacity: 0.5; filter: alpha(opacity=50); }
+#size_2000x2000 { display: none; width: 2000px; height: 2000px; background: black; opacity: 0.75; filter: alpha(opacity=75); }
+table { position: absolute; left: 10px; top: 5px; border-collapse: collapse; border: 1px solid black; opacity: 0.75; filter: alpha(opacity=75); }
 table th,
 table td { width: 50px; padding: 2px; border: 1px solid black; font: bold 14px Courier New; }
 table th { background: #f5f5f5; }
@@ -27,10 +29,10 @@ window.onload = function() {
 //  window.scrollTo(7, 5);
 
   // 标尺。
-  $('size_400x200').setStyle('background', document.compatMode === 'CSS1Compat' ? 'greenyellow' : 'crimson');
+  $('#size_400x200').setStyle('background', document.compatMode === 'CSS1Compat' ? 'greenyellow' : 'crimson');
 
   //输出结果。
-  var $resault = $('resault');
+  var $resault = $('#resault');
   var elements = [document.body, document.documentElement];
   var attributes = [
     'clientWidth',

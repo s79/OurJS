@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Overlay</title>
+<link rel="stylesheet" href="../../stylesheets/reset.css">
+<script src="../our.js"></script>
+<script src="../widgets/dialog.js"></script>
+<style>
+button { position: fixed; z-index: 1000; width: 135px; height: 30px; }
+select { width: 100px; background: orangered; }
+#h1_overlay { background: gold; opacity: 1; filter: alpha(opacity=100); }
+#div_overlay { background: cornflowerblue; opacity: 0.75; filter: alpha(opacity=75); }
+#span_overlay { background: orchid; opacity: 0.5; filter: alpha(opacity=50); }
+#var_overlay { background: springgreen; opacity: 0.75; filter: alpha(opacity=75); }
+</style>
+</head>
+<body>
+<h2 id="x" style="position: absolute; left: 1500px; top: 1500px; width: 80px; height: 80px; border: 10px dotted black; background: gold;"></h2>
+
+<select>
+  <option>IE6 SELECT</option>
+</select>
+
+<span id="span" style="position: absolute; left: 575px; top: 350px; z-index: 50; width: 400px; height: 50px; margin: 25px; padding: 5px 15px; border: 7px solid mediumorchid; background: white">
+  <var id="var" style="position: absolute; left: 10px; bottom: 0; display: block; width: 100px; height:20px; margin: 2px 2px 2px -30px; padding: 5px; border: 3px solid black; background: silver; overflow: hidden;">
+    <em id="palceholder_a" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
+    <div id="var_overlay" class="widget-overlay"></div>
+  </var>
+  <div id="span_overlay" class="widget-overlay"></div>
+</span>
+
+<div id="div" tabindex="0" style="position: absolute; left: 600px; top: 100px; z-index: 100; width: 400px; height: 300px; margin: 10px; padding: 5px; border: 7px solid black; overflow: auto;">
+  <select>
+    <option>IE6 SELECT</option>
+  </select>
+  <select style="visibility: hidden;"></select>
+  <select>
+    <option>IE6 SELECT</option>
+  </select>
+  <h1 id="h1" style="position: relative; width: 800px; height: 200px; margin: 10px; padding: 10px; border: 10px solid black;">
+    <em id="palceholder_b" style="position:absolute; left:5px; top:5px; z-index: 100; width: 20px; height:20px; background: aqua;"></em>
+    <div id="h1_overlay" class="widget-overlay"></div>
+  </h1>
+  <div id="div_overlay" class="widget-overlay"></div>
+</div>
+
+<div id="body_overlay" class="widget-overlay"></div>
+
+<script>
+var $bodyOverlay = $('#body_overlay');
+var $divOverlay = $('#div_overlay');
+var $h1Overlay = $('#h1_overlay');
+var $spanOverlay = $('#span_overlay');
+var $varOverlay = $('#var_overlay');
+var $div = $('#div');
+var $palceholderA = $('#palceholder_a');
+var $palceholderB = $('#palceholder_b');
+
+var test = function($overlay, element) {
+  if (!$overlay.context.dialogs) {
+    $overlay.context.dialogs = [];
+  }
+  if (element) {
+    $overlay.context.dialogs.push(element);
+  } else {
+    $overlay.context.dialogs.length = 0;
+  }
+  $overlay.reposition();
+};
+
+var $span = $('#span').setStyle('opacity', .75);
+var length = window.getPageOffset().y + $span.getClientRect().top - parseInt($span.getStyle('marginTop'), 10);
+window.on('scroll', function() {
+  var position = $span.getStyle('position');
+  if (window.getPageOffset().y >= length) {
+    if (position !== 'fixed') {
+      $span.setStyles({position: 'fixed', top: 0});
+    }
+  } else {
+    if (position !== 'absolute') {
+      $span.setStyles({position: 'absolute', top: length});
+    }
+  }
+});
+</script>
+
+<button style="left: 100px; top: 100px;" onmouseover="test($bodyOverlay, $div);">bodyOverlay 开</button>
+<button style="left: 250px; top: 100px;" onmouseover="test($bodyOverlay);">bodyOverlay 关</button>
+<button style="left: 100px; top: 150px;" onmouseover="test($divOverlay, $palceholderB);">divOverlay 开</button>
+<button style="left: 250px; top: 150px;" onmouseover="test($divOverlay);">divOverlay 关</button>
+<button style="left: 100px; top: 200px;" onmouseover="test($h1Overlay, $palceholderB);">h1Overlay 开</button>
+<button style="left: 250px; top: 200px;" onmouseover="test($h1Overlay);">h1Overlay 关</button>
+<button style="left: 100px; top: 250px;" onmouseover="test($spanOverlay, $palceholderA);">spanOverlay 开</button>
+<button style="left: 250px; top: 250px;" onmouseover="test($spanOverlay);">spanOverlay 关</button>
+<button style="left: 100px; top: 300px;" onmouseover="test($varOverlay, $palceholderA);">varOverlay 开</button>
+<button style="left: 250px; top: 300px;" onmouseover="test($varOverlay);">varOverlay 关</button>
+<button style="left: 175px; top: 350px;" onclick="$div.setStyle('position', 'fixed');">div.position=fixed</button>
+<button style="left: 175px; top: 400px;" onclick="$div.setStyle('position', 'absolute');">div.position=absolute</button>
+<button style="left: 175px; top: 450px;" onclick="$div.setStyle('display', 'block');">div.display=block</button>
+<button style="left: 175px; top: 500px;" onclick="$div.setStyle('display', 'none');">div.display=none</button>
+<button style="left: 175px; top: 550px;" onclick="$div.morph({left: 0, top: 0, backgroundColor: '#ff0000'}, {duration: 5000, onFinish: function(){this.fade('out', {onFinish: function() {this.fade('in');}});}});">div.animate</button>
+
+</body>
+</html>

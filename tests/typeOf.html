@@ -2,7 +2,7 @@
 <html>
 <head><!-- comment -->
 <meta charset="utf-8">
-<title>lang-typeOf</title>
+<title>typeOf</title>
 <script src="../dev.js"></script>
 <style>
 body { margin: 0; padding: 10px; font: 12px Verdana; }
@@ -74,8 +74,9 @@ var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Micr
   }, 'function'],
   ['alert', alert, 'function'],
   ['XHR', XHR, 'function'],
-  ['xhr', xhr, 'object.Object'],
-//  [xhr.abort, 'function'], // IE6 无法取此值。
+  /* IE6 无法取这两个值。 */
+//  ['xhr', xhr, 'object.Object'],
+//  [xhr.abort, 'function'],
 
   ['new Boolean(false)', new Boolean(false), 'object.Boolean'],
   ['new Number(0)', new Number(0), 'object.Number'],
