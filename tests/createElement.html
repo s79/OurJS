@@ -65,7 +65,8 @@ document.on('domready', function() {
 
 //--------------------------------------------------[测试：$('<>')]
   logger.log('--------------------------------------------------[测试：$(\'<>\')]');
-  logger.assert("$('<>').insertTo(document.body).innerText === '<>'");
+  logger.log($('<article></article>'));
+  logger.log($('<>'));
 
 });
 </script>

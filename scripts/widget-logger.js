@@ -14,7 +14,7 @@
    * @attribute data-clearable
    *   是否启用清除记录内容的按钮。
    * @description
-   *   为元素添加 'widget-logger' 类，即可使该元素成为日志记录器。
+   *   为元素添加 'widget-logger' 类，即可使该元素成为“日志记录器”。
    *   如果该元素是右浮动的，则其高度将被自动设置为其下一个相邻元素的高度。
    */
 
@@ -47,13 +47,14 @@
    */
 
   /**
-   * 清空日志记录器。
+   * 清空“日志记录器”。
    * @name Logger#clear
    * @function
    * @returns {Object} 本元素。
    */
 
-  Widget.register('logger', {
+  Widget.register({
+    type: 'logger',
     css: [
       '.widget-logger { position: relative; border: 1px solid #252525; background: #252525; }',
       '.widget-logger div.output { height: 100%; overflow-x: hidden; overflow-y: auto; color: #8CC; font: 12px/12px Consolas, "Lucida Console", Courier, SimSun, monospace; white-space: pre-wrap; word-wrap: break-word; }',

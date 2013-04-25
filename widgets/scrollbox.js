@@ -25,122 +25,128 @@
     };
   }();
 
-//--------------------------------------------------[Scrollbox]
+//--------------------------------------------------[ScrollBox]
   /**
-   * 滚动框。
-   * @name Scrollbox
+   * “滚动框”可以为其“内容区域”添加可自定义样式的“轨道”及“滚动条”（仅支持纵向滚动）。
+   * @name ScrollBox
    * @constructor
+   * @attribute data-content-shrink
+   *   “内容区域”右侧与“滚动框”右侧的间距，单位为像素。
+   *   如果不指定本属性，则使用“轨道”的宽度作为默认值。
    * @attribute data-scrollbar-min-height
-   *   滚动条的最小高度，单位为像素。
+   *   “滚动条”的最小高度，单位为像素。
    *   如果不指定本属性，则使用 20 作为默认值。
    * @fires update
    *   调用 update 方法后触发。
    * @description
-   *   滚动框可以为其“可滚动”的子元素添加可自定义样式的滚动条及其轨道（仅支持纵向滚动）。
    *   <strong>启用方式：</strong>
-   *   为一个元素添加 'widget-scrollbox' 类，即可使该元素成为滚动框。
+   *   为一个元素添加 'widget-scrollbox' 类，即可使该元素成为“滚动框”。
    *   <strong>结构约定：</strong>
-   *   滚动框元素必须包含一个子元素作为“内容区域”，并且该元素应该是“可滚动”的。该元素的可视尺寸将自动调整为与滚动框元素的可视尺寸一致，其 margin-right 的值将被用作滚动内容右侧与滚动条左侧之间的间距，其他方向的 margin 以及所有方向的 padding、border-width 都将被设置为 0；其 overflow-x 将被设置为 'hidden'，overflow-y 将被设置为 'scroll'。
-   *   滚动框元素的 position 将被设置为 'relative'，overflow 将被设置为 'hidden'。
-   *   当滚动框初始化时，会在其内部自动创建一个新的 DIV 元素作为滚动条及其轨道。
+   *   “滚动框”的 position 将被设置为 'relative'，overflow 将被设置为 'hidden'。
+   *   “滚动框”必须包含一个子元素作为“内容区域”。该元素必须是块级元素，其 width、height、margin、padding、border-width、overflow 的设置都将被忽略并重置为特定的值。
+   *   当“滚动框”初始化时，会在其内部自动创建“轨道” 'div.track'，并在“轨道”内创建“滚动条” 'div.scrollbar'。<br>为便于定制“滚动条”的样式，在“滚动条”内还创建了三个元素 'div.top'，'div.middle' 和 'div.bottom'。
    *   <strong>新增行为：</strong>
-   *   当使用鼠标拖动滚动条时，“可滚动”元素的“内容区域”将随之滚动，滚动条元素将被添加类名 'active'，该类名将在拖动结束时被移除。
-   *   当使用鼠标点击滚动轨道时，“可滚动”元素的“内容区域”将自动滚动到对应的位置。
-   *   当“可滚动”元素的“内容区域”滚动时，滚动条也将随之滚动。
+   *   点击“轨道”时，“内容区域”将滚动到相应位置。
+   *   拖动“滚动条”时，“内容区域”也将随之滚动。
+   *   “内容区域”滚动时，“滚动条”将随之改变位置。
+   *   鼠标移入“滚动条”时，“滚动条”将被添加类名 'hover'，该类名将在鼠标移出时被移除。
+   *   拖动“滚动条”时，“滚动条”将被添加类名 'active'，该类名将在拖动结束时被移除。
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
    *   .widget-scrollbox { position: relative; overflow: hidden; }
    *   .widget-scrollbox .track { position: absolute; right: 0; top: 0; z-index: 100000; width: 10px; background: whitesmoke; cursor: default; }
-   *   .widget-scrollbox .track div { width: 10px; overflow: hidden; font-size: 0; }
-   *   .widget-scrollbox .track .scrollbar { position: absolute; left: 0; top: 0; background: silver; }
-   *   .widget-scrollbox .track .active { background: lightgrey; }
+   *   .widget-scrollbox .track div { overflow: hidden; }
+   *   .widget-scrollbox .track .scrollbar { position: absolute; left: 0; top: 0; width: 10px; background: silver; }
+   *   .widget-scrollbox .track .hover { background: darkgray; }
+   *   .widget-scrollbox .track .active { background: gray; }
    *   </pre>
    */
 
   /**
-   * 更新滚动条。
-   * @name Scrollbox#update
+   * 更新“滚动条”的位置及高度。
+   * @name ScrollBox#update
    * @function
    * @returns {Element} 本元素。
    * @description
-   *   当滚动框的尺寸、可见性或其“可滚动”的子元素的内容发生变化时，需手动调用本方法，以校正滚动条的位置及尺寸。
+   *   当“滚动框”的尺寸、可见性或其“内容区域”的滚动高度发生变化时，需手动调用本方法对“滚动条”进行校正。
    */
 
-  Widget.register('scrollbox', {
+  Widget.register({
+    type: 'scrollbox',
     css: [
       '.widget-scrollbox { position: relative; overflow: hidden; }',
       '.widget-scrollbox .track { position: absolute; right: 0; top: 0; z-index: 100000; width: 10px; background: whitesmoke; cursor: default; }',
-      '.widget-scrollbox .track div { width: 10px; overflow: hidden; font-size: 0; }',
-      '.widget-scrollbox .track .scrollbar { position: absolute; left: 0; top: 0; background: silver; }',
-      '.widget-scrollbox .track .active { background: lightgrey; }'
+      '.widget-scrollbox .track div { overflow: hidden; }',
+      '.widget-scrollbox .track .scrollbar { position: absolute; left: 0; top: 0; width: 10px; background: silver; }',
+      '.widget-scrollbox .track .hover { background: darkgray; }',
+      '.widget-scrollbox .track .active { background: gray; }'
     ],
     config: {
+      contentShrink: NaN,
       scrollbarMinHeight: 20
     },
     methods: {
       update: function() {
-        var $element = this;
-        // 更新滚动条。
-        var $content = $element.content;
-        var $track = $element.elements.track;
-        var $scrollbar = $element.elements.scrollbar;
+        var $scrollbox = this;
+        // 更新“滚动条”。
+        var $content = $scrollbox.content;
+        var $track = $scrollbox.elements.track;
+        var $scrollbar = $scrollbox.elements.scrollbar;
         // 调整“内容区域”的尺寸。
-        var paddingTop = getPixelLength($element, 'paddingTop');
-        var paddingRight = getPixelLength($element, 'paddingRight');
-        var paddingBottom = getPixelLength($element, 'paddingBottom');
-        var paddingLeft = getPixelLength($element, 'paddingLeft');
-        var marginRight = getPixelLength($content, 'marginRight');
-        var clientWidth = $element.clientWidth - paddingLeft - paddingRight;
-        var clientHeight = $element.clientHeight - paddingTop - paddingBottom;
+        var paddingTop = getPixelLength($scrollbox, 'paddingTop');
+        var paddingRight = getPixelLength($scrollbox, 'paddingRight');
+        var paddingBottom = getPixelLength($scrollbox, 'paddingBottom');
+        var paddingLeft = getPixelLength($scrollbox, 'paddingLeft');
+        var clientWidth = $scrollbox.clientWidth - paddingLeft - paddingRight;
+        var clientHeight = $scrollbox.clientHeight - paddingTop - paddingBottom;
+        var contentShrink = $scrollbox.contentShrink;
         $content.setStyles({
           visibility: 'visible',
+          width: clientWidth + getSystemScrollbarWidth() - (Number.isNaN(contentShrink) ? $track.clientWidth : contentShrink),
+          height: clientHeight,
           margin: 0,
-          marginRight: marginRight,
           padding: 0,
-          // 右侧内部丁设为 100，以将“系统滚动条”溢出隐藏到滚动框的右侧。
+          // 右侧内部丁设为 100，以将系统滚动条溢出隐藏到“滚动框”的右侧。
           paddingRight: 100,
           border: '0 none',
-          width: clientWidth + getSystemScrollbarWidth() - $track.clientWidth - marginRight,
-          height: clientHeight,
           overflowX: 'hidden',
           overflowY: 'scroll'
         });
-        // 调整滚动轨道的位置及尺寸。
+        // 调整“轨道”的位置及尺寸。
         $track.setStyles({
           top: paddingTop,
           right: paddingRight,
           height: clientHeight
         });
-        // 调整滚动条的尺寸。
-        // IE7 需要主动触发 reflow 以使滚动条显示正常。
+        // 调整“滚动条”的高度。
+        // IE7 需要主动触发 reflow 以使“滚动条”显示正常。
         var reflow = $content.offsetWidth;
         var scrollHeight = $content.scrollHeight;
         if (scrollHeight > clientHeight) {
           $scrollbar.setStyle('display', 'block');
-          var scrollbarTopAndBottomHeight = $element.elements.scrollbarTop.clientHeight + $element.elements.scrollbarBottom.clientHeight;
-          var avaliableTrackHeight = $element.avaliableTrackHeight = clientHeight - Math.max(scrollbarTopAndBottomHeight, $element.scrollbarMinHeight);
-          var scrollRate = $element.scrollRate = scrollHeight / avaliableTrackHeight;
-          $element.elements.scrollbarMiddle.setStyle('height', clientHeight - Math.round((scrollHeight - clientHeight) / scrollRate) - scrollbarTopAndBottomHeight);
+          var scrollbarTopAndBottomHeight = $scrollbox.elements.scrollbarTop.clientHeight + $scrollbox.elements.scrollbarBottom.clientHeight;
+          var avaliableTrackHeight = $scrollbox.avaliableTrackHeight = clientHeight - Math.max(scrollbarTopAndBottomHeight, $scrollbox.scrollbarMinHeight);
+          var scrollRate = $scrollbox.scrollRate = scrollHeight / avaliableTrackHeight;
+          $scrollbox.elements.scrollbarMiddle.setStyle('height', clientHeight - Math.round((scrollHeight - clientHeight) / scrollRate) - scrollbarTopAndBottomHeight);
           $content.fire('scroll', {bubbles: false});
         } else {
           $scrollbar.setStyle('display', 'none');
         }
         $track.setStyle('visibility', 'visible');
         // 触发事件。
-        $element.fire('update');
-        return $element;
+        $scrollbox.fire('update');
+        return $scrollbox;
       }
     },
-    events: ['update'],
     initialize: function() {
-      // 避免一些浏览器横向拖动时造成“内容区域”在滚动框内横向滚动。
-      var $element = this.on('scroll', function() {
+      // 避免一些浏览器横向拖动时造成“内容区域”在“滚动框”内横向滚动。
+      var $scrollbox = this.on('scroll', function() {
         this.scrollLeft = 0;
       });
-      // 更新滚动条前先隐藏“内容区域”。
-      var $content = $element.getFirstChild().setStyle('visibility', 'hidden');
+      // 更新“滚动条”前先隐藏“内容区域”。
+      var $content = $scrollbox.getFirstChild().setStyle('visibility', 'hidden');
 
-      // 添加滚动条及其轨道，并处理轨道点击事件。
+      // 添加“轨道”及“滚动条”，并处理“轨道”上的点击事件。
       var $track = document.$('<div class="track"><div class="scrollbar"><div class="top"></div><div class="middle"></div><div class="bottom"></div></div></div>')
           .setStyle('visibility', 'hidden')
           .on('mousedown', function(e) {
@@ -150,31 +156,37 @@
               e.stopPropagation();
             }
           })
-          .insertTo($element);
-      // 处理滚动条拖拽事件。
+          .insertTo($scrollbox);
+      // 处理“滚动条”拖拽事件。
       var scrollTopBeforeDrag;
       var $scrollbar = $track.getFirstChild()
+          .on('mouseenter', function() {
+            this.addClass('hover');
+          })
+          .on('mouseleave', function() {
+            this.removeClass('hover');
+          })
           .on('mousedragstart', function() {
             scrollTopBeforeDrag = $content.scrollTop;
             this.addClass('active');
           })
           .on('mousedrag', function(e) {
-            $content.scrollTop = scrollTopBeforeDrag + e.offsetY * $element.scrollRate;
+            $content.scrollTop = scrollTopBeforeDrag + e.offsetY * $scrollbox.scrollRate;
           })
           .on('mousedragend', function() {
             this.removeClass('active');
           });
 
-      // 在“内容区域”滚动时更新滚动条的位置。
+      // 当“内容区域”滚动时，更新“滚动条”的位置。
       $content.on('scroll', function() {
-        var top = Math.round(this.scrollTop / this.scrollHeight * $element.avaliableTrackHeight);
+        var top = Math.round(this.scrollTop / this.scrollHeight * $scrollbox.avaliableTrackHeight);
         if (isFinite(top)) {
           $scrollbar.setStyle('top', top);
         }
       });
 
       // 保存属性。
-      Object.mixin($element, {
+      Object.mixin($scrollbox, {
         elements: {
           track: $track,
           scrollbar: $scrollbar,
@@ -187,9 +199,9 @@
         avaliableTrackHeight: 0
       });
 
-      // 如果滚动框可见则更新滚动条。
-      if ($element.offsetWidth) {
-        $element.update();
+      // 如果“滚动框”可见则更新“滚动条”。
+      if ($scrollbox.offsetWidth) {
+        $scrollbox.update();
       }
 
     }

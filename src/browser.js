@@ -125,6 +125,33 @@
     };
   }
 
+//==================================================[console 补缺]
+  /*
+   * 为没有控制台的浏览器补缺常用方法，以供内部打印调试信息使用。
+   *
+   * 补缺方法：
+   *   console.log
+   *   console.info
+   *   console.warn
+   *   console.error
+   *
+   * 注意：
+   *   本实现并未给没有控制台的浏览器提供打印调试信息的方式，只是确保在这些浏览器里调用上述补缺的方法时不会出错。
+   */
+
+  /**
+   * 控制台对象。
+   * @name console
+   * @namespace
+   */
+
+//--------------------------------------------------[console.*]
+  if (!window.console) {
+    var consoleObject = window.console = {};
+    consoleObject.log = consoleObject.info = consoleObject.warn = consoleObject.error = function() {
+    };
+  }
+
 //==================================================[navigator 扩展]
   /*
    * 常见浏览器的 navigator.userAgent：
@@ -162,19 +189,6 @@
    * @name navigator
    * @namespace
    */
-
-//--------------------------------------------------[navigator.warn]
-  /**
-   * 供内部使用的向用户显示警告信息的方法。
-   * @name navigator.warn
-   * @function
-   * @private
-   * @param {string} message 警告信息。
-   */
-  navigator.warn = (window.console && typeOf(console.warn) === 'function') ? function(message) {
-    console.warn('OurJS: ' + message);
-  } : function() {
-  };
 
 //--------------------------------------------------[navigator.*]
   /**
@@ -323,7 +337,7 @@
     // 检查工作模式。
     var inStandardsMode = document.compatMode === 'CSS1Compat';
     if (!inStandardsMode) {
-      navigator.warn('Browser is working in non-standards mode!');
+      console.warn('OurJS: Browser is working in non-standards mode!');
     }
     // 浏览器特性判断。
     var isIE10 = false;
@@ -463,10 +477,10 @@
    * @param {string} key 数据名。
    * @param {string} value 数据值。
    * @param {Object} [options] 可选参数。
-   * @param {string} options.path 限定生效的路径，默认为当前路径。
-   * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
-   * @param {string|Date} options.expires 过期时间，默认为会话结束。
+   * @param {string} [options.path] 限定生效的路径，默认为当前路径。
+   * @param {string} [options.domain] 限定生效的域名，默认为当前域名。
+   * @param {boolean} [options.secure] 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   * @param {string|Date} [options.expires] 过期时间，默认为会话结束。
    *   如果使用字符串类型，其表示时间的格式应为 'YYYY-MM-DD hh:mm:ss'。
    */
   cookie.setItem = function(key, value, options) {
@@ -494,9 +508,9 @@
    * @function
    * @param {string} key 数据名。
    * @param {Object} [options] 可选参数。
-   * @param {string} options.path 限定生效的路径，默认为当前路径。
-   * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   * @param {string} [options.path] 限定生效的路径，默认为当前路径。
+   * @param {string} [options.domain] 限定生效的域名，默认为当前域名。
+   * @param {boolean} [options.secure] 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
    */
   cookie.removeItem = function(key, options) {
     options = options || {};
@@ -508,7 +522,7 @@
   /*
    * 为不支持 localStorage 的浏览器（IE6 IE7）模拟此特性。
    *
-   * 补缺属性：
+   * 补缺方法：
    *   localStorage.getItem
    *   localStorage.setItem
    *   localStorage.removeItem

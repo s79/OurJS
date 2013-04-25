@@ -1,5 +1,15 @@
 
 
+>2013-04-25
+* 去掉 Widget 的内联事件监听器支持
+  1. 不建议使用内联事件监听器。
+  2. 这样可以避免如 onactivate 事件在某些浏览器中可能被意外触发的问题。
+* 更新各 Widget 的文档和演示页面[5/9]
+* 使 document.$ 支持的选择符与 find 方法支持的一致（不再只支持 id 选择符）
++ widget-demobutton
++ console
+- navigator.warn
+
 >2013-04-17
 * Element.prototype.setData 将传入的 value 强制转换为字符串格式
 # 整理测试页面

@@ -8,7 +8,7 @@
 //==================================================[Widget - 月历]
 //--------------------------------------------------[Calendar]
   /**
-   * 月历。
+   * “月历”可以显示指定月份的日期排列情况。
    * @name Calendar
    * @constructor
    * @attribute data-month
@@ -26,11 +26,10 @@
    *   {Date} date 已更新的日期。
    *   日期单元格更新后触发。每次调用 update 方法时，每个日期单元格都会更新一次。
    * @description
-   *   月历可以显示指定月份的日期排列情况。
    *   <strong>启用方式：</strong>
-   *   为元素添加 'widget-calendar' 类，即可使该元素成为月历。
+   *   为一个元素添加 'widget-calendar' 类，即可使该元素成为月历。
    *   <strong>结构约定：</strong>
-   *   当月历初始化时，会根据 data-month 的配置自动在其内部创建一个表格元素，来显示指定月份的日期排列（在 data-month 不为 '0000-00' 的情况下）。
+   *   当月历初始化时，会在其内部创建一个表格元素，并在其中根据 data-month 的配置来显示指定月份的日期排列（在 data-month 不为 '0000-00' 的情况下）。
    *   其中每个单元格都有用于表示星期几的类名 'sun'、'mon'、'tues'、'wed'、'thurs'、'fri'、'sat'。
    *   上一个月的日期所在的单元格会被添加类名 'prev'，下一个月的日期所在的单元格会被添加类名 'next'。
    *   今天的日期所在的单元格会被添加类名 'today'。
@@ -62,7 +61,8 @@
    * @returns {Element} 本元素。
    */
 
-  Widget.register('calendar', {
+  Widget.register({
+    type: 'calendar',
     css: [
       '.widget-calendar table { table-layout: fixed; border-collapse: separate; border-spacing: 1px; width: 218px; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }',
       '.widget-calendar table td { padding: 0; border: 1px solid silver; border-radius: 2px; text-align: center; }',
@@ -77,7 +77,7 @@
     },
     methods: {
       update: function(month) {
-        var $element = this;
+        var $calendar = this;
 
         // 输出星期类名与文字。
         var dayNames = ['sun', 'mon', 'tues', 'wed', 'thurs', 'fri', 'sat'];
@@ -85,22 +85,22 @@
 
         // 要显示的月份。
         if (month) {
-          $element.month = month;
+          $calendar.month = month;
         }
-        var showDate = Date.parseExact($element.month, 'YYYY-MM');
+        var showDate = Date.parseExact($calendar.month, 'YYYY-MM');
         var showY = showDate.getFullYear();
         var showM = showDate.getMonth();
 
         // 输出月历头和月历体。
-        var firstDayOfWeek = $element.firstDay;
+        var firstDayOfWeek = $calendar.firstDay;
         var startIndex = (showDate.getDay() + 7 - firstDayOfWeek) % 7 || 7;
         var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
         var today = Date.parseExact(new Date().format()).getTime();
-        $element.elements.theadCells.forEach(function($cell, index) {
+        $calendar.elements.theadCells.forEach(function($cell, index) {
           $cell.className = dayNames[(index + firstDayOfWeek) % 7];
           $cell.innerText = dayTexts[(index + firstDayOfWeek) % 7];
         });
-        $element.elements.tbodyCells.forEach(function($cell, index) {
+        $calendar.elements.tbodyCells.forEach(function($cell, index) {
           var date = new Date(showY, showM, index - startIndex + 1);
           // 星期几。
           $cell.className = dayNames[date.getDay()];
@@ -121,22 +121,21 @@
           // 输出日期。
           $cell.innerText = date.getDate();
           // 触发事件。
-          $element.fire('cellupdate', {cell: $cell, date: date});
+          $calendar.fire('cellupdate', {cell: $cell, date: date});
         });
 
         // 触发事件。
-        $element.fire('update', {month: $element.month});
+        $calendar.fire('update', {month: $calendar.month});
 
-        return $element;
+        return $calendar;
 
       }
     },
-    events: ['update', 'cellupdate'],
     initialize: function() {
-      var $element = this;
+      var $calendar = this;
 
       // 添加新元素。
-      var $table = document.$('<table><thead></thead><tbody></tbody></table>').insertTo($element);
+      var $table = document.$('<table><thead></thead><tbody></tbody></table>').insertTo($calendar);
       var $thead = $table.getFirstChild();
       var $tbody = $table.getLastChild();
       var tr = $thead.insertRow(-1);
@@ -148,19 +147,19 @@
       }
 
       // 保存属性。
-      $element.elements = {
+      $calendar.elements = {
         thead: $thead,
         tbody: $tbody,
         theadCells: $thead.find('td'),
         tbodyCells: $tbody.find('td')
       };
-      if (!$element.month) {
-        $element.month = new Date().format('YYYY-MM');
+      if (!$calendar.month) {
+        $calendar.month = new Date().format('YYYY-MM');
       }
 
-      // 如果 month 不为 '0000-00' 则自动显示指定月份的月历。
-      if ($element.month !== '0000-00') {
-        $element.update();
+      // 如果 month 不为 '0000-00' 则显示指定月份的月历。
+      if ($calendar.month !== '0000-00') {
+        $calendar.update();
       }
 
     }

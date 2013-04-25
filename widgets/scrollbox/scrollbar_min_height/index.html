@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ScrollBox</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/scrollbox.js"></script>
+<style>
+body { margin: 0; padding: 5px; font: 14px/20px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+p { margin: 0; padding: 2000px 0; text-align: center; }
+
+.widget-scrollbox { float: left; width: 440px; height: 150px; margin-right: 5px; padding: 5px; border: 1px solid black; background-color: whitesmoke; }
+.widget-scrollbox div.track { width: 9px; background: url(track.png) repeat-y; }
+.widget-scrollbox div.track .scrollbar { width: 9px; }
+.widget-scrollbox div.track .scrollbar div { background: url(scrollbar.png) repeat-y; }
+.widget-scrollbox div.track .scrollbar .top { height: 5px; background-position: 0 0; }
+.widget-scrollbox div.track .scrollbar .middle { height: auto; background-position: -9px 0; }
+.widget-scrollbox div.track .scrollbar .bottom { height: 5px; background-position: 0 -5px; }
+.widget-scrollbox div.track .hover .top { background-position: -18px 0; }
+.widget-scrollbox div.track .hover .middle { background-position: -27px 0; }
+.widget-scrollbox div.track .hover .bottom { background-position: -18px -5px; }
+.widget-scrollbox div.track .active .top { background-position: -36px 0; }
+.widget-scrollbox div.track .active .middle { background-position: -45px 0; }
+.widget-scrollbox div.track .active .bottom { background-position: -36px -5px; }
+</style>
+<script>
+</script>
+</head>
+<body>
+<!-- 滚动框_A { -->
+<div class="widget-scrollbox" data-content-shrink="12">
+  <div>
+    <p style="background: cornflowerblue;">内容</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p style="background: cornflowerblue;">内容</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p style="background: cornflowerblue;">内容</p>
+  </div>
+</div>
+<!-- } 滚动框_A -->
+
+<!-- 滚动框_B { -->
+<div class="widget-scrollbox" data-content-shrink="12" data-scrollbar-min-height="50">
+  <div>
+    <p style="background: cornflowerblue;">内容</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p style="background: cornflowerblue;">内容</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p style="background: cornflowerblue;">内容</p>
+  </div>
+</div>
+<!-- } 滚动框_B -->
+
+</body>
+</html>

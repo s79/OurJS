@@ -6,6 +6,7 @@
 <script src="../../our.js"></script>
 <script src="../../scripts/common_loader.js"></script>
 <script src="../../scripts/widget-logger.js"></script>
+<script src="../../scripts/widget-demobutton.js"></script>
 <style>
 .widget-logger { float: right; width: 407px; }
 .demo { float: left; width: 534px; }
@@ -39,18 +40,17 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   <div class="demo">
     <div id="morph_sample" style="width: 160px; height: 80px; border: 0 solid gray; background: gold; font-size: 20px; line-height: 80px; text-align: center;">0</div>
     <blockquote>
-      <button id="morph_button">morph(...)</button>
+      <button class="widget-demobutton" data-code="morphTest();"><code><strong>$mSample</strong>.morph(...);</code></button>
     </blockquote>
   </div>
 </fieldset>
 <script>
-document.on('domready', function() {
+(function() {
   var $logger = $('#morph_logger');
+  var $mSample = $('#morph_sample');
 
-  var $sample = $('#morph_sample');
-
-  $('#morph_button').on('click', function() {
-    $sample.morph({
+  window.morphTest = function() {
+    $mSample.morph({
       // 可以使用相对长度。
       width: '+=100',
       borderLeftWidth: '+=10',
@@ -94,9 +94,8 @@ document.on('domready', function() {
         });
       }
     });
-  });
-
-});
+  };
+})();
 </script>
 <!-- } morph -->
 
@@ -112,19 +111,19 @@ document.on('domready', function() {
   <div class="demo">
     <div id="highlight_sample" style="width: 160px; height: 80px; background: gold; font-size: 20px; line-height: 80px; text-align: center;"></div>
     <blockquote>
-      <button id="highlight_red">highlight('orangered')</button>
-      <button id="highlight_green">highlight('greenyellow')</button>
+      <button class="widget-demobutton" data-code="highlightTestA();"><code><strong>$hSample</strong>.highlight(<em>'orangered'</em>);</code></button>
+      <br>
+      <button class="widget-demobutton" data-code="highlightTestB();"><code><strong>$hSample</strong>.highlight(<em>'greenyellow'</em>);</code></button>
     </blockquote>
   </div>
 </fieldset>
 <script>
-document.on('domready', function() {
+(function() {
   var $logger = $('#highlight_logger');
+  var $hSample = $('#highlight_sample');
 
-  var $sample = $('#highlight_sample');
-
-  $('#highlight_red').on('click', function() {
-    $sample.highlight('orangered', 'backgroundColor', {
+  window.highlightTestA = function() {
+    $hSample.highlight('orangered', 'backgroundColor', {
       onStart: function() {
         $logger.log('<strong>onStart</strong>(orangered)');
       },
@@ -133,10 +132,10 @@ document.on('domready', function() {
         $logger.log('<strong>onFinish</strong>(orangered)');
       }
     });
-  });
+  };
 
-  $('#highlight_green').on('click', function() {
-    $sample.highlight('greenyellow', 'backgroundColor', {
+  window.highlightTestB = function() {
+    $hSample.highlight('greenyellow', 'backgroundColor', {
       onStart: function() {
         $logger.log('<strong>onStart</strong>(greenyellow)');
       },
@@ -148,9 +147,9 @@ document.on('domready', function() {
         $logger.log('<strong>onFinish</strong>(greenyellow)');
       }
     });
-  });
+  };
 
-});
+})();
 </script>
 <!-- } highlight -->
 
@@ -174,9 +173,11 @@ document.on('domready', function() {
       <div id="opacity_value" style="height: 10px; background: yellowgreen;"></div>
     </div>
     <blockquote>
-      <button id="fade_in">fade('in')</button>
-      <button id="fade_out">fade('out')</button>
-      <button id="fade_toggle">fade('toggle')</button>
+      <button class="widget-demobutton" data-code="fadeTestA();"><code><strong>$fSample</strong>.fade(<em>'in'</em>);</code></button>
+      <br>
+      <button class="widget-demobutton" data-code="fadeTestB();"><code><strong>$fSample</strong>.fade(<em>'out'</em>);</code></button>
+      <br>
+      <button class="widget-demobutton" data-code="fadeTestC();"><code><strong>$fSample</strong>.fade(<em>'toggle'</em>);</code></button>
     </blockquote>
   </div>
 </fieldset>
@@ -184,13 +185,13 @@ document.on('domready', function() {
 document.on('domready', function() {
   var $logger = $('#fade_logger');
 
-  var $sample = $('#fade_sample');
+  var $fSample = $('#fade_sample');
   var $pointer = $('#opacity_value');
 
   var timer;
   var update = function() {
     // 隐藏时 opacity 会被恢复为原始值，但在指示条上以 0 值显示。
-    $pointer.setStyle('width', $sample.offsetWidth ? ($sample.getStyle('opacity') * 100 + '%') : 0);
+    $pointer.setStyle('width', $fSample.offsetWidth ? ($fSample.getStyle('opacity') * 100 + '%') : 0);
   };
   var startUpdate = function() {
     update();
@@ -206,8 +207,8 @@ document.on('domready', function() {
     }
   };
 
-  $('#fade_in').on('click', function() {
-    $sample.fade('in', {
+  window.fadeTestA = function() {
+    $fSample.fade('in', {
       duration: 1500,
       timingFunction: 'bounceIn',
       onStart: function() {
@@ -219,10 +220,10 @@ document.on('domready', function() {
         stopUpdate();
       }
     });
-  });
+  };
 
-  $('#fade_out').on('click', function() {
-    $sample.fade('out', {
+  window.fadeTestB = function() {
+    $fSample.fade('out', {
       duration: 750,
       timingFunction: 'cubicBezier(.25,1.25,.75,-0.25)',
       onStart: function() {
@@ -234,10 +235,10 @@ document.on('domready', function() {
         stopUpdate();
       }
     });
-  });
+  };
 
-  $('#fade_toggle').on('click', function() {
-    $sample.fade('toggle', {
+  window.fadeTestC = function() {
+    $fSample.fade('toggle', {
       duration: 1000,
       timingFunction: 'ease',
       onStart: function() {
@@ -252,7 +253,7 @@ document.on('domready', function() {
         stopUpdate();
       }
     });
-  });
+  };
 
 });
 </script>
@@ -274,8 +275,9 @@ document.on('domready', function() {
       </div>
     </div>
     <blockquote>
-      <button id="scroll_up">smoothScroll(0, 0)</button>
-      <button id="scroll_down">smoothScroll(200, '+=50')</button>
+      <button class="widget-demobutton" data-code="smoothScrollTestA();"><code><strong>$sSample</strong>.smoothScroll(<var>0</var>, <var>0</var>);</code></button>
+      <br>
+      <button class="widget-demobutton" data-code="smoothScrollTestB();"><code><strong>$sSample</strong>.smoothScroll(<var>200</var>, <em>'+=50'</em>);</code></button>
     </blockquote>
   </div>
 </fieldset>
@@ -285,7 +287,7 @@ document.on('domready', function() {
 
   var $sample = $('#scroll_sample');
 
-  $('#scroll_up').on('click', function() {
+  window.smoothScrollTestA = function() {
     $sample.smoothScroll(0, 0, {
       timingFunction: 'easeOut',
       onStart: function() {
@@ -298,9 +300,9 @@ document.on('domready', function() {
         $logger.log('<strong>onFinish</strong>(0, 0)');
       }
     });
-  });
+  };
 
-  $('#scroll_down').on('click', function() {
+  window.smoothScrollTestB = function() {
     $sample.smoothScroll(200, '+=50', {
       onStart: function() {
         $logger.log('<strong>onStart</strong>(200, \'+=50\')');
@@ -309,7 +311,7 @@ document.on('domready', function() {
         $logger.log('<strong>onFinish</strong>(200, \'+=50\')');
       }
     });
-  });
+  };
 
 });
 </script>
@@ -381,9 +383,9 @@ document.on('domready', function() {
     </div>
     <p>键盘左 = reverse，键盘下 = pause，键盘右 = play。<br>点击剪辑色条可以在下边的面板绘制该剪辑的控速函数曲线。</p>
     <blockquote id="animation_controls">
-      <button>reverse</button>
-      <button>pause</button>
-      <button>play</button>
+      <button class="widget-demobutton" data-code="animation.reverse();">reverse</button>
+      <button class="widget-demobutton" data-code="animation.pause();">pause</button>
+      <button class="widget-demobutton" data-code="animation.play();">play</button>
     </blockquote>
   </div>
 </fieldset>
@@ -501,10 +503,6 @@ document.on('domready', function() {
     }
     return true;
   });
-  $('#animation_controls').on('click:relay(button)', function() {
-    $logger.log('<em>' + this.innerText + '</em>');
-    animation[this.innerText]();
-  });
 
 //--------------------------------------------------[logger]
   var $logger = $('#complex_logger');
@@ -518,30 +516,31 @@ document.on('domready', function() {
 <style>
 #canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; border: 1px solid silver; background: #252525; }
 #canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
-#timing_controls button { width: 100px; font-size: 12px; padding: 3px 5px; }
+#timing_controls button { width: 100px; margin: 1px; padding: 3px 5px; border: 1px solid gray; overflow: visible; font-weight: bold; font-size: 14px; opacity: .8; filter: alpha(opacity=80); }
+#timing_controls button:hover { opacity: 1; filter: alpha(opacity=100); }
 </style>
 <fieldset style="text-align: center;">
   <legend style="text-align: left;">100% 兼容 CSS3 transition-timing-function 的控速函数</legend>
   <div id="canvas"></div>
   <p>点击 = 清除，Ctrl + 点击 = 一起画，Shift + 点击 = 分别画。</p>
   <blockquote id="timing_controls">
-    <button style="background-color: white;">linear</button>
-    <button style="background-color: silver;">bounceIn</button>
-    <button style="background-color: gold;">bounceOut</button>
+    <button style="background-color: white;"><code>linear</code></button>
+    <button style="background-color: silver;"><code>bounceIn</code></button>
+    <button style="background-color: gold;"><code>bounceOut</code></button>
     <br>
-    <button style="background-color: orangered;">ease</button>
+    <button style="background-color: orangered;"><code>ease</code></button>
     <br>
-    <button style="background-color: greenyellow;;">easeIn</button>
-    <button style="background-color: cornflowerblue;">easeOut</button>
+    <button style="background-color: greenyellow;;"><code>easeIn</code></button>
+    <button style="background-color: cornflowerblue;"><code>easeOut</code></button>
     <br>
-    <button style="background-color: springgreen;">easeInOut</button>
-    <button style="background-color: orchid;">easeOutIn</button>
+    <button style="background-color: springgreen;"><code>easeInOut</code></button>
+    <button style="background-color: orchid;"><code>easeOutIn</code></button>
     <br>
-    <button style="background-color: tomato; width: 200px;">cubicBezier(.6,0,.6,1.35)</button>
-    <button style="background-color: yellowgreen; width: 200px;">cubicBezier(.4,-0.35,.4,1)</button>
+    <button style="background-color: tomato; width: 250px;"><code>cubicBezier(.6,0,.6,1.35)</code></button>
+    <button style="background-color: yellowgreen; width: 250px;"><code>cubicBezier(.4,-0.35,.4,1)</code></button>
     <br>
-    <button style="background-color: steelblue; width: 250px;">cubicBezier(.5,.29,.23,-0.58)</button>
-    <button style="background-color: mediumseagreen; width: 250px;">cubicBezier(.25,1.25,.75,-0.25)</button>
+    <button style="background-color: steelblue; width: 300px;"><code>cubicBezier(.5,.29,.23,-0.58)</code></button>
+    <button style="background-color: mediumseagreen; width: 300px;"><code>cubicBezier(.25,1.25,.75,-0.25)</code></button>
     <br>
   </blockquote>
 </fieldset>

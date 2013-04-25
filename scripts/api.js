@@ -195,16 +195,19 @@ document.on('domready', function() {
           comment = name.slice(1, -1);
           $('<h2>' + comment + '</h2>').insertTo($indexFieldset);
         } else {
+          var id = name.toLowerCase().replace(/\W/g, function(letter) {
+            return '_' + letter.charCodeAt(0) + '_';
+          });
           var symbol = apiData[name];
           var category = getCategory(symbol);
           // 语法和说明。
-          $('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + name.toLowerCase() + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>').insertTo($indexFieldset);
+          $('<dl' + (category ? ' class="' + category + '"' : '') + '><dt><a href="#' + id + '">' + getSyntax(symbol, name) + '</a></dt><dd>' + getShortDescription(symbol) + '</dd></dl>').insertTo($indexFieldset);
           // 详细信息。
           var groupName = symbol ? (symbol.isFunction ? (symbol.category === 'constructor' ? 'constructor' : 'methods') : 'properties') : '';
           if (groupName && groupName !== lastGroupName) {
             $(group[groupName]).insertTo($detailsContent);
           }
-          $('<div id="' + name.toLowerCase() + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getAttributes(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>').insertTo($detailsContent);
+          $('<div id="' + id + '" class="symbol">' + '<h3>' + (comment ? '<span class="comment' + ('ES5/ES6/HTML5'.contains(comment) ? ' patch' : '') + '">' + comment + '</span>' : '') + '<span class="category">' + category + '</span>' + getType(symbol) + getSyntax(symbol, name) + '</h3>' + getDescription(symbol) + getParameters(symbol) + getReturns(symbol) + getAttributes(symbol) + getFires(symbol) + getRequires(symbol) + getSince(symbol) + getDeprecated(symbol) + getExample(symbol) + getSee(symbol) + '</div>').insertTo($detailsContent);
           lastGroupName = groupName;
         }
       });
@@ -271,7 +274,7 @@ document.on('domready', function() {
           buildSymbol(indexColumns.c, name, true);
         });
     [
-      '多页标签面板',
+      '标签面板',
       '模态对话框',
       '幻灯片播放器',
       '自动提词机',

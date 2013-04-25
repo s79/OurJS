@@ -15,32 +15,33 @@
     <p>
       注意：<br>
       一个 Widget 本身仍是一个元素。<br>
-      当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
+      当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
       这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
     </p>
   </blockquote>
 
-  <h2>基本应用</h2>
-  <ul>
-    <li>适用于绝大多数场景。</li>
-    <li>不需要写脚本。</li>
-  </ul>
+  <h2>如何滚动</h2>
+  <p>滚动框的滚动行为与系统默认的滚动行为完全一致。</p>
+  <p>除了拖拽滚动条、点击轨道外，还可以通过在滚动内容区域使用鼠标滚轮、PageUp、PageDown、Home、End、上下箭头、空格键，点击锚点，拖拽内容，调用脚本等方式来使滚动框的内容滚动。</p>
 
-  <h3>可以通过样式表自定义滚动条的样式</h3>
-  <div class="widget-demoarea" data-src="basic/index.html"></div>
+  <h2>滚动区域的尺寸</h2>
+  <p>默认情况下，滚动区域的尺寸等于滚动框的尺寸减去轨道的尺寸。</p>
+  <p>可以通过配置 data-content-shrink 来指定“滚动区域”右侧与“滚动框”右侧的间距。</p>
+  <p>本例新建了两个滚动框，并将第二个滚动框的 data-content-shrink 设置为 20：</p>
+  <div class="widget-demoarea" data-src="content_size/"></div>
 
-  <h2>高级应用</h2>
-  <ul>
-    <li>当滚动框的尺寸、可见性或其“可滚动”的子元素的内容发生变化时，需要调用 update 方法来校正滚动条的位置。</li>
-  </ul>
+  <h2>滚动条的最小高度</h2>
+  <p>当可滚动的内容很长时，滚动条可能会变得很短。在这种情况下，可能需要限制滚动条的最小高度。</p>
+  <p>可以通过配置 data-scrollbar-min-height 来指定滚动条的最小高度。</p>
+  <p>如果没有指定 data-scrollbar-min-height，则使用 20 作为默认值。</p>
+  <p>本例新建了两个内容足够长的滚动框，并将第二个滚动框的 data-scrollbar-min-height 设置为 50：</p>
+  <div class="widget-demoarea small-size" data-src="scrollbar_min_height/"></div>
 
-  <h3>改变滚动框的尺寸</h3>
-  <p>在每一次改变滚动框的尺寸后，调用滚动框的 update 方法，以更新内容和滚动条的位置。</p>
-  <div class="widget-demoarea big-size" data-src="update/resize.html"></div>
-
-  <h3>滚动框初始状态为不可见</h3>
-  <p>当内容初次被展示时，也应手动调用滚动框的 update 方法，以更新内容和滚动条的位置。</p>
-  <div class="widget-demoarea" data-src="update/invisible.html"></div>
+  <h2>更新滚动条</h2>
+  <p>当滚动框的尺寸、可见性或其内容区域的滚动高度发生变化时，需要调用 update 方法来校正滚动条的位置。</p>
+  <p>如果内容区域不需要滚动即可完全显示，则轨道和滚动条将被隐藏。</p>
+  <p>本例新建了一个可以隐藏、显示、伸缩尺寸的滚动框：</p>
+  <div class="widget-demoarea big-size" data-src="update/"></div>
 
 </div>
 </body>

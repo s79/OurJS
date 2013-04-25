@@ -19,7 +19,7 @@
 </div>
 <script>
 document.on('domready', function() {
-  var totalPage = 10;
+  var totalPages = 10;
   var currentPage = 5;
   var $loading = $('#loading');
   var $paginator = $('#paginator');
@@ -30,11 +30,11 @@ document.on('domready', function() {
     // 模拟 500 毫秒后收到新页的数据，更新导航条。
     setTimeout(function() {
       $loading.close();
-      $paginator.update(e.number, totalPage);
+      $paginator.update(e.number, totalPages);
     }, 500);
   });
   // 需要手动更新导航条。
-  $paginator.update(currentPage, totalPage);
+  $paginator.update(currentPage, totalPages);
 });
 </script>
 

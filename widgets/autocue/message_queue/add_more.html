@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Autocue</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/autocue.js"></script>
+<script src="../../../scripts/widget-demobutton.js"></script>
+<style>
+#autocue { width: 480px; height: 30px; border: 10px solid cornflowerblue; background: cornflowerblue; }
+#autocue ul { width: 480px; }
+#autocue li { font: bold 25px/30px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+</style>
+</head>
+<body>
+<div id="autocue" class="widget-autocue" data-cache-size="3"></div>
+
+<button class="widget-demobutton" data-code="$autocue.addMessages([++messageText, ++messageText]);">再添加两条信息</button>
+
+<script>
+var $autocue = $('#autocue');
+var messageText = 3;
+
+document.on('domready', function() {
+  $autocue.addMessages([1, 2, 3]);
+});
+</script>
+
+</body>
+</html>

@@ -8,25 +8,25 @@
 //==================================================[Widget - 遮盖层]
 //--------------------------------------------------[Overlay]
   /**
-   * 遮盖层
+   * “遮盖层”用于遮盖“模态对话框”下边、其父元素内的其他内容。
    * @name Overlay
    * @constructor
    * @private
    * @description
-   *   为元素添加 'widget-overlay' 类，即可使该元素成为遮盖层。
-   *   遮盖层用于遮盖模态对话框下边、其父元素内的其他内容。当其父元素为 BODY 时，将覆盖整个视口。
-   *   遮盖层在显示/隐藏时是否使用动画取决于调用它的对话框是否启用了动画。
-   *   需要定义其他的样式时，可以通过 CSS 进行修改，或者直接修改遮盖层元素的 style 属性。
+   *   为元素添加 'widget-overlay' 类，即可使该元素成为“遮盖层”。
+   *   当其父元素为 BODY 时，将遮盖整个视口。
+   *   “遮盖层”在显示/隐藏时是否使用动画取决于调用它的“模态对话框”是否启用了动画。
+   *   需要定义其他的样式时，可以通过 CSS 进行修改，或者直接修改“遮盖层”元素的 style 属性。
    *   问题：
    *     IE6 下当 HTML 元素设置了非正常的背景图片（找不到图片或 about:blank）时，IFRAME 无法一直遮盖 SELECT 元素，窗口滚动后 SELECT 即再次显示在最前，但若此时 position: fixed 的表达式启用则无此问题。
-   *     这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲覆盖区域不是 BODY，但其中有 SELECT 元素时出现。
+   *     这个问题会在页面有设置了 "display: none; position: fixed;" 的元素，且欲遮盖区域不是 BODY，但其中有 SELECT 元素时出现。
    *     上述情况很少见，因此未处理此问题。
    *     如果需要处理，去掉 IE6 fixed positioned 相关代码中的“启用/禁用表达式”部分即可。
    * @see http://w3help.org/zh-cn/causes/RM8015
    */
 
   /**
-   * 重新定位遮盖层的层级，如果当前 context 下不再有其他对话框，则隐藏遮盖层。
+   * 重新定位“遮盖层”的层级，如果当前 context 下不再有其他“模态对话框”，则隐藏“遮盖层”。
    * @name TabPanel#reposition
    * @function
    * @private
@@ -34,14 +34,15 @@
    */
 
   /**
-   * 调整遮盖层尺寸。
+   * 调整“遮盖层”的尺寸。
    * @name TabPanel#resize
    * @function
    * @private
    * @returns {Element} 本元素。
    */
 
-  Widget.register('overlay', {
+  Widget.register({
+    type: 'overlay',
     css: [
       '.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
     ],
@@ -54,7 +55,7 @@
           $overlay.setStyle('zIndex', $dialog.getStyle('zIndex') - 1);
           $dialog.focus();
           if (!$overlay.isVisible) {
-            // 显示遮盖层。
+            // 显示“遮盖层”。
             if ($overlay.resizeInIE6) {
               window.attachEvent('onresize', $overlay.resizeInIE6);
             }
@@ -74,7 +75,7 @@
           }
         } else {
           if ($overlay.isVisible) {
-            // 隐藏遮盖层。
+            // 隐藏“遮盖层”。
             if ($overlay.resizeInIE6) {
               window.detachEvent('onresize', $overlay.resizeInIE6);
             }
@@ -125,7 +126,7 @@
           iframe: $overlay.getFirstChild(),
           div: $overlay.getLastChild()
         };
-        // IE6 BODY 的遮盖层在更改视口尺寸时需要调整尺寸。
+        // IE6 BODY 的“遮盖层”在更改视口尺寸时需要调整尺寸。
         if (contextIsBody) {
           $overlay.resizeInIE6 = function() {
             $overlay.resize();
@@ -142,50 +143,53 @@
 //==================================================[Widget - 模态对话框]
 //--------------------------------------------------[Dialog]
   /**
-   * 模态对话框。
+   * “模态对话框”（以下简称为“对话框”）可以突出显示一部分内容并遮盖其余内容，以强制用户对突出显示的部分进行操作。
    * @name Dialog
    * @constructor
    * @attribute data-pinned-target
-   *   对话框的“定位参考元素”的 id。
+   *   “对话框”的“定位参考元素”的 id。
    *   如果不指定本属性，则以父元素作为“定位参考元素”。
-   *   “定位参考元素”只能是对话框的父元素或其父元素的后代元素，且不能是对话框自身。
+   *   “定位参考元素”只能是“对话框”的父元素或其父元素的后代元素，且不能是“对话框”自身。
    * @attribute data-left
-   *   对话框的左边与其“定位参考元素”的左边的横向差值，单位为像素。
+   *   “对话框”的左边与其“定位参考元素”的左边的横向差值，单位为像素。
    * @attribute data-right
-   *   对话框的右边与其“定位参考元素”的右边的横向差值，单位为像素。
+   *   “对话框”的右边与其“定位参考元素”的右边的横向差值，单位为像素。
    *   如果已指定 data-left， 本属性将被忽略。
-   *   如果 data-left 和本属性均未指定，对话框的中心点在横向将与其“定位参考元素”的中心点重合。
+   *   如果 data-left 和本属性均未指定，“对话框”的中心点在横向将与其“定位参考元素”的中心点对齐。
    * @attribute data-top
-   *   对话框的顶边与其“定位参考元素”的顶边的纵向差值，单位为像素。
+   *   “对话框”的顶边与其“定位参考元素”的顶边的纵向差值，单位为像素。
    * @attribute data-bottom
-   *   对话框的底边与其“定位参考元素”的底边的纵向差值，单位为像素。
+   *   “对话框”的底边与其“定位参考元素”的底边的纵向差值，单位为像素。
    *   如果已指定 data-top， 本属性将被忽略。
-   *   如果 data-top 和本属性均未指定，对话框的中心点在纵向将与其“定位参考元素”的中心点重合。
+   *   如果 data-top 和本属性均未指定，“对话框”的中心点在纵向将与其“定位参考元素”的中心点对齐。
    * @attribute data-animation
-   *   打开和关闭对话框时使用的动画效果，可选项有 'none'，'fade' 和 'slide'。
+   *   打开和关闭“对话框”时使用的动画效果，可选项有 'none'，'fade' 和 'slide'。
    *   如果不指定本属性或指定为 'none'，则关闭动画效果。
-   *   IE6 本属性无效，始终关闭动画效果。
+   *   在 IE6 下本属性无效（不能启用动画效果）。
    * @fires open
-   *   在对话框打开时触发。
+   *   在“对话框”打开时触发。
    * @fires close
-   *   在对话框关闭后触发。
+   *   在“对话框”关闭后触发。
    * @fires reposition
    *   成功调用 reposition 方法后触发。
    * @description
-   *   模态对话框可以突出显示一部分内容并遮盖其余内容，强迫用户优先对突出显示的部分进行操作。
+   *   “对话框”的“关闭按钮”是可选的。
    *   <strong>启用方式：</strong>
-   *   为元素添加 'widget-dialog' 类，即可使该元素成为模态对话框。
+   *   为一个元素添加 'widget-dialog' 类，即可使该元素成为“对话框”。
    *   <strong>结构约定：</strong>
-   *   对话框的默认状态为关闭。因此对话框元素的 display 将被设置为 'none'。
-   *   当对话框元素的“定位参考元素”为 BODY 时，其 position 将被设置为 'fixed'，其余情况均会被设置为 'absolute'。
-   *   对话框元素的 z-index 值会被自动指定。
-   *   如果对话框元素的父元素不是 BODY 且其 position 为 'static'，将修改其 position 为 'relative'，以使其创建 stacking context。
-   *   如果对话框元素的父元素不是 BODY，应避免其父元素出现滚动条，以免对话框和遮盖层能随其内容滚动。
-   *   对话框的一些数据保存在其父元素中，因此不要修改对话框元素在文档树中的位置！
+   *   当“对话框”的“定位参考元素”为 BODY 时，其 position 将被设置为 'fixed'，其余情况均会被设置为 'absolute'。
+   *   “对话框”的 z-index 值会被自动指定。
+   *   如果“对话框”的父元素不是 BODY 且其父元素的 position 为 'static'，将修改其父元素的 position 为 'relative'，以使其父元素创建 stacking context。
+   *   如果“对话框”的父元素不是 BODY，应避免其父元素出现滚动条，以免“对话框”和“遮盖层”随其父元素的内容一起滚动。
+   *   “对话框”的一些数据保存在其父元素中，因此不要修改“对话框”在文档树中的位置。
+   *   “对话框”的后代元素中，类名包含 'close' 的为“关闭按钮”。
    *   <strong>新增行为：</strong>
-   *   当对话框打开时，将自动生成一个遮盖层，遮盖层遮盖的范围为对话框父元素的渲染范围。被遮盖的部分将无法使用键盘或鼠标进行操作。<br>“模态”对话框的遮盖层是一定会出现的，不能将其屏蔽。当前打开的对话框会在遮盖层上方显示。
-   *   当对话框打开时，会根据其“定位参考元素”来确定其显示的位置。
-   *   当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。<br>当一组对话框重叠显示时，遮盖层只有一个，只有最后打开的对话框才不会被遮盖。
+   *   “对话框”的默认状态为关闭。
+   *   当“对话框”打开时，将自动生成一个“遮盖层”，“遮盖层”遮盖的范围为“对话框”的父元素的渲染范围。被遮盖的部分将无法使用键盘或鼠标进行操作。<br>“对话框”的“遮盖层”是一定会出现的，不能将其屏蔽。当前打开的“对话框”会在“遮盖层”上方显示。
+   *   当“对话框”打开时，会根据其“定位参考元素”来确定其显示的位置。
+   *   当多个“对话框”有相同的父元素时，则视这些“对话框”为一组，一组“对话框”可以重叠显示。<br>当一组“对话框”重叠显示时，“遮盖层”只有一个，只有最后打开的“对话框”才不会被遮盖。
+   *   通过点击“关闭按钮”（如果有）即可关闭“对话框”。
+   *   在“关闭按钮”上发生的 click 事件的默认行为将被阻止。
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
    *   .widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }
@@ -196,39 +200,40 @@
    */
 
   /**
-   * 对话框当前是否为“打开”状态。
+   * “对话框”当前是否为打开状态。
    * @name Dialog#isOpen
    * @type boolean
    */
 
   /**
-   * 打开对话框。
+   * 打开“对话框”。
    * @name Dialog#open
    * @function
    * @returns {Element} 本元素。
    * @description
-   *   如果对话框已经打开，则调用本方法无效。
+   *   如果“对话框”已经打开，则调用本方法无效。
    */
 
   /**
-   * 关闭对话框。
+   * 关闭“对话框”。
    * @name Dialog#close
    * @function
    * @returns {Element} 本元素。
    * @description
-   *   如果对话框已经关闭，则调用本方法无效。
+   *   如果“对话框”已经关闭，则调用本方法无效。
    */
 
   /**
-   * 调整对话框的位置。
+   * 调整“对话框”的位置。
    * @name Dialog#reposition
    * @function
    * @returns {Element} 本元素。
    * @description
-   *   如果对话框已经关闭，则调用本方法无效。
+   *   如果“对话框”已经关闭，则调用本方法无效。
    */
 
-  Widget.register('dialog', {
+  Widget.register({
+    type: 'dialog',
     css: [
       '.widget-dialog { display: none; outline: none; }'
     ],
@@ -251,11 +256,11 @@
               var $context = $dialog.context;
               // 更新状态。
               $dialog.isOpen = true;
-              // 添加到已打开的对话框组，并修改对话框的位置。
+              // 添加到已打开的“对话框”组，并修改“对话框”的位置。
               $dialog.setStyle('zIndex', 500000 + $context.dialogs.push($dialog)).reposition();
-              // 重新定位遮盖层。
+              // 重新定位“遮盖层”。
               $context.overlay.reposition();
-              // 仅父元素为 BODY 的对话框需要在改变窗口尺寸时重新调整位置（此处假定其他对话框的父元素尺寸不会变化）。
+              // 仅父元素为 BODY 的“对话框”需要在改变窗口尺寸时重新调整位置（此处假定其他“对话框”的父元素尺寸不会变化）。
               if ($context === document.body) {
                 window.on('resize.dialog_' + $dialog.uid, navigator.isIE6 ? function() {
                   // 避免 IE6 的固定定位计算错误。
@@ -286,9 +291,9 @@
               var $context = $dialog.context;
               // 更新状态。
               $dialog.isOpen = false;
-              // 从已打开的对话框组中移除。
+              // 从已打开的“对话框”组中移除。
               $context.dialogs.pop();
-              // 重新定位遮盖层。
+              // 重新定位“遮盖层”。
               $context.overlay.reposition();
               // 删除事件监听器。
               if ($context === document.body) {
@@ -303,7 +308,7 @@
               duration: 100,
               timingFunction: 'easeIn',
               onFinish: function() {
-                this.setStyle('marginTop', 0)
+                $dialog.setStyle('marginTop', 0)
               }
             });
           }
@@ -333,13 +338,13 @@
           }
           expectedX = Math.round(pinnedTargetClientRect.left + (Number.isFinite(this.left) ? this.left : (Number.isFinite(this.right) ? pinnedTargetClientRect.width - currentWidth - this.right : (pinnedTargetClientRect.width - currentWidth) / 2)));
           expectedY = Math.round(pinnedTargetClientRect.top + (Number.isFinite(this.top) ? this.top : (Number.isFinite(this.bottom) ? pinnedTargetClientRect.height - currentHeight - this.bottom : (pinnedTargetClientRect.height - currentHeight) / 2)));
-          // 确保固定定位的对话框显示在视口内。
+          // 确保固定定位的“对话框”显示在视口内。
           if (this.isFixedPositioned) {
             var leftLimit = 0;
             var rightLimit = leftLimit + pinnedTargetClientRect.width;
             var topLimit = 0;
             var bottomLimit = topLimit + pinnedTargetClientRect.height;
-            // 当视口尺寸不足以容纳对话框时，优先显示右上角（对话框的关闭按钮一般在右上角）。
+            // 当视口尺寸不足以容纳“对话框”时，优先显示右上角（“对话框”的关闭按钮一般在右上角）。
             if (expectedX < leftLimit) {
               expectedX = leftLimit;
             }
@@ -361,43 +366,50 @@
         return this;
       }
     },
-    events: ['open', 'close', 'reposition'],
     initialize: function() {
+      var $dialog = this;
+
       // 保存属性。
-      var $context = this.context = this.getParent();
+      var $context = $dialog.context = $dialog.getParent();
       // pinnedTarget 必须是 context 的后代元素。
       var $pinnedTarget;
-      this.pinnedTarget = (this.pinnedTarget && ($pinnedTarget = document.$('#' + this.pinnedTarget)) && ($context.contains($pinnedTarget) && $pinnedTarget !== this)) ? $pinnedTarget : $context;
+      $dialog.pinnedTarget = ($dialog.pinnedTarget && ($pinnedTarget = document.$('#' + $dialog.pinnedTarget)) && ($context.contains($pinnedTarget) && $pinnedTarget !== $dialog)) ? $pinnedTarget : $context;
       // IE6 不使用动画。
       if (navigator.isIE6) {
-        this.animation = 'none';
+        $dialog.animation = 'none';
       }
       // 当 pinnedTarget 为 BODY 时使用固定定位。
-      this.isFixedPositioned = this.pinnedTarget === document.body;
+      $dialog.isFixedPositioned = $dialog.pinnedTarget === document.body;
       // 默认状态为关闭。
-      this.isOpen = false;
+      $dialog.isOpen = false;
 
-      // 本对话框是 $context 中的第一个对话框。
+      // 本“对话框”是 $context 中的第一个“对话框”。
       if (!$context.dialogs) {
         // 确保 $context 创建 stacking context。
         if ($context !== document.body && $context.getStyle('position') === 'static') {
           $context.setStyle('position', 'relative');
         }
-        // 为 $context 添加遮盖层和对话框公用的属性。
+        // 为 $context 添加“遮盖层”和“对话框”公用的属性。
         $context.dialogs = [];
         Widget.parse($context.overlay = document.$('<div class="widget-overlay"></div>').insertTo($context));
       }
 
       // 使本元素可获得焦点。
-      this.tabIndex = 0;
+      $dialog.tabIndex = 0;
       if (navigator.isIElt8) {
-        this.hideFocus = true;
+        $dialog.hideFocus = true;
       }
 
       // 设置样式。
-      // 调节对话框的位置是通过 this 的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
-      // 从 500000 开始重置 this 的 zIndex，以供遮盖层参照（如果数字过大 Firefox 12.0 在取值时会有问题）。
-      this.setStyles({position: this.isFixedPositioned ? 'fixed' : 'absolute', left: 0, top: 0});
+      // 调节“对话框”的位置是通过本元素的 left 和 top 进行的，需要以像素为单位，因此先为其指定一个值，以便稍后计算位置。
+      // 从 500000 开始重置本元素的 zIndex，以供“遮盖层”参照（如果数字过大 Firefox 12.0 在取值时会有问题）。
+      $dialog.setStyles({position: $dialog.isFixedPositioned ? 'fixed' : 'absolute', left: 0, top: 0});
+
+      // 通过点击“关闭按钮”来关闭“对话框”。
+      $dialog.on('click:relay(.close).dialog', function(event) {
+        $dialog.close();
+        event.preventDefault();
+      });
 
     }
   });

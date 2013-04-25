@@ -15,7 +15,7 @@ strong em { color: #BE1D2C; font-style: normal; text-shadow: 0 1px 1px rgba(0, 0
 <script>
 document.on('domready', function() {
   // 代码高亮。
-  $(document.body).find('pre').forEach(function($pre) {
+  $('body').find('pre').forEach(function($pre) {
     $pre.addClass('prettyprint');
   });
   prettyPrint();
@@ -105,7 +105,7 @@ element.<strong>on</strong>('click', function(e) {...});
   </li>
   <li>
     <p class="referral">为常用的功能提供 Widgets 以简化开发。</p>
-    <p class="comment">Widget 是指一类特殊的元素，当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并会触发新的事件。<br>一些 Widgets 甚至不需要写任何脚本去初始化。</p>
+    <p class="comment">Widget 是指一类特殊的元素，当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>一些 Widgets 甚至不需要写任何脚本去初始化。</p>
     <div class="comment">
       <p>如果要在页面内实现一个模态对话框，这样写就可以了：</p>
 <pre>
@@ -178,11 +178,8 @@ element.<strong>on</strong>('click', function(e) {...});
     <p class="comment">OurJS 并没有提供特别的方法来做这件事情，使用 JS 固有的方式，可以让代码更加简单易读。</p>
   </li>
   <li>
-    <p class="referral">按照 OurJS 的 Widget 编写规范，可以根据需要随时添加新的 Widget。</p>
-    <p class="comment">
-      使用 Widget 来实现 UI 组件，可以避免同时管理一个 UI 组件的 DOM 对象和逻辑对象而带来的复杂度的增加。<br>
-      可以对已有的 Widget 进行扩展，OurJS 并没有提供“继承”机制，建议使用更灵活的“组合”方式进行扩展。
-    </p>
+    <p class="referral">按照 OurJS 的 Widget 编写规范，可以根据需要随时添加新的 Widget，或扩展已有的 Widget 的功能。</p>
+    <p class="comment">使用 Widget 来实现 UI 组件，可以避免同时管理一个 UI 组件的 DOM 对象和逻辑对象而带来的复杂度的增加。</p>
   </li>
   <li>
     <p class="referral">使用事件系统在各模块间通信。</p>

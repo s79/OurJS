@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130417
+ *  Version: 20130425
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展
@@ -794,8 +794,8 @@
    * @param {Object} destination 目标对象。
    * @param {Object} source 源对象，其 properties 会被复制到 destination 中。
    * @param {Object} [filter] 过滤要添加的 source 中的 properties 的名单。
-   * @param {Array} filter.whiteList 仅当 source 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 destination 中。
-   * @param {Array} filter.blackList 如果 source 中的 key 包含于 blackList，则对应的 property 不会被复制到 destination 中。
+   * @param {Array} [filter.whiteList] 仅当 source 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 destination 中。
+   * @param {Array} [filter.blackList] 如果 source 中的 key 包含于 blackList，则对应的 property 不会被复制到 destination 中。
    *   如果 blackList 与 whiteList 有重复的值，则 whiteList 中的将被忽略。
    * @returns {Object} 目标对象。
    * @description
@@ -1442,6 +1442,33 @@
     };
   }
 
+//==================================================[console 补缺]
+  /*
+   * 为没有控制台的浏览器补缺常用方法，以供内部打印调试信息使用。
+   *
+   * 补缺方法：
+   *   console.log
+   *   console.info
+   *   console.warn
+   *   console.error
+   *
+   * 注意：
+   *   本实现并未给没有控制台的浏览器提供打印调试信息的方式，只是确保在这些浏览器里调用上述补缺的方法时不会出错。
+   */
+
+  /**
+   * 控制台对象。
+   * @name console
+   * @namespace
+   */
+
+//--------------------------------------------------[console.*]
+  if (!window.console) {
+    var consoleObject = window.console = {};
+    consoleObject.log = consoleObject.info = consoleObject.warn = consoleObject.error = function() {
+    };
+  }
+
 //==================================================[navigator 扩展]
   /*
    * 常见浏览器的 navigator.userAgent：
@@ -1479,19 +1506,6 @@
    * @name navigator
    * @namespace
    */
-
-//--------------------------------------------------[navigator.warn]
-  /**
-   * 供内部使用的向用户显示警告信息的方法。
-   * @name navigator.warn
-   * @function
-   * @private
-   * @param {string} message 警告信息。
-   */
-  navigator.warn = (window.console && typeOf(console.warn) === 'function') ? function(message) {
-    console.warn('OurJS: ' + message);
-  } : function() {
-  };
 
 //--------------------------------------------------[navigator.*]
   /**
@@ -1640,7 +1654,7 @@
     // 检查工作模式。
     var inStandardsMode = document.compatMode === 'CSS1Compat';
     if (!inStandardsMode) {
-      navigator.warn('Browser is working in non-standards mode!');
+      console.warn('OurJS: Browser is working in non-standards mode!');
     }
     // 浏览器特性判断。
     var isIE10 = false;
@@ -1780,10 +1794,10 @@
    * @param {string} key 数据名。
    * @param {string} value 数据值。
    * @param {Object} [options] 可选参数。
-   * @param {string} options.path 限定生效的路径，默认为当前路径。
-   * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
-   * @param {string|Date} options.expires 过期时间，默认为会话结束。
+   * @param {string} [options.path] 限定生效的路径，默认为当前路径。
+   * @param {string} [options.domain] 限定生效的域名，默认为当前域名。
+   * @param {boolean} [options.secure] 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   * @param {string|Date} [options.expires] 过期时间，默认为会话结束。
    *   如果使用字符串类型，其表示时间的格式应为 'YYYY-MM-DD hh:mm:ss'。
    */
   cookie.setItem = function(key, value, options) {
@@ -1811,9 +1825,9 @@
    * @function
    * @param {string} key 数据名。
    * @param {Object} [options] 可选参数。
-   * @param {string} options.path 限定生效的路径，默认为当前路径。
-   * @param {string} options.domain 限定生效的域名，默认为当前域名。
-   * @param {boolean} options.secure 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   * @param {string} [options.path] 限定生效的路径，默认为当前路径。
+   * @param {string} [options.domain] 限定生效的域名，默认为当前域名。
+   * @param {boolean} [options.secure] 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
    */
   cookie.removeItem = function(key, options) {
     options = options || {};
@@ -1825,7 +1839,7 @@
   /*
    * 为不支持 localStorage 的浏览器（IE6 IE7）模拟此特性。
    *
-   * 补缺属性：
+   * 补缺方法：
    *   localStorage.getItem
    *   localStorage.setItem
    *   localStorage.removeItem
@@ -3813,7 +3827,7 @@
    *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>指定让本元素为符合 selector 限定的后代元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
    *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用场景的标签，以便在调用 off 方法时能够精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
    *   </table>
-   *   其中 <var>type</var> 只能使用英文字母，<var>selector</var> 应为合法的 CSS 选择器，<var>label</var> 可以使用英文字母、数字和下划线。
+   *   其中 <var>type</var> 只能使用英文字母，<var>selector</var> 应为合法的 CSS 选择符，<var>label</var> 可以使用英文字母、数字和下划线。
    *   使用逗号分割多个事件名称，即可为多种类型的事件注册同一个监听器。
    *   对于为不保证所有浏览器均可以冒泡的事件类型指定了代理监听的情况，会给出警告信息。
    * @param {Function} listener 监听器。
@@ -3918,7 +3932,7 @@
         handlers.splice(handlers.delegateCount++, 0, handler);
         // 为不保证所有浏览器均可以冒泡的事件类型指定代理监听时，给出警告信息。
         if (!(EVENT_CODES[type] & 4)) {
-          navigator.warn('Incompatible event delegation type "' + name + '".');
+          console.warn('OurJS: Incompatible event delegation type "' + name + '".');
         }
       } else {
         // 普通监听器。
@@ -4214,66 +4228,55 @@
    * @param {string|Element} e 不同类型的元素表示。
    * @returns {Element} 扩展后的元素。
    * @description
-   *   当参数为一个元素的序列化之后的字符串（它可以包含子元素）时，会返回扩展后的、根据这个字符串反序列化的元素。
-   *   这里与其他实现相比有以下几点差异：
    *   <ul>
-   *     <li>忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。</li>
-   *     <li>修改“IE 添加多余的 TBODY 元素”的问题的解决方案，在 wrappers 里预置一个 TBODY 即可。</li>
-   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装追加元素的相关方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法，而不应该使用本方法。</li>
+   *     <li>当参数为一个元素（可以包含后代元素）的序列化之后的字符串时，会返回扩展后的、根据这个字符串反序列化的元素。<br>注意：不要使用本方法创建 SCRIPT 元素，对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法。</li>
+   *     <li>当参数为一个 CSS 选择符时，会返回扩展后的、与指定的 CSS 选择符相匹配的<strong>第一个元素</strong>。</li>
+   *     <li>当参数为一个元素时，会返回扩展后的该元素。</li>
+   *     <li>当参数为其他值（包括 document 和 window）时，均返回 null。</li>
    *   </ul>
-   *   在创建元素时，如果包含 table，建议写上 tbody。举例如下：
-   *   document.$('&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;');
-   *   当参数为一个元素的 id 时，会返回扩展后的、与指定 id 相匹配的元素。
-   *   当参数本身即为一个元素时，会返回扩展后的该元素。
-   *   当参数为其他情况时（包括 document 和 window）均返回 null。
    * @see http://jquery.com/
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
    */
   var tagNamePattern = /(?!<)\w*/;
-
+  // 为解决“IE 可能会自动添加 TBODY 元素”的问题，在相应的 wrappers 里预置了一个 TBODY。
   var wrappers = {
-    area: [1, '<map>', '</map>'],
-    legend: [1, '<fieldset>', '</fieldset>'],
-    optgroup: [1, '<select>', '</select>'],
-    colgroup: [1, '<table><tbody></tbody>', '</table>'],
-    col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-    tr: [2, '<table><tbody>', '</tbody></table>'],
-    th: [3, '<table><tbody><tr>', '</tr></tbody></table>']
+    area: ['<map>', '</map>'],
+    legend: ['<fieldset>', '</fieldset>'],
+    optgroup: ['<select>', '</select>'],
+    colgroup: ['<table><tbody></tbody>', '</table>'],
+    col: ['<table><tbody></tbody><colgroup>', '</colgroup></table>'],
+    tr: ['<table><tbody>', '</tbody></table>'],
+    th: ['<table><tbody><tr>', '</tr></tbody></table>']
   };
   wrappers.option = wrappers.optgroup;
   wrappers.caption = wrappers.thead = wrappers.tfoot = wrappers.tbody = wrappers.colgroup;
   wrappers.td = wrappers.th;
   if (navigator.isIElt9) {
     // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。
-    wrappers.link = wrappers.style = wrappers.script = [0, '#', ''];
+    wrappers.link = wrappers.style = wrappers.script = ['#', ''];
   }
-
-  var defaultWrapper = [0, '', ''];
-
+  var defaultWrapper = ['', ''];
+  // 忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。
+  // 忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装追加元素的相关方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异。
   document.$ = function(e) {
     var element = null;
-    switch (typeof e) {
-      case 'string':
-        if (e.charAt(0) === '#') {
-          element = document.getElementById(e.slice(1));
-        } else if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
-          var wrapper = wrappers[tagNamePattern.exec(e)[0].toLowerCase()] || defaultWrapper;
-          var depth = wrapper[0] + 1;
-          var div = document.createElement('div');
-          element = div;
-          div.innerHTML = wrapper[1] + e + wrapper[2];
-          while (depth--) {
-            element = element.lastChild;
-          }
-          element = element && element.nodeType === 1 ? element : div;
+    if (typeof e === 'string') {
+      if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
+        var tagName = tagNamePattern.exec(e)[0].toLowerCase();
+        var wrapper = wrappers[tagName] || defaultWrapper;
+        element = document.createElement('div');
+        element.innerHTML = wrapper[0] + e + wrapper[1];
+        while ((element = element.lastChild) && element.nodeName.toLowerCase() !== tagName) {
         }
-        break;
-      case 'object':
-        if (e.nodeType === 1) {
-          element = e;
+        if (element && element.nodeType !== 1) {
+          element = null;
         }
-        break;
+      } else {
+        element = Sizzle(e)[0];
+      }
+    } else if (e && e.nodeType === 1) {
+      element = e;
     }
     return $(element);
   };
@@ -4314,8 +4317,8 @@
    * @function
    * @param {string} url 脚本文件的路径。
    * @param {Object} [options] 可选参数。
-   * @param {string} options.charset 脚本文件的字符集。
-   * @param {Function} options.onLoad 加载完毕后的回调。
+   * @param {string} [options.charset] 脚本文件的字符集。
+   * @param {Function} [options.onLoad] 加载完毕后的回调。
    *   该函数被调用时 this 的值为加载本脚本时创建的 SCRIPT 元素。
    */
   document.loadScript = function(url, options) {
@@ -5625,13 +5628,13 @@
    *   2. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
    *   3. 支持相对长度，如 '+=10' 表示在现有长度的基础上增加 10 像素，'-=10' 表示在现有长度的基础上减少 10 像素。
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位为毫秒，默认为 400。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
-   * @param {Function} options.onStart 播放开始时的回调。
+   * @param {number} [options.duration] 播放时间，单位为毫秒，默认为 400。
+   * @param {string} [options.timingFunction] 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
+   * @param {Function} [options.onStart] 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onStep 播放每一帧之后的回调。
+   * @param {Function} [options.onStep] 播放每一帧之后的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
+   * @param {Function} [options.onFinish] 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
@@ -5669,13 +5672,13 @@
    * @param {string} [color] 高亮颜色，默认为 'yellow'。
    * @param {string} [property] 高亮样式名，默认为 'backgroundColor'。
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位为毫秒，默认为 500。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
-   * @param {Function} options.onStart 播放开始时的回调。
+   * @param {number} [options.duration] 播放时间，单位为毫秒，默认为 500。
+   * @param {string} [options.timingFunction] 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
+   * @param {Function} [options.onStart] 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onStep 播放每一帧之后的回调。
+   * @param {Function} [options.onStep] 播放每一帧之后的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
+   * @param {Function} [options.onFinish] 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
@@ -5686,19 +5689,11 @@
     color = color || 'yellow';
     property = property || 'backgroundColor';
     options = Object.mixin({duration: 500, timingFunction: 'easeIn', onStart: empty, onStep: empty, onFinish: empty}, options || {});
-    var originalColor;
     var animations = getAnimations($element);
     var prevHighlight = animations.highlight;
     if (prevHighlight) {
       prevHighlight.pause();
-      if (property === prevHighlight.property) {
-        originalColor = prevHighlight.originalColor;
-      } else {
-        $element.setStyle(prevHighlight.property, prevHighlight.originalColor);
-      }
-    }
-    if (!originalColor) {
-      originalColor = $element.style[property];
+      $element.setStyle(prevHighlight.property, prevHighlight.originalColor);
     }
     var styles = {};
     styles[property] = $element.getStyle(property);
@@ -5716,8 +5711,8 @@
           delete animations.highlight;
           options.onFinish.call($element, event);
         });
-    highlight.originalColor = originalColor;
     highlight.property = property;
+    highlight.originalColor = $element.style[property];
     highlight.play();
     return $element;
   };
@@ -5735,13 +5730,13 @@
    *     <tr><td><dfn>out</dfn></td><td>淡出模式。</td></tr>
    *   </table>
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位为毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
-   * @param {Function} options.onStart 播放开始时的回调。
+   * @param {number} [options.duration] 播放时间，单位为毫秒，默认为 200。
+   * @param {string} [options.timingFunction] 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
+   * @param {Function} [options.onStart] 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onStep 播放每一帧之后的回调。
+   * @param {Function} [options.onStep] 播放每一帧之后的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
+   * @param {Function} [options.onFinish] 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
@@ -5821,13 +5816,13 @@
    * @param {number} x 横向滚动坐标，支持相对坐标，如 '+=10' 表示在现有横坐标的基础上向左滚动 10 像素，'-=10' 表示在现有横坐标的基础上向右滚动 10 像素。
    * @param {number} y 纵向滚动坐标，支持相对坐标，如 '+=10' 表示在现有纵坐标的基础上向下滚动 10 像素，'-=10' 表示在现有纵坐标的基础上向上滚动 10 像素。
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位为毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeInOut'。
-   * @param {Function} options.onStart 播放开始时的回调。
+   * @param {number} [options.duration] 播放时间，单位为毫秒，默认为 200。
+   * @param {string} [options.timingFunction] 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeInOut'。
+   * @param {Function} [options.onStart] 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onStep 播放每一帧之后的回调。
+   * @param {Function} [options.onStep] 播放每一帧之后的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
+   * @param {Function} [options.onFinish] 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
@@ -6065,19 +6060,19 @@
    * @name Request
    * @constructor
    * @param {string} url 请求地址。
-   * @param {Object} [options] 可选项。
-   * @param {string} options.mode 请求模式，使用 'xhr' 则为 XHR 模式，使用 'jsonp' 则为 JSONP 模式，默认为 'xhr'，大小写不敏感。
-   * @param {string} options.method 请求方法，在 XHR 模式下可以使用 'get' 和 'post'，默认为 'get'，在 JSONP 模式下永远为 'get'，大小写不敏感。
+   * @param {Object} [options] 可选参数。
+   * @param {string} [options.mode] 请求模式，使用 'xhr' 则为 XHR 模式，使用 'jsonp' 则为 JSONP 模式，默认为 'xhr'，大小写不敏感。
+   * @param {string} [options.method] 请求方法，在 XHR 模式下可以使用 'get' 和 'post'，默认为 'get'，在 JSONP 模式下永远为 'get'，大小写不敏感。
    *   如果使用 'get' 方式，应将整个 URL 的长度控制在 2048 个字符以内。
-   * @param {boolean} options.useCache 是否允许浏览器的缓存生效，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 false。
-   * @param {boolean} options.async 是否使用异步方式，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 true。
-   * @param {number} options.minTime 请求最短时间，单位为毫秒，默认为 NaN，即无最短时间限制，async 为 true 时有效。
-   * @param {number} options.maxTime 请求超时时间，单位为毫秒，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {string} options.username 用户名，仅在 XHR 模式下有效，默认为空字符串，即不指定用户名。
-   * @param {string} options.password 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
-   * @param {Object} options.headers 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
-   * @param {string} options.contentType 发送数据的内容类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
-   * @param {string} options.callbackName 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
+   * @param {boolean} [options.useCache] 是否允许浏览器的缓存生效，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 false。
+   * @param {boolean} [options.async] 是否使用异步方式，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 true。
+   * @param {number} [options.minTime] 请求最短时间，单位为毫秒，默认为 NaN，即无最短时间限制，async 为 true 时有效。
+   * @param {number} [options.maxTime] 请求超时时间，单位为毫秒，默认为 NaN，即无超时时间限制，async 为 true 时有效。
+   * @param {string} [options.username] 用户名，仅在 XHR 模式下有效，默认为空字符串，即不指定用户名。
+   * @param {string} [options.password] 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
+   * @param {Object} [options.headers] 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
+   * @param {string} [options.contentType] 发送数据的内容类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
+   * @param {string} [options.callbackName] 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
    * @fires start
    *   请求开始时触发。
    * @fires abort
@@ -6094,18 +6089,22 @@
    *   所有 Request 的实例也都是一个 EventTarget 对象。
    *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
    *   创建 Request 时，可以选择使用 XHR 模式（同域请求时）或 JSONP 模式（跨域请求时）。
-   *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。由于 JSONP 请求的原理是直接执行另一个域内的脚本，因此它并不安全。如果该域遭到攻击，本域也可能会受到影响。
+   *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。需要注意的是 JSONP 请求会直接执行另一个域内的脚本，因此如果该域遭到攻击，本域也可能会受到影响。
    *   两种模式的请求结果都会被传入 abort、timeout、complete 和 finish 事件监听器中。
    *   XHR 模式的请求结果中包含以下属性：
-   *   {number} status 状态码。
-   *   {string} statusText 状态描述。
-   *   {Object} headers 响应头。
-   *   {string} text 响应文本。
-   *   {XMLDocument} xml 响应 XML 文档。
+   *   <ul>
+   *     <li>{number} <dfn>status</dfn> 状态码。</li>
+   *     <li>{string} <dfn>statusText</dfn> 状态描述。</li>
+   *     <li>{Object} <dfn>headers</dfn> 响应头。</li>
+   *     <li>{string} <dfn>text</dfn> 响应文本。</li>
+   *     <li>{XMLDocument} <dfn>xml</dfn> 响应 XML 文档。</li>
+   *   </ul>
    *   JSONP 模式的请求结果中包含以下属性：
-   *   {number} status 状态码。
-   *   {string} statusText 状态描述。
-   *   {Object} data 请求结果。
+   *   <ul>
+   *     <li>{number} <dfn>status</dfn> 状态码。</li>
+   *     <li>{string} <dfn>statusText</dfn> 状态描述。</li>
+   *     <li>{Object} <dfn>data</dfn> 请求结果。</li>
+   *   </ul>
    */
   var Request = window.Request = function(url, options) {
     // 保存请求地址。
@@ -6271,10 +6270,9 @@
 (function() {
 //==================================================[Widget]
   /*
-   * 一个 Widget 本身仍是一个元素。当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。
+   * 一个 Widget 本身仍是一个元素。当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。
    * 这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
    * 一个 Widget 至少依赖一个已经存在于文档树中的元素，一个元素只能成为一种 Widget。
-   * 包含 Widget 解析器的脚本可以根据情况载入。
    *
    * 使一个元素成为 Widget 有以下两种方式：
    *   1. 在编写 HTML 代码时，为该元素添加 widget-<type> 类，并使用 data-<config>="<value>" 来定义 Widget 的配置。
@@ -6282,7 +6280,7 @@
    * 其中 type 为 Widget 的类型，config/value 为 Widget 的配置信息，element 为目标元素。
    *
    * 为了使相同类型的 Widget 必定具备相同的新特性，本实现并未提供直接手段对现有的 Widget 进行扩展。
-   * 必须要扩展时，应注册一个新的 Widget 解析器，并在其中调用现有的解析器 Widget.parsers.<type>($element) 来赋予目标元素 <type> 类 Widget 的新特性，即对已有的 Widget 类型进行包装。
+   * 必须要扩展时，应注册一个新的 Widget，并在其初始化函数中调用现有的解析器 Widget.parsers.<type>.parse($element) 来赋予目标元素 <type> 类 Widget 的新特性，即对已有的 Widget 类型进行包装。
    *
    * 提供对象：
    *   Widget
@@ -6305,67 +6303,55 @@
 
 //--------------------------------------------------[Widget.register]
   /**
-   * 注册一个 Widget 解析器。
+   * 注册一个 Widget。
    * @name Widget.register
    * @function
-   * @param {string} type Widget 的类型。
-   * @param {Object} parser Widget 的解析器。
-   * @param {Array} parser.css 可选，包含要应用到此类 Widget 的 CSS 规则集的数组。
-   * @param {Object} parser.config 可选，包含此类 Widget 的默认配置的对象。
-   * @param {Object} parser.methods 可选，包含此类 Widget 的实例方法的对象。
-   * @param {Array} parser.events 可选，包含此类 Widget 能够触发的事件名称的数组。
-   * @param {Function} parser.initialize 必选，此类 Widget 的初始化函数。
+   * @param {Object} widget 要注册的 Widget 的相关信息。
+   * @param {string} widget.type Widget 的类型。
+   * @param {Array} [widget.css] 包含要应用到此类 Widget 的 CSS 规则集的数组。
+   * @param {Object} [widget.config] 包含此类 Widget 的默认配置的对象。
+   * @param {Object} [widget.methods] 包含此类 Widget 的实例方法的对象。
+   * @param {Function} [widget.initialize] 此类 Widget 的初始化函数。
    */
-  Widget.register = function(type, parser) {
-    if (parser.css) {
-      document.addStyleRules(parser.css);
+  Widget.register = function(widget) {
+    if (widget.css) {
+      document.addStyleRules(widget.css);
     }
 
-    Widget.parsers[type] = function($element) {
-      // 从目标元素的 attribute 中解析配置信息并将其添加到目标元素。
-      if (parser.config) {
-        Object.forEach(parser.config, function(defaultValue, key) {
-          var value = defaultValue;
-          var specifiedValue = $element.getData(key);
-          if (specifiedValue !== undefined) {
-            switch (typeof defaultValue) {
-              case 'string':
-                value = specifiedValue;
-                break;
-              case 'boolean':
-                value = true;
-                break;
-              case 'number':
-                value = parseFloat(specifiedValue);
-                break;
-              default:
-                throw new Error('Invalid config type "' + key + '"');
+    Widget.parsers[widget.type] = {
+      parse: function($element) {
+        // 从目标元素的 attribute 中解析配置信息并将其添加到目标元素。
+        if (widget.config) {
+          Object.forEach(widget.config, function(defaultValue, key) {
+            var value = defaultValue;
+            var specifiedValue = $element.getData(key);
+            if (specifiedValue !== undefined) {
+              switch (typeof defaultValue) {
+                case 'string':
+                  value = specifiedValue;
+                  break;
+                case 'boolean':
+                  value = true;
+                  break;
+                case 'number':
+                  value = parseFloat(specifiedValue);
+                  break;
+                default:
+                  throw new Error('Invalid config type "' + key + '"');
+              }
             }
-          }
-          $element[key] = value;
-        });
-      }
-      // 为目标元素添加方法。
-      if (parser.methods) {
-        Object.mixin($element, parser.methods);
-      }
-      // 为目标元素添加内联事件监听器。
-      if (parser.events) {
-        parser.events.forEach(function(type) {
-          var inlineName = 'on' + type;
-          var inlineEventListener = $element.getAttribute(inlineName);
-          if (typeof inlineEventListener === 'string') {
-            $element[inlineName] = new Function(inlineEventListener);
-          }
-          $element.on(type + '.inlineEventListener', function(event) {
-            if (this[inlineName]) {
-              this[inlineName](event);
-            }
+            $element[key] = value;
           });
-        });
+        }
+        // 为目标元素添加方法。
+        if (widget.methods) {
+          Object.mixin($element, widget.methods);
+        }
+        // 初始化。
+        if (widget.initialize) {
+          widget.initialize.call($element);
+        }
       }
-      // 初始化。
-      parser.initialize.call($element);
     };
 
   };
@@ -6387,12 +6373,12 @@
       var match = $element.className.match(widgetNamePattern);
       if (match) {
         var type = match[1];
-        var parseWidget = Widget.parsers[type];
-        if (parseWidget) {
-          parseWidget($element);
+        var parser = Widget.parsers[type];
+        if (parser) {
+          parser.parse($element);
           $element.widgetType = type;
         } else {
-          navigator.warn('Widget parser "' + type + '" is not found.');
+          console.warn('OurJS: Widget parser "' + type + '" is not found.');
         }
       }
     }
@@ -7010,11 +6996,11 @@
   /*
    * 通过一个处理过的元素的 find 方法调用，返回的结果为一个数组，包含所有符合条件的、处理后的元素。
    *
+   * 提供对象：
+   *   Sizzle
+   *
    * 扩展方法：
    *   Element.prototype.find
-   *
-   * 或提供对象：
-   *   Sizzle
    */
 
 //--------------------------------------------------[Sizzle]
@@ -8542,6 +8528,8 @@
   Expr.filters = Expr.pseudos;
 
   // EXPOSE
+  window.Sizzle = Sizzle;
+
   /**
    * 在本元素的后代元素中，根据指定的选择符查找元素。
    * @name Element.prototype.find
@@ -8552,14 +8540,11 @@
    *   本功能使用 Sizzle 实现，关于可以使用的 selector 信息，请参考 Sizzle 的相关说明。
    * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
    */
-  if ('Element' in window) {
-    Element.prototype.find = function(selector) {
-      return Sizzle(selector, this).map(function(element) {
-        return document.$(element);
-      });
-    };
-  } else {
-    window.Sizzle = Sizzle;
-  }
+  var $ = document.$;
+  Element.prototype.find = function(selector) {
+    return Sizzle(selector, this).map(function(element) {
+      return $(element);
+    });
+  };
 
 })(window);

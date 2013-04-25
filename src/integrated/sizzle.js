@@ -15,11 +15,11 @@
   /*
    * 通过一个处理过的元素的 find 方法调用，返回的结果为一个数组，包含所有符合条件的、处理后的元素。
    *
+   * 提供对象：
+   *   Sizzle
+   *
    * 扩展方法：
    *   Element.prototype.find
-   *
-   * 或提供对象：
-   *   Sizzle
    */
 
 //--------------------------------------------------[Sizzle]
@@ -1547,6 +1547,8 @@
   Expr.filters = Expr.pseudos;
 
   // EXPOSE
+  window.Sizzle = Sizzle;
+
   /**
    * 在本元素的后代元素中，根据指定的选择符查找元素。
    * @name Element.prototype.find
@@ -1557,14 +1559,11 @@
    *   本功能使用 Sizzle 实现，关于可以使用的 selector 信息，请参考 Sizzle 的相关说明。
    * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
    */
-  if ('Element' in window) {
-    Element.prototype.find = function(selector) {
-      return Sizzle(selector, this).map(function(element) {
-        return document.$(element);
-      });
-    };
-  } else {
-    window.Sizzle = Sizzle;
-  }
+  var $ = document.$;
+  Element.prototype.find = function(selector) {
+    return Sizzle(selector, this).map(function(element) {
+      return $(element);
+    });
+  };
 
 })(window);

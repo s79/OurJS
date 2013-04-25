@@ -165,19 +165,19 @@
    * @name Request
    * @constructor
    * @param {string} url 请求地址。
-   * @param {Object} [options] 可选项。
-   * @param {string} options.mode 请求模式，使用 'xhr' 则为 XHR 模式，使用 'jsonp' 则为 JSONP 模式，默认为 'xhr'，大小写不敏感。
-   * @param {string} options.method 请求方法，在 XHR 模式下可以使用 'get' 和 'post'，默认为 'get'，在 JSONP 模式下永远为 'get'，大小写不敏感。
+   * @param {Object} [options] 可选参数。
+   * @param {string} [options.mode] 请求模式，使用 'xhr' 则为 XHR 模式，使用 'jsonp' 则为 JSONP 模式，默认为 'xhr'，大小写不敏感。
+   * @param {string} [options.method] 请求方法，在 XHR 模式下可以使用 'get' 和 'post'，默认为 'get'，在 JSONP 模式下永远为 'get'，大小写不敏感。
    *   如果使用 'get' 方式，应将整个 URL 的长度控制在 2048 个字符以内。
-   * @param {boolean} options.useCache 是否允许浏览器的缓存生效，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 false。
-   * @param {boolean} options.async 是否使用异步方式，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 true。
-   * @param {number} options.minTime 请求最短时间，单位为毫秒，默认为 NaN，即无最短时间限制，async 为 true 时有效。
-   * @param {number} options.maxTime 请求超时时间，单位为毫秒，默认为 NaN，即无超时时间限制，async 为 true 时有效。
-   * @param {string} options.username 用户名，仅在 XHR 模式下有效，默认为空字符串，即不指定用户名。
-   * @param {string} options.password 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
-   * @param {Object} options.headers 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
-   * @param {string} options.contentType 发送数据的内容类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
-   * @param {string} options.callbackName 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
+   * @param {boolean} [options.useCache] 是否允许浏览器的缓存生效，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 false。
+   * @param {boolean} [options.async] 是否使用异步方式，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 true。
+   * @param {number} [options.minTime] 请求最短时间，单位为毫秒，默认为 NaN，即无最短时间限制，async 为 true 时有效。
+   * @param {number} [options.maxTime] 请求超时时间，单位为毫秒，默认为 NaN，即无超时时间限制，async 为 true 时有效。
+   * @param {string} [options.username] 用户名，仅在 XHR 模式下有效，默认为空字符串，即不指定用户名。
+   * @param {string} [options.password] 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
+   * @param {Object} [options.headers] 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
+   * @param {string} [options.contentType] 发送数据的内容类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
+   * @param {string} [options.callbackName] 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
    * @fires start
    *   请求开始时触发。
    * @fires abort
@@ -194,18 +194,22 @@
    *   所有 Request 的实例也都是一个 EventTarget 对象。
    *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
    *   创建 Request 时，可以选择使用 XHR 模式（同域请求时）或 JSONP 模式（跨域请求时）。
-   *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。由于 JSONP 请求的原理是直接执行另一个域内的脚本，因此它并不安全。如果该域遭到攻击，本域也可能会受到影响。
+   *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。需要注意的是 JSONP 请求会直接执行另一个域内的脚本，因此如果该域遭到攻击，本域也可能会受到影响。
    *   两种模式的请求结果都会被传入 abort、timeout、complete 和 finish 事件监听器中。
    *   XHR 模式的请求结果中包含以下属性：
-   *   {number} status 状态码。
-   *   {string} statusText 状态描述。
-   *   {Object} headers 响应头。
-   *   {string} text 响应文本。
-   *   {XMLDocument} xml 响应 XML 文档。
+   *   <ul>
+   *     <li>{number} <dfn>status</dfn> 状态码。</li>
+   *     <li>{string} <dfn>statusText</dfn> 状态描述。</li>
+   *     <li>{Object} <dfn>headers</dfn> 响应头。</li>
+   *     <li>{string} <dfn>text</dfn> 响应文本。</li>
+   *     <li>{XMLDocument} <dfn>xml</dfn> 响应 XML 文档。</li>
+   *   </ul>
    *   JSONP 模式的请求结果中包含以下属性：
-   *   {number} status 状态码。
-   *   {string} statusText 状态描述。
-   *   {Object} data 请求结果。
+   *   <ul>
+   *     <li>{number} <dfn>status</dfn> 状态码。</li>
+   *     <li>{string} <dfn>statusText</dfn> 状态描述。</li>
+   *     <li>{Object} <dfn>data</dfn> 请求结果。</li>
+   *   </ul>
    */
   var Request = window.Request = function(url, options) {
     // 保存请求地址。

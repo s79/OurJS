@@ -1875,7 +1875,7 @@
    *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>指定让本元素为符合 selector 限定的后代元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
    *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用场景的标签，以便在调用 off 方法时能够精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
    *   </table>
-   *   其中 <var>type</var> 只能使用英文字母，<var>selector</var> 应为合法的 CSS 选择器，<var>label</var> 可以使用英文字母、数字和下划线。
+   *   其中 <var>type</var> 只能使用英文字母，<var>selector</var> 应为合法的 CSS 选择符，<var>label</var> 可以使用英文字母、数字和下划线。
    *   使用逗号分割多个事件名称，即可为多种类型的事件注册同一个监听器。
    *   对于为不保证所有浏览器均可以冒泡的事件类型指定了代理监听的情况，会给出警告信息。
    * @param {Function} listener 监听器。
@@ -1980,7 +1980,7 @@
         handlers.splice(handlers.delegateCount++, 0, handler);
         // 为不保证所有浏览器均可以冒泡的事件类型指定代理监听时，给出警告信息。
         if (!(EVENT_CODES[type] & 4)) {
-          navigator.warn('Incompatible event delegation type "' + name + '".');
+          console.warn('OurJS: Incompatible event delegation type "' + name + '".');
         }
       } else {
         // 普通监听器。
@@ -2276,66 +2276,55 @@
    * @param {string|Element} e 不同类型的元素表示。
    * @returns {Element} 扩展后的元素。
    * @description
-   *   当参数为一个元素的序列化之后的字符串（它可以包含子元素）时，会返回扩展后的、根据这个字符串反序列化的元素。
-   *   这里与其他实现相比有以下几点差异：
    *   <ul>
-   *     <li>忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。</li>
-   *     <li>修改“IE 添加多余的 TBODY 元素”的问题的解决方案，在 wrappers 里预置一个 TBODY 即可。</li>
-   *     <li>忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装追加元素的相关方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异（IE 中添加 defer 属性的脚本在插入文档树后会执行），对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法，而不应该使用本方法。</li>
+   *     <li>当参数为一个元素（可以包含后代元素）的序列化之后的字符串时，会返回扩展后的、根据这个字符串反序列化的元素。<br>注意：不要使用本方法创建 SCRIPT 元素，对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法。</li>
+   *     <li>当参数为一个 CSS 选择符时，会返回扩展后的、与指定的 CSS 选择符相匹配的<strong>第一个元素</strong>。</li>
+   *     <li>当参数为一个元素时，会返回扩展后的该元素。</li>
+   *     <li>当参数为其他值（包括 document 和 window）时，均返回 null。</li>
    *   </ul>
-   *   在创建元素时，如果包含 table，建议写上 tbody。举例如下：
-   *   document.$('&lt;table&gt;&lt;tbody id="ranking"&gt;&lt;/tbody&gt;&lt;/table&gt;');
-   *   当参数为一个元素的 id 时，会返回扩展后的、与指定 id 相匹配的元素。
-   *   当参数本身即为一个元素时，会返回扩展后的该元素。
-   *   当参数为其他情况时（包括 document 和 window）均返回 null。
    * @see http://jquery.com/
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
    */
   var tagNamePattern = /(?!<)\w*/;
-
+  // 为解决“IE 可能会自动添加 TBODY 元素”的问题，在相应的 wrappers 里预置了一个 TBODY。
   var wrappers = {
-    area: [1, '<map>', '</map>'],
-    legend: [1, '<fieldset>', '</fieldset>'],
-    optgroup: [1, '<select>', '</select>'],
-    colgroup: [1, '<table><tbody></tbody>', '</table>'],
-    col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-    tr: [2, '<table><tbody>', '</tbody></table>'],
-    th: [3, '<table><tbody><tr>', '</tr></tbody></table>']
+    area: ['<map>', '</map>'],
+    legend: ['<fieldset>', '</fieldset>'],
+    optgroup: ['<select>', '</select>'],
+    colgroup: ['<table><tbody></tbody>', '</table>'],
+    col: ['<table><tbody></tbody><colgroup>', '</colgroup></table>'],
+    tr: ['<table><tbody>', '</tbody></table>'],
+    th: ['<table><tbody><tr>', '</tr></tbody></table>']
   };
   wrappers.option = wrappers.optgroup;
   wrappers.caption = wrappers.thead = wrappers.tfoot = wrappers.tbody = wrappers.colgroup;
   wrappers.td = wrappers.th;
   if (navigator.isIElt9) {
     // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。
-    wrappers.link = wrappers.style = wrappers.script = [0, '#', ''];
+    wrappers.link = wrappers.style = wrappers.script = ['#', ''];
   }
-
-  var defaultWrapper = [0, '', ''];
-
+  var defaultWrapper = ['', ''];
+  // 忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。
+  // 忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装追加元素的相关方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异。
   document.$ = function(e) {
     var element = null;
-    switch (typeof e) {
-      case 'string':
-        if (e.charAt(0) === '#') {
-          element = document.getElementById(e.slice(1));
-        } else if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
-          var wrapper = wrappers[tagNamePattern.exec(e)[0].toLowerCase()] || defaultWrapper;
-          var depth = wrapper[0] + 1;
-          var div = document.createElement('div');
-          element = div;
-          div.innerHTML = wrapper[1] + e + wrapper[2];
-          while (depth--) {
-            element = element.lastChild;
-          }
-          element = element && element.nodeType === 1 ? element : div;
+    if (typeof e === 'string') {
+      if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
+        var tagName = tagNamePattern.exec(e)[0].toLowerCase();
+        var wrapper = wrappers[tagName] || defaultWrapper;
+        element = document.createElement('div');
+        element.innerHTML = wrapper[0] + e + wrapper[1];
+        while ((element = element.lastChild) && element.nodeName.toLowerCase() !== tagName) {
         }
-        break;
-      case 'object':
-        if (e.nodeType === 1) {
-          element = e;
+        if (element && element.nodeType !== 1) {
+          element = null;
         }
-        break;
+      } else {
+        element = Sizzle(e)[0];
+      }
+    } else if (e && e.nodeType === 1) {
+      element = e;
     }
     return $(element);
   };
@@ -2376,8 +2365,8 @@
    * @function
    * @param {string} url 脚本文件的路径。
    * @param {Object} [options] 可选参数。
-   * @param {string} options.charset 脚本文件的字符集。
-   * @param {Function} options.onLoad 加载完毕后的回调。
+   * @param {string} [options.charset] 脚本文件的字符集。
+   * @param {Function} [options.onLoad] 加载完毕后的回调。
    *   该函数被调用时 this 的值为加载本脚本时创建的 SCRIPT 元素。
    */
   document.loadScript = function(url, options) {

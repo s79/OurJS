@@ -8,20 +8,19 @@
 //==================================================[Widget - 幻灯片播放器]
 //--------------------------------------------------[Slideshow]
   /**
-   * 幻灯片播放器。
+   * “幻灯片播放器”可以自动轮播一组“幻灯片”。
    * @name Slideshow
    * @constructor
-   * @attribute data-animation
-   *   幻灯片切换时使用的动画效果，可选项有 'none'，'fade', 'cover' 和 'slide'。
-   *   如果不指定本属性，则使用 'fade'。
-   *   当动画效果为 'slide' 时，所有幻灯片将被从左到右浮动排列；其他情况下所有幻灯片将绝对定位在其容器的左上角。
-   * @attribute data-hover-delay
-   *   以毫秒为单位的“指示器”鼠标悬停播放延时，仅在“指示器”存在时有效。
-   *   如果指定本属性，则启用鼠标悬停播放（建议设置为 '200' - '400' 之间的数值）。
-   *   如果不指定本属性，则由鼠标点击播放。
    * @attribute data-interval
-   *   以毫秒为单位的幻灯片自动播放间隔。
-   *   如果不指定本属性，则使用 '5000'，即每 5 秒更换一张幻灯片。
+   *   以毫秒为单位的“幻灯片”自动播放间隔时间。
+   *   如果不指定本属性，则使用 '5000'，即每 5 秒更换一张“幻灯片”。
+   * @attribute data-hover-delay
+   *   以毫秒为单位的“指示器”鼠标悬停播放延时，仅在“指示器”存在时有效（建议设置为 '200' - '400' 之间的数值）。
+   *   如果指定本属性，则除点击一个“指示器”外，当鼠标指针在一个“指示器”范围内停留了指定的时间后，这个“指示器”对应的“幻灯片”也将被播放。
+   * @attribute data-animation
+   *   “幻灯片”切换时使用的动画效果，可选项有 'none'，'fade', 'cover' 和 'slide'。
+   *   如果不指定本属性，则使用 'fade'。
+   *   当动画效果为 'slide' 时，所有“幻灯片”将被从左到右浮动排列；其他情况下所有“幻灯片”将绝对定位在其容器的左上角。
    * @fires show
    *   {Element} activeSlide 当前播放的“幻灯片”。
    *   {Element} activePointer 当前播放的“指示器”。
@@ -33,17 +32,17 @@
    * @fires shownext
    *   调用 showNext 方法后触发。
    * @description
-   *   幻灯片播放器用于播放一组“幻灯片”。一个“幻灯片”对应一个可选的“指示器”，它们的内容都是可以定制的。
+   *   每个“幻灯片”都可以对应一个可选的“指示器”。
    *   <strong>启用方式：</strong>
-   *   为元素添加 'widget-slideshow' 类，即可使该元素成为幻灯片播放器。
+   *   为一个元素添加 'widget-slideshow' 类，即可使该元素成为“幻灯片播放器”。
    *   <strong>结构约定：</strong>
-   *   幻灯片播放器的后代元素中，类名包含 'slides' 的为“幻灯片”的容器，类名包含 'slide' 的为“幻灯片”，类名包含 'pointers' 的为幻灯片的“指示器”的容器，类名包含 'pointer' 的为幻灯片的“指示器”，类名包含 'prev' 的为“播放上一张”按钮，包含 'next' 的为“播放下一张”按钮。
-   *   所有“幻灯片”元素应有共同的父元素，并且它们的渲染尺寸也应该与其父元素的渲染尺寸一致。
-   *   所有“指示器”元素应有共同的父元素，并且数量应和“幻灯片”的数量一致。
+   *   “幻灯片播放器”的后代元素中，类名包含 'slides' 的为“幻灯片”的容器，类名包含 'slide' 的为“幻灯片”，类名包含 'pointers' 的为“指示器”的容器，类名包含 'pointer' 的为“指示器”，类名包含 'prev' 的为“播放上一张”按钮，类名包含 'next' 的为“播放下一张”按钮。
    *   上述内容中，只有“幻灯片”和“幻灯片”的容器是必选的，其他均可以省略。如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，它们也将不可见。
+   *   所有“幻灯片”都应有共同的父元素，并且它们的渲染尺寸也应与其父元素的渲染尺寸一致。
+   *   如果需要“指示器”，则所有“指示器”也应有共同的父元素，它们的数量也应和“幻灯片”的数量一致。
    *   <strong>新增行为：</strong>
-   *   每隔一定的时间后（取决于 data-interval 的设定值），当前“幻灯片”都会自动更换。当前播放的“幻灯片”和“指示器”会被自动加入 'active' 类。
-   *   自动播放的计时器将在鼠标进入本元素的区域后被停止，并在鼠标离开本元素的区域后重新计时。
+   *   每隔一定的时间（取决于 data-interval 的设定值），当前“幻灯片”都会自动更换。当前播放的“幻灯片”和“指示器”会被加入 'active' 类。
+   *   当鼠标移入本元素时，自动播放会被暂时禁用；当鼠标移出本元素时，自动播放会被重新启用。
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
    *   .widget-slideshow { display: block; }
@@ -84,7 +83,7 @@
    * @param {number} index 要播放的“幻灯片”在所有“幻灯片”中的索引值。
    * @returns {Element} 本元素。
    * @description
-   *   如果指定的索引值与当前播放的索引值相同，则调用本方法无效。
+   *   如果指定的索引值不在有效范围内或与当前播放的索引值相同，则调用本方法无效。
    */
 
   /**
@@ -105,7 +104,8 @@
    *   播放完最后一张后，将开始播放第一张。
    */
 
-  Widget.register('slideshow', {
+  Widget.register({
+    type: 'slideshow',
     css: [
       '.widget-slideshow { display: block; }',
       '.widget-slideshow .slides { display: block; position: relative; }',
@@ -113,9 +113,9 @@
       '.slideshow-single .pointers, .slideshow-single .prev, .slideshow-single .next { display: none !important; }'
     ],
     config: {
-      animation: 'fade',
+      interval: 5000,
       hoverDelay: NaN,
-      interval: 5000
+      animation: 'fade'
     },
     methods: {
       show: function(index) {
@@ -174,16 +174,15 @@
         return this;
       }
     },
-    events: ['show', 'showprevious', 'shownext'],
     initialize: function() {
-      var $element = this;
+      var $slideshow = this;
 
       // 保存属性。
-      var slides = $element.find('.slide');
-      var pointers = $element.find('.pointer');
+      var slides = $slideshow.find('.slide');
+      var pointers = $slideshow.find('.pointer');
       var $activeSlide = slides.getFirst();
       var $activePointer = pointers.getFirst() || null;
-      Object.mixin($element, {
+      Object.mixin($slideshow, {
         slides: slides,
         pointers: pointers,
         activeIndex: 0,
@@ -192,7 +191,7 @@
       });
 
       // 默认显示第一张。
-      if ($element.animation !== 'slide') {
+      if ($slideshow.animation !== 'slide') {
         $activeSlide.insertTo($activeSlide.getParent());
       }
       $activeSlide.addClass('active');
@@ -200,11 +199,11 @@
         $activePointer.addClass('active');
       }
 
-      // 设置幻灯片样式。
+      // 设置“幻灯片”样式。
       if (slides.length < 2) {
-        $element.addClass('slideshow-single');
+        $slideshow.addClass('slideshow-single');
       } else {
-        if ($element.animation === 'slide') {
+        if ($slideshow.animation === 'slide') {
           $activeSlide.getParent().setStyles({width: $activeSlide.offsetWidth * slides.length, height: $activeSlide.offsetHeight});
           slides.forEach(function($slide) {
             $slide.setStyles({position: 'static', float: 'left'});
@@ -213,19 +212,19 @@
 
         // 通过点击或指向“指示器”播放对应的“幻灯片”。
         var hoverTimer;
-        $element
+        $slideshow
             .on('click:relay(.pointer).slideshow', function() {
               if (pointers.contains(this)) {
-                $element.show(pointers.indexOf(this));
+                $slideshow.show(pointers.indexOf(this));
               }
             })
             .on('mouseenter:relay(.pointer).slideshow', function() {
-              if (Number.isFinite($element.hoverDelay)) {
+              if (Number.isFinite($slideshow.hoverDelay)) {
                 var $pointer = this;
                 if (!hoverTimer) {
                   hoverTimer = setTimeout(function() {
                     $pointer.fire('click');
-                  }, $element.hoverDelay);
+                  }, $slideshow.hoverDelay);
                 }
               }
             })
@@ -237,17 +236,17 @@
             });
 
         // 通过点击“播放上一张”和“播放下一张”按钮播放对应的“幻灯片”。
-        $element
+        $slideshow
             .on('click:relay(.prev).slideshow', function() {
-              $element.showPrevious();
+              $slideshow.showPrevious();
             })
             .on('click:relay(.next).slideshow', function() {
-              $element.showNext();
+              $slideshow.showNext();
             });
 
         // 自动播放下一张。
         var autoPlayTimer;
-        $element
+        $slideshow
             .on('mouseenter.slideshow', function() {
               if (autoPlayTimer) {
                 clearInterval(autoPlayTimer);
@@ -257,8 +256,8 @@
             .on('mouseleave.slideshow', function() {
               if (!autoPlayTimer) {
                 autoPlayTimer = setInterval(function() {
-                  $element.showNext();
-                }, $element.interval);
+                  $slideshow.showNext();
+                }, $slideshow.interval);
               }
             })
             .fire('mouseleave');

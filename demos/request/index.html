@@ -6,8 +6,10 @@
 <script src="../../our.js"></script>
 <script src="../../scripts/common_loader.js"></script>
 <script src="../../scripts/widget-logger.js"></script>
+<script src="../../scripts/widget-demobutton.js"></script>
 <style>
 blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
+.widget-demobutton { text-align: left; }
 </style>
 </head>
 <body>
@@ -20,18 +22,20 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
     <legend>使用 XHR 模式进行同域请求</legend>
     <div id="logger_xhr" class="widget-logger" style="height: 200px;" data-clearable></div>
     <blockquote>
-      <button id="send_txt">send (data.txt)</button>
-      <button id="send_abort_txt">send and abort (data.txt)</button>
+      <button class="widget-demobutton"><code><strong>txtRequest</strong>.send({type: <em>'Normal.'</em>});</code></button>
       <br>
-      <button id="send_xml">send (data.xml)</button>
-      <button id="abort_xml">abort (data.xml)</button>
+      <button class="widget-demobutton"><code><strong>txtRequest</strong>.send({type: <em>'Call abort method immediately.'</em>});<br><strong>txtRequest</strong>.abort();</code></button>
+      <br>
+      <button class="widget-demobutton"><code><strong>xmlRequest</strong>.send();</code></button>
+      <br>
+      <button class="widget-demobutton"><code><strong>xmlRequest</strong>.abort();</code></button>
     </blockquote>
   </fieldset>
   <script>
-  document.on('domready', function() {
+  (function() {
     var $logger = $('#logger_xhr');
 
-    var getTXT = new Request('data.txt', {useCache: false})
+    window.txtRequest = new Request('data.txt', {useCache: false})
         .on('start', function(e) {
           $logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
         })
@@ -41,15 +45,8 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
         .on('finish', function(e) {
           $logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
         });
-    $('#send_txt').on('click', function() {
-      getTXT.send({type: 'Normal.'});
-    });
-    $('#send_abort_txt').on('click', function() {
-      getTXT.send({type: 'Call abort method immediately.'});
-      getTXT.abort();
-    });
 
-    var getXML = new Request('data.xml', {minTime: 500})
+    window.xmlRequest = new Request('data.xml', {minTime: 500})
         .on('start', function(e) {
           $logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
         })
@@ -59,14 +56,8 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
         .on('finish', function(e) {
           $logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
         });
-    $('#send_xml').on('click', function() {
-      getXML.send();
-    });
-    $('#abort_xml').on('click', function() {
-      getXML.abort();
-    });
 
-  });
+  })();
   </script>
   <!-- } XHR -->
 
@@ -75,15 +66,16 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
     <legend>使用 JSONP 模式进行跨域请求</legend>
     <div id="logger_jsonp" class="widget-logger" style="height: 200px;" data-clearable></div>
     <blockquote>
-      <button id="send_jsonp">send</button>
-      <button id="abort_jsonp">abort</button>
+      <button class="widget-demobutton"><code><strong>jsonpRequest</strong>.send({filename: <em>'aapl-c.json'</em>});</code></button>
+      <br>
+      <button class="widget-demobutton"><code><strong>jsonpRequest</strong>.abort();</code></button>
     </blockquote>
   </fieldset>
   <script>
-  document.on('domready', function() {
+  (function() {
     var $logger = $('#logger_jsonp');
 
-    var getList = new Request('http://www.highcharts.com/samples/data/jsonp.php', {
+    window.jsonpRequest = new Request('http://www.highcharts.com/samples/data/jsonp.php', {
       mode: 'jsonp',
       minTime: 2000,
       maxTime: 5000
@@ -98,14 +90,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
           $logger.log('<strong>' + e.type + '</strong>' + (e.data ? 'data.length=<var>' + e.data.length + '</var>' : ''));
         });
 
-    $('#send_jsonp').on('click', function() {
-      getList.send({filename: 'aapl-c.json'});
-    });
-    $('#abort_jsonp').on('click', function() {
-      getList.abort();
-    });
-
-  });
+  })();
   </script>
   <!-- } JSONP -->
 

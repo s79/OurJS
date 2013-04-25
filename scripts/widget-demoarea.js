@@ -14,12 +14,13 @@
    * @attribute data-src
    *   演示文件的路径，必须指定。
    * @description
-   *   为元素添加 'widget-demoarea' 类，即可使该元素成为演示区。
-   *   演示区的宽度是统一的，高度默认为 350px，但可以通过指定 'big-size' 或 'small-size' 类来指定高度为 200px 或 500px。
+   *   为元素添加 'widget-demoarea' 类，即可使该元素成为“演示区”。
+   *   “演示区”的宽度是统一的，高度默认为 350px，但可以通过指定 'big-size' 或 'small-size' 类来指定高度为 200px 或 500px。
    * @requires TabPanel
    */
 
-  Widget.register('demoarea', {
+  Widget.register({
+    type: 'demoarea',
     css: [
       '.widget-demoarea { display: block; }',
       '.widget-demoarea .panels { border: 2px solid gainsboro; }',
@@ -37,23 +38,39 @@
       src: ''
     },
     initialize: function() {
-      var src = this.src;
+      var $demoarea = this;
+
+      var src = $demoarea.src;
 
       // 创建内部结构。
-      this.insertAdjacentHTML('beforeEnd', '<div class="panels"><iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe><iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe></div><div class="tabs"><span class="tab">效果预览</span><span class="tab">查看源码</span><span><a href="' + src + '" target="_blank" class="link">在新页面打开</a></span></div>');
-      this.getFirstChild().getFirstChild().src = src;
+      $demoarea.insertAdjacentHTML('beforeEnd', '<div class="panels"><iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe><iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe></div><div class="tabs"><span class="tab">效果预览</span><span class="tab">查看源码</span><span><a href="' + src + '" target="_blank" class="link">在新页面打开</a></span></div>');
+      $demoarea.getFirstChild().getFirstChild().src = src;
 
       // 使用 TabPanel 实现切换功能。
-      Widget.parsers.tabpanel(this);
+      Widget.parsers.tabpanel.parse($demoarea);
 
       // “查看源码”功能。
-      this.on('activate', function(e) {
+      $demoarea.on('activate', function(e) {
         if (e.activeTab.innerText === '查看源码') {
           var $iframe = e.activePanel;
+          var panelHeight = $iframe.offsetHeight;
+          if (panelHeight < 500) {
+            $demoarea.originalPanelHeight = panelHeight;
+            $demoarea.panels.forEach(function($iframe) {
+              $iframe.morph({height: 500});
+            });
+          }
           if (!$iframe.getData('injected')) {
             var path = location.pathname;
             $iframe.setData('injected', 'true').src = (path.indexOf('OurJS') === 1 ? '/OurJS/' : '/framework/') + 'scripts/widget-demoarea.html?src=' + path.slice(0, path.lastIndexOf('/') + 1) + src;
           }
+        } else {
+          if ($demoarea.originalPanelHeight) {
+            $demoarea.panels.forEach(function($iframe) {
+              $iframe.morph({height: $demoarea.originalPanelHeight});
+            });
+          }
+
         }
       });
 

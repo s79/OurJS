@@ -15,47 +15,58 @@
     <p>
       注意：<br>
       一个 Widget 本身仍是一个元素。<br>
-      当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
+      当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
       这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
     </p>
   </blockquote>
 
-  <h2>基本应用</h2>
+  <h2>切换方式</h2>
+  <p>切换幻灯片的方式共有四种，这四种方式是可以共存的。</p>
+
+  <h3>自动切换</h3>
+  <p>当一张幻灯片显示的时间超过一定时间后，会自动切换到下一张。可以通过配置 data-interval 来指定自动切换的时间。</p>
+  <p>如果没有指定 data-interval，则使用 5000（毫秒）作为默认值。</p>
+  <p>当鼠标指针进入幻灯片播放器的区域后，自动切换将停止，当鼠标指针离开幻灯片播放器的区域后，自动切换将继续进行。</p>
+  <p>本例新建了一个幻灯片播放器，并将 data-interval 设置为 2000：</p>
+  <div class="widget-demoarea small-size" data-src="show/auto.html"></div>
+
+  <h3>点击切换</h3>
+  <p>如果幻灯片有对应的指示器，则通过鼠标点击指示器，也能切换幻灯片。</p>
+  <p>本例在上例的基础上，添加了指示器（一般都建议加上指示器，以提高用户对本组幻灯片的可预见性）：</p>
+  <div class="widget-demoarea small-size" data-src="show/by_click.html"></div>
+
+  <h3>悬停切换</h3>
+  <p>如果指定了“鼠标悬停播放延时”，则还可以通过鼠标指向一个指示器来切换幻灯片。</p>
+  <p>通过配置 data-hover-delay，可以指定鼠标悬停播放延时。</p>
+  <p>本例在上例的基础上，将 data-hover-delay 设置为 100：</p>
+  <div class="widget-demoarea small-size" data-src="show/by_hover.html"></div>
+
+  <h3>脚本切换</h3>
+  <p>通过调用幻灯片播放器的 show、showPrevious 和 showNext 方法，也能激活指定的选项卡。</p>
+  <p>本例在上例的基础上，增加了调用以上方法的测试按钮：</p>
+  <p></p>
+  <div class="widget-demoarea small-size" data-src="show/by_script.html"></div>
+
+  <h3>无需切换的情况</h3>
+  <p class="referral">如果幻灯片小于两个，则没有必要对幻灯片进行切换。在这种情况下：</p>
   <ul>
-    <li>适用于绝大多数场景。</li>
-    <li>不需要写脚本。</li>
+    <li>即便有指示器、播放上一张和播放下一张按钮，它们也将不可见。</li>
+    <li>调用幻灯片播放器的 show、showPrevious 和 showNext 方法也是无效的。</li>
   </ul>
+  <p>本例在上例的基础上，将幻灯片和指示器的数量都修改为一个：</p>
+  <div class="widget-demoarea small-size" data-src="show/single.html"></div>
 
-  <h3>鼠标指向“指示器”即可激活对应的“幻灯片”</h3>
-  <p>通过可配置项 data-interval 来指定自动切换的时间，本例为 3000 毫秒。</p>
-  <p>通过可配置项 data-hover-delay 来指定鼠标在“指示器”上悬停切换的时间，本例为 100 毫秒。</p>
-  <div class="widget-demoarea small-size" data-src="basic/fade.html"></div>
 
-  <h3>更改切换动画</h3>
-  <p>可以通过配置幻灯片播放器的 data-animation 属性来指定幻灯片切换时使用的动画效果。可选项有 'none'，'fade', 'cover' 和 'slide'。</p>
-  <p>本例将上例的 data-animation 属性值修改为 'cover'。</p>
-  <div class="widget-demoarea small-size" data-src="basic/cover.html"></div>
+  <h2>动画效果</h2>
+  <p>可以通过配置 data-animation 来指定幻灯片切换时使用的动画效果，可选项有 'none'，'fade', 'cover' 和 'slide'。</p>
+  <p>如果没有指定 data-animation，则使用 'fade' 作为默认值。</p>
+  <p>本例新建了一个幻灯片播放器，并将其 data-interval 设置为 3000，data-hover-delay 设置为 0（鼠标指向指示器即切换对应的幻灯片），data-animation 设置为 'slide'：</p>
+  <div class="widget-demoarea big-size" data-src="animation/slide.html"></div>
 
-  <h3>只有一张幻灯片的情况</h3>
-  <p>如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，它们也将不可见。</p>
-  <p>这种情况下，“幻灯片播放器”相当于一个静态的元素，不会进行自动播放。</p>
-  <p>本例将上例的“幻灯片”和“指示器”的数量都修改为一个。</p>
-  <div class="widget-demoarea small-size" data-src="basic/single.html"></div>
-
-  <h3>加入缩略图</h3>
-  <p>“指示器”也是一个元素，它可以内嵌其他的元素。</p>
-  <p>本例在“指示器”中加入了缩略图和链接。</p>
-  <p>在此基础上自由发挥，可以实现各种外观的“幻灯片播放器”。</p>
-  <div class="widget-demoarea big-size" data-src="thumbnail/"></div>
-
-  <h2>高级应用</h2>
-  <ul>
-    <li>通过编写脚本来满足更多需求。</li>
-    <li>“幻灯片播放器”提供了一些常用的 API，可以根据情况调用。</li>
-  </ul>
-
-  <h3>鼠标移入显示翻页按钮并支持滚轮翻页</h3>
-  <div class="widget-demoarea" data-src="scrollable/"></div>
+  <h2>更多定制</h2>
+  <p>一个 Widget 本身仍是一个元素，因此可以灵活的进行各种扩展。</p>
+  <p>本例新建了一个包含“播放上一张”和“播放下一张”按钮的幻灯片播放器，他们将在鼠标移入幻灯片播放器时显示，在鼠标移出幻灯片播放器时隐藏。另外，当鼠标移入幻灯片播放器中时，可以使用鼠标滚轮来切换幻灯片：</p>
+  <div class="widget-demoarea" data-src="customizing/"></div>
 
 </div>
 </body>

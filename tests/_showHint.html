@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>showHint</title>
+<script src="../our.js"></script>
+</head>
+<body>
+<script>
+document.on('domready', function() {
+  var $hintContainer = $('<div style="position: fixed; width: 100%; left: 0; top: 0; z-index: 1000; font-weight: bold; font-size: 14px; line-height: 30px; font-family: Verdana, Helvetica, Arial, \'Microsoft YaHei\', SimSun, sans-serif; text-align: center;"></div>').insertTo(document.body);
+  var hintTypes = {
+    info: ['#468847', '#DFF0D8', '#D6E9C6'],
+    error: ['#B94A48', '#F2DEDE', '#EED3D7']
+  };
+
+  window.showHint = function(type, message) {
+    var colors = hintTypes[type] || ['#3A87AD', '#D9EDF7', '#BCE8F1'];
+    var $hint = $('<div style="height: 30px; border: 1px solid ' + colors[2] + '; background: ' + colors[1] + '; color: ' + colors[0] + '"></div>').insertTo($hintContainer, 'afterBegin');
+    $hint.innerText = message;
+    var height = $hint.offsetHeight;
+    $hintContainer.setStyle('top', parseInt($hintContainer.getStyle('top'), 10) - height).morph({ top: 0 });
+    setTimeout(function() {
+      $hint.fade('out', {
+        onFinish: function() {
+          $hint.remove();
+        }
+      });
+    }, 3000);
+    // 如果是错误信息，输出到控制台。
+    if (type === 'error' && window.console && console.warn) {
+      console.warn('Error: ' + message);
+    }
+  };
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Slideshow</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/slideshow.js"></script>
+<script src="../../../scripts/widget-demobutton.js"></script>
+<style>
+#banner { position: relative; width: 540px; height: 80px; overflow: hidden; background: black; }
+#banner .slides { list-style: none; margin: 0; padding: 0; }
+#banner .slide img { display: block; width: 540px; height: 80px; border: none; }
+#banner .pointers { position: absolute; right: 10px; bottom: 5px; z-index: 10; }
+#banner .pointer { float: left; width: 13px; height: 13px; overflow: hidden; color: white; font-size: 13px; line-height: 13px; font-family: Tahoma, Verdana, Arial, serif; text-align: center; text-decoration: none; cursor: default; opacity: .5; filter: alpha(opacity=50); }
+#banner .pointer:hover { opacity: .8; filter: alpha(opacity=80); }
+#banner .pointers a.active,
+#banner .pointers a.active:hover { opacity: 1; filter: alpha(opacity=100); }
+</style>
+</head>
+<body>
+<div id="banner" class="widget-slideshow" data-interval="2000" data-hover-delay="100">
+  <ul class="slides">
+    <li class="slide"><a href="javascript:alert('1');"><img src="1.jpg" galleryimg="no"></a></li>
+    <li class="slide"><a href="javascript:alert('2');"><img src="2.jpg" galleryimg="no"></a></li>
+    <li class="slide"><a href="javascript:alert('3');"><img src="3.jpg" galleryimg="no"></a></li>
+  </ul>
+  <div class="pointers">
+    <a href="javascript:void('1');" hidefocus class="pointer">●</a>
+    <a href="javascript:void('2');" hidefocus class="pointer">●</a>
+    <a href="javascript:void('3');" hidefocus class="pointer">●</a>
+  </div>
+</div>
+<div style="padding: 10px 0;">
+  <button class="widget-demobutton"><code><strong>$banner</strong>.show(<var>0</var>);</code></button>
+  <br>
+  <button class="widget-demobutton"><code><strong>$banner</strong>.showPrevious();</code></button>
+  <button class="widget-demobutton"><code><strong>$banner</strong>.showNext();</code></button>
+</div>
+
+<script>
+var $banner = $('#banner');
+</script>
+
+</body>
+</html>

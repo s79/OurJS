@@ -266,7 +266,7 @@ var apiList = {
     'Widget.register',
     'Widget.parse'
   ],
-  '多页标签面板': [
+  '标签面板': [
     'TabPanel',
     'TabPanel#tabs',
     'TabPanel#panels',
@@ -296,12 +296,12 @@ var apiList = {
     'Autocue#addMessages'
   ],
   '滚动框': [
-    'Scrollbox',
-    'Scrollbox#update'
+    'ScrollBox',
+    'ScrollBox#update'
   ],
   '分页导航条': [
     'Paginator',
-    'Paginator#totalPage',
+    'Paginator#totalPages',
     'Paginator#currentPage',
     'Paginator#turn',
     'Paginator#update'

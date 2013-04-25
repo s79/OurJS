@@ -5,6 +5,7 @@
 <title>localStorage</title>
 <link rel="stylesheet" href="../../../stylesheets/common.css">
 <script src="../../../our.js"></script>
+<script src="../../../scripts/widget-demobutton.js"></script>
 <style>
 body { padding: 10px; background: #FFFFE1; }
 h1 { margin-bottom: 10px; background: gold; font: bold 14px "Microsoft Yahei"; text-align: center; }
@@ -35,7 +36,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; text-al
       </table>
     </form>
     <blockquote>
-      <button id="local_storage_set" type="button">setItem</button>
+      <button class="widget-demobutton" data-code="localStorageTest.setItem();">setItem</button>
     </blockquote>
   </fieldset>
   <fieldset>
@@ -55,7 +56,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; text-al
       </table>
     </form>
     <blockquote>
-      <button id="local_storage_get" type="button">getItem</button>
+      <button class="widget-demobutton" data-code="localStorageTest.getItem();">getItem</button>
     </blockquote>
   </fieldset>
   <fieldset>
@@ -69,38 +70,34 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; text-al
       </table>
     </form>
     <blockquote>
-      <button id="local_storage_remove" type="button">removeItem</button>
+      <button class="widget-demobutton" data-code="localStorageTest.removeItem();">removeItem</button>
     </blockquote>
   </fieldset>
   <fieldset>
     <legend>localStorage.clear</legend>
     <blockquote>
-      <button id="local_storage_clear" type="button">clear</button>
+      <button class="widget-demobutton" data-code="localStorageTest.clear();">clear</button>
     </blockquote>
   </fieldset>
   <script>
-  (function() {
-    $('#local_storage_set').on('click', function() {
+  window.localStorageTest = {
+    setItem: function() {
       var $form = $('#form_local_storage_set');
       localStorage.setItem($form.key.value, $form.value.value);
-    });
-
-    $('#local_storage_get').on('click', function() {
+    },
+    getItem: function() {
       var $form = $('#form_local_storage_get');
       var value = localStorage.getItem($form.key.value);
       $form.value.value = value || '';
-    });
-
-    $('#local_storage_remove').on('click', function() {
+    },
+    removeItem: function() {
       var $form = $('#form_local_storage_remove');
       localStorage.removeItem($form.key.value);
-    });
-
-    $('#local_storage_clear').on('click', function() {
+    },
+    clear: function() {
       localStorage.clear();
-    });
-
-  })();
+    }
+  };
   </script>
   <!-- } localStorage -->
 </div>

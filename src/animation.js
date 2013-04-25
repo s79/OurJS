@@ -629,13 +629,13 @@
    *   2. lineHeight 仅支持 'px' 单位的长度设置，而不支持数字。
    *   3. 支持相对长度，如 '+=10' 表示在现有长度的基础上增加 10 像素，'-=10' 表示在现有长度的基础上减少 10 像素。
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位为毫秒，默认为 400。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
-   * @param {Function} options.onStart 播放开始时的回调。
+   * @param {number} [options.duration] 播放时间，单位为毫秒，默认为 400。
+   * @param {string} [options.timingFunction] 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'ease'。
+   * @param {Function} [options.onStart] 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onStep 播放每一帧之后的回调。
+   * @param {Function} [options.onStep] 播放每一帧之后的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
+   * @param {Function} [options.onFinish] 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
@@ -673,13 +673,13 @@
    * @param {string} [color] 高亮颜色，默认为 'yellow'。
    * @param {string} [property] 高亮样式名，默认为 'backgroundColor'。
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位为毫秒，默认为 500。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
-   * @param {Function} options.onStart 播放开始时的回调。
+   * @param {number} [options.duration] 播放时间，单位为毫秒，默认为 500。
+   * @param {string} [options.timingFunction] 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
+   * @param {Function} [options.onStart] 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onStep 播放每一帧之后的回调。
+   * @param {Function} [options.onStep] 播放每一帧之后的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
+   * @param {Function} [options.onFinish] 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
@@ -690,19 +690,11 @@
     color = color || 'yellow';
     property = property || 'backgroundColor';
     options = Object.mixin({duration: 500, timingFunction: 'easeIn', onStart: empty, onStep: empty, onFinish: empty}, options || {});
-    var originalColor;
     var animations = getAnimations($element);
     var prevHighlight = animations.highlight;
     if (prevHighlight) {
       prevHighlight.pause();
-      if (property === prevHighlight.property) {
-        originalColor = prevHighlight.originalColor;
-      } else {
-        $element.setStyle(prevHighlight.property, prevHighlight.originalColor);
-      }
-    }
-    if (!originalColor) {
-      originalColor = $element.style[property];
+      $element.setStyle(prevHighlight.property, prevHighlight.originalColor);
     }
     var styles = {};
     styles[property] = $element.getStyle(property);
@@ -720,8 +712,8 @@
           delete animations.highlight;
           options.onFinish.call($element, event);
         });
-    highlight.originalColor = originalColor;
     highlight.property = property;
+    highlight.originalColor = $element.style[property];
     highlight.play();
     return $element;
   };
@@ -739,13 +731,13 @@
    *     <tr><td><dfn>out</dfn></td><td>淡出模式。</td></tr>
    *   </table>
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位为毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
-   * @param {Function} options.onStart 播放开始时的回调。
+   * @param {number} [options.duration] 播放时间，单位为毫秒，默认为 200。
+   * @param {string} [options.timingFunction] 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeIn'。
+   * @param {Function} [options.onStart] 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onStep 播放每一帧之后的回调。
+   * @param {Function} [options.onStep] 播放每一帧之后的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
+   * @param {Function} [options.onFinish] 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description
@@ -825,13 +817,13 @@
    * @param {number} x 横向滚动坐标，支持相对坐标，如 '+=10' 表示在现有横坐标的基础上向左滚动 10 像素，'-=10' 表示在现有横坐标的基础上向右滚动 10 像素。
    * @param {number} y 纵向滚动坐标，支持相对坐标，如 '+=10' 表示在现有纵坐标的基础上向下滚动 10 像素，'-=10' 表示在现有纵坐标的基础上向上滚动 10 像素。
    * @param {Object} [options] 动画选项。
-   * @param {number} options.duration 播放时间，单位为毫秒，默认为 200。
-   * @param {string} options.timingFunction 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeInOut'。
-   * @param {Function} options.onStart 播放开始时的回调。
+   * @param {number} [options.duration] 播放时间，单位为毫秒，默认为 200。
+   * @param {string} [options.timingFunction] 控速函数名称或表达式，细节请参考 Animation.prototype.addClip 的同名参数，默认为 'easeInOut'。
+   * @param {Function} [options.onStart] 播放开始时的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onStep 播放每一帧之后的回调。
+   * @param {Function} [options.onStep] 播放每一帧之后的回调。
    *   该函数被调用时 this 的值为本元素。
-   * @param {Function} options.onFinish 播放完成时的回调。
+   * @param {Function} [options.onFinish] 播放完成时的回调。
    *   该函数被调用时 this 的值为本元素。
    * @returns {Element} 本元素。
    * @description

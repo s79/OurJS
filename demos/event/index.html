@@ -6,11 +6,11 @@
 <script src="../../our.js"></script>
 <script src="../../scripts/common_loader.js"></script>
 <script src="../../scripts/widget-logger.js"></script>
+<script src="../../scripts/widget-demobutton.js"></script>
 <style>
 .widget-logger { float: right; width: 407px; }
 .demo { float: left; width: 534px; }
-blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
-button samp { padding: 0 5px; background: tomato; }
+.sample { width: 200px; height: 30px; margin: 5px 0; background: darkseagreen; line-height: 30px; text-align: center; cursor: default; }
 .container { padding: 5px 0 5px 5px; border: 2px solid crimson; background: whitesmoke; *zoom: 1; }
 .container bdo,
 .container cite,
@@ -19,6 +19,8 @@ button samp { padding: 0 5px; background: tomato; }
 .container span,
 .container var { float: left; display: block; width: 100px; height: 30px; margin: 0 5px 5px 0; background: gainsboro; line-height: 30px; text-align: center; cursor: default; -display: inline; }
 .container p { clear: both; height: 30px; margin: 0 5px 0 0; background: darkseagreen; font: 12px/30px Verdana; text-align: center; cursor: default; }
+.sample:hover,
+.container *:hover { font-weight: bold; }
 dl { float: left; width: 210px; margin: 0 5px 5px 0; border: 1px solid silver; background: url(../../images/logger.png); color: #8CC; -display: inline; *margin-bottom: 0; }
 dt { height: 16px; padding: 5px; border-bottom: 1px solid silver; background: whitesmoke; color: #333; text-align: center; line-height: 16px; }
 dd { height: 128px; padding: 5px; font: 12px/12px Consolas, 'Lucida Console', Courier, SimSun, monospace; }
@@ -27,6 +29,8 @@ dd var { color: white; }
 dd em { display: inline-block; padding: 0 1px; font-weight: bold; text-decoration: underline; border-radius: 3px; }
 dd em.true { color: yellowgreen; }
 dd em.false { color: tomato; }
+blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
+button samp { color: darkseagreen; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -39,36 +43,27 @@ dd em.false { color: tomato; }
   <legend>多监听器添加及删除</legend>
   <div id="dom_event_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
-    <button id="sample"><samp>$sample</samp></button>
-    <button id="foo"><samp style="background: mediumseagreen;">本元素已添加两个 <em>click</em> 事件监听器 <strong>logId</strong> 和 <strong>logText</strong></samp></button>
+    <div id="dom_event_element" class="sample">$element</div>
     <blockquote id="dom_on_off_controls">
-      <button><code><samp>$sample</samp>.on('<em>click</em>', <strong>logId</strong>).on('<em>click.logText</em>', <strong>logText</strong>);</code></button>
+      <button class="widget-demobutton"><code><samp>$element</samp>.on(<em>'click'</em>, <strong>logId</strong>).on(<em>'click.text'</em>, <strong>logText</strong>);</code></button>
       <br>
-      <button><code><samp>$sample</samp>.off('<em>click</em>');</code></button>
+      <button class="widget-demobutton"><code><samp>$element</samp>.off(<em>'click'</em>);</code></button>
       <br>
-      <button><code><samp>$sample</samp>.off('<em>click.logText</em>');</code></button>
+      <button class="widget-demobutton"><code><samp>$element</samp>.off(<em>'click.text'</em>);</code></button>
+      <br>
+      <button class="widget-demobutton"><code><samp>$element</samp>.fire(<em>'click'</em>);</code></button>
     </blockquote>
   </div>
 </fieldset>
 <script>
+var $element = $('#dom_event_element');
+var $domEventLogger = $('#dom_event_logger');
 var logId = function() {
   $domEventLogger.log('<strong>id</strong> = <var>' + this.id + '</var>');
 };
 var logText = function() {
   $domEventLogger.log('<em>text</em> = <var>' + this.innerText + '</var>');
 };
-
-var $domEventLogger = $('#dom_event_logger');
-var $sample = $('#sample');
-
-$('#foo').on('click', logId).on('click', logText);
-
-$('#dom_on_off_controls').on('click:relay(button)', function() {
-  var code = this.innerText;
-  $domEventLogger.log(code);
-  eval(code);
-});
-
 </script>
 <!-- } on/off -->
 
@@ -148,7 +143,7 @@ document.on('domready', function() {
   <legend>立即停止事件的传播</legend>
   <div id="stop_immediate_propagation_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
-    <button id="stop_immediate_propagation_button" style="height: 100px;">本按钮添加了三个事件监听器</button>
+    <div id="stop_immediate_propagation_element" class="sample">本元素添加了三个事件监听器</div>
     <blockquote>
       <label><input id="stop_immediate_propagation_checkbox" type="checkbox" style="vertical-align: text-bottom;"> 在第一个事件监听器中立即阻止事件的传播</label>（后续的监听器将不会被调用）
     </blockquote>
@@ -157,8 +152,7 @@ document.on('domready', function() {
 <script>
 document.on('domready', function() {
   var $logger = $('#stop_immediate_propagation_logger');
-
-  $('#stop_immediate_propagation_button')
+  $('#stop_immediate_propagation_element')
       .on('click', function(e) {
         if ($stopImmediatePropagation.checked) {
           e.stopImmediatePropagation();
@@ -171,7 +165,6 @@ document.on('domready', function() {
       .on('click', function(e) {
         $logger.log('<em>' + e.type + '</em>第三个监听器已被调用。');
       });
-
   var $stopImmediatePropagation = $('#stop_immediate_propagation_checkbox').on('change', function() {
     $logger.log(this.getParent().innerText.trim() + ': <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
   });
@@ -224,7 +217,7 @@ document.on('domready', function() {
     <dd id="mouse_wheel"></dd>
   </dl>
   <blockquote style="clear: both;">
-    <button id="fier_event">一秒钟后触发一个自定义的 mousedown 事件</button>
+    <button id="fier_event" class="widget-demobutton" data-code="fireAnEventInOneSecond();">一秒钟后触发一个自定义的 mousedown 事件</button>
     <span id="timer" style="display: inline-block; width: 0; height: 5px; overflow: hidden; vertical-align: bottom;"></span>
   </blockquote>
 </fieldset>
@@ -261,7 +254,7 @@ document.on('domready', function() {
 
   var $fireEvent = $('#fier_event');
   var $timer = $('#timer');
-  $fireEvent.on('click', function() {
+  window.fireAnEventInOneSecond = function() {
     $fireEvent.disabled = true;
     $timer
         .setStyles({width: 538, backgroundColor: 'lime'})
@@ -293,7 +286,7 @@ document.on('domready', function() {
             });
           }
         });
-  });
+  };
 
 })();
 </script>
@@ -333,7 +326,7 @@ document.on('domready', function() {
       <textarea id="textarea" name="info" class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;">textarea</textarea>
     </form>
     <blockquote>
-      <button id="set_value">一秒钟后使用脚本给 TEXTAREA 赋值 (不应该触发 input 事件)</button>
+      <button class="widget-demobutton" data-code="setAValueInOneSecond();">一秒钟后使用脚本给 TEXTAREA 赋值 (不应该触发 input 事件)</button>
       <br>
       <label><input id="enable_focus_logging" type="checkbox" style="vertical-align: text-bottom;"> 输出 focusin/focusout 的日志信息</label><br>
       <label><input id="enable_input_logging" type="checkbox" checked style="vertical-align: text-bottom;"> 输出 input 的日志信息</label><br>
@@ -374,11 +367,11 @@ document.on('domready', function() {
   });
 
   var $textarea = $('#textarea');
-  $('#set_value').on('click', function() {
+  window.setAValueInOneSecond = function() {
     setTimeout(function() {
       $logger.log('$textarea.value=<var>' + ($textarea.value = '使用脚本赋的新值') + '</var>');
     }, 1000);
-  });
+  };
 
   var $enableFocusLogging = $('#enable_focus_logging').on('change', function() {
     $logger.log(this.getParent().innerText.trim() + ': <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
@@ -441,7 +434,7 @@ document.on('domready', function() {
     <div style="left: 400px;" class="draggable">Draggable (步长为 35)</div>
   </div>
   <blockquote>
-    <button id="clear">解除拖动代理</button>
+    <button id="clear" class="widget-demobutton" data-code="cancelDelegate();">解除拖动代理</button>
   </blockquote>
 </fieldset>
 <script>
@@ -480,10 +473,10 @@ document.on('domready', function() {
         e.offsetX = 0;
       });
 
-  $('#clear').on('click', function() {
+  window.cancelDelegate = function() {
     $container.off('mousedragstart:relay(.draggable), mousedrag:relay(.draggable), mousedragend:relay(.draggable)');
-    this.disabled = true;
-  });
+    $('#clear').disabled = true;
+  };
 
 })();
 </script>
@@ -498,36 +491,29 @@ document.on('domready', function() {
   <div id="js_event_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
     <blockquote id="js_on_off_controls">
-      <button><code><strong>obj</strong>.on('<em>foo</em>', <strong>logProperty</strong>).on('<em>bar.logEvent</em>', <strong>logEvent</strong>);</code></button>
+      <button class="widget-demobutton"><code><strong>obj</strong>.on(<em>'foo'</em>, <strong>logProperty</strong>).on(<em>'bar.logEvent'</em>, <strong>logEvent</strong>);</code></button>
       <br>
-      <button><code><strong>obj</strong>.off('<em>foo</em>');</code></button>
+      <button class="widget-demobutton"><code><strong>obj</strong>.off(<em>'foo'</em>);</code></button>
       <br>
-      <button><code><strong>obj</strong>.off('<em>bar.logEvent</em>');</code></button>
+      <button class="widget-demobutton"><code><strong>obj</strong>.off(<em>'bar.logEvent'</em>);</code></button>
       <br>
-      <button><code><strong>obj</strong>.fire('<em>foo</em>');</code></button>
+      <button class="widget-demobutton"><code><strong>obj</strong>.fire(<em>'foo'</em>);</code></button>
       <br>
-      <button><code><strong>obj</strong>.fire('<em>bar</em>');</code></button>
+      <button class="widget-demobutton"><code><strong>obj</strong>.fire(<em>'bar'</em>);</code></button>
     </blockquote>
   </div>
 </fieldset>
 <script>
-var $jsEventLogger = $('#js_event_logger');
 var obj = new EventTarget();
 obj.text = 'Hello World!';
 
+var $jsEventLogger = $('#js_event_logger');
 var logProperty = function() {
   $jsEventLogger.log('<strong>obj.text</strong> = <var>' + this.text + '</var>');
 };
 var logEvent = function(e) {
   $jsEventLogger.log('<em>Event keys</em> = <var>' + JSON.stringify(Object.keys(e)) + '</var>');
 };
-
-$('#js_on_off_controls').on('click:relay(button)', function() {
-  var code = this.innerText;
-  $jsEventLogger.log(code);
-  eval(code);
-});
-
 </script>
 <!-- } on/off -->
 
@@ -538,30 +524,26 @@ $('#js_on_off_controls').on('click:relay(button)', function() {
   <div id="js_combination_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
     <blockquote id="js_combination_controls">
-      <button><code><strong>eventTarget</strong>.fire('<em>foo</em>', {data: 'A'});</code></button>
+      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'foo'</em>, {data: 'A'});</code></button>
       <br>
-      <button><code><strong>eventTarget</strong>.fire('<em>foo</em>', {data: 'B'});</code></button>
+      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'foo'</em>, {data: 'B'});</code></button>
       <br>
-      <button><code><strong>eventTarget</strong>.fire('<em>bar</em>', {data: 'A'});</code></button>
+      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'bar'</em>, {data: 'A'});</code></button>
       <br>
-      <button><code><strong>eventTarget</strong>.fire('<em>bar</em>', {data: 'B'});</code></button>
+      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'bar'</em>, {data: 'B'});</code></button>
       <br>
-      <button><code><strong>eventTarget</strong>.fire('<em>test</em>', {flag: true});</code></button>
+      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'test'</em>, {flag: true});</code></button>
       <br>
-      <button><code><strong>eventTarget</strong>.fire('<em>test</em>', {flag: false});</code></button>
+      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'test'</em>, {flag: false});</code></button>
     </blockquote>
   </div>
 </fieldset>
 <script>
-var $jsCombinationLogger = $('#js_combination_logger');
 var eventTarget = new EventTarget();
+
+var $jsCombinationLogger = $('#js_combination_logger');
 eventTarget.on('[test>foo], [test>bar]', function(e1, e2) {
   $jsCombinationLogger.log('<strong>' + e1.flag + '</strong>&gt;<strong>' + e2.type + '</strong>-<em>' + e2.data + '</em>');
-});
-$('#js_combination_controls').on('click:relay(button)', function() {
-  var code = this.innerText;
-  $jsCombinationLogger.log(code);
-  eval(code);
 });
 </script>
 <!-- } combination -->

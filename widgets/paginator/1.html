@@ -14,9 +14,9 @@
   <script>
   (function() {
     // 注意：以下 document.write 为模拟服务端的输出，实际使用时不必使用脚本。
-    var totalPage = 30;
-    var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 1, 1, totalPage);
-    document.write('<div class="widget-paginator" data-target-url="?page={page}" data-total-page="' + totalPage + '" data-current-page="' + currentPage + '"></div>');
+    var totalPages = 30;
+    var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 1, 1, totalPages);
+    document.write('<div class="widget-paginator" data-target-url="?page={page}" data-total-pages="' + totalPages + '" data-current-page="' + currentPage + '"></div>');
   })();
   </script>
 </div>

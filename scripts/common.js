@@ -52,7 +52,7 @@ document.on('domready', function() {
       url: '/OurJS/widgets/',
       submenu: [
         {
-          text: '多页标签面板',
+          text: '标签面板',
           url: '/OurJS/widgets/tabpanel/'
         },
         {
@@ -207,17 +207,17 @@ document.on('domready', function() {
   }
 
 //--------------------------------------------------[书签]
-  document.on('click:relay(a)', function() {
+  document.on('click:relay(a)', function(e) {
     var href = this.href;
     if (href.contains('#')) {
       var $target = $(href.slice(href.indexOf('#')));
       if ($target) {
-        $(document.body).smoothScroll(0, $target.getClientRect().top + window.getPageOffset().y - 50, {
+        $('body').smoothScroll(0, $target.getClientRect().top + window.getPageOffset().y - 50, {
           onFinish: function() {
             $target.highlight('yellow', 'backgroundColor', {duration: 1000})
           }
         });
-        return false;
+        e.preventDefault();
       }
     }
   });

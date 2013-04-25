@@ -15,7 +15,7 @@ td { vertical-align: top; }
 <script>
 document.on('domready', function() {
   // 代码高亮。
-  $(document.body).find('pre').forEach(function($pre) {
+  $('body').find('pre').forEach(function($pre) {
     $pre.addClass('prettyprint');
   });
   prettyPrint();
@@ -631,7 +631,7 @@ getUserinfo.send({userid: 32768});
 <h2>Widgets</h2>
 <p>OurJS 提供的 Widgets 是一类特殊的元素，可以把一个 Widget 视为一种“<strong>高级可替换元素</strong>”。</p>
 <p>
-  当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
+  当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
   由于 Widgets 的本质仍然是元素，因此其新增的事件类型仍使用 OurJS 为 DOM 对象提供的事件模型，即这些事件产生的事件对象是可以在 DOM 树中传递的，并且可以被代理。
 </p>
 <p>一些 Widgets 甚至不需要写任何脚本去初始化，即可直接使用。</p>

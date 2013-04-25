@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>多页标签面板</title>
+<title>标签面板</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/common_loader.js"></script>
 <script src="../../scripts/widget-demoarea.js"></script>
@@ -10,42 +10,36 @@
 </head>
 <body>
 <div id="content" data-outline="enabled">
-  <h1>多页标签面板（选项卡）</h1>
+  <h1>标签面板（选项卡）</h1>
   <blockquote>
     <p>
       注意：<br>
       一个 Widget 本身仍是一个元素。<br>
-      当一个元素成为 Widget 时，将获得新的属性、方法，具备新的行为，并能触发新的事件。<br>
+      当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
       这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
     </p>
   </blockquote>
 
-  <h2>基本应用</h2>
-  <ul>
-    <li>适用于绝大多数场景。</li>
-    <li>不需要写脚本。</li>
-  </ul>
+  <h2>激活方式</h2>
+  <p>激活选项卡的方式共有三种，这三种方式是可以共存的。</p>
 
-  <h3>鼠标点击切换选项卡</h3>
-  <p>按照结构约定来设计 HTML 即可。</p>
-  <div class="widget-demoarea" data-src="1.html"></div>
+  <h3>点击激活</h3>
+  <p>点击选项卡的标签即可切换活动选项卡。</p>
+  <p>本例新建了一个标签面板：</p>
+  <div class="widget-demoarea" data-src="activate/by_click.html"></div>
 
-  <h3>鼠标悬停（200 毫秒）切换选项卡</h3>
-  <p>通过可配置项 data-hover-delay 来指定鼠标悬停切换的时间，本例为 200 毫秒。</p>
-  <div class="widget-demoarea" data-src="2.html"></div>
+  <h3>悬停激活</h3>
+  <p>
+    如果指定了“鼠标悬停激活延时”，则还可以通过鼠标指向选项卡的标签来切换活动面板。<br>
+    通过配置 data-hover-delay 来指定鼠标悬停激活延时。
+  </p>
+  <p>本例在上例的基础上，将 data-hover-delay 设置为 200：</p>
+  <div class="widget-demoarea" data-src="activate/by_hover.html"></div>
 
-  <h2>高级应用</h2>
-  <ul>
-    <li>通过编写脚本来满足更多需求。</li>
-  </ul>
-
-  <h3>激活指定的标签</h3>
-  <p>使用 activate 方法来激活指定的标签。</p>
-  <div class="widget-demoarea" data-src="3.html"></div>
-
-  <h3>监听事件</h3>
-  <p>可以为 activate 事件添加监听器。</p>
-  <div class="widget-demoarea" data-src="4.html"></div>
+  <h3>脚本激活</h3>
+  <p>通过调用标签面板的 activate 方法，也能激活指定的选项卡。</p>
+  <p>本例在上例的基础上，增加了调用该方法的测试按钮：</p>
+  <div class="widget-demoarea" data-src="activate/by_script.html"></div>
 
 </div>
 </body>

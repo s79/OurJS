@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ScrollBox</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/scrollbox.js"></script>
+<script src="../../../scripts/widget-demobutton.js"></script>
+<style>
+body { margin: 0; padding: 5px; font: 14px/20px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+blockquote { margin: 0 0 5px; }
+p { margin: 0; padding: 15px 0; text-align: center; }
+
+.widget-scrollbox { display: none; width: 400px; height: 300px; padding: 5px; border: 1px solid black; background-color: whitesmoke; }
+.widget-scrollbox div.track { width: 6px; background-color: transparent; }
+.widget-scrollbox div.track .scrollbar { width: 6px; border-radius: 3px; background: dimgray; opacity: .30; filter: alpha(opacity=30); }
+.widget-scrollbox div.track .hover { opacity: .6; filter: alpha(opacity=60); }
+.widget-scrollbox div.track .active { opacity: .9; filter: alpha(opacity=90); }
+</style>
+<script>
+</script>
+</head>
+<body>
+<blockquote>
+  <button class="widget-demobutton" data-code="show();">显示</button>
+  <button class="widget-demobutton" data-code="hide();">隐藏</button>
+  <button class="widget-demobutton" data-code="expand();">扩大</button>
+  <button class="widget-demobutton" data-code="shrink();">缩小</button>
+</blockquote>
+
+<div id="scrollbox" class="widget-scrollbox" data-content-shrink="0">
+  <div>
+    <p style="background: pink;">START</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p>text</p>
+    <p style="background: pink;">END</p>
+  </div>
+</div>
+
+<script>
+var $scrollbox = $('#scrollbox');
+
+var show = function() {
+  // 当滚动框由不可见变为可见时，应调用其 update 方法，以更新内容和滚动条的位置。
+  $scrollbox.fade('in', {
+    onStart: function() {
+      console.log(this.getStyle('display'));
+      this.update();
+    }
+  });
+};
+
+var hide = function() {
+  // 当滚动框由可见变为不可见时，不必调用 update 方法。
+  $scrollbox.fade('out');
+};
+
+var expand = function() {
+  // 在每一次改变滚动框的尺寸后，都需要调用其 update 方法，以更新内容和滚动条的位置。
+  $scrollbox.morph({width: 800, height: 420}, {
+    onStep: function() {
+      this.update();
+    }
+  });
+};
+
+var shrink = function() {
+  // 在每一次改变滚动框的尺寸后，都需要调用其 update 方法，以更新内容和滚动条的位置。
+  $scrollbox.morph({width: 400, height: 300}, {
+    onStep: function() {
+      this.update();
+    }
+  });
+};
+</script>
+
+</body>
+</html>

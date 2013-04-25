@@ -5,6 +5,7 @@
 <title>DOM 操作</title>
 <script src="../../our.js"></script>
 <script src="../../scripts/common_loader.js"></script>
+<script src="../../scripts/widget-demobutton.js"></script>
 <style>
 caption { color: gray; font-size: 12px; }
 textarea { width: 120px; resize: none; }
@@ -21,11 +22,13 @@ div.sample,
 div.target,
 div.child { width: 150px; height: 20px; margin: 5px; line-height: 20px; text-align: center; }
 blockquote { margin: 120px 0 0; padding: 10px; border: 1px solid gainsboro; }
-button samp { padding: 0 5px; }
-.simple_container { background: gold; }
-.sample { background: tomato; }
-.target { background: mediumseagreen; }
-.child { background: gainsboro; }
+div.simple_container { background: gold; }
+div.sample { background: tomato; }
+div.target { background: mediumseagreen; }
+div.child { background: gainsboro; }
+button .simple_container { color: gold; font-weight: bold; }
+button .sample { color: tomato; font-weight: bold; }
+button .target { color: mediumseagreen; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -76,7 +79,7 @@ button samp { padding: 0 5px; }
           <!-- } 克隆源 -->
         </td>
         <td style="text-align: center; vertical-align: middle; background-image: url(../../images/comment.png);">
-          <button id="clone" style="margin: auto; width: 100px; height: 100px;">» clone »</button>
+          <button class="widget-demobutton" style="margin: auto; width: 100px; height: 100px;" data-code="cloneTest();">» clone »</button>
         </td>
         <td id="c_target" style="width: 400px;">
           <!-- 克隆后的元素插入的位置 -->
@@ -107,16 +110,18 @@ button samp { padding: 0 5px; }
       .on('mouseout:relay(span)', function() {
         this.removeClass('clone_test');
       });
-  var $data = $('#c_data')
+  $('#c_data')
       .setData('value', 'data-value')
       .on('click', function() {
         this.value = this.getData('value') + ' (uid=' + this.uid + ')';
       });
+
   var $sample = $('#c_sample');
   var $target = $('#c_target');
-  $('#clone').on('click', function() {
+  window.cloneTest = function() {
     $sample.clone(true, true).replace($target.getFirstChild());
-  });
+  };
+
 })();
 </script>
 <!-- } clone -->
@@ -126,36 +131,31 @@ button samp { padding: 0 5px; }
 <fieldset>
   <legend>insertTo - 将本元素插入到目标元素的指定位置</legend>
   <div class="simple_container">
-    <div id="i_sample" class="sample">$sample</div>
+    <div id="i_sample" class="sample">$sampleA</div>
   </div>
   <div class="target_container">
     <div id="i_target" class="target">
-      <div class="child">content_1</div>
-      <div class="child">content_2</div>
+      <div class="child"></div>
+      <div class="child"></div>
     </div>
   </div>
   <blockquote id="i_controls">
-    <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="target">$target</samp>, '<em>beforeBegin</em>');</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleA</samp>.insertTo(<samp class="target">$targetA</samp>, <em>'beforeBegin'</em>);</code></button>
     <br>
-    <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="target">$target</samp>, '<em>afterBegin</em>');</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleA</samp>.insertTo(<samp class="target">$targetA</samp>, <em>'afterBegin'</em>);</code></button>
     <br>
-    <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="target">$target</samp>, '<em>beforeEnd</em>');</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleA</samp>.insertTo(<samp class="target">$targetA</samp>, <em>'beforeEnd'</em>);</code></button>
     <br>
-    <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="target">$target</samp>, '<em>afterEnd</em>');</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleA</samp>.insertTo(<samp class="target">$targetA</samp>, <em>'afterEnd'</em>);</code></button>
     <br>
-    <button><code><samp class="sample">$sample</samp>.insertTo(<samp class="simple_container">$simpleContainer</samp>);</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleA</samp>.insertTo(<samp class="simple_container">$simpleContainer</samp>);</code></button>
     <br>
   </blockquote>
 </fieldset>
 <script>
-(function() {
-  var $sample = $('#i_sample');
-  var $target = $('#i_target');
-  var $simpleContainer = $sample.getParent();
-  $('#i_controls').on('click:relay(button)', function() {
-    eval(this.innerText);
-  });
-})();
+var $sampleA = $('#i_sample');
+var $targetA = $('#i_target');
+var $simpleContainer = $sampleA.getParent();
 </script>
 <!-- } insertTo -->
 
@@ -165,33 +165,28 @@ button samp { padding: 0 5px; }
 <fieldset>
   <legend>swap - 交换本元素和目标元素的位置</legend>
   <div class="simple_container">
-    <div id="s_sample" class="sample">$sample</div>
+    <div id="s_sample" class="sample">$sampleB</div>
   </div>
   <div id="s_targets" class="target_container">
-    <div class="target">$targetA</div>
-    <div class="target">$targetB</div>
-    <div class="target">$targetC</div>
+    <div class="target">$targetB1</div>
+    <div class="target">$targetB2</div>
+    <div class="target">$targetB3</div>
   </div>
   <blockquote id="s_controls">
-    <button><code><samp class="sample">$sample</samp>.swap(<samp class="target">$targetA</samp>);</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleB</samp>.swap(<samp class="target">$targetB1</samp>);</code></button>
     <br>
-    <button><code><samp class="sample">$sample</samp>.swap(<samp class="target">$targetB</samp>);</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleB</samp>.swap(<samp class="target">$targetB2</samp>);</code></button>
     <br>
-    <button><code><samp class="sample">$sample</samp>.swap(<samp class="target">$targetC</samp>);</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleB</samp>.swap(<samp class="target">$targetB3</samp>);</code></button>
     <br>
   </blockquote>
 </fieldset>
 <script>
-(function() {
-  var $sample = $('#s_sample');
-  var targets = $('#s_targets').getChildren();
-  var $targetA = targets[0];
-  var $targetB = targets[1];
-  var $targetC = targets[2];
-  $('#s_controls').on('click:relay(button)', function() {
-    eval(this.innerText);
-  });
-})();
+var $sampleB = $('#s_sample');
+var targetsB = $('#s_targets').getChildren();
+var $targetB1 = targetsB[0];
+var $targetB2 = targetsB[1];
+var $targetB3 = targetsB[2];
 </script>
 <!-- } swap -->
 
@@ -199,36 +194,28 @@ button samp { padding: 0 5px; }
 <fieldset>
   <legend>replace - 使用本元素替换目标元素</legend>
   <div class="simple_container">
-    <div id="r_sample" class="sample">$sample</div>
+    <div id="r_sample" class="sample">$sampleC</div>
   </div>
   <div id="r_targets" class="target_container">
-    <div class="target">$targetA</div>
-    <div class="target">$targetB</div>
-    <div class="target">$targetC</div>
+    <div class="target">$targetC1</div>
+    <div class="target">$targetC2</div>
+    <div class="target">$targetC3</div>
   </div>
   <blockquote id="r_controls">
-    <button><code><samp class="sample">$sample</samp>.replace(<samp class="target">$targetA</samp>);</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleC</samp>.replace(<samp class="target">$targetC1</samp>);</code></button>
     <br>
-    <button><code><samp class="sample">$sample</samp>.replace(<samp class="target">$targetB</samp>);</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleC</samp>.replace(<samp class="target">$targetC2</samp>);</code></button>
     <br>
-    <button><code><samp class="sample">$sample</samp>.replace(<samp class="target">$targetC</samp>);</code></button>
+    <button class="widget-demobutton"><code><samp class="sample">$sampleC</samp>.replace(<samp class="target">$targetC3</samp>);</code></button>
     <br>
   </blockquote>
 </fieldset>
 <script>
-(function() {
-  var $sample = $('#r_sample');
-  var targets = $('#r_targets').getChildren();
-  var $targetA = targets[0];
-  var $targetB = targets[1];
-  var $targetC = targets[2];
-  $('#r_controls').on('click:relay(button)', function() {
-    if (!this.disabled) {
-      eval(this.innerText);
-    }
-    this.disabled = true;
-  });
-})();
+var $sampleC = $('#r_sample');
+var targetsC = $('#r_targets').getChildren();
+var $targetC1 = targetsC[0];
+var $targetC2 = targetsC[1];
+var $targetC3 = targetsC[2];
 </script>
 <!-- } replace -->
 

@@ -789,8 +789,8 @@
    * @param {Object} destination 目标对象。
    * @param {Object} source 源对象，其 properties 会被复制到 destination 中。
    * @param {Object} [filter] 过滤要添加的 source 中的 properties 的名单。
-   * @param {Array} filter.whiteList 仅当 source 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 destination 中。
-   * @param {Array} filter.blackList 如果 source 中的 key 包含于 blackList，则对应的 property 不会被复制到 destination 中。
+   * @param {Array} [filter.whiteList] 仅当 source 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 destination 中。
+   * @param {Array} [filter.blackList] 如果 source 中的 key 包含于 blackList，则对应的 property 不会被复制到 destination 中。
    *   如果 blackList 与 whiteList 有重复的值，则 whiteList 中的将被忽略。
    * @returns {Object} 目标对象。
    * @description

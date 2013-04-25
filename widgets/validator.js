@@ -97,7 +97,7 @@
 
 //--------------------------------------------------[Validator]
   /**
-   * 表单验证器。
+   * “表单验证器”可以在表单提交的时候根据配置的验证规则对表单域的值进行验证，并能在不同的状态下显示相应的提示信息。
    * @name Validator
    * @constructor
    * @fires fieldvalidate
@@ -115,23 +115,22 @@
    *   {boolean} result 验证结果，仅当所有已配置的规则均验证通过时为 true，否则为 false。
    *   在表单验证结束后触发。
    * @description
-   *   表单验证器可以在表单提交的时候自动根据配置的验证规则对表单域的值进行验证，并能在不同的状态下显示相应的提示信息。
    *   注意验证的对象是表单域的值，而不是某一个控件的值。
    *   <strong>启用方式：</strong>
-   *   为 FORM 元素添加 'widget-validator' 类，即可使该元素成为表单验证器。
+   *   为一个 FORM 元素添加 'widget-validator' 类，即可使该元素成为表单验证器。
    *   <strong>结构约定：</strong>
    *   表单验证器的后代元素中，类名包含 'w-state' 的为“状态指示器”，类名包含 'w-message' 的为“提示信息容器”。
    *   这些元素还应指定 data-for="<var>name</var>" 属性，<var>name</var> 为这些元素对应的表单域的名称。
    *   一个表单域最多只能有一个“状态指示器”和一个“提示信息容器”（如果指定了多个则只有第一个生效），并且它们必须在对应的表单域验证规则被解析时可访问。
    *   <strong>新增行为：</strong>
    *   该表单的 submit 事件的默认行为将被阻止，对提交行为的后续处理应在该表单的 validated 事件监听器中根据验证结果进行。
-   *   如果一个表单域配置了验证规则，当其中包含的任何控件的值被用户改变时，都将自动对该表单域进行验证，并触发 fieldvalidate 事件，验证结束后会触发 fieldvalidated 事件。
+   *   如果一个表单域配置了验证规则，当其中包含的任何控件的值被用户改变时，都将对该表单域进行验证，并触发 fieldvalidate 事件，验证结束后会触发 fieldvalidated 事件。
    *   要手动验证某一个表单域，触发其中任一控件的 change 事件即可。
-   *   当表单的 submit 事件发生时，会自动对所有已配置的验证规则涉及到的、且尚未验证的表单域进行验证，并触发 validate 事件，验证结束后会触发 validated 事件。如果没有需要服务端验证的表单域，validated 事件将同步触发，否则 validated 事件将在所有的服务端验证结束后异步触发。
+   *   当表单的 submit 事件发生时，会对所有已配置的验证规则涉及到的、且尚未验证的表单域进行验证，并触发 validate 事件，验证结束后会触发 validated 事件。如果没有需要服务端验证的表单域，validated 事件将同步触发，否则 validated 事件将在所有的服务端验证结束后异步触发。
    *   如果用户在可能存在的服务端验证尚未全部结束之前修改了任一控件的值，则会立即取消当前的服务端验证，并触发 validated 事件，本次验证按失败处理。
    *   当该表单触发 reset 事件时，当前的验证结果和所有已显示的提示信息也会随之重置。
    *   当某个表单域的输入或验证状态发生变化时，“状态指示器”和“提示信息容器”的类名也会随之改变（输入中=w-input && 验证中=w-validating || 通过验证=w-valid || 未通过验证=w-invalid），可以利用此特性在各种状态下显示不同的内容。
-   *   另外，如果为一个表单域未能通过验证，提示信息会被自动注入为该表单域指定的“提示信息容器”中。
+   *   另外，如果为一个表单域未能通过验证，提示信息会被注入为该表单域指定的“提示信息容器”中。
    */
 
   /**
@@ -176,14 +175,15 @@
    * @param {Array} names 要删除验证规则的表单域的名称。
    * @returns {Element} 本元素。
    * @description
-   *   删除某个表单域的验证规则将自动清除该针对该表单域的已显示的提示信息。
+   *   删除某个表单域的验证规则时，该表单域已显示的提示信息也将被清除。
    */
 
-  Widget.register('validator', {
+  Widget.register({
+    type: 'validator',
     methods: {
       addValidationRules: function(rules) {
-        var $form = this;
-        var validationData = $form.validationData;
+        var $validator = this;
+        var validationData = $validator.validationData;
         var associatedFields = validationData.associatedFields;
         var stateIndicators = validationData.stateIndicators;
         var messageContainers = validationData.messageContainers;
@@ -205,23 +205,23 @@
           }
         });
         // 重新查找 DOM 树，生成新的“状态指示器”列表和“提示信息容器”列表。
-        $form.find('.w-state').forEach(function($stateIndicator) {
+        $validator.find('.w-state').forEach(function($stateIndicator) {
           var name = $stateIndicator.getData('for');
           if (validationData.rules.hasOwnProperty(name) && !stateIndicators.hasOwnProperty(name)) {
             stateIndicators[name] = $stateIndicator;
           }
         });
-        $form.find('.w-message').forEach(function($messageContainer) {
+        $validator.find('.w-message').forEach(function($messageContainer) {
           var name = $messageContainer.getData('for');
           if (validationData.rules.hasOwnProperty(name) && !messageContainers.hasOwnProperty(name)) {
             messageContainers[name] = $messageContainer;
           }
         });
-        return $form;
+        return $validator;
       },
       removeValidationRules: function(names) {
-        var $form = this;
-        var validationData = $form.validationData;
+        var $validator = this;
+        var validationData = $validator.validationData;
         var rules = validationData.rules;
         var associatedFields = validationData.associatedFields;
         var stateIndicators = validationData.stateIndicators;
@@ -242,15 +242,14 @@
             delete validationData.states[name];
           }
         });
-        return $form;
+        return $validator;
       }
     },
-    events: ['fieldvalidate', 'fieldvalidated', 'validate', 'validated'],
     initialize: function() {
-      var $form = this;
+      var $validator = this;
 
       // 保存属性。
-      var validationData = $form.validationData = {
+      var validationData = $validator.validationData = {
         rules: {},
         states: {},
         associatedFields: {},
@@ -259,7 +258,7 @@
         messageContainers: {}
       };
 
-      // 自动验证配置了验证规则的表单域。
+      // 验证配置了验证规则的表单域。
       var rules = validationData.rules;
       var states = validationData.states;
       var associatedFields = validationData.associatedFields;
@@ -267,7 +266,7 @@
       var stateIndicators = validationData.stateIndicators;
       var messageContainers = validationData.messageContainers;
       var isValidating = false;
-      $form
+      $validator
           .on('focusin.validator, focusout.validator', function(e) {
             // 表单控件获取或失去焦点时更改“状态指示器”的类名。
             var name = e.target.name;
@@ -281,19 +280,19 @@
             // 表单控件的值发生改变时触发的验证。
             var name = e.target.name;
             if (rules.hasOwnProperty(name)) {
-              validateField($form, name);
+              validateField($validator, name);
             }
             // 如果有关联的表单域，则同时对该关联表单域进行验证。
             var associatedName = associatedFields[name];
             if (associatedName) {
-              validateField($form, associatedName);
+              validateField($validator, associatedName);
             }
           })
           .on('submit.validator', function(e) {
             // 使表单内的活动元素触发 change 事件。
             // 单独添加一个监听器，以免验证过程发生异常时导致表单被提交。
             var activeElement = document.activeElement;
-            if ($form.contains(activeElement)) {
+            if ($validator.contains(activeElement)) {
               activeElement.blur();
             }
             e.preventDefault();
@@ -302,11 +301,11 @@
             // 表单提交时触发的验证。
             if (!isValidating) {
               isValidating = true;
-              $form.fire('validate');
+              $validator.fire('validate');
               // 对尚未验证的表单域进行验证（true = 通过验证 / false = 未通过验证 / undefined = 验证中 / 无 = 尚未验证）。
               Object.forEach(rules, function(_, name) {
                 if (!states.hasOwnProperty(name)) {
-                  validateField($form, name);
+                  validateField($validator, name);
                 }
               });
               // 所有配置了验证规则的表单域都已有其对应的 state，分析验证结果。
@@ -321,28 +320,28 @@
               });
               if (validatingFields.length) {
                 // 有验证仍在进行。
-                $form
+                $validator
                     .on('fieldvalidate.validatorTemp', function() {
-                      $form.fire('validated', {result: false});
+                      $validator.fire('validated', {result: false});
                     })
                     .on('fieldvalidated.validatorTemp', function(e) {
                       if (validatingFields.contains(e.name)) {
                         validatingFields.remove(e.name);
                         allFieldsAreValid = allFieldsAreValid && !e.errorMessage;
                         if (!validatingFields.length) {
-                          $form.fire('validated', {result: allFieldsAreValid});
+                          $validator.fire('validated', {result: allFieldsAreValid});
                         }
                       }
                     });
               } else {
                 // 所有验证均已完成。
-                $form.fire('validated', {result: allFieldsAreValid});
+                $validator.fire('validated', {result: allFieldsAreValid});
               }
             }
           })
           .on('reset.validator, validated.validator', function() {
             // 复位表单或验证完毕时，重置临时设定的状态。
-            $form.off('fieldvalidate.validatorTemp, fieldvalidated.validatorTemp');
+            $validator.off('fieldvalidate.validatorTemp, fieldvalidated.validatorTemp');
             isValidating = false;
           })
           .on('reset.validator', function() {
