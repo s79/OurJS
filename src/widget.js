@@ -19,6 +19,10 @@
    * 为了使相同类型的 Widget 必定具备相同的新特性，本实现并未提供直接手段对现有的 Widget 进行扩展。
    * 必须要扩展时，应注册一个新的 Widget，并在其初始化函数中调用现有的解析器 Widget.parsers.<type>.parse($element) 来赋予目标元素 <type> 类 Widget 的新特性，即对已有的 Widget 类型进行包装。
    *
+   * 一些 Widget 如果在 beforedomready 事件发生时初始化完毕，但没有在 domready 事件发生时主动调用其重建界面的方法 M，则方法 M 会在 afterdomready 事件发生时自动被调用。
+   * 这种处理方式是为了确保在 domready 事件发生时为该 Widget 添加的监听器可以被正常调用。
+   * 通常在上述方法 M 被调用前，这些 Widget 会将其默认样式 visibility 预置为 hidden，并在首次调用方法 M 后再将 visibility 修改为 visible，以避免可能出现的内容闪烁。
+   *
    * 提供对象：
    *   Widget
    *
@@ -127,7 +131,7 @@
   };
 
 //--------------------------------------------------[自动解析]
-  document.on('domready', function() {
+  document.on('beforedomready', function() {
     Widget.parse(document.body, true);
   });
 

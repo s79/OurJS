@@ -63,8 +63,8 @@
             $overlay.isVisible = true;
             $overlay.resize();
             // 锁定可交互区域。
-            $overlay.context.on('focusin.freezeInteractionArea', function(event) {
-              var $target = event.target;
+            $overlay.context.on('focusin.freezeInteractionArea', function(e) {
+              var $target = e.target;
               if ($target !== $overlay) {
                 var $activeDialog = dialogs.getLast();
                 if (!$activeDialog.contains($target) && $activeDialog.offsetWidth) {
@@ -167,29 +167,23 @@
    *   如果不指定本属性或指定为 'none'，则关闭动画效果。
    *   在 IE6 下本属性无效（不能启用动画效果）。
    * @fires open
-   *   在“对话框”打开时触发。
+   *   成功调用 open 方法后触发。
    * @fires close
-   *   在“对话框”关闭后触发。
+   *   成功调用 close 方法后触发。
    * @fires reposition
    *   成功调用 reposition 方法后触发。
    * @description
-   *   “对话框”的“关闭按钮”是可选的。
    *   <strong>启用方式：</strong>
    *   为一个元素添加 'widget-dialog' 类，即可使该元素成为“对话框”。
    *   <strong>结构约定：</strong>
-   *   当“对话框”的“定位参考元素”为 BODY 时，其 position 将被设置为 'fixed'，其余情况均会被设置为 'absolute'。
-   *   “对话框”的 z-index 值会被自动指定。
-   *   如果“对话框”的父元素不是 BODY 且其父元素的 position 为 'static'，将修改其父元素的 position 为 'relative'，以使其父元素创建 stacking context。
-   *   如果“对话框”的父元素不是 BODY，应避免其父元素出现滚动条，以免“对话框”和“遮盖层”随其父元素的内容一起滚动。
-   *   “对话框”的一些数据保存在其父元素中，因此不要修改“对话框”在文档树中的位置。
-   *   “对话框”的后代元素中，类名包含 'close' 的为“关闭按钮”。
+   *   “对话框”的一些数据保存在其父元素中，因此不要修改“对话框”在文档树中的位置。<br>“对话框”的父元素一定要创建 stacking context，必要时会自动将其父元素的 position 设置为 'relative'。<br>如果“对话框”的父元素不是 BODY，应避免其父元素出现滚动条，以免“对话框”和“遮盖层”随其父元素的内容一起滚动。
+   *   “对话框”的 position 在其“定位参考元素”为 BODY 时将被设置为 'fixed'，其余情况均会被设置为 'absolute'。<br>“对话框”的 z-index 值会被自动指定。
+   *   “对话框”的后代元素中，类名包含 'close' 的为“关闭按钮”。<br>“关闭按钮”是可选的。
    *   <strong>新增行为：</strong>
    *   “对话框”的默认状态为关闭。
-   *   当“对话框”打开时，将自动生成一个“遮盖层”，“遮盖层”遮盖的范围为“对话框”的父元素的渲染范围。被遮盖的部分将无法使用键盘或鼠标进行操作。<br>“对话框”的“遮盖层”是一定会出现的，不能将其屏蔽。当前打开的“对话框”会在“遮盖层”上方显示。
-   *   当“对话框”打开时，会根据其“定位参考元素”来确定其显示的位置。
+   *   当“对话框”打开时，会根据其“定位参考元素”及定位偏移量的设置来确定其显示的位置。同时，还将自动生成一个“遮盖层”，“遮盖层”遮盖的范围为“对话框”的父元素的渲染范围，当前打开的“对话框”会在“遮盖层”上方显示，被遮盖的部分将无法使用键盘或鼠标进行操作。
    *   当多个“对话框”有相同的父元素时，则视这些“对话框”为一组，一组“对话框”可以重叠显示。<br>当一组“对话框”重叠显示时，“遮盖层”只有一个，只有最后打开的“对话框”才不会被遮盖。
-   *   通过点击“关闭按钮”（如果有）即可关闭“对话框”。
-   *   在“关闭按钮”上发生的 click 事件的默认行为将被阻止。
+   *   通过点击“关闭按钮”（如果有）即可关闭“对话框”。在“关闭按钮”上发生的 click 事件的默认行为将被阻止。
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
    *   .widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }
@@ -406,9 +400,9 @@
       $dialog.setStyles({position: $dialog.isFixedPositioned ? 'fixed' : 'absolute', left: 0, top: 0});
 
       // 通过点击“关闭按钮”来关闭“对话框”。
-      $dialog.on('click:relay(.close).dialog', function(event) {
+      $dialog.on('click:relay(.close).dialog', function(e) {
         $dialog.close();
-        event.preventDefault();
+        e.preventDefault();
       });
 
     }

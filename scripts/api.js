@@ -112,8 +112,8 @@ document.on('domready', function() {
     function getAttributes(symbol) {
       return symbol && symbol.attributes.length ?
           '<dl class="event"><dt>可配置项：</dt><dd><table>' + symbol.attributes.map(
-              function(event) {
-                return '<tr><td><dfn>' + event.name + '</dfn></td><td>' + event.description + '</td></tr>';
+              function(e) {
+                return '<tr><td><dfn>' + e.name + '</dfn></td><td>' + e.description + '</td></tr>';
               }
           ).join('') + '</table></dd></dl>' :
           '';
@@ -123,8 +123,8 @@ document.on('domready', function() {
     function getFires(symbol) {
       return symbol && symbol.fires.length ?
           '<dl class="event"><dt>触发事件：</dt><dd><table>' + symbol.fires.map(
-              function(event) {
-                return '<tr><td><dfn>' + event.name + '</dfn></td><td>' + event.description + '</td></tr>';
+              function(e) {
+                return '<tr><td><dfn>' + e.name + '</dfn></td><td>' + e.description + '</td></tr>';
               }
           ).join('') + '</table></dd></dl>' :
           '';

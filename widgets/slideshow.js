@@ -32,17 +32,18 @@
    * @fires shownext
    *   调用 showNext 方法后触发。
    * @description
-   *   每个“幻灯片”都可以对应一个可选的“指示器”。
    *   <strong>启用方式：</strong>
    *   为一个元素添加 'widget-slideshow' 类，即可使该元素成为“幻灯片播放器”。
    *   <strong>结构约定：</strong>
-   *   “幻灯片播放器”的后代元素中，类名包含 'slides' 的为“幻灯片”的容器，类名包含 'slide' 的为“幻灯片”，类名包含 'pointers' 的为“指示器”的容器，类名包含 'pointer' 的为“指示器”，类名包含 'prev' 的为“播放上一张”按钮，类名包含 'next' 的为“播放下一张”按钮。
-   *   上述内容中，只有“幻灯片”和“幻灯片”的容器是必选的，其他均可以省略。如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，它们也将不可见。
+   *   “幻灯片播放器”的后代元素中，类名包含 'slides' 的为“幻灯片”的容器，类名包含 'slide' 的为“幻灯片”，类名包含 'pointers' 的为“指示器”的容器，类名包含 'pointer' 的为“指示器”，类名包含 'prev' 的为“播放上一张”按钮，类名包含 'next' 的为“播放下一张”按钮。<br>上述内容中，只有“幻灯片”和“幻灯片”的容器是必选的，其他均可以省略。如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，它们也将不可见。
    *   所有“幻灯片”都应有共同的父元素，并且它们的渲染尺寸也应与其父元素的渲染尺寸一致。
    *   如果需要“指示器”，则所有“指示器”也应有共同的父元素，它们的数量也应和“幻灯片”的数量一致。
    *   <strong>新增行为：</strong>
-   *   每隔一定的时间（取决于 data-interval 的设定值），当前“幻灯片”都会自动更换。当前播放的“幻灯片”和“指示器”会被加入 'active' 类。
-   *   当鼠标移入本元素时，自动播放会被暂时禁用；当鼠标移出本元素时，自动播放会被重新启用。
+   *   当前播放的“幻灯片”和“指示器”（如果有）会被加入 'active' 类。
+   *   如果“幻灯片播放器”在文档可用后即被解析完毕，则默认播放第一张“幻灯片”，并且每隔一定的时间后（取决于 data-interval 的设定值），即自动播放下一张“幻灯片”。
+   *   如果自动播放正在进行，则当鼠标移入本元素时，自动播放会被暂时禁用；当鼠标移出本元素时，自动播放会被重新启用。
+   *   如果有“指示器”，则通过点击或鼠标指向（如果指定了 data-hover-delay 的值）一个“指示器”即可播放与之对应的“幻灯片”。
+   *   如果有“播放上一张”和“播放下一张”按钮，则通过点击这些按钮即可播放上一张或下一张“幻灯片”。
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
    *   .widget-slideshow { display: block; }
@@ -119,7 +120,8 @@
     },
     methods: {
       show: function(index) {
-        if (index !== this.activeIndex && index > -1 && index < this.slides.length) {
+        var isFirstShow = Number.isNaN(this.activeIndex);
+        if (index !== this.activeIndex && (isFirstShow || index > -1 && index < this.slides.length)) {
           var $inactiveSlide = this.activeSlide;
           var $inactivePointer = this.activePointer;
           var $activeSlide = this.activeSlide = this.slides[index];
@@ -127,24 +129,37 @@
           var $slideContainer = $activeSlide.getParent();
           var inactiveIndex = this.activeIndex;
           this.activeIndex = index;
-          switch (this.animation) {
-            case 'fade':
-              $activeSlide.insertTo($slideContainer).setStyle('opacity', 0).morph({opacity: 1});
-              break;
-            case 'cover':
-              $activeSlide.insertTo($slideContainer).setStyle('opacity', 0).setStyles({left: $activeSlide.offsetWidth * (index > inactiveIndex ? 1 : -1)}).morph({left: 0, opacity: 1});
-              break;
-            case 'slide':
-              $slideContainer.morph({left: -$activeSlide.offsetWidth * index});
-              break;
-            default:
-              $activeSlide.insertTo($slideContainer);
+          if (isFirstShow) {
+            switch (this.animation) {
+              case 'slide':
+                $slideContainer.setStyle('left', -$activeSlide.offsetWidth * index);
+                break;
+              default:
+                $activeSlide.insertTo($slideContainer);
+            }
+            this.fire('mouseleave');
+          } else {
+            switch (this.animation) {
+              case 'fade':
+                $activeSlide.insertTo($slideContainer).setStyle('opacity', 0).morph({opacity: 1});
+                break;
+              case 'cover':
+                $activeSlide.insertTo($slideContainer).setStyle('opacity', 0).setStyles({left: $activeSlide.offsetWidth * (index > inactiveIndex ? 1 : -1)}).morph({left: 0, opacity: 1});
+                break;
+              case 'slide':
+                $slideContainer.morph({left: -$activeSlide.offsetWidth * index});
+                break;
+              default:
+                $activeSlide.insertTo($slideContainer);
+            }
           }
           $activeSlide.addClass('active');
           if ($activePointer) {
             $activePointer.addClass('active');
           }
-          $inactiveSlide.removeClass('active');
+          if ($inactiveSlide) {
+            $inactiveSlide.removeClass('active');
+          }
           if ($inactivePointer) {
             $inactivePointer.removeClass('active');
           }
@@ -158,7 +173,7 @@
         return this;
       },
       showPrevious: function() {
-        var index = this.activeIndex - 1;
+        var index = Number.isNaN(this.activeIndex) ? 0 : this.activeIndex - 1;
         if (index === -1) {
           index = this.slides.length - 1;
         }
@@ -166,7 +181,7 @@
         return this;
       },
       showNext: function() {
-        var index = this.activeIndex + 1;
+        var index = Number.isNaN(this.activeIndex) ? 0 : this.activeIndex + 1;
         if (index === this.slides.length) {
           index = 0;
         }
@@ -180,31 +195,21 @@
       // 保存属性。
       var slides = $slideshow.find('.slide');
       var pointers = $slideshow.find('.pointer');
-      var $activeSlide = slides.getFirst();
-      var $activePointer = pointers.getFirst() || null;
       Object.mixin($slideshow, {
         slides: slides,
         pointers: pointers,
-        activeIndex: 0,
-        activeSlide: $activeSlide,
-        activePointer: $activePointer
+        activeIndex: NaN,
+        activeSlide: null,
+        activePointer: null
       });
 
-      // 默认显示第一张。
-      if ($slideshow.animation !== 'slide') {
-        $activeSlide.insertTo($activeSlide.getParent());
-      }
-      $activeSlide.addClass('active');
-      if ($activePointer) {
-        $activePointer.addClass('active');
-      }
-
       // 设置“幻灯片”样式。
+      var $sampleSlide = slides.getFirst();
       if (slides.length < 2) {
         $slideshow.addClass('slideshow-single');
       } else {
         if ($slideshow.animation === 'slide') {
-          $activeSlide.getParent().setStyles({width: $activeSlide.offsetWidth * slides.length, height: $activeSlide.offsetHeight});
+          $sampleSlide.getParent().setStyles({width: $sampleSlide.offsetWidth * slides.length, height: $sampleSlide.offsetHeight});
           slides.forEach(function($slide) {
             $slide.setStyles({position: 'static', float: 'left'});
           });
@@ -259,8 +264,14 @@
                   $slideshow.showNext();
                 }, $slideshow.interval);
               }
-            })
-            .fire('mouseleave');
+            });
+
+        // 默认显示第一张。
+        document.on('afterdomready', function() {
+          if (Number.isNaN($slideshow.activeIndex)) {
+            $slideshow.show(0);
+          }
+        });
 
       }
 

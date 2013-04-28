@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DatePicker</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/calendar.js"></script>
+<script src="../../../widgets/datepicker.js"></script>
+<style>
+.widget-datepicker { width: 100px; height: 20px; padding: 0 2px; border: 1px solid silver; background: url(datepicker.png) no-repeat right center; font: 13px/20px Verdana, Arial, sans-serif; cursor: pointer; }
+</style>
+</head>
+<body>
+<input type="text" value="" class="widget-datepicker" data-min-date="2010-09-10" data-max-date="2012-10-20">
+
+<script>
+document.on('domready', function() {
+  var today = new Date();
+  var day = today.getDay() || 7;
+  var $datepicker = $('input');
+  $datepicker.setData('minDate', new Date(today.getTime() - (day - 1) * 24 * 60 * 60 * 1000).format());
+  $datepicker.setData('maxDate', new Date(today.getTime() + (7 - day) * 24 * 60 * 60 * 1000).format());
+});
+</script>
+
+</body>
+</html>

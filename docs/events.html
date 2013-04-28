@@ -130,7 +130,9 @@ var events = [
   ['unload', 0, 0, 0, 0, '<dfn>window</dfn>'],
   ['error', 0, 0, 0, 0, '<dfn>IMG</dfn>'],
   ['beforeunload', 0, 0, 0, 0, '<dfn>window</dfn>'],
-  ['domready', 0, 0, 0, 0, '<dfn>document</dfn>']
+  ['beforedomready', 0, 0, 0, 0, '<dfn>document</dfn>'],
+  ['domready', 0, 0, 0, 0, '<dfn>document</dfn>'],
+  ['afterdomready', 0, 0, 0, 0, '<dfn>document</dfn>']
 ];
 
 //--------------------------------------------------[List]
@@ -138,7 +140,6 @@ var events = [
   var $tbody = $('#list');
   var $tr;
   var $td;
-  var operators = [0, 1, 2, 4];
   var showResult = function(data) {
     $tr = $tbody.insertRow(-1);
     for (var i = 0; i < 6; i++) {
@@ -154,9 +155,14 @@ var events = [
 
   var eventsObject = {};
   events.forEach(function(item) {
-    eventsObject[item[0]] = parseInt(('' + item[3] + item[2] + item[1]), 2);
-    showResult(item);
+    var type = item[0];
+    eventsObject[type] = parseInt(('' + item[3] + item[2] + item[1]), 2);
+    // 内部使用的事件类型。
+    if (type !== 'beforedomready' && type !== 'afterdomready') {
+      showResult(item);
+    }
   });
+  // 自定义事件类型。
   showResult(['<var><strong>自定义事件类型</strong></var>', 0, 0, 1, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>']);
 
   console.log(JSON.stringify(eventsObject));

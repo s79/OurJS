@@ -6,6 +6,26 @@
 
 (function() {
 //==================================================[Widget - 演示区]
+//--------------------------------------------------[keepDemoAreaIntoView]
+  var keepDemoAreaIntoView = function($demoarea, increment) {
+    var $body = document.$('body');
+    var demoareaClientRect = $demoarea.getClientRect();
+    var demoareaClientRectLater = {
+      top: demoareaClientRect.top,
+      bottom: demoareaClientRect.bottom + increment
+    };
+    var viewportClientRect = {
+      top: 50,
+      bottom: window.getClientSize().height
+    };
+    var topDifference = demoareaClientRectLater.top - viewportClientRect.top;
+    var bottomDifference = demoareaClientRectLater.bottom - viewportClientRect.bottom;
+    var y = topDifference < 0 ? '-=' + (-topDifference) : (bottomDifference > 0 ? '+=' + Math.min(topDifference, bottomDifference) : undefined);
+    if (y) {
+      $body.smoothScroll(0, y, {duration: 400, timingFunction: 'ease'});
+    }
+  };
+
 //--------------------------------------------------[DemoArea]
   /**
    * 演示区。
@@ -26,7 +46,7 @@
       '.widget-demoarea .panels { border: 2px solid gainsboro; }',
       '.widget-demoarea iframe { display: none; width: 956px; height: 350px;}',
       '.widget-demoarea iframe.active { display: block; }',
-      '.widget-demoarea .tabs { height: 31px; }',
+      '.widget-demoarea .tabs { height: 33px; }',
       '.widget-demoarea span { position: relative; z-index: 100; float: right; height: 20px; padding: 5px 10px; border: 2px solid white; border-top: none; line-height: 20px; }',
       '.widget-demoarea .tab { cursor: default; color: #333; }',
       '.widget-demoarea .tab:hover { border-color: whitesmoke; background: whitesmoke; color: #396686; }',
@@ -50,30 +70,35 @@
       Widget.parsers.tabpanel.parse($demoarea);
 
       // “查看源码”功能。
-      $demoarea.on('activate', function(e) {
-        if (e.activeTab.innerText === '查看源码') {
-          var $iframe = e.activePanel;
-          var panelHeight = $iframe.offsetHeight;
-          if (panelHeight < 500) {
-            $demoarea.originalPanelHeight = panelHeight;
-            $demoarea.panels.forEach(function($iframe) {
-              $iframe.morph({height: 500});
-            });
+      document.on('afterdomready', function() {
+        $demoarea.on('activate', function(e) {
+          if (e.activeTab.innerText === '查看源码') {
+            var $iframe = e.activePanel;
+            if (!$iframe.getData('injected')) {
+              var path = location.pathname;
+              $iframe.setData('injected', 'true').src = (path.indexOf('OurJS') === 1 ? '/OurJS/' : '/framework/') + 'scripts/widget-demoarea.html?src=' + path.slice(0, path.lastIndexOf('/') + 1) + src;
+            }
+            var panelHeight = $iframe.offsetHeight;
+            if (panelHeight < 500) {
+              $demoarea.shrinkingPanelHeight = panelHeight;
+              $demoarea.panels.forEach(function($iframe) {
+                $iframe.morph({height: 500});
+              });
+              keepDemoAreaIntoView($demoarea, 500 - $demoarea.shrinkingPanelHeight);
+            }
+          } else {
+            if ($demoarea.shrinkingPanelHeight) {
+              $demoarea.panels.forEach(function($iframe) {
+                $iframe.morph({height: $demoarea.shrinkingPanelHeight});
+              });
+              keepDemoAreaIntoView($demoarea, $demoarea.shrinkingPanelHeight - 500);
+            }
           }
-          if (!$iframe.getData('injected')) {
-            var path = location.pathname;
-            $iframe.setData('injected', 'true').src = (path.indexOf('OurJS') === 1 ? '/OurJS/' : '/framework/') + 'scripts/widget-demoarea.html?src=' + path.slice(0, path.lastIndexOf('/') + 1) + src;
+          if (!$demoarea.shrinkingPanelHeight) {
+            keepDemoAreaIntoView($demoarea, 0);
           }
-        } else {
-          if ($demoarea.originalPanelHeight) {
-            $demoarea.panels.forEach(function($iframe) {
-              $iframe.morph({height: $demoarea.originalPanelHeight});
-            });
-          }
-
-        }
+        });
       });
-
     }
   });
 

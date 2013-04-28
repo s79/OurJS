@@ -20,32 +20,22 @@
     </p>
   </blockquote>
 
-  <h2>默认配置</h2>
+  <h2>显示指定月份的日期</h2>
+  <p>可以通过配置 data-month 来显示指定月份的日期。</p>
+  <p>如果没有指定 data-month，则显示当前月份的日期。</p>
+  <p>本例新建了一个月历，并将 data-month 设置为 '1900-01'：</p>
+  <div class="widget-demoarea small-size" data-src="month/"></div>
 
-  <p>默认配置的月历会显示当前的月份，并从星期日开始排列日期：</p>
-  <div class="widget-demoarea small-size" data-src="default.html"></div>
+  <h2>日期的排列顺序</h2>
+  <p>可以通过配置 data-first-day 来指定每周的第一天是星期几。</p>
+  <p>如果没有指定 data-first-day，则使用 0 作为默认值，即每周的第一天为星期日。</p>
+  <p>本例新建了一个月历，并将 data-first-day 设置为 1。另外，本例还通过监听 update 事件，在指定的位置显示当前月份，并通过监听 cellupdate 事件，为每个单元格添加短日期的弹出提示：</p>
+  <div class="widget-demoarea small-size" data-src="first_day/"></div>
 
-  <h2>自定义配置</h2>
-
-  <h3>指定要显示的月份</h3>
-  <p>通过可配置项 data-month 来指定要显示的月份，格式为 YYYY-MM。</p>
-  <p>本例指定为 '1900-01'：</p>
-  <div class="widget-demoarea small-size" data-src="set_month.html"></div>
-
-  <h3>指定日期的排列顺序</h3>
-  <p>通过可配置项 data-first-day 来指定每周的第一天是星期几，本例设为 1：</p>
-  <div class="widget-demoarea small-size" data-src="set_first_day.html"></div>
-
-  <h2>自定义样式</h2>
-
-  <p>使用自定义的样式覆盖默认样式，并为每月的 10 - 15 号添加标记：</p>
-  <div class="widget-demoarea small-size" data-src="custom_syles.html"></div>
-
-  <h2>监听事件</h2>
-
-  <p>可以为 update 和 cellupdate 事件添加监听器。</p>
-  <p>本例通过监听 update 事件，在指定的位置显示当前月份，并通过监听 cellupdate 事件，为每个单元格添加短日期的弹出提示：</p>
-  <div class="widget-demoarea small-size" data-src="listener.html"></div>
+  <h2>定义日期单元格的样式</h2>
+  <p>月历为各日期单元格都添加了表示该日期状态的类，并且在各单元格的日期被显示时提供了 cellupdate 事件，因此可以很灵活的定义各日期单元格的样式。</p>
+  <p>本例新建了一个使用自定义样式的月历，并为每月的 10 - 15 号都添加了不同的颜色：</p>
+  <div class="widget-demoarea small-size" data-src="custom_styles/"></div>
 
 </div>
 </body>

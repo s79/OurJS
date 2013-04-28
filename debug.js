@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130425
+ *  Version: 20130428
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展
@@ -1124,13 +1124,15 @@
 
 //--------------------------------------------------[Math.limit]
   /**
-   * 将输入数字限制于 min 和 max 之间（包含 min 和 max）。
+   * 参考输入的数字 number，返回介于 min 和 max 之间（包含 min 和 max）的数字。
    * @name Math.limit
    * @function
    * @param {number} number 输入的数字。
    * @param {number} min 允许的数字下限。
    * @param {number} max 允许的数字上限。
    * @returns {number} 输出的数字。
+   * @description
+   *   如果 number 小于 min 则返回 min；如果 number 大于 max 则返回 max；否则返回 number。
    * @example
    *   Math.limit(100, 0, 80);
    *   // 80
@@ -3092,7 +3094,7 @@
   // 供内部调用的标记值。
   var INTERNAL_IDENTIFIER_EVENT = {};
 
-  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 5, mouseleave: 5, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforeunload: 0, domready: 0};
+  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 5, mouseleave: 5, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforeunload: 0, beforedomready: 0, domready: 0, afterdomready: 0};
   var returnTrue = function() {
     return true;
   };
@@ -3545,7 +3547,7 @@
         });
       },
       remove: function($element) {
-        // 在这三个关联事件中删除最后一个监听器后，才删除他们的触发器。
+        // 在这三个关联事件中删除最后一个监听器后，才删除它们的触发器。
         var item = eventHandlers[$element.uid];
         var handlerCount = 0;
         relatedTypes.forEach(function(relatedType) {
@@ -4175,20 +4177,24 @@
 
   document.uid = 'document';
 
-  // 自动触发 domready 事件。
+  // 自动触发 beforedomready、domready 和 afterdomready 事件，其中 beforedomready 和 afterdomready 为内部使用的事件类型。
   var triggerDomReadyEvent;
   if ('addEventListener' in document) {
     triggerDomReadyEvent = function() {
       document.removeEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
       window.removeEventListener('load', triggerDomReadyEvent, false);
+      document.fire('beforedomready');
       document.fire('domready');
+      document.fire('afterdomready');
     };
     document.addEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
     window.addEventListener('load', triggerDomReadyEvent, false);
   } else {
     var doBodyCheck = function() {
       if (document.body) {
+        document.fire('beforedomready');
         document.fire('domready');
+        document.fire('afterdomready');
       } else {
         setTimeout(doBodyCheck, 10);
       }
@@ -6282,6 +6288,10 @@
    * 为了使相同类型的 Widget 必定具备相同的新特性，本实现并未提供直接手段对现有的 Widget 进行扩展。
    * 必须要扩展时，应注册一个新的 Widget，并在其初始化函数中调用现有的解析器 Widget.parsers.<type>.parse($element) 来赋予目标元素 <type> 类 Widget 的新特性，即对已有的 Widget 类型进行包装。
    *
+   * 一些 Widget 如果在 beforedomready 事件发生时初始化完毕，但没有在 domready 事件发生时主动调用其重建界面的方法 M，则方法 M 会在 afterdomready 事件发生时自动被调用。
+   * 这种处理方式是为了确保在 domready 事件发生时为该 Widget 添加的监听器可以被正常调用。
+   * 通常在上述方法 M 被调用前，这些 Widget 会将其默认样式 visibility 预置为 hidden，并在首次调用方法 M 后再将 visibility 修改为 visible，以避免可能出现的内容闪烁。
+   *
    * 提供对象：
    *   Widget
    *
@@ -6390,7 +6400,7 @@
   };
 
 //--------------------------------------------------[自动解析]
-  document.on('domready', function() {
+  document.on('beforedomready', function() {
     Widget.parse(document.body, true);
   });
 

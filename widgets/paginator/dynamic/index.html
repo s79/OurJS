@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Paginator</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/dialog.js"></script>
+<script src="../../../widgets/paginator.js"></script>
+<style>
+.container { padding: 10px; font-size: 14px; font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+.container .widget-overlay { background: white; opacity: 0.5; filter: alpha(opacity=50); }
+.container .widget-dialog { padding: 5px 20px; border: 1px solid black; background: white; color: black; font-size: 14px; }
+.container .widget-paginator a.current:link,
+.container .widget-paginator a.current:visited,
+.container .widget-paginator a.current:hover,
+.container .widget-paginator a.current:active { border-color: firebrick; background-color: crimson; }
+#content { height: 100px; line-height: 100px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="content">尚未载入数据</div>
+  <div id="loading" class="widget-dialog">Loading...</div>
+  <div id="paginator" class="widget-paginator"></div>
+</div>
+<script>
+document.on('domready', function() {
+  var $content = $('#content');
+  var $loading = $('#loading');
+  var $paginator = $('#paginator');
+
+  // 获取列表的接口。
+  var getList = new Request('remote_data.txt', {minTime: 100})
+      .on('start', function() {
+        $loading.open();
+      })
+      .on('finish', function(e) {
+        var data = JSON.parse(e.text);
+        if (data.totalRows) {
+          $paginator.update($paginator.targetPage, data.totalRows);
+          $content.innerHTML = '第 ' + $paginator.currentPage + ' 页的数据';
+        }
+        $loading.close();
+      });
+
+  // 添加翻页事件监听器。
+  $paginator.on('turn', function(e) {
+    // 检测到翻页事件，在此处请求新页的数据。
+    getList.send({page: e.number});
+  });
+
+  // 获取第五页的内容。
+  $paginator.turn(5);
+
+});
+</script>
+</body>
+</html>

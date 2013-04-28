@@ -1119,13 +1119,15 @@
 
 //--------------------------------------------------[Math.limit]
   /**
-   * 将输入数字限制于 min 和 max 之间（包含 min 和 max）。
+   * 参考输入的数字 number，返回介于 min 和 max 之间（包含 min 和 max）的数字。
    * @name Math.limit
    * @function
    * @param {number} number 输入的数字。
    * @param {number} min 允许的数字下限。
    * @param {number} max 允许的数字上限。
    * @returns {number} 输出的数字。
+   * @description
+   *   如果 number 小于 min 则返回 min；如果 number 大于 max 则返回 max；否则返回 number。
    * @example
    *   Math.limit(100, 0, 80);
    *   // 80

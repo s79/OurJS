@@ -1,5 +1,11 @@
 
 
+>2013-04-28
+* 更新各 Widget 的文档和演示页面[8/9]
+* widget-demoarea 在切换视图时会自动保持在当前视口中可见
++ beforedomready
++ afterdomready
+
 >2013-04-25
 * 去掉 Widget 的内联事件监听器支持
   1. 不建议使用内联事件监听器。

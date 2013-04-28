@@ -60,14 +60,14 @@
         $prev.fade('out');
         $next.fade('out');
       })
-      .on('mousewheel.slideshow', function(event) {
-        if (event.wheelUp && this.activeSlide !== this.slides.getFirst()) {
+      .on('mousewheel.slideshow', function(e) {
+        if (e.wheelUp && this.activeSlide !== this.slides.getFirst()) {
           this.showPrevious();
         }
-        if (event.wheelDown && this.activeSlide !== this.slides.getLast()) {
+        if (e.wheelDown && this.activeSlide !== this.slides.getLast()) {
           this.showNext();
         }
-        event.preventDefault();
+        e.preventDefault();
       });
 })();
 </script>

@@ -7,9 +7,8 @@
 (function() {
 //==================================================[Widget - 日期选择器]
 //--------------------------------------------------[$panel]
-  // 所有的日期选择器公用一个日期选择面板。
   /*
-   * 日期选择面板的结构：
+   * “日期选择面板”的结构：
    * <div class="datepicker-panel">
    *   <div class="control_set">
    *     <span class="btn prev_year" data-action="prev_year">«</span>
@@ -18,19 +17,19 @@
    *     <span class="btn next_month" data-action="next_month">›</span>
    *     <span class="btn next_year" data-action="next_year">»</span>
    *   </div>
-   *   <div class="widget-calendar" data-month="0000-00"></div>
+   *   <div class="widget-calendar" data-month="0000-00" data-first-day="1"></div>
    *   <div class="control_set">
    *     <span class="btn clear" data-action="clear">清除</span>
    *     <span class="btn today" data-action="today">今天</span>
    *   </div>
    * </div>
    */
-  var $panel = document.$('<div class="datepicker-panel"><div class="control_set"><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span>-<span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><div class="widget-calendar" data-month="0000-00"></div><div class="control_set"><span class="btn clear" data-action="clear">清除</span><span class="btn today" data-action="today">今天</span></div></div>');
+  var $panel = document.$('<div class="datepicker-panel"><div class="control_set"><span class="btn prev_year" data-action="prev_year">«</span><span class="btn prev_month" data-action="prev_month">‹</span><span class="year">0000</span>-<span class="month">00</span><span class="btn next_month" data-action="next_month">›</span><span class="btn next_year" data-action="next_year">»</span></div><div class="widget-calendar" data-month="0000-00" data-first-day="1"></div><div class="control_set"><span class="btn clear" data-action="clear">清除</span><span class="btn today" data-action="today">今天</span></div></div>');
 
-  // 日期选择面板的目标对象。
+  // “日期选择面板”的目标对象。
   var $datePicker;
 
-  // 更新日期选择面板时需要的日期数据。
+  // 更新“日期选择面板”时需要的日期数据。
   var minDate;
   var maxDate;
   var selectedDate;
@@ -49,9 +48,9 @@
   var $today = controls[7];
 
   // 解析月历。
-  Widget.parse($calendar.on('cellupdate', function(event) {
-    var $cell = event.cell;
-    var date = event.date;
+  Widget.parse($calendar.on('cellupdate', function(e) {
+    var $cell = e.cell;
+    var date = e.date;
     // 禁用超出范围的日期。
     if (date < minDate || date > maxDate) {
       $cell.addClass('disabled');
@@ -66,7 +65,7 @@
     }
   }));
 
-  // 为日期选择面板添加新方法。
+  // 为“日期选择面板”添加新方法。
   Object.mixin($panel, {
     show: function() {
       $panel.setStyle('display', 'block');
@@ -77,8 +76,8 @@
       } : function() {
         $panel.reposition();
       });
-      document.on('mousedown.datepicker', function(event) {
-        var $target = event.target;
+      document.on('mousedown.datepicker', function(e) {
+        var $target = e.target;
         if (!$datePicker.contains($target) && !$panel.contains($target)) {
           $panel.hide();
         }
@@ -175,7 +174,7 @@
 
   $panel
       .on('click:relay(td)', function() {
-        // 为日期选择器赋值。
+        // 为“日期选择器”赋值。
         var value = this.title;
         if (value) {
           $panel.hide().setValue(value);
@@ -230,13 +229,13 @@
         }
         return false;
       })
-      .on('mousewheel', function(event) {
+      .on('mousewheel', function(e) {
         // 支持鼠标滚轮更新月历（滚轮翻月，Shift + 滚轮翻年）。
-        if (event.wheelUp) {
-          (event.shiftKey ? $prevYear : $prevMonth).fire('click');
+        if (e.wheelUp) {
+          (e.shiftKey ? $prevYear : $prevMonth).fire('click');
         }
-        if (event.wheelDown) {
-          (event.shiftKey ? $nextYear : $nextMonth).fire('click');
+        if (e.wheelDown) {
+          (e.shiftKey ? $nextYear : $nextMonth).fire('click');
         }
         return false;
       })
@@ -245,12 +244,12 @@
         return false;
       });
 
-  document.on('domready', function() {
+  document.on('beforedomready', function() {
     $panel.insertTo(document.body);
   });
 
 //--------------------------------------------------[activatePanel]
-  // 在指定的日期选择器附近显示日期选择面板。
+  // 在指定的“日期选择器”附近显示“日期选择面板”。
   var activatePanel = function() {
     minDate = Date.parseExact(this.getData('minDate') || '1900-01-01');
     maxDate = Date.parseExact(this.getData('maxDate') || '9999-12-31');
@@ -267,24 +266,26 @@
    * @attribute data-min-date
    *   指定允许选择的最小日期，格式为 YYYY-MM-DD。
    *   如果不指定本属性，则使用 '1900-01-01' 作为默认值。
+   *   在“日期选择器”被解析后，对本属性的值的修改仍然可以生效。
    * @attribute data-max-date
    *   指定允许选择的最大日期，格式为 YYYY-MM-DD。
    *   如果不指定本属性，则使用 '9999-12-31' 作为默认值。
+   *   在“日期选择器”被解析后，对本属性的值的修改仍然可以生效。
    * @fires change
    *   选定的值改变时触发。
    *   本事件用于模拟真实发生在表单域元素上的 change 事件。
    * @requires Calendar
    * @description
    *   <strong>启用方式：</strong>
-   *   为一个 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为日期选择器。
+   *   为一个 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为“日期选择器”。
    *   <strong>结构约定：</strong>
-   *   日期选择器初始化时会在文档中创建一个新元素，并利用它来进行日期的点选。
-   *   其中类名包含 'btn' 的为按钮，类名包含 'prev_year' 的为“上一年”按钮，类名包含 'prev_month' 的为“上一月”按钮，类名包含 'next_month' 的为“下一月”按钮，类名包含 'next_year' 的为“下一年”按钮，类名包含 'clear' 的为“清除”按钮，类名包含 'today' 的为“今天”按钮。
-   *   按钮的容器的类名为 'control_set'（共两个）。
-   *   如果一个按钮处于禁用状态，将为其添加类名 'disabled'。
-   *   在这个新元素中，还包含一个月历 Widget，关于它的结构约定及其他信息，请参阅月历 Widget 的相关说明。
+   *   “日期选择器”会自动在文档中创建一个“日期选择面板”（其中包含一个“月历”），并利用它来进行日期的点选。所有的“日期选择器”共用一个“日期选择面板”。
+   *   在“日期选择面板”中，类名包含 'btn' 的为按钮，类名包含 'prev_year' 的为“上一年”按钮，类名包含 'prev_month' 的为“上一月”按钮，类名包含 'next_month' 的为“下一月”按钮，类名包含 'next_year' 的为“下一年”按钮，类名包含 'clear' 的为“清除”按钮，类名包含 'today' 的为“今天”按钮。另外如果一个按钮处于禁用状态，将为其添加类名 'disabled'。
    *   <strong>新增行为：</strong>
-   *   当该元素成为日期选择器后，将不能再由键盘输入值，但当点击该元素时，将弹出日期选择面板，在面板中选中的日期会被回填到该元素中。
+   *   “日期选择器”将不再能由键盘输入值。点击该元素时，将弹出“日期选择面板”，在面板中选中的日期会被回填到该元素中。
+   *   如果“日期选择器”已经有选定值，点击“日期选择面板”的“清除”按钮可以清除该值。
+   *   如果今天在可选日期范围（取决于 data-min-date 和 data-max-date 的设定值）内，点击“今天”按钮可以将今天的日期作为选定值。
+   *   在“日期选择面板”中，可以通过点击“上一年”和“下一年”按钮或使用鼠标滚轮翻年，通过点击“上一月”和“下一月”按钮或使用 Shift + 鼠标滚轮翻月。
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
    *   .datepicker-panel { display: none; position: absolute; left: 0; top: 0; width: 218px; padding: 6px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); border: 1px solid silver; border-radius: 3px; background: whitesmoke; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }

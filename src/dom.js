@@ -1140,7 +1140,7 @@
   // 供内部调用的标记值。
   var INTERNAL_IDENTIFIER_EVENT = {};
 
-  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 5, mouseleave: 5, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforeunload: 0, domready: 0};
+  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 5, mouseleave: 5, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforeunload: 0, beforedomready: 0, domready: 0, afterdomready: 0};
   var returnTrue = function() {
     return true;
   };
@@ -1593,7 +1593,7 @@
         });
       },
       remove: function($element) {
-        // 在这三个关联事件中删除最后一个监听器后，才删除他们的触发器。
+        // 在这三个关联事件中删除最后一个监听器后，才删除它们的触发器。
         var item = eventHandlers[$element.uid];
         var handlerCount = 0;
         relatedTypes.forEach(function(relatedType) {
@@ -2223,20 +2223,24 @@
 
   document.uid = 'document';
 
-  // 自动触发 domready 事件。
+  // 自动触发 beforedomready、domready 和 afterdomready 事件，其中 beforedomready 和 afterdomready 为内部使用的事件类型。
   var triggerDomReadyEvent;
   if ('addEventListener' in document) {
     triggerDomReadyEvent = function() {
       document.removeEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
       window.removeEventListener('load', triggerDomReadyEvent, false);
+      document.fire('beforedomready');
       document.fire('domready');
+      document.fire('afterdomready');
     };
     document.addEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
     window.addEventListener('load', triggerDomReadyEvent, false);
   } else {
     var doBodyCheck = function() {
       if (document.body) {
+        document.fire('beforedomready');
         document.fire('domready');
+        document.fire('afterdomready');
       } else {
         setTimeout(doBodyCheck, 10);
       }

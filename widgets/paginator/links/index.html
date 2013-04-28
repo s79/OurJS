@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Paginator</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/paginator.js"></script>
+<script src="../../../scripts/widget-demobutton.js"></script>
+<style>
+.container { padding: 10px; font-size: 14px; font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+.container .widget-dialog { padding: 5px 20px; border: 1px solid black; background: white; color: black; font-size: 14px; }
+.container .widget-paginator a.current:link,
+.container .widget-paginator a.current:visited,
+.container .widget-paginator a.current:hover,
+.container .widget-paginator a.current:active { border-color: dimgray; background-color: yellowgreen; color: black; font-weight: bold; }
+.content { height: 100px; line-height: 100px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <script>
+  (function() {
+    // 注意：以下 document.write 为模拟服务端的输出，实际使用时不必使用脚本。
+    var totalPages = 50;
+    var currentPage = Math.limit(parseInt(location.parameters.page, 10) || 20, 1, totalPages);
+    document.write('<div class="content">第 ' + currentPage + ' 页的数据</div>');
+    document.write('<div class="widget-paginator" data-current-page="' + currentPage + '" data-total-pages="' + totalPages + '" data-target-url="?page={page}" data-endpoint-pages="3" data-adjacent-pages="5"></div>');
+  })();
+  </script>
+</div>
+</body>
+</html>

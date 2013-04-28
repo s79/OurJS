@@ -301,10 +301,10 @@ var apiList = {
   ],
   '分页导航条': [
     'Paginator',
-    'Paginator#totalPages',
     'Paginator#currentPage',
-    'Paginator#turn',
-    'Paginator#update'
+    'Paginator#totalPages',
+    'Paginator#update',
+    'Paginator#turn'
   ],
   '月历': [
     'Calendar',

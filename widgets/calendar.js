@@ -12,9 +12,9 @@
    * @name Calendar
    * @constructor
    * @attribute data-month
-   *   指定要显示哪一个月的月历，格式为 YYYY-MM。
+   *   指定要显示哪一个月的“月历”，格式为 YYYY-MM。
    *   如果不指定本属性，则使用当前月份作为默认值。
-   *   当需要将月历集成在其他功能中，只希望主动调用 update 方法进行更新时，应指定为 '0000-00'，这样就不会以当前月份作为默认值来自动调用 update 方法。
+   *   当需要将“月历”集成在其他功能中，只希望主动调用 update 方法进行更新时，应指定为 '0000-00'，这样就不会以当前月份作为默认值来自动调用 update 方法。
    * @attribute data-first-day
    *   指定每周的第一天是星期几，取值范围为 0 - 6。
    *   如果不指定本属性，则使用 0 作为默认值，即每周的第一天为星期日。
@@ -27,16 +27,15 @@
    *   日期单元格更新后触发。每次调用 update 方法时，每个日期单元格都会更新一次。
    * @description
    *   <strong>启用方式：</strong>
-   *   为一个元素添加 'widget-calendar' 类，即可使该元素成为月历。
+   *   为一个元素添加 'widget-calendar' 类，即可使该元素成为“月历”。
    *   <strong>结构约定：</strong>
-   *   当月历初始化时，会在其内部创建一个表格元素，并在其中根据 data-month 的配置来显示指定月份的日期排列（在 data-month 不为 '0000-00' 的情况下）。
-   *   其中每个单元格都有用于表示星期几的类名 'sun'、'mon'、'tues'、'wed'、'thurs'、'fri'、'sat'。
-   *   上一个月的日期所在的单元格会被添加类名 'prev'，下一个月的日期所在的单元格会被添加类名 'next'。
-   *   今天的日期所在的单元格会被添加类名 'today'。
+   *   “月历”初始化时，会在其内部自动追加一个表格元素，以显示指定月份的日期。
+   *   当“月历”列出了一个月份的日期时，在上述表格元素中，每个单元格都会被添加用于表示星期几的类名 'sun'、'mon'、'tues'、'wed'、'thurs'、'fri'、'sat'，其中上一个月和下一个月的日期所在的单元格还会额外被添加类名 'prev' 和 'next'，今天的日期所在的单元格还会额外被添加类名 'today'。
    *   <strong>新增行为：</strong>
-   *   如果需要更改月历显示的月份，调用 update 方法即可。
+   *   如果“月历”在文档可用后即被解析完毕，且其 data-month 属性的值不为 '0000-00'，则其 update 方法会被自动调用。
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
+   *   .widget-calendar { visibility: hidden; }
    *   .widget-calendar table { table-layout: fixed; border-collapse: separate; border-spacing: 1px; width: 218px; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
    *   .widget-calendar table td { padding: 0; border: 1px solid silver; border-radius: 2px; text-align: center; }
    *   .widget-calendar thead td { border-color: white; color: navy; font-weight: bold; }
@@ -53,17 +52,18 @@
    */
 
   /**
-   * 显示指定的月份。
+   * 显示或刷新指定月份的日期排列情况。
    * @name Calendar#update
    * @function
    * @param {string} [month] 月份，格式为 YYYY-MM 的字符串。
-   *   若该参数没有指定，则使用当前已显示的月份（即刷新当前的月历）。
+   *   如果该参数被省略，则使用本元素的 month 属性的值代替。
    * @returns {Element} 本元素。
    */
 
   Widget.register({
     type: 'calendar',
     css: [
+      '.widget-calendar { visibility: hidden; }',
       '.widget-calendar table { table-layout: fixed; border-collapse: separate; border-spacing: 1px; width: 218px; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }',
       '.widget-calendar table td { padding: 0; border: 1px solid silver; border-radius: 2px; text-align: center; }',
       '.widget-calendar thead td { border-color: white; color: navy; font-weight: bold; }',
@@ -77,9 +77,9 @@
     },
     methods: {
       update: function(month) {
-        var $calendar = this;
+        var $calendar = this.setStyle('visibility', 'visible');
 
-        // 输出星期类名与文字。
+        // 星期类名与文字。
         var dayNames = ['sun', 'mon', 'tues', 'wed', 'thurs', 'fri', 'sat'];
         var dayTexts = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -91,7 +91,7 @@
         var showY = showDate.getFullYear();
         var showM = showDate.getMonth();
 
-        // 输出月历头和月历体。
+        // 输出指定月份的日期。
         var firstDayOfWeek = $calendar.firstDay;
         var startIndex = (showDate.getDay() + 7 - firstDayOfWeek) % 7 || 7;
         var endIndex = startIndex + new Date(showY, showM + 1, 0).getDate();
@@ -157,9 +157,13 @@
         $calendar.month = new Date().format('YYYY-MM');
       }
 
-      // 如果 month 不为 '0000-00' 则显示指定月份的月历。
+      // 如果 month 不为 '0000-00' 则显示指定月份的“月历”。
       if ($calendar.month !== '0000-00') {
-        $calendar.update();
+        document.on('afterdomready', function() {
+          if ($calendar.style.visibility !== 'visible') {
+            $calendar.update();
+          }
+        });
       }
 
     }
