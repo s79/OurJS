@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>表单验证器</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/validator.js"></script>
+<style>
+body { font: 14px/20px Tahoma, Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+#edit table { table-layout: fixed; width: 600px; }
+#edit col.keys { width: 90px; }
+#edit col.values { width: 200px; }
+#edit th { text-align: right; }
+#edit p { display: none; margin: 0; padding: 0 0 0 18px; background: url(error.png) no-repeat left center; font-size: 12px; color: #E46C6E; }
+#edit tr.invalid p.message { display: block; }
+#edit tr.input p.message { display: none; }
+#edit tr.text input { width: 190px; margin: 0; padding: 2px; border: 1px solid silver; background-color: white; }
+#edit button { width: 100px; height: 30px; }
+#edit tr.invalid input { border-color: #E77776; background-color: #F8DBDB; }
+#edit tr.input input { border-color: silver; background-color: white; }
+#edit tr.disabled { color: silver; }
+#edit tr.disabled input { border-color: gainsboro; color: silver; }
+</style>
+</head>
+<body>
+<form id="edit" method="get" action="." class="widget-validator">
+  <table>
+    <colgroup>
+      <col class="keys">
+      <col class="values">
+      <col class="messages">
+    </colgroup>
+    <tbody>
+      <tr class="state" data-for="subscribe">
+        <th>订阅更新：</th>
+        <td><input id="subscribe" name="subscribe" type="checkbox" value="yes"></td>
+        <td><p class="message" data-for="subscribe"></p></td>
+      </tr>
+      <tr id="email_container" class="state text disabled" data-for="email">
+        <th>订阅邮箱：</th>
+        <td><input id="email" name="email" type="text" maxlength="50" disabled></td>
+        <td><p class="message" data-for="email"></p></td>
+      </tr>
+      <tr class="state text" data-for="phone">
+        <th>电话号码：</th>
+        <td><input name="phone" type="text" value="12345678901" maxlength="11"></td>
+        <td><p class="message" data-for="phone"></p></td>
+      </tr>
+      <tr>
+        <th></th>
+        <td>
+          <button type="submit">提　交</button>
+        </td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</form>
+
+<script>
+document.on('domready', function() {
+  // 准备可选规则。
+  var optionalRules = {
+    email: {
+      required: true,
+      type: 'email'
+    }
+  };
+
+  // 添加必选规则。
+  var $form = $('#edit');
+  $form
+      .addValidationRules({
+        phone: {
+          required: true,
+          type: 'phone'
+        }
+      })
+      .on('validated', function(e) {
+        if (e.passed) {
+          alert('验证通过');
+        }
+      });
+
+  // 在适当的时候添加或删除可选规则（并改变邮箱输入框的外观）。
+  var $email = $('#email');
+  var $emailContainer = $('#email_container');
+  $('#subscribe').on('change', function() {
+    if (this.checked) {
+      $form.addValidationRules(optionalRules);
+      $emailContainer.removeClass('disabled');
+      $email.disabled = false;
+    } else {
+      $form.removeValidationRules(Object.keys(optionalRules));
+      $emailContainer.addClass('disabled');
+      $email.disabled = true;
+    }
+  });
+
+});
+</script>
+
+</body>
+</html>
