@@ -15,7 +15,7 @@ strong em { color: #BE1D2C; font-style: normal; text-shadow: 0 1px 1px rgba(0, 0
 <script>
 document.on('domready', function() {
   // 代码高亮。
-  $('body').find('pre').forEach(function($pre) {
+  $('body').findAll('pre').forEach(function($pre) {
     $pre.addClass('prettyprint');
   });
   prettyPrint();

@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130428
+ *  Version: 20130504
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展
@@ -2005,7 +2005,7 @@
    *
    * 为达到“化繁为简”的目标，这里使用第三种实现方式，以使 API 有最好的一致性和最自然语法。
    * 同时不予提供跨 frame 的操作。实际上跨 frame 操作并不常见，通常也不建议这样做。必须这样做时，应在 frame 内也引入本脚本库。
-   * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 find、getNextSibling 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
+   * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 getNextSibling、find 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
    */
 
 //--------------------------------------------------[Element]
@@ -2650,9 +2650,9 @@
     }
   };
 
-//==================================================[DOM 扩展 - 获取相关元素]
+//==================================================[DOM 扩展 - 遍历文档树]
   /*
-   * 获取相关的元素。
+   * 获取文档树中的元素或一个元素与文档树相关的信息。
    *
    * 扩展方法：
    *   Element.prototype.getParent
@@ -2662,10 +2662,15 @@
    *   Element.prototype.getLastChild
    *   Element.prototype.getChildren
    *   Element.prototype.getChildCount
+   *   Element.prototype.find
+   *   Element.prototype.findAll
+   *   Element.prototype.matchesSelector
    *
    * 参考：
    *   http://www.w3.org/TR/ElementTraversal/#interface-elementTraversal
+   *   http://www.w3.org/TR/selectors-api2/
    *   http://www.quirksmode.org/dom/w3c_core.html
+   *   https://github.com/jquery/sizzle/wiki/Sizzle-Home
    *   http://w3help.org/zh-cn/causes/SD9003
    */
 
@@ -2789,12 +2794,63 @@
     return count;
   };
 
-//==================================================[DOM 扩展 - 克隆元素]
+//--------------------------------------------------[Element.prototype.find]
+  /**
+   * 在本元素的后代元素中，根据指定的选择符查找符合条件的第一个元素。
+   * @name Element.prototype.find
+   * @function
+   * @param {string} selector 选择符。
+   * @returns {Element} 查找到的元素。
+   *   如果没有找到任何元素，返回 null。
+   * @see http://www.w3.org/TR/selectors-api2/
+   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
+   */
+  Element.prototype.find = function(selector) {
+    return $(Sizzle(selector, this)[0] || null);
+  };
+
+//--------------------------------------------------[Element.prototype.findAll]
+  /**
+   * 在本元素的后代元素中，根据指定的选择符查找符合条件的所有元素。
+   * @name Element.prototype.findAll
+   * @function
+   * @param {string} selector 选择符。
+   * @returns {Array} 包含查找到的元素的数组。
+   *   如果没有找到任何元素，返回空数组。
+   * @see http://www.w3.org/TR/selectors-api2/
+   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
+   */
+  Element.prototype.findAll = function(selector) {
+    return Sizzle(selector, this).map(function(element) {
+      return $(element);
+    });
+  };
+
+//--------------------------------------------------[Element.prototype.matchesSelector]
+  /**
+   * 检查本元素是否能被指定的选择符选中。
+   * @name Element.prototype.matchesSelector
+   * @function
+   * @param {string} selector 选择符。
+   * @returns {boolean} 检查结果。
+   * @see http://www.w3.org/TR/selectors-api2/
+   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
+   */
+  Element.prototype.matchesSelector = function(selector) {
+    return Sizzle.matchesSelector(this, selector);
+  };
+
+//==================================================[DOM 扩展 - 修改文档树]
   /*
-   * 克隆本元素。
+   * 修改文档树的结构。
    *
    * 扩展方法：
    *   Element.prototype.clone
+   *   Element.prototype.insertTo
+   *   Element.prototype.swap
+   *   Element.prototype.replace
+   *   Element.prototype.remove
+   *   Element.prototype.empty
    */
 
 //--------------------------------------------------[Element.prototype.clone]
@@ -2868,18 +2924,6 @@
     });
     return $(clonedElement);
   };
-
-//==================================================[DOM 扩展 - 修改位置或内容]
-  /*
-   * 修改元素的位置或内容。
-   *
-   * 扩展方法：
-   *   Element.prototype.insertTo
-   *   Element.prototype.swap
-   *   Element.prototype.replace
-   *   Element.prototype.remove
-   *   Element.prototype.empty
-   */
 
 //--------------------------------------------------[Element.prototype.insertTo]
   /**
@@ -3438,7 +3482,7 @@
               return (tagName ? $target.nodeName === tagName : true) && (className ? $target.hasClass(className) : true);
             };
           } else {
-            var elements = $element.find(selector);
+            var elements = $element.findAll(selector);
             return function($target) {
               return elements.contains($target);
             }
@@ -4236,7 +4280,7 @@
    * @description
    *   <ul>
    *     <li>当参数为一个元素（可以包含后代元素）的序列化之后的字符串时，会返回扩展后的、根据这个字符串反序列化的元素。<br>注意：不要使用本方法创建 SCRIPT 元素，对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法。</li>
-   *     <li>当参数为一个 CSS 选择符时，会返回扩展后的、与指定的 CSS 选择符相匹配的<strong>第一个元素</strong>。</li>
+   *     <li>当参数为一个 CSS 选择符时，会返回扩展后的、与指定的 CSS 选择符相匹配的<strong>第一个元素</strong>。<br>如果没有找到任何元素，返回 null。</li>
    *     <li>当参数为一个元素时，会返回扩展后的该元素。</li>
    *     <li>当参数为其他值（包括 document 和 window）时，均返回 null。</li>
    *   </ul>
@@ -6393,7 +6437,7 @@
       }
     }
     if (recursively) {
-      $element.find('[class*=widget-]').forEach(function($element) {
+      $element.findAll('[class*=widget-]').forEach(function($element) {
         Widget.parse($element);
       });
     }
@@ -7004,13 +7048,10 @@
 (function(window, undefined) {
 //==================================================[CSS 选择器]
   /*
-   * 通过一个处理过的元素的 find 方法调用，返回的结果为一个数组，包含所有符合条件的、处理后的元素。
+   * 根据 CSS 选择符查找符合条件的元素。
    *
    * 提供对象：
    *   Sizzle
-   *
-   * 扩展方法：
-   *   Element.prototype.find
    */
 
 //--------------------------------------------------[Sizzle]
@@ -8539,22 +8580,5 @@
 
   // EXPOSE
   window.Sizzle = Sizzle;
-
-  /**
-   * 在本元素的后代元素中，根据指定的选择符查找元素。
-   * @name Element.prototype.find
-   * @function
-   * @param {string} selector 选择符。
-   * @returns {Array} 包含查找到的元素的数组。
-   * @description
-   *   本功能使用 Sizzle 实现，关于可以使用的 selector 信息，请参考 Sizzle 的相关说明。
-   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
-   */
-  var $ = document.$;
-  Element.prototype.find = function(selector) {
-    return Sizzle(selector, this).map(function(element) {
-      return $(element);
-    });
-  };
 
 })(window);

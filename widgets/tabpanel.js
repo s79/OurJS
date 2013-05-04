@@ -111,8 +111,8 @@
 
       // 保存属性。
       Object.mixin($tabPanel, {
-        tabs: $tabPanel.find('.tab'),
-        panels: $tabPanel.find('.panel'),
+        tabs: $tabPanel.findAll('.tab'),
+        panels: $tabPanel.findAll('.panel'),
         activeTab: null,
         activePanel: null
       });

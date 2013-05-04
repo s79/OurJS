@@ -406,7 +406,7 @@ document.on('domready', function() {
   buildAPIReference();
 
   // 代码高亮。
-  $details.find('pre').forEach(function($pre) {
+  $details.findAll('pre').forEach(function($pre) {
     $pre.addClass('prettyprint');
   });
   prettyPrint();

@@ -36,8 +36,8 @@
   var today;
 
   // 获取元素。
-  var $calendar = $panel.find('.widget-calendar')[0];
-  var controls = $panel.find('span');
+  var $calendar = $panel.find('.widget-calendar');
+  var controls = $panel.findAll('span');
   var $prevYear = controls[0];
   var $prevMonth = controls[1];
   var $year = controls[2];

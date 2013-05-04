@@ -13,13 +13,10 @@
 (function(window, undefined) {
 //==================================================[CSS 选择器]
   /*
-   * 通过一个处理过的元素的 find 方法调用，返回的结果为一个数组，包含所有符合条件的、处理后的元素。
+   * 根据 CSS 选择符查找符合条件的元素。
    *
    * 提供对象：
    *   Sizzle
-   *
-   * 扩展方法：
-   *   Element.prototype.find
    */
 
 //--------------------------------------------------[Sizzle]
@@ -1548,22 +1545,5 @@
 
   // EXPOSE
   window.Sizzle = Sizzle;
-
-  /**
-   * 在本元素的后代元素中，根据指定的选择符查找元素。
-   * @name Element.prototype.find
-   * @function
-   * @param {string} selector 选择符。
-   * @returns {Array} 包含查找到的元素的数组。
-   * @description
-   *   本功能使用 Sizzle 实现，关于可以使用的 selector 信息，请参考 Sizzle 的相关说明。
-   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
-   */
-  var $ = document.$;
-  Element.prototype.find = function(selector) {
-    return Sizzle(selector, this).map(function(element) {
-      return $(element);
-    });
-  };
 
 })(window);

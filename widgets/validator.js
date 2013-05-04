@@ -190,13 +190,13 @@
           }
         });
         // 重新查找 DOM 树，生成新的“状态指示器”列表和“提示信息容器”列表。
-        $validator.find('.state').forEach(function($stateIndicator) {
+        $validator.findAll('.state').forEach(function($stateIndicator) {
           var name = $stateIndicator.getData('for');
           if (validationData.rules.hasOwnProperty(name) && !stateIndicators.hasOwnProperty(name)) {
             stateIndicators[name] = $stateIndicator;
           }
         });
-        $validator.find('.message').forEach(function($messageContainer) {
+        $validator.findAll('.message').forEach(function($messageContainer) {
           var name = $messageContainer.getData('for');
           if (validationData.rules.hasOwnProperty(name) && !messageContainers.hasOwnProperty(name)) {
             messageContainers[name] = $messageContainer;

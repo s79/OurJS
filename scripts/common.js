@@ -123,7 +123,7 @@ document.on('domready', function() {
   };
   var $menu = $('#menu');
   $menu.innerHTML = getMenuHTML(menuData);
-  $menu.find('ul').forEach(function($ul) {
+  $menu.findAll('ul').forEach(function($ul) {
     var $li = $ul.getParent();
     if ($li.getParent() !== $menu) {
       $li.getFirstChild().addClass('folder');
@@ -174,7 +174,7 @@ document.on('domready', function() {
     var $outlineList = $outline.getLastChild().getFirstChild();
     // 若标题没有 id 则为其指定一个 id，注意此 id 与标题的位置有关，因此不宜作为书签使用。
     var uid = 12960;
-    $content.find('h1, h2 ,h3, dt').forEach(function($heading) {
+    $content.findAll('h1, h2 ,h3, dt').forEach(function($heading) {
       if (!$heading.id) {
         $heading.id = (uid++).toString(36);
       }

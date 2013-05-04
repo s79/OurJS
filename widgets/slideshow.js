@@ -193,8 +193,8 @@
       var $slideshow = this;
 
       // 保存属性。
-      var slides = $slideshow.find('.slide');
-      var pointers = $slideshow.find('.pointer');
+      var slides = $slideshow.findAll('.slide');
+      var pointers = $slideshow.findAll('.pointer');
       Object.mixin($slideshow, {
         slides: slides,
         pointers: pointers,

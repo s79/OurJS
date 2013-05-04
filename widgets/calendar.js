@@ -150,8 +150,8 @@
       $calendar.elements = {
         thead: $thead,
         tbody: $tbody,
-        theadCells: $thead.find('td'),
-        tbodyCells: $tbody.find('td')
+        theadCells: $thead.findAll('td'),
+        tbodyCells: $tbody.findAll('td')
       };
       if (!$calendar.month) {
         $calendar.month = new Date().format('YYYY-MM');

@@ -548,7 +548,7 @@ document.on('domready', function() {
 (function() {
   var $canvas = $('#canvas');
   var $controls = $('#timing_controls');
-  var buttons = $controls.find('button');
+  var buttons = $controls.findAll('button');
 
   $controls.on('click:relay(button)', function() {
     var color = this.getStyle('backgroundColor');

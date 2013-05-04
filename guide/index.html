@@ -15,7 +15,7 @@ td { vertical-align: top; }
 <script>
 document.on('domready', function() {
   // 代码高亮。
-  $('body').find('pre').forEach(function($pre) {
+  $('body').findAll('pre').forEach(function($pre) {
     $pre.addClass('prettyprint');
   });
   prettyPrint();
@@ -159,14 +159,14 @@ if ($input.offsetWidth) {
   上一节中提到，OurJS 提供的获取和创建元素的 API document.$ 每次只能获取或创建一个元素。<br>
   OurJS 在处理元素时，所有相关的 API 也都是针对单个元素进行的。
 </p>
-<p>虽然可以通过调用一个元素的 find 或 getChildren 方法来获取一批元素（实际是一个数组），但 OurJS 并没有提供“批量操作元素”的方法。如果一定要对一批元素进行操作，则需要遍历这些元素，并对其中的每一个单独进行操作：</p>
+<p>虽然可以通过调用一个元素的 getChildren 或 findAll 方法来获取一批元素（实际是一个数组），但 OurJS 并没有提供“批量操作元素”的方法。如果一定要对一批元素进行操作，则需要遍历这些元素，并对其中的每一个单独进行操作：</p>
 <pre>
 &lt;style&gt;
 .highlight_word { background: yellow; color: red; }
 &lt;/style&gt;
 ...
 &lt;script&gt;
-$container.find('span.word').forEach(function($item) {
+$container.findAll('span.word').forEach(function($item) {
   $item.addClass('highlight_word');
 });
 // 找到 $container 的<em>后代元素中所有类名包含 'word' 的 SPAN 元素</em>，为它们添加 'highlight_word' 类以使它们高亮显示。

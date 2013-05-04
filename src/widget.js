@@ -124,7 +124,7 @@
       }
     }
     if (recursively) {
-      $element.find('[class*=widget-]').forEach(function($element) {
+      $element.findAll('[class*=widget-]').forEach(function($element) {
         Widget.parse($element);
       });
     }
