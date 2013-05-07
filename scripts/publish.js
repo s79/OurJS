@@ -6,7 +6,6 @@
 
 /** Make JSON.stringify available. */
 var JSON = {};
-
 (function() {
 //--------------------------------------------------[JSON.stringify]
   var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
@@ -181,19 +180,19 @@ function filterSymbol(source) {
       return newItem;
     }),
     // 这种自定义的 tag 将被解析到 comment.tags 中，并且内容在其 desc 属性内，也仅为字符串。
-    attributes: source.comment.tags
-        .filter(function(item) {
-          return item.title === 'attribute';
-        })
-        .map(function(item) {
-          var match = parseDescription(item.desc).match(/<p>(.*?)<\/p>(.*)/);
-          var mame = match && match[1] || '';
-          var description = match && match[2] || '';
-          return {
-            name: mame,
-            description: description
-          };
-        }),
+//    attributes: source.comment.tags
+//        .filter(function(item) {
+//          return item.title === 'attribute';
+//        })
+//        .map(function(item) {
+//          var match = parseDescription(item.desc).match(/<p>(.*?)<\/p>(.*)/);
+//          var mame = match && match[1] || '';
+//          var description = match && match[2] || '';
+//          return {
+//            name: mame,
+//            description: description
+//          };
+//        }),
     // fires 仅为字符串，因此在写注释文档时约定：第一行为事件名，其后为描述。
     fires: source.fires.map(function(item) {
       var match = parseDescription(item).match(/<p>(.*?)<\/p>(.*)/);
@@ -247,6 +246,9 @@ function publish(symbolSet) {
     filterSymbol(symbol);
   });
 
-  IO.saveFile(publish.conf.outDir, 'api_data.js', 'var apiData = ' + JSON.stringify(symbols) + ';');
+  var replacer = function(key, value) {
+    return value.length === 0 ? undefined : value;
+  };
+  IO.saveFile(publish.conf.outDir, 'api_data.js', 'var apiData = ' + JSON.stringify(symbols, replacer) + ';');
 
 }

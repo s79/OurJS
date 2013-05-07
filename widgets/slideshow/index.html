@@ -28,24 +28,24 @@
   <p>如果没有指定 data-interval，则使用 5000（毫秒）作为默认值。</p>
   <p>当鼠标指针进入幻灯片播放器的区域后，自动切换将停止，当鼠标指针离开幻灯片播放器的区域后，自动切换将继续进行。</p>
   <p>本例新建了一个幻灯片播放器，并将 data-interval 设置为 2000：</p>
-  <div class="widget-demoarea small-size" data-src="show/auto.html"></div>
+  <div class="widget-demoarea" data-src="show/auto.html" data-content-height="200"></div>
 
   <h3>点击切换</h3>
   <p>如果幻灯片有对应的指示器，则通过鼠标点击指示器，也能切换幻灯片。</p>
   <p>本例在上例的基础上，添加了指示器（一般都建议加上指示器，以提高用户对本组幻灯片的可预见性）：</p>
-  <div class="widget-demoarea small-size" data-src="show/by_click.html"></div>
+  <div class="widget-demoarea" data-src="show/by_click.html" data-content-height="200"></div>
 
   <h3>悬停切换</h3>
   <p>如果指定了“鼠标悬停播放延时”，则还可以通过鼠标指向一个指示器来切换幻灯片。</p>
   <p>通过配置 data-hover-delay，可以指定鼠标悬停播放延时。</p>
   <p>本例在上例的基础上，将 data-hover-delay 设置为 100：</p>
-  <div class="widget-demoarea small-size" data-src="show/by_hover.html"></div>
+  <div class="widget-demoarea" data-src="show/by_hover.html" data-content-height="200"></div>
 
   <h3>脚本切换</h3>
   <p>通过调用幻灯片播放器的 show、showPrevious 和 showNext 方法，也能激活指定的选项卡。</p>
   <p>本例在上例的基础上，增加了调用以上方法的测试按钮：</p>
   <p></p>
-  <div class="widget-demoarea small-size" data-src="show/by_script.html"></div>
+  <div class="widget-demoarea" data-src="show/by_script.html" data-content-height="200"></div>
 
   <h3>无需切换的情况</h3>
   <p class="referral">如果幻灯片小于两个，则没有必要对幻灯片进行切换。在这种情况下：</p>
@@ -54,14 +54,14 @@
     <li>调用幻灯片播放器的 show、showPrevious 和 showNext 方法也是无效的。</li>
   </ul>
   <p>本例在上例的基础上，将幻灯片和指示器的数量都修改为一个：</p>
-  <div class="widget-demoarea small-size" data-src="show/single.html"></div>
+  <div class="widget-demoarea" data-src="show/single.html" data-content-height="200"></div>
 
 
   <h2>动画效果</h2>
   <p>可以通过配置 data-animation 来指定幻灯片切换时使用的动画效果，可选项有 'none'，'fade', 'cover' 和 'slide'。</p>
   <p>如果没有指定 data-animation，则使用 'fade' 作为默认值。</p>
   <p>本例新建了一个幻灯片播放器，并将其 data-interval 设置为 3000，data-hover-delay 设置为 0（鼠标指向指示器即切换对应的幻灯片），data-animation 设置为 'slide'：</p>
-  <div class="widget-demoarea big-size" data-src="animation/slide.html"></div>
+  <div class="widget-demoarea" data-src="animation/slide.html" data-content-height="380"></div>
 
   <h2>更多定制</h2>
   <p>一个 Widget 本身仍是一个元素，因此可以灵活的进行各种扩展。</p>

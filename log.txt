@@ -1,5 +1,12 @@
 
 
+>2013-05-05
+* 限定 Widget 的启用方式
+  现在每一类 Widget 都限定了标签名（如 DIV.widget-???）以提高明确性。
+  大部分 Widget 的标签名都被限定为 DIV，DIV 本身无特别的语义，可以更容易的被赋予新的语义。
+  这个修改包括 widget.js 和所有的 widget 解析器。
+* 文档注释不再支持 @attribute 标签
+
 >2013-05-04
 * Element.prototype.find -> Element.prototype.findAll
 + Element.prototype.find

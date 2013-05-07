@@ -230,8 +230,8 @@
               if (onFinish) {
                 onFinish();
               }
-            })
-            .play();
+            });
+        el.animation.play();
       }
     },
 

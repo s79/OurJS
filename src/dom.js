@@ -2520,6 +2520,8 @@
    * 对 document.$ 的引用。
    * @name window.$
    * @function
+   * @param {string|Element} e 不同类型的元素表示。
+   * @returns {Element} 扩展后的元素。
    * @description
    *   在编写应用代码时，可以使用 $ 来代替 document.$。
    */

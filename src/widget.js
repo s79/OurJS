@@ -49,19 +49,21 @@
    * @function
    * @param {Object} widget 要注册的 Widget 的相关信息。
    * @param {string} widget.type Widget 的类型。
-   * @param {Array} [widget.css] 包含要应用到此类 Widget 的 CSS 规则集的数组。
+   * @param {string} widget.selector Widget 的选择符，能被此选择符选中的元素即可被本 Widget 的解析器解析。
+   * @param {Array} [widget.styleRules] 包含要应用到此类 Widget 的 CSS 规则集的数组。
    * @param {Object} [widget.config] 包含此类 Widget 的默认配置的对象。
    * @param {Object} [widget.methods] 包含此类 Widget 的实例方法的对象。
    * @param {Function} [widget.initialize] 此类 Widget 的初始化函数。
    */
   Widget.register = function(widget) {
-    if (widget.css) {
-      document.addStyleRules(widget.css);
+    if (widget.styleRules) {
+      document.addStyleRules(widget.styleRules);
     }
 
     Widget.parsers[widget.type] = {
+      selector: widget.selector,
       parse: function($element) {
-        // 从目标元素的 attribute 中解析配置信息并将其添加到目标元素。
+        // 从目标元素的 attributes 中解析配置信息并将其添加到目标元素。
         if (widget.config) {
           Object.forEach(widget.config, function(defaultValue, key) {
             var value = defaultValue;
@@ -107,27 +109,23 @@
    * @description
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为 Widget，因此仅应在必要时调用本方法。
    */
-  var widgetNamePattern = /\bwidget-([a-z][a-z0-9-]*)\b/;
   Widget.parse = function(element, recursively) {
     var $element = document.$(element);
-    if (!$element.widgetType) {
-      var match = $element.className.match(widgetNamePattern);
-      if (match) {
-        var type = match[1];
-        var parser = Widget.parsers[type];
-        if (parser) {
+    Object.forEach(Widget.parsers, function(parser, type) {
+      var elements = [];
+      if ($element.matchesSelector(parser.selector)) {
+        elements.push($element);
+      }
+      if (recursively) {
+        elements = elements.concat($element.findAll(parser.selector));
+      }
+      elements.forEach(function($element) {
+        if (!$element.widgetType) {
           parser.parse($element);
           $element.widgetType = type;
-        } else {
-          console.warn('OurJS: Widget parser "' + type + '" is not found.');
         }
-      }
-    }
-    if (recursively) {
-      $element.findAll('[class*=widget-]').forEach(function($element) {
-        Widget.parse($element);
       });
-    }
+    });
   };
 
 //--------------------------------------------------[自动解析]

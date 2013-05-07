@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130504
+ *  Version: 20130507
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展
@@ -4474,6 +4474,8 @@
    * 对 document.$ 的引用。
    * @name window.$
    * @function
+   * @param {string|Element} e 不同类型的元素表示。
+   * @returns {Element} 扩展后的元素。
    * @description
    *   在编写应用代码时，可以使用 $ 来代替 document.$。
    */
@@ -4938,7 +4940,8 @@
    *       <td><dfn>[<var>masterType</var>&gt;<var>slaveType</var>]</dfn></td>
    *       <td>组合监听器必选</td>
    *       <td>
-   *         要监听的事件类型的组合。<br>仅在 masterType 和 slaveType 两种类型的事件均被触发后，监听器才会被调用。
+   *         要监听的事件类型的组合。
+   *         仅在 masterType 和 slaveType 两种类型的事件均被触发后，监听器才会被调用。
    *         应用场景：slaveType 事件的处理必须在 masterType 事件发生后才能进行。
    *         <ul>
    *           <li>
@@ -6362,19 +6365,21 @@
    * @function
    * @param {Object} widget 要注册的 Widget 的相关信息。
    * @param {string} widget.type Widget 的类型。
-   * @param {Array} [widget.css] 包含要应用到此类 Widget 的 CSS 规则集的数组。
+   * @param {string} widget.selector Widget 的选择符，能被此选择符选中的元素即可被本 Widget 的解析器解析。
+   * @param {Array} [widget.styleRules] 包含要应用到此类 Widget 的 CSS 规则集的数组。
    * @param {Object} [widget.config] 包含此类 Widget 的默认配置的对象。
    * @param {Object} [widget.methods] 包含此类 Widget 的实例方法的对象。
    * @param {Function} [widget.initialize] 此类 Widget 的初始化函数。
    */
   Widget.register = function(widget) {
-    if (widget.css) {
-      document.addStyleRules(widget.css);
+    if (widget.styleRules) {
+      document.addStyleRules(widget.styleRules);
     }
 
     Widget.parsers[widget.type] = {
+      selector: widget.selector,
       parse: function($element) {
-        // 从目标元素的 attribute 中解析配置信息并将其添加到目标元素。
+        // 从目标元素的 attributes 中解析配置信息并将其添加到目标元素。
         if (widget.config) {
           Object.forEach(widget.config, function(defaultValue, key) {
             var value = defaultValue;
@@ -6420,27 +6425,23 @@
    * @description
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为 Widget，因此仅应在必要时调用本方法。
    */
-  var widgetNamePattern = /\bwidget-([a-z][a-z0-9-]*)\b/;
   Widget.parse = function(element, recursively) {
     var $element = document.$(element);
-    if (!$element.widgetType) {
-      var match = $element.className.match(widgetNamePattern);
-      if (match) {
-        var type = match[1];
-        var parser = Widget.parsers[type];
-        if (parser) {
+    Object.forEach(Widget.parsers, function(parser, type) {
+      var elements = [];
+      if ($element.matchesSelector(parser.selector)) {
+        elements.push($element);
+      }
+      if (recursively) {
+        elements = elements.concat($element.findAll(parser.selector));
+      }
+      elements.forEach(function($element) {
+        if (!$element.widgetType) {
           parser.parse($element);
           $element.widgetType = type;
-        } else {
-          console.warn('OurJS: Widget parser "' + type + '" is not found.');
         }
-      }
-    }
-    if (recursively) {
-      $element.findAll('[class*=widget-]').forEach(function($element) {
-        Widget.parse($element);
       });
-    }
+    });
   };
 
 //--------------------------------------------------[自动解析]
@@ -6715,7 +6716,7 @@
    *   <dl>
    *     <dt>如果是函数，则：</dt>
    *     <dd>
-   *       该函数将在解析要转换的 ECMAScript 值中每一个键值对之前被调用，传入两个参数 key 和 value，并使用其返回值代替 value 进行转换。<br>如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
+   *       该函数将在解析要转换的 ECMAScript 值中每一个键值对之前被调用，传入两个参数 key 和 value，并使用其返回值代替 value 进行转换。如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
    *       该函数第一次被调用（如果要转换的 ECMAScript 值的类型是 String、Boolean、Number、Date 或为 null 时则是唯一一次被调用）时，传入的 key 是空字符串，value 是要转换的 ECMAScript 值。
    *       该函数被调用时 this 的值为当前传入的 key 和 value 所属的 ECMAScript 对象，可能为 Object 或 Array。
    *     </dd>
@@ -6943,7 +6944,7 @@
    * @function
    * @param {string} text 要转换的 JSON 格式的字符串。
    * @param {Function} [reviver] 用来过滤或更改转换结果的函数。
-   *   该函数将在解析 text 中每一个键值对之后被调用，传入两个参数 key 和 value，并使用其返回值代替 value 作为最终值。<br>如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
+   *   该函数将在解析 text 中每一个键值对之后被调用，传入两个参数 key 和 value，并使用其返回值代替 value 作为最终值。如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
    *   该函数最后一次被调用（如果 text 表示的是一个 String、Boolean、Number 类型的值或 null 时则是唯一一次被调用）时，传入的 key 是空字符串，value 是已从 text 转换到 ECMAScript 值的结果。
    *   该函数被调用时 this 的值为当前传入的 key 和 value 所属的 ECMAScript 对象，可能为 Object 或 Array。
    * @returns {*} 转换后的 ECMAScript 值。

@@ -264,7 +264,7 @@
    *   <dl>
    *     <dt>如果是函数，则：</dt>
    *     <dd>
-   *       该函数将在解析要转换的 ECMAScript 值中每一个键值对之前被调用，传入两个参数 key 和 value，并使用其返回值代替 value 进行转换。<br>如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
+   *       该函数将在解析要转换的 ECMAScript 值中每一个键值对之前被调用，传入两个参数 key 和 value，并使用其返回值代替 value 进行转换。如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
    *       该函数第一次被调用（如果要转换的 ECMAScript 值的类型是 String、Boolean、Number、Date 或为 null 时则是唯一一次被调用）时，传入的 key 是空字符串，value 是要转换的 ECMAScript 值。
    *       该函数被调用时 this 的值为当前传入的 key 和 value 所属的 ECMAScript 对象，可能为 Object 或 Array。
    *     </dd>
@@ -492,7 +492,7 @@
    * @function
    * @param {string} text 要转换的 JSON 格式的字符串。
    * @param {Function} [reviver] 用来过滤或更改转换结果的函数。
-   *   该函数将在解析 text 中每一个键值对之后被调用，传入两个参数 key 和 value，并使用其返回值代替 value 作为最终值。<br>如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
+   *   该函数将在解析 text 中每一个键值对之后被调用，传入两个参数 key 和 value，并使用其返回值代替 value 作为最终值。如果返回 undefined，则正在处理的这个键值对将被从转换结果中删除。
    *   该函数最后一次被调用（如果 text 表示的是一个 String、Boolean、Number 类型的值或 null 时则是唯一一次被调用）时，传入的 key 是空字符串，value 是已从 text 转换到 ECMAScript 值的结果。
    *   该函数被调用时 this 的值为当前传入的 key 和 value 所属的 ECMAScript 对象，可能为 Object 或 Array。
    * @returns {*} 转换后的 ECMAScript 值。

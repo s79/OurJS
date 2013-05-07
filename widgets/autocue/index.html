@@ -26,7 +26,7 @@
     信息队列最初是空的，通过调用自动提词机的 addMessages 方法，可以将新信息添加到信息队列。
   </p>
   <p>本例新建了一个自动提词机，并为其添加了三条信息：</p>
-  <div class="widget-demoarea small-size" data-src="message_queue/add.html"></div>
+  <div class="widget-demoarea" data-src="message_queue/add.html" data-content-height="100"></div>
   <p>可以随时通过调用 addMessages 方法来向信息队列中添加更多的信息。</p>
   <p>
     当信息队列的长度超过 data-cache-size 的值时，已展示过的信息将被从队列中删除，不会被再次播放。<br>
@@ -36,7 +36,7 @@
     本例新建了一个自动提词机，并将 data-cache-size 指定为 3。<br>
     页面中添加了一个“再添加两条信息”按钮，每次点击此按钮，都会顺次添加两个数字到信息队列中：
   </p>
-  <div class="widget-demoarea small-size" data-src="message_queue/add_more.html"></div>
+  <div class="widget-demoarea" data-src="message_queue/add_more.html" data-content-height="100"></div>
 
   <h2>更新展示的信息</h2>
   <p>每隔一定的时间，自动提词机都会以纵向（可以指定滚动的方向）滚动的形式更新当前展示的信息。<p>
@@ -46,20 +46,20 @@
   <p>如果没有指定 data-interval，则使用 5000（毫秒）作为默认值。</p>
   <p>当鼠标指针进入自动提词机的区域后，自动滚动将停止，当鼠标指针离开自动提词机的区域后，自动滚动将继续进行。</p>
   <p>本例新建了一个自动提词机，添加了五条信息，并将 data-interval 设置为 1000：</p>
-  <div class="widget-demoarea small-size" data-src="scrolling/up.html"></div>
+  <div class="widget-demoarea" data-src="scrolling/up.html" data-content-height="100"></div>
 
   <h3>滚动方向</h3>
   <p>可以通过配置 data-direction 来指定滚动方向，有效值为 'up' 和 'down'。</p>
   <p>如果没有指定 data-direction，则使用 'up' 作为默认值。</p>
   <p>本例在上例的基础上，将 data-direction 设置为 'down'：</p>
-  <div class="widget-demoarea small-size" data-src="scrolling/down.html"></div>
+  <div class="widget-demoarea" data-src="scrolling/down.html" data-content-height="100"></div>
 
   <h2>同时展示多条信息</h2>
   <p>自动提词机还可以同时展示多条信息。</p>
   <p>可以通过配置 data-visible-items 来指定同时展示的信息条目数。</p>
   <p>在指定 data-visible-items 的数目时，应注意为自动提词机添加足够多的信息（不少于指定的同时展示条目数），以免有相同的信息条目被重复展示。</p>
   <p>本例新建了一个自动提词机，可以同时展示最多五条信息（实际可见的少于五条是因为自动提词机的高度被固定了）：</p>
-  <div class="widget-demoarea big-size" data-src="multiple_messages/"></div>
+  <div class="widget-demoarea" data-src="multiple_messages/" data-content-height="500"></div>
 
 </div>
 </body>

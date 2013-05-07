@@ -11,11 +11,13 @@
    * 日志记录器。
    * @name Logger
    * @constructor
-   * @attribute data-clearable
-   *   是否启用清除记录内容的按钮。
-   * @description
-   *   为元素添加 'widget-logger' 类，即可使该元素成为“日志记录器”。
+   * @description 启用方式
+   *   为一个 DIV 元素添加 'widget-logger' 类，即可使该元素成为“日志记录器”。
+   * @description 结构约定
    *   如果该元素是右浮动的，则其高度将被自动设置为其下一个相邻元素的高度。
+   * @description 可配置项
+   *   data-clearable
+   *     是否启用清除记录内容的按钮。
    */
 
   /**
@@ -55,24 +57,25 @@
 
   Widget.register({
     type: 'logger',
-    css: [
-      '.widget-logger { position: relative; border: 1px solid #252525; background: #252525; }',
-      '.widget-logger div.output { height: 100%; overflow-x: hidden; overflow-y: auto; color: #8CC; font: 12px/12px Consolas, "Lucida Console", Courier, SimSun, monospace; white-space: pre-wrap; word-wrap: break-word; }',
-      '.widget-logger a:link, .widget-logger a:visited { display: none; position: absolute; left: 5px; bottom: 5px; width: 16px; height: 16px; color: silver; font: 15px/16px Webdings, Verdana, serif; text-decoration: none; text-align: center; }',
-      '.widget-logger a:hover { color: white; text-decoration: none; }',
-      '.widget-logger table { border-collapse: sperate; border-spacing: 2px; margin: 2px; }',
-      '.widget-logger td { padding: 2px; border: none; font-size: 12px; }',
-      '.widget-logger p { margin: 2px; padding: 2px; word-wrap: break-word; word-break: break-all; }',
-      '.widget-logger strong, .widget-logger em { display: inline-block; margin-right: 2px; padding: 0 3px; border-radius: 8px; color: black; font-weight: bold; }',
-      '.widget-logger strong { background: gold; }',
-      '.widget-logger em { background: dodgerblue; }',
-      '.widget-logger var, .widget-logger dfn { font-style: normal; }',
-      '.widget-logger var { color: white; }',
-      '.widget-logger dfn { display: inline-block; padding: 0 1px; font-style: italic; font-weight: bold; text-decoration: underline; }',
-      '.widget-logger .true { color: yellowgreen; }',
-      '.widget-logger .false { color: tomato; }',
-      '.widget-logger .true em { background: #A5C261; }',
-      '.widget-logger .false em { background: orangered; }'
+    selector: 'div.widget-logger',
+    styleRules: [
+      'div.widget-logger { position: relative; border: 1px solid #252525; background-color: #252525; }',
+      'div.widget-logger div.output { height: 100%; overflow-x: hidden; overflow-y: auto; color: #8CC; font: 12px/12px Consolas, "Lucida Console", Courier, SimSun, monospace; white-space: pre-wrap; word-wrap: break-word; }',
+      'div.widget-logger a:link, div.widget-logger a:visited { display: none; position: absolute; left: 5px; bottom: 5px; width: 16px; height: 16px; color: silver; font: 15px/16px Webdings, Verdana, serif; text-decoration: none; text-align: center; }',
+      'div.widget-logger a:hover { color: white; text-decoration: none; }',
+      'div.widget-logger table { border-collapse: sperate; border-spacing: 2px; margin: 2px; }',
+      'div.widget-logger td { padding: 2px; border: none; font-size: 12px; }',
+      'div.widget-logger p { margin: 2px; padding: 2px; word-wrap: break-word; word-break: break-all; }',
+      'div.widget-logger strong, div.widget-logger em { display: inline-block; margin-right: 2px; padding: 0 3px; border-radius: 8px; color: black; font-weight: bold; }',
+      'div.widget-logger strong { background: gold; }',
+      'div.widget-logger em { background: dodgerblue; }',
+      'div.widget-logger var, div.widget-logger dfn { font-style: normal; }',
+      'div.widget-logger var { color: white; }',
+      'div.widget-logger dfn { display: inline-block; padding: 0 1px; font-style: italic; font-weight: bold; text-decoration: underline; }',
+      'div.widget-logger .true { color: yellowgreen; }',
+      'div.widget-logger .false { color: tomato; }',
+      'div.widget-logger .true em { background: #A5C261; }',
+      'div.widget-logger .false em { background: orangered; }'
     ],
     config: {
       clearable: false

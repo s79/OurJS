@@ -118,7 +118,8 @@
    *       <td><dfn>[<var>masterType</var>&gt;<var>slaveType</var>]</dfn></td>
    *       <td>组合监听器必选</td>
    *       <td>
-   *         要监听的事件类型的组合。<br>仅在 masterType 和 slaveType 两种类型的事件均被触发后，监听器才会被调用。
+   *         要监听的事件类型的组合。
+   *         仅在 masterType 和 slaveType 两种类型的事件均被触发后，监听器才会被调用。
    *         应用场景：slaveType 事件的处理必须在 masterType 事件发生后才能进行。
    *         <ul>
    *           <li>

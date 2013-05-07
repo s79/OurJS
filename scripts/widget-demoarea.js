@@ -31,31 +31,36 @@
    * 演示区。
    * @name DemoArea
    * @constructor
-   * @attribute data-src
-   *   演示文件的路径，必须指定。
-   * @description
-   *   为元素添加 'widget-demoarea' 类，即可使该元素成为“演示区”。
-   *   “演示区”的宽度是统一的，高度默认为 350px，但可以通过指定 'big-size' 或 'small-size' 类来指定高度为 200px 或 500px。
+   * @description 启用方式
+   *   为一个 DIV 元素添加 'widget-demoarea' 类，即可使该元素成为“演示区”。
+   * @description 结构约定
+   *   “演示区”的宽度是固定的，高度可以配置。
+   * @description 可配置项
+   *   data-src
+   *     演示文件的路径，必须指定。
+   *   data-content-height
+   *     “演示区”内容的高度，单位为像素。
+   *     如果不指定本属性，则使用 350 作为默认值。
    * @requires TabPanel
    */
 
   Widget.register({
     type: 'demoarea',
-    css: [
-      '.widget-demoarea { display: block; }',
-      '.widget-demoarea .panels { border: 2px solid gainsboro; }',
-      '.widget-demoarea iframe { display: none; width: 956px; height: 350px;}',
-      '.widget-demoarea iframe.active { display: block; }',
-      '.widget-demoarea .tabs { height: 33px; }',
-      '.widget-demoarea span { position: relative; z-index: 100; float: right; height: 20px; padding: 5px 10px; border: 2px solid white; border-top: none; line-height: 20px; }',
-      '.widget-demoarea .tab { cursor: default; color: #333; }',
-      '.widget-demoarea .tab:hover { border-color: whitesmoke; background: whitesmoke; color: #396686; }',
-      '.widget-demoarea span.active, .widget-demoarea span.active:hover { margin-top: -2px; padding-top: 8px; border-color: gainsboro; background: white; color: #333; }',
-      '.big-size iframe { height: 500px;}',
-      '.small-size iframe { height: 200px;}'
+    selector: 'div.widget-demoarea',
+    styleRules: [
+      'div.widget-demoarea { display: block; }',
+      'div.widget-demoarea .panels { border: 2px solid gainsboro; }',
+      'div.widget-demoarea iframe { display: none; width: 956px; height: 350px;}',
+      'div.widget-demoarea iframe.active { display: block; }',
+      'div.widget-demoarea .tabs { height: 33px; }',
+      'div.widget-demoarea span { position: relative; z-index: 100; float: right; height: 20px; padding: 5px 10px; border: 2px solid white; border-top: none; line-height: 20px; }',
+      'div.widget-demoarea .tab { cursor: default; color: #333; }',
+      'div.widget-demoarea .tab:hover { border-color: whitesmoke; background: whitesmoke; color: #396686; }',
+      'div.widget-demoarea span.active, div.widget-demoarea span.active:hover { margin-top: -2px; padding-top: 8px; border-color: gainsboro; background: white; color: #333; }'
     ],
     config: {
-      src: ''
+      src: '',
+      contentHeight: 350
     },
     initialize: function() {
       var $demoarea = this;
@@ -63,8 +68,10 @@
       var src = $demoarea.src;
 
       // 创建内部结构。
-      $demoarea.insertAdjacentHTML('beforeEnd', '<div class="panels"><iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe><iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe></div><div class="tabs"><span class="tab">效果预览</span><span class="tab">查看源码</span><span><a href="' + src + '" target="_blank" class="link">在新页面打开</a></span></div>');
-      $demoarea.getFirstChild().getFirstChild().src = src;
+      $demoarea.insertAdjacentHTML('beforeEnd', '<div class="panels"><iframe src="' + src + '" frameborder="no" allowtransparency="true" class="panel"></iframe><iframe src="" frameborder="no" allowtransparency="true" class="panel"></iframe></div><div class="tabs"><span class="tab">效果预览</span><span class="tab">查看源码</span><span><a href="' + src + '" target="_blank" class="link">在新页面打开</a></span></div>');
+      $demoarea.findAll('iframe').forEach(function($iframe) {
+        $iframe.setStyle('height', $demoarea.contentHeight);
+      });
 
       // 使用 TabPanel 实现切换功能。
       Widget.parsers.tabpanel.parse($demoarea);

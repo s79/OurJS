@@ -13,7 +13,7 @@
    * @constructor
    * @private
    * @description
-   *   为元素添加 'widget-overlay' 类，即可使该元素成为“遮盖层”。
+   *   为一个 DIV 元素添加 'widget-overlay' 类，即可使该元素成为“遮盖层”。
    *   当其父元素为 BODY 时，将遮盖整个视口。
    *   “遮盖层”在显示/隐藏时是否使用动画取决于调用它的“模态对话框”是否启用了动画。
    *   需要定义其他的样式时，可以通过 CSS 进行修改，或者直接修改“遮盖层”元素的 style 属性。
@@ -43,8 +43,9 @@
 
   Widget.register({
     type: 'overlay',
-    css: [
-      '.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
+    selector: 'div.widget-overlay',
+    styleRules: [
+      'div.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }'
     ],
     methods: {
       reposition: function() {
@@ -146,26 +147,6 @@
    * “模态对话框”（以下简称为“对话框”）可以突出显示一部分内容并遮盖其余内容，以强制用户对突出显示的部分进行操作。
    * @name Dialog
    * @constructor
-   * @attribute data-pinned-target
-   *   “对话框”的“定位参考元素”的 id。
-   *   如果不指定本属性，则以父元素作为“定位参考元素”。
-   *   “定位参考元素”只能是“对话框”的父元素或其父元素的后代元素，且不能是“对话框”自身。
-   * @attribute data-left
-   *   “对话框”的左边与其“定位参考元素”的左边的横向差值，单位为像素。
-   * @attribute data-right
-   *   “对话框”的右边与其“定位参考元素”的右边的横向差值，单位为像素。
-   *   如果已指定 data-left， 本属性将被忽略。
-   *   如果 data-left 和本属性均未指定，“对话框”的中心点在横向将与其“定位参考元素”的中心点对齐。
-   * @attribute data-top
-   *   “对话框”的顶边与其“定位参考元素”的顶边的纵向差值，单位为像素。
-   * @attribute data-bottom
-   *   “对话框”的底边与其“定位参考元素”的底边的纵向差值，单位为像素。
-   *   如果已指定 data-top， 本属性将被忽略。
-   *   如果 data-top 和本属性均未指定，“对话框”的中心点在纵向将与其“定位参考元素”的中心点对齐。
-   * @attribute data-animation
-   *   打开和关闭“对话框”时使用的动画效果，可选项有 'none'，'fade' 和 'slide'。
-   *   如果不指定本属性或指定为 'none'，则关闭动画效果。
-   *   在 IE6 下本属性无效（不能启用动画效果）。
    * @fires open
    *   成功调用 open 方法后触发。
    * @fires close
@@ -174,23 +155,46 @@
    *   成功调用 reposition 方法后触发。
    * @description
    *   <strong>启用方式：</strong>
-   *   为一个元素添加 'widget-dialog' 类，即可使该元素成为“对话框”。
+   *   为一个 DIV 元素添加 'widget-dialog' 类，即可使该元素成为“对话框”。
    *   <strong>结构约定：</strong>
-   *   “对话框”的一些数据保存在其父元素中，因此不要修改“对话框”在文档树中的位置。<br>“对话框”的父元素一定要创建 stacking context，必要时会自动将其父元素的 position 设置为 'relative'。<br>如果“对话框”的父元素不是 BODY，应避免其父元素出现滚动条，以免“对话框”和“遮盖层”随其父元素的内容一起滚动。
-   *   “对话框”的 position 在其“定位参考元素”为 BODY 时将被设置为 'fixed'，其余情况均会被设置为 'absolute'。<br>“对话框”的 z-index 值会被自动指定。
-   *   “对话框”的后代元素中，类名包含 'close' 的为“关闭按钮”。<br>“关闭按钮”是可选的。
+   *   <ul>
+   *     <li>“对话框”的一些数据保存在其父元素中，因此不要修改“对话框”在文档树中的位置。<br>“对话框”的父元素一定要创建 stacking context，必要时会自动将其父元素的 position 设置为 'relative'。<br>如果“对话框”的父元素不是 BODY，应避免其父元素出现滚动条，以免“对话框”和“遮盖层”随其父元素的内容一起滚动。</li>
+   *     <li>“对话框”的 position 在其“定位参考元素”为 BODY 时将被设置为 'fixed'，其余情况均会被设置为 'absolute'。<br>“对话框”的 z-index 值会被自动指定。</li>
+   *     <li>“对话框”的后代元素中，类名包含 'close' 的为“关闭按钮”。<br>“关闭按钮”是可选的。</li>
+   *   </ul>
    *   <strong>新增行为：</strong>
-   *   “对话框”的默认状态为关闭。
-   *   当“对话框”打开时，会根据其“定位参考元素”及定位偏移量的设置来确定其显示的位置。同时，还将自动生成一个“遮盖层”，“遮盖层”遮盖的范围为“对话框”的父元素的渲染范围，当前打开的“对话框”会在“遮盖层”上方显示，被遮盖的部分将无法使用键盘或鼠标进行操作。
-   *   当多个“对话框”有相同的父元素时，则视这些“对话框”为一组，一组“对话框”可以重叠显示。<br>当一组“对话框”重叠显示时，“遮盖层”只有一个，只有最后打开的“对话框”才不会被遮盖。
-   *   通过点击“关闭按钮”（如果有）即可关闭“对话框”。在“关闭按钮”上发生的 click 事件的默认行为将被阻止。
+   *   <ul>
+   *     <li>“对话框”的默认状态为关闭。</li>
+   *     <li>当“对话框”打开时，会根据其“定位参考元素”及定位偏移量的设置来确定其显示的位置。同时，还将自动生成一个“遮盖层”，“遮盖层”遮盖的范围为“对话框”的父元素的渲染范围，当前打开的“对话框”会在“遮盖层”上方显示，被遮盖的部分将无法使用键盘或鼠标进行操作。</li>
+   *     <li>当多个“对话框”有相同的父元素时，则视这些“对话框”为一组，一组“对话框”可以重叠显示。<br>当一组“对话框”重叠显示时，“遮盖层”只有一个，只有最后打开的“对话框”才不会被遮盖。</li>
+   *     <li>通过点击“关闭按钮”（如果有）即可关闭“对话框”。在“关闭按钮”上发生的 click 事件的默认行为将被阻止。</li>
+   *   </ul>
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
-   *   .widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }
-   *   .widget-dialog { display: none; outline: none; }
+   *   div.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }
+   *   div.widget-dialog { display: none; outline: none; }
    *   </pre>
-   * @example
-   *   &lt;div id="notice" class="widget-dialog" data-top="100" onopen="alert('open');"&gt;...&lt;/div&gt;
+   * @description 可配置项
+   *   data-pinned-target
+   *     “对话框”的“定位参考元素”的 id。
+   *     如果不指定本属性，则以父元素作为“定位参考元素”。
+   *     “定位参考元素”只能是“对话框”的父元素或其父元素的后代元素，且不能是“对话框”自身。
+   *   data-left
+   *     “对话框”的左边与其“定位参考元素”的左边的横向差值，单位为像素。
+   *   data-right
+   *     “对话框”的右边与其“定位参考元素”的右边的横向差值，单位为像素。
+   *     如果已指定 data-left， 本属性将被忽略。
+   *     如果 data-left 和本属性均未指定，“对话框”的中心点在横向将与其“定位参考元素”的中心点对齐。
+   *   data-top
+   *     “对话框”的顶边与其“定位参考元素”的顶边的纵向差值，单位为像素。
+   *   data-bottom
+   *     “对话框”的底边与其“定位参考元素”的底边的纵向差值，单位为像素。
+   *     如果已指定 data-top， 本属性将被忽略。
+   *     如果 data-top 和本属性均未指定，“对话框”的中心点在纵向将与其“定位参考元素”的中心点对齐。
+   *   data-animation
+   *     打开和关闭“对话框”时使用的动画效果，可选项有 'none'，'fade' 和 'slide'。
+   *     如果不指定本属性或指定为 'none'，则关闭动画效果。
+   *     在 IE6 下本属性无效（不能启用动画效果）。
    */
 
   /**
@@ -228,8 +232,9 @@
 
   Widget.register({
     type: 'dialog',
-    css: [
-      '.widget-dialog { display: none; outline: none; }'
+    selector: 'div.widget-dialog',
+    styleRules: [
+      'div.widget-dialog { display: none; outline: none; }'
     ],
     config: {
       pinnedTarget: '',

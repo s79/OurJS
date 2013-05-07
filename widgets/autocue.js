@@ -51,33 +51,33 @@
    * “自动提词机”会以滚动字幕的形式展示“信息队列”中的信息。
    * @name Autocue
    * @constructor
-   * @attribute data-cache-size
-   *   缓存信息的总条目数。
-   *   如果不指定本属性，则使用 10 作为默认值。
-   * @attribute data-interval
-   *   以毫秒为单位的信息自动滚动间隔时间。
-   *   如果不指定本属性，则使用 5000 作为默认值。
-   * @attribute data-direction
-   *   滚动方向，有效值为 'up' 和 'down'。
-   *   如果不指定本属性，则使用 'up' 作为默认值。
-   * @attribute data-visible-items
-   *   同时展示的信息条目数。
-   *   如果不指定本属性，则使用 1 作为默认值。
    * @fires addmessages
    *   调用 addMessages 方法后触发。
-   * @description
-   *   <strong>启用方式：</strong>
-   *   为一个元素添加 'widget-autocue' 类，即可使该元素成为“自动提词机”。
-   *   <strong>结构约定：</strong>
+   * @description 启用方式
+   *   为一个 DIV 元素添加 'widget-autocue' 类，即可使该元素成为“自动提词机”。
+   * @description 结构约定
    *   当“自动提词机”初始化时，会自动在其内部创建一个 UL 和多个 LI 元素（数量取决于 data-visible-items 的设置），其中每一个 LI 元素都会用来容纳一条信息。
-   *   <strong>新增行为：</strong>
-   *   可以随时通过调用 addMessages 方法来添加要展示的信息，信息会保存在“信息队列”中。<br>当“信息队列”的长度超过 data-cache-size 的值时，已展示过的信息将被从队列中删除（尚未展示过的信息不会被删除）。
-   *   每隔一定的时间（取决于 data-interval 的设定值），“自动提词机”都会纵向滚动其信息内容，以展示“信息队列”中的下一条信息。<br>当鼠标移入本元素时，会暂时停止信息的滚动；当鼠标移出本元素时，会重新开始信息的滚动。
-   *   <strong>默认样式：</strong>
-   *   <pre class="lang-css">
-   *   .widget-autocue { position: relative; overflow: hidden; }
-   *   .widget-autocue ul { position: absolute; left: 0; top: 0; list-style: none; margin: 0; padding: 0; }
-   *   </pre>
+   * @description 新增行为
+   * * 可以随时通过调用 addMessages 方法来添加要展示的信息，信息会保存在“信息队列”中。
+   *   当“信息队列”的长度超过 data-cache-size 的值时，已展示过的信息将被从队列中删除（尚未展示过的信息不会被删除）。
+   * * 每隔一定的时间（取决于 data-interval 的设定值），“自动提词机”都会纵向滚动其信息内容，以展示“信息队列”中的下一条信息。
+   *   当鼠标移入本元素时，会暂时停止信息的滚动；当鼠标移出本元素时，会重新开始信息的滚动。
+   * @description 默认样式
+   *   div.widget-autocue { position: relative; overflow: hidden; }
+   *   div.widget-autocue ul { position: absolute; left: 0; top: 0; list-style: none; margin: 0; padding: 0; }
+   * @description 可配置项
+   *   data-cache-size
+   *     缓存信息的总条目数。
+   *     如果不指定本属性，则使用 10 作为默认值。
+   *   data-interval
+   *     以毫秒为单位的信息自动滚动间隔时间。
+   *     如果不指定本属性，则使用 5000 作为默认值。
+   *   data-direction
+   *     滚动方向，有效值为 'up' 和 'down'。
+   *     如果不指定本属性，则使用 'up' 作为默认值。
+   *   data-visible-items
+   *     同时展示的信息条目数。
+   *     如果不指定本属性，则使用 1 作为默认值。
    */
 
   /**
@@ -92,9 +92,10 @@
 
   Widget.register({
     type: 'autocue',
-    css: [
-      '.widget-autocue { position: relative; overflow: hidden; }',
-      '.widget-autocue ul { position: absolute; left: 0; top: 0; list-style: none; margin: 0; padding: 0; }'
+    selector: 'div.widget-autocue',
+    styleRules: [
+      'div.widget-autocue { position: relative; overflow: hidden; }',
+      'div.widget-autocue ul { position: absolute; left: 0; top: 0; list-style: none; margin: 0; padding: 0; }'
     ],
     config: {
       cacheSize: 10,

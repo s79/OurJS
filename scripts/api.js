@@ -42,7 +42,7 @@ document.on('domready', function() {
         syntax += '<dfn>' + symbolName + '</dfn>';
         // 生成函数对象的参数部分。
         if (symbol.isFunction) {
-          var parameters = symbol.parameters;
+          var parameters = symbol.parameters || [];
           var optionalCount = 0;
           syntax += '(' + parameters.filter(
               function(parameter) {
@@ -88,7 +88,7 @@ document.on('domready', function() {
 
     // 获取参数。
     function getParameters(symbol) {
-      return symbol && symbol.parameters.length ?
+      return symbol && symbol.parameters && symbol.parameters.length ?
           '<dl><dt>参数：</dt><dd><table>' + symbol.parameters.map(
               function(parameter) {
                 return '<tr><td><kbd>&lt;' + parameter.type + '&gt;</kbd></td><td><var>' + parameter.name.replace(/\.(\w+)/, '.<dfn>$1</dfn>') + (parameter.isOptional ? '<em>Optional</em>' : '') + '</var></td><td>' + parameter.description + '</td></tr>';
@@ -99,7 +99,7 @@ document.on('domready', function() {
 
     // 获取返回值。
     function getReturns(symbol) {
-      return symbol && symbol.returns.length ?
+      return symbol && symbol.returns && symbol.returns.length ?
           '<dl><dt>返回值：</dt><dd><table>' + symbol.returns.map(
               function(returnValue) {
                 return '<tr><td><kbd>&lt;' + returnValue.type + '&gt;</kbd></td><td>' + returnValue.description + '</td></tr>';
@@ -110,18 +110,19 @@ document.on('domready', function() {
 
     // 获取属性（仅 Widget 可配置属性）。
     function getAttributes(symbol) {
-      return symbol && symbol.attributes.length ?
-          '<dl class="event"><dt>可配置项：</dt><dd><table>' + symbol.attributes.map(
-              function(e) {
-                return '<tr><td><dfn>' + e.name + '</dfn></td><td>' + e.description + '</td></tr>';
-              }
-          ).join('') + '</table></dd></dl>' :
-          '';
+      return '';
+//      return symbol && symbol.attributes && symbol.attributes.length ?
+//          '<dl class="event"><dt>可配置项：</dt><dd><table>' + symbol.attributes.map(
+//              function(e) {
+//                return '<tr><td><dfn>' + e.name + '</dfn></td><td>' + e.description + '</td></tr>';
+//              }
+//          ).join('') + '</table></dd></dl>' :
+//          '';
     }
 
     // 获取可能触发的事件。
     function getFires(symbol) {
-      return symbol && symbol.fires.length ?
+      return symbol && symbol.fires && symbol.fires.length ?
           '<dl class="event"><dt>触发事件：</dt><dd><table>' + symbol.fires.map(
               function(e) {
                 return '<tr><td><dfn>' + e.name + '</dfn></td><td>' + e.description + '</td></tr>';
@@ -132,7 +133,7 @@ document.on('domready', function() {
 
     // 获取代码举例。
     function getExample(symbol) {
-      return symbol && symbol.examples.length ?
+      return symbol && symbol.examples && symbol.examples.length ?
           '<dl><dt>示例：</dt><dd>' + symbol.examples.map(
               function(example) {
                 return '<pre>' + example + '</pre>';
@@ -143,7 +144,7 @@ document.on('domready', function() {
 
     // 获取需求内容。
     function getRequires(symbol) {
-      return symbol && symbol.requires.length ?
+      return symbol && symbol.requires && symbol.requires.length ?
           '<dl><dt>要求：</dt>' + symbol.requires.map(
               function(require) {
                 return '<dd>' + require + '</dd>';
@@ -164,7 +165,7 @@ document.on('domready', function() {
 
     // 获取参考信息。
     function getSee(symbol) {
-      return symbol && symbol.see.length ?
+      return symbol && symbol.see && symbol.see.length ?
           '<dl><dt>请参阅：</dt>' + symbol.see.map(
               function(see) {
                 return '<dd>' + see + '</dd>';
@@ -309,7 +310,7 @@ document.on('domready', function() {
 
     // 降低遮盖层透明度。
     document.addStyleRules([
-      '.widget-overlay { opacity: 0.05; filter: alpha(opacity=5); }'
+      'div.widget-overlay { opacity: 0.05; filter: alpha(opacity=5); }'
     ]);
 
     // 使用对话框实现，扩展对话框的方法。

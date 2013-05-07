@@ -2,12 +2,13 @@
 //==================================================[Widget - 定制对话框（封装模态对话框）]
   Widget.register({
     type: 'dialog-x',
-    css: [
-      '.widget-dialog-x { display: none; width: 500px; height: 300px; padding: 0; border: 1px solid #202020; outline: none; background: #424242; font: 14px/30px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }',
-      '.widget-dialog-x .title { height: 31px; padding: 0 10px; background: url(title.png) repeat-x; color: whitesmoke; font-weight: bold; line-height: 31px; text-align: left; }',
-      '.widget-dialog-x .close { position: absolute; right: 3px; top: 3px; width: 24px; height: 24px; outline: none; background: url(close.png) no-repeat center top; }',
-      '.widget-dialog-x .close:hover { background-position: center bottom; }',
-      '.widget-dialog-x iframe { display: block; width: 490px; height: 259px; margin: 5px; border: none; }'
+    selector: 'div.widget-dialog-x',
+    styleRules: [
+      'div.widget-dialog-x { display: none; width: 500px; height: 300px; padding: 0; border: 1px solid #202020; outline: none; background: #424242; font: 14px/30px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }',
+      'div.widget-dialog-x .title { height: 31px; padding: 0 10px; background: url(title.png) repeat-x; color: whitesmoke; font-weight: bold; line-height: 31px; text-align: left; }',
+      'div.widget-dialog-x .close { position: absolute; right: 3px; top: 3px; width: 24px; height: 24px; outline: none; background: url(close.png) no-repeat center top; }',
+      'div.widget-dialog-x .close:hover { background-position: center bottom; }',
+      'div.widget-dialog-x iframe { display: block; width: 490px; height: 259px; margin: 5px; border: none; }'
     ],
     config: {
       titleText: '',

@@ -24,18 +24,18 @@
   <p>可以通过配置 data-month 来显示指定月份的日期。</p>
   <p>如果没有指定 data-month，则显示当前月份的日期。</p>
   <p>本例新建了一个月历，并将 data-month 设置为 '1900-01'：</p>
-  <div class="widget-demoarea small-size" data-src="month/"></div>
+  <div class="widget-demoarea" data-src="month/" data-content-height="200"></div>
 
   <h2>日期的排列顺序</h2>
   <p>可以通过配置 data-first-day 来指定每周的第一天是星期几。</p>
   <p>如果没有指定 data-first-day，则使用 0 作为默认值，即每周的第一天为星期日。</p>
   <p>本例新建了一个月历，并将 data-first-day 设置为 1。另外，本例还通过监听 update 事件，在指定的位置显示当前月份，并通过监听 cellupdate 事件，为每个单元格添加短日期的弹出提示：</p>
-  <div class="widget-demoarea small-size" data-src="first_day/"></div>
+  <div class="widget-demoarea" data-src="first_day/" data-content-height="200"></div>
 
   <h2>定义日期单元格的样式</h2>
   <p>月历为各日期单元格都添加了表示该日期状态的类，并且在各单元格的日期被显示时提供了 cellupdate 事件，因此可以很灵活的定义各日期单元格的样式。</p>
   <p>本例新建了一个使用自定义样式的月历，并为每月的 10 - 15 号都添加了不同的颜色：</p>
-  <div class="widget-demoarea small-size" data-src="custom_styles/"></div>
+  <div class="widget-demoarea" data-src="custom_styles/" data-content-height="200"></div>
 
 </div>
 </body>

@@ -30,34 +30,39 @@
    * “滚动框”可以为其“内容区域”添加可自定义样式的“轨道”及“滚动条”（仅支持纵向滚动）。
    * @name ScrollBox
    * @constructor
-   * @attribute data-content-shrink
-   *   “内容区域”右侧与“滚动框”右侧的间距，单位为像素。
-   *   如果不指定本属性，则使用“轨道”的宽度作为默认值。
-   * @attribute data-scrollbar-min-height
-   *   “滚动条”的最小高度，单位为像素。
-   *   如果不指定本属性，则使用 20 作为默认值。
    * @fires update
    *   调用 update 方法后触发。
    * @description
    *   <strong>启用方式：</strong>
-   *   为一个元素添加 'widget-scrollbox' 类，即可使该元素成为“滚动框”。
+   *   为一个 DIV 元素添加 'widget-scrollbox' 类，即可使该元素成为“滚动框”。
    *   <strong>结构约定：</strong>
-   *   “滚动框”必须包含一个子元素作为“内容区域”。该元素必须是块级元素，其 width、height、margin、padding、border-width、overflow 的设置都将被忽略并重置为特定的值。
-   *   当“滚动框”初始化时，会在其内部自动创建“轨道” 'div.track'，并在“轨道”内创建“滚动条” 'div.scrollbar'。<br>为便于定制“滚动条”的样式，在“滚动条”内还创建了三个元素 'div.top'，'div.middle' 和 'div.bottom'。
+   *   <ul>
+   *     <li>“滚动框”必须包含一个子元素作为“内容区域”。该元素必须是块级元素，其 width、height、margin、padding、border-width、overflow 的设置都将被忽略并重置为特定的值。</li>
+   *     <li>当“滚动框”初始化时，会在其内部自动创建“轨道” 'div.track'，并在“轨道”内创建“滚动条” 'div.scrollbar'。<br>为便于定制“滚动条”的样式，在“滚动条”内还创建了三个元素 'div.top'，'div.middle' 和 'div.bottom'。</li>
+   *   </ul>
    *   <strong>新增行为：</strong>
-   *   点击“轨道”或拖动“滚动条”时，“内容区域”将滚动到相应位置。<br>通过按下导航键或调用脚本等方式使“内容区域”滚动时，“滚动条”的位置也将随之改变。
-   *   如果“滚动框”在文档可用后即被解析完毕，并且“滚动框”是可见的，则“滚动条”的位置及高度会被自动更新。
-   *   如果“内容区域”不需要滚动即可完全显示，则“滚动条”将被隐藏。
-   *   当鼠标移入“滚动条”时，“滚动条”将被添加类名 'hover'，该类名将在鼠标移出时被移除。<br>当开始拖动“滚动条”时，“滚动条”将被添加类名 'active'，该类名将在拖动结束时被移除。
+   *   <ul>
+   *     <li>点击“轨道”或拖动“滚动条”时，“内容区域”将滚动到相应位置。<br>通过按下导航键或调用脚本等方式使“内容区域”滚动时，“滚动条”的位置也将随之改变。</li>
+   *     <li>如果“滚动框”在文档可用后即被解析完毕，并且“滚动框”是可见的，则“滚动条”的位置及高度会被自动更新。</li>
+   *     <li>如果“内容区域”不需要滚动即可完全显示，则“滚动条”将被隐藏。</li>
+   *     <li>当鼠标移入“滚动条”时，“滚动条”将被添加类名 'hover'，该类名将在鼠标移出时被移除。<br>当开始拖动“滚动条”时，“滚动条”将被添加类名 'active'，该类名将在拖动结束时被移除。</li>
+   *   </ul>
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
-   *   .widget-scrollbox { visibility: hidden; position: relative; overflow: hidden; }
-   *   .widget-scrollbox .track { position: absolute; right: 0; top: 0; z-index: 100000; width: 10px; background: whitesmoke; cursor: default; }
-   *   .widget-scrollbox .track div { overflow: hidden; }
-   *   .widget-scrollbox .track .scrollbar { position: absolute; left: 0; top: 0; width: 10px; background: silver; }
-   *   .widget-scrollbox .track .hover { background: darkgray; }
-   *   .widget-scrollbox .track .active { background: gray; }
+   *   div.widget-scrollbox { visibility: hidden; position: relative; overflow: hidden; }
+   *   div.widget-scrollbox .track { position: absolute; right: 0; top: 0; z-index: 100000; width: 10px; background: whitesmoke; cursor: default; }
+   *   div.widget-scrollbox .track div { overflow: hidden; }
+   *   div.widget-scrollbox .track .scrollbar { position: absolute; left: 0; top: 0; width: 10px; background: silver; }
+   *   div.widget-scrollbox .track .hover { background: darkgray; }
+   *   div.widget-scrollbox .track .active { background: gray; }
    *   </pre>
+   * @description 可配置项
+   *   data-content-shrink
+   *     “内容区域”右侧与“滚动框”右侧的间距，单位为像素。
+   *     如果不指定本属性，则使用“轨道”的宽度作为默认值。
+   *   data-scrollbar-min-height
+   *     “滚动条”的最小高度，单位为像素。
+   *     如果不指定本属性，则使用 20 作为默认值。
    */
 
   /**
@@ -71,13 +76,14 @@
 
   Widget.register({
     type: 'scrollbox',
-    css: [
-      '.widget-scrollbox { visibility: hidden; position: relative; overflow: hidden; }',
-      '.widget-scrollbox .track { position: absolute; right: 0; top: 0; z-index: 100000; width: 10px; background: whitesmoke; cursor: default; }',
-      '.widget-scrollbox .track div { overflow: hidden; }',
-      '.widget-scrollbox .track .scrollbar { position: absolute; left: 0; top: 0; width: 10px; background: silver; }',
-      '.widget-scrollbox .track .hover { background: darkgray; }',
-      '.widget-scrollbox .track .active { background: gray; }'
+    selector: 'div.widget-scrollbox',
+    styleRules: [
+      'div.widget-scrollbox { visibility: hidden; position: relative; overflow: hidden; }',
+      'div.widget-scrollbox .track { position: absolute; right: 0; top: 0; z-index: 100000; width: 10px; background: whitesmoke; cursor: default; }',
+      'div.widget-scrollbox .track div { overflow: hidden; }',
+      'div.widget-scrollbox .track .scrollbar { position: absolute; left: 0; top: 0; width: 10px; background: silver; }',
+      'div.widget-scrollbox .track .hover { background: darkgray; }',
+      'div.widget-scrollbox .track .active { background: gray; }'
     ],
     config: {
       contentShrink: NaN,
