@@ -117,7 +117,7 @@
           if (!el.eventHandlers) {
             el.eventHandlers = {};
           }
-          EventTarget.prototype.on.call(el, type + label, fn);
+          JSEventTarget.prototype.on.call(el, type + label, fn);
         }
       }
     },
@@ -141,7 +141,7 @@
           el.eventHandlers = {};
         }
         if (type) {
-          EventTarget.prototype.off.call(el, type + label);
+          JSEventTarget.prototype.off.call(el, type + label);
         } else {
           el.eventHandlers = {};
         }
@@ -167,7 +167,7 @@
         if (!el.eventHandlers) {
           el.eventHandlers = {};
         }
-        EventTarget.prototype.fire.call(el, type, eventArguments);
+        JSEventTarget.prototype.fire.call(el, type, eventArguments);
       }
       if (defaultFunction) {
         defaultFunction(eventArguments);

@@ -69,11 +69,7 @@
   Object.mixin($panel, {
     show: function() {
       $panel.setStyle('display', 'block');
-      window.on('scroll.datepicker, resize.datepicker', navigator.isIE6 ? function() {
-        setTimeout(function() {
-          $panel.reposition();
-        }, 0);
-      } : function() {
+      window.on('scroll:idle(200).datepicker, resize:idle(200).datepicker', function() {
         $panel.reposition();
       });
       document.on('mousedown.datepicker', function(e) {
@@ -87,7 +83,7 @@
     },
     hide: function() {
       $panel.setStyle('display', 'none');
-      window.off('scroll.datepicker, resize.datepicker');
+      window.off('scroll:idle(200).datepicker, resize:idle(200).datepicker');
       document.off('mousedown.datepicker');
       return $panel;
     },

@@ -1,7 +1,7 @@
 /*!
  * OurJS
  *  Released under the MIT License.
- *  Version: 20130507
+ *  Version: 20130510
  */
 /**
  * @fileOverview JavaScript 原生对象补缺及扩展
@@ -1955,7 +1955,7 @@
 /**
  * @fileOverview DOM 对象补缺及扩展
  * @author sundongguo@gmail.com
- * @version 20111115
+ * @version 20130508
  */
 
 (function() {
@@ -1967,11 +1967,12 @@
   // 参数分隔符。
   var separator = /\s*,\s*/;
 
-//==================================================[DOM 对象补缺及扩展 - 为 IE6 IE7 提供的解决方案]
+//==================================================[DOM 对象补缺及扩展]
   /*
-   * 仅为元素扩展新特性，而不是所有的节点类型。
+   * 仅针对窗口、文档和元素三种类型的对象进行补缺和扩展（不包括文本节点等其他类型）。
    *
-   * 提供屏蔽浏览器差异的，针对元素操作的方法有以下三种方案：
+   * 其中窗口和文档对象在页面中只有唯一的实例，可以直接进行补缺和扩展。
+   * 而对元素进行补缺和扩展，有以下三种方案：
    * 一、静态方法
    *   方式：
    *     提供一组静态方法，将元素以参数（一般是第一个参数）的形式传入并进行处理。
@@ -1994,12 +1995,12 @@
    *     必须以约定的方式获取元素以便对其包装。
    * 三、原型扩展
    *   方式：
-   *     直接在 Element.prototype 上添加方法。对于不支持 Element 构造函数的浏览器（IE6 IE7），将对应特性直接附加在元素上。
+   *     直接在 Element.prototype 上添加方法。对于没有 Element 构造器的浏览器（IE6 IE7），将对应特性直接附加在元素的实例上。
    *   优点：
    *     不引入新的对象类型或命名空间，只在已有的对象类型上添加方法，一致性最好。
    *     方法调用时操作主体就是目标元素本身，可以链式调用，语法自然。
    *   缺点：
-   *     为方法命名时，不能使用 DOM 元素已有的和将来可能会有的特性名。
+   *     为方法命名时，不能使用当前已有的特性名，并应尽量避免使用将来可能会有的特性名。
    *     修改了原生对象，跨 frame 操作前需要预先修改目标 frame 中的原生对象，不能与其他基于原型扩展的脚本库共存。
    *     必须以约定的方式获取元素以便兼容 IE6 IE7 的扩展方式，另外对 IE6 IE7 的修补方案有性能损耗。
    *
@@ -2008,9 +2009,10 @@
    * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 getNextSibling、find 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
    */
 
+//==================================================[Element 补缺 - 解决 IE6 IE7 没有元素构造器的问题]
 //--------------------------------------------------[Element]
   /**
-   * 为无 Element 构造函数的浏览器创建 Element 对象，以确保在各浏览器中都可以通过 Element.prototype 为元素扩展新特性。
+   * 确保 Element.prototype 可访问。
    * @name Element
    * @namespace
    */
@@ -2018,7 +2020,7 @@
 
 //--------------------------------------------------[HTMLFormElement]
   /**
-   * 为无 HTMLFormElement 构造函数的浏览器创建 HTMLFormElement 对象，以确保在各浏览器中都可以通过 HTMLFormElement.prototype 为表单元素扩展新特性。
+   * 确保 HTMLFormElement.prototype 可访问。
    * @name HTMLFormElement
    * @namespace
    */
@@ -2026,14 +2028,13 @@
 
 //--------------------------------------------------[$ <内部方法>]
   /**
-   * 为一个元素扩展新特性，对于无 Element 构造函数的浏览器 (IE6 IE7) 将在该元素上直接附加这些新特性。
+   * 为一个元素扩展新特性，对于没有 Element 构造器的浏览器（IE6 IE7），将对应特性直接附加在该元素的实例上。
    * @name $
    * @function
    * @private
-   * @param {Element} element 要扩展的元素，只能传入 Element、document（事件对象的 target 属性）或 null。
+   * @param {Element} element 要扩展的元素。
+   *   内部调用时，只可能传入 Element、document（事件对象的 target 属性）或 null。
    * @returns {Element} 扩展后的元素。
-   * @description
-   *   注意：不能获取并扩展其他页面的 DOM 元素！
    */
   // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值将作为该元素的 key 使用。
   var uid = 0;
@@ -2064,7 +2065,7 @@
     return element;
   };
 
-//==================================================[DOM 补缺]
+//==================================================[Element 补缺 - 常用属性和方法]
   /*
    * 为不支持某些特性的浏览器添加这些特性。
    *
@@ -2311,7 +2312,7 @@
 //    };
 //  }
 
-//==================================================[DOM 扩展 - 处理类]
+//==================================================[Element 扩展 - 处理类]
   /*
    * 针对元素的类的操作。
    *
@@ -2389,7 +2390,7 @@
     return $element;
   };
 
-//==================================================[DOM 扩展 - 处理样式]
+//==================================================[Element 扩展 - 处理样式]
   /*
    * 获取/修改元素的样式。
    *
@@ -2518,7 +2519,7 @@
     return this;
   };
 
-//==================================================[DOM 扩展 - 处理自定义数据]
+//==================================================[Element 扩展 - 处理自定义数据]
   /*
    * 获取/添加/删除元素的自定义数据。
    *
@@ -2586,7 +2587,7 @@
     return this;
   };
 
-//==================================================[DOM 扩展 - 获取坐标信息]
+//==================================================[Element 扩展 - 获取坐标信息]
   /*
    * 获取元素在视口中的坐标信息。
    *
@@ -2650,7 +2651,7 @@
     }
   };
 
-//==================================================[DOM 扩展 - 遍历文档树]
+//==================================================[Element 扩展 - 遍历文档树]
   /*
    * 获取文档树中的元素或一个元素与文档树相关的信息。
    *
@@ -2840,7 +2841,7 @@
     return Sizzle.matchesSelector(this, selector);
   };
 
-//==================================================[DOM 扩展 - 修改文档树]
+//==================================================[Element 扩展 - 修改文档树]
   /*
    * 修改文档树的结构。
    *
@@ -3027,83 +3028,87 @@
     return this;
   };
 
-//==================================================[DOM 扩展 - 处理事件]
+//==================================================[DOM 事件模型]
   /*
-   * 事件的兼容性处理。
+   * 为 DOM 对象提供的事件模型，这套事件模型是基于原生 DOM 事件模型的，解决了常见的兼容性问题，并增加了新的特性。
    *
-   * 这里提供了一套完整的事件模型，其中相关名词的简称与解释如下：
+   * 相关名词的解释如下：
    *   原生事件对象 (e)：
    *     原生的 DOM 事件对象。
    *   事件对象 (event)：
-   *     本事件模型提供的对象，包含与此事件有关的信息，是 Event 的实例。
+   *     本事件模型提供的事件对象，包含与此事件有关的信息，是 DOMEvent 的实例。
    *     大多数内置事件的 event 都是对 e 的封装（不直接扩展 e 是因为 e 的一些属性是只读的），可以通过访问 event.originalEvent 得到 e。
    *     自定义事件和少数内置事件产生的 event 不是对 e 的封装，也有一些特殊类型的事件并不产生 event。
-   *   派发 (dispatch)：
-   *     使用指定的类型和参数创建事件对象，并使其在 DOM 树中传播。
+   *   默认行为：
+   *     对于某种 e，在使用原生 DOM 事件模型的传播途径传播到顶端时，浏览器会根据情况执行的某种行为。
+   *     只有 e 才可能有默认行为，event 目前都未加入任何默认行为。
+   *   传播：
+   *     使可以冒泡的 event 可以在文档树中逐级向上传递到每个可以到达的节点，和原生 DOM 事件模型的冒泡部分一样。
+   *   分发：
+   *     在一个指定的节点上，将 event 作为参数逐个传入该节点相应的监听器。
    *   触发器 (trigger)：
-   *     作为原生事件的监听器存在的一个或多个函数，在确定一个事件发生时，触发器会调用 fire 方法派发并在相应的节点上分发 event。
+   *     通过一个或多个原生监听器实现，当确定一个内置事件发生时，触发器会自动创建、传播和分发 event。
    *   分发器 (distributor)：
-   *     作为原生事件的监听器存在的一个函数，在确定一个事件发生时，分发器会在其所属的节点上创建并分发 event。
+   *     通过一个原生监听器实现，当确定一个内置事件发生时，分发器会自动创建并分发 event（不会传播）。
    *   监听器 (listener)：
-   *     监听事件的函数，有普通和代理两种类型，在对应的 event 分发到 listener 时被调用，并传入这个 event 作为其唯一的参数。
-   *     在 listener 中可以调用 event 的方法来阻止其继续传播，或取消其默认行为。
-   *     如果一个 listener 返回了 false，则该 event 将停止传播并取消默认行为。
-   *   事件名称 (name)：
-   *     由 type、可选的 selector 和 label 组成的、描述特定的事件的字符串。
+   *     添加到一个节点的、监听某种类型的事件的函数，有普通和代理两种类型。
+   *     当对应类型的 event 传播到本节点时，对应的监听器会被调用，并传入 event 作为其唯一的参数。
+   *     可以通过调用 event 的相应方法来阻止其继续传播，或取消其默认行为。
+   *     如果一个监听器返回了 false，则该 event 将自动停止传播并取消默认行为。
+   *   监听器名称 (name)：
+   *     由要监听的 type、可选的 qualifiers 和 label 组成，其中只有 type 是必选的。
    *   事件类型 (type)：
-   *     事件的类型，分为“内置”和“自定义”两种。
-   *   事件标签 (labal)：
-   *     用于标记事件的不同应用场景。
-   *     当使用 on 方法为同一个类型的事件添加多个 listener 时，可以通过指定不同的 label 来将标记这类事件各自的应用场景，以便使用 off 方法时能够明确的删除该场景下的 listener 而不会误删其它的 listener。
-   *   代理元素选择符 (selector)：
-   *     在 type 之后加上 :relay(selector) 可以让本元素为符合 selector 限定的后代元素代理事件监听。
-   *     指定了代理元素选择符的 listener 即代理 listener。
+   *     事件的类型，分为内置和自定义两种。
+   *   限定符 (qualifiers)：
+   *     用于限定监听器的行为。其中 relay 表示是否为代理监听，once 用于限定监听器是否仅能被调用一次，idle 用于指定监听器的延迟调用时间，throttle 用于指定监听器可被连续调用的最短时间间隔。
+   *   标签 (label)：
+   *     在 name 的末尾添加 label 可以使相同节点上添加的相同类型、相同行为的监听器具备不同的名称。不同的名称可以确保调用 off 方法时能够精确匹配要删除的监听器。
    *
-   * 本事件模型提供了两种模式来派发与分发事件对象：
-   *   “独立”模式
-   *     将 trigger 作为原生事件的监听器添加到某个节点，当确定事件发生时，trigger 会调用 fire 方法派发并在相应的节点上分发 event。
-   *     这种情况下，event 将使用本模型提供的传播机制在 DOM 树中传播（不依赖任何 e），并且 event 会自动分发给相应的 listener。
-   *     在本次事件的生命周期内，只会有一个 event 被创建。
-   *     不使用原生事件模型是因为 IE6 IE7 IE8 通过 document.createEventObject 方法创建的 e 无法执行默认行为，也不能通过 e 来传递自定义参数属性。另外 window 对象也没有提供 fireEvent 方法。
-   *     要避免以上问题，现阶段较好的方式是不使用原生事件模型。
-   *   “协同”模式
-   *     将 distributor 作为原生事件的监听器添加到某个节点，当确定事件发生时，distributor 会自动在其所属的节点上根据 e 来创建并分发 event。
-   *     这种 event 不会在 DOM 树中传播，真正传播的是 e，但 event 的一些方法中有对 e 的相应方法的引用，因此调用这些方法时也会影响 e 的行为。
-   *     在本次事件的生命周期内，可能会有多个 event 被创建，每个 event 只在创建它的节点上被重用。
-   *     这样处理是因为 IE6 IE7 IE8 中，原生事件模型分发给每个监听器的 e 都是不同的，因此无法实现封装一次多处调用。
-   *     其他浏览器虽然没有上述问题，但为了保持一致并简化代码逻辑，也不做处理。事实上同一事件被不同节点监听的情况相对来说并不常见。
-   *   两种模式的流程：
-   *     “独立”模式 = trigger 调用 fire 方法派发 event -> event 传播到相应的节点后自动调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
-   *     “协同”模式 = 浏览器派发 e -> e 传播到相应的节点 -> 分发器 distributor 根据 e 创建 event 后调用 distributeEvent 分发事件 -> 根据情况调用相应的 listener
-   *   两种模式的应用场景：
-   *     1. 自定义事件使用“独立”模式来处理。
-   *     2. 对于没有明显兼容性问题（只考虑 e 的冒泡阶段）的内置事件，使用“协同”模式来处理。
-   *     3. 对于有兼容性问题的事件，根据解决方案的不同，有以下两种情况：
-   *        3.1 能够以一个其他原生事件来模拟，并且可以依赖 e 的传播机制的，使用“独立”模式来处理。
-   *            如 mousewheel/mouseenter/mouseleave 事件的解决方案。
-   *        3.2 以一个或多个原生事件来模拟，但是不能依赖 e 的传播机制的（在确认事件发生时 e 可能已经传播到文档树的顶层了），则使用“协同”模式来处理。
-   *            如 mousedragstart/mousedrag/mousedragend/focusin/focusout/change 等事件的处理方式。
-   *            在一些特殊的情况下，如果 e 被意外的阻止传播，可能会导致结果与预期的不符。
-   *
-   * 添加或删除 listener：
-   *   通过调用 on 或 off 方法来添加或删除指定的 listener。
+   * 添加或删除监听器：
+   *   通过调用 on 或 off 方法来添加或删除指定的监听器。
    *
    * 触发事件：
-   *   有两种方式触发一个事件：
-   *   1. 使用 fire 方法来触发一个事件。
-   *      通过这种方式触发的事件，将使用“独立”模式来处理。
-   *      这种方式不会触发任何原生事件，也不会执行此类事件的默认行为。
-   *   2. 对于一些内置事件，可以在相应的元素上调用与要触发的 type 同名的方法（如果有）来触发。
-   *      通过这种方式触发的事件，将使用“协同”模式来处理。
-   *      这种方式会同时触发原生事件，并且会执行其默认行为。
-   *   两种方式的应用场景：
-   *     当只希望调用某类事件的监听器时，应使用方式 1。
-   *     除了调用某类事件的监听器，还希望该事件的默认行为生效时，应使用方式 2。
+   *   内置类型 - 自动触发
+   *     * “独立”模式
+   *       将触发器作为原生监听器添加到某个节点，当确定事件发生时，触发器会自动在其所属的节点上调用 fire 方法来创建、传播和分发 event。
+   *       这种情况下，event 将使用本模型提供的传播机制在文档树中传播（不依赖任何 e），并且 event 会自动分发给相应的监听器。
+   *       在本次事件的生命周期内，只会有一个 event 被创建。
+   *       不使用原生事件模型是因为 IE6 IE7 IE8 通过 document.createEventObject 方法创建的 e 无法执行默认行为，也不能通过 e 来传递自定义参数属性。另外 window 对象也没有提供 fireEvent 方法。
+   *       要避免以上问题，现阶段较好的方式是不使用原生事件模型。
+   *     * “协同”模式
+   *       将分发器作为原生监听器添加到某个节点，当确定事件发生时，分发器会自动在其所属的节点上根据 e 来创建并分发 event。
+   *       这种 event 不会在文档树中传播，真正传播的是 e，但 event 的一些方法中有对 e 的相应方法的引用，因此调用这些方法时也会影响 e 的行为。
+   *       在本次事件的生命周期内，可能会有多个 event 被创建，每个 event 只在创建它的节点上被重用。
+   *       这样处理是因为 IE6 IE7 IE8 中，原生事件模型分发给每个监听器的 e 都是不同的，因此无法实现一次封装多处调用。
+   *       其他浏览器虽然没有上述问题，但为了保持一致并简化代码逻辑，也不做处理。事实上同一事件被不同节点监听的情况相对来说并不常见。
+   *     两种模式的应用场景：
+   *       对于没有明显兼容性问题（只考虑 e 的冒泡阶段）的内置事件，使用“协同”模式来处理。
+   *       对于有兼容性问题的事件，根据解决方案的不同，有以下两种情况：
+   *         1. 能够以一个其他原生事件来模拟，并且可以依赖 e 的传播机制的，使用“独立”模式来处理。
+   *            如 mousewheel/mouseenter/mouseleave 事件的解决方案。
+   *         2. 以一个或多个原生事件来模拟，但是不能依赖 e 的传播机制的（在确认事件发生时 e 可能已经传播到文档树的顶层了），则使用“协同”模式来处理。
+   *            如 mousedragstart/mousedrag/mousedragend/focusin/focusout/change 等事件的处理方式。
+   *            在一些特殊的情况下，如果 e 被意外的阻止传播，可能会导致结果与预期的不符。
+   *   内置类型 - 手动触发
+   *     * 通过调用 fire 方法来触发。
+   *       这相当于使用了自动触发的“独立”模式，来主动触发一个事件。
+   *       此时不会触发任何原生事件，也不会执行此类事件的默认行为。
+   *       当只希望调用某类事件的监听器时，应使用这种方式。
+   *     * 对于一些内置事件（如 click 和 reset），可以在相应的元素上调用与要触发的事件类型同名的方法（如果有）来触发。
+   *       此时同名的原生事件将被触发（产生的 e 可能具备默认行为）并依赖自动触发的“协同”模式来进行后续处理。
+   *       当除了要调用某类事件的监听器，还希望该事件的默认行为生效时，应使用这种方式。
+   *   自定义类型
+   *     * 自定义类型的事件只能通过调用 fire 方法来触发。
+   *       fire 方法会自动创建、传播和分发 event。
    *
-   * 扩展方法：
-   *   Element.prototype.on
-   *   Element.prototype.off
-   *   Element.prototype.fire
+   * 提供对象：
+   *   DOMEvent
+   *   DOMEventTarget
+   *
+   * 提供实例方法：
+   *   DOMEventTarget.on
+   *   DOMEventTarget.off
+   *   DOMEventTarget.fire
    *
    * 参考：
    *   http://jquery.com/
@@ -3147,15 +3152,17 @@
   };
 
   /**
-   * 事件包装对象。
-   * @name Event
+   * 事件对象。
+   * @name DOMEvent
    * @constructor
    * @param {string} type 事件类型。
    * @param {Object} e 原生事件对象。
+   * @param {Object} [data] 附加数据。
    * @description
    *   如果事件对象是通过调用 Element/document/window 的 fire 方法产生的，其除了 originalEvent、type 和 target 之外的其他属性值均可能会被重写。
    */
-  function Event(type, e) {
+  function DOMEvent(type, e, data) {
+    // 取得原生事件对象。
     if (!e) {
       e = window.event;
     }
@@ -3165,8 +3172,6 @@
     this.originalEvent = e;
     // 事件类型，这时候的 type 就是调用 on 时使用的事件类型。
     this.type = type;
-    // 是否可冒泡。
-    this.bubbles = !!(code & 4);
     // 目标元素。
     var target = 'target' in e ? e.target : e.srcElement || document;
     if (target.nodeType === 3) {
@@ -3175,6 +3180,8 @@
     this.target = $(target);
     // 发生时间。
     this.timeStamp = e.timeStamp || Date.now();
+    // 是否可冒泡。
+    this.bubbles = !!(code & 4);
     // 鼠标和键盘事件，由 fire 方法产生的事件对象可能没有以下信息。
     if (code & 3) {
       this.ctrlKey = e.ctrlKey;
@@ -3215,11 +3222,15 @@
         this.which = e.which || e.charCode || e.keyCode || 0;
       }
     }
+    // 加入附加数据。
+    if (data) {
+      Object.mixin(this, data, {blackList: ['originalEvent', 'type', 'target']})
+    }
   }
 
   /**
    * 原生事件对象。
-   * @name Event#originalEvent
+   * @name DOMEvent#originalEvent
    * @type Object
    * @description
    *   使用 fire 方法创建的事件对象的 originalEvent.type 为空字符串。
@@ -3227,146 +3238,146 @@
 
   /**
    * 事件类型。
-   * @name Event#type
+   * @name DOMEvent#type
    * @type string
    */
 
   /**
-   * 是否可以冒泡，不冒泡的事件不能使用代理事件监听。
-   * @name Event#bubbles
-   * @type boolean
-   */
-
-  /**
    * 触发事件的对象。
-   * @name Event#target
+   * @name DOMEvent#target
    * @type Element
    */
 
   /**
    * 事件发生的时间。
-   * @name Event#timeStamp
+   * @name DOMEvent#timeStamp
    * @type number
    */
 
   /**
+   * 是否可以冒泡，不冒泡的事件不能使用代理事件监听。
+   * @name DOMEvent#bubbles
+   * @type boolean
+   */
+
+  /**
    * 事件发生时，ctrl 键是否被按下。
-   * @name Event#ctrlKey
+   * @name DOMEvent#ctrlKey
    * @type boolean
    */
 
   /**
    * 事件发生时，alt 键是否被按下。
-   * @name Event#altKey
+   * @name DOMEvent#altKey
    * @type boolean
    */
 
   /**
    * 事件发生时，shift 键是否被按下。
-   * @name Event#shiftKey
+   * @name DOMEvent#shiftKey
    * @type boolean
    */
 
   /**
    * 事件发生时，meta 键是否被按下。
-   * @name Event#metaKey
+   * @name DOMEvent#metaKey
    * @type boolean
    */
 
   /**
    * 事件发生时鼠标在视口中的 X 坐标，仅在鼠标事件对象上有效。
-   * @name Event#clientX
+   * @name DOMEvent#clientX
    * @type number
    */
 
   /**
    * 事件发生时鼠标在视口中的 Y 坐标，仅在鼠标事件对象上有效。
-   * @name Event#clientY
+   * @name DOMEvent#clientY
    * @type number
    */
 
   /**
    * 事件发生时鼠标在屏幕上的 X 坐标，仅在鼠标事件对象上有效。
-   * @name Event#screenX
+   * @name DOMEvent#screenX
    * @type number
    */
 
   /**
    * 事件发生时鼠标在屏幕上的 Y 坐标，仅在鼠标事件对象上有效。
-   * @name Event#screenY
+   * @name DOMEvent#screenY
    * @type number
    */
 
   /**
    * 事件发生时鼠标在页面中的 X 坐标，仅在鼠标事件对象上有效。
-   * @name Event#pageX
+   * @name DOMEvent#pageX
    * @type number
    */
 
   /**
    * 事件发生时鼠标在页面中的 Y 坐标，仅在鼠标事件对象上有效。
-   * @name Event#pageY
+   * @name DOMEvent#pageY
    * @type number
    */
 
   /**
    * 事件发生时鼠标在横向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
-   * @name Event#offsetX
+   * @name DOMEvent#offsetX
    * @type number
    */
 
   /**
    * 事件发生时鼠标在纵向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
-   * @name Event#offsetY
+   * @name DOMEvent#offsetY
    * @type number
    */
 
   /**
    * 事件发生时，鼠标左键是否被按下，仅在鼠标事件对象上有效。
-   * @name Event#leftButton
+   * @name DOMEvent#leftButton
    * @type boolean
    */
 
   /**
    * 事件发生时，鼠标中键是否被按下，仅在鼠标事件对象上有效。
-   * @name Event#middleButton
+   * @name DOMEvent#middleButton
    * @type boolean
    */
 
   /**
    * 事件发生时，鼠标右键是否被按下，仅在鼠标事件对象上有效。
-   * @name Event#rightButton
+   * @name DOMEvent#rightButton
    * @type boolean
    */
 
   /**
    * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
-   * @name Event#relatedTarget
+   * @name DOMEvent#relatedTarget
    * @type Element
    */
 
   /**
    * 事件发生时鼠标滚轮是否正在向上滚动，仅在 mousewheel 类型的事件对象上有效。
-   * @name Event#wheelUp
+   * @name DOMEvent#wheelUp
    * @type boolean
    */
 
   /**
    * 事件发生时鼠标滚轮是否正在向下滚动，仅在 mousewheel 类型的事件对象上有效。
-   * @name Event#wheelDown
+   * @name DOMEvent#wheelDown
    * @type boolean
    */
 
   /**
    * 当一个设备触发事件时的相关代码。在键盘事件中为按下的键的代码。
-   * @name Event#which
+   * @name DOMEvent#which
    * @type number
    */
 
-  Object.mixin(Event.prototype, {
+  Object.mixin(DOMEvent.prototype, {
     /**
      * 阻止事件的传播，被阻止传播的事件将不会向其他元素传播。
-     * @name Event.prototype.stopPropagation
+     * @name DOMEvent.prototype.stopPropagation
      * @function
      */
     stopPropagation: function() {
@@ -3379,7 +3390,7 @@
 
     /**
      * 查询事件的传播是否已被阻止。
-     * @name Event.prototype.isPropagationStopped
+     * @name DOMEvent.prototype.isPropagationStopped
      * @function
      * @returns {boolean} 查询结果。
      */
@@ -3387,7 +3398,7 @@
 
     /**
      * 阻止事件的默认行为。
-     * @name Event.prototype.preventDefault
+     * @name DOMEvent.prototype.preventDefault
      * @function
      */
     preventDefault: function() {
@@ -3400,7 +3411,7 @@
 
     /**
      * 查询事件的默认行为是否已被阻止。
-     * @name Event.prototype.isDefaultPrevented
+     * @name DOMEvent.prototype.isDefaultPrevented
      * @function
      * @returns {boolean} 查询结果。
      */
@@ -3408,7 +3419,7 @@
 
     /**
      * 立即阻止事件的传播，被立即阻止传播的事件不仅不会向其他元素传播，也不会在当前元素上被分发到其他的监听器。
-     * @name Event.prototype.stopImmediatePropagation
+     * @name DOMEvent.prototype.stopImmediatePropagation
      * @function
      */
     stopImmediatePropagation: function() {
@@ -3418,7 +3429,7 @@
 
     /**
      * 查询事件的传播是否已被立即阻止。
-     * @name Event.prototype.isImmediatePropagationStopped
+     * @name DOMEvent.prototype.isImmediatePropagationStopped
      * @function
      * @returns {boolean} 查询结果。
      */
@@ -3426,14 +3437,14 @@
 
   });
 
-  // 解析事件名称，取出相关的属性。
-  var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?:\.\w+)?$/;
+  // 解析监听器名称，取出相关的属性。
+  var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
   var getEventAttributes = function(name) {
     var match = name.match(eventNamePattern);
     if (match === null) {
       throw new SyntaxError('Invalid event name "' + name + '"');
     }
-    return {type: match[1], selector: match[2] || '' };
+    return {type: match[1], selector: match[2] || '', once: !!match[3], idle: parseInt(match[4], 10), throttle: parseInt(match[5], 10)};
   };
 
   // 添加和删除原生事件监听器。
@@ -3448,7 +3459,7 @@
     $element.detachEvent('on' + eventType, eventListener);
   };
 
-  // 将事件对象分发给目标元素上添加的此类型事件的监听器（仅分发给使用 on 方法添加的监听器）。
+  // 将事件对象分发给目标元素上添加的此类型事件的监听器。
   var distributeEvent = function($element, handlers, event, isTriggered) {
     // 分发时对 handlers 的副本（仅复制了 handlers 的数组部分）操作，以避免在监听器内添加或删除目标元素同类型的监听器时会影响本次分发过程。
     var handlersCopy = handlers.slice(0);
@@ -3500,7 +3511,7 @@
           }
         }
       }
-      // 如果监听到本次事件的元素不是捕获到本次事件的元素（正在调用代理监听器），且事件可以继续传播时，向上一级元素（到 document 为止）传播事件。
+      // 如果正在进行代理监听（当前元素不是监听到本次事件的元素），且事件可以继续传播时，向上一级元素传播，直到传播到监听到本次事件的元素为止。
     } while (!($current === $element || event.isPropagationStopped()) && ($current = $current.getParent() || $current === html && $element));
   };
 
@@ -3523,7 +3534,7 @@
     }
     var mouseDragStartTrigger = function(e) {
       if (!dragState) {
-        var event = new Event('mousedragstart', e);
+        var event = new DOMEvent('mousedragstart', e);
         if (event.leftButton) {
           event.offsetX = event.offsetY = 0;
           var $target = event.target;
@@ -3549,7 +3560,7 @@
       }
     };
     var mouseDragTrigger = function(e) {
-      var event = new Event('mousedrag', e);
+      var event = new DOMEvent('mousedrag', e);
       event.target = dragState.target;
       event.offsetX = event.pageX - dragState.startX;
       event.offsetY = event.pageY - dragState.startY;
@@ -3866,18 +3877,40 @@
    * 为本元素添加事件监听器。
    * @name Element.prototype.on
    * @function
-   * @param {string} name 事件名称，格式为 <dfn><var>type</var>:relay(<var>selector</var>).<var>label</var></dfn>，详细信息请参考下表：
+   * @param {string} name 监听器名称。
+   *   监听器名称由要监听的事件类型（必选）、限定符（可选）和标签（可选）组成，格式如下：
+   *   <p><dfn><var>type</var></dfn>[<dfn>:relay(<var>selector</var>)</dfn>][<dfn>:once</dfn>|<dfn>:idle(<var>n</var>)</dfn>|<dfn>:throttle(<var>n</var>)</dfn>][<dfn>.<var>label</var></dfn>]</p>
+   *   详细信息请参考下表：
    *   <table>
-   *     <tr><th>组成部分</th><th>是否必选</th><th>详细描述</th></tr>
-   *     <tr><td><dfn><var>type</var></dfn></td><td>必选</td><td>要监听的事件类型。</td></tr>
-   *     <tr><td><dfn>:relay(<var>selector</var>)</dfn></td><td>可选</td><td>指定让本元素为符合 selector 限定的后代元素代理事件监听。<br>这种情况下，在事件发生时，将认为事件是由被代理的元素监听到的，而不是本元素。</td></tr>
-   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用场景的标签，以便在调用 off 方法时能够精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
+   *     <tr><th>组成部分</th><th>详细描述</th></tr>
+   *     <tr>
+   *       <td><dfn><var>type</var></dfn></td>
+   *       <td>本监听器要监听的事件类型。<br><var>type</var> 只能使用大小写英文字母。</td>
+   *     </tr>
+   *     <tr>
+   *       <td><dfn>:relay(<var>selector</var>)</dfn></td>
+   *       <td>指定本监听器为代理事件监听器，监听的目标为本元素的后代元素中，符合 <var>selector</var> 限定的元素。<br><var>selector</var> 应为合法的 CSS 选择符。</td>
+   *     </tr>
+   *     <tr>
+   *       <td><dfn>:once</dfn></td>
+   *       <td>指定本监听器仅能被调用一次，调用后即被自动删除。<br>自动删除时，会使用添加本监听器时使用的监听器名称。</td>
+   *     </tr>
+   *     <tr>
+   *       <td><dfn>:idle(<var>n</var>)</dfn></td>
+   *       <td>指定本监听器将在该类型的事件每次被触发 <var>n</var> 毫秒后、且下一次同类型的事件被触发前才能被调用。<br><var>n</var> 应为大于 0 的数字。</td>
+   *     </tr>
+   *     <tr>
+   *       <td><dfn>:throttle(<var>n</var>)</dfn></td>
+   *       <td>指定当事件连续发生时，本监听器可被连续调用的最短时间间隔为 <var>n</var> 毫秒。<br><var>n</var> 应为大于 0 的数字。</td>
+   *     </tr>
+   *     <tr>
+   *       <td><dfn>.<var>label</var></dfn></td>
+   *       <td>在监听器名称的末尾添加标签可以可以使相同元素上添加的相同类型、相同行为的监听器具备不同的名称。不同的名称可以确保调用 off 方法时能够精确匹配要删除的监听器。<br>添加具有明确含义的标签，可以最大限度的避免监听器被误删。<br><var>label</var> 可以使用英文字母、数字和下划线。</td>
+   *     </tr>
    *   </table>
-   *   其中 <var>type</var> 只能使用英文字母，<var>selector</var> 应为合法的 CSS 选择符，<var>label</var> 可以使用英文字母、数字和下划线。
-   *   使用逗号分割多个事件名称，即可为多种类型的事件注册同一个监听器。
-   *   对于为不保证所有浏览器均可以冒泡的事件类型指定了代理监听的情况，会给出警告信息。
+   *   使用逗号分割多个监听器名称，即可以在本元素上使用多个名称将同一个监听器添加多次。
    * @param {Function} listener 监听器。
-   *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。
+   *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。如果指定了 idle 或 throttle 限定符，则该事件对象无法被阻止传播或取消默认行为。
    *   该函数被调用时 this 的值为监听到本次事件的元素，即：
    *   <ul>
    *     <li>如果是普通监听器，则 this 的值为本元素。</li>
@@ -3886,14 +3919,20 @@
    *   如果该函数返回 false，则相当于调用了传入的事件对象的 stopPropagation 和 preventDefault 方法。
    * @returns {Element} 本元素。
    * @example
-   *   $('#test').on('click', onClick);
-   *   // 为 id 为 test 的元素添加 click 事件的监听器。
+   *   $element.on('click', onClick);
+   *   // 为 $element 添加一个 click 事件的监听器。
    * @example
-   *   $('#test').on('click:relay(a)', onClick);
-   *   // 为 id 为 test 的元素添加一个代理监听器，为该元素所有的后代 A 元素代理 click 事件的监听。
+   *   $element.on('click:relay(a)', onClick);
+   *   // 为 $element 添加一个代理监听器，为该元素所有的后代 A 元素代理 click 事件的监听。
    * @example
-   *   $('#test').on('click.temp', onClick);
-   *   // 为 id 为 test 的元素添加 click 事件的监听器，并为其指定一个标签 temp。
+   *   $element.on('click.temp', onClick);
+   *   // 为 $element 添加一个 click 事件的监听器，并为其指定一个标签 temp。
+   * @example
+   *   $element.on('input:idle(200)', onInput);
+   *   // 为 $element 添加一个 input 事件的监听器，该监听器将在每次 input 事件被触发 200 毫秒后、且下一次 input 事件被触发前被调用。
+   * @example
+   *   $element.on('scroll:throttle(200)', onScroll);
+   *   // 为 $element 添加一个 scroll 事件的监听器，该监听器可被连续调用的最短时间间隔为 200 毫秒。
    * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
    */
@@ -3905,13 +3944,16 @@
     var item = eventHandlers[uid] || (eventHandlers[uid] = {});
     // 使用一个监听器监听该元素上的多个事件。
     name.split(separator).forEach(function(name) {
-      // 取出事件类型和选择符。
+      // 取出事件名中携带的各种属性。
       var attributes = getEventAttributes(name);
       var type = attributes.type;
       var selector = attributes.selector;
+      var once = attributes.once;
+      var idle = attributes.idle;
+      var throttle = attributes.throttle;
       // 获取对应的处理器组，以添加处理器。
       var handlers = item[type] || (item[type] = []);
-      // 首次注册此类型的事件。
+      // 首次监听此类型的事件。
       if (!('delegateCount' in handlers)) {
         // 为兼容事件列表中的事件类型添加触发器或分发器。
         if (EVENT_CODES.hasOwnProperty(type)) {
@@ -3925,7 +3967,7 @@
               case 'mousewheel':
                 // 鼠标滚轮事件，Firefox 的事件类型为 DOMMouseScroll。
                 distributor = function(e) {
-                  var event = new Event(type, e);
+                  var event = new DOMEvent(type, e);
                   var originalEvent = event.originalEvent;
                   var wheel = 'wheelDelta' in originalEvent ? -originalEvent.wheelDelta : originalEvent.detail || 0;
                   event.wheelUp = wheel < 0;
@@ -3938,7 +3980,7 @@
               case 'mouseleave':
                 // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
                 distributor = function(e) {
-                  distributeEvent($element, handlers, new Event(type, e), function(event) {
+                  distributeEvent($element, handlers, new DOMEvent(type, e), function(event) {
                     var $relatedTarget = event.relatedTarget;
                     // 加入 this.contains 的判断，避免 window 和一些浏览器的 document 对象调用出错。
                     return !$relatedTarget || this.contains && !this.contains($relatedTarget);
@@ -3949,7 +3991,7 @@
               default:
                 // 通用分发器。
                 distributor = function(e) {
-                  distributeEvent($element, handlers, new Event(type, e));
+                  distributeEvent($element, handlers, new DOMEvent(type, e));
                 };
                 distributor.type = type;
             }
@@ -3961,8 +4003,56 @@
         // 初始化代理计数器。
         handlers.delegateCount = 0;
       }
-      // 添加处理器（允许重复添加同一个监听器 - W3C 的事件模型不允许多次添加同一个监听器）。
-      var handler = {name: name, listener: listener};
+      // 添加处理器，允许重复添加同一个监听器（W3C 的事件模型不允许）。
+      var handler = {name: name};
+      // 处理监听器的触发限制，三者最多只可能同时出现一种。
+      if (once) {
+        // 仅能被调用一次的监听器，调用后即被自动删除（根据添加时的监听器名称）。如果有重名的监听器则这些监听器将全部被删除。
+        handler.listener = function(event) {
+          var result = listener.call(this, event);
+          $element.off(name);
+          return result;
+        };
+      } else if (idle) {
+        // 被延后调用的监听器（异步调用）。在此监听器内对事件对象的操作不会影响事件的传播及其默认行为。
+        handler.listener = function() {
+          var timer;
+          return function(event) {
+            var thisObject = this;
+            if (timer) {
+              clearTimeout(timer);
+            }
+            timer = setTimeout(function() {
+              listener.call(thisObject, event);
+              timer = undefined;
+            }, idle);
+          };
+        }();
+      } else if (throttle) {
+        // 有频率限制的监听器（除第一次外均必须为异步调用）。为保持一致，所有调用均为异步调用，在此监听器内对事件对象的操作不会影响事件的传播及其默认行为。
+        handler.listener = function() {
+          var timer;
+          var thisObject;
+          var lastEvent;
+          var lastCallTime = 0;
+          return function(event) {
+            thisObject = this;
+            lastEvent = event;
+            var now = Date.now();
+            var timeElapsed = now - lastCallTime;
+            if (!timer) {
+              timer = setTimeout(function() {
+                listener.call(thisObject, lastEvent);
+                lastCallTime = Date.now();
+                timer = undefined;
+              }, timeElapsed < throttle ? throttle - timeElapsed : 0);
+            }
+          };
+        }();
+      } else {
+        // 无触发限制的监听器。
+        handler.listener = listener;
+      }
       if (selector) {
         // 代理监听器。
         handler.selector = selector;
@@ -3993,18 +4083,13 @@
    * 删除本元素上已添加的事件监听器。
    * @name Element.prototype.off
    * @function
-   * @param {string} name 事件名称。本元素上添加的所有名称与 name 匹配的监听器都将被删除。
-   *   使用逗号分割多个事件名称，即可同时删除该元素上的多个监听器。
+   * @param {string} name 监听器名称。
+   *   本元素上添加的所有名称与 name 匹配的监听器都将被删除。
+   *   使用逗号分割多个监听器名称，即可同时删除该元素上的多个监听器。
    * @returns {Element} 本元素。
    * @example
-   *   $('#test').off('click');
-   *   // 为 id 为 test 的元素删除名为 click 的监听器。
-   * @example
-   *   $('#test').off('click:relay(a)');
-   *   // 为 id 为 test 的元素删除名为 click:relay(a) 的监听器。
-   * @example
-   *   $('#test').off('click.temp');
-   *   // 为 id 为 test 的元素删除名为 click.temp 的监听器。
+   *   $element.off('click.temp');
+   *   // 为 $element 删除名为 click.temp 的监听器。
    */
   Element.prototype.off = function(name) {
     var $element = this;
@@ -4038,7 +4123,7 @@
       }
       // 处理器组为空。
       if (handlers.length === 0) {
-        // 为兼容事件列表中的事件类型删除触发器或分发器的注册。
+        // 为兼容事件列表中的事件类型删除触发器或分发器。
         if (EVENT_CODES.hasOwnProperty(type)) {
           if (triggers[type]) {
             // 删除触发器。
@@ -4070,15 +4155,15 @@
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
-   *   data 的属性会被追加到事件对象中，但名称为 originalEvent、type、target 的属性除外。如果不希望事件在 DOM 树中传播，指定其 bubbles 属性为 false 即可。
+   *   data 的属性会被追加到事件对象中，但名称为 originalEvent、type、target 的属性除外。如果不希望事件在文档树中传播，指定其 bubbles 属性为 false 即可。
    * @returns {Object} 事件对象。
    * @description
-   *   调用本方法时，仅会调用使用 on 方法添加的监听器，并且其默认行为也将被阻止（因为这个事件并不是由用户的操作触发的）。
-   *   如果需要执行此类事件的默认行为，可以直接在目标元素上调用对应的方法（如 click、select、submit 等），这种情况下除了会调用使用 on 方法添加的监听器之外，使用其他方式添加的监听器也可能被调用。
+   *   通过调用本方法产生的事件对象不具备默认行为。
+   *   如果需要执行此类事件的默认行为，可以直接在目标元素上调用对应的方法（如 click、reset 等）。
    */
   Element.prototype.fire = function(type, data) {
-    // 仅供内部使用的另一种调用方式：data 是一个事件对象。
-    var event = type === INTERNAL_IDENTIFIER_EVENT ? data : Object.mixin(new Event(type, {type: '', target: this}), data || {}, {blackList: ['originalEvent', 'type', 'target']});
+    // 内部使用时，type 可能被传入 INTERNAL_IDENTIFIER_EVENT，此时的 data 已经是一个 DOMEvent 对象。
+    var event = type === INTERNAL_IDENTIFIER_EVENT ? data : new DOMEvent(type, {type: '', target: this}, data);
     // 传播事件并返回传播后的事件对象。
     var $element = this;
     var item;
@@ -4096,7 +4181,7 @@
     return event;
   };
 
-//==================================================[DOM 扩展 - 表单]
+//==================================================[Element 扩展 - 表单]
   /*
    * 为表单元素扩展新特性。
    *
@@ -4199,7 +4284,7 @@
     return getCurrentValue(control);
   };
 
-//==================================================[DOM 扩展 - document]
+//==================================================[document 扩展]
   /*
    * 为 document 扩展新特性，提供与 Element 类似的事件机制。
    *
@@ -4419,7 +4504,7 @@
    * 为 document 添加事件监听器。
    * @name document.on
    * @function
-   * @param {string} name 事件名称，细节请参考 Element.prototype.on 的同名参数。
+   * @param {string} name 监听器名称，细节请参考 Element.prototype.on 的同名参数。
    * @param {Function} listener 监听器，细节请参考 Element.prototype.on 的同名参数。
    * @returns {Object} document 对象。
    */
@@ -4430,7 +4515,7 @@
    * 删除 document 上已添加的事件监听器。
    * @name document.off
    * @function
-   * @param {string} name 事件名称，细节请参考 Element.prototype.off 的同名参数。
+   * @param {string} name 监听器名称，细节请参考 Element.prototype.off 的同名参数。
    * @returns {Object} document 对象。
    */
   document.off = Element.prototype.off;
@@ -4446,7 +4531,7 @@
    */
   document.fire = Element.prototype.fire;
 
-//==================================================[DOM 扩展 - window]
+//==================================================[window 扩展]
   /*
    * 为 window 扩展新特性，除与视口相关的方法外，还提供与 Element 类似的事件机制。
    * 与视口相关的方法（getXXX）在 document.body 解析后方可使用。
@@ -4539,7 +4624,7 @@
    * 为 window 添加事件监听器。
    * @name window.on
    * @function
-   * @param {string} name 事件名称，细节请参考 Element.prototype.on 的同名参数。
+   * @param {string} name 监听器名称，细节请参考 Element.prototype.on 的同名参数。
    * @param {Function} listener 监听器，细节请参考 Element.prototype.on 的同名参数。
    * @returns {Object} window 对象。
    * @description
@@ -4579,7 +4664,7 @@
    * 删除 window 上已添加的事件监听器。
    * @name window.off
    * @function
-   * @param {string} name 事件名称，细节请参考 Element.prototype.off 的同名参数。
+   * @param {string} name 监听器名称，细节请参考 Element.prototype.off 的同名参数。
    * @returns {Object} window 对象。
    */
   window.off = function(name) {
@@ -4609,7 +4694,7 @@
    */
   window.fire = Element.prototype.fire;
 
-//==================================================[DOM 扩展 - IE6 固定定位]
+//==================================================[Element 补缺 - IE6 固定定位]
   /*
    * 修复 IE6 不支持 position: fixed 的问题。
    *
@@ -4821,17 +4906,44 @@
 
 })();
 /**
- * @fileOverview EventTarget
+ * @fileOverview JSEventModule
  * @author sundongguo@gmail.com
- * @version 20120820
+ * @version 20130509
  */
 
 (function() {
-//==================================================[EventTarget]
+//==================================================[JS 事件模型]
   /*
-   * EventTarget 是为 JS 对象提供的事件模型中的一个概念。
-   * 在 DOM 范畴内，也有 EventTarget 的概念，但这是一个内部接口，并不暴露在脚本环境中。
-   * 为避免混淆，当提及 EventTarget 对象时，只应指代通过调用本对象的 create 方法而获得的对象。
+   * 为 JS 对象提供的事件模型。
+   *
+   * 相关名词的解释如下：
+   *   事件对象 (event)：
+   *     本事件模型提供的事件对象，包含与此事件有关的信息，是 JSEvent 的实例。
+   *   分发：
+   *     在一个指定的对象上，将 event 作为参数逐个传入该对象相应的监听器。
+   *   监听器 (listener)：
+   *     添加到一个对象的、监听某种类型的事件的函数。
+   *     当此对象上的某种类型的事件被触发时，对应的监听器会被调用，并传入 event 作为其唯一的参数。
+   *   监听器名称 (name)：
+   *     由要监听的 type 和 label 组成，其中 type 是必选的。
+   *   事件类型 (type)：
+   *     事件的类型。
+   *   标签 (label)：
+   *     在 name 的末尾添加 label 可以使相同对象上添加的相同类型、相同行为的监听器具备不同的名称。不同的名称可以确保调用 off 方法时能够精确匹配要删除的监听器。
+   *
+   * 添加或删除监听器：
+   *   通过调用 on 或 off 方法来添加或删除指定的监听器。
+   *
+   * 触发事件：
+   *   通过调用 fire 方法来触发一个事件。
+   *   fire 方法会自动创建、传播和分发 event。
+   *
+   * 提供对象：
+   *   JSEvent
+   *   JSEventTarget
+   *
+   * 提供静态方法：
+   *   JSEventTarget.create
    *
    * 提供实例属性：
    *   eventHandlers
@@ -4844,74 +4956,72 @@
    *     ]
    *   }
    *
-   * 提供静态方法：
-   *   create
-   *
    * 提供实例方法：
-   *   on
-   *   off
-   *   fire
+   *   JSEventTarget.on
+   *   JSEventTarget.off
+   *   JSEventTarget.fire
    */
 
   var separator = /\s*,\s*/;
 
-  var eventNamePattern = /^([a-zA-Z]+)|\[([a-zA-Z]+>[a-zA-Z]+)\](?:\.\w+)?$/;
-  var combinedSeparator = />/;
+  var eventNamePattern = /^([a-zA-Z]+)(?:\.\w+)?$/;
   var getEventType = function(name) {
     var match = name.match(eventNamePattern);
     if (match === null) {
       throw new SyntaxError('Invalid event name "' + name + '"');
     }
-    return match[1] || match[2].split(combinedSeparator);
+    return match[1];
   };
 
-  var addListener = function(target, type, name, listener) {
-    var eventHandlers = target.eventHandlers;
-    var handlers = eventHandlers[type] || (eventHandlers[type] = []);
-    handlers.push({name: name, listener: listener});
-  };
-
-  // listener 参数仅供删除组合事件生成的临时监听器使用。
-  var removeListener = function(target, type, name, listener) {
-    var eventHandlers = target.eventHandlers;
-    var handlers = eventHandlers[type];
-    if (handlers) {
-      var i = 0;
-      var handler;
-      while (i < handlers.length) {
-        handler = handlers[i];
-        if (!listener && handler.name === name || listener && listener === handler.listener) {
-          handlers.splice(i, 1);
-        } else {
-          i++;
-        }
-      }
-      if (handlers.length === 0) {
-        delete eventHandlers[type];
-      }
+//--------------------------------------------------[JSEvent]
+  /**
+   * 事件对象。
+   * @name JSEvent
+   * @constructor
+   * @param {string} type 事件类型。
+   * @param {Object} target 触发本事件的对象。
+   * @param {Object} [data] 附加数据。
+   */
+  var JSEvent = function(type, target, data) {
+    this.type = type;
+    this.target = target;
+    if (data) {
+      Object.mixin(this, data, {blackList: ['type', 'target']});
     }
   };
 
-//--------------------------------------------------[EventTarget]
   /**
-   * 通过调用 new EventTarget() 获得的新对象，或经过 EventTarget.create(object) 处理后的 object 对象，都将具备处理事件的能力，它们都可以被叫做一个 EventTarget 对象。
-   * @name EventTarget
+   * 事件类型。
+   * @name JSEvent#type
+   * @type string
+   */
+
+  /**
+   * 触发事件的对象。
+   * @name JSEvent#target
+   * @type Object
+   */
+
+//--------------------------------------------------[JSEventTarget]
+  /**
+   * 通过调用 new JSEventTarget() 获得的新对象，或经过 JSEventTarget.create(object) 处理后的 object 对象，都将具备处理事件的能力，它们都可以被叫做一个 JSEventTarget 对象。
+   * @name JSEventTarget
    * @constructor
    * @description
-   *   EventTarget 对象在处理事件时，是工作在 JS 事件模型中的。
+   *   JSEventTarget 对象在处理事件时，是工作在 JS 事件模型中的。
    *   window、document 和 Element 对象也都具备处理事件的能力，但它们是工作在 DOM 事件模型中的。
    */
-  var EventTarget = window.EventTarget = function() {
+  var JSEventTarget = window.JSEventTarget = function() {
     this.eventHandlers = {};
   };
 
-//--------------------------------------------------[EventTarget.create]
+//--------------------------------------------------[JSEventTarget.create]
   /**
-   * 让目标对象成为一个 EventTarget 对象，以具备处理事件的能力。
-   * @name EventTarget.create
+   * 让目标对象成为一个 JSEventTarget 对象，以具备处理事件的能力。
+   * @name JSEventTarget.create
    * @function
    * @param {Object} target 目标对象。
-   *   目标对象不应该是 window、document 或 Element 对象，因为这些对象已经具备处理事件的能力，并且使用的是 DOM 事件模型，而通过调用本方法得到的对象在处理事件时，将使用 JS 事件模型。
+   *   目标对象不应该是 window、document 或 Element 对象，因为这些对象已经具备处理事件的能力，并且使用的是 DOM 事件模型。
    * @returns {Object} 目标对象。
    * @description
    *   <ul>
@@ -4921,124 +5031,94 @@
    *     <li>目标对象将被添加实例方法 fire 用于触发某类事件。</li>
    *   </ul>
    */
-  EventTarget.create = function(target) {
+  JSEventTarget.create = function(target) {
     this.call(target);
     Object.mixin(target, this.prototype);
     return target;
   };
 
-//--------------------------------------------------[EventTarget.prototype.on]
+//--------------------------------------------------[JSEventTarget.prototype.on]
   /**
    * 为本对象添加事件监听器。
-   * @name EventTarget.prototype.on
+   * @name JSEventTarget.prototype.on
    * @function
-   * @param {string} name 事件名称，格式为 <dfn><var>type</var>.<var>label</var></dfn> 或 <dfn>[<var>masterType</var>&gt;<var>slaveType</var>].<var>label</var></dfn>，详细信息请参考下表：
+   * @param {string} name 监听器名称。
+   *   监听器名称由要监听的事件类型（必选）和标签（可选）组成，格式如下：
+   *   <p><dfn><var>type</var></dfn>[<dfn>.<var>label</var></dfn>]</p>
+   *   详细信息请参考下表：
    *   <table>
-   *     <tr><th></th><th>是否必选</th><th>详细描述</th></tr>
-   *     <tr><td><dfn><var>type</var></dfn></td><td>独立监听器必选</td><td>要监听的事件类型。</td></tr>
+   *     <tr><th>组成部分</th><th>详细描述</th></tr>
    *     <tr>
-   *       <td><dfn>[<var>masterType</var>&gt;<var>slaveType</var>]</dfn></td>
-   *       <td>组合监听器必选</td>
-   *       <td>
-   *         要监听的事件类型的组合。
-   *         仅在 masterType 和 slaveType 两种类型的事件均被触发后，监听器才会被调用。
-   *         应用场景：slaveType 事件的处理必须在 masterType 事件发生后才能进行。
-   *         <ul>
-   *           <li>
-   *             在一次组合事件监听中，masterType 事件对象永远是“可组合”的，只需要触发一次 masterType 事件，该事件对象即可以和任意多个 slaveType 事件对象进行组合。
-   *             如果 masterType 先被触发一次或多次，则只保留最新的 masterType 事件对象用于组合。此后每当 slaveType 被触发时，产生的 slaveType 事件对象都会立即与最新的 masterType 事件对象进行组合。
-   *           </li>
-   *           <li>
-   *             在一次组合事件监听中，slaveType 事件对象只能和 masterType 事件对象组合一次。
-   *             如果 slaveType 先被触发一次或多次，则每次触发的 slaveType 事件对象都会自动以队列的形式被保存，并将在 masterType 被触发后按照顺序逐个与最新的 masterType 事件对象进行组合。
-   *           </li>
-   *         </ul>
-   *       </td>
+   *       <td><dfn><var>type</var></dfn></td>
+   *       <td>本监听器要监听的事件类型。<br><var>type</var> 只能使用大小写英文字母。</td>
    *     </tr>
-   *     <tr><td><dfn>.<var>label</var></dfn></td><td>可选</td><td>指定事件应用场景的标签，以便在调用 off 方法时能够精确匹配要删除的监听器。<br>不打算删除的监听器没有必要指定标签。</td></tr>
+   *     <tr>
+   *       <td><dfn>.<var>label</var></dfn></td>
+   *       <td>在监听器名称的末尾添加标签可以可以使相同对象上添加的相同类型、相同行为的监听器具备不同的名称。不同的名称可以确保调用 off 方法时能够精确匹配要删除的监听器。<br>添加具有明确含义的标签，可以最大限度的避免监听器被误删。<br><var>label</var> 可以使用英文字母、数字和下划线。</td>
+   *     </tr>
    *   </table>
-   *   其中 <var>type</var>、<var>masterType</var> 和 <var>slaveType</var> 只能使用英文字母，<var>label</var> 可以使用英文字母、数字和下划线。
-   *   使用逗号分割多个事件名称，即可为多种类型的事件注册同一个监听器。
+   *   使用逗号分割多个监听器名称，即可以在本对象上使用多个名称将同一个监听器添加多次。
    * @param {Function} listener 监听器。
    *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。
-   *   <ul>
-   *     <li>如果是独立监听器，则只传入本次监听到的事件对象。</li>
-   *     <li>如果是组合监听器，则以注册时的次序，逐个传入对应事件类型发生时产生的事件对象。</li>
-   *   </ul>
-   *   该函数被调用时 this 的值为本对象。
+   *   该函数被调用时 this 的值为监听到本次事件的对象。
    * @returns {Object} 本对象。
    */
-  EventTarget.prototype.on = function(name, listener) {
-    var target = this;
+  JSEventTarget.prototype.on = function(name, listener) {
+    var eventHandlers = this.eventHandlers;
     name.split(separator).forEach(function(name) {
       var type = getEventType(name);
-      if (typeof type === 'string') {
-        // 独立监听器。
-        addListener(target, type, name, listener);
-      } else {
-        // 组合监听器。
-        var masterType = type[0];
-        var slaveType = type[1];
-        var masterEvent;
-        // 主事件监听器。
-        addListener(target, masterType, name, function(event) {
-          masterEvent = event;
-        });
-        // 从事件监听器。
-        addListener(target, slaveType, name, function(event) {
-          if (masterEvent) {
-            listener.call(target, masterEvent, event);
-          } else {
-            var temporaryListener = function() {
-              listener.call(target, masterEvent, event);
-              removeListener(target, masterType, name, temporaryListener);
-            };
-            addListener(target, masterType, name, temporaryListener);
-          }
-        });
-      }
+      var handlers = eventHandlers[type] || (eventHandlers[type] = []);
+      handlers.push({name: name, listener: listener});
     });
     return this;
   };
 
-//--------------------------------------------------[EventTarget.prototype.off]
+//--------------------------------------------------[JSEventTarget.prototype.off]
   /**
    * 删除本对象上已添加的事件监听器。
-   * @name EventTarget.prototype.off
+   * @name JSEventTarget.prototype.off
    * @function
-   * @param {string} name 事件名称。本对象上添加的所有名称与 name 匹配的监听器都将被删除。
-   *   使用逗号分割多个事件名称，即可同时删除该对象上的多个监听器。
+   * @param {string} name 监听器名称。
+   *   本对象上添加的所有名称与 name 匹配的监听器都将被删除。
+   *   使用逗号分割多个监听器名称，即可同时删除该对象上的多个监听器。
    * @returns {Object} 本对象。
    */
-  EventTarget.prototype.off = function(name) {
-    var target = this;
+  JSEventTarget.prototype.off = function(name) {
+    var eventHandlers = this.eventHandlers;
     name.split(separator).forEach(function(name) {
       var type = getEventType(name);
-      if (typeof type === 'string') {
-        // 独立监听器。
-        removeListener(target, type, name);
-      } else {
-        // 组合监听器。
-        type.forEach(function(type) {
-          removeListener(target, type, name);
-        });
+      var handlers = eventHandlers[type];
+      if (handlers) {
+        var i = 0;
+        var handler;
+        while (i < handlers.length) {
+          handler = handlers[i];
+          if (handler.name === name) {
+            handlers.splice(i, 1);
+          } else {
+            i++;
+          }
+        }
+        if (handlers.length === 0) {
+          delete eventHandlers[type];
+        }
       }
     });
     return this;
   };
 
-//--------------------------------------------------[EventTarget.prototype.fire]
+//--------------------------------------------------[JSEventTarget.prototype.fire]
   /**
    * 触发本对象的某类事件。
-   * @name EventTarget.prototype.fire
+   * @name JSEventTarget.prototype.fire
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
    * @returns {Object} 事件对象。
    */
-  EventTarget.prototype.fire = function(type, data) {
+  JSEventTarget.prototype.fire = function(type, data) {
     var target = this;
-    var event = Object.mixin({type: type, target: target}, data || {});
+    var event = new JSEvent(type, target, data);
     var handlers = target.eventHandlers[type];
     if (handlers) {
       // 分发时对 handlers 的副本操作，以避免在监听器内添加或删除监听器时会影响本次分发过程。
@@ -5320,7 +5400,7 @@
    * @fires pause
    *   成功调用 pause 方法后触发。
    * @description
-   *   所有 Animation 的实例也都是一个 EventTarget 对象。
+   *   所有 Animation 的实例也都是一个 JSEventTarget 对象。
    *   <ul>
    *     <li>向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。</li>
    *     <li>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。</li>
@@ -5337,7 +5417,7 @@
     this.timePoint = 0;
     this.status = START_POINT;
     this.duration = 0;
-    EventTarget.create(this);
+    JSEventTarget.create(this);
   };
 
 //--------------------------------------------------[Animation.fps]
@@ -6139,7 +6219,7 @@
    *   只要请求已开始，此事件就必然会被触发（跟随在 abort、timeout 或 complete 任一事件之后）。
    *   这样设计的好处是在请求结束时可以统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
    * @description
-   *   所有 Request 的实例也都是一个 EventTarget 对象。
+   *   所有 Request 的实例也都是一个 JSEventTarget 对象。
    *   每个 Request 的实例都对应一个资源，实例创建后可以重复使用。
    *   创建 Request 时，可以选择使用 XHR 模式（同域请求时）或 JSONP 模式（跨域请求时）。
    *   在 JSONP 模式下，如果服务端返回的响应体不是 JSONP 格式的数据，请求将出现错误，并且这个错误是无法被捕获的。需要注意的是 JSONP 请求会直接执行另一个域内的脚本，因此如果该域遭到攻击，本域也可能会受到影响。
@@ -6182,8 +6262,7 @@
      * @type boolean
      */
     this.ongoing = false;
-    // 使实例对象成为 EventTarget 对象。
-    EventTarget.create(this);
+    JSEventTarget.create(this);
   };
 
 //--------------------------------------------------[Request.options]

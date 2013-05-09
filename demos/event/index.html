@@ -504,7 +504,7 @@ document.on('domready', function() {
   </div>
 </fieldset>
 <script>
-var obj = new EventTarget();
+var obj = new JSEventTarget();
 obj.text = 'Hello World!';
 
 var $jsEventLogger = $('#js_event_logger');
@@ -516,37 +516,6 @@ var logEvent = function(e) {
 };
 </script>
 <!-- } on/off -->
-
-<h2>组合事件监听</h2>
-<!-- combination { -->
-<fieldset>
-  <legend>监听的组合事件类型为 <code>[test>foo]</code> 和 <code>[test>bar]</code></legend>
-  <div id="js_combination_logger" class="widget-logger" data-clearable></div>
-  <div class="demo">
-    <blockquote id="js_combination_controls">
-      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'foo'</em>, {data: 'A'});</code></button>
-      <br>
-      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'foo'</em>, {data: 'B'});</code></button>
-      <br>
-      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'bar'</em>, {data: 'A'});</code></button>
-      <br>
-      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'bar'</em>, {data: 'B'});</code></button>
-      <br>
-      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'test'</em>, {flag: true});</code></button>
-      <br>
-      <button class="widget-demobutton"><code><strong>eventTarget</strong>.fire(<em>'test'</em>, {flag: false});</code></button>
-    </blockquote>
-  </div>
-</fieldset>
-<script>
-var eventTarget = new EventTarget();
-
-var $jsCombinationLogger = $('#js_combination_logger');
-eventTarget.on('[test>foo], [test>bar]', function(e1, e2) {
-  $jsCombinationLogger.log('<strong>' + e1.flag + '</strong>&gt;<strong>' + e2.type + '</strong>-<em>' + e2.data + '</em>');
-});
-</script>
-<!-- } combination -->
 
 </div>
 </body>

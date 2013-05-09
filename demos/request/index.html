@@ -37,7 +37,7 @@ button.widget-demobutton { text-align: left; }
 
     window.txtRequest = new Request('data.txt', {useCache: false})
         .on('start', function(e) {
-          $logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
+          $logger.log('<strong>' + e.type + '</strong> (txtRequest)');
         })
         .on('abort, timeout, complete', function(e) {
           $logger.log('<em>' + e.type + '</em>');
@@ -48,7 +48,7 @@ button.widget-demobutton { text-align: left; }
 
     window.xmlRequest = new Request('data.xml', {minTime: 500})
         .on('start', function(e) {
-          $logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
+          $logger.log('<strong>' + e.type + '</strong> (xmlRequest)');
         })
         .on('abort, timeout, complete', function(e) {
           $logger.log('<em>' + e.type + '</em>');
@@ -81,7 +81,7 @@ button.widget-demobutton { text-align: left; }
       maxTime: 5000
     })
         .on('start', function(e) {
-          $logger.log('<strong>' + e.type + '</strong>data=<var>' + e.data + '</var>');
+          $logger.log('<strong>' + e.type + '</strong>');
         })
         .on('abort, timeout, complete', function(e) {
           $logger.log('<em>' + e.type + '</em>');

@@ -268,7 +268,7 @@
    * @fires pause
    *   成功调用 pause 方法后触发。
    * @description
-   *   所有 Animation 的实例也都是一个 EventTarget 对象。
+   *   所有 Animation 的实例也都是一个 JSEventTarget 对象。
    *   <ul>
    *     <li>向一个动画中添加多个剪辑，并调整每个剪辑的 delay，duration，timingFunction 参数，以实现复杂的动画。</li>
    *     <li>仅应在动画初始化时（播放之前）添加动画剪辑，不要在开始播放后添加或更改动画剪辑。</li>
@@ -285,7 +285,7 @@
     this.timePoint = 0;
     this.status = START_POINT;
     this.duration = 0;
-    EventTarget.create(this);
+    JSEventTarget.create(this);
   };
 
 //--------------------------------------------------[Animation.fps]

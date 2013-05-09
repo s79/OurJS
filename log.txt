@@ -1,6 +1,15 @@
 
 
->2013-05-05
+>2013-05-08
+* Event -> DOMEvent
+* EventTarget -> JSEventTarget
+- 移除 JSEventTarget 的组合事件监听支持
++ :once
++ :wait(n)
++ :throttle(n)
+* 文档中的“事件名称”均修改为“监听器名称”
+
+>2013-05-07
 * 限定 Widget 的启用方式
   现在每一类 Widget 都限定了标签名（如 DIV.widget-???）以提高明确性。
   大部分 Widget 的标签名都被限定为 DIV，DIV 本身无特别的语义，可以更容易的被赋予新的语义。
@@ -465,7 +474,7 @@
 * 合并动画队列中的连续 Highlight
 
 >2012-07-01
-* 修改 Request 的事件名称
+* 修改 Request 的事件类型名
 
 >2012-06-28
 + 表单增强-日期选择器

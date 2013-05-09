@@ -37,14 +37,14 @@ $('#ul').on('click:relay(li>span a), click:relay(li:even span).test', function(e
   e.preventDefault();
 });
 
-//--------------------------------------------------[parseEventName]
-var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?:\.\w+)?$/;
+//--------------------------------------------------[getEventAttributes]
+var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
 var getEventAttributes = function(name) {
   var match = name.match(eventNamePattern);
   if (match === null) {
     throw new SyntaxError('Invalid event name "' + name + '"');
   }
-  return {type: match[1], selector: match[2] || '' };
+  return {type: match[1], selector: match[2] || '', once: !!match[3], idle: parseInt(match[4], 10), throttle: parseInt(match[5], 10)};
 };
 
 //--------------------------------------------------[TEST]
@@ -56,23 +56,66 @@ var getEventAttributes = function(name) {
   'click.test:relay(li.item)',
   'click:relay().test',
   'click:once',
-  'click.test:once',
-  'click:relay(li.item):once',
-  'click:relay(li.item):once.test',
-  'click:relay(li.item:once).test',
-  'click:relay(li a span .btn).once',
-  'click:once:test',
+  'click:once.test',
+  'click:relay(li a span .btn):once',
+  'click:relay(li a span .btn):once.test',
+  'click:idle(500)',
+  'click:relay(li.item):idle(500).test',
+  'click.test:relay(li.item):idle(500)',
+  'click:relay(li.item):once:idle(500)',
+  'click:throttle(500)',
+  'click:relay(li.item):throttle(500).test',
+  'click:throttle(500):once',
+  'click:once:throttle(500)',
+  'click:throttle(500):relay(btn)',
+  'click:relay(btn):throttle(500).test',
   '~click'
 ]
     .forEach(function(item) {
       try {
-        getEventAttributes(item);
+        console.log(item);
+        console.warn(getEventAttributes(item));
         document.write('<p>' + item + '</p>');
       } catch (e) {
         document.write('<p class="error">' + item + '</p>');
-        console.log(e.message);
+        console.error(e.message);
       }
     });
+
+document.body.on('click:once', function(e) {
+  console.log(this.nodeName, e.clientX);
+  return false;
+});
+document.on('click', function(e) {
+  console.warn(this.nodeType, e.clientX);
+  return false;
+});
+
+document.body.on('test:throttle(1000)', function(e) {
+  console.log(this.nodeName, e.i);
+  return false;
+});
+
+document.on('test', function(e) {
+  console.warn(this.nodeName, e.i);
+  return false;
+});
+
+var i = 0;
+var timer;
+document.on('keydown', function(e) {
+  switch (e.which) {
+    case 37:
+      timer = setInterval(function() {
+        document.body.fire('test', {i: ++i});
+      }, 100);
+      break;
+    case 39:
+      clearInterval(timer);
+      break;
+  }
+});
+
 
 </script>
 </body>

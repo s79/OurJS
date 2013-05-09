@@ -9,7 +9,7 @@
     'src/lang.js',
     'src/browser.js',
     'src/dom.js',
-    'src/event_target.js',
+    'src/jseventmodule.js',
     'src/animation.js',
     'src/request.js',
     'src/widget.js',

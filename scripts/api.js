@@ -255,14 +255,27 @@ document.on('domready', function() {
       'window',
       'document',
       'Element',
-      'HTMLFormElement',
-      'Event'
+      'HTMLFormElement'
     ]
         .forEach(function(name) {
           buildSymbol(indexColumns.b, name, true);
         });
-    $('<h1>EventTarget</h1>').insertTo(indexColumns.c);
-    buildSymbol(indexColumns.c, 'EventTarget', true);
+    $('<h1>DOM Event Module</h1>').insertTo(indexColumns.c);
+    [
+      'DOMEventTarget',
+      'DOMEvent'
+    ]
+        .forEach(function(name) {
+          buildSymbol(indexColumns.c, name, true);
+        });
+    $('<h1>JS Event Module</h1>').insertTo(indexColumns.c);
+    [
+      'JSEventTarget',
+      'JSEvent'
+    ]
+        .forEach(function(name) {
+          buildSymbol(indexColumns.c, name, true);
+        });
     $('<h1>Animation</h1>').insertTo(indexColumns.c);
     buildSymbol(indexColumns.c, 'Animation', true);
     $('<h1>Request</h1>').insertTo(indexColumns.c);

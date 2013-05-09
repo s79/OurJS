@@ -261,7 +261,7 @@
               $context.overlay.reposition();
               // 仅父元素为 BODY 的“对话框”需要在改变窗口尺寸时重新调整位置（此处假定其他“对话框”的父元素尺寸不会变化）。
               if ($context === document.body) {
-                window.on('resize.dialog_' + $dialog.uid, navigator.isIE6 ? function() {
+                window.on('resize:throttle(100).dialog_' + $dialog.uid, navigator.isIE6 ? function() {
                   // 避免 IE6 的固定定位计算错误。
                   setTimeout(function() {
                     $dialog.reposition();
@@ -296,7 +296,7 @@
               $context.overlay.reposition();
               // 删除事件监听器。
               if ($context === document.body) {
-                window.off('resize.dialog_' + $dialog.uid);
+                window.off('resize:throttle(100).dialog_' + $dialog.uid);
               }
               // 触发事件。
               $dialog.fire('close');

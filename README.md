@@ -4,7 +4,7 @@ OurJS 是一个适用于 WEB 开发的 JavaScript 框架，它提供了覆盖面
 
 > 完全兼容 PC 端的 IE6+、Firefox、Chrome、Safari、Opera 以及其他使用 Trident 和 WebKit 内核的浏览器。
 
-*更多内容请参考 [OurJS 简介/演示/文档](http://s79.github.com/OurJS/).*
+*[更多内容请参考 OurJS 简介/演示/文档](http://s79.github.com/OurJS/)*
 
 
 ## 特点 ##
@@ -43,7 +43,7 @@ OurJS 不能和其他对原型进行了扩展的框架或类库共存。
     <td>Animation</td><td>src/animation.js</td>
   </tr>
   <tr>
-    <td>EventTarget</td><td>src/event_target.js</td>
+    <td>JS Event Module</td><td>src/jseventmodule.js</td>
   </tr>
   <tr>
     <td>DOM API Enhancements</td><td>src/dom.js</td>
