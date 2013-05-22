@@ -248,34 +248,40 @@
       open: function() {
         var $dialog = this;
         if (!$dialog.isOpen) {
-          $dialog.fade('in', {
-            duration: $dialog.animation === 'none' ? 0 : 100,
-            timingFunction: 'easeOut',
-            onStart: function() {
-              var $context = $dialog.context;
-              // 更新状态。
-              $dialog.isOpen = true;
-              // 添加到已打开的“对话框”组，并修改“对话框”的位置。
-              $dialog.setStyle('zIndex', 500000 + $context.dialogs.push($dialog)).reposition();
-              // 重新定位“遮盖层”。
-              $context.overlay.reposition();
-              // 仅父元素为 BODY 的“对话框”需要在改变窗口尺寸时重新调整位置（此处假定其他“对话框”的父元素尺寸不会变化）。
-              if ($context === document.body) {
-                window.on('resize:throttle(100).dialog_' + $dialog.uid, navigator.isIE6 ? function() {
-                  // 避免 IE6 的固定定位计算错误。
-                  setTimeout(function() {
-                    $dialog.reposition();
-                  }, 0);
-                } : function() {
+          var open = function() {
+            var $context = $dialog.context;
+            // 更新状态。
+            $dialog.isOpen = true;
+            // 添加到已打开的“对话框”组，并修改“对话框”的位置。
+            $dialog.setStyle('zIndex', 500000 + $context.dialogs.push($dialog)).reposition();
+            // 重新定位“遮盖层”。
+            $context.overlay.reposition();
+            // 仅父元素为 BODY 的“对话框”需要在改变窗口尺寸时重新调整位置（此处假定其他“对话框”的父元素尺寸不会变化）。
+            if ($context === document.body) {
+              window.on('resize:throttle(100).dialog_' + $dialog.uid, navigator.isIE6 ? function() {
+                // 避免 IE6 的固定定位计算错误。
+                setTimeout(function() {
                   $dialog.reposition();
-                });
-              }
-              // 触发事件。
-              $dialog.fire('open');
+                }, 0);
+              } : function() {
+                $dialog.reposition();
+              });
             }
-          });
-          if ($dialog.animation === 'slide') {
-            $dialog.setStyle('marginTop', -20).morph({marginTop: 0}, {duration: 100, timingFunction: 'easeOut'});
+            // 触发事件。
+            $dialog.fire('open');
+          };
+          if ($dialog.animation === 'none') {
+            $dialog.setStyle('display', 'block');
+            open();
+          } else {
+            $dialog.fade('in', {
+              duration: 100,
+              timingFunction: 'easeOut',
+              onStart: open
+            });
+            if ($dialog.animation === 'slide') {
+              $dialog.setStyle('marginTop', -20).morph({marginTop: 0}, {duration: 100, timingFunction: 'easeOut'});
+            }
           }
         }
         return $dialog;
@@ -283,33 +289,39 @@
       close: function() {
         var $dialog = this;
         if ($dialog.isOpen) {
-          $dialog.fade('out', {
-            duration: $dialog.animation === 'none' ? 0 : 100,
-            timingFunction: 'easeIn',
-            onFinish: function() {
-              var $context = $dialog.context;
-              // 更新状态。
-              $dialog.isOpen = false;
-              // 从已打开的“对话框”组中移除。
-              $context.dialogs.pop();
-              // 重新定位“遮盖层”。
-              $context.overlay.reposition();
-              // 删除事件监听器。
-              if ($context === document.body) {
-                window.off('resize:throttle(100).dialog_' + $dialog.uid);
-              }
-              // 触发事件。
-              $dialog.fire('close');
+          var close = function() {
+            var $context = $dialog.context;
+            // 更新状态。
+            $dialog.isOpen = false;
+            // 从已打开的“对话框”组中移除。
+            $context.dialogs.pop();
+            // 重新定位“遮盖层”。
+            $context.overlay.reposition();
+            // 删除事件监听器。
+            if ($context === document.body) {
+              window.off('resize:throttle(100).dialog_' + $dialog.uid);
             }
-          });
-          if ($dialog.animation === 'slide') {
-            $dialog.morph({marginTop: -20}, {
-              duration: 100,
+            // 触发事件。
+            $dialog.fire('close');
+          };
+          if ($dialog.animation === 'none') {
+            $dialog.setStyle('display', 'none');
+            close();
+          } else {
+            $dialog.fade('out', {
+              duration: $dialog.animation === 'none' ? 0 : 100,
               timingFunction: 'easeIn',
-              onFinish: function() {
-                $dialog.setStyle('marginTop', 0)
-              }
+              onFinish: close
             });
+            if ($dialog.animation === 'slide') {
+              $dialog.morph({marginTop: -20}, {
+                duration: 100,
+                timingFunction: 'easeIn',
+                onFinish: function() {
+                  $dialog.setStyle('marginTop', 0)
+                }
+              });
+            }
           }
         }
         return $dialog;
@@ -390,7 +402,7 @@
         }
         // 为 $context 添加“遮盖层”和“对话框”公用的属性。
         $context.dialogs = [];
-        Widget.parse($context.overlay = document.$('<div class="widget-overlay"></div>').insertTo($context));
+        Widget.parsers.overlay.parse($context.overlay = document.$('<div class="widget-overlay"></div>').insertTo($context));
       }
 
       // 使本元素可获得焦点。

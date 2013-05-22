@@ -83,11 +83,10 @@ var apiList = {
     'JSON.stringify'
   ],
   'navigator': [
-    '=从 UA 中得到的结果(仅供参考)=',
     'navigator.userAgentInfo.engine',
     'navigator.userAgentInfo.name',
     'navigator.userAgentInfo.version',
-    '=特性判断得到的结果(准确)=',
+    'navigator.languageCode',
     'navigator.inStandardsMode',
     'navigator.isIE10',
     'navigator.isIElt10',

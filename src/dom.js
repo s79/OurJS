@@ -135,8 +135,6 @@
    * @name head
    * @memberOf document
    * @type Element
-   * @description
-   *   与 document.documentElement 和 document.body 的作用一样，document.head 是获取文档的 HEAD 元素的快捷方式。
    * @example
    *   document.documentElement === document.getElementsByTagName('html')[0];
    *   // true
@@ -465,7 +463,7 @@
       return $element.currentStyle.styleFloat;
     },
     'opacity': function($element) {
-      return $element.filters['alpha'] ? String($element.filters['alpha'].opacity / 100) : '1';
+      return $element.filters.alpha ? String($element.filters.alpha.opacity / 100) : '1';
     }
   };
 
@@ -2240,19 +2238,19 @@
   /*
    * 获取一个或一组控件的当前值，并对下列不一致的情况（*）作统一化处理。
    * 如果为 select-one 类型：
-   *   取最后一个设置了 selected 的 option 值。
-   *   若该 option 设置了 disabled 则认为本控件无有效值（虽然此时可以取到该控件的 selectedIndex 和 value 值）。
+   *   取最后一个设置了 selected 的 OPTION 值。
+   *   若该 OPTION 设置了 disabled 则认为本控件无有效值（虽然此时可以取到该控件的 selectedIndex 和 value 值）。
    *     * IE6 IE7 不支持 OPTION 和 OPTGROUP 元素的 disabled 属性（http://w3help.org/zh-cn/causes/HF3013）。
-   *   若没有设置了 selected 的 option，则取第一个未设置 disabled 的 option 值。
-   *     * Safari 5.1.7 在上述情况发生时，其 selectedIndex 仍为 0，并且认为本控件无有效值。
-   *     ! IE6 IE7 不支持 option 的 disabled 属性，所以其 selectedIndex 将为 0，并且不支持 hasAttribute 方法，因此无法修复本差异。
-   *   若所有的 option 都设置了 disabled，则其 selectedIndex 为 -1，并且认为本控件无有效值。
+   *   若没有设置了 selected 的 OPTION，则取第一个未设置 disabled 的 OPTION 值。
+   *     * Safari 5.1.7 在上述情况发生时，其 selectedIndex 为 0，但认为本控件无有效值。
+   *     ! IE6 IE7 不支持 OPTION 的 disabled 属性，所以其 selectedIndex 将为 0，但由于 IE6 IE7 不支持 hasAttribute 方法，因此无法修复本差异。
+   *   若所有的 OPTION 都设置了 disabled，则其 selectedIndex 为 -1，并且认为本控件无有效值。
    *     * 仅 Firefox 14.0.1 和 Opera 12.02 在上述情况发生时会将其 selectedIndex 设置为 -1，但后者会将第一个 OPTION 元素的 value 作为有效值提交。
    *     * 其他浏览器则将其 selectedIndex 设置为 0，但认为本控件无有效值。
    * 如果为 select-multiple 类型：
-   *   若没有设置了 selected 的 option，则认为没有默认选中项，selectedIndex 为 -1，本控件无有效值（多选情况下的 selectedIndex 和 value 无实际意义）。
-   *   所有设置了 selected 的 option 认为有效。
-   *   所有设置了 disabled 的 option 认为无效。
+   *   若没有设置了 selected 的 OPTION，则认为没有默认选中项，selectedIndex 为 -1，本控件无有效值（多选情况下的 selectedIndex 和 value 无实际意义）。
+   *   所有设置了 selected 的 OPTION 认为有效。
+   *   所有设置了 disabled 的 OPTION 认为无效。
    */
   /**
    * 获取本表单内某个域的当前值。
@@ -2292,7 +2290,7 @@
                   }
                 }
               }
-              if (selectedIndex > 0 && !options[selectedIndex].disabled) {
+              if (selectedIndex >= 0 && !options[selectedIndex].disabled) {
                 value = options[selectedIndex].value;
               }
             } else {

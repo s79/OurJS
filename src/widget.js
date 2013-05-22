@@ -62,6 +62,7 @@
 
     Widget.parsers[widget.type] = {
       selector: widget.selector,
+      nodeName: widget.selector.substring(0, widget.selector.indexOf('.')).toUpperCase(),
       parse: function($element) {
         // 从目标元素的 attributes 中解析配置信息并将其添加到目标元素。
         if (widget.config) {
@@ -94,6 +95,8 @@
         if (widget.initialize) {
           widget.initialize.call($element);
         }
+        // 标记 Widget 的类型。
+        $element.widgetType = widget.type;
       }
     };
 
@@ -109,23 +112,30 @@
    * @description
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为 Widget，因此仅应在必要时调用本方法。
    */
+  var widgetTypePattern = /\bwidget-([a-z][a-z0-9-]*)\b/;
   Widget.parse = function(element, recursively) {
     var $element = document.$(element);
-    Object.forEach(Widget.parsers, function(parser, type) {
-      var elements = [];
-      if ($element.matchesSelector(parser.selector)) {
-        elements.push($element);
-      }
-      if (recursively) {
-        elements = elements.concat($element.findAll(parser.selector));
-      }
-      elements.forEach(function($element) {
-        if (!$element.widgetType) {
-          parser.parse($element);
-          $element.widgetType = type;
+    if (!$element.widgetType) {
+      var match = $element.className.match(widgetTypePattern);
+      if (match) {
+        var type = match[1];
+        var parser = Widget.parsers[type];
+        if (parser && parser.parse) {
+          if ($element.nodeName === parser.nodeName) {
+            parser.parse($element);
+          } else {
+            console.warn('OurJS: Widget "' + type + '" can not be applied on ' + $element.nodeName + ' elements.');
+          }
+        } else {
+          console.warn('OurJS: Widget parser "' + type + '" is not found.');
         }
+      }
+    }
+    if (recursively) {
+      $element.findAll('[class*=widget-]').forEach(function($element) {
+        Widget.parse($element);
       });
-    });
+    }
   };
 
 //--------------------------------------------------[自动解析]

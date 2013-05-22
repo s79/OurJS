@@ -208,7 +208,7 @@
    */
 
   /**
-   * 浏览器名称，值为以下之一：IE|Firefox|Chrome|Safari|Opera。
+   * 浏览器的名称，值为以下之一：IE|Firefox|Chrome|Safari|Opera。
    * @name userAgentInfo.name
    * @memberOf navigator
    * @type string
@@ -222,7 +222,14 @@
    */
 
   /**
-   * 是否工作在标准模式下。
+   * 浏览器的语言代码。
+   * @name languageCode
+   * @memberOf navigator
+   * @type string
+   */
+
+  /**
+   * 浏览器是否工作在标准模式下。
    * @name inStandardsMode
    * @memberOf navigator
    * @type boolean
@@ -334,6 +341,8 @@
         version = Number.toInteger(RegExp.$1);
       }
     }
+    // 获取语言代码。
+    var languageCode = (navigator.language || navigator.userLanguage).toLowerCase();
     // 检查工作模式。
     var inStandardsMode = document.compatMode === 'CSS1Compat';
     if (!inStandardsMode) {
@@ -392,6 +401,7 @@
         name: name,
         version: version
       },
+      languageCode: languageCode,
       inStandardsMode: inStandardsMode,
       isIE10: isIE10,
       isIElt10: isIElt10,

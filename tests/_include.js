@@ -1,16 +1,12 @@
 /**
- * 使用 <include file="/path/to/file"><!-- 注释信息 --></include> 引入模版文件。
+ * 使用 <ins data-src="/path/to/file">注释信息</ins> 引入模版文件。
  * 注意避免模版文件之间的循环引用。
  * 另外模版文件中不能有脚本调用 document.write 方法，也不应该监听 document 的 domready 事件。
  */
-
-if (navigator.isIElt9) {
-  document.createElement('include');
-}
-
-document.on('domready', function() {
+document.on('beforedomready', function() {
   function include(target) {
-    new Request(target.getAttribute('src'), {useCache: false, async: false})
+    var $target = $(target);
+    new Request($target.getData('src'), {useCache: false, async: false})
         .on('finish', function(e) {
           var scripts = [];
           var text = e.text.replace(/(?:<script[^>]*?>)([\s\S]*?)(?:<\/script>)/ig, function(script, scriptText) {
@@ -25,18 +21,18 @@ document.on('domready', function() {
             return '';
           });
           if (e.status === 200) {
-            target.outerHTML = text;
+            $target.outerHTML = text;
             scripts.forEach(function(script) {
               script[0] ? window.execScript(script[1]) : document.loadScript(script[1]);
             });
           } else {
-            target.outerHTML = '<ins style="padding: 0 1em; border: 1px solid red; background: yellow; color: red; font: bold 14px/20px Verdana, Arial, serif; text-decoration: none;">include error: ' + this.url + '</ins>';
+            $target.outerHTML = '<p style="padding: 0 1em; border: 1px solid red; background: yellow; color: red; font: bold 14px/20px Verdana, Arial, serif; text-decoration: none;">include error: ' + this.url + '</p>';
           }
         })
         .send();
   }
 
-  var includeElements = document.getElementsByTagName('include');
+  var includeElements = document.getElementsByTagName('ins');
   var includeElement;
   while (includeElement = includeElements[0]) {
     include(includeElements[0]);

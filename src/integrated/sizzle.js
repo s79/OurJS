@@ -1,9 +1,9 @@
 /*!
  * Sizzle CSS Selector Engine
  *  Copyright 2011, The Dojo Foundation
+ *  http://sizzlejs.com/
+ *  jquery-sizzle-1.5.1-175-gaf8206f
  *  Released under the MIT, BSD, and GPL Licenses.
- *  Version: jquery-sizzle-1.5.1-175-gaf8206f
- *  More information: http://sizzlejs.com/
  */
 
 /**

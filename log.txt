@@ -1,5 +1,13 @@
 
 
+>2013-05-22
+# 更新打包注释
+* Widget 的解析仍使用以前的方式（新方式使用的 Sizzle.matchesSelector 方法在 Firefox 中效率尤其低）
+* 修复 HTMLFormElement.prototype.getFieldValue 获取 SELECT 元素选定值的 bug
+* 使 Slideshow 的控制按钮可以被 disabled
+* Dialog 在 IE6 中不再调用 fade 方法
++ navigator.languageCode
+
 >2013-05-08
 * Event -> DOMEvent
 * EventTarget -> JSEventTarget

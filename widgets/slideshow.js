@@ -36,7 +36,7 @@
    *     <li>如果“幻灯片播放器”在文档可用后即被解析完毕，则默认播放第一张“幻灯片”，并且每隔一定的时间后（取决于 data-interval 的设定值），即自动播放下一张“幻灯片”。</li>
    *     <li>如果自动播放正在进行，则当鼠标移入本元素时，自动播放会被暂时禁用；当鼠标移出本元素时，自动播放会被重新启用。</li>
    *     <li>如果有“指示器”，则通过点击或鼠标指向（如果指定了 data-hover-delay 的值）一个“指示器”即可播放与之对应的“幻灯片”。</li>
-   *     <li>如果有“播放上一张”和“播放下一张”按钮，则通过点击这些按钮即可播放上一张或下一张“幻灯片”。</li>
+   *     <li>如果有“播放上一张”和“播放下一张”按钮，则通过点击这些按钮即可播放上一张或下一张“幻灯片”。<br>当“播放上一张”或“播放下一张”按钮的类名中包含 'disabled' 时，点击它们无效。</li>
    *   </ul>
    *   <strong>默认样式：</strong>
    *   <pre class="lang-css">
@@ -249,10 +249,14 @@
         // 通过点击“播放上一张”和“播放下一张”按钮播放对应的“幻灯片”。
         $slideshow
             .on('click:relay(.prev).slideshow', function() {
-              $slideshow.showPrevious();
+              if (!this.hasClass('disabled')) {
+                $slideshow.showPrevious();
+              }
             })
             .on('click:relay(.next).slideshow', function() {
-              $slideshow.showNext();
+              if (!this.hasClass('disabled')) {
+                $slideshow.showNext();
+              }
             });
 
         // 自动播放下一张。

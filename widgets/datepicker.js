@@ -48,7 +48,7 @@
   var $today = controls[7];
 
   // 解析月历。
-  Widget.parse($calendar.on('cellupdate', function(e) {
+  Widget.parsers.calendar.parse($calendar.on('cellupdate', function(e) {
     var $cell = e.cell;
     var date = e.date;
     // 禁用超出范围的日期。
