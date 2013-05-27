@@ -13,6 +13,9 @@
     return value;
   };
 
+  // 将提供的值转化为字符串。
+  var toString = Object.prototype.toString;
+
   // 将提供的值转化为对象。
   // http://es5.github.com/#x9.9
   var stringIsIndexable = 'x'[0] === 'x';
@@ -167,7 +170,6 @@
    * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
    */
   if (!Array.isArray) {
-    var toString = Object.prototype.toString;
     Array.isArray = function(value) {
       return toString.call(value) === '[object Array]';
     };
@@ -671,6 +673,8 @@
    * 其他自定义的扩展方法。
    *
    * 扩展方法：
+   *   typeOf
+   *   execScript
    *   Object.forEach
    *   Object.clone
    *   Object.mixin
@@ -693,6 +697,12 @@
    *   RegExp.escape
    */
 
+  /**
+   * 全局对象。
+   * @name Global
+   * @namespace
+   */
+
   // 将字符串中的单词分隔符压缩或转换为一个空格字符。
   var wordSeparatorsPattern = /(-(?=\D|$)|_)+/g;
   var camelizedLettersPattern = /[^A-Z\s]([A-Z])|[A-Z][^A-Z\s]/g;
@@ -707,6 +717,111 @@
 
   // 日期标识符。
   var dateFormatPattern = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
+
+//--------------------------------------------------[typeOf]
+  /**
+   * 判断提供的值的数据类型，比 typeof 运算符返回的结果更明确（将对结果为 'object' 的情况进行更细致的区分）。
+   * @name typeOf
+   * @memberOf Global
+   * @function
+   * @param {*} value 要判断的值。
+   * @returns {string} 值的类型，可能为以下几种情况之一：
+   *   undefined
+   *   boolean
+   *   number
+   *   string
+   *   function
+   *   null
+   *   object.Boolean
+   *   object.Number
+   *   object.String
+   *   object.Array
+   *   object.Date
+   *   object.RegExp
+   *   object.Error
+   *   object.Math
+   *   object.JSON
+   *   object.Arguments
+   *   object.Global
+   *   object.Node
+   *   object.Collection
+   *   object.Object
+   * @description
+   *   特殊情况：
+   *   一些特殊的对象，如 IE7 IE8 中的 XMLHttpRequest，是作为构造函数使用的，但使用本方法将得到 'object.Object' 的结果。考虑到需要判断这类对象的情况极为少见，因此未作处理。
+   *   IE6 IE7 IE8 IE9 IE10 中 SELECT.options === SELECT 为 true，因此 SELECT.options 将得到 'object.Node'，而不是预期的 'object.Collection'。
+   *   IE6 IE7 IE8 中在试图访问某些对象提供的属性/方法时，如 new ActiveXObject('Microsoft.XMLHTTP').abort，将抛出“对象不支持此属性或方法”的异常，因此也无法使用本方法对其进行判断。但可以对其使用 typeof 运算符并得到结果 'unknown'。
+   * @example
+   *   typeOf(document);
+   *   // 'object.Node'
+   * @see http://mootools.net/
+   * @see http://jquery.com/
+   */
+  var types = {};
+  ['Boolean', 'Number', 'String', 'Array', 'Date', 'RegExp', 'Error', 'Math', 'JSON', 'Arguments'].forEach(function(type) {
+    types['[object ' + type + ']'] = 'object.' + type;
+  });
+  var nativeFunctionPattern = /^\s+function .+\s+\[native code\]\s+\}\s+$/;
+  window.typeOf = function(value) {
+    var type = typeof value;
+    if (type === 'function' && typeof value.item === 'function') {
+      // Safari 中类型为 HTMLCollection 的值 type === 'function'。
+      type = 'object.Collection';
+    } else if (type === 'object') {
+      // 进一步判断 type === 'object' 的情况。
+      if (value === null) {
+        type = 'null';
+      } else {
+        // 使用 Object.prototype.toString 判断。
+        type = types[toString.call(value)] || 'object.Object';
+        if (type === 'object.Object') {
+          // 转化为字符串判断。
+          var string = String(value);
+          if (string === '[object Window]' || string === '[object DOMWindow]') {
+            type = 'object.Global';
+          } else if (string === '[object JSON]') {
+            type = 'object.JSON';
+          } else if (nativeFunctionPattern.test(string)) {
+            type = 'function';
+          } else {
+            // 使用特性判断。
+            if ('nodeType' in value) {
+              type = 'object.Node';
+            } else if (typeof value.length === 'number') {
+              if ('navigator' in value) {
+                type = 'object.Global';
+              } else if ('item' in value) {
+                type = 'object.Collection';
+              } else if ('callee' in value) {
+                type = 'object.Arguments';
+              }
+            }
+          }
+        }
+      }
+    }
+    return type;
+  };
+
+//--------------------------------------------------[execScript]
+  /**
+   * 将字符串作为脚本执行，执行时的作用域为全局作用域。
+   * @name execScript
+   * @memberOf Global
+   * @function
+   * @param {string} code 要执行的代码。
+   * @example
+   *   var a;
+   *   execScript('a = 128 * 2 + 256;');
+   *   a;
+   *   // 512
+   * @see http://w3help.org/zh-cn/causes/BX9056
+   */
+  if (!window.execScript) {
+    window.execScript = function(code) {
+      window['eval'](code);
+    };
+  }
 
 //--------------------------------------------------[Object.forEach]
   /**
@@ -1162,7 +1277,7 @@
    *   日期字符串中缺失的部分将使用默认值代替，各部分的默认值如下：
    *   <table>
    *     <tr><th>日期字段</th><th>默认值</th></tr>
-   *     <tr><td>年</td><td>2012</td></tr>
+   *     <tr><td>年</td><td>当前年份</td></tr>
    *     <tr><td>月</td><td>1</td></tr>
    *     <tr><td>日</td><td>1</td></tr>
    *     <tr><td>时</td><td>0</td></tr>
@@ -1186,7 +1301,8 @@
    *   // 年份缺失，使用默认值代替。
    *   // "Wed Feb 29 2012 16:00:00 GMT+0800"
    */
-  var timeZoneOffset = new Date().getTimezoneOffset() * 60000;
+  var now = new Date();
+  var timeZoneOffset = now.getTimezoneOffset() * 60000;
   Date.parseExact = function(string, format, isUTC) {
     format = format || 'YYYY-MM-DD';
     // 从 string 中参考 format 解析出日期数据。
@@ -1227,10 +1343,10 @@
     }
 
     // 缺失的值使用以下默认值代替。
-    var dateValues = Object.mixin({YYYY: 2012, MM: 0, DD: 1, hh: 0, mm: 0, ss: 0, s: 0, TZD: isUTC ? 0 : timeZoneOffset}, extractedData);
+    var dateValues = Object.mixin({YYYY: now.getFullYear(), MM: 0, DD: 1, hh: 0, mm: 0, ss: 0, s: 0, TZD: isUTC ? 0 : timeZoneOffset}, extractedData);
 
     // 转换为日期类型。
-    return new Date(Date.UTC(dateValues['YYYY'], dateValues['MM'], dateValues['DD'], dateValues['hh'], dateValues['mm'], dateValues['ss'], dateValues['s']) + dateValues['TZD']);
+    return new Date(Date.UTC(dateValues.YYYY, dateValues.MM, dateValues.DD, dateValues.hh, dateValues.mm, dateValues.ss, dateValues.s) + dateValues.TZD);
   };
 
 //--------------------------------------------------[Date.prototype.format]

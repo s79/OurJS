@@ -1,5 +1,12 @@
 
 
+>2013-05-27
+* Date.parseExact 年份的缺省值改为当前年份
+* typeOf 和 execScript 移入 lang.js
++ DOMEventTarget
+* DOM Event Module 不再使 window 支持 beforeunload 事件
+* 自定义事件默认不能冒泡
+
 >2013-05-22
 # 更新打包注释
 * Widget 的解析仍使用以前的方式（新方式使用的 Sizzle.matchesSelector 方法在 Firefox 中效率尤其低）

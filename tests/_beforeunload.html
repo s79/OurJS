@@ -9,12 +9,20 @@
 <label for="switcher"><input id="switcher" type="checkbox">为 window 添加 beforeunload 事件监听器</label>
 <a href="javascript:void('nothing');">点击伪协议的超链接在 IE6 IE7 IE8 IE9 中也会触发 beforeunload 事件</a>
 <script>
+/*
+ * 特殊事件：beforeunload
+ *   目前 Opera 12.14 仍不支持此事件。
+ *   监听器应返回一个字符串，以使浏览器在离开页面前询问用户是否确认离开，这个字符串在 IE Chrome Safari 中均会作为询问的内容出现。
+ *   Chrome 不允许在监听器中调用 alert、confirm 或 prompt 方法。
+ *   http://w3help.org/zh-cn/causes/BX2047
+ */
+
 (function() {
   var showMessage = true;
   $('#switcher')
       .on('change', function() {
         if (this.checked) {
-          window.on('beforeunload', function(e) {
+          window.onbeforeunload = function(e) {
             console.log('this = ' + typeOf(this));
             console.log('e = ' + e);
             if (showMessage) {
@@ -24,14 +32,14 @@
               }
               return message;
             }
-          });
+          };
         } else {
-          window.off('beforeunload');
+          window.onbeforeunload = null;
         }
       })
       .checked = false;
   // 点击伪协议的超链接在 IE6 IE7 IE8 IE9 中也会触发 beforeunload 事件。
-  // 具体是在 IE6 IE7 IE8 的 document 和 IE9 的 window 收到具备默认行为的事件时触发。
+  // 触发的时机为当 IE6 IE7 IE8 的 document 和 IE9 的 window 收到具备默认行为的 click 事件时。
   document.on('click', function(e) {
 //    e.preventDefault();
   });

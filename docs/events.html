@@ -84,9 +84,9 @@ td.satisfied em.false { color: silver; }
     </p>
   </li>
   <li>
-    unload & beforeunload
+    unload
     <p class="comment">
-      Opera 不支持这两个事件。
+      Opera 不支持这个事件。
     </p>
   </li>
 </ul>
@@ -129,7 +129,6 @@ var events = [
   ['load', 0, 0, 0, 0, '<dfn>window</dfn>, <dfn>IFRAME</dfn>, <dfn>IMG</dfn>'],
   ['unload', 0, 0, 0, 0, '<dfn>window</dfn>'],
   ['error', 0, 0, 0, 0, '<dfn>IMG</dfn>'],
-  ['beforeunload', 0, 0, 0, 0, '<dfn>window</dfn>'],
   ['beforedomready', 0, 0, 0, 0, '<dfn>document</dfn>'],
   ['domready', 0, 0, 0, 0, '<dfn>document</dfn>'],
   ['afterdomready', 0, 0, 0, 0, '<dfn>document</dfn>']
@@ -163,7 +162,7 @@ var events = [
     }
   });
   // 自定义事件类型。
-  showResult(['<var><strong>自定义事件类型</strong></var>', 0, 0, 1, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>']);
+  showResult(['<var><strong>自定义事件类型</strong></var>', 0, 0, 0, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>']);
 
   console.log(JSON.stringify(eventsObject));
 

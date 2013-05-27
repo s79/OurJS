@@ -55,6 +55,302 @@
    * 要处理的元素必须由本脚本库提供的 document.$ 方法来获取，或通过已获取的元素上提供的方法（如 getNextSibling、find 等）来获取。使用其他途径如元素本身的 parentNode 特性来获取的元素，在 IE6 IE7 中将丢失这些附加特性。
    */
 
+//==================================================[window 扩展]
+  /*
+   * 为 window 扩展新特性。
+   * 其中 getScrollSize 与 getPageOffset 方法在 document.body 可访问后方可使用。
+   *
+   * 扩展方法：
+   *   window.$
+   *   window.getClientSize
+   *   window.getScrollSize
+   *   window.getPageOffset
+   */
+
+  /**
+   * 扩展 DOMWindow 对象。
+   * @name window
+   * @namespace
+   */
+
+  window.uid = 'window';
+
+//--------------------------------------------------[window.$]
+  /**
+   * 对 document.$ 的引用。
+   * @name window.$
+   * @function
+   * @param {string|Element} e 不同类型的元素表示。
+   * @returns {Element} 扩展后的元素。
+   * @description
+   *   在编写应用代码时，可以使用 $ 来代替 document.$。
+   */
+
+//--------------------------------------------------[window.getClientSize]
+  /**
+   * 获取视口可视区域的尺寸。
+   * @name window.getClientSize
+   * @function
+   * @returns {Object} 尺寸，包含 width 和 height 两个数字类型的属性，单位为像素。
+   * @description
+   *   IE9 Firefox Chrome Safari Opera 有 window.innerWidth 和 window.innerHeight 属性，但这个值是包含了滚动条宽度的值。
+   *   为保持一致性，不使用这两个属性来获取文档可视区域尺寸。
+   * @see http://www.w3.org/TR/cssom-view/#dom-window-innerwidth
+   * @see http://www.w3.org/TR/cssom-view/#dom-window-innerheight
+   */
+  window.getClientSize = function() {
+    return {
+      width: html.clientWidth,
+      height: html.clientHeight
+    };
+  };
+
+//--------------------------------------------------[window.getScrollSize]
+  /**
+   * 获取视口滚动区域的尺寸。当内容不足以充满视口可视区域时，返回视口可视区域的尺寸。
+   * @name window.getScrollSize
+   * @function
+   * @returns {Object} 尺寸，包含 width 和 height 两个数字类型的属性，单位为像素。
+   */
+  window.getScrollSize = function() {
+    var body = document.body;
+    return {
+      width: Math.max(html.scrollWidth, body.scrollWidth, html.clientWidth),
+      height: Math.max(html.scrollHeight, body.scrollHeight, html.clientHeight)
+    };
+  };
+
+//--------------------------------------------------[window.getPageOffset]
+  /**
+   * 获取视口的滚动偏移量。
+   * @name window.getPageOffset
+   * @function
+   * @returns {Object} 坐标，包含 x 和 y 两个数字类型的属性，单位为像素。
+   * @description
+   *   一些浏览器支持 window.scrollX/window.scrollY 或 window.pageXOffset/window.pageYOffset 直接获取视口的滚动偏移量。
+   *   这里使用通用性更强的方法实现。
+   * @see http://w3help.org/zh-cn/causes/BX9008
+   */
+  window.getPageOffset = function() {
+    var body = document.body;
+    return {
+      x: html.scrollLeft || body.scrollLeft,
+      y: html.scrollTop || body.scrollTop
+    };
+  };
+
+//==================================================[document 扩展]
+  /*
+   * 为 document 扩展新特性。
+   *
+   * 扩展方法：
+   *   document.$
+   *   document.addStyleRules
+   *   document.loadScript
+   *   document.preloadImages
+   */
+
+  /**
+   * 扩展 document 对象。
+   * @name document
+   * @namespace
+   */
+
+  document.uid = 'document';
+
+  // 自动触发 beforedomready、domready 和 afterdomready 事件，其中 beforedomready 和 afterdomready 为内部使用的事件类型。
+  var triggerDomReadyEvent;
+  if ('addEventListener' in document) {
+    triggerDomReadyEvent = function() {
+      document.removeEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
+      window.removeEventListener('load', triggerDomReadyEvent, false);
+      document.fire('beforedomready');
+      document.fire('domready');
+      document.fire('afterdomready');
+    };
+    document.addEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
+    window.addEventListener('load', triggerDomReadyEvent, false);
+  } else {
+    var doBodyCheck = function() {
+      if (document.body) {
+        document.fire('beforedomready');
+        document.fire('domready');
+        document.fire('afterdomready');
+      } else {
+        setTimeout(doBodyCheck, 10);
+      }
+    };
+    triggerDomReadyEvent = function(_, domIsReady) {
+      // http://bugs.jquery.com/ticket/5443
+      if (doBodyCheck && (domIsReady || document.readyState === 'complete')) {
+        document.detachEvent('onreadystatechange', triggerDomReadyEvent);
+        window.detachEvent('onload', triggerDomReadyEvent);
+        doBodyCheck();
+        // 避免多次触发。
+        doBodyCheck = null;
+      }
+    };
+    document.attachEvent('onreadystatechange', triggerDomReadyEvent);
+    window.attachEvent('onload', triggerDomReadyEvent);
+    // http://javascript.nwbox.com/IEContentLoaded/
+    if (window == top && html.doScroll) {
+      var doScrollCheck = function() {
+        try {
+          html.doScroll('left');
+        } catch (e) {
+          setTimeout(doScrollCheck, 10);
+          return;
+        }
+        triggerDomReadyEvent(null, true);
+      };
+      doScrollCheck();
+    }
+  }
+
+//--------------------------------------------------[document.$]
+  /**
+   * 根据指定的参数获取/创建一个元素，并对其进行扩展。
+   * @name document.$
+   * @function
+   * @param {string|Element} e 不同类型的元素表示。
+   * @returns {Element} 扩展后的元素。
+   * @description
+   *   <ul>
+   *     <li>当参数为一个元素（可以包含后代元素）的序列化之后的字符串时，会返回扩展后的、根据这个字符串反序列化的元素。<br>注意：不要使用本方法创建 SCRIPT 元素，对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法。</li>
+   *     <li>当参数为一个 CSS 选择符时，会返回扩展后的、与指定的 CSS 选择符相匹配的<strong>第一个元素</strong>。<br>如果没有找到任何元素，返回 null。</li>
+   *     <li>当参数为一个元素时，会返回扩展后的该元素。</li>
+   *     <li>当参数为其他值（包括 document 和 window）时，均返回 null。</li>
+   *   </ul>
+   * @see http://jquery.com/
+   * @see http://mootools.net/
+   * @see http://w3help.org/zh-cn/causes/SD9003
+   */
+  var tagNamePattern = /(?!<)\w*/;
+  // 为解决“IE 可能会自动添加 TBODY 元素”的问题，在相应的 wrappers 里预置了一个 TBODY。
+  var wrappers = {
+    area: ['<map>', '</map>'],
+    legend: ['<fieldset>', '</fieldset>'],
+    optgroup: ['<select>', '</select>'],
+    colgroup: ['<table><tbody></tbody>', '</table>'],
+    col: ['<table><tbody></tbody><colgroup>', '</colgroup></table>'],
+    tr: ['<table><tbody>', '</tbody></table>'],
+    th: ['<table><tbody><tr>', '</tr></tbody></table>']
+  };
+  wrappers.option = wrappers.optgroup;
+  wrappers.caption = wrappers.thead = wrappers.tfoot = wrappers.tbody = wrappers.colgroup;
+  wrappers.td = wrappers.th;
+  if (navigator.isIElt9) {
+    // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。
+    wrappers.link = wrappers.style = wrappers.script = ['#', ''];
+  }
+  var defaultWrapper = ['', ''];
+  // 忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。
+  // 忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装追加元素的相关方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异。
+  window.$ = document.$ = function(e) {
+    var element = null;
+    if (typeof e === 'string') {
+      if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
+        var tagName = tagNamePattern.exec(e)[0].toLowerCase();
+        var wrapper = wrappers[tagName] || defaultWrapper;
+        element = document.createElement('div');
+        element.innerHTML = wrapper[0] + e + wrapper[1];
+        while ((element = element.lastChild) && element.nodeName.toLowerCase() !== tagName) {
+        }
+        if (element && element.nodeType !== 1) {
+          element = null;
+        }
+      } else {
+        element = Sizzle(e)[0];
+      }
+    } else if (e && e.nodeType === 1) {
+      element = e;
+    }
+    return $(element);
+  };
+
+//--------------------------------------------------[document.addStyleRules]
+  /**
+   * 添加样式规则。
+   * @name document.addStyleRules
+   * @function
+   * @param {Array} rules 包含样式规则的数组，其中每一项为一条规则。
+   */
+  var dynamicStyleSheet;
+  document.addStyleRules = function(rules) {
+    if (!dynamicStyleSheet) {
+      document.head.appendChild(document.createElement('style'));
+      var styleSheets = document.styleSheets;
+      dynamicStyleSheet = styleSheets[styleSheets.length - 1];
+    }
+    rules.forEach(function(rule) {
+      if (dynamicStyleSheet.insertRule) {
+        dynamicStyleSheet.insertRule(rule, dynamicStyleSheet.cssRules.length);
+      } else {
+        var lBraceIndex = rule.indexOf('{');
+        var rBraceIndex = rule.indexOf('}');
+        var selectors = rule.slice(0, lBraceIndex);
+        var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
+        selectors.split(separator).forEach(function(selector) {
+          dynamicStyleSheet.addRule(selector, declarations);
+        });
+      }
+    });
+  };
+
+//--------------------------------------------------[document.loadScript]
+  /**
+   * 加载脚本。
+   * @name document.loadScript
+   * @function
+   * @param {string} url 脚本文件的路径。
+   * @param {Object} [options] 可选参数。
+   * @param {string} [options.charset] 脚本文件的字符集。
+   * @param {Function} [options.onLoad] 加载完毕后的回调。
+   *   该函数被调用时 this 的值为加载本脚本时创建的 SCRIPT 元素。
+   */
+  document.loadScript = function(url, options) {
+    options = options || {};
+    var head = document.head;
+    var script = document.createElement('script');
+    if (options.charset) {
+      script.charset = options.charset;
+    }
+    script.src = url;
+    script.onload = script.onreadystatechange = function() {
+      if (!this.readyState || this.readyState === 'loaded' || this.readyState === 'complete') {
+        this.onload = this.onreadystatechange = null;
+        head.removeChild(script);
+        if (options.onLoad) {
+          options.onLoad.call(this);
+        }
+      }
+    };
+    // http://bugs.jquery.com/ticket/2709
+    head.insertBefore(script, head.firstChild);
+  };
+
+//--------------------------------------------------[document.preloadImages]
+  /**
+   * 预加载图片。
+   * @name document.preloadImages
+   * @function
+   * @param {Array} urlArray 包含需预加载的图片路径的数组。
+   * @param {Function} [onLoad] 每个图片加载完毕后的回调。
+   *   该函数被调用时 this 的值为已完成加载的 IMG 元素。
+   */
+  document.preloadImages = function(urlArray, onLoad) {
+    urlArray.forEach(function(url) {
+      var img = new Image();
+      if (onLoad) {
+        img.onload = function() {
+          img.onload = null;
+          onLoad.call(img);
+        };
+      }
+      img.src = url;
+    });
+  };
+
 //==================================================[Element 补缺 - 解决 IE6 IE7 没有元素构造器的问题]
 //--------------------------------------------------[Element]
   /**
@@ -489,6 +785,216 @@
       }
     }
   };
+
+  //修复 IE6 不支持固定定位的问题。
+  /*
+   * 修复 IE6 不支持 position: fixed 的问题。
+   *
+   * 注意：
+   *   目前仅考虑 direction: ltr 的情况，并且不支持嵌套使用 position: fixed。事实上这两点不会影响现有的绝大部分需求。
+   *   目前仅支持在 left right top bottom 上使用像素长度来设置偏移量。修复后，目标元素的样式中有 left 则 right 失效，有 top 则 bottom 失效。
+   *   因此要保证兼容，在应用中设置 position: fixed 的元素应有明确的尺寸设定，并只使用（left right top bottom）的（像素长度）来定位，否则在 IE6 中的表现会有差异。
+   *
+   * 处理流程：
+   *   position 的修改 = 启用/禁用修复，如果已启用修复，并且 display 不是 none，则同时启用表达式。
+   *   display 的修改 = 如果已启用修复，则启用/禁用表达式。
+   *   left/right/top/bottom 的修改 = 如果已启用修复，则调整 specifiedValue。如果已启用表达式，则更新表达式。
+   *   由于 IE6 设置为 position: absolute 的元素的 right bottom 定位与 BODY 元素的 position 有关，并且表现怪异，因此设置表达式时仍使用 left top 实现。
+   *   这样处理的附加好处是不必在每次更新表达式时启用/禁用设置在 right bottom 上的表达式。
+   *
+   * 参考：
+   *   http://www.qianduan.net/fix-ie6-dont-support-position-fixed-bug.html
+   *
+   * 实测结果：
+   *   X = 页面背景图片固定，背景图直接放在 HTML 上即可，若要放在 BODY 上，还要加上 background-attachment: fixed。
+   *   A = 为元素添加 CSS 表达式。
+   *   B = 为元素添加事件监听器，在监听器中修改元素的位置。
+   *   X + A 可行，X + B 不可行。
+   */
+  if (navigator.isIE6) {
+    // 保存已修复的元素的偏移量及是否启用的数据。
+    /*
+     * <Object fixedData> {
+     *   left: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   right: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   top: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   bottom: <Object> {
+     *     specifiedValue: <string specifiedValue>,
+     *     usedValue: <number usedValue>
+     *   },
+     *   enabled: <boolean enabled>
+     * }
+     */
+
+    // 设置页面背景。
+    html.style.backgroundImage = 'url(about:blank)';
+
+    // 添加 CSS 表达式。
+    var setExpressions = function($element, fixedData) {
+      var left = fixedData.left.usedValue;
+      var top = fixedData.top.usedValue;
+      var right = fixedData.right.usedValue;
+      var bottom = fixedData.bottom.usedValue;
+      if (isFinite(left)) {
+        $element.style.setExpression('left', '(document && document.documentElement.scrollLeft + ' + left + ') + "px"');
+      } else {
+        $element.style.setExpression('left', '(document && (document.documentElement.scrollLeft + document.documentElement.clientWidth - this.offsetWidth - (parseInt(this.currentStyle.marginLeft, 10) || 0) - (parseInt(this.currentStyle.marginRight, 10) || 0)) - ' + right + ') + "px"');
+      }
+      if (isFinite(top)) {
+        $element.style.setExpression('top', '(document && document.documentElement.scrollTop + ' + top + ') + "px"');
+      } else {
+        $element.style.setExpression('top', '(document && (document.documentElement.scrollTop + document.documentElement.clientHeight - this.offsetHeight - (parseInt(this.currentStyle.marginTop, 10) || 0) - (parseInt(this.currentStyle.marginBottom, 10) || 0)) - ' + bottom + ') + "px"');
+      }
+    };
+
+    // 删除 CSS 表达式。
+    var removeExpressions = function($element) {
+      $element.style.removeExpression('left');
+      $element.style.removeExpression('top');
+    };
+
+    // IE6 获取 position 特性时的特殊处理。
+    specialCSSPropertyGetter.position = function($element) {
+      return $element._fixedData_ ? 'fixed' : $element.currentStyle.position;
+    };
+
+    // IE6 设置 position 特性时的特殊处理。
+    specialCSSPropertySetter.position = function($element, propertyValue) {
+      // 本元素的偏移量数据，如果未启用修复则不存在。
+      var fixedData = $element._fixedData_;
+      if (propertyValue.toLowerCase() === 'fixed') {
+        // 设置固定定位。
+        if (!fixedData) {
+          // 启用修复。
+          fixedData = $element._fixedData_ = {left: {}, right: {}, top: {}, bottom: {}, enabled: false};
+          var offset = {};
+          var currentStyle = $element.currentStyle;
+          fixedData.left.specifiedValue = offset.left = currentStyle.left;
+          fixedData.right.specifiedValue = offset.right = currentStyle.right;
+          fixedData.top.specifiedValue = offset.top = currentStyle.top;
+          fixedData.bottom.specifiedValue = offset.bottom = currentStyle.bottom;
+          Object.forEach(offset, function(length, side, offset) {
+            fixedData[side].usedValue = offset[side] = length.endsWith('px') ? parseInt(length, 10) : NaN;
+          });
+          // 如果 usedValue 中横向或纵向的两个值均为 NaN，则给 left 或 top 赋值为当前该元素相对于页面的偏移量。
+          if (isNaN(fixedData.left.usedValue) && isNaN(fixedData.right.usedValue)) {
+            fixedData.left.usedValue = html.scrollLeft + $element.getClientRect().left - (parseInt($element.currentStyle.marginLeft, 10) || 0);
+          }
+          if (isNaN(fixedData.top.usedValue) && isNaN(fixedData.bottom.usedValue)) {
+            fixedData.top.usedValue = html.scrollTop + $element.getClientRect().top - (parseInt($element.currentStyle.marginTop, 10) || 0);
+          }
+          // 如果元素已被渲染（暂不考虑祖先级元素未被渲染的情况），启用表达式。
+          if ($element.currentStyle.display !== 'none') {
+            fixedData.enabled = true;
+            setExpressions($element, fixedData);
+          }
+        }
+        propertyValue = 'absolute';
+      } else {
+        // 设置非固定定位。
+        if (fixedData) {
+          // 禁用修复。
+          removeExpressions($element);
+          $element.style.left = fixedData.left.specifiedValue;
+          $element.style.right = fixedData.right.specifiedValue;
+          $element.style.top = fixedData.top.specifiedValue;
+          $element.style.bottom = fixedData.bottom.specifiedValue;
+          $element.removeAttribute('_fixedData_');
+        }
+      }
+      // 设置样式。
+      $element.style.position = propertyValue;
+    };
+
+    // IE6 设置 display 特性时的特殊处理。
+    specialCSSPropertySetter.display = function($element, propertyValue) {
+      var fixedData = $element._fixedData_;
+      // 仅在本元素已启用修复的情况下需要进行的处理。
+      if (fixedData) {
+        if (propertyValue.toLowerCase() === 'none') {
+          // 不渲染元素，禁用表达式。
+          if (fixedData.enabled) {
+            fixedData.enabled = false;
+            removeExpressions($element);
+          }
+        } else {
+          // 渲染元素，启用表达式。
+          if (!fixedData.enabled) {
+            fixedData.enabled = true;
+            setExpressions($element, fixedData);
+          }
+        }
+      }
+      // 设置样式。
+      $element.style.display = propertyValue;
+    };
+
+    // IE6 获取 left/right/top/bottom 特性时的特殊处理。
+    var getOffset = function($element, propertyName) {
+      var fixedData = $element._fixedData_;
+      return fixedData ? fixedData[propertyName].specifiedValue : $element.currentStyle[propertyName];
+    };
+
+    // IE6 设置 left/right/top/bottom 特性时的特殊处理。
+    var setOffset = function($element, propertyName, propertyValue) {
+      var fixedData = $element._fixedData_;
+      // 仅在本元素已启用修复的情况下需要进行的处理。
+      if (fixedData) {
+        fixedData[propertyName].specifiedValue = propertyValue;
+        // 如果值可用，更新使用值。
+        if (propertyValue.endsWith('px')) {
+          var usedValue = parseInt(propertyValue, 10);
+          if (fixedData[propertyName].usedValue !== usedValue) {
+            fixedData[propertyName].usedValue = usedValue;
+            // 如果表达式已启用，更新表达式。
+            if (fixedData.enabled) {
+              setExpressions($element, fixedData);
+            }
+          }
+        }
+      } else {
+        // 设置样式。
+        $element.style[propertyName] = propertyValue;
+      }
+    };
+
+    ['left', 'right', 'top', 'bottom'].forEach(function(side) {
+      specialCSSPropertyGetter[side] = function($element) {
+        return getOffset($element, side);
+      };
+      specialCSSPropertySetter[side] = function($element, propertyValue) {
+        setOffset($element, side, propertyValue);
+      };
+    });
+
+    // 在 IE6 中使用 CSS Expression 自动处理固定定位。
+    document.addStyleRules(['* { behavior: expression(document.fixIE6Styles(this)); }']);
+//    window.fixCount = 0;
+    document.fixIE6Styles = function(element) {
+//      window.fixCount++;
+      if (element.currentStyle.position === 'fixed') {
+        element.currentStyleDisplayValue = element.currentStyle.display;
+        element.style.display = 'none';
+        setTimeout(function() {
+          element.style.display = element.currentStyleDisplayValue;
+          if (element.currentStyle.position === 'fixed') {
+            $(element).setStyle('position', 'fixed');
+          }
+        }, 0);
+      }
+      element.style.behavior = 'none';
+    };
+
+  }
 
 //--------------------------------------------------[Element.prototype.getStyle]
   /**
@@ -1072,6 +1578,109 @@
     return this;
   };
 
+//==================================================[Element 扩展 - 表单]
+  /*
+   * 为表单元素扩展新特性。
+   *
+   * 扩展方法：
+   *   HTMLFormElement.prototype.getFieldValue
+   *   HTMLFormElement.prototype.serialize  // TODO
+   */
+
+//--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
+  /*
+   * 获取一个或一组控件的当前值，并对下列不一致的情况（*）作统一化处理。
+   * 如果为 select-one 类型：
+   *   取最后一个设置了 selected 的 OPTION 值。
+   *   若该 OPTION 设置了 disabled 则认为本控件无有效值（虽然此时可以取到该控件的 selectedIndex 和 value 值）。
+   *     * IE6 IE7 不支持 OPTION 和 OPTGROUP 元素的 disabled 属性（http://w3help.org/zh-cn/causes/HF3013）。
+   *   若没有设置了 selected 的 OPTION，则取第一个未设置 disabled 的 OPTION 值。
+   *     * Safari 5.1.7 在上述情况发生时，其 selectedIndex 为 0，但认为本控件无有效值。
+   *     ! IE6 IE7 不支持 OPTION 的 disabled 属性，所以其 selectedIndex 将为 0，但由于 IE6 IE7 不支持 hasAttribute 方法，因此无法修复本差异。
+   *   若所有的 OPTION 都设置了 disabled，则其 selectedIndex 为 -1，并且认为本控件无有效值。
+   *     * 仅 Firefox 14.0.1 和 Opera 12.02 在上述情况发生时会将其 selectedIndex 设置为 -1，但后者会将第一个 OPTION 元素的 value 作为有效值提交。
+   *     * 其他浏览器则将其 selectedIndex 设置为 0，但认为本控件无有效值。
+   * 如果为 select-multiple 类型：
+   *   若没有设置了 selected 的 OPTION，则认为没有默认选中项，selectedIndex 为 -1，本控件无有效值（多选情况下的 selectedIndex 和 value 无实际意义）。
+   *   所有设置了 selected 的 OPTION 认为有效。
+   *   所有设置了 disabled 的 OPTION 认为无效。
+   */
+  /**
+   * 获取本表单内某个域的当前值。
+   * @name HTMLFormElement.prototype.getFieldValue
+   * @function
+   * @param {string} name 域的名称。
+   * @returns {string|Array} 域的当前值。
+   * @description
+   *   当该域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
+   *   其他情况（该域只包含一个 select-multiple 类型的控件或者多个任意类型的控件时）返回数组，值为空字符串的项不会被加入数组。
+   * @see http://www.w3.org/TR/REC-html40/interact/forms.html#successful-controls
+   */
+  var getCurrentValue = function(control) {
+    var value = '';
+    if (control.nodeType) {
+      switch (control.type) {
+        case 'radio':
+        case 'checkbox':
+          if (control.checked && !control.disabled) {
+            value = control.value;
+          }
+          break;
+        case 'select-one':
+        case 'select-multiple':
+          if (!control.disabled) {
+            // 不能使用 Array.from(control.options).forEach(...)，原因见 typeOf 的注释。
+            var options = control.options;
+            var option;
+            var i = 0;
+            if (control.type === 'select-one') {
+              var selectedIndex = control.selectedIndex;
+              if (navigator.isSafari && selectedIndex === 0 && !options[0].hasAttribute('selected')) {
+                while (option = options[++i]) {
+                  if (!option.disabled && !option.parentNode.disabled) {
+                    selectedIndex = i;
+                    break;
+                  }
+                }
+              }
+              if (selectedIndex >= 0 && !options[selectedIndex].disabled) {
+                value = options[selectedIndex].value;
+              }
+            } else {
+              value = [];
+              while (option = options[i++]) {
+                if (option.selected && !option.disabled && !option.parentNode.disabled) {
+                  value.push(option.value);
+                }
+              }
+            }
+          }
+          break;
+        default:
+          if (!control.disabled) {
+            value = control.value;
+          }
+      }
+    } else {
+      value = [];
+      Array.from(control).forEach(function(control) {
+        var v = getCurrentValue(control);
+        if (v) {
+          value = value.concat(v);
+        }
+      });
+    }
+    return value;
+  };
+
+  HTMLFormElement.prototype.getFieldValue = function(name) {
+    var control = this.elements[name];
+    if (!control) {
+      throw new Error('Invalid field name "' + name + '"');
+    }
+    return getCurrentValue(control);
+  };
+
 //==================================================[DOM 事件模型]
   /*
    * 为 DOM 对象提供的事件模型，这套事件模型是基于原生 DOM 事件模型的，解决了常见的兼容性问题，并增加了新的特性。
@@ -1138,7 +1747,7 @@
    *       这相当于使用了自动触发的“独立”模式，来主动触发一个事件。
    *       此时不会触发任何原生事件，也不会执行此类事件的默认行为。
    *       当只希望调用某类事件的监听器时，应使用这种方式。
-   *     * 对于一些内置事件（如 click 和 reset），可以在相应的元素上调用与要触发的事件类型同名的方法（如果有）来触发。
+   *     * 对于一些内置事件（如 click 和 reset），可以在相应的对象上调用与要触发的事件类型同名的方法（如果有）来触发。
    *       此时同名的原生事件将被触发（产生的 e 可能具备默认行为）并依赖自动触发的“协同”模式来进行后续处理。
    *       当除了要调用某类事件的监听器，还希望该事件的默认行为生效时，应使用这种方式。
    *   自定义类型
@@ -1187,7 +1796,7 @@
   // 供内部调用的标记值。
   var INTERNAL_IDENTIFIER_EVENT = {};
 
-  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 5, mouseleave: 5, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforeunload: 0, beforedomready: 0, domready: 0, afterdomready: 0};
+  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 5, mouseleave: 5, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforedomready: 0, domready: 0, afterdomready: 0};
   var returnTrue = function() {
     return true;
   };
@@ -1195,6 +1804,442 @@
     return false;
   };
 
+  // 解析监听器名称，取出相关的属性。
+  var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
+  var getEventAttributes = function(name) {
+    var match = name.match(eventNamePattern);
+    if (match === null) {
+      throw new SyntaxError('Invalid event name "' + name + '"');
+    }
+    return {type: match[1], selector: match[2] || '', once: !!match[3], idle: parseInt(match[4], 10), throttle: parseInt(match[5], 10)};
+  };
+
+  // 添加和删除原生事件监听器。
+  var addEventListener = 'addEventListener' in window ? function($target, eventType, eventListener, useCapture) {
+    $target.addEventListener(eventType, eventListener, useCapture);
+  } : function($target, eventType, eventListener) {
+    $target.attachEvent('on' + eventType, eventListener);
+  };
+  var removeEventListener = 'removeEventListener' in window ? function($target, eventType, eventListener, useCapture) {
+    $target.removeEventListener(eventType, eventListener, useCapture);
+  } : function($target, eventType, eventListener) {
+    $target.detachEvent('on' + eventType, eventListener);
+  };
+
+  // 将事件对象分发给相应的监听器。
+  var distributeEvent = function($target, handlers, event, isTriggered) {
+    // 分发时对 handlers 的副本（仅复制了 handlers 的数组部分）操作，以避免在监听器内添加或删除该对象的同类型的监听器时会影响本次分发过程。
+    var handlersCopy = handlers.slice(0);
+    var delegateCount = handlers.delegateCount;
+    var $current = delegateCount ? event.target : $target;
+    var filters = {};
+    var handler;
+    var selector;
+    var i;
+    var total;
+    // 开始分发。
+    do {
+      if ($current === $target) {
+        // 普通监听器。
+        i = delegateCount;
+        total = handlersCopy.length;
+      } else {
+        // 代理监听器。
+        i = 0;
+        total = delegateCount;
+      }
+      while (i < total) {
+        handler = handlersCopy[i++];
+        selector = handler.selector;
+        // 如果是代理事件监听，则过滤出符合条件的元素。
+        if (!selector || (filters[selector] || (filters[selector] = function(simpleSelector) {
+          if (simpleSelector) {
+            return function($target) {
+              var tagName = simpleSelector.tagName;
+              var className = simpleSelector.className;
+              return (tagName ? $target.nodeName === tagName : true) && (className ? $target.hasClass(className) : true);
+            };
+          } else {
+            var elements = $target.findAll(selector);
+            return function($target) {
+              return elements.contains($target);
+            }
+          }
+        }(handler.simpleSelector)))($current)) {
+          if (!isTriggered || isTriggered.call($current, event)) {
+            // 监听器被调用时 this 的值为监听到本次事件的对象。
+            if (handler.listener.call($current, event) === false) {
+              event.stopPropagation();
+              event.preventDefault();
+            }
+            if (event.isImmediatePropagationStopped()) {
+              break;
+            }
+          }
+        }
+      }
+      // 如果正在进行代理监听（当前对象不是监听到本次事件的对象），且事件可以继续传播时，向上一级传播，直到传播到监听到本次事件的对象为止。
+    } while (!($current === $target || event.isPropagationStopped()) && ($current = $current.getParent() || $current === html && $target));
+  };
+
+  // 触发器。
+  var triggers = {};
+
+  // 拖动相关事件，为避免覆盖 HTML5 草案中引入的同名事件，加入前缀 mouse。
+  // 只支持鼠标左键的拖拽，拖拽过程中松开左键、按下其他键、或当前窗口失去焦点都将导致拖拽事件结束。
+  // 应避免在拖拽进行时删除本组事件的监听器，否则可能导致拖拽动作无法正常完成。
+  triggers.mousedragstart = triggers.mousedrag = triggers.mousedragend = function() {
+    var dragState;
+    var relatedTypes = ['mousedragstart', 'mousedrag', 'mousedragend'];
+    // 在 Chrome 25 和 Safari 5.1.7 下，如果一个页面是在 frame 中被载入的，那么在该页面中，一旦有一个传递到 document 的 mousedown 事件被阻止了默认行为，则在 document 上后续发生的 mousemove 事件在鼠标指针离开该文档的区域后无法被自动捕获。因此使用以下监听器来避免在拖动过程中选中页面的内容。
+    // http://www.w3help.org/zh-cn/causes/BX2050
+    var unselectableForWebKit = function(e) {
+      e.preventDefault();
+    };
+    if ((navigator.isChrome || navigator.isSafari) && window !== top) {
+      unselectableForWebKit.enabled = true;
+    }
+    var mouseDragStartTrigger = function(e) {
+      if (!dragState) {
+        var event = new DOMEvent('mousedragstart', e);
+        if (event.leftButton) {
+          event.offsetX = event.offsetY = 0;
+          var $target = event.target;
+          if ($target.setCapture) {
+            $target.setCapture();
+          }
+          // 避免在拖动过程中选中页面的内容。
+          if (unselectableForWebKit.enabled) {
+            addEventListener(document, 'selectstart', unselectableForWebKit);
+          } else {
+            event.preventDefault();
+          }
+          dragState = {target: $target, startX: event.pageX, startY: event.pageY};
+          dragState.lastEvent = event;
+          $target.fire(INTERNAL_IDENTIFIER_EVENT, event);
+          setTimeout(function() {
+            addEventListener(document, 'mousemove', mouseDragTrigger);
+            addEventListener(document, 'mousedown', mouseDragEndTrigger);
+            addEventListener(document, 'mouseup', mouseDragEndTrigger);
+            addEventListener(window, 'blur', mouseDragEndTrigger);
+          }, 0);
+        }
+      }
+    };
+    var mouseDragTrigger = function(e) {
+      var event = new DOMEvent('mousedrag', e);
+      event.target = dragState.target;
+      event.offsetX = event.pageX - dragState.startX;
+      event.offsetY = event.pageY - dragState.startY;
+      dragState.lastEvent = event;
+      dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
+    };
+    var mouseDragEndTrigger = function() {
+      var $target = dragState.target;
+      if ($target.releaseCapture) {
+        $target.releaseCapture();
+      }
+      // 使用上一个拖拽相关事件作为 mousedragend 的事件对象，以确保任何情况下都有鼠标坐标相关信息。
+      var event = dragState.lastEvent;
+      // 避免上一个拖拽相关事件的传播或默认行为被阻止。
+      event.isPropagationStopped = event.isDefaultPrevented = event.isImmediatePropagationStopped = returnFalse;
+      event.type = 'mousedragend';
+      dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
+      dragState = null;
+      if (unselectableForWebKit.enabled) {
+        removeEventListener(document, 'selectstart', unselectableForWebKit);
+      }
+      removeEventListener(document, 'mousemove', mouseDragTrigger);
+      removeEventListener(document, 'mousedown', mouseDragEndTrigger);
+      removeEventListener(document, 'mouseup', mouseDragEndTrigger);
+      removeEventListener(window, 'blur', mouseDragEndTrigger);
+    };
+    return {
+      add: function($target) {
+        // 向这三个关联事件中添加第一个监听器时，即创建 mousedragstart 触发器，该触发器会动态添加/删除另外两个事件的触发器。
+        addEventListener($target, 'mousedown', mouseDragStartTrigger);
+        // 创建另外两个事件的处理器组。
+        var item = eventHandlers[$target.uid];
+        relatedTypes.forEach(function(relatedType) {
+          if (!item[relatedType]) {
+            var handlers = [];
+            handlers.delegateCount = 0;
+            item[relatedType] = handlers;
+          }
+        });
+      },
+      remove: function($target) {
+        // 在这三个关联事件中删除最后一个监听器后，才删除它们的触发器。
+        var item = eventHandlers[$target.uid];
+        var handlerCount = 0;
+        relatedTypes.forEach(function(relatedType) {
+          handlerCount += item[relatedType].length;
+        });
+        if (handlerCount === 0) {
+          removeEventListener($target, 'mousedown', mouseDragStartTrigger);
+          // 删除三个关联事件的处理器组。
+          relatedTypes.forEach(function(type) {
+            delete item[type];
+          });
+        }
+        return false;
+      }
+    };
+  }();
+
+  // 使 Firefox 支持 focusin/focusout 事件，使用 focus/blur 事件的捕获阶段模拟。
+  if (navigator.isFirefox) {
+    Object.forEach({focusin: 'focus', focusout: 'blur'}, function(originalType, type) {
+      var count = 0;
+      var trigger = function(e) {
+        e.target.fire(type);
+      };
+      triggers[type] = {
+        add: function() {
+          // 在当前文档内第一次添加本类型事件的监听器时，启用模拟。
+          if (++count === 1) {
+            addEventListener(document, originalType, trigger, true);
+          }
+        },
+        remove: function() {
+          // 在当前文档内添加的本类型事件的监听器全部被删除时，停用模拟。
+          if (--count === 0) {
+            removeEventListener(document, originalType, trigger, true);
+          }
+        }
+      };
+    });
+  }
+
+  // 修复 IE6 IE7 IE8 IE9 的 input 和 change 事件，以及 Firefox 的 change 事件。
+  if (navigator.isIElt10 || navigator.isFirefox) {
+    // 判断传入的值是否为可输入元素。
+    var isInputElement = function(target) {
+      var nodeName = target.nodeName;
+      var controlType = target.type;
+      return nodeName === 'TEXTAREA' || nodeName === 'INPUT' && (controlType === 'text' || controlType === 'password');
+    };
+
+    if (navigator.isIElt10) {
+      // 使 IE6 IE7 IE8 支持 input 事件，并修复 IE9 的 input 事件的 bug。
+      // IE6 IE7 IE8 不支持此事件，其他浏览器支持（需使用 addEventListener 添加监听器）。
+      // 但 IE9 的可输入元素在删除文本内容时（按键 Backspace 和 Delete、菜单删除/剪切、拖拽内容出去）不触发 input 事件。
+      // 为使代码更简洁，此处对上述浏览器使用同一套解决方案来模拟 input 事件，而不为 IE9 单独做修复。
+      // 不能使用 propertychange 事件模拟，因为控件值有可能是脚本修改的，而 input 事件仅应在用户进行修改动作时触发。
+      // 在本模拟方式依赖的事件中，如果阻止 beforeactivate、beforedeactivate 和 dragend 事件的传播，将导致事件模拟失败。
+      // 修复后，唯一与标准 input 事件不同的行为是：当用户的焦点在一个可输入元素中时，该元素的值被脚本更改，之后用户的焦点没有离开本元素，并更改了光标的位置，此时会不正确的触发 input 事件。
+      // 如果上述问题出现了，避免的方式是在使用脚本赋值前或赋值后调用控件的 blur 方法。
+      // 另外，当使用表单自动完成功能时，IE6 IE7 IE8 IE9 Safari 5.1.7 (自动模式) Opera 12.02 (非第一次) 不触发 input 事件。
+      // 考虑到大多数 input 事件是应用到 password 和 textarea 类型的控件，上述自动完成的问题影响并不大，目前未处理。
+      // Opera 12.02 拖拽出去后，源控件不触发 input 事件，目标控件如果是 textarea 也不会触发 input 事件，目前未处理。
+      triggers.input = function() {
+        var count = 0;
+        var $active;
+        // 触发器。
+        var checkValue = function($target) {
+          if ($target._valueBeforeInput_ !== $target.value) {
+            $target._valueBeforeInput_ = $target.value;
+            $target.fire('input');
+          }
+        };
+        // 获取活动的可输入元素。
+        var setActiveInputElement = function(e) {
+          var target = e.srcElement;
+          if (isInputElement(target)) {
+            var $target = $(target);
+            // 如果是拖拽内容进来，本监听器会被连续调用两次，触发 drop 事件时值仍是原始值，赋新值之后才触发 beforeactivate 事件。
+            if (e.type === 'drop') {
+              $target._dropForInput_ = true;
+            }
+            if (e.type === 'beforeactivate' && $target._dropForInput_) {
+              $target._dropForInput_ = false;
+              checkValue($target);
+            } else {
+              $target._valueBeforeInput_ = $target.value;
+            }
+            $active = $target;
+          }
+        };
+        // 清除活动的可输入元素。
+        var clearActiveInputElement = function(e) {
+          if (e.srcElement === $active) {
+            $active = null;
+          }
+        };
+        // 按键触发器，针对按下按键的情况进行检查。
+        var onKeyDown = function(e) {
+          if (e.srcElement === $active) {
+            var $target = $active;
+            setTimeout(function() {
+              checkValue($target);
+            }, 0);
+          }
+        };
+        // 拖拽触发器，针对拖拽内容出去的情况进行检查。
+        var onDragEnd = function(e) {
+          var target = e.srcElement;
+          if ('_valueBeforeInput_' in target) {
+            setTimeout(function() {
+              checkValue(target);
+            }, 0);
+          }
+        };
+        // 选区改变触发器，针对快捷键和菜单修改内容的情况进行检查。
+        var onSelectionChange = function() {
+          if ($active) {
+            checkValue($active);
+          }
+        };
+        // 发布接口。
+        return {
+          add: function() {
+            // 在当前文档内第一次添加 input 事件的监听器时，对全文档内所有可输入元素进行事件模拟及修复。
+            if (++count === 1) {
+              addEventListener(html, 'drop', setActiveInputElement);
+              addEventListener(document, 'beforeactivate', setActiveInputElement);
+              addEventListener(document, 'beforedeactivate', clearActiveInputElement);
+              addEventListener(document, 'selectionchange', onSelectionChange);
+              addEventListener(document, 'keydown', onKeyDown);
+              addEventListener(html, 'dragend', onDragEnd);
+            }
+          },
+          remove: function() {
+            // 在当前文档内添加的 input 事件的监听器全部被删除时，停用事件模拟及修复。已添加过触发器的可输入元素不作处理。
+            if (--count === 0) {
+              removeEventListener(html, 'drop', setActiveInputElement);
+              removeEventListener(document, 'beforeactivate', setActiveInputElement);
+              removeEventListener(document, 'beforedeactivate', clearActiveInputElement);
+              removeEventListener(document, 'selectionchange', onSelectionChange);
+              removeEventListener(document, 'keydown', onKeyDown);
+              removeEventListener(html, 'dragend', onDragEnd);
+            }
+          }
+        };
+      }();
+
+      // 修复 IE6 IE7 IE8 IE9 的 change 事件。
+      // IE6 IE7 IE8 的 change 事件不会冒泡，并且 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
+      // IE6 IE7 IE8 IE9 的可输入元素使用表单自动完成和拖拽内容出去后不会触发 change 事件。
+      // 修复后，唯一与标准 change 事件不同的行为是：当用户的焦点在一个可输入元素中时，该元素的值被脚本更改，之后用户未做任何修改，焦点即离开本元素，此时会不正确的触发 change 事件。
+      // 如果上述问题出现了，避免的方式是在使用脚本赋值前或赋值后调用控件的 blur 方法。
+      // 另外，当使用表单自动完成功能时，Safari 5.1.7 (自动模式) 不触发 change 事件，目前未处理。
+      triggers.change = function() {
+        // 修复 IE6 IE7 IE8 的 radio、checkbox 类型的控件上的 change 事件在失去焦点后才触发以及 select-one、select-multiple 类型的控件上的 change 事件不冒泡的问题。
+        // 对于 IE9 的这些类型的控件，与 IE6 IE7 IE8 的 select-one、select-multiple 类型的控件的处理方式保持一致。
+        // 虽然 IE9 的 change 事件可以冒泡，但为简化代码，不再对其做分支处理。
+        var fixChangeEvent = function(e) {
+          var target = e.srcElement;
+          var nodeName = target.nodeName;
+          var type = target.type;
+          if (!target._changeEventFixed_ && (nodeName === 'INPUT' && (type === 'radio' || type === 'checkbox') || nodeName === 'SELECT')) {
+            var $target = $(target);
+            if (navigator.isIElt9 && nodeName === 'INPUT') {
+              addEventListener($target, 'propertychange', function(e) {
+                if (e.propertyName === 'checked') {
+                  e.srcElement._checkedStateChanged_ = true;
+                }
+              });
+              addEventListener($target, 'click', function(e) {
+                var $target = e.srcElement;
+                if ($target._checkedStateChanged_) {
+                  $target._checkedStateChanged_ = false;
+                  $target.fire('change');
+                }
+              });
+            } else {
+              addEventListener($target, 'change', function(e) {
+                e.srcElement.fire('change');
+              });
+            }
+            $target._changeEventFixed_ = true;
+          }
+        };
+        // 修复 IE6 IE7 IE8 IE9 的 text、password、textarea 类型的控件使用表单自动完成和拖拽内容出去后不会触发 change 事件的问题以及 IE6 IE7 IE8 这些类型的控件上的 change 事件不冒泡的问题。
+        // 虽然这些情况下 IE9 的 change 事件可以冒泡，但为简化代码，不再对其做分支处理。
+        var count = 0;
+        var saveOldValue = function(e) {
+          var target = e.srcElement;
+          if (isInputElement(target)) {
+            // 如果是拖拽内容进来，本监听器会被连续调用两次，触发 drop 事件时值仍是原始值，赋新值之后才触发 beforeactivate 事件。
+            if (target._dropForChange_) {
+              target._dropForChange_ = false;
+            } else {
+              target._valueBeforeChange_ = target.value;
+            }
+            if (e.type === 'drop') {
+              target._dropForChange_ = true;
+            }
+          }
+        };
+        var checkNewValue = function(e) {
+          var target = e.srcElement;
+          if (isInputElement(target)) {
+            var $target = $(target);
+            setTimeout(function() {
+              if ($target._valueBeforeChange_ !== $target.value) {
+                $target._valueBeforeChange_ = $target.value;
+                $target.fire('change');
+              }
+            }, 0);
+          }
+        };
+        return {
+          add: function($target) {
+            addEventListener($target, 'beforeactivate', fixChangeEvent);
+            // 在当前文档内第一次添加 change 事件的监听器时，对全文档内所有可输入元素进行修复（这种修复不会在该元素上添加新监听器）。
+            if (++count === 1) {
+              addEventListener(html, 'drop', saveOldValue);
+              addEventListener(document, 'beforeactivate', saveOldValue);
+              addEventListener(document, 'beforedeactivate', checkNewValue);
+            }
+          },
+          remove: function($target) {
+            removeEventListener($target, 'beforeactivate', fixChangeEvent);
+            // 在当前文档内添加的 change 事件的监听器全部被删除时，停用可输入元素的修复。
+            if (--count === 0) {
+              removeEventListener(html, 'drop', saveOldValue);
+              removeEventListener(document, 'beforeactivate', saveOldValue);
+              removeEventListener(document, 'beforedeactivate', checkNewValue);
+            }
+          }
+        };
+      }();
+
+    }
+
+    // 修复 Firefox 拖拽内容到控件内不触发 change 事件的问题。
+    // 修复依赖的事件触发并不频繁，因此直接修复，不使用触发器。
+    if (navigator.isFirefox) {
+      // Firefox 的拖动方式为复制一份而不是移动，并且如果不是控件内拖拽，焦点不会移动到 drop 的控件内，因此可以直接触发 change 事件。
+      addEventListener(document, 'drop', function(e) {
+        var $target = e.target;
+        if (isInputElement($target) && $target !== document.activeElement) {
+          setTimeout(function() {
+            $target.fire('change');
+          }, 0);
+        }
+      });
+    }
+
+  }
+
+  // 删除一个元素上的所有事件监听器。
+  var removeAllListeners = function($element) {
+    var item = eventHandlers[$element.uid];
+    if (item) {
+      var types = Object.keys(item);
+      var handlers;
+      while (types.length) {
+        handlers = item[types.shift()];
+        while (handlers.length) {
+          $element.off(handlers[0].name);
+        }
+      }
+    }
+    return $element;
+  };
+
+//--------------------------------------------------[DOMEvent]
   /**
    * 事件对象。
    * @name DOMEvent
@@ -1210,13 +2255,13 @@
     if (!e) {
       e = window.event;
     }
-    // 事件代码包含三个二进制位，分别是 鼠标事件 键盘事件 可以冒泡。默认为 100 (4)，即可以冒泡。
-    var code = EVENT_CODES.hasOwnProperty(type) ? EVENT_CODES[type] : 4;
+    // 事件代码包含三个二进制位，分别是 鼠标事件 键盘事件 可以冒泡。默认为 000 (0)。
+    var code = EVENT_CODES.hasOwnProperty(type) ? EVENT_CODES[type] : 0;
     // 保存原生事件对象。
     this.originalEvent = e;
     // 事件类型，这时候的 type 就是调用 on 时使用的事件类型。
     this.type = type;
-    // 目标元素。
+    // 触发本次事件的对象。
     var target = 'target' in e ? e.target : e.srcElement || document;
     if (target.nodeType === 3) {
       target = target.parentNode;
@@ -1260,7 +2305,7 @@
           this.rightButton = !!(button & 2);
           this.which = this.leftButton ? 1 : this.middleButton ? 2 : this.rightButton ? 3 : 0;
         }
-        // 相关元素。
+        // 与本次事件相关的对象。
         this.relatedTarget = $('relatedTarget' in e ? e.relatedTarget : ('fromElement' in e ? (e.fromElement === target ? e.toElement : e.fromElement) : null));
       } else {
         this.which = e.which || e.charCode || e.keyCode || 0;
@@ -1420,7 +2465,7 @@
 
   Object.mixin(DOMEvent.prototype, {
     /**
-     * 阻止事件的传播，被阻止传播的事件将不会向其他元素传播。
+     * 阻止事件的传播。
      * @name DOMEvent.prototype.stopPropagation
      * @function
      */
@@ -1462,7 +2507,7 @@
     isDefaultPrevented: returnFalse,
 
     /**
-     * 立即阻止事件的传播，被立即阻止传播的事件不仅不会向其他元素传播，也不会在当前元素上被分发到其他的监听器。
+     * 立即阻止事件的传播，被立即阻止传播的事件也不会在当前的对象上被分发到其他的监听器。
      * @name DOMEvent.prototype.stopImmediatePropagation
      * @function
      */
@@ -1481,445 +2526,21 @@
 
   });
 
-  // 解析监听器名称，取出相关的属性。
-  var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
-  var getEventAttributes = function(name) {
-    var match = name.match(eventNamePattern);
-    if (match === null) {
-      throw new SyntaxError('Invalid event name "' + name + '"');
-    }
-    return {type: match[1], selector: match[2] || '', once: !!match[3], idle: parseInt(match[4], 10), throttle: parseInt(match[5], 10)};
-  };
-
-  // 添加和删除原生事件监听器。
-  var addEventListener = 'addEventListener' in window ? function($element, eventType, eventListener, useCapture) {
-    $element.addEventListener(eventType, eventListener, useCapture);
-  } : function($element, eventType, eventListener) {
-    $element.attachEvent('on' + eventType, eventListener);
-  };
-  var removeEventListener = 'removeEventListener' in window ? function($element, eventType, eventListener, useCapture) {
-    $element.removeEventListener(eventType, eventListener, useCapture);
-  } : function($element, eventType, eventListener) {
-    $element.detachEvent('on' + eventType, eventListener);
-  };
-
-  // 将事件对象分发给目标元素上添加的此类型事件的监听器。
-  var distributeEvent = function($element, handlers, event, isTriggered) {
-    // 分发时对 handlers 的副本（仅复制了 handlers 的数组部分）操作，以避免在监听器内添加或删除目标元素同类型的监听器时会影响本次分发过程。
-    var handlersCopy = handlers.slice(0);
-    var delegateCount = handlers.delegateCount;
-    var $current = delegateCount ? event.target : $element;
-    var filters = {};
-    var handler;
-    var selector;
-    var i;
-    var total;
-    // 开始分发。
-    do {
-      if ($current === $element) {
-        // 普通监听器。
-        i = delegateCount;
-        total = handlersCopy.length;
-      } else {
-        // 代理监听器。
-        i = 0;
-        total = delegateCount;
-      }
-      while (i < total) {
-        handler = handlersCopy[i++];
-        selector = handler.selector;
-        // 如果是代理事件监听，则过滤出符合条件的元素。
-        if (!selector || (filters[selector] || (filters[selector] = function(simpleSelector) {
-          if (simpleSelector) {
-            return function($target) {
-              var tagName = simpleSelector.tagName;
-              var className = simpleSelector.className;
-              return (tagName ? $target.nodeName === tagName : true) && (className ? $target.hasClass(className) : true);
-            };
-          } else {
-            var elements = $element.findAll(selector);
-            return function($target) {
-              return elements.contains($target);
-            }
-          }
-        }(handler.simpleSelector)))($current)) {
-          if (!isTriggered || isTriggered.call($current, event)) {
-            // 监听器被调用时 this 的值为监听到本次事件的元素。
-            if (handler.listener.call($current, event) === false) {
-              event.stopPropagation();
-              event.preventDefault();
-            }
-            if (event.isImmediatePropagationStopped()) {
-              break;
-            }
-          }
-        }
-      }
-      // 如果正在进行代理监听（当前元素不是监听到本次事件的元素），且事件可以继续传播时，向上一级元素传播，直到传播到监听到本次事件的元素为止。
-    } while (!($current === $element || event.isPropagationStopped()) && ($current = $current.getParent() || $current === html && $element));
-  };
-
-  // 触发器。
-  var triggers = {};
-
-  // 拖动相关事件，为避免覆盖 HTML5 草案中引入的同名事件，加入前缀 mouse。
-  // 只支持鼠标左键的拖拽，拖拽过程中松开左键、按下其他键、或当前窗口失去焦点都将导致拖拽事件结束。
-  // 应避免在拖拽进行时删除本组事件的监听器，否则可能导致拖拽动作无法正常完成。
-  triggers.mousedragstart = triggers.mousedrag = triggers.mousedragend = function() {
-    var dragState;
-    var relatedTypes = ['mousedragstart', 'mousedrag', 'mousedragend'];
-    // 在 Chrome 25 和 Safari 5.1.7 下，如果一个页面是在 frame 中被载入的，那么在该页面中，一旦有一个传递到 document 的 mousedown 事件被阻止了默认行为，则在 document 上后续发生的 mousemove 事件在鼠标指针离开该文档的区域后无法被自动捕获。因此使用以下监听器来避免在拖动过程中选中页面的内容。
-    // http://www.w3help.org/zh-cn/causes/BX2050
-    var unselectableForWebKit = function(e) {
-      e.preventDefault();
-    };
-    if ((navigator.isChrome || navigator.isSafari) && window !== top) {
-      unselectableForWebKit.enabled = true;
-    }
-    var mouseDragStartTrigger = function(e) {
-      if (!dragState) {
-        var event = new DOMEvent('mousedragstart', e);
-        if (event.leftButton) {
-          event.offsetX = event.offsetY = 0;
-          var $target = event.target;
-          if ($target.setCapture) {
-            $target.setCapture();
-          }
-          // 避免在拖动过程中选中页面的内容。
-          if (unselectableForWebKit.enabled) {
-            addEventListener(document, 'selectstart', unselectableForWebKit);
-          } else {
-            event.preventDefault();
-          }
-          dragState = {target: $target, startX: event.pageX, startY: event.pageY};
-          dragState.lastEvent = event;
-          $target.fire(INTERNAL_IDENTIFIER_EVENT, event);
-          setTimeout(function() {
-            addEventListener(document, 'mousemove', mouseDragTrigger);
-            addEventListener(document, 'mousedown', mouseDragEndTrigger);
-            addEventListener(document, 'mouseup', mouseDragEndTrigger);
-            addEventListener(window, 'blur', mouseDragEndTrigger);
-          }, 0);
-        }
-      }
-    };
-    var mouseDragTrigger = function(e) {
-      var event = new DOMEvent('mousedrag', e);
-      event.target = dragState.target;
-      event.offsetX = event.pageX - dragState.startX;
-      event.offsetY = event.pageY - dragState.startY;
-      dragState.lastEvent = event;
-      dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
-    };
-    var mouseDragEndTrigger = function() {
-      var $target = dragState.target;
-      if ($target.releaseCapture) {
-        $target.releaseCapture();
-      }
-      // 使用上一个拖拽相关事件作为 mousedragend 的事件对象，以确保任何情况下都有鼠标坐标相关信息。
-      var event = dragState.lastEvent;
-      // 避免上一个拖拽相关事件的传播或默认行为被阻止。
-      event.isPropagationStopped = event.isDefaultPrevented = event.isImmediatePropagationStopped = returnFalse;
-      event.type = 'mousedragend';
-      dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
-      dragState = null;
-      if (unselectableForWebKit.enabled) {
-        removeEventListener(document, 'selectstart', unselectableForWebKit);
-      }
-      removeEventListener(document, 'mousemove', mouseDragTrigger);
-      removeEventListener(document, 'mousedown', mouseDragEndTrigger);
-      removeEventListener(document, 'mouseup', mouseDragEndTrigger);
-      removeEventListener(window, 'blur', mouseDragEndTrigger);
-    };
-    return {
-      add: function($element) {
-        // 向这三个关联事件中添加第一个监听器时，即创建 mousedragstart 触发器，该触发器会动态添加/删除另外两个事件的触发器。
-        addEventListener($element, 'mousedown', mouseDragStartTrigger);
-        // 创建另外两个事件的处理器组。
-        var item = eventHandlers[$element.uid];
-        relatedTypes.forEach(function(relatedType) {
-          if (!item[relatedType]) {
-            var handlers = [];
-            handlers.delegateCount = 0;
-            item[relatedType] = handlers;
-          }
-        });
-      },
-      remove: function($element) {
-        // 在这三个关联事件中删除最后一个监听器后，才删除它们的触发器。
-        var item = eventHandlers[$element.uid];
-        var handlerCount = 0;
-        relatedTypes.forEach(function(relatedType) {
-          handlerCount += item[relatedType].length;
-        });
-        if (handlerCount === 0) {
-          removeEventListener($element, 'mousedown', mouseDragStartTrigger);
-          // 删除三个关联事件的处理器组。
-          relatedTypes.forEach(function(type) {
-            delete item[type];
-          });
-        }
-        return false;
-      }
-    };
-  }();
-
-  // 使 Firefox 支持 focusin/focusout 事件，使用 focus/blur 事件的捕获阶段模拟。
-  if (navigator.isFirefox) {
-    Object.forEach({focusin: 'focus', focusout: 'blur'}, function(originalType, type) {
-      var count = 0;
-      var trigger = function(e) {
-        e.target.fire(type);
-      };
-      triggers[type] = {
-        add: function() {
-          // 在当前文档内第一次添加本类型事件的监听器时，启用模拟。
-          if (++count === 1) {
-            addEventListener(document, originalType, trigger, true);
-          }
-        },
-        remove: function() {
-          // 在当前文档内添加的本类型事件的监听器全部被删除时，停用模拟。
-          if (--count === 0) {
-            removeEventListener(document, originalType, trigger, true);
-          }
-        }
-      };
-    });
-  }
-
-  // 修复 IE6 IE7 IE8 IE9 的 input 和 change 事件，以及 Firefox 的 change 事件。
-  if (navigator.isIElt10 || navigator.isFirefox) {
-    // 判断一个元素是否为可输入元素。
-    var isInputElement = function(element) {
-      var nodeName = element.nodeName;
-      var controlType = element.type;
-      return nodeName === 'TEXTAREA' || nodeName === 'INPUT' && (controlType === 'text' || controlType === 'password');
-    };
-
-    if (navigator.isIElt10) {
-      // 使 IE6 IE7 IE8 支持 input 事件，并修复 IE9 的 input 事件的 bug。
-      // IE6 IE7 IE8 不支持此事件，其他浏览器支持（需使用 addEventListener 添加监听器）。
-      // 但 IE9 的可输入元素在删除文本内容时（按键 Backspace 和 Delete、菜单删除/剪切、拖拽内容出去）不触发 input 事件。
-      // 为使代码更简洁，此处对上述浏览器使用同一套解决方案来模拟 input 事件，而不为 IE9 单独做修复。
-      // 不能使用 propertychange 事件模拟，因为控件值有可能是脚本修改的，而 input 事件仅应在用户进行修改动作时触发。
-      // 在本模拟方式依赖的事件中，如果阻止 beforeactivate、beforedeactivate 和 dragend 事件的传播，将导致事件模拟失败。
-      // 修复后，唯一与标准 input 事件不同的行为是：当用户的焦点在一个可输入元素中时，该元素的值被脚本更改，之后用户的焦点没有离开本元素，并更改了光标的位置，此时会不正确的触发 input 事件。
-      // 如果上述问题出现了，避免的方式是在使用脚本赋值前或赋值后调用控件的 blur 方法。
-      // 另外，当使用表单自动完成功能时，IE6 IE7 IE8 IE9 Safari 5.1.7 (自动模式) Opera 12.02 (非第一次) 不触发 input 事件。
-      // 考虑到大多数 input 事件是应用到 password 和 textarea 类型的控件，上述自动完成的问题影响并不大，目前未处理。
-      // Opera 12.02 拖拽出去后，源控件不触发 input 事件，目标控件如果是 textarea 也不会触发 input 事件，目前未处理。
-      triggers.input = function() {
-        var count = 0;
-        var $active;
-        // 触发器。
-        var checkValue = function($element) {
-          if ($element._valueBeforeInput_ !== $element.value) {
-            $element._valueBeforeInput_ = $element.value;
-            $element.fire('input');
-          }
-        };
-        // 获取活动的可输入元素。
-        var setActiveInputElement = function(e) {
-          var element = e.srcElement;
-          if (isInputElement(element)) {
-            var $element = $(element);
-            // 如果是拖拽内容进来，本监听器会被连续调用两次，触发 drop 事件时值仍是原始值，赋新值之后才触发 beforeactivate 事件。
-            if (e.type === 'drop') {
-              $element._dropForInput_ = true;
-            }
-            if (e.type === 'beforeactivate' && $element._dropForInput_) {
-              $element._dropForInput_ = false;
-              checkValue($element);
-            } else {
-              $element._valueBeforeInput_ = $element.value;
-            }
-            $active = $element;
-          }
-        };
-        // 清除活动的可输入元素。
-        var clearActiveInputElement = function(e) {
-          if (e.srcElement === $active) {
-            $active = null;
-          }
-        };
-        // 按键触发器，针对按下按键的情况进行检查。
-        var onKeyDown = function(e) {
-          if (e.srcElement === $active) {
-            var $element = $active;
-            setTimeout(function() {
-              checkValue($element);
-            }, 0);
-          }
-        };
-        // 拖拽触发器，针对拖拽内容出去的情况进行检查。
-        var onDragEnd = function(e) {
-          var element = e.srcElement;
-          if ('_valueBeforeInput_' in element) {
-            setTimeout(function() {
-              checkValue(element);
-            }, 0);
-          }
-        };
-        // 选区改变触发器，针对快捷键和菜单修改内容的情况进行检查。
-        var onSelectionChange = function() {
-          if ($active) {
-            checkValue($active);
-          }
-        };
-        // 发布接口。
-        return {
-          add: function() {
-            // 在当前文档内第一次添加 input 事件的监听器时，对全文档内所有可输入元素进行事件模拟及修复。
-            if (++count === 1) {
-              addEventListener(html, 'drop', setActiveInputElement);
-              addEventListener(document, 'beforeactivate', setActiveInputElement);
-              addEventListener(document, 'beforedeactivate', clearActiveInputElement);
-              addEventListener(document, 'selectionchange', onSelectionChange);
-              addEventListener(document, 'keydown', onKeyDown);
-              addEventListener(html, 'dragend', onDragEnd);
-            }
-          },
-          remove: function() {
-            // 在当前文档内添加的 input 事件的监听器全部被删除时，停用事件模拟及修复。已添加过触发器的可输入元素不作处理。
-            if (--count === 0) {
-              removeEventListener(html, 'drop', setActiveInputElement);
-              removeEventListener(document, 'beforeactivate', setActiveInputElement);
-              removeEventListener(document, 'beforedeactivate', clearActiveInputElement);
-              removeEventListener(document, 'selectionchange', onSelectionChange);
-              removeEventListener(document, 'keydown', onKeyDown);
-              removeEventListener(html, 'dragend', onDragEnd);
-            }
-          }
-        };
-      }();
-
-      // 修复 IE6 IE7 IE8 IE9 的 change 事件。
-      // IE6 IE7 IE8 的 change 事件不会冒泡，并且 INPUT[type=radio|checkbox] 上的 change 事件在失去焦点后才触发。
-      // IE6 IE7 IE8 IE9 的可输入元素使用表单自动完成和拖拽内容出去后不会触发 change 事件。
-      // 修复后，唯一与标准 change 事件不同的行为是：当用户的焦点在一个可输入元素中时，该元素的值被脚本更改，之后用户未做任何修改，焦点即离开本元素，此时会不正确的触发 change 事件。
-      // 如果上述问题出现了，避免的方式是在使用脚本赋值前或赋值后调用控件的 blur 方法。
-      // 另外，当使用表单自动完成功能时，Safari 5.1.7 (自动模式) 不触发 change 事件，目前未处理。
-      triggers.change = function() {
-        // 修复 IE6 IE7 IE8 的 radio、checkbox 类型的控件上的 change 事件在失去焦点后才触发以及 select-one、select-multiple 类型的控件上的 change 事件不冒泡的问题。
-        // 对于 IE9 的这些类型的控件，与 IE6 IE7 IE8 的 select-one、select-multiple 类型的控件的处理方式保持一致。
-        // 虽然 IE9 的 change 事件可以冒泡，但为简化代码，不再对其做分支处理。
-        var fixChangeEvent = function(e) {
-          var element = e.srcElement;
-          var nodeName = element.nodeName;
-          var type = element.type;
-          if (!element._changeEventFixed_ && (nodeName === 'INPUT' && (type === 'radio' || type === 'checkbox') || nodeName === 'SELECT')) {
-            var $element = $(element);
-            if (navigator.isIElt9 && nodeName === 'INPUT') {
-              addEventListener($element, 'propertychange', function(e) {
-                if (e.propertyName === 'checked') {
-                  e.srcElement._checkedStateChanged_ = true;
-                }
-              });
-              addEventListener($element, 'click', function(e) {
-                var $element = e.srcElement;
-                if ($element._checkedStateChanged_) {
-                  $element._checkedStateChanged_ = false;
-                  $element.fire('change');
-                }
-              });
-            } else {
-              addEventListener($element, 'change', function(e) {
-                e.srcElement.fire('change');
-              });
-            }
-            $element._changeEventFixed_ = true;
-          }
-        };
-        // 修复 IE6 IE7 IE8 IE9 的 text、password、textarea 类型的控件使用表单自动完成和拖拽内容出去后不会触发 change 事件的问题以及 IE6 IE7 IE8 这些类型的控件上的 change 事件不冒泡的问题。
-        // 虽然这些情况下 IE9 的 change 事件可以冒泡，但为简化代码，不再对其做分支处理。
-        var count = 0;
-        var saveOldValue = function(e) {
-          var element = e.srcElement;
-          if (isInputElement(element)) {
-            // 如果是拖拽内容进来，本监听器会被连续调用两次，触发 drop 事件时值仍是原始值，赋新值之后才触发 beforeactivate 事件。
-            if (element._dropForChange_) {
-              element._dropForChange_ = false;
-            } else {
-              element._valueBeforeChange_ = element.value;
-            }
-            if (e.type === 'drop') {
-              element._dropForChange_ = true;
-            }
-          }
-        };
-        var checkNewValue = function(e) {
-          var element = e.srcElement;
-          if (isInputElement(element)) {
-            var $element = $(element);
-            setTimeout(function() {
-              if ($element._valueBeforeChange_ !== $element.value) {
-                $element._valueBeforeChange_ = $element.value;
-                $element.fire('change');
-              }
-            }, 0);
-          }
-        };
-        return {
-          add: function($element) {
-            addEventListener($element, 'beforeactivate', fixChangeEvent);
-            // 在当前文档内第一次添加 change 事件的监听器时，对全文档内所有可输入元素进行修复（这种修复不会在目标元素上添加新监听器）。
-            if (++count === 1) {
-              addEventListener(html, 'drop', saveOldValue);
-              addEventListener(document, 'beforeactivate', saveOldValue);
-              addEventListener(document, 'beforedeactivate', checkNewValue);
-            }
-          },
-          remove: function($element) {
-            removeEventListener($element, 'beforeactivate', fixChangeEvent);
-            // 在当前文档内添加的 change 事件的监听器全部被删除时，停用可输入元素的修复。
-            if (--count === 0) {
-              removeEventListener(html, 'drop', saveOldValue);
-              removeEventListener(document, 'beforeactivate', saveOldValue);
-              removeEventListener(document, 'beforedeactivate', checkNewValue);
-            }
-          }
-        };
-      }();
-
-    }
-
-    // 修复 Firefox 拖拽内容到控件内不触发 change 事件的问题。
-    // 修复依赖的事件触发并不频繁，因此直接修复，不使用触发器。
-    if (navigator.isFirefox) {
-      // Firefox 的拖动方式为复制一份而不是移动，并且如果不是控件内拖拽，焦点不会移动到 drop 的控件内，因此可以直接触发 change 事件。
-      addEventListener(document, 'drop', function(e) {
-        var $element = e.target;
-        if (isInputElement($element) && $element !== document.activeElement) {
-          setTimeout(function() {
-            $element.fire('change');
-          }, 0);
-        }
-      });
-    }
-
-  }
-
-  // 删除目标元素上的所有事件监听器。
-  var removeAllListeners = function(element) {
-    var item = eventHandlers[element.uid];
-    if (item) {
-      var types = Object.keys(item);
-      var handlers;
-      while (types.length) {
-        handlers = item[types.shift()];
-        while (handlers.length) {
-          element.off(handlers[0].name);
-        }
-      }
-    }
-    return element;
-  };
-
-//--------------------------------------------------[Element.prototype.on]
+//--------------------------------------------------[DOMEventTarget]
   /**
-   * 为本元素添加事件监听器。
-   * @name Element.prototype.on
+   * 所有的 DOMEventTarget 对象都自动具备处理事件的能力，window 对象、document 对象和所有的 Element 对象都是 DOMEventTarget 对象。
+   * @name DOMEventTarget
+   * @constructor
+   * @description
+   *   DOMEventTarget 对象在处理事件时，是工作在 DOM 事件模型中的。
+   */
+  var DOMEventTarget = function() {
+  };
+
+//--------------------------------------------------[DOMEventTarget.prototype.on]
+  /**
+   * 为本对象添加事件监听器。
+   * @name DOMEventTarget.prototype.on
    * @function
    * @param {string} name 监听器名称。
    *   监听器名称由要监听的事件类型（必选）、限定符（可选）和标签（可选）组成，格式如下：
@@ -1933,7 +2554,7 @@
    *     </tr>
    *     <tr>
    *       <td><dfn>:relay(<var>selector</var>)</dfn></td>
-   *       <td>指定本监听器为代理事件监听器，监听的目标为本元素的后代元素中，符合 <var>selector</var> 限定的元素。<br><var>selector</var> 应为合法的 CSS 选择符。</td>
+   *       <td>指定本监听器为代理事件监听器，监听的目标为文档树中（如果本方法在 document 上被调用）或本元素的后代元素中（如果本方法在一个元素上被调用），符合 <var>selector</var> 限定的元素。<br><var>selector</var> 应为合法的 CSS 选择符。</td>
    *     </tr>
    *     <tr>
    *       <td><dfn>:once</dfn></td>
@@ -1949,22 +2570,22 @@
    *     </tr>
    *     <tr>
    *       <td><dfn>.<var>label</var></dfn></td>
-   *       <td>在监听器名称的末尾添加标签可以可以使相同元素上添加的相同类型、相同行为的监听器具备不同的名称。不同的名称可以确保调用 off 方法时能够精确匹配要删除的监听器。<br>添加具有明确含义的标签，可以最大限度的避免监听器被误删。<br><var>label</var> 可以使用英文字母、数字和下划线。</td>
+   *       <td>在监听器名称的末尾添加标签可以可以使相同对象上添加的相同类型、相同行为的监听器具备不同的名称。不同的名称可以确保调用 off 方法时能够精确匹配要删除的监听器。<br>添加具有明确含义的标签，可以最大限度的避免监听器被误删。<br><var>label</var> 可以使用英文字母、数字和下划线。</td>
    *     </tr>
    *   </table>
-   *   使用逗号分割多个监听器名称，即可以在本元素上使用多个名称将同一个监听器添加多次。
+   *   使用逗号分割多个监听器名称，即可以在本对象上使用多个名称将同一个监听器添加多次。
    * @param {Function} listener 监听器。
    *   该函数将在对应的事件发生时被调用，传入事件对象作为参数。如果指定了 idle 或 throttle 限定符，则该事件对象无法被阻止传播或取消默认行为。
-   *   该函数被调用时 this 的值为监听到本次事件的元素，即：
+   *   该函数被调用时 this 的值为监听到本次事件的对象，即：
    *   <ul>
-   *     <li>如果是普通监听器，则 this 的值为本元素。</li>
+   *     <li>如果是普通监听器，则 this 的值为本对象。</li>
    *     <li>如果是代理监听器，则 this 的值为被代理的元素。</li>
    *   </ul>
    *   如果该函数返回 false，则相当于调用了传入的事件对象的 stopPropagation 和 preventDefault 方法。
-   * @returns {Element} 本元素。
+   * @returns {Object} 本对象。
    * @example
-   *   $element.on('click', onClick);
-   *   // 为 $element 添加一个 click 事件的监听器。
+   *   document.on('click', onClick);
+   *   // 为 document 添加一个 click 事件的监听器。
    * @example
    *   $element.on('click:relay(a)', onClick);
    *   // 为 $element 添加一个代理监听器，为该元素所有的后代 A 元素代理 click 事件的监听。
@@ -1981,12 +2602,12 @@
    * @see http://www.quirksmode.org/dom/events/index.html
    */
   var simpleSelectorPattern = /^(\w*)(?:\.([\w\-]+))?$/;
-  Element.prototype.on = function(name, listener) {
-    // 自动扩展本元素，以便于在控制台进行调试。
-    var $element = $(this);
-    var uid = $element.uid;
+  DOMEventTarget.prototype.on = function(name, listener) {
+    // 自动扩展元素，以便于在控制台进行调试。
+    var $target = $(this);
+    var uid = $target.uid;
     var item = eventHandlers[uid] || (eventHandlers[uid] = {});
-    // 使用一个监听器监听该元素上的多个事件。
+    // 使用一个监听器监听该对象上的多个事件。
     name.split(separator).forEach(function(name) {
       // 取出事件名中携带的各种属性。
       var attributes = getEventAttributes(name);
@@ -2003,7 +2624,7 @@
         if (EVENT_CODES.hasOwnProperty(type)) {
           if (triggers[type]) {
             // 添加触发器。
-            triggers[type].add($element);
+            triggers[type].add($target);
           } else {
             // 添加分发器。
             var distributor;
@@ -2016,7 +2637,7 @@
                   var wheel = 'wheelDelta' in originalEvent ? -originalEvent.wheelDelta : originalEvent.detail || 0;
                   event.wheelUp = wheel < 0;
                   event.wheelDown = wheel > 0;
-                  distributeEvent($element, handlers, event);
+                  distributeEvent($target, handlers, event);
                 };
                 distributor.type = navigator.isFirefox ? 'DOMMouseScroll' : 'mousewheel';
                 break;
@@ -2024,7 +2645,7 @@
               case 'mouseleave':
                 // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
                 distributor = function(e) {
-                  distributeEvent($element, handlers, new DOMEvent(type, e), function(event) {
+                  distributeEvent($target, handlers, new DOMEvent(type, e), function(event) {
                     var $relatedTarget = event.relatedTarget;
                     // 加入 this.contains 的判断，避免 window 和一些浏览器的 document 对象调用出错。
                     return !$relatedTarget || this.contains && !this.contains($relatedTarget);
@@ -2035,12 +2656,12 @@
               default:
                 // 通用分发器。
                 distributor = function(e) {
-                  distributeEvent($element, handlers, new DOMEvent(type, e));
+                  distributeEvent($target, handlers, new DOMEvent(type, e));
                 };
                 distributor.type = type;
             }
             // 将分发器作为指定类型的原生事件的监听器。
-            addEventListener($element, distributor.type, distributor);
+            addEventListener($target, distributor.type, distributor);
             handlers.distributor = distributor;
           }
         }
@@ -2054,7 +2675,7 @@
         // 仅能被调用一次的监听器，调用后即被自动删除（根据添加时的监听器名称）。如果有重名的监听器则这些监听器将全部被删除。
         handler.listener = function(event) {
           var result = listener.call(this, event);
-          $element.off(name);
+          $target.off(name);
           return result;
         };
       } else if (idle) {
@@ -2119,30 +2740,33 @@
         handlers.push(handler);
       }
     });
-    return $element;
+    return $target;
   };
 
-//--------------------------------------------------[Element.prototype.off]
+//--------------------------------------------------[DOMEventTarget.prototype.off]
   /**
-   * 删除本元素上已添加的事件监听器。
-   * @name Element.prototype.off
+   * 删除本对象上已添加的事件监听器。
+   * @name DOMEventTarget.prototype.off
    * @function
    * @param {string} name 监听器名称。
-   *   本元素上添加的所有名称与 name 匹配的监听器都将被删除。
-   *   使用逗号分割多个监听器名称，即可同时删除该元素上的多个监听器。
-   * @returns {Element} 本元素。
+   *   本对象上添加的所有名称与 name 匹配的监听器都将被删除。
+   *   使用逗号分割多个监听器名称，即可同时删除该对象上的多个监听器。
+   * @returns {Object} 本对象。
    * @example
-   *   $element.off('click.temp');
-   *   // 为 $element 删除名为 click.temp 的监听器。
+   *   document.off('click');
+   *   // 为 document 删除名为 click 的监听器。
+   * @example
+   *   $element.off('click:relay(a)');
+   *   // 为 $element 删除名为 click:relay(a) 的监听器。
    */
-  Element.prototype.off = function(name) {
-    var $element = this;
-    var uid = $element.uid;
+  DOMEventTarget.prototype.off = function(name) {
+    var $target = this;
+    var uid = $target.uid;
     var item = eventHandlers[uid];
     if (!item) {
-      return $element;
+      return $target;
     }
-    // 同时删除该元素上的多个监听器。
+    // 同时删除该对象上的多个监听器。
     name.split(separator).forEach(function(name) {
       // 取出事件类型。
       var type = getEventAttributes(name).type;
@@ -2171,14 +2795,14 @@
         if (EVENT_CODES.hasOwnProperty(type)) {
           if (triggers[type]) {
             // 删除触发器。
-            if (triggers[type].remove($element) === false) {
+            if (triggers[type].remove($target) === false) {
               // 拖拽的三个关联事件的触发器会自己管理它们的处理器组，返回 false 避免其中某个事件的处理器组被删除。
               return;
             }
           } else {
             // 删除分发器。
             var distributor = handlers.distributor;
-            removeEventListener($element, distributor.type, distributor);
+            removeEventListener($target, distributor.type, distributor);
           }
         }
         // 删除处理器组。
@@ -2189,763 +2813,50 @@
     if (Object.keys(item).length === 0) {
       delete eventHandlers[uid];
     }
-    return $element;
+    return $target;
   };
 
-//--------------------------------------------------[Element.prototype.fire]
+//--------------------------------------------------[DOMEventTarget.prototype.fire]
   /**
-   * 触发本元素的某类事件。
-   * @name Element.prototype.fire
+   * 触发本对象的某类事件。
+   * @name DOMEventTarget.prototype.fire
    * @function
    * @param {string} type 事件类型。
    * @param {Object} [data] 在事件对象上附加的数据。
-   *   data 的属性会被追加到事件对象中，但名称为 originalEvent、type、target 的属性除外。如果不希望事件在文档树中传播，指定其 bubbles 属性为 false 即可。
+   *   data 的属性会被追加到事件对象中，但名称为 originalEvent、type、target 的属性除外。
+   *   如果指定其 bubbles 属性为 true，则该事件将可以在文档树中传播。
    * @returns {Object} 事件对象。
    * @description
    *   通过调用本方法产生的事件对象不具备默认行为。
-   *   如果需要执行此类事件的默认行为，可以直接在目标元素上调用对应的方法（如 click、reset 等）。
+   *   如果需要执行此类事件的默认行为，可以直接在本对象上调用对应的方法（如 click、reset 等）。
    */
-  Element.prototype.fire = function(type, data) {
+  DOMEventTarget.prototype.fire = function(type, data) {
     // 内部使用时，type 可能被传入 INTERNAL_IDENTIFIER_EVENT，此时的 data 已经是一个 DOMEvent 对象。
     var event = type === INTERNAL_IDENTIFIER_EVENT ? data : new DOMEvent(type, {type: '', target: this}, data);
     // 传播事件并返回传播后的事件对象。
-    var $element = this;
+    var $target = this;
     var item;
     var handlers;
-    while ($element) {
-      if (handlers = (item = eventHandlers[$element.uid]) && item[event.type]) {
-        distributeEvent($element, handlers, event);
+    while ($target) {
+      if (handlers = (item = eventHandlers[$target.uid]) && item[event.type]) {
+        distributeEvent($target, handlers, event);
       }
-      // IE6 中即便 $element 就是 window，表达式 $element == window 也返回 false。
-      if (!event.bubbles || event.isPropagationStopped() || $element.uid === 'window') {
+      // IE6 中即便 $target 就是 window，表达式 $target == window 也返回 false。
+      if (!event.bubbles || event.isPropagationStopped() || $target.uid === 'window') {
         break;
       }
-      $element = $element === document ? window : $element.getParent() || $element === html && document || null;
+      $target = $target === document ? window : $target.getParent() || $target === html && document || null;
     }
     return event;
   };
 
-//==================================================[Element 扩展 - 表单]
+//==================================================[DOM 事件模型 - 应用]
   /*
-   * 为表单元素扩展新特性。
-   *
-   * 扩展方法：
-   *   HTMLFormElement.prototype.getFieldValue
-   *   HTMLFormElement.prototype.serialize  // TODO
+   * 使 window 对象、document 对象和所有的 Element 对象都具备 DOMEventTarget 对象提供的实例方法。
    */
 
-//--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
-  /*
-   * 获取一个或一组控件的当前值，并对下列不一致的情况（*）作统一化处理。
-   * 如果为 select-one 类型：
-   *   取最后一个设置了 selected 的 OPTION 值。
-   *   若该 OPTION 设置了 disabled 则认为本控件无有效值（虽然此时可以取到该控件的 selectedIndex 和 value 值）。
-   *     * IE6 IE7 不支持 OPTION 和 OPTGROUP 元素的 disabled 属性（http://w3help.org/zh-cn/causes/HF3013）。
-   *   若没有设置了 selected 的 OPTION，则取第一个未设置 disabled 的 OPTION 值。
-   *     * Safari 5.1.7 在上述情况发生时，其 selectedIndex 为 0，但认为本控件无有效值。
-   *     ! IE6 IE7 不支持 OPTION 的 disabled 属性，所以其 selectedIndex 将为 0，但由于 IE6 IE7 不支持 hasAttribute 方法，因此无法修复本差异。
-   *   若所有的 OPTION 都设置了 disabled，则其 selectedIndex 为 -1，并且认为本控件无有效值。
-   *     * 仅 Firefox 14.0.1 和 Opera 12.02 在上述情况发生时会将其 selectedIndex 设置为 -1，但后者会将第一个 OPTION 元素的 value 作为有效值提交。
-   *     * 其他浏览器则将其 selectedIndex 设置为 0，但认为本控件无有效值。
-   * 如果为 select-multiple 类型：
-   *   若没有设置了 selected 的 OPTION，则认为没有默认选中项，selectedIndex 为 -1，本控件无有效值（多选情况下的 selectedIndex 和 value 无实际意义）。
-   *   所有设置了 selected 的 OPTION 认为有效。
-   *   所有设置了 disabled 的 OPTION 认为无效。
-   */
-  /**
-   * 获取本表单内某个域的当前值。
-   * @name HTMLFormElement.prototype.getFieldValue
-   * @function
-   * @param {string} name 域的名称。
-   * @returns {string|Array} 域的当前值。
-   * @description
-   *   当该域只包含一个非 select-multiple 类型的控件时，如果具备有效值则返回该值，否则返回空字符串（将无效值与空字符串等同处理是为了降低后续处理的复杂度）。
-   *   其他情况（该域只包含一个 select-multiple 类型的控件或者多个任意类型的控件时）返回数组，值为空字符串的项不会被加入数组。
-   * @see http://www.w3.org/TR/REC-html40/interact/forms.html#successful-controls
-   */
-  var getCurrentValue = function(control) {
-    var value = '';
-    if (control.nodeType) {
-      switch (control.type) {
-        case 'radio':
-        case 'checkbox':
-          if (control.checked && !control.disabled) {
-            value = control.value;
-          }
-          break;
-        case 'select-one':
-        case 'select-multiple':
-          if (!control.disabled) {
-            // 不能使用 Array.from(control.options).forEach(...)，原因见 typeOf 的注释。
-            var options = control.options;
-            var option;
-            var i = 0;
-            if (control.type === 'select-one') {
-              var selectedIndex = control.selectedIndex;
-              if (navigator.isSafari && selectedIndex === 0 && !options[0].hasAttribute('selected')) {
-                while (option = options[++i]) {
-                  if (!option.disabled && !option.parentNode.disabled) {
-                    selectedIndex = i;
-                    break;
-                  }
-                }
-              }
-              if (selectedIndex >= 0 && !options[selectedIndex].disabled) {
-                value = options[selectedIndex].value;
-              }
-            } else {
-              value = [];
-              while (option = options[i++]) {
-                if (option.selected && !option.disabled && !option.parentNode.disabled) {
-                  value.push(option.value);
-                }
-              }
-            }
-          }
-          break;
-        default:
-          if (!control.disabled) {
-            value = control.value;
-          }
-      }
-    } else {
-      value = [];
-      Array.from(control).forEach(function(control) {
-        var v = getCurrentValue(control);
-        if (v) {
-          value = value.concat(v);
-        }
-      });
-    }
-    return value;
-  };
-
-  HTMLFormElement.prototype.getFieldValue = function(name) {
-    var control = this.elements[name];
-    if (!control) {
-      throw new Error('Invalid field name "' + name + '"');
-    }
-    return getCurrentValue(control);
-  };
-
-//==================================================[document 扩展]
-  /*
-   * 为 document 扩展新特性，提供与 Element 类似的事件机制。
-   *
-   * 扩展方法：
-   *   document.$
-   *   document.addStyleRules
-   *   document.loadScript
-   *   document.preloadImages
-   *   document.on
-   *   document.off
-   *   document.fire
-   */
-
-  /**
-   * 扩展 document 对象。
-   * @name document
-   * @namespace
-   */
-
-  document.uid = 'document';
-
-  // 自动触发 beforedomready、domready 和 afterdomready 事件，其中 beforedomready 和 afterdomready 为内部使用的事件类型。
-  var triggerDomReadyEvent;
-  if ('addEventListener' in document) {
-    triggerDomReadyEvent = function() {
-      document.removeEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
-      window.removeEventListener('load', triggerDomReadyEvent, false);
-      document.fire('beforedomready');
-      document.fire('domready');
-      document.fire('afterdomready');
-    };
-    document.addEventListener('DOMContentLoaded', triggerDomReadyEvent, false);
-    window.addEventListener('load', triggerDomReadyEvent, false);
-  } else {
-    var doBodyCheck = function() {
-      if (document.body) {
-        document.fire('beforedomready');
-        document.fire('domready');
-        document.fire('afterdomready');
-      } else {
-        setTimeout(doBodyCheck, 10);
-      }
-    };
-    triggerDomReadyEvent = function(_, domIsReady) {
-      // http://bugs.jquery.com/ticket/5443
-      if (doBodyCheck && (domIsReady || document.readyState === 'complete')) {
-        document.detachEvent('onreadystatechange', triggerDomReadyEvent);
-        window.detachEvent('onload', triggerDomReadyEvent);
-        doBodyCheck();
-        // 避免多次触发。
-        doBodyCheck = null;
-      }
-    };
-    document.attachEvent('onreadystatechange', triggerDomReadyEvent);
-    window.attachEvent('onload', triggerDomReadyEvent);
-    // http://javascript.nwbox.com/IEContentLoaded/
-    if (window == top && html.doScroll) {
-      var doScrollCheck = function() {
-        try {
-          html.doScroll('left');
-        } catch (e) {
-          setTimeout(doScrollCheck, 10);
-          return;
-        }
-        triggerDomReadyEvent(null, true);
-      };
-      doScrollCheck();
-    }
-  }
-
-//--------------------------------------------------[document.$]
-  /**
-   * 根据指定的参数获取/创建一个元素，并对其进行扩展。
-   * @name document.$
-   * @function
-   * @param {string|Element} e 不同类型的元素表示。
-   * @returns {Element} 扩展后的元素。
-   * @description
-   *   <ul>
-   *     <li>当参数为一个元素（可以包含后代元素）的序列化之后的字符串时，会返回扩展后的、根据这个字符串反序列化的元素。<br>注意：不要使用本方法创建 SCRIPT 元素，对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法。</li>
-   *     <li>当参数为一个 CSS 选择符时，会返回扩展后的、与指定的 CSS 选择符相匹配的<strong>第一个元素</strong>。<br>如果没有找到任何元素，返回 null。</li>
-   *     <li>当参数为一个元素时，会返回扩展后的该元素。</li>
-   *     <li>当参数为其他值（包括 document 和 window）时，均返回 null。</li>
-   *   </ul>
-   * @see http://jquery.com/
-   * @see http://mootools.net/
-   * @see http://w3help.org/zh-cn/causes/SD9003
-   */
-  var tagNamePattern = /(?!<)\w*/;
-  // 为解决“IE 可能会自动添加 TBODY 元素”的问题，在相应的 wrappers 里预置了一个 TBODY。
-  var wrappers = {
-    area: ['<map>', '</map>'],
-    legend: ['<fieldset>', '</fieldset>'],
-    optgroup: ['<select>', '</select>'],
-    colgroup: ['<table><tbody></tbody>', '</table>'],
-    col: ['<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-    tr: ['<table><tbody>', '</tbody></table>'],
-    th: ['<table><tbody><tr>', '</tr></tbody></table>']
-  };
-  wrappers.option = wrappers.optgroup;
-  wrappers.caption = wrappers.thead = wrappers.tfoot = wrappers.tbody = wrappers.colgroup;
-  wrappers.td = wrappers.th;
-  if (navigator.isIElt9) {
-    // IE6 IE7 IE8 对 LINK STYLE SCRIPT 元素的特殊处理。
-    wrappers.link = wrappers.style = wrappers.script = ['#', ''];
-  }
-  var defaultWrapper = ['', ''];
-  // 忽略“IE 丢失源代码前的空格”的问题，通过脚本修复这个问题无实际意义（需要深度遍历）。
-  // 忽略“脚本不会在动态创建并插入文档树后自动执行”的问题，因为这个处理需要封装追加元素的相关方法，并且还需要考虑脚本的 defer 属性在各浏览器的差异。
-  document.$ = function(e) {
-    var element = null;
-    if (typeof e === 'string') {
-      if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
-        var tagName = tagNamePattern.exec(e)[0].toLowerCase();
-        var wrapper = wrappers[tagName] || defaultWrapper;
-        element = document.createElement('div');
-        element.innerHTML = wrapper[0] + e + wrapper[1];
-        while ((element = element.lastChild) && element.nodeName.toLowerCase() !== tagName) {
-        }
-        if (element && element.nodeType !== 1) {
-          element = null;
-        }
-      } else {
-        element = Sizzle(e)[0];
-      }
-    } else if (e && e.nodeType === 1) {
-      element = e;
-    }
-    return $(element);
-  };
-
-//--------------------------------------------------[document.addStyleRules]
-  /**
-   * 添加样式规则。
-   * @name document.addStyleRules
-   * @function
-   * @param {Array} rules 包含样式规则的数组，其中每一项为一条规则。
-   */
-  var dynamicStyleSheet;
-  document.addStyleRules = function(rules) {
-    if (!dynamicStyleSheet) {
-      document.head.appendChild(document.createElement('style'));
-      var styleSheets = document.styleSheets;
-      dynamicStyleSheet = styleSheets[styleSheets.length - 1];
-    }
-    rules.forEach(function(rule) {
-      if (dynamicStyleSheet.insertRule) {
-        dynamicStyleSheet.insertRule(rule, dynamicStyleSheet.cssRules.length);
-      } else {
-        var lBraceIndex = rule.indexOf('{');
-        var rBraceIndex = rule.indexOf('}');
-        var selectors = rule.slice(0, lBraceIndex);
-        var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
-        selectors.split(separator).forEach(function(selector) {
-          dynamicStyleSheet.addRule(selector, declarations);
-        });
-      }
-    });
-  };
-
-//--------------------------------------------------[document.loadScript]
-  /**
-   * 加载脚本。
-   * @name document.loadScript
-   * @function
-   * @param {string} url 脚本文件的路径。
-   * @param {Object} [options] 可选参数。
-   * @param {string} [options.charset] 脚本文件的字符集。
-   * @param {Function} [options.onLoad] 加载完毕后的回调。
-   *   该函数被调用时 this 的值为加载本脚本时创建的 SCRIPT 元素。
-   */
-  document.loadScript = function(url, options) {
-    options = options || {};
-    var head = document.head;
-    var script = document.createElement('script');
-    if (options.charset) {
-      script.charset = options.charset;
-    }
-    script.src = url;
-    script.onload = script.onreadystatechange = function() {
-      if (!this.readyState || this.readyState === 'loaded' || this.readyState === 'complete') {
-        this.onload = this.onreadystatechange = null;
-        head.removeChild(script);
-        if (options.onLoad) {
-          options.onLoad.call(this);
-        }
-      }
-    };
-    // http://bugs.jquery.com/ticket/2709
-    head.insertBefore(script, head.firstChild);
-  };
-
-//--------------------------------------------------[document.preloadImages]
-  /**
-   * 预加载图片。
-   * @name document.preloadImages
-   * @function
-   * @param {Array} urlArray 包含需预加载的图片路径的数组。
-   * @param {Function} [onLoad] 每个图片加载完毕后的回调。
-   *   该函数被调用时 this 的值为已完成加载的 IMG 元素。
-   */
-  document.preloadImages = function(urlArray, onLoad) {
-    urlArray.forEach(function(url) {
-      var img = new Image();
-      if (onLoad) {
-        img.onload = function() {
-          img.onload = null;
-          onLoad.call(img);
-        };
-      }
-      img.src = url;
-    });
-  };
-
-//--------------------------------------------------[document.on]
-  /**
-   * 为 document 添加事件监听器。
-   * @name document.on
-   * @function
-   * @param {string} name 监听器名称，细节请参考 Element.prototype.on 的同名参数。
-   * @param {Function} listener 监听器，细节请参考 Element.prototype.on 的同名参数。
-   * @returns {Object} document 对象。
-   */
-  document.on = Element.prototype.on;
-
-//--------------------------------------------------[document.off]
-  /**
-   * 删除 document 上已添加的事件监听器。
-   * @name document.off
-   * @function
-   * @param {string} name 监听器名称，细节请参考 Element.prototype.off 的同名参数。
-   * @returns {Object} document 对象。
-   */
-  document.off = Element.prototype.off;
-
-//--------------------------------------------------[document.fire]
-  /**
-   * 触发 document 的某类事件。
-   * @name document.fire
-   * @function
-   * @param {string} type 事件类型。
-   * @param {Object} [data] 在事件对象上附加的数据。
-   * @returns {Object} 事件对象。
-   */
-  document.fire = Element.prototype.fire;
-
-//==================================================[window 扩展]
-  /*
-   * 为 window 扩展新特性，除与视口相关的方法外，还提供与 Element 类似的事件机制。
-   * 与视口相关的方法（getXXX）在 document.body 解析后方可使用。
-   *
-   * 扩展方法：
-   *   window.$
-   *   window.getClientSize
-   *   window.getScrollSize
-   *   window.getPageOffset
-   *   window.on
-   *   window.off
-   *   window.fire
-   */
-
-  /**
-   * 扩展 DOMWindow 对象。
-   * @name window
-   * @namespace
-   */
-
-  window.uid = 'window';
-
-//--------------------------------------------------[window.$]
-  /**
-   * 对 document.$ 的引用。
-   * @name window.$
-   * @function
-   * @param {string|Element} e 不同类型的元素表示。
-   * @returns {Element} 扩展后的元素。
-   * @description
-   *   在编写应用代码时，可以使用 $ 来代替 document.$。
-   */
-  window.$ = document.$;
-
-//--------------------------------------------------[window.getClientSize]
-  /**
-   * 获取视口可视区域的尺寸。
-   * @name window.getClientSize
-   * @function
-   * @returns {Object} 尺寸，包含 width 和 height 两个数字类型的属性，单位为像素。
-   * @description
-   *   IE9 Firefox Chrome Safari Opera 有 window.innerWidth 和 window.innerHeight 属性，但这个值是包含了滚动条宽度的值。
-   *   为保持一致性，不使用这两个属性来获取文档可视区域尺寸。
-   * @see http://www.w3.org/TR/cssom-view/#dom-window-innerwidth
-   * @see http://www.w3.org/TR/cssom-view/#dom-window-innerheight
-   */
-  window.getClientSize = function() {
-    return {
-      width: html.clientWidth,
-      height: html.clientHeight
-    };
-  };
-
-//--------------------------------------------------[window.getScrollSize]
-  /**
-   * 获取视口滚动区域的尺寸。当内容不足以充满视口可视区域时，返回视口可视区域的尺寸。
-   * @name window.getScrollSize
-   * @function
-   * @returns {Object} 尺寸，包含 width 和 height 两个数字类型的属性，单位为像素。
-   */
-  window.getScrollSize = function() {
-    var body = document.body;
-    return {
-      width: Math.max(html.scrollWidth, body.scrollWidth, html.clientWidth),
-      height: Math.max(html.scrollHeight, body.scrollHeight, html.clientHeight)
-    };
-  };
-
-//--------------------------------------------------[window.getPageOffset]
-  /**
-   * 获取视口的滚动偏移量。
-   * @name window.getPageOffset
-   * @function
-   * @returns {Object} 坐标，包含 x 和 y 两个数字类型的属性，单位为像素。
-   * @description
-   *   一些浏览器支持 window.scrollX/window.scrollY 或 window.pageXOffset/window.pageYOffset 直接获取视口的滚动偏移量。
-   *   这里使用通用性更强的方法实现。
-   * @see http://w3help.org/zh-cn/causes/BX9008
-   */
-  window.getPageOffset = function() {
-    var body = document.body;
-    return {
-      x: html.scrollLeft || body.scrollLeft,
-      y: html.scrollTop || body.scrollTop
-    };
-  };
-
-//--------------------------------------------------[window.on]
-  /**
-   * 为 window 添加事件监听器。
-   * @name window.on
-   * @function
-   * @param {string} name 监听器名称，细节请参考 Element.prototype.on 的同名参数。
-   * @param {Function} listener 监听器，细节请参考 Element.prototype.on 的同名参数。
-   * @returns {Object} window 对象。
-   * @description
-   *   特殊事件：beforeunload
-   *   <ul>
-   *     <li>目前 Opera 12.14 仍不支持此事件。</li>
-   *     <li>监听器应返回一个字符串，以使浏览器在离开页面前询问用户是否确认离开，这个字符串在 IE Chrome Safari 中均会作为询问的内容出现。</li>
-   *     <li>Chrome 不允许在监听器中调用 alert、confirm 或 prompt 方法。</li>
-   *     <li>不会有事件对象作为参数传入监听器。</li>
-   *     <li>该事件只能存在一个监听器，因此不能使用标签。如果添加了多个监听器，则只有最后添加的生效。</li>
-   *     <li>可以删除当前生效的监听器。</li>
-   *   </ul>
-   * @see http://w3help.org/zh-cn/causes/BX2047
-   */
-  window.on = function(name, listener) {
-    var filteredName = name.split(separator)
-        .filter(function(name) {
-          if (name === 'beforeunload') {
-            window.onbeforeunload = function() {
-              // 将 listener 的 this 设置为 window（不调用 call 也是 window）。
-              // 不会传入事件对象。
-              return listener.call(window);
-            };
-            return false;
-          }
-          return true;
-        })
-        .join(', ');
-    if (filteredName) {
-      Element.prototype.on.call(window, filteredName, listener);
-    }
-    return this;
-  };
-
-//--------------------------------------------------[window.off]
-  /**
-   * 删除 window 上已添加的事件监听器。
-   * @name window.off
-   * @function
-   * @param {string} name 监听器名称，细节请参考 Element.prototype.off 的同名参数。
-   * @returns {Object} window 对象。
-   */
-  window.off = function(name) {
-    var filteredName = name.split(separator)
-        .filter(function(name) {
-          if (name === 'beforeunload') {
-            window.onbeforeunload = null;
-            return false;
-          }
-          return true;
-        })
-        .join(', ');
-    if (filteredName) {
-      Element.prototype.off.call(window, filteredName);
-    }
-    return this;
-  };
-
-//--------------------------------------------------[window.fire]
-  /**
-   * 触发 window 的某类事件。
-   * @name window.fire
-   * @function
-   * @param {string} type 事件类型。
-   * @param {Object} [data] 在事件对象上附加的数据。
-   * @returns {Object} 事件对象。
-   */
-  window.fire = Element.prototype.fire;
-
-//==================================================[Element 补缺 - IE6 固定定位]
-  /*
-   * 修复 IE6 不支持 position: fixed 的问题。
-   *
-   * 注意：
-   *   目前仅考虑 direction: ltr 的情况，并且不支持嵌套使用 position: fixed。事实上这两点不会影响现有的绝大部分需求。
-   *   目前仅支持在 left right top bottom 上使用像素长度来设置偏移量。修复后，目标元素的样式中有 left 则 right 失效，有 top 则 bottom 失效。
-   *   因此要保证兼容，在应用中设置 position: fixed 的元素应有明确的尺寸设定，并只使用（left right top bottom）的（像素长度）来定位，否则在 IE6 中的表现会有差异。
-   *
-   * 处理流程：
-   *   position 的修改 = 启用/禁用修复，如果已启用修复，并且 display 不是 none，则同时启用表达式。
-   *   display 的修改 = 如果已启用修复，则启用/禁用表达式。
-   *   left/right/top/bottom 的修改 = 如果已启用修复，则调整 specifiedValue。如果已启用表达式，则更新表达式。
-   *   由于 IE6 设置为 position: absolute 的元素的 right bottom 定位与 BODY 元素的 position 有关，并且表现怪异，因此设置表达式时仍使用 left top 实现。
-   *   这样处理的附加好处是不必在每次更新表达式时启用/禁用设置在 right bottom 上的表达式。
-   *
-   * 参考：
-   *   http://www.qianduan.net/fix-ie6-dont-support-position-fixed-bug.html
-   *
-   * 实测结果：
-   *   X = 页面背景图片固定，背景图直接放在 HTML 上即可，若要放在 BODY 上，还要加上 background-attachment: fixed。
-   *   A = 为元素添加 CSS 表达式。
-   *   B = 为元素添加事件监听器，在监听器中修改元素的位置。
-   *   X + A 可行，X + B 不可行。
-   */
-  if (navigator.isIE6) {
-    // 保存已修复的元素的偏移量及是否启用的数据。
-    /*
-     * <Object fixedData> {
-     *   left: <Object> {
-     *     specifiedValue: <string specifiedValue>,
-     *     usedValue: <number usedValue>
-     *   },
-     *   right: <Object> {
-     *     specifiedValue: <string specifiedValue>,
-     *     usedValue: <number usedValue>
-     *   },
-     *   top: <Object> {
-     *     specifiedValue: <string specifiedValue>,
-     *     usedValue: <number usedValue>
-     *   },
-     *   bottom: <Object> {
-     *     specifiedValue: <string specifiedValue>,
-     *     usedValue: <number usedValue>
-     *   },
-     *   enabled: <boolean enabled>
-     * }
-     */
-
-    // 设置页面背景。
-    html.style.backgroundImage = 'url(about:blank)';
-
-    // 添加 CSS 表达式。
-    var setExpressions = function($element, fixedData) {
-      var left = fixedData.left.usedValue;
-      var top = fixedData.top.usedValue;
-      var right = fixedData.right.usedValue;
-      var bottom = fixedData.bottom.usedValue;
-      if (isFinite(left)) {
-        $element.style.setExpression('left', '(document && document.documentElement.scrollLeft + ' + left + ') + "px"');
-      } else {
-        $element.style.setExpression('left', '(document && (document.documentElement.scrollLeft + document.documentElement.clientWidth - this.offsetWidth - (parseInt(this.currentStyle.marginLeft, 10) || 0) - (parseInt(this.currentStyle.marginRight, 10) || 0)) - ' + right + ') + "px"');
-      }
-      if (isFinite(top)) {
-        $element.style.setExpression('top', '(document && document.documentElement.scrollTop + ' + top + ') + "px"');
-      } else {
-        $element.style.setExpression('top', '(document && (document.documentElement.scrollTop + document.documentElement.clientHeight - this.offsetHeight - (parseInt(this.currentStyle.marginTop, 10) || 0) - (parseInt(this.currentStyle.marginBottom, 10) || 0)) - ' + bottom + ') + "px"');
-      }
-    };
-
-    // 删除 CSS 表达式。
-    var removeExpressions = function($element) {
-      $element.style.removeExpression('left');
-      $element.style.removeExpression('top');
-    };
-
-    // IE6 获取 position 特性时的特殊处理。
-    specialCSSPropertyGetter.position = function($element) {
-      return $element._fixedData_ ? 'fixed' : $element.currentStyle.position;
-    };
-
-    // IE6 设置 position 特性时的特殊处理。
-    specialCSSPropertySetter.position = function($element, propertyValue) {
-      // 本元素的偏移量数据，如果未启用修复则不存在。
-      var fixedData = $element._fixedData_;
-      if (propertyValue.toLowerCase() === 'fixed') {
-        // 设置固定定位。
-        if (!fixedData) {
-          // 启用修复。
-          fixedData = $element._fixedData_ = {left: {}, right: {}, top: {}, bottom: {}, enabled: false};
-          var offset = {};
-          var currentStyle = $element.currentStyle;
-          fixedData.left.specifiedValue = offset.left = currentStyle.left;
-          fixedData.right.specifiedValue = offset.right = currentStyle.right;
-          fixedData.top.specifiedValue = offset.top = currentStyle.top;
-          fixedData.bottom.specifiedValue = offset.bottom = currentStyle.bottom;
-          Object.forEach(offset, function(length, side, offset) {
-            fixedData[side].usedValue = offset[side] = length.endsWith('px') ? parseInt(length, 10) : NaN;
-          });
-          // 如果 usedValue 中横向或纵向的两个值均为 NaN，则给 left 或 top 赋值为当前该元素相对于页面的偏移量。
-          if (isNaN(fixedData.left.usedValue) && isNaN(fixedData.right.usedValue)) {
-            fixedData.left.usedValue = html.scrollLeft + $element.getClientRect().left - (parseInt($element.currentStyle.marginLeft, 10) || 0);
-          }
-          if (isNaN(fixedData.top.usedValue) && isNaN(fixedData.bottom.usedValue)) {
-            fixedData.top.usedValue = html.scrollTop + $element.getClientRect().top - (parseInt($element.currentStyle.marginTop, 10) || 0);
-          }
-          // 如果元素已被渲染（暂不考虑祖先级元素未被渲染的情况），启用表达式。
-          if ($element.currentStyle.display !== 'none') {
-            fixedData.enabled = true;
-            setExpressions($element, fixedData);
-          }
-        }
-        propertyValue = 'absolute';
-      } else {
-        // 设置非固定定位。
-        if (fixedData) {
-          // 禁用修复。
-          removeExpressions($element);
-          $element.style.left = fixedData.left.specifiedValue;
-          $element.style.right = fixedData.right.specifiedValue;
-          $element.style.top = fixedData.top.specifiedValue;
-          $element.style.bottom = fixedData.bottom.specifiedValue;
-          $element.removeAttribute('_fixedData_');
-        }
-      }
-      // 设置样式。
-      $element.style.position = propertyValue;
-    };
-
-    // IE6 设置 display 特性时的特殊处理。
-    specialCSSPropertySetter.display = function($element, propertyValue) {
-      var fixedData = $element._fixedData_;
-      // 仅在本元素已启用修复的情况下需要进行的处理。
-      if (fixedData) {
-        if (propertyValue.toLowerCase() === 'none') {
-          // 不渲染元素，禁用表达式。
-          if (fixedData.enabled) {
-            fixedData.enabled = false;
-            removeExpressions($element);
-          }
-        } else {
-          // 渲染元素，启用表达式。
-          if (!fixedData.enabled) {
-            fixedData.enabled = true;
-            setExpressions($element, fixedData);
-          }
-        }
-      }
-      // 设置样式。
-      $element.style.display = propertyValue;
-    };
-
-    // IE6 获取 left/right/top/bottom 特性时的特殊处理。
-    var getOffset = function($element, propertyName) {
-      var fixedData = $element._fixedData_;
-      return fixedData ? fixedData[propertyName].specifiedValue : $element.currentStyle[propertyName];
-    };
-
-    // IE6 设置 left/right/top/bottom 特性时的特殊处理。
-    var setOffset = function($element, propertyName, propertyValue) {
-      var fixedData = $element._fixedData_;
-      // 仅在本元素已启用修复的情况下需要进行的处理。
-      if (fixedData) {
-        fixedData[propertyName].specifiedValue = propertyValue;
-        // 如果值可用，更新使用值。
-        if (propertyValue.endsWith('px')) {
-          var usedValue = parseInt(propertyValue, 10);
-          if (fixedData[propertyName].usedValue !== usedValue) {
-            fixedData[propertyName].usedValue = usedValue;
-            // 如果表达式已启用，更新表达式。
-            if (fixedData.enabled) {
-              setExpressions($element, fixedData);
-            }
-          }
-        }
-      } else {
-        // 设置样式。
-        $element.style[propertyName] = propertyValue;
-      }
-    };
-
-    ['left', 'right', 'top', 'bottom'].forEach(function(side) {
-      specialCSSPropertyGetter[side] = function($element) {
-        return getOffset($element, side);
-      };
-      specialCSSPropertySetter[side] = function($element, propertyValue) {
-        setOffset($element, side, propertyValue);
-      };
-    });
-
-    // 在 IE6 中使用 CSS Expression 自动处理固定定位。
-    document.addStyleRules(['* { behavior: expression(document.fixIE6Styles(this)); }']);
-//    window.fixCount = 0;
-    document.fixIE6Styles = function(element) {
-//      window.fixCount++;
-      if (element.currentStyle.position === 'fixed') {
-        element.currentStyleDisplayValue = element.currentStyle.display;
-        element.style.display = 'none';
-        setTimeout(function() {
-          element.style.display = element.currentStyleDisplayValue;
-          if (element.currentStyle.position === 'fixed') {
-            $(element).setStyle('position', 'fixed');
-          }
-        }, 0);
-      }
-      element.style.behavior = 'none';
-    };
-
-  }
+  window.on = document.on = Element.prototype.on = DOMEventTarget.prototype.on;
+  window.off = document.off = Element.prototype.off = DOMEventTarget.prototype.off;
+  window.fire = document.fire = Element.prototype.fire = DOMEventTarget.prototype.fire;
 
 })();

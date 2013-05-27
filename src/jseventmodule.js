@@ -214,7 +214,7 @@
     var event = new JSEvent(type, target, data);
     var handlers = target.eventHandlers[type];
     if (handlers) {
-      // 分发时对 handlers 的副本操作，以避免在监听器内添加或删除监听器时会影响本次分发过程。
+      // 分发时对 handlers 的副本操作，以避免在监听器内添加或删除该对象的同类型的监听器时会影响本次分发过程。
       handlers.slice(0).forEach(function(handler) {
         handler.listener.call(target, event);
       });
