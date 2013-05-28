@@ -61,7 +61,7 @@
   var getEventType = function(name) {
     var match = name.match(eventNamePattern);
     if (match === null) {
-      throw new SyntaxError('Invalid event name "' + name + '"');
+      throw new SyntaxError('Invalid listener name "' + name + '"');
     }
     return match[1];
   };
@@ -97,12 +97,11 @@
 
 //--------------------------------------------------[JSEventTarget]
   /**
-   * 通过调用 new JSEventTarget() 获得的新对象，或经过 JSEventTarget.create(object) 处理后的 object 对象，都将具备处理事件的能力，它们都可以被叫做一个 JSEventTarget 对象。
+   * 所有的 JSEventTarget 对象都具备处理事件的能力，通过调用 new JSEventTarget() 获得的新对象，或经过 JSEventTarget.create(object) 处理后的 object 对象都是 JSEventTarget 对象。
    * @name JSEventTarget
    * @constructor
    * @description
    *   JSEventTarget 对象在处理事件时，是工作在 JS 事件模型中的。
-   *   window、document 和 Element 对象也都具备处理事件的能力，但它们是工作在 DOM 事件模型中的。
    */
   var JSEventTarget = window.JSEventTarget = function() {
     this.eventHandlers = {};
@@ -114,7 +113,7 @@
    * @name JSEventTarget.create
    * @function
    * @param {Object} target 目标对象。
-   *   目标对象不应该是 window、document 或 Element 对象，因为这些对象已经具备处理事件的能力，并且使用的是 DOM 事件模型。
+   *   目标对象不应该是 window 对象、document 对象或 Element 的实例对象，因为这些对象是 DOMEventTarget 对象，使用的是 DOM 事件模型。
    * @returns {Object} 目标对象。
    * @description
    *   <ul>

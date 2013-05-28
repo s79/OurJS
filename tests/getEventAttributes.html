@@ -42,7 +42,7 @@ var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d
 var getEventAttributes = function(name) {
   var match = name.match(eventNamePattern);
   if (match === null) {
-    throw new SyntaxError('Invalid event name "' + name + '"');
+    throw new SyntaxError('Invalid listener name "' + name + '"');
   }
   return {type: match[1], selector: match[2] || '', once: !!match[3], idle: parseInt(match[4], 10), throttle: parseInt(match[5], 10)};
 };

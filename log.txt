@@ -1,5 +1,10 @@
 
 
+>2013-05-28
+* 修复 window 和 document 的代理监听器的 bug
++ document.find
++ document.findAll
+
 >2013-05-27
 * Date.parseExact 年份的缺省值改为当前年份
 * typeOf 和 execScript 移入 lang.js
