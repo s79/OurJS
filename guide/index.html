@@ -45,8 +45,8 @@ document.on('domready', function() {
 <p>要下载 OurJS，请<a href="../download/" target="_blank" class="link">点击此处</a>。</p>
 
 <h2>处理 JS 原生对象</h2>
-<p>JS 原生对象是指 JS 语言本身提供的对象，它们都有各自的构造器。</p>
-<p>OurJS 为各原生对象提供了多种扩展方法，以增强 JavaScript 的处理能力：</p>
+<p>JS 原生对象是指 JavaScript 语言本身提供的对象。</p>
+<p>OurJS 为 JS 原生对象提供了多种扩展方法，以增强语言的处理能力：</p>
 <pre>
 var list = [0, 1, 2, 3, 4];
 list.reverse().getLast();
@@ -65,11 +65,11 @@ var day = Date.parseExact('2010-03-17 20:23:00').getDay();
 </blockquote>
 
 <h2>处理浏览器内置对象</h2>
-<p>浏览器的内置对象是指与浏览器或当前文档相关的对象，它们都是唯一的实例，不能被创建（它们的构造器是对开发者隐藏的）。</p>
+<p>浏览器的内置对象是指与浏览器或当前文档相关的对象，它们都是唯一的实例（它们的构造器是对开发者隐藏的）。</p>
 <p>OurJS 为常用的浏览器内置对象也提供了扩展方法或属性：</p>
 <pre>
 if (navigator.isChrome) ...
-// OurJS 为 navigator 对象扩展了一些列的属性，用于判断当前的浏览器类型。
+// navigator 对象的扩展属性可以用于判断当前的浏览器类型、使用的语言代码等。
 </pre>
 <pre>
 var targetId = location.parameters.id || 1;
@@ -77,7 +77,7 @@ var targetId = location.parameters.id || 1;
 </pre>
 <pre>
 var username = localStorage.getItem('username');
-// IE6 IE7 中原本是不支持 localStorage 的，但 OurJS 对它们进行了增强，使其可以像现代浏览器一样支持本地存储（可以跨路径）。
+// IE6 IE7 中原本是不支持 localStorage 的，但 OurJS 对它们进行了增强，使其可以像现代浏览器一样支持 localStorage（可以跨路径）。
 </pre>
 <blockquote>
   <p>相关演示请参考 <a href="../demos/navigator/" target="_blank" class="link">基本功能演示 - 浏览器信息</a> 和 <a href="../demos/storage/" target="_blank" class="link">基本功能演示 - 存储</a>。</p>
@@ -96,7 +96,7 @@ var username = localStorage.getItem('username');
 </ol>
 
 <h3>为窗口对象扩充的方法</h3>
-<p>可以通过调用 OurJS 在窗口对象上扩展的几个与视口有关的方法，来获取视口的相关信息：</p>
+<p>可以通过调用 OurJS 在 window 对象上扩展的几个与视口有关的方法，来获取视口的相关信息：</p>
 <pre>
 var width = window.getClientSize().width;
 // 获取视口可视区域的宽度。
@@ -116,14 +116,14 @@ var pageOffset = window.getPageOffset();
 var $container = document.$('#container');
 // 获取 id 为 container 的元素。这相当于 document.getElementById('container')。
 </pre>
+<p>默认情况下，全局作用域的 $ 即为对 document.$ 的引用，因此在编写应用代码时，可以使用 $ 来代替 document.$，以使代码更简洁。</p>
 <pre>
-var $message = document.$('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd&gt;&lt;/dd&gt;&lt;/dl&gt;');
+var $message = $('&lt;dl class="message"&gt;&lt;dt&gt;&lt;/dt&gt;&lt;dd&gt;&lt;/dd&gt;&lt;/dl&gt;');
 // 创建一个包含了 DT 和 DD 元素的 DL 元素。
 </pre>
-<p>可以使用 $ 来代替 document.$，以便于使用。</p>
 <blockquote>
   <p>
-    从这里开始，你会发现一些变量以 $ 开头，如上边两个例子中的 $container 和 $message，OurJS 的所有演示代码（也包括源码）中都会使用这样的方式来标识一个元素对象，以使代码更易读。<br>
+    从这里开始，你会发现一些变量以 $ 开头，如上边两个例子中的 $container 和 $message，OurJS 的所有演示代码中都会使用这样的方式来标识一个元素对象，以使代码更易读。<br>
     实际开发中，在为元素类型的变量或形参命名时（不包括属性名），也建议这么做。
   </p>
 </blockquote>
@@ -143,7 +143,7 @@ document.loadScript('http://your.domain/path/to/data.js', {
     ...
   }
 });
-// 这个方法不受同源策略的限制，可以加载任何位置的脚本。
+// 这个方法不受同源策略的限制。
 </pre>
 
 <h3>为元素对象扩充的方法</h3>
@@ -156,7 +156,7 @@ if ($input.offsetWidth) {
 // addClass 是为处理元素的类而添加的扩展方法。
 </pre>
 <p>
-  上一节中提到，OurJS 提供的获取和创建元素的 API document.$ 每次只能获取或创建一个元素。<br>
+  上一节中提到，OurJS 提供的获取和创建元素的方法 document.$ 每次只能获取或创建一个元素。<br>
   OurJS 在处理元素时，所有相关的 API 也都是针对单个元素进行的。
 </p>
 <p>虽然可以通过调用一个元素的 getChildren 或 findAll 方法来获取一批元素（实际是一个数组），但 OurJS 并没有提供“批量操作元素”的方法。如果一定要对一批元素进行操作，则需要遍历这些元素，并对其中的每一个单独进行操作：</p>
@@ -174,11 +174,11 @@ $container.findAll('span.word').forEach(function($item) {
 </pre>
 <p>
   OurJS 不提倡对元素进行批量操作，批量操作不符合常见的程序设计思路，并且代码的意图也不够明显。<br>
-  OurJS 提倡的是只针对单一元素进行操作，这种做法可以使代码的意图更明显，也更严谨。
+  OurJS 提倡的是只针对单一元素进行操作，这种做法可以使代码的意图更明显，并能最大限度的避免意料之外的误操作。
 </p>
 <p>
   这种编程风格和 jQuery 的区别很大。如果开发者习惯了 jQuery 的方式，在使用 OurJS 之前应该转换一下思路 —— 恰当的设计可以避免很多需要“批量操作元素”的场景：<br>
-  使用 JS 来修改 DOM 树本质是在修改 DOM 节点的“状态”。通常来讲，同时修改多个节点的“状态”以改变其“含义”及“表现”，不如只修改一个节点的“状态”来改变这个分支内特定后代节点的“含义”及“表现”。后者更易于掌控，并能杜绝意料外的误操作。
+  使用 JS 来修改 DOM 树本质是在修改 DOM 节点的“状态”。通常来讲，同时修改多个节点的“状态”以改变其“含义”及“表现”，不如只修改一个节点的“状态”来改变这个分支内特定后代节点的“含义”及“表现”更易于掌控。
 </p>
 <p>如上例可以修改为：</p>
 <pre>
@@ -217,8 +217,8 @@ $container.addClass('highlight');
   <tbody>
     <tr>
       <th>应用的对象</th>
-      <td>window 对象、document 对象和所有 Element 对象。</td>
-      <td>通过调用 new EventTarget() 获得的新对象，或通过调用 EventTarget.create(object) 处理后的 object 对象。</td>
+      <td>DOMEventTarget 对象。<br><span class="comment">window 对象、document 对象和所有的 Element 对象都是 DOMEventTarget 对象。</span></td>
+      <td>JSEventTarget 对象。<br><span class="comment">通过调用 new JSEventTarget() 获得的新对象，或经过 JSEventTarget.create(object) 处理后的 object 对象都是 JSEventTarget 对象。</span></td>
     </tr>
     <tr>
       <th>事件的<br>触发方式</th>
@@ -226,9 +226,9 @@ $container.addClass('highlight');
       <td>只能通过调用 fire 方法触发。</td>
     </tr>
     <tr>
-      <th>事件对象的<br>创建和应用</th>
-      <td>当事件被触发时，除少数特殊事件类型外，均会产生事件对象，并将其作为参数传入监听器。</td>
-      <td>当事件被触发时，任何事件类型均会产生事件对象，并将其作为参数传入监听器。</td>
+      <th>事件对象的<br>创建</th>
+      <td>所有事件对象都是 DOMEvent 的实例对象。<br><span class="comment">DOMEvent 构造器并未公开。</span></td>
+      <td>所有事件对象都是 JSEvent 的实例对象。<br><span class="comment">JSEvent 构造器并未公开。</span></td>
     </tr>
     <tr>
       <th>事件对象的<br>属性和方法</th>
@@ -237,7 +237,7 @@ $container.addClass('highlight');
     </tr>
     <tr>
       <th>事件对象的<br>传播特性</th>
-      <td>某些类型的事件对象可以在 DOM 树中传播。</td>
+      <td>某些类型的事件对象可以在 DOM 树中以“冒泡”的形式传播。</td>
       <td>无此特性。</td>
     </tr>
     <tr>
@@ -246,56 +246,51 @@ $container.addClass('highlight');
       <td>无此特性。</td>
     </tr>
     <tr>
+      <th>事件对象的<br>应用</th>
+      <td colspan="2">当事件被触发时，事件对象会自动被创建并作为参数传入对应的监听器。</td>
+    </tr>
+    <tr>
       <th>添加监听器</th>
-      <td colspan="2">均使用 on 方法添加事件监听器。</td>
+      <td colspan="2">使用 on 方法添加监听器。</td>
     </tr>
     <tr>
       <th>删除监听器</th>
-      <td colspan="2">均使用 off 方法删除已添加的事件监听器，并且它们的参数的含义也一致。</td>
+      <td colspan="2">使用 off 方法删除已添加的监听器。</td>
     </tr>
     <tr>
-      <th>代理事件监听</th>
-      <td>可以在调用 on 方法时，使用 :relay(selector) 对可以冒泡的事件进行代理监听。</td>
+      <th>监听器的<br>限定符</th>
+      <td>使用限定符 :relay(selector) 可以代理监听能够冒泡的事件。<br>使用限定符 :once、:idle(n) 或 :throttle(n) 可以限定监听器被调用的次数和频率。</td>
       <td>不支持。</td>
-    </tr>
-    <tr>
-      <th>组合事件监听</th>
-      <td>不支持。</td>
-      <td>可以在调用 on 方法时，使用 [masterType>slaveType] 对两种事件进行组合监听。</td>
     </tr>
   </tbody>
 </table>
 
 <h3>DOM 事件模型</h3>
-<p>DOM 事件模型用于处理 DOM 对象的事件的触发、监听、代理监听等。</p>
-<p>本模型对一些常见的事件类型做了兼容性处理，可以保证在各浏览器下均有相同的表现。</p>
-<p>窗口、文档和元素对象均可以直接使用 DOM 事件模型处理事件。</p>
+<p>DOM 事件模型用于处理 DOM 对象的事件触发和监听。本模型对一些常见的事件类型做了兼容性处理，可以保证在各浏览器下均有相同的表现。</p>
+<p>只有 DOMEventTarget 对象才能使用 DOM 事件模型来处理事件。<br>window 对象、document 对象和所有的 Element 对象都是 DOMEventTarget 对象。</p>
 
 <h4>添加一个事件监听器</h4>
-<p>使用 on 方法来添加事件监听器：</p>
+<p>使用 on 方法来添加监听器：</p>
 <pre>
 window.on('resize', listener);
 // 当 listener 被调用时，this 的值为被监听的 window 对象。
 </pre>
 
 <h4>添加多个事件监听器</h4>
-<p>可以在一个 DOM 对象上为同一类型的事件添加任意个监听器，这可以通过多次调用 on 方法来完成：</p>
+<p>可以在一个 DOMEventTarget 对象上为同一类型的事件添加任意个监听器，这可以通过多次调用 on 方法来完成：</p>
 <pre>
 $element.on('click', listener1);
 ...
 $element.on('click', listener2);
-// 如果一个 DOM 对象的一类事件有多个监听器，那么当这类事件发生时，这些监听器被调用的顺序和它们被添加的顺序是一致的。
+// 如果一个 DOMEventTarget 对象的一类事件有多个监听器，那么当这类事件发生时，这些监听器被调用的顺序和它们被添加的顺序是一致的。
 </pre>
-<p>也可以使用相同的监听器来处理一个 DOM 对象上不同种类型的事件，使用逗号分割各事件名称即可：</p>
+<p>也可以使用相同的监听器来处理一个 DOMEventTarget 对象上不同种类型的事件：</p>
 <pre>
 document.on('mouseenter, mouseleave', listener);
 </pre>
 
 <h4>代理事件监听</h4>
-<p>
-  代理事件监听是一个很重要的功能，OurJS 可以在为一个元素添加监听器时，使用“代理选择符”来对指定的后代元素代理事件监听。<br>
-  “代理选择符”的写法为 :relay(selector)<sup>1</sup>，其中 relay 即“接替”，selector 可以为任意 CSS 选择符，它们合在一起表示“接替<em>以目标元素为起点，能被 selector 选中的后代元素</em>来处理传播到<em>这些元素</em>的事件”，亦即为这些后代元素代理事件监听：
-</p>
+<p>使用限定符 :relay(selector)<sup>1</sup> 来指定一个监听器为特定的后代元素代理事件监听：</p>
 <pre>
 $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
 // $element 元素将为其所有标签名为 li 且类名包含 enabled 的后代元素代理监听 mouseenter 事件。
@@ -306,31 +301,56 @@ $element.on('mouseenter<strong>:relay(li.enabled)</strong>', listener);
   <li>这个语法来自 MooTools。</li>
 </ol>
 
-<h4>删除已添加的事件监听器</h4>
-<p>要选择性的删除已添加的、特定的一个或多个监听器时，首先应在添加这些监听器时使用“标签”来对它们进行标记。<br>“事件类型”、“代理选择符”和“标签”的组合称为“事件名称”，在调用 off 方法删除事件时就是以“事件名称”为依据对指定的监听器进行删除的：</p>
+<h4>只能被调用一次的监听器</h4>
+<p>使用限定符 :once 来指定一个监听器只能被调用一次：</p>
+<pre>
+$element.on('click<strong>:once</strong>', listener);
+// 当 listener 被调用一次后，会被自动删除，即只有第一次 click 事件能被 listener 监听到。
+</pre>
+
+<h4>限定监听器被调用的频率</h4>
+<p>对于一些可能在短时间内被连续触发的 DOM 事件，可以限定监听器被调用的频率，以降低这些监听器被过于频繁调用而带来的性能损耗。</p>
+<p>使用限定符 :idle(n) 来指定一个监听器只能在该类型的事件每次被触发 n 毫秒后、且下一次同类型的事件被触发前才能被调用：</p>
+<pre>
+$element.on('input<strong>:idle(200)</strong>', listener);
+// listener 将在每次 input 事件被触发 200 毫秒后、且下一次 input 事件被触发前被调用。
+</pre>
+<p>使用限定符 :throttle(n) 来指定一个监听器可被连续调用的最短时间间隔：</p>
+<pre>
+$element.on('scroll<strong>:throttle(200)</strong>', listener);
+// 不论 scroll 事件触发的多么频繁，listener 在 200 毫秒内都将只被调用一次。
+</pre>
+
+<h4>删除事件监听器</h4>
+<p>在一个 DOMEventTarget 对象上使用 on 方法添加监听器时，第一个参数即该监听器的名称。<br>通过调用该对象的 off 方法，并传入监听器的名称，即可删除该对象的所有与该名称同名的监听器：</p>
+<pre>
+window.off('resize');
+// 删除在 window 上添加的所有名称为 'resize' 的监听器。
+</pre>
+<p>这样设计的好处是在删除监听器的时候，不必保留对该监听器的引用，只需要一个名称即可。</p>
+<p>要选择性的删除特定的一个或多个监听器时，首先应在添加这些监听器时使用“标签”来对它们进行标记，以避免因为这个或这些监听器与其他监听器重名而误删其他监听器：</p>
 <pre>
 $element.on('input', listener1).on('input<strong>.foo</strong>', listener2);
-// 为 $element 添加两个事件监听器 listener1 和 listener2，它们监听的事件名称分别为 'input' 和 'input<strong>.foo</strong>'。
+// 为 $element 添加两个监听器 listener1 和 listener2，它们的名称分别为 'input' 和 'input<strong>.foo</strong>'。
 ...
 $element.on('input', listener3);
-// 再为 $element 添加一个事件监听器 listener3，它监听的事件名称仍为 'input'。
+// 再为 $element 添加一个监听器 listener3，它的名称与 listener1 的相同，仍为 'input'。
 ...
 $element.off('input');
-// 删除在 $element 上添加的所有监听 'input' 事件（注意 'input' 是事件名称而不是事件类型）的监听器，即 listener1 和 listener3，此时监听 'input<strong>.foo</strong>' 事件的监听器 listener2 仍然生效。
+// 删除 $element 上的所有名称为 'input' 的监听器，即 listener1 和 listener3，此时名称为 'input<strong>.foo</strong>' 的 listener2 仍然有效。
 </pre>
-<p>可以同时设定“代理选择符”和“标签”：</p>
+<p>可以同时设定“限定符”和“标签”（但“限定符” :once、:idle(n) 和 :throttle(n) 不能同时出现）：</p>
 <pre>
-$element.on('click:relay(a).foo', listener1);
+$element.on('input:relay(input[type=text]):idle(100).foo', listener1);
 ...
-$element.on('<strong>click:relay(a).bar</strong>', listener2);
+$element.on('<strong>input:relay(input[type=text]):idle(100).bar</strong>', listener2);
 ...
-$element.off('<strong>click:relay(a).bar</strong>');
-// 删除代理事件监听器 listener2。
+$element.off('<strong>input:relay(input[type=text]):idle(100).bar</strong>');
+// 删除代理监听器 listener2。
 </pre>
-<p>OurJS 没有提直接供删除一个 DOM 对象上某类型的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器所监听的“事件名称”，这个设计是为了避免监听器被误删<sup>2</sup>。</p>
+<p>OurJS 没有提直接供删除一个 DOMEventTarget 对象上的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器的名称。</p>
 <ol class="comment">
-  <li>在调用一个元素的 replace 或 remove 方法时，可以通过设置参数 keepListeners 为 false 来清除为该元素添加的所有事件监听器。</li>
-  <li>要避免一个监听器被误删，应在添加该监听器时，在“事件名称”中添加一个具有明确含义的“标签”，并确保整个应用中此“事件名称”是唯一的。</li>
+  <li>在调用一个元素的 replace 或 remove 方法时，可以通过设置参数 keepListeners 为 false 来清除为该元素添加的所有监听器（默认即为 false）。</li>
 </ol>
 
 <h4>触发某类事件</h4>
@@ -338,14 +358,13 @@ $element.off('<strong>click:relay(a).bar</strong>');
 <pre>
 window.fire('resize');
 </pre>
-<p>调用 fire 方法时，仅会运行目标 DOM 对象上使用 OurJS 添加的监听器，并且其默认行为也将被阻止：</p>
+<p>在一个 DOMEventTarget 对象上调用 fire 方法时，只有使用 on 方法添加的监听器才会被调用，并且本次触发的事件对象的默认行为也将被阻止：</p>
 <pre>
 $a.fire('click');
 // 并不会让浏览器跳转到 $a 链接的目标地址。如果要跳转，应调用它的 click 方法，即 $a.click()。
 </pre>
 <p>
-  当需要一个元素执行某种行为时，不应该使用 fire 方法，而应该直接调用对应的方法，如 click、select、submit 等。<br>
-  这些方法在调用后，大多数情况下也会触发一个同名事件<sup>1</sup>。
+  要使默认行为生效，可以直接调用一个元素的特定方法，一些方法在被调用后，也会触发一个同名事件（如 click、reset 等）<sup>1</sup>。
 </p>
 <ol class="comment">
   <li>
@@ -354,16 +373,37 @@ $a.fire('click');
   </li>
 </ol>
 
-<h4>事件对象</h4>
-<p>绝大多数类型的事件监听器被调用时，均会被传入本次事件发生时产生的事件对象。</p>
-<p>所有事件对象都有一些特定的属性，使用 fire 方法触发的事件产生的事件对象也不例外：</p>
+<h4>使用事件对象</h4>
+<p>当一个事件监听器被调用时，本次事件发生时产生的事件对象会作为参数被传入。</p>
+<p>所有事件对象都有一些共同的属性：</p>
 <pre>
-document.on('mousewheel', function(e) {
+document.on('click', function(e) {
+  if (e.target.innerText.startsWith('x')) {
+    ...
+  }
+});
+// 所有事件对象都有 target 属性，它的值为触发本事件的对象。
+</pre>
+<p>某些事件对象还有其特定的属性：</p>
+<pre>
+$element.on('mousewheel', function(e) {
   if (e.shiftKey && e.wheelUp) {
     ...
   }
 });
 // 所有键盘和鼠标事件对象都有 shiftKey 属性，仅有 mousewheel 事件对象才有 wheelUp 属性。
+</pre>
+<p>通过调用 fire 方法产生的事件对象还可以添加自定义属性：</p>
+<pre>
+$element.on('mouseenter', function(e) {
+  if (e.flag) {
+    ...
+  }
+  ...
+});
+...
+$element.fire('mouseenter', {flag: true});
+// 在调用 fire 方法时，可以为事件对象添加（或修改）除 originalEvent、type、target 外的任意其他属性。
 </pre>
 <p>所有事件对象都有控制其传播和默认行为的方法：</p>
 <pre>
@@ -392,135 +432,72 @@ $element.on('click', function(e) {
 </blockquote>
 
 <h3>JS 事件模型</h3>
-<p>JS 事件模型用于处理 JS 原生对象的事件的触发、监听、组合监听等。</p>
-<p>只有 EventTarget 对象才能使用 JS 事件模型来处理事件。</p>
+<p>JS 事件模型用于处理 JS 原生对象的事件触发和监听。</p>
+<p>只有 JSEventTarget 对象才能使用 JS 事件模型来处理事件。</p>
 
-<h4>创建一个 EventTarget 对象</h4>
-<p>通过调用 new EventTarget() 获得的新对象，或经过 EventTarget.create(object) 处理后的 object 对象，都可以被叫做一个 EventTarget 对象：</p>
+<h4>创建 JSEventTarget 对象</h4>
+<p>通过调用 new JSEventTarget() 获得的新对象，或经过 JSEventTarget.create(object) 处理后的 object 对象都是 JSEventTarget 对象：</p>
 <pre>
-var object = new EventTarget();
-// 新建一个 EventTarget 对象。
+var object = new JSEventTarget();
+// 新建一个 JSEventTarget 对象。
 </pre>
 <pre>
 var object = {key: 'value'};
-EventTarget.create(object);
-// 使一个已有的对象成为 EventTarget 对象。
+JSEventTarget.create(object);
+// 使一个已有的对象成为 JSEventTarget 对象。
 </pre>
 
 <h4>添加一个事件监听器</h4>
-<p>使用 on 方法来添加事件监听器：</p>
+<p>使用 on 方法来添加监听器：</p>
 <pre>
-eventTarget.on('someType', listener);
-// 当 listener 被调用时，this 的值为被监听的 eventTarget 对象。
+jsEventTarget.on('initialized', listener);
+// 当 listener 被调用时，this 的值为被监听的 jsEventTarget 对象。
 </pre>
 
 <h4>添加多个事件监听器</h4>
-<p>可以在一个 EventTarget 对象上为同一类型的事件添加任意个监听器，这可以通过多次调用 on 方法来完成：</p>
+<p>可以在一个 JSEventTarget 对象上为同一类型的事件添加任意个监听器，这可以通过多次调用 on 方法来完成：</p>
 <pre>
-eventTarget.on('anotherType', listener1);
+jsEventTarget.on('finish', listener1);
 ...
-eventTarget.on('anotherType', listener2);
-// 如果一个 eventTarget 对象的一类事件有多个监听器，那么当这类事件发生时，这些监听器被调用的顺序和它们被添加的顺序是一致的。
+jsEventTarget.on('finish', listener2);
+// 如果一个 JSEventTarget 对象的一类事件有多个监听器，那么当这类事件发生时，这些监听器被调用的顺序和它们被添加的顺序是一致的。
 </pre>
-<p>也可以使用相同的监听器来处理一个 EventTarget 对象上不同种类型的事件，使用逗号分割各事件名称即可：</p>
+<p>也可以使用相同的监听器来处理一个 JSEventTarget 对象上不同种类型的事件：</p>
 <pre>
-eventTarget.on('someType, anotherType', listener);
-</pre>
-
-<h4>组合事件监听</h4>
-<p>
-  组合事件监听可以指定一个监听器仅在 masterType 和 slaveType 两种类型的事件均被触发后才会被调用。<br>
-  当 slaveType 事件的处理必须在 masterType 事件发生后才能进行时，使用 [masterType>slaveType] 的格式即可对 masterType 和 slaveType 这两类事件进行组合监听。
-</p>
-<p>这两种类型的事件的含义并不相同：</p>
-<ul>
-  <li>
-    <p>在一次组合事件监听中，masterType 事件对象永远是“可组合”的，只需要触发一次 masterType 事件，该事件对象即可以和任意多个 slaveType 事件对象进行组合。</p>
-    <p>如果 masterType 先被触发一次或多次，则只保留最新的 masterType 事件对象用于组合。此后每当 slaveType 被触发时，产生的 slaveType 事件对象都会立即与最新的 masterType 事件对象进行组合。</p>
-  </li>
-  <li>
-    <p>在一次组合事件监听中，slaveType 事件对象只能和 masterType 事件对象组合一次。</p>
-    <p>如果 slaveType 先被触发一次或多次，则每次触发的 slaveType 事件对象都会自动以队列的形式被保存，并将在 masterType 被触发后按照顺序逐个与最新的 masterType 事件对象进行组合。</p>
-  </li>
-</ul>
-<p>在编写组件时使用组合事件监听，可以提高组件的易用性：</p>
-<pre>
-var popup = EventTarget.create({
-  // 调用 init 方法以进行初始化工作，并触发 init 事件。
-  init: function() {
-    this.element = $('&lt;div style="display: none; right: 0; bottom: 0; width: 200px; height: 150px; border: 2px solid steelblue; background: whitesmoke; text-align: center; line-height: 150px;"&gt;&lt;/div&gt;').insertTo(document.body);
-    this.fire('init');
-  },
-  // show 方法可以在任何时间调用，此处仅仅触发 show 事件，并在事件对象上附加传入的 text。
-  show: function(text) {
-    this.fire('show', {text: text});
-  }
-})
-    // 当 init 和 show 事件均发生过时才会调用组合事件的监听器。
-    .on('[init>show]', function(_, e) {
-      this.element.innerText = e.text;
-      this.element.setStyles({display: 'block', position: 'fixed'});
-    });
-...
-// 在 popup 对象在可用后，即可随时调用其 show 方法，而不必担心“未初始化”的问题。
-popup.show('Hello World');
-...
-// 在恰当的时机，调用其 init 方法。如果曾经调用过其 show 方法，那么 popup 将在这时弹出，并显示在调用其 show 方法时传入的字符串。
-popup.init();
-</pre>
-<p>在上例中，popup 对象的 show 方法是同步方法，最终信息的显示却是异步的（取决于调用 popup 的 init 方法的时间），这是因为信息的显示并非由 show 方法直接导致，调用 show 方法只是显示信息的必要条件之一。开发者应了解这个机制，避免产生误解。</p>
-<p>使用组合事件监听，还可以很容易的实现异步调用队列：</p>
-<pre>
-var queue = new EventTarget();
-queue.on('[flush>insert], [flush>delete]', function(_, e) {
-  console.log(e.type + '-' + e.data);
-});
-queue.fire('insert', {data: '1'});
-queue.fire('delete', {data: '2'});
-queue.fire('delete', {data: '3'});
-queue.fire('insert', {data: '4'});
-queue.fire('flush');
-// 输出如下：
-// insert-1
-// delete-2
-// delete-3
-// insert-4
+jsEventTarget.on('start, finish', listener);
 </pre>
 
-<h4>删除已添加的事件监听器</h4>
-<p>要选择性的删除已添加的、特定的一个或多个监听器时，首先应在添加这些监听器时使用“标签”来对它们进行标记。<br>“事件类型”和“标签”的组合或“组合事件类型”和“标签”的组合都称为“事件名称”，在调用 off 方法删除事件时就是以“事件名称”为依据对指定的监听器进行删除的：</p>
+<h4>删除事件监听器</h4>
+<p>在一个 JSEventTarget 对象上使用 on 方法添加监听器时，第一个参数即该监听器的名称。<br>通过调用该对象的 off 方法，并传入监听器的名称，即可删除该对象的所有与该名称同名的监听器：</p>
 <pre>
-eventTarget.on('someType', listener1).on('someType<strong>.foo</strong>', listener2);
-// 为 eventTarget 添加两个事件监听器 listener1 和 listener2，它们监听的事件名称分别为 'someType' 和 'someType<strong>.foo</strong>'。
+jsEventTarget.on('active', listener1).on('active<strong>.foo</strong>', listener2);
+// 为 jsEventTarget 添加两个监听器 listener1 和 listener2，它们的名称分别为 'active' 和 'active<strong>.foo</strong>'。
 ...
-eventTarget.on('someType', listener3);
-// 再为 eventTarget 添加一个事件监听器 listener3，它监听的事件名称仍为 'someType'。
+jsEventTarget.on('active', listener3);
+// 再为 jsEventTarget 添加一个监听器 listener3，它的名称与 listener1 的相同，仍为 'active'。
 ...
-eventTarget.off('someType');
-// 删除在 eventTarget 上添加的所有监听 'someType' 事件（注意 'someType' 是事件名称而不是事件类型）的监听器，即 listener1 和 listener3，此时监听 'someType<strong>.foo</strong>' 事件的监听器 listener2 仍然生效。
+jsEventTarget.off('active');
+// 删除 jsEventTarget 上的所有名称为 'active' 的监听器，即 listener1 和 listener3，此时名称为 'active<strong>.foo</strong>' 的 listener2 仍然有效。
 </pre>
-<p>使用组合事件监听时也一样：</p>
-<pre>
-eventTarget.on('[masterType>slaveType].foo', listener1);
-...
-eventTarget.on('<strong>[masterType>slaveType].bar</strong>', listener2);
-...
-eventTarget.off('<strong>[masterType>slaveType].bar</strong>');
-// 删除组合事件监听器 listener2。
-</pre>
-<p>OurJS 没有提直接供删除一个 EventTarget 对象上某类型的所有监听器的功能，开发者每次删除监听器时都应明确指定要删除的监听器所监听的“事件名称”，这个设计是为了避免监听器被误删<sup>1</sup>。</p>
-<ol class="comment">
-  <li>要避免一个监听器被误删，应在添加该监听器时，在“事件名称”中添加一个具有明确含义的“标签”，并确保整个应用中此“事件名称”是唯一的。</li>
-</ol>
+<p>OurJS 没有提直接供删除一个 JSEventTarget 对象上的所有监听器的功能，开发者每次删除监听器时都应明确指定要删除的监听器的名称。</p>
 
 <h4>触发某类事件</h4>
 <p>使用 fire 方法来触发某类事件：</p>
 <pre>
-eventTarget.fire('someType');
+jsEventTarget.fire('initialized');
 </pre>
 
-<h4>事件对象</h4>
-<p>事件对象默认只有 type 和 target 两个属性。在调用 fire 方法时也可以附加其他自定义属性。</p>
+<h4>使用事件对象</h4>
+<p>当一个事件监听器被调用时，本次事件发生时产生的事件对象会作为参数被传入。</p>
+<p>所有事件对象都有 type 和 target 属性，在调用 fire 方法时，可以添加其他任意自定义属性：</p>
+<pre>
+jsEventTarget.on('update', function(e) {
+  var src = e.src;
+  ...
+});
+...
+$element.fire('update', {src: ...});
+</pre>
 
 <blockquote>
   <p>相关演示请参考 <a href="../demos/event/" target="_blank" class="link">演示 - 事件</a>。</p>
@@ -532,15 +509,15 @@ eventTarget.fire('someType');
 <p>如果页面中的多个（任何类型的）动画同时处于播放状态，动画引擎将同频同步播放这些动画的每一帧，以减少浏览器 reflow 和 repaint 的次数，提高渲染效率，使动画能够播放得更流畅。</p>
 <p>动画引擎还支持多种事件的监听或回调，如常见的“播放每一桢后”和“全部播放完毕后”等事件。</p>
 <p>动画引擎的控速函数 100% 兼容 CSS3 的 transition-timing-function。</p>
-<p>在使用动画时，可以根据情况选择<strong>在 Element.prototype 上提供的动画</strong>（单个元素参与的动画或需要播放简单的补间动画时）或<strong>使用 Animation 创建的动画</strong>（多个元素参与的动画或需要反转动画时）。</p>
+<p>在使用动画时，可以根据情况选择<strong>在 Element.prototype 上提供的动画</strong>（单个元素参与的动画）或<strong>使用 Animation 创建的动画</strong>（多个元素参与的动画或需要反转动画时）。</p>
 
 <h3>在 Element.prototype 上提供的动画</h3>
 <p>这种动画很容易配置和使用，并为常用的事件提供了回调函数。</p>
 <p>这种动画分为 morph/highlight/fade/smoothScroll 四种类型，分别用于实现平滑渐变、高亮、淡入淡出、平滑滚动的动画效果。</p>
 <p>它们的特点是：</p>
 <ul>
-  <li>关注点是当前元素，即只能改变当前元素的样式。</li>
-  <li>每次运行都是以元素的当前状态为起点。</li>
+  <li>只能改变当前元素的样式。</li>
+  <li>每次播放都是以元素的当前状态为起点。</li>
   <li>同类动画在连续调用时，将自动合并播放（停止旧的播放新的），其中 fade 类型的动画还会对时间进行合并处理（新动画的最长播放时间为旧动画的已播放时间）。</li>
 </ul>
 <p>举例如下：</p>
@@ -552,15 +529,12 @@ $element.morph({width: '+=100'}, {duration: 2000});
 
 <h3>使用 Animation 创建的动画</h3>
 <p>这种动画的配置和使用稍复杂一些，但却能提供更精确的控制手段和更丰富的事件。</p>
-<p>
-  可以为 Animation 的实例添加多个动画剪辑，以实现复杂的动画效果和动画队列。<br>
-  所有 Animation 的实例也都是一个 EventTarget 对象。Animation 还提供了灵活的控制手段，可以随时暂停或倒放。
-</p>
+<p>所有 Animation 的实例也都是一个 JSEventTarget 对象。</p>
 <p>它们的特点是：</p>
 <ul>
-  <li>关注点是动画效果，可以改变多个元素的样式。</li>
-  <li>创建时即确定起始和结束状态，可以精确控制，如暂停和倒放。</li>
-  <li>支持多个动画剪辑，支持多种事件，能实现复杂的动画效果和动画队列。</li>
+  <li>可以添加多个动画剪辑，以同时改变多个元素的样式。</li>
+  <li>创建时即确定起始和结束状态。</li>
+  <li>可以精确控制，如暂停和倒放。</li>
 </ul>
 <p>举例如下：</p>
 <pre>
@@ -586,11 +560,11 @@ $menu
 
 <h2>远程请求</h2>
 <p>远程请求是通过 Request 对象来实现的。</p>
-<p>所有 Request 的实例也都是一个 EventTarget 对象，并且每个实例都对应一个资源，实例创建后可以重复使用。</p>
+<p>所有 Request 的实例也都是一个 JSEventTarget 对象。</p>
 <p>从数据交互的角度看，一次请求有“成功”、“失败”、“超时”三种状态，因此大多数库中都预置了这些类型的事件或回调。</p>
 <p>
   从应用的角度看，对一个资源的请求结果未必只有以上三种状态，响应状态码是 200 的情况未必代表“操作成功”。<br>
-  因此 Request 设计为每发送一个请求就必然会收到一个响应，发送请求后，无论何种情况（本次请求超时或被取消）均会触发 finish 事件。这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 事件监听器中统一处理一些状态的设定或恢复，如将 start 事件监听器中呈现到用户界面的提示信息隐藏。
+  因此 Request 设计为每发送一个请求就必然会收到一个响应，发送请求后，无论何种情况（本次请求超时或被取消）均会触发 finish 事件。这样的设计可以简化应用逻辑，便于在请求结束时能够在 finish 监听器中统一处理一些状态的设定或恢复，如将 start 监听器中呈现到用户界面的提示信息隐藏。
 </p>
 <p>在触发 finish 事件之前，根据请求的实际状态，会首先触发 abort（请求被取消）、timeout（请求超时）和complete（请求完成）事件。</p>
 <p>根据 Request 使用场景的不同，有 XHR 和 JSONP 两种模式。</p>
@@ -630,16 +604,13 @@ getUserinfo.send({userid: 32768});
 
 <h2>Widgets</h2>
 <p>OurJS 提供的 Widgets 是一类特殊的元素，可以把一个 Widget 视为一种“<strong>高级可替换元素</strong>”。</p>
-<p>
-  当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
-  由于 Widgets 的本质仍然是元素，因此其新增的事件类型仍使用 OurJS 为 DOM 对象提供的事件模型，即这些事件产生的事件对象是可以在 DOM 树中传递的，并且可以被代理。
-</p>
+<p>当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。</p>
 <p>一些 Widgets 甚至不需要写任何脚本去初始化，即可直接使用。</p>
 
 <h3>基本用法</h3>
 <p>以“模态对话框（Dialog）”为例，要将一个元素“升级”为 Dialog Widget，首先应确保页面载入了对应的 Widget 解析脚本：</p>
 <pre>&lt;script src="path/to/widgets/dialog.js"&gt;&lt;/script&gt;</pre>
-<p>然后在目标元素上添加一个格式为 widget-<strong>type</strong> 的 class，并使用 data-<strong>config</strong>="<strong>value</strong>" 属性来定义 Widget 的配置即可<sup>1</sup>：</p>
+<p>然后在目标元素上添加一个名为 widget-<strong>&lt;type&gt;</strong> 的 class，并使用 data-<strong>&lt;config&gt;</strong>="<strong>&lt;value&gt;</strong>" 属性来定义 Widget 的配置即可<sup>1</sup>：</p>
 <pre>&lt;div id="notice" class="widget-dialog" data-animation="slide"&gt;&lt;/div&gt;</pre>
 <p>这样，目标元素就变成了一个 Dialog Widget，它将具备新的特性（具体请参考“Widget - 模态对话框”的说明文档）。对这个 Dialog Widget 的操作在 domready 事件发生后即可进行。</p>
 <ol class="comment">
@@ -673,7 +644,7 @@ $notice.close();
 </pre>
 
 <h3>设计新的 Widget</h3>
-<p>当需要设计新的 Widget 时，可以参考已有的 Widget 代码进行设计。</p>
+<p>当需要设计新的 Widget 时，可以参考现有的 Widget 代码。</p>
 
 <blockquote>
   <p>关于 Widgets 的更多说明信息及演示请参考 <a href="../widgets/" target="_blank" class="link">Widgets</a> 菜单中的各项内容。</p>

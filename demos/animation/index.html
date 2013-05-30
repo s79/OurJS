@@ -22,8 +22,8 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
 <div class="notice">
   <p>特点：</p>
   <ul>
-    <li>关注点是当前元素，即只能改变当前元素的样式。</li>
-    <li>每次运行都是以元素的当前状态为起点。</li>
+    <li>只能改变当前元素的样式。</li>
+    <li>每次播放都是以元素的当前状态为起点。</li>
     <li>同类动画效果可以合并。</li>
   </ul>
 </div>
@@ -321,9 +321,9 @@ document.on('domready', function() {
 <div class="notice">
   <p>特点：</p>
   <ul>
-    <li>关注点是动画效果，可以改变多个元素的样式。</li>
-    <li>创建时即确定起始和结束状态，可以精确控制，如暂停和倒放。</li>
-    <li>支持多个动画剪辑，支持多种事件，能实现复杂的动画效果和动画队列。</li>
+    <li>可以添加多个动画剪辑，以同时改变多个元素的样式。</li>
+    <li>创建时即确定起始和结束状态。</li>
+    <li>可以精确控制，如暂停和倒放。</li>
   </ul>
 </div>
 
