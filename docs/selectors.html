@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>可用选择符列表</title>
+<script src="../our.js"></script>
+<script src="../scripts/common_loader.js"></script>
+<style>
+pre,
+samp { font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+samp,
+var { font-style: italic; }
+samp { color: gray; }
+dfn { color: steelblue; }
+var { color: sienna; }
+table { table-layout: fixed; width: 960px; margin: 30px auto; }
+col.selector { width: 180px; }
+col.description { width: 520px; }
+tr:hover { background: aliceblue; }
+#show_extended { margin-right: 2px; }
+#extended table { margin-top: 0; }
+#extended.hide { display: none; }
+</style>
+</head>
+<body>
+<div id="content">
+<h1>可用选择符列表</h1>
+
+<p>以下列表中的选择符均可以作为任何需要 selector 的值的一部分，如：</p>
+<pre><dfn>$</dfn>('<var><strong>li&gt;p:first-child</strong></var>').empty();</pre>
+<pre>var elements = <samp>document</samp>.<dfn>findAll</dfn>('<var><strong>div.foo</strong></var>');</pre>
+<pre><samp>$element</samp>.<dfn>on</dfn>('<var>input:relay(<strong>input[type=text]</strong>)</var>', function(e) {...});</pre>
+
+<table>
+<colgroup>
+  <col class="selector">
+  <col class="description">
+  <col class="example">
+</colgroup>
+<tbody>
+<tr>
+  <th>选择符</th>
+  <th>描述</th>
+  <th>示例</th>
+</tr>
+<tr>
+  <td>*</td>
+  <td>匹配所有类型的元素。<br>当 * 的后边紧随一个其他选择符时，* 可以省略。</td>
+  <td>#panel *<br>*.icon <samp>(等于 .icon)</samp></td>
+</tr>
+<tr>
+  <td><var>E</var></td>
+  <td>匹配类型为 <var>E</var> 的元素（即该元素的标签名为 <var>E</var>）。</td>
+  <td>h1</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>[<var>attr</var>]</dfn></td>
+  <td>匹配有 <var>attr</var> 属性的元素（无论该属性有什么样的值）。</td>
+  <td>h1[title]</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>[<var>attr</var>="<var>val</var>"]</dfn></td>
+  <td>匹配 <var>attr</var> 属性的值等于 <var>val</var> 的元素。</td>
+  <td>input[type=text]</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>[<var>attr</var>~="<var>val</var>"]</dfn></td>
+  <td>匹配 <var>attr</var> 属性的值为一组使用空格分割的值列表，并且其中的一个值等于 <var>val</var>的元素（<var>val</var> 不能包含空格）。</td>
+  <td>pre[class~="code"]</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>[<var>attr</var>^="<var>val</var>"]</dfn></td>
+  <td>匹配 <var>attr</var> 属性的值是以 <var>val</var> 开头的元素。</td>
+  <td>h1[title^="Chapter"]</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>[<var>attr</var>$="<var>val</var>"]</dfn></td>
+  <td>匹配 <var>attr</var> 属性的值是以 <var>val</var> 结尾的元素。</td>
+  <td>a[href$=".html"]</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>[<var>attr</var>*="<var>val</var>"]</dfn></td>
+  <td>匹配 <var>attr</var> 属性的值中包含字符串 <var>val</var> 的元素。</td>
+  <td>img[title*="user"]</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>[<var>attr</var>|="<var>val</var>"]</dfn></td>
+  <td>匹配 <var>attr</var> 属性的值等于 <var>val</var> 或是以 <var>val</var>- 开头的元素。</td>
+  <td>[lang|="en"]</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>[<var>attr1</var>...][<var>attr2</var>...]</dfn></td>
+  <td>匹配能够被所有指定的属性选择符选中的元素。</td>
+  <td>input[type=text][name^=user]</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:root</dfn></td>
+  <td>匹配当前文档的根元素。</td>
+  <td>:root</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:empty</dfn></td>
+  <td>匹配不包含任何子元素或文本节点的空元素。</td>
+  <td>td:empty</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:only-child</dfn></td>
+  <td>匹配其父元素的唯一子元素。</td>
+  <td>span:only-child</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:first-child</dfn></td>
+  <td>匹配其父元素的第一个子元素。</td>
+  <td>span:first-child</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:last-child</dfn></td>
+  <td>匹配其父元素的最后一个子元素。</td>
+  <td>span:last-child</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:nth-child(<var>n</var>)</dfn></td>
+  <td>匹配其父元素的第 <var>n</var> 个子元素（第一个子元素的索引为 1）。</td>
+  <td>span:nth-child(2)<br>table tr:nth-child(even)<br>li:nth-child(3n+2)</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:nth-last-child(<var>n</var>)</dfn></td>
+  <td>匹配其父元素的倒数第 <var>n</var> 个子元素（最后一个子元素的索引为 1）。</td>
+  <td>span:nth-child(1)<br>table tr:nth-child(odd)<br>li:nth-child(4n)</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:only-of-type</dfn></td>
+  <td>匹配其父元素的唯一同类型的子元素。</td>
+  <td>span:only-of-type</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:first-of-type</dfn></td>
+  <td>匹配其兄弟元素中的第一个同类型元素。</td>
+  <td>span:first-of-type</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:last-of-type</dfn></td>
+  <td>匹配其兄弟元素中的最后一个同类型元素。</td>
+  <td>span:last-of-type</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:nth-of-type(<var>n</var>)</dfn></td>
+  <td>匹配其兄弟元素中的第 <var>n</var> 个同类型元素（第一个同类型元素的索引为 1）。</td>
+  <td>span:nth-of-type(2)</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:nth-last-of-type(<var>n</var>)</dfn></td>
+  <td>匹配其兄弟元素中的倒数第 <var>n</var> 个同类型元素（最后一个同类型元素的索引为 1）。</td>
+  <td>span:nth-last-of-type(even)</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:focus</dfn></td>
+  <td>匹配当前获得了焦点的元素。</td>
+  <td>a:focus</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:target</dfn></td>
+  <td>匹配当前 URL 中的片段标识符所指向的元素。</td>
+  <td>dt:target</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:lang</dfn></td>
+  <td>匹配指定了某种语言的元素。</td>
+  <td>html:lang(en)</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:enabled</dfn></td>
+  <td>匹配 disabled 属性为 false 的表单元素。</td>
+  <td>button:enabled</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:disabled</dfn></td>
+  <td>匹配 disabled 属性为 true 的表单元素。</td>
+  <td>button:disabled</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:checked</dfn></td>
+  <td>匹配 checked 属性为 true 的 INPUT[type=radio] 或 INPUT[type=checkbox] 元素。</td>
+  <td>input:checked</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:not(<var>selector</var>)</dfn></td>
+  <td>匹配不能被 <var>selector</var> 选中的元素。</td>
+  <td>input:not(:checked)</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>#<var>id</var></dfn></td>
+  <td>匹配标识符为 <var>id</var> 的元素。</td>
+  <td>#content</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>.<var>className</var></dfn></td>
+  <td>匹配类名中包含 <var>className</var> 的元素。</td>
+  <td>pre.code <samp>(等于 pre[class~=code])</samp></td>
+</tr>
+<tr>
+  <td><dfn><var>ancestor</var> <var>descendant</var></dfn></td>
+  <td>匹配 <var>ancestor</var> 元素的后代元素 <var>descendant</var>。</td>
+  <td>ul li</td>
+</tr>
+<tr>
+  <td><dfn><var>parent</var> &gt; <var>child</var></dfn></td>
+  <td>匹配 <var>parent</var> 元素的子元素 <var>child</var>。</td>
+  <td>body &gt; p</td>
+</tr>
+<tr>
+  <td><dfn><var>previous</var> + <var>next</var></dfn></td>
+  <td>匹配 <var>previous</var> 元素的下一个相邻的兄弟元素 <var>next</var>。</td>
+  <td>dt + dd</td>
+</tr>
+<tr>
+  <td><dfn><var>previous</var> ~ <var>siblings</var></dfn></td>
+  <td>匹配 <var>previous</var> 元素之后的所有兄弟元素 <var>siblings</var>。</td>
+  <td>dt + dd</td>
+</tr>
+<tr>
+  <td><dfn><var>selector1</var>, <var>selector2</var>, ...</dfn></td>
+  <td>匹配能够被所有指定的选择符选中的元素。</td>
+  <td>textarea, input[type=text]</td>
+</tr>
+</tbody>
+</table>
+
+<p class="referral">以上选择符的含义与 CSS3 选择符的含义是一致的。在 OurJS 中可以使用除下列选择符外的所有 CSS3 选择符：</p>
+<ul>
+  <li>
+    <dfn>:link</dfn> <dfn>:visited</dfn> <dfn>:hover</dfn> <dfn>:active</dfn>
+    <p class="comment">这几个伪类无法使用脚本来获取。</p>
+  </li>
+  <li>
+    <dfn>::first-line</dfn> <dfn>::first-letter</dfn>
+    <p class="comment">OurJS 只提供基于 Element 的扩展，不建议对文本节点进行直接操作。</p>
+  </li>
+  <li>
+    <dfn>::before</dfn> <dfn>::after</dfn>
+    <p class="comment">这两个伪元素无法使用脚本来获取。</p>
+  </li>
+</ul>
+
+<p>在 OurJS 中，与选择符相关的功能均借助 Sizzle 实现。Sizzle 除支持绝大多数的 CSS3 选择符外，还扩展了一些自定义的选择符，但在 OurJS 中并不建议使用，因此没有列出在上表中。</p>
+
+<blockquote>
+  <p><label><input id="show_extended" type="checkbox">显示 Sizzle 自定义的选择符</label></p>
+</blockquote>
+<div id="extended" class="hide">
+<table>
+<colgroup>
+  <col class="selector">
+  <col>
+</colgroup>
+<tbody>
+<tr>
+  <th>选择符</th>
+  <th>描述</th>
+</tr>
+<tr>
+  <td><dfn><var>E</var>[<var>attr</var>!="<var>val</var>"]</dfn></td>
+  <td>匹配没有 <var>attr</var> 属性，或者虽然有 <var>attr</var> 属性，但其值不等于 <var>val</var> 的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:contains(<var>text</var>)</dfn></td>
+  <td>匹配内容中包含 <var>text</var> 的元素（大小写敏感）。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:header</dfn></td>
+  <td>匹配标题元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:parent</dfn></td>
+  <td>匹配至少包含一个子节点的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:has(<var>selector</var>)</dfn></td>
+  <td>匹配后代元素中至少有一个可以被 <var>selector</var> 选中的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:first</dfn></td>
+  <td>在匹配的元素中选择第一个元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:last</dfn></td>
+  <td>在匹配的元素中选择最后一个元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:even</dfn></td>
+  <td>在匹配的元素中选择索引为偶数的元素（第一个元素的索引为 0）。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:odd</dfn></td>
+  <td>在匹配的元素中选择索引为奇数的元素（第一个元素的索引为 0）。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:eq(<var>n</var>)</dfn></td>
+  <td>在匹配的元素中选择第 <var>n</var> 个元素（第一个元素的索引为 0），如果指定 <var>n</var> 为负数，则从尾部开始计数。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:lt(<var>n</var>)</dfn></td>
+  <td>在匹配的元素中选择索引小于 <var>n</var> 的元素（第一个元素的索引为 0），如果指定 <var>n</var> 为负数，则从尾部开始计数。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:gt(<var>n</var>)</dfn></td>
+  <td>在匹配的元素中选择索引大于 <var>n</var> 的元素（第一个元素的索引为 0），如果指定 <var>n</var> 为负数，则从尾部开始计数。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:visible</dfn></td>
+  <td>匹配可见的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:hidden</dfn></td>
+  <td>匹配不可见的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:input</dfn></td>
+  <td>匹配 INPUT、TEXTAREA、SELECT 和 BUTTON 元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:text</dfn></td>
+  <td>匹配 [type=text] 的元素（以及没有指定 type 的 INPUT 元素）。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:password</dfn></td>
+  <td>匹配 [type=password] 的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:radio</dfn></td>
+  <td>匹配 [type=radio] 的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:checkbox</dfn></td>
+  <td>匹配 [type=checkbox] 的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:file</dfn></td>
+  <td>匹配 [type=file] 的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:image</dfn></td>
+  <td>匹配 [type=image] 的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:submit</dfn></td>
+  <td>匹配 [type=submit] 的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:reset</dfn></td>
+  <td>匹配 [type=reset] 的元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:button</dfn></td>
+  <td>匹配 BUTTON 元素和 INPUT[type=button] 元素。</td>
+</tr>
+<tr>
+  <td><dfn><var>E</var>:selected</dfn></td>
+  <td>匹配 selected 属性为 true 的 OPTION 元素。</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<blockquote>
+  <p>关于 Sizzle 的更多信息，请参考 <a href="https://github.com/jquery/sizzle/wiki/Sizzle-Documentation" target="_blank" class="link">Sizzle Documentation</a> 中的内容。</p>
+  <p>关于 CSS3 选择符的更多信息，请参考 <a href="http://www.w3.org/TR/css3-selectors/#selectors" target="_blank" class="link">CSS3 Selectors</a> 中的内容。</p>
+</blockquote>
+
+<script>
+(function() {
+  var $extended = $('#extended');
+  $('#show_extended')
+      .on('click', function() {
+        $extended.toggleClass('hide');
+      })
+      .checked = false;
+})();
+</script>
+
+</div>
+</body>
+</html>

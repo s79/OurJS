@@ -102,6 +102,10 @@ document.on('domready', function() {
           url: '/OurJS/docs/events.html'
         },
         {
+          text: '可用选择符列表',
+          url: '/OurJS/docs/selectors.html'
+        },
+        {
           text: '可用颜色名称列表',
           url: '/OurJS/docs/colors.html'
         }

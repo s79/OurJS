@@ -13,10 +13,10 @@ var { font-style: italic; }
 samp { color: gray; }
 dfn { color: steelblue; }
 var { color: sienna; }
-table { table-layout: fixed; width: 800px; margin: 30px auto; }
+table { table-layout: fixed; width: 960px; margin: 30px auto; }
 col { width: 100px; }
-col.type { width: auto; }
-col.appliesto { width: 250px; }
+col.type { width: 150px; }
+col.appliesto { width: 300px; }
 tr:hover { background: aliceblue; }
 td.satisfied { text-align: center; }
 td.satisfied em { font-style: normal; font-weight: bold; }
@@ -29,9 +29,9 @@ td.satisfied em.false { color: silver; }
 <h1>可用事件类型列表</h1>
 
 <p>以下列表中的事件类型均可以在其各自“应用于”的对象上调用 on、off 或 fire 方法时使用，如：</p>
-<pre><samp>window</samp>.<dfn>fire</dfn>('<var><strong>resize</strong></var>);</pre>
-<pre><samp>document</samp>.<dfn>off</dfn>('<var><strong>click</strong>.foo</var>');</pre>
 <pre><samp>$element</samp>.<dfn>on</dfn>('<var><strong>mousedrag</strong>:relay(.draggable)</var>', function(e) {...});</pre>
+<pre><samp>document</samp>.<dfn>off</dfn>('<var><strong>click</strong>.foo</var>');</pre>
+<pre><samp>window</samp>.<dfn>fire</dfn>('<var><strong>resize</strong></var>);</pre>
 
 <table>
   <colgroup>
@@ -55,10 +55,7 @@ td.satisfied em.false { color: silver; }
   <tbody id="list"></tbody>
 </table>
 
-<p>
-  以上列表中列出的事件类型，除<var><strong>自定义事件类型</strong></var>外，均可能被用户的操作触发，也可能由 fire 方法触发。<br>
-  <var><strong>自定义事件类型</strong></var>则无法被用户的操作触发，只能通过 fire 方法触发<sup>1</sup>。
-</p>
+<p>以上事件类型中，<var><strong>自定义事件类型</strong></var><sup>1</sup>只能通过 fire 方法触发，其他事件类型除可以由 fire 方法触发外，还可以被用户的操作触发，一些元素还可以通过调用其 click、focus、blur、reset 等方法来触发同名事件。</p>
 <ol class="comment">
   <li>
     对于不是所有的浏览器都支持的事件类型（如 beforeactivate 事件），OurJS 在使用 on 方法添加监听器的时候，也会将其视为<var><strong>自定义事件类型</strong></var>，并不会真正在文档中监听此类型的 DOM 事件。因此即便在支持此类型事件的浏览器中，此事件也不会被用户的操作触发。这样设计是为了确保事件监听行为在各浏览器中的一致性。<br>
@@ -66,27 +63,27 @@ td.satisfied em.false { color: silver; }
   </li>
 </ol>
 
-<p>以下事件类型的一些细节行为仍不能兼容所有浏览器：</p>
+<p class="referral">下列事件类型的一些细节行为仍不能兼容所有浏览器：</p>
 <ul>
   <li>
-    contextmenu
+    <dfn>contextmenu</dfn>
     <p class="comment">IE8 只要添加了该类事件的监听器，即自动取消默认行为。</p>
   </li>
   <li>
-    keydown & keypress
+    <dfn>keydown</dfn> & <dfn>keypress</dfn>
     <p class="comment">大部分浏览器都禁止取消特殊按键（如 F5 和 Backspace 等）的默认行为。</p>
   </li>
   <li>
-    error
+    <dfn>unload</dfn>
     <p class="comment">
-      IE6 IE7 IE8 在 window 上添加的原生监听器会传入三个参数 message、url 和 lineNumber，而其他浏览器则只会传入一个参数 event。鉴于极少监听此类型的事件，OurJS 未做修复。<br>
-      必须要监听时，可以使用内联事件监听器，这种监听器在目前所有浏览器下均与上述 IE6 IE7 IE8 的行为一致。
+      Opera 目前 (12.15) 仍不支持这个事件。
     </p>
   </li>
   <li>
-    unload
+    <dfn>error</dfn>
     <p class="comment">
-      Opera 不支持这个事件。
+      IE6 IE7 IE8 在 window 上添加的原生监听器会传入三个参数 message、url 和 lineNumber，而其他浏览器则只会传入一个参数 event。鉴于极少监听此类型的事件，OurJS 未做修复。<br>
+      必须要监听时，可以使用内联事件监听器，这种监听器在目前所有浏览器下均与上述 IE6 IE7 IE8 的行为一致。
     </p>
   </li>
 </ul>
@@ -121,14 +118,14 @@ var events = [
   ['focusout', 0, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
   ['input', 0, 0, 1, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>'],
   ['change', 0, 0, 1, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>'],
-  ['select', 0, 0, 0, 0, '<dfn>INPUT[type=text|password]</dfn>, <dfn>TEXTAREA</dfn>'],
-  ['submit', 0, 0, 0, 1, '<dfn>FORM</dfn>'],
-  ['reset', 0, 0, 0, 1, '<dfn>FORM</dfn>'],
+  ['select', 0, 0, 0, 0, '<var>INPUT[type=text|password]</var>, <var>TEXTAREA</var>'],
+  ['submit', 0, 0, 0, 1, '<var>FORM</var>'],
+  ['reset', 0, 0, 0, 1, '<var>FORM</var>'],
   ['scroll', 0, 0, 0, 0, '<dfn>window</dfn>, <var>Element</var>'],
   ['resize', 0, 0, 0, 0, '<dfn>window</dfn>'],
-  ['load', 0, 0, 0, 0, '<dfn>window</dfn>, <dfn>IFRAME</dfn>, <dfn>IMG</dfn>'],
+  ['load', 0, 0, 0, 0, '<dfn>window</dfn>, <var>IFRAME</var>, <var>IMG</var>'],
   ['unload', 0, 0, 0, 0, '<dfn>window</dfn>'],
-  ['error', 0, 0, 0, 0, '<dfn>IMG</dfn>'],
+  ['error', 0, 0, 0, 0, '<var>IMG</var>'],
   ['beforedomready', 0, 0, 0, 0, '<dfn>document</dfn>'],
   ['domready', 0, 0, 0, 0, '<dfn>document</dfn>'],
   ['afterdomready', 0, 0, 0, 0, '<dfn>document</dfn>']
@@ -147,7 +144,7 @@ var events = [
         $td.className = 'satisfied';
         $td.innerHTML = data[i] ? '<em class="true">是</em>' : '<em class="false">否</em>';
       } else {
-        $td.innerHTML = data[i];
+        $td.innerHTML = '<dfn>' + data[i] + '</dfn>';
       }
     }
   };

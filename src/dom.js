@@ -1787,9 +1787,9 @@
    *   DOMEventTarget
    *
    * 提供实例方法：
-   *   DOMEventTarget.on
-   *   DOMEventTarget.off
-   *   DOMEventTarget.fire
+   *   DOMEventTarget.prototype.on
+   *   DOMEventTarget.prototype.off
+   *   DOMEventTarget.prototype.fire
    *
    * 参考：
    *   http://jquery.com/

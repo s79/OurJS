@@ -50,9 +50,9 @@
    *   }
    *
    * 提供实例方法：
-   *   JSEventTarget.on
-   *   JSEventTarget.off
-   *   JSEventTarget.fire
+   *   JSEventTarget.prototype.on
+   *   JSEventTarget.prototype.off
+   *   JSEventTarget.prototype.fire
    */
 
   var separator = /\s*,\s*/;

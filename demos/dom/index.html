@@ -38,7 +38,7 @@ button .target { color: mediumseagreen; font-weight: bold; }
 <h2>克隆元素</h2>
 <!-- clone { -->
 <fieldset style="width: 940px;">
-  <legend>clone - 克隆元素</legend>
+  <legend>Element.prototype.clone</legend>
   <table style="table-layout: fixed; width: 940px;">
     <caption>每次点击“clone”按钮，都将清除右侧区域（便于测试效果），并克隆左侧区域的内容到右侧区域内。</caption>
     <tbody>
@@ -127,9 +127,9 @@ button .target { color: mediumseagreen; font-weight: bold; }
 <!-- } clone -->
 
 <h2>修改位置</h2>
-<!-- insertTo { -->
+<!-- Element.prototype.insertTo { -->
 <fieldset>
-  <legend>insertTo - 将本元素插入到目标元素的指定位置</legend>
+  <legend>Element.prototype.insertTo</legend>
   <div class="simple_container">
     <div id="i_sample" class="sample">$sampleA</div>
   </div>
@@ -157,13 +157,13 @@ var $sampleA = $('#i_sample');
 var $targetA = $('#i_target');
 var $simpleContainer = $sampleA.getParent();
 </script>
-<!-- } insertTo -->
+<!-- } Element.prototype.insertTo -->
 
 <br>
 
-<!-- swap { -->
+<!-- Element.prototype.swap { -->
 <fieldset>
-  <legend>swap - 交换本元素和目标元素的位置</legend>
+  <legend>Element.prototype.swap</legend>
   <div class="simple_container">
     <div id="s_sample" class="sample">$sampleB</div>
   </div>
@@ -188,11 +188,11 @@ var $targetB1 = targetsB[0];
 var $targetB2 = targetsB[1];
 var $targetB3 = targetsB[2];
 </script>
-<!-- } swap -->
+<!-- } Element.prototype.swap -->
 
-<!-- replace { -->
+<!-- Element.prototype.replace { -->
 <fieldset>
-  <legend>replace - 使用本元素替换目标元素</legend>
+  <legend>Element.prototype.replace</legend>
   <div class="simple_container">
     <div id="r_sample" class="sample">$sampleC</div>
   </div>
@@ -217,7 +217,7 @@ var $targetC1 = targetsC[0];
 var $targetC2 = targetsC[1];
 var $targetC3 = targetsC[2];
 </script>
-<!-- } replace -->
+<!-- } Element.prototype.replace -->
 
 </div>
 </body>

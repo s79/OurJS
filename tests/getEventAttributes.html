@@ -32,7 +32,7 @@ $('#ul').on('click:relay(a).test', function(e) {
   console.log('● CLICKED: a');
   e.preventDefault();
 });
-$('#ul').on('click:relay(li>span a), click:relay(li:even span).test', function(e) {
+$('#ul').on('click:relay(li>span a), click:relay(li:nth-child(even) span).test', function(e) {
   console.log('● -> ' + this.nodeName);
   e.preventDefault();
 });
