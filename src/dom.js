@@ -1561,7 +1561,7 @@
    * @param {string} key 数据名。
    * @returns {string} 数据值。
    *   如果指定的数据名不存在，返回 undefined。
-   * @see http://www.w3.org/TR/html5/global-attributes.html#embedding-custom-non-visible-data-with-the-data-attributes
+   * @see http://www.w3.org/TR/html5/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes
    */
   Element.prototype.getData = 'dataset' in html ? function(key) {
     return this.dataset[key];

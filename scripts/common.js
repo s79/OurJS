@@ -206,24 +206,22 @@ document.on('domready', function() {
         })
         .on('mouseleave', function() {
           this.removeClass('shown');
+        })
+        .on('click:relay(a)', function(e) {
+          var href = this.href;
+          if (href.contains('#')) {
+            var $target = $(href.slice(href.indexOf('#')));
+            if ($target) {
+              $('body').smoothScroll(0, $target.getClientRect().top + window.getPageOffset().y - 50, {
+                onFinish: function() {
+                  $target.highlight('yellow', 'backgroundColor', {duration: 1000})
+                }
+              });
+              e.preventDefault();
+            }
+          }
         });
 
   }
-
-//--------------------------------------------------[书签]
-  document.on('click:relay(a)', function(e) {
-    var href = this.href;
-    if (href.contains('#')) {
-      var $target = $(href.slice(href.indexOf('#')));
-      if ($target) {
-        $('body').smoothScroll(0, $target.getClientRect().top + window.getPageOffset().y - 50, {
-          onFinish: function() {
-            $target.highlight('yellow', 'backgroundColor', {duration: 1000})
-          }
-        });
-        e.preventDefault();
-      }
-    }
-  });
 
 });

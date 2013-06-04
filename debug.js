@@ -2,7 +2,7 @@
  * OurJS
  *  sundongguo
  *  http://s79.github.com/OurJS/
- *  2013-05-28
+ *  2013-06-04
  *  Released under the MIT License.
  */
 /**
@@ -2107,6 +2107,8 @@
    *
    * 扩展方法：
    *   document.$
+   *   document.find
+   *   document.findAll
    *   document.addStyleRules
    *   document.loadScript
    *   document.preloadImages
@@ -2228,6 +2230,38 @@
       element = e;
     }
     return $(element);
+  };
+
+//--------------------------------------------------[document.find]
+  /**
+   * 在文档中根据指定的选择符查找符合条件的第一个元素。
+   * @name document.find
+   * @function
+   * @param {string} selector 选择符。
+   * @returns {Element} 查找到的元素。
+   *   如果没有找到任何元素，返回 null。
+   * @see http://www.w3.org/TR/selectors-api2/
+   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
+   */
+  document.find = function(selector) {
+    return $(Sizzle(selector, this)[0] || null);
+  };
+
+//--------------------------------------------------[document.findAll]
+  /**
+   * 在文档中根据指定的选择符查找符合条件的所有元素。
+   * @name document.findAll
+   * @function
+   * @param {string} selector 选择符。
+   * @returns {Array} 包含查找到的元素的数组。
+   *   如果没有找到任何元素，返回空数组。
+   * @see http://www.w3.org/TR/selectors-api2/
+   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
+   */
+  document.findAll = function(selector) {
+    return Sizzle(selector, this).map(function(element) {
+      return $(element);
+    });
   };
 
 //--------------------------------------------------[document.addStyleRules]
@@ -2613,6 +2647,441 @@
 //      return (this === target || !!(this.compareDocumentPosition(target) & 16));
 //    };
 //  }
+
+//==================================================[Element 扩展 - 遍历文档树]
+  /*
+   * 获取文档树中的元素或一个元素与文档树相关的信息。
+   *
+   * 扩展方法：
+   *   Element.prototype.getParent
+   *   Element.prototype.getPreviousSibling
+   *   Element.prototype.getNextSibling
+   *   Element.prototype.getFirstChild
+   *   Element.prototype.getLastChild
+   *   Element.prototype.getChildren
+   *   Element.prototype.getChildCount
+   *   Element.prototype.find
+   *   Element.prototype.findAll
+   *   Element.prototype.matchesSelector
+   *
+   * 参考：
+   *   http://www.w3.org/TR/ElementTraversal/#interface-elementTraversal
+   *   http://www.w3.org/TR/selectors-api2/
+   *   http://www.quirksmode.org/dom/w3c_core.html
+   *   https://github.com/jquery/sizzle/wiki/Sizzle-Home
+   *   http://w3help.org/zh-cn/causes/SD9003
+   */
+
+//--------------------------------------------------[Element.prototype.getParent]
+  /**
+   * 获取本元素的父元素。
+   * @name Element.prototype.getParent
+   * @function
+   * @returns {Element} 本元素的父元素。
+   */
+  Element.prototype.getParent = 'parentElement' in html ? function() {
+    return $(this.parentElement);
+  } : function() {
+    var element = this.parentNode;
+    // parentNode 可能是 DOCUMENT_NODE(9) 或 DOCUMENT_FRAGMENT_NODE(11)。
+    if (element.nodeType !== 1) {
+      element = null;
+    }
+    return $(element);
+  };
+
+//--------------------------------------------------[Element.prototype.getPreviousSibling]
+  /**
+   * 获取与本元素相邻的上一个元素。
+   * @name Element.prototype.getPreviousSibling
+   * @function
+   * @returns {Element} 与本元素相邻的上一个元素。
+   */
+  Element.prototype.getPreviousSibling = 'previousElementSibling' in html ? function() {
+    return $(this.previousElementSibling);
+  } : function() {
+    var element = this;
+    while ((element = element.previousSibling) && element.nodeType !== 1) {
+    }
+    return $(element);
+  };
+
+//--------------------------------------------------[Element.prototype.getNextSibling]
+  /**
+   * 获取与本元素相邻的下一个元素。
+   * @name Element.prototype.getNextSibling
+   * @function
+   * @returns {Element} 与本元素相邻的下一个元素。
+   */
+  Element.prototype.getNextSibling = 'nextElementSibling' in html ? function() {
+    return $(this.nextElementSibling);
+  } : function() {
+    var element = this;
+    while ((element = element.nextSibling) && element.nodeType !== 1) {
+    }
+    return $(element);
+  };
+
+//--------------------------------------------------[Element.prototype.getFirstChild]
+  /**
+   * 获取本元素的第一个子元素。
+   * @name Element.prototype.getFirstChild
+   * @function
+   * @returns {Element} 本元素的第一个子元素。
+   */
+  Element.prototype.getFirstChild = 'firstElementChild' in html ? function() {
+    return $(this.firstElementChild);
+  } : function() {
+    var element = this.firstChild;
+    while (element && element.nodeType !== 1 && (element = element.nextSibling)) {
+    }
+    return $(element);
+  };
+
+//--------------------------------------------------[Element.prototype.getLastChild]
+  /**
+   * 获取本元素的最后一个子元素。
+   * @name Element.prototype.getLastChild
+   * @function
+   * @returns {Element} 本元素的最后一个子元素。
+   */
+  Element.prototype.getLastChild = 'lastElementChild' in html ? function() {
+    return $(this.lastElementChild);
+  } : function() {
+    var element = this.lastChild;
+    while (element && element.nodeType !== 1 && (element = element.previousSibling)) {
+    }
+    return $(element);
+  };
+
+//--------------------------------------------------[Element.prototype.getChildren]
+  /**
+   * 获取本元素的所有子元素。
+   * @name Element.prototype.getChildren
+   * @function
+   * @returns {Array} 包含本元素的所有子元素的数组，数组内各元素的顺序为调用本方法时各元素在文档树中的顺序。
+   */
+  Element.prototype.getChildren = function() {
+    var children = [];
+    var $child = this.getFirstChild();
+    while ($child) {
+      children.push($child);
+      $child = $child.getNextSibling();
+    }
+    return children;
+  };
+
+//--------------------------------------------------[Element.prototype.getChildCount]
+  /**
+   * 获取本元素的子元素的总数。
+   * @name Element.prototype.getChildCount
+   * @function
+   * @returns {number} 本元素的子元素的总数。
+   */
+  Element.prototype.getChildCount = 'childElementCount' in html ? function() {
+    return this.childElementCount;
+  } : function() {
+    var count = 0;
+    var node = this.firstChild;
+    while (node) {
+      if (node.nodeType === 1) {
+        count++;
+      }
+      node = node.nextSibling;
+    }
+    return count;
+  };
+
+//--------------------------------------------------[Element.prototype.find]
+  /**
+   * 在本元素的后代元素中，根据指定的选择符查找符合条件的第一个元素。
+   * @name Element.prototype.find
+   * @function
+   * @param {string} selector 选择符。
+   * @returns {Element} 查找到的元素。
+   *   如果没有找到任何元素，返回 null。
+   * @see http://www.w3.org/TR/selectors-api2/
+   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
+   */
+  Element.prototype.find = document.find;
+
+//--------------------------------------------------[Element.prototype.findAll]
+  /**
+   * 在本元素的后代元素中，根据指定的选择符查找符合条件的所有元素。
+   * @name Element.prototype.findAll
+   * @function
+   * @param {string} selector 选择符。
+   * @returns {Array} 包含查找到的元素的数组。
+   *   如果没有找到任何元素，返回空数组。
+   * @see http://www.w3.org/TR/selectors-api2/
+   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
+   */
+  Element.prototype.findAll = document.findAll;
+
+//--------------------------------------------------[Element.prototype.matchesSelector]
+  /**
+   * 检查本元素是否能被指定的选择符选中。
+   * @name Element.prototype.matchesSelector
+   * @function
+   * @param {string} selector 选择符。
+   * @returns {boolean} 检查结果。
+   * @see http://www.w3.org/TR/selectors-api2/
+   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
+   */
+  Element.prototype.matchesSelector = function(selector) {
+    return Sizzle.matchesSelector(this, selector);
+  };
+
+//==================================================[Element 扩展 - 修改文档树]
+  /*
+   * 修改文档树的结构。
+   *
+   * 扩展方法：
+   *   Element.prototype.clone
+   *   Element.prototype.insertTo
+   *   Element.prototype.swap
+   *   Element.prototype.replace
+   *   Element.prototype.remove
+   *   Element.prototype.empty
+   */
+
+//--------------------------------------------------[Element.prototype.clone]
+  /**
+   * 克隆本元素。
+   * @name Element.prototype.clone
+   * @function
+   * @param {boolean} [recursively] 是否进行深克隆。
+   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上的所有事件监听器。
+   * @returns {Element} 克隆后的元素。
+   * @description
+   *   如果本元素有 id 属性，需注意克隆元素的 id 属性将与之有相同的值，必要时应进一步处理。
+   *   不要克隆包含脚本的元素，以免出现兼容性问题。
+   *   不要克隆包含样式表的元素，以免最终样式不符合预期。
+   * @see http://jquery.com/
+   * @see http://mootools.net/
+   * @see http://w3help.org/zh-cn/causes/SD9029
+   */
+  Element.prototype.clone = function(recursively, keepListeners) {
+    var clonedElement = this.cloneNode(recursively);
+    var originalElements = [this];
+    var clonedElements = [clonedElement];
+    if (recursively) {
+      originalElements = originalElements.concat(Array.from(this.getElementsByTagName('*')));
+      clonedElements = clonedElements.concat(Array.from(clonedElement.getElementsByTagName('*')));
+    }
+    originalElements.forEach(function(original, index) {
+      var cloned = clonedElements[index];
+      // http://bugs.jquery.com/ticket/9587
+      if (cloned) {
+        // 在 IE6 IE7 IE8 中使用 cloneNode 克隆的节点，会将本元素上使用 attachEvent 添加的事件监听器也一并克隆。
+        // 并且在克隆元素上调用 detachEvent 删除这些监听器时，本元素上的监听器也将被一并删除。
+        // 使用以下方法为 IE6 IE7 IE8 清除已添加的事件监听器，并清除可能存在的 uid 属性。
+        if (navigator.isIElt9) {
+          cloned.clearAttributes();
+          cloned.mergeAttributes(original);
+          cloned.removeAttribute('uid');
+        }
+        // 针对特定元素的处理。
+        switch (cloned.nodeName) {
+          case 'OBJECT':
+            // IE6 IE7 IE8 无法克隆使用 classid 来标识内容类型的 OBJECT 元素的子元素。IE9 还有另外的问题：
+            // http://bugs.jquery.com/ticket/10324
+            cloned.outerHTML = original.outerHTML;
+            break;
+          case 'INPUT':
+          case 'TEXTAREA':
+            // 一些表单元素的状态可能未被正确克隆，克隆的表单元素将以这些元素的默认状态为当前状态。
+            if (cloned.type === 'radio' || cloned.type === 'checkbox') {
+              cloned.checked = cloned.defaultChecked = original.defaultChecked;
+            }
+            cloned.value = cloned.defaultValue = original.defaultValue;
+            break;
+          case 'OPTION':
+            cloned.selected = cloned.defaultSelected = original.defaultSelected;
+            break;
+        }
+        // 处理事件。
+        if (keepListeners) {
+          var item = eventHandlers[original.uid];
+          if (item) {
+            var $cloned = $(cloned);
+            Object.forEach(item, function(handlers) {
+              handlers.forEach(function(handler) {
+                $cloned.on(handler.name, handler.listener);
+              });
+            });
+          }
+        }
+      }
+    });
+    return $(clonedElement);
+  };
+
+//--------------------------------------------------[Element.prototype.insertTo]
+  /**
+   * 将本元素插入到目标元素的指定位置。
+   * @name Element.prototype.insertTo
+   * @function
+   * @param {Element} target 目标元素。
+   * @param {string} [position] 要插入的位置，可选值请参考下表。
+   *   <table>
+   *     <tr><th>可选值</th><th>含义</th></tr>
+   *     <tr><td><dfn>beforeBegin</dfn></td><td>将本元素插入到目标元素之前。</td></tr>
+   *     <tr><td><dfn>afterBegin</dfn></td><td>将本元素插入到目标元素的所有内容之前。</td></tr>
+   *     <tr><td><dfn>beforeEnd</dfn></td><td>将本元素插入到目标元素的所有内容之后。</td></tr>
+   *     <tr><td><dfn>afterEnd</dfn></td><td>将本元素插入到目标元素之后。</td></tr>
+   *   </table>
+   *   如果该参数被省略，则使用 <dfn>beforeEnd</dfn> 作为默认值。
+   * @returns {Element} 本元素。
+   */
+  Element.prototype.insertTo = function(target, position) {
+    position = position || 'beforeEnd';
+    return target.insertAdjacentElement(position, this);
+  };
+
+//--------------------------------------------------[Element.prototype.swap]
+  /**
+   * 交换本元素和目标元素的位置。
+   * @name Element.prototype.swap
+   * @function
+   * @param {Element} target 目标元素。
+   * @returns {Element} 本元素。
+   */
+  Element.prototype.swap = 'swapNode' in html ? function(target) {
+    return this.swapNode(target);
+  } : function(target) {
+    var targetParent = target.parentNode;
+    var thisParent = this.parentNode;
+    var thisNextSibling = this.nextSibling;
+    if (targetParent) {
+      targetParent.replaceChild(this, target);
+    } else {
+      this.remove(true);
+    }
+    if (thisParent) {
+      thisParent.insertBefore(target, thisNextSibling);
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Element.prototype.replace]
+  /**
+   * 使用本元素替换目标元素。
+   * @name Element.prototype.replace
+   * @function
+   * @param {Element} target 目标元素。
+   * @param {boolean} [keepListeners] 是否保留目标元素及后代元素上的所有事件监听器。
+   * @returns {Element} 本元素。
+   */
+  Element.prototype.replace = function(target, keepListeners) {
+    var $target = $(target);
+    var $parent = $target.getParent();
+    if ($parent) {
+      if (!keepListeners) {
+        Array.from(removeAllListeners($target).getElementsByTagName('*')).forEach(removeAllListeners);
+      }
+      $parent.replaceChild(this, $target);
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Element.prototype.remove]
+  /**
+   * 将本元素从文档树中删除。
+   * @name Element.prototype.remove
+   * @function
+   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上的所有事件监听器。
+   * @returns {Element} 本元素。
+   */
+  Element.prototype.remove = function(keepListeners) {
+    var $parent = this.getParent();
+    if ($parent) {
+      if (!keepListeners) {
+        Array.from(removeAllListeners(this).getElementsByTagName('*')).forEach(removeAllListeners);
+      }
+      $parent.removeChild(this);
+    }
+    return this;
+  };
+
+//--------------------------------------------------[Element.prototype.empty]
+  /**
+   * 将本元素的内容清空，并删除本元素及后代元素上的所有事件监听器。
+   * @name Element.prototype.empty
+   * @function
+   * @returns {Element} 本元素。
+   */
+  Element.prototype.empty = function() {
+    Array.from(this.getElementsByTagName('*')).forEach(removeAllListeners);
+    while (this.firstChild) {
+      this.removeChild(this.firstChild);
+    }
+    return this;
+  };
+
+//==================================================[Element 扩展 - 获取坐标信息]
+  /*
+   * 获取元素在视口中的坐标信息。
+   *
+   * 扩展方法：
+   *   Element.prototype.getClientRect
+   */
+
+//--------------------------------------------------[Element.prototype.getClientRect]
+  /*
+   * [2009 年的测试结果 (body's direction = ltr)]
+   * 测试浏览器：IE6 IE7 IE8 FF3 Safari4 Chrome2 Opera9。
+   *
+   * 浏览器        compatMode  [+html.border,+body.border]  [+html.border,-body.border]  [-html.border,+body.border]  [-html.border,-body.border]
+   * IE6 IE7 IE8  BackCompat        +body.clientLeft             +body.clientLeft             +body.clientLeft             +body.clientLeft
+   * Others       BackCompat              准确
+   * IE6 IE7      CSS1Compat        +html.clientLeft             +html.clientLeft             +html.clientLeft             +html.clientLeft
+   * Others       CSS1Compat              准确
+   *
+   * 根据上表可知，只有 IE8 以下会出现问题。
+   * 混杂模式下，IE6 IE7 IE8 减去 body.clientLeft 的值即可得到准确结果。
+   * body.clientLeft 的值取决于 BODY 的 border 属性，如果未设置 BODY 的 border 属性，则 BODY 会继承 HTML 的 border 属性。如果 HTML 的 border 也未设置，则 HTML 的 border 默认值为 medium，计算出来是 2px。
+   * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
+   * html.clientLeft 在 IE6 中取决于 HTML 的 border 属性，而在 IE7 中的值则始终为 2px。
+   *
+   * [特殊情况]
+   * IE7(IE9 模拟) 的 BODY 的计算样式 direction: rtl 时，如果 HTML 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
+   */
+  /**
+   * 获取本元素的 border-box 在视口中的坐标信息。
+   * @name Element.prototype.getClientRect
+   * @function
+   * @returns {Object} 包含位置（left、right、top、bottom）及尺寸（width、height）的对象，所有属性值均为 number 类型，单位为像素。
+   */
+  Element.prototype.getClientRect = navigator.isIElt8 ? function() {
+    var clientRect = this.getBoundingClientRect();
+    var left = clientRect.left - html.clientLeft;
+    var top = clientRect.top - html.clientTop;
+    var width = this.offsetWidth;
+    var height = this.offsetHeight;
+    return {
+      left: left,
+      right: left + width,
+      top: top,
+      bottom: top + height,
+      width: width,
+      height: height
+    };
+  } : function() {
+    var clientRect = this.getBoundingClientRect();
+    if ('width' in clientRect) {
+      return clientRect;
+    } else {
+      return {
+        left: clientRect.left,
+        right: clientRect.right,
+        top: clientRect.top,
+        bottom: clientRect.bottom,
+        width: this.offsetWidth,
+        height: this.offsetHeight
+      };
+    }
+  };
 
 //==================================================[Element 扩展 - 处理类]
   /*
@@ -3054,7 +3523,7 @@
    * @param {string} key 数据名。
    * @returns {string} 数据值。
    *   如果指定的数据名不存在，返回 undefined。
-   * @see http://www.w3.org/TR/html5/global-attributes.html#embedding-custom-non-visible-data-with-the-data-attributes
+   * @see http://www.w3.org/TR/html5/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes
    */
   Element.prototype.getData = 'dataset' in html ? function(key) {
     return this.dataset[key];
@@ -3095,447 +3564,6 @@
     key = parseDataKey(key);
     if (key) {
       this.removeAttribute(key);
-    }
-    return this;
-  };
-
-//==================================================[Element 扩展 - 获取坐标信息]
-  /*
-   * 获取元素在视口中的坐标信息。
-   *
-   * 扩展方法：
-   *   Element.prototype.getClientRect
-   */
-
-//--------------------------------------------------[Element.prototype.getClientRect]
-  /*
-   * [2009 年的测试结果 (body's direction = ltr)]
-   * 测试浏览器：IE6 IE7 IE8 FF3 Safari4 Chrome2 Opera9。
-   *
-   * 浏览器        compatMode  [+html.border,+body.border]  [+html.border,-body.border]  [-html.border,+body.border]  [-html.border,-body.border]
-   * IE6 IE7 IE8  BackCompat        +body.clientLeft             +body.clientLeft             +body.clientLeft             +body.clientLeft
-   * Others       BackCompat              准确
-   * IE6 IE7      CSS1Compat        +html.clientLeft             +html.clientLeft             +html.clientLeft             +html.clientLeft
-   * Others       CSS1Compat              准确
-   *
-   * 根据上表可知，只有 IE8 以下会出现问题。
-   * 混杂模式下，IE6 IE7 IE8 减去 body.clientLeft 的值即可得到准确结果。
-   * body.clientLeft 的值取决于 BODY 的 border 属性，如果未设置 BODY 的 border 属性，则 BODY 会继承 HTML 的 border 属性。如果 HTML 的 border 也未设置，则 HTML 的 border 默认值为 medium，计算出来是 2px。
-   * 标准模式下，IE6 IE7 减去 html.clientLeft 的值即可得到准确结果。
-   * html.clientLeft 在 IE6 中取决于 HTML 的 border 属性，而在 IE7 中的值则始终为 2px。
-   *
-   * [特殊情况]
-   * IE7(IE9 模拟) 的 BODY 的计算样式 direction: rtl 时，如果 HTML 设置了边框，则横向坐标获取仍不准确。由于极少出现这种情况，此处未作处理。
-   */
-  /**
-   * 获取本元素的 border-box 在视口中的坐标信息。
-   * @name Element.prototype.getClientRect
-   * @function
-   * @returns {Object} 包含位置（left、right、top、bottom）及尺寸（width、height）的对象，所有属性值均为 number 类型，单位为像素。
-   */
-  Element.prototype.getClientRect = navigator.isIElt8 ? function() {
-    var clientRect = this.getBoundingClientRect();
-    var left = clientRect.left - html.clientLeft;
-    var top = clientRect.top - html.clientTop;
-    var width = this.offsetWidth;
-    var height = this.offsetHeight;
-    return {
-      left: left,
-      right: left + width,
-      top: top,
-      bottom: top + height,
-      width: width,
-      height: height
-    };
-  } : function() {
-    var clientRect = this.getBoundingClientRect();
-    if ('width' in clientRect) {
-      return clientRect;
-    } else {
-      return {
-        left: clientRect.left,
-        right: clientRect.right,
-        top: clientRect.top,
-        bottom: clientRect.bottom,
-        width: this.offsetWidth,
-        height: this.offsetHeight
-      };
-    }
-  };
-
-//==================================================[Element 扩展 - 遍历文档树]
-  /*
-   * 获取文档树中的元素或一个元素与文档树相关的信息。
-   *
-   * 扩展方法：
-   *   Element.prototype.getParent
-   *   Element.prototype.getPreviousSibling
-   *   Element.prototype.getNextSibling
-   *   Element.prototype.getFirstChild
-   *   Element.prototype.getLastChild
-   *   Element.prototype.getChildren
-   *   Element.prototype.getChildCount
-   *   Element.prototype.find
-   *   Element.prototype.findAll
-   *   Element.prototype.matchesSelector
-   *
-   * 参考：
-   *   http://www.w3.org/TR/ElementTraversal/#interface-elementTraversal
-   *   http://www.w3.org/TR/selectors-api2/
-   *   http://www.quirksmode.org/dom/w3c_core.html
-   *   https://github.com/jquery/sizzle/wiki/Sizzle-Home
-   *   http://w3help.org/zh-cn/causes/SD9003
-   */
-
-//--------------------------------------------------[Element.prototype.getParent]
-  /**
-   * 获取本元素的父元素。
-   * @name Element.prototype.getParent
-   * @function
-   * @returns {Element} 本元素的父元素。
-   */
-  Element.prototype.getParent = 'parentElement' in html ? function() {
-    return $(this.parentElement);
-  } : function() {
-    var element = this.parentNode;
-    // parentNode 可能是 DOCUMENT_NODE(9) 或 DOCUMENT_FRAGMENT_NODE(11)。
-    if (element.nodeType !== 1) {
-      element = null;
-    }
-    return $(element);
-  };
-
-//--------------------------------------------------[Element.prototype.getPreviousSibling]
-  /**
-   * 获取与本元素相邻的上一个元素。
-   * @name Element.prototype.getPreviousSibling
-   * @function
-   * @returns {Element} 与本元素相邻的上一个元素。
-   */
-  Element.prototype.getPreviousSibling = 'previousElementSibling' in html ? function() {
-    return $(this.previousElementSibling);
-  } : function() {
-    var element = this;
-    while ((element = element.previousSibling) && element.nodeType !== 1) {
-    }
-    return $(element);
-  };
-
-//--------------------------------------------------[Element.prototype.getNextSibling]
-  /**
-   * 获取与本元素相邻的下一个元素。
-   * @name Element.prototype.getNextSibling
-   * @function
-   * @returns {Element} 与本元素相邻的下一个元素。
-   */
-  Element.prototype.getNextSibling = 'nextElementSibling' in html ? function() {
-    return $(this.nextElementSibling);
-  } : function() {
-    var element = this;
-    while ((element = element.nextSibling) && element.nodeType !== 1) {
-    }
-    return $(element);
-  };
-
-//--------------------------------------------------[Element.prototype.getFirstChild]
-  /**
-   * 获取本元素的第一个子元素。
-   * @name Element.prototype.getFirstChild
-   * @function
-   * @returns {Element} 本元素的第一个子元素。
-   */
-  Element.prototype.getFirstChild = 'firstElementChild' in html ? function() {
-    return $(this.firstElementChild);
-  } : function() {
-    var element = this.firstChild;
-    while (element && element.nodeType !== 1 && (element = element.nextSibling)) {
-    }
-    return $(element);
-  };
-
-//--------------------------------------------------[Element.prototype.getLastChild]
-  /**
-   * 获取本元素的最后一个子元素。
-   * @name Element.prototype.getLastChild
-   * @function
-   * @returns {Element} 本元素的最后一个子元素。
-   */
-  Element.prototype.getLastChild = 'lastElementChild' in html ? function() {
-    return $(this.lastElementChild);
-  } : function() {
-    var element = this.lastChild;
-    while (element && element.nodeType !== 1 && (element = element.previousSibling)) {
-    }
-    return $(element);
-  };
-
-//--------------------------------------------------[Element.prototype.getChildren]
-  /**
-   * 获取本元素的所有子元素。
-   * @name Element.prototype.getChildren
-   * @function
-   * @returns {Array} 包含本元素的所有子元素的数组，数组内各元素的顺序为调用本方法时各元素在文档树中的顺序。
-   */
-  Element.prototype.getChildren = function() {
-    var children = [];
-    var $element = this.getFirstChild();
-    while ($element) {
-      children.push($element);
-      $element = $element.getNextSibling();
-    }
-    return children;
-  };
-
-//--------------------------------------------------[Element.prototype.getChildCount]
-  /**
-   * 获取本元素的子元素的总数。
-   * @name Element.prototype.getChildCount
-   * @function
-   * @returns {number} 本元素的子元素的总数。
-   */
-  Element.prototype.getChildCount = 'childElementCount' in html ? function() {
-    return this.childElementCount;
-  } : function() {
-    var count = 0;
-    var node = this.firstChild;
-    while (node) {
-      if (node.nodeType === 1) {
-        count++;
-      }
-      node = node.nextSibling;
-    }
-    return count;
-  };
-
-//--------------------------------------------------[Element.prototype.find]
-  /**
-   * 在本元素的后代元素中，根据指定的选择符查找符合条件的第一个元素。
-   * @name Element.prototype.find
-   * @function
-   * @param {string} selector 选择符。
-   * @returns {Element} 查找到的元素。
-   *   如果没有找到任何元素，返回 null。
-   * @see http://www.w3.org/TR/selectors-api2/
-   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
-   */
-  Element.prototype.find = function(selector) {
-    return $(Sizzle(selector, this)[0] || null);
-  };
-
-//--------------------------------------------------[Element.prototype.findAll]
-  /**
-   * 在本元素的后代元素中，根据指定的选择符查找符合条件的所有元素。
-   * @name Element.prototype.findAll
-   * @function
-   * @param {string} selector 选择符。
-   * @returns {Array} 包含查找到的元素的数组。
-   *   如果没有找到任何元素，返回空数组。
-   * @see http://www.w3.org/TR/selectors-api2/
-   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
-   */
-  Element.prototype.findAll = function(selector) {
-    return Sizzle(selector, this).map(function(element) {
-      return $(element);
-    });
-  };
-
-//--------------------------------------------------[Element.prototype.matchesSelector]
-  /**
-   * 检查本元素是否能被指定的选择符选中。
-   * @name Element.prototype.matchesSelector
-   * @function
-   * @param {string} selector 选择符。
-   * @returns {boolean} 检查结果。
-   * @see http://www.w3.org/TR/selectors-api2/
-   * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
-   */
-  Element.prototype.matchesSelector = function(selector) {
-    return Sizzle.matchesSelector(this, selector);
-  };
-
-//==================================================[Element 扩展 - 修改文档树]
-  /*
-   * 修改文档树的结构。
-   *
-   * 扩展方法：
-   *   Element.prototype.clone
-   *   Element.prototype.insertTo
-   *   Element.prototype.swap
-   *   Element.prototype.replace
-   *   Element.prototype.remove
-   *   Element.prototype.empty
-   */
-
-//--------------------------------------------------[Element.prototype.clone]
-  /**
-   * 克隆本元素。
-   * @name Element.prototype.clone
-   * @function
-   * @param {boolean} [recursively] 是否进行深克隆。
-   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上的所有事件监听器。
-   * @returns {Element} 克隆后的元素。
-   * @description
-   *   如果本元素有 id 属性，需注意克隆元素的 id 属性将与之有相同的值，必要时应进一步处理。
-   *   不要克隆包含脚本的元素，以免出现兼容性问题。
-   *   不要克隆包含样式表的元素，以免最终样式不符合预期。
-   * @see http://jquery.com/
-   * @see http://mootools.net/
-   * @see http://w3help.org/zh-cn/causes/SD9029
-   */
-  Element.prototype.clone = function(recursively, keepListeners) {
-    var clonedElement = this.cloneNode(recursively);
-    var originalElements = [this];
-    var clonedElements = [clonedElement];
-    if (recursively) {
-      originalElements = originalElements.concat(Array.from(this.getElementsByTagName('*')));
-      clonedElements = clonedElements.concat(Array.from(clonedElement.getElementsByTagName('*')));
-    }
-    originalElements.forEach(function(original, index) {
-      var cloned = clonedElements[index];
-      // http://bugs.jquery.com/ticket/9587
-      if (cloned) {
-        // 在 IE6 IE7 IE8 中使用 cloneNode 克隆的节点，会将本元素上使用 attachEvent 添加的事件监听器也一并克隆。
-        // 并且在克隆元素上调用 detachEvent 删除这些监听器时，本元素上的监听器也将被一并删除。
-        // 使用以下方法为 IE6 IE7 IE8 清除已添加的事件监听器，并清除可能存在的 uid 属性。
-        if (navigator.isIElt9) {
-          cloned.clearAttributes();
-          cloned.mergeAttributes(original);
-          cloned.removeAttribute('uid');
-        }
-        // 针对特定元素的处理。
-        switch (cloned.nodeName) {
-          case 'OBJECT':
-            // IE6 IE7 IE8 无法克隆使用 classid 来标识内容类型的 OBJECT 元素的子元素。IE9 还有另外的问题：
-            // http://bugs.jquery.com/ticket/10324
-            cloned.outerHTML = original.outerHTML;
-            break;
-          case 'INPUT':
-          case 'TEXTAREA':
-            // 一些表单元素的状态可能未被正确克隆，克隆的表单元素将以这些元素的默认状态为当前状态。
-            if (cloned.type === 'radio' || cloned.type === 'checkbox') {
-              cloned.checked = cloned.defaultChecked = original.defaultChecked;
-            }
-            cloned.value = cloned.defaultValue = original.defaultValue;
-            break;
-          case 'OPTION':
-            cloned.selected = cloned.defaultSelected = original.defaultSelected;
-            break;
-        }
-        // 处理事件。
-        if (keepListeners) {
-          var item = eventHandlers[original.uid];
-          if (item) {
-            var $cloned = $(cloned);
-            Object.forEach(item, function(handlers) {
-              handlers.forEach(function(handler) {
-                $cloned.on(handler.name, handler.listener);
-              });
-            });
-          }
-        }
-      }
-    });
-    return $(clonedElement);
-  };
-
-//--------------------------------------------------[Element.prototype.insertTo]
-  /**
-   * 将本元素插入到目标元素的指定位置。
-   * @name Element.prototype.insertTo
-   * @function
-   * @param {Element} target 目标元素。
-   * @param {string} [position] 要插入的位置，可选值请参考下表。
-   *   <table>
-   *     <tr><th>可选值</th><th>含义</th></tr>
-   *     <tr><td><dfn>beforeBegin</dfn></td><td>将本元素插入到目标元素之前。</td></tr>
-   *     <tr><td><dfn>afterBegin</dfn></td><td>将本元素插入到目标元素的所有内容之前。</td></tr>
-   *     <tr><td><dfn>beforeEnd</dfn></td><td>将本元素插入到目标元素的所有内容之后。</td></tr>
-   *     <tr><td><dfn>afterEnd</dfn></td><td>将本元素插入到目标元素之后。</td></tr>
-   *   </table>
-   *   如果该参数被省略，则使用 <dfn>beforeEnd</dfn> 作为默认值。
-   * @returns {Element} 本元素。
-   */
-  Element.prototype.insertTo = function(target, position) {
-    position = position || 'beforeEnd';
-    return target.insertAdjacentElement(position, this);
-  };
-
-//--------------------------------------------------[Element.prototype.swap]
-  /**
-   * 交换本元素和目标元素的位置。
-   * @name Element.prototype.swap
-   * @function
-   * @param {Element} target 目标元素。
-   * @returns {Element} 本元素。
-   */
-  Element.prototype.swap = 'swapNode' in html ? function(target) {
-    return this.swapNode(target);
-  } : function(target) {
-    var targetParent = target.parentNode;
-    var thisParent = this.parentNode;
-    var thisNextSibling = this.nextSibling;
-    if (targetParent) {
-      targetParent.replaceChild(this, target);
-    } else {
-      this.remove(true);
-    }
-    if (thisParent) {
-      thisParent.insertBefore(target, thisNextSibling);
-    }
-    return this;
-  };
-
-//--------------------------------------------------[Element.prototype.replace]
-  /**
-   * 使用本元素替换目标元素。
-   * @name Element.prototype.replace
-   * @function
-   * @param {Element} target 目标元素。
-   * @param {boolean} [keepListeners] 是否保留目标元素及后代元素上的所有事件监听器。
-   * @returns {Element} 本元素。
-   */
-  Element.prototype.replace = function(target, keepListeners) {
-    var $target = $(target);
-    var $parent = $target.getParent();
-    if ($parent) {
-      if (!keepListeners) {
-        Array.from(removeAllListeners($target).getElementsByTagName('*')).forEach(removeAllListeners);
-      }
-      $parent.replaceChild(this, $target);
-    }
-    return this;
-  };
-
-//--------------------------------------------------[Element.prototype.remove]
-  /**
-   * 将本元素从文档树中删除。
-   * @name Element.prototype.remove
-   * @function
-   * @param {boolean} [keepListeners] 是否保留本元素及后代元素上的所有事件监听器。
-   * @returns {Element} 本元素。
-   */
-  Element.prototype.remove = function(keepListeners) {
-    var $parent = this.getParent();
-    if ($parent) {
-      if (!keepListeners) {
-        Array.from(removeAllListeners(this).getElementsByTagName('*')).forEach(removeAllListeners);
-      }
-      $parent.removeChild(this);
-    }
-    return this;
-  };
-
-//--------------------------------------------------[Element.prototype.empty]
-  /**
-   * 将本元素的内容清空，并删除本元素及后代元素上的所有事件监听器。
-   * @name Element.prototype.empty
-   * @function
-   * @returns {Element} 本元素。
-   */
-  Element.prototype.empty = function() {
-    Array.from(this.getElementsByTagName('*')).forEach(removeAllListeners);
-    while (this.firstChild) {
-      this.removeChild(this.firstChild);
     }
     return this;
   };
@@ -3721,9 +3749,9 @@
    *   DOMEventTarget
    *
    * 提供实例方法：
-   *   DOMEventTarget.on
-   *   DOMEventTarget.off
-   *   DOMEventTarget.fire
+   *   DOMEventTarget.prototype.on
+   *   DOMEventTarget.prototype.off
+   *   DOMEventTarget.prototype.fire
    *
    * 参考：
    *   http://jquery.com/
@@ -3771,29 +3799,29 @@
   var getEventAttributes = function(name) {
     var match = name.match(eventNamePattern);
     if (match === null) {
-      throw new SyntaxError('Invalid event name "' + name + '"');
+      throw new SyntaxError('Invalid listener name "' + name + '"');
     }
     return {type: match[1], selector: match[2] || '', once: !!match[3], idle: parseInt(match[4], 10), throttle: parseInt(match[5], 10)};
   };
 
   // 添加和删除原生事件监听器。
-  var addEventListener = 'addEventListener' in window ? function($target, eventType, eventListener, useCapture) {
-    $target.addEventListener(eventType, eventListener, useCapture);
-  } : function($target, eventType, eventListener) {
-    $target.attachEvent('on' + eventType, eventListener);
+  var addEventListener = 'addEventListener' in window ? function(eventTarget, eventType, eventListener, useCapture) {
+    eventTarget.addEventListener(eventType, eventListener, useCapture);
+  } : function(eventTarget, eventType, eventListener) {
+    eventTarget.attachEvent('on' + eventType, eventListener);
   };
-  var removeEventListener = 'removeEventListener' in window ? function($target, eventType, eventListener, useCapture) {
-    $target.removeEventListener(eventType, eventListener, useCapture);
-  } : function($target, eventType, eventListener) {
-    $target.detachEvent('on' + eventType, eventListener);
+  var removeEventListener = 'removeEventListener' in window ? function(eventTarget, eventType, eventListener, useCapture) {
+    eventTarget.removeEventListener(eventType, eventListener, useCapture);
+  } : function(eventTarget, eventType, eventListener) {
+    eventTarget.detachEvent('on' + eventType, eventListener);
   };
 
   // 将事件对象分发给相应的监听器。
-  var distributeEvent = function($target, handlers, event, isTriggered) {
+  var distributeEvent = function(eventTarget, handlers, event, isTriggered) {
     // 分发时对 handlers 的副本（仅复制了 handlers 的数组部分）操作，以避免在监听器内添加或删除该对象的同类型的监听器时会影响本次分发过程。
     var handlersCopy = handlers.slice(0);
     var delegateCount = handlers.delegateCount;
-    var $current = delegateCount ? event.target : $target;
+    var currentTarget = delegateCount ? event.target : eventTarget;
     var filters = {};
     var handler;
     var selector;
@@ -3801,7 +3829,7 @@
     var total;
     // 开始分发。
     do {
-      if ($current === $target) {
+      if (currentTarget === eventTarget) {
         // 普通监听器。
         i = delegateCount;
         total = handlersCopy.length;
@@ -3816,21 +3844,21 @@
         // 如果是代理事件监听，则过滤出符合条件的元素。
         if (!selector || (filters[selector] || (filters[selector] = function(simpleSelector) {
           if (simpleSelector) {
-            return function($target) {
+            return function(currentTarget) {
               var tagName = simpleSelector.tagName;
               var className = simpleSelector.className;
-              return (tagName ? $target.nodeName === tagName : true) && (className ? $target.hasClass(className) : true);
+              return (tagName ? currentTarget.nodeName === tagName : true) && (className ? currentTarget.hasClass(className) : true);
             };
           } else {
-            var elements = $target.findAll(selector);
-            return function($target) {
-              return elements.contains($target);
+            var elements = eventTarget.findAll(selector);
+            return function(currentTarget) {
+              return elements.contains(currentTarget);
             }
           }
-        }(handler.simpleSelector)))($current)) {
-          if (!isTriggered || isTriggered.call($current, event)) {
+        }(handler.simpleSelector)))(currentTarget)) {
+          if (!isTriggered || isTriggered.call(currentTarget, event)) {
             // 监听器被调用时 this 的值为监听到本次事件的对象。
-            if (handler.listener.call($current, event) === false) {
+            if (handler.listener.call(currentTarget, event) === false) {
               event.stopPropagation();
               event.preventDefault();
             }
@@ -3841,7 +3869,7 @@
         }
       }
       // 如果正在进行代理监听（当前对象不是监听到本次事件的对象），且事件可以继续传播时，向上一级传播，直到传播到监听到本次事件的对象为止。
-    } while (!($current === $target || event.isPropagationStopped()) && ($current = $current.getParent() || $current === html && $target));
+    } while (!(currentTarget === eventTarget || event.isPropagationStopped()) && (currentTarget = currentTarget === document && window || currentTarget === html && document || currentTarget.getParent()));
   };
 
   // 触发器。
@@ -3866,9 +3894,9 @@
         var event = new DOMEvent('mousedragstart', e);
         if (event.leftButton) {
           event.offsetX = event.offsetY = 0;
-          var $target = event.target;
-          if ($target.setCapture) {
-            $target.setCapture();
+          var eventTarget = event.target;
+          if (eventTarget.setCapture) {
+            eventTarget.setCapture();
           }
           // 避免在拖动过程中选中页面的内容。
           if (unselectableForWebKit.enabled) {
@@ -3876,9 +3904,9 @@
           } else {
             event.preventDefault();
           }
-          dragState = {target: $target, startX: event.pageX, startY: event.pageY};
+          dragState = {target: eventTarget, startX: event.pageX, startY: event.pageY};
           dragState.lastEvent = event;
-          $target.fire(INTERNAL_IDENTIFIER_EVENT, event);
+          eventTarget.fire(INTERNAL_IDENTIFIER_EVENT, event);
           setTimeout(function() {
             addEventListener(document, 'mousemove', mouseDragTrigger);
             addEventListener(document, 'mousedown', mouseDragEndTrigger);
@@ -3897,9 +3925,9 @@
       dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
     };
     var mouseDragEndTrigger = function() {
-      var $target = dragState.target;
-      if ($target.releaseCapture) {
-        $target.releaseCapture();
+      var eventTarget = dragState.target;
+      if (eventTarget.releaseCapture) {
+        eventTarget.releaseCapture();
       }
       // 使用上一个拖拽相关事件作为 mousedragend 的事件对象，以确保任何情况下都有鼠标坐标相关信息。
       var event = dragState.lastEvent;
@@ -3917,11 +3945,11 @@
       removeEventListener(window, 'blur', mouseDragEndTrigger);
     };
     return {
-      add: function($target) {
+      add: function(eventTarget) {
         // 向这三个关联事件中添加第一个监听器时，即创建 mousedragstart 触发器，该触发器会动态添加/删除另外两个事件的触发器。
-        addEventListener($target, 'mousedown', mouseDragStartTrigger);
+        addEventListener(eventTarget, 'mousedown', mouseDragStartTrigger);
         // 创建另外两个事件的处理器组。
-        var item = eventHandlers[$target.uid];
+        var item = eventHandlers[eventTarget.uid];
         relatedTypes.forEach(function(relatedType) {
           if (!item[relatedType]) {
             var handlers = [];
@@ -3930,15 +3958,15 @@
           }
         });
       },
-      remove: function($target) {
+      remove: function(eventTarget) {
         // 在这三个关联事件中删除最后一个监听器后，才删除它们的触发器。
-        var item = eventHandlers[$target.uid];
+        var item = eventHandlers[eventTarget.uid];
         var handlerCount = 0;
         relatedTypes.forEach(function(relatedType) {
           handlerCount += item[relatedType].length;
         });
         if (handlerCount === 0) {
-          removeEventListener($target, 'mousedown', mouseDragStartTrigger);
+          removeEventListener(eventTarget, 'mousedown', mouseDragStartTrigger);
           // 删除三个关联事件的处理器组。
           relatedTypes.forEach(function(type) {
             delete item[type];
@@ -3998,28 +4026,28 @@
         var count = 0;
         var $active;
         // 触发器。
-        var checkValue = function($target) {
-          if ($target._valueBeforeInput_ !== $target.value) {
-            $target._valueBeforeInput_ = $target.value;
-            $target.fire('input');
+        var checkValue = function($input) {
+          if ($input._valueBeforeInput_ !== $input.value) {
+            $input._valueBeforeInput_ = $input.value;
+            $input.fire('input');
           }
         };
         // 获取活动的可输入元素。
         var setActiveInputElement = function(e) {
           var target = e.srcElement;
           if (isInputElement(target)) {
-            var $target = $(target);
+            var $input = $(target);
             // 如果是拖拽内容进来，本监听器会被连续调用两次，触发 drop 事件时值仍是原始值，赋新值之后才触发 beforeactivate 事件。
             if (e.type === 'drop') {
-              $target._dropForInput_ = true;
+              $input._dropForInput_ = true;
             }
-            if (e.type === 'beforeactivate' && $target._dropForInput_) {
-              $target._dropForInput_ = false;
-              checkValue($target);
+            if (e.type === 'beforeactivate' && $input._dropForInput_) {
+              $input._dropForInput_ = false;
+              checkValue($input);
             } else {
-              $target._valueBeforeInput_ = $target.value;
+              $input._valueBeforeInput_ = $input.value;
             }
-            $active = $target;
+            $active = $input;
           }
         };
         // 清除活动的可输入元素。
@@ -4031,9 +4059,9 @@
         // 按键触发器，针对按下按键的情况进行检查。
         var onKeyDown = function(e) {
           if (e.srcElement === $active) {
-            var $target = $active;
+            var $input = $active;
             setTimeout(function() {
-              checkValue($target);
+              checkValue($input);
             }, 0);
           }
         };
@@ -4094,26 +4122,25 @@
           var nodeName = target.nodeName;
           var type = target.type;
           if (!target._changeEventFixed_ && (nodeName === 'INPUT' && (type === 'radio' || type === 'checkbox') || nodeName === 'SELECT')) {
-            var $target = $(target);
+            var $input = $(target);
             if (navigator.isIElt9 && nodeName === 'INPUT') {
-              addEventListener($target, 'propertychange', function(e) {
+              addEventListener($input, 'propertychange', function(e) {
                 if (e.propertyName === 'checked') {
-                  e.srcElement._checkedStateChanged_ = true;
+                  $input._checkedStateChanged_ = true;
                 }
               });
-              addEventListener($target, 'click', function(e) {
-                var $target = e.srcElement;
-                if ($target._checkedStateChanged_) {
-                  $target._checkedStateChanged_ = false;
-                  $target.fire('change');
+              addEventListener($input, 'click', function() {
+                if ($input._checkedStateChanged_) {
+                  $input._checkedStateChanged_ = false;
+                  $input.fire('change');
                 }
               });
             } else {
-              addEventListener($target, 'change', function(e) {
-                e.srcElement.fire('change');
+              addEventListener($input, 'change', function() {
+                $input.fire('change');
               });
             }
-            $target._changeEventFixed_ = true;
+            $input._changeEventFixed_ = true;
           }
         };
         // 修复 IE6 IE7 IE8 IE9 的 text、password、textarea 类型的控件使用表单自动完成和拖拽内容出去后不会触发 change 事件的问题以及 IE6 IE7 IE8 这些类型的控件上的 change 事件不冒泡的问题。
@@ -4136,18 +4163,18 @@
         var checkNewValue = function(e) {
           var target = e.srcElement;
           if (isInputElement(target)) {
-            var $target = $(target);
+            var $input = $(target);
             setTimeout(function() {
-              if ($target._valueBeforeChange_ !== $target.value) {
-                $target._valueBeforeChange_ = $target.value;
-                $target.fire('change');
+              if ($input._valueBeforeChange_ !== $input.value) {
+                $input._valueBeforeChange_ = $input.value;
+                $input.fire('change');
               }
             }, 0);
           }
         };
         return {
-          add: function($target) {
-            addEventListener($target, 'beforeactivate', fixChangeEvent);
+          add: function(eventTarget) {
+            addEventListener(eventTarget, 'beforeactivate', fixChangeEvent);
             // 在当前文档内第一次添加 change 事件的监听器时，对全文档内所有可输入元素进行修复（这种修复不会在该元素上添加新监听器）。
             if (++count === 1) {
               addEventListener(html, 'drop', saveOldValue);
@@ -4155,8 +4182,8 @@
               addEventListener(document, 'beforedeactivate', checkNewValue);
             }
           },
-          remove: function($target) {
-            removeEventListener($target, 'beforeactivate', fixChangeEvent);
+          remove: function(eventTarget) {
+            removeEventListener(eventTarget, 'beforeactivate', fixChangeEvent);
             // 在当前文档内添加的 change 事件的监听器全部被删除时，停用可输入元素的修复。
             if (--count === 0) {
               removeEventListener(html, 'drop', saveOldValue);
@@ -4174,10 +4201,10 @@
     if (navigator.isFirefox) {
       // Firefox 的拖动方式为复制一份而不是移动，并且如果不是控件内拖拽，焦点不会移动到 drop 的控件内，因此可以直接触发 change 事件。
       addEventListener(document, 'drop', function(e) {
-        var $target = e.target;
-        if (isInputElement($target) && $target !== document.activeElement) {
+        var target = e.target;
+        if (isInputElement(target) && target !== document.activeElement) {
           setTimeout(function() {
-            $target.fire('change');
+            target.fire('change');
           }, 0);
         }
       });
@@ -4404,7 +4431,7 @@
   /**
    * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
    * @name DOMEvent#relatedTarget
-   * @type Element
+   * @type ?Element
    */
 
   /**
@@ -4490,7 +4517,7 @@
 
 //--------------------------------------------------[DOMEventTarget]
   /**
-   * 所有的 DOMEventTarget 对象都自动具备处理事件的能力，window 对象、document 对象和所有的 Element 对象都是 DOMEventTarget 对象。
+   * 所有的 DOMEventTarget 对象都具备处理事件的能力，window 对象、document 对象和所有的 Element 对象都是 DOMEventTarget 对象。
    * @name DOMEventTarget
    * @constructor
    * @description
@@ -4566,8 +4593,8 @@
   var simpleSelectorPattern = /^(\w*)(?:\.([\w\-]+))?$/;
   DOMEventTarget.prototype.on = function(name, listener) {
     // 自动扩展元素，以便于在控制台进行调试。
-    var $target = $(this);
-    var uid = $target.uid;
+    var eventTarget = $(this);
+    var uid = eventTarget.uid;
     var item = eventHandlers[uid] || (eventHandlers[uid] = {});
     // 使用一个监听器监听该对象上的多个事件。
     name.split(separator).forEach(function(name) {
@@ -4586,7 +4613,7 @@
         if (EVENT_CODES.hasOwnProperty(type)) {
           if (triggers[type]) {
             // 添加触发器。
-            triggers[type].add($target);
+            triggers[type].add(eventTarget);
           } else {
             // 添加分发器。
             var distributor;
@@ -4599,7 +4626,7 @@
                   var wheel = 'wheelDelta' in originalEvent ? -originalEvent.wheelDelta : originalEvent.detail || 0;
                   event.wheelUp = wheel < 0;
                   event.wheelDown = wheel > 0;
-                  distributeEvent($target, handlers, event);
+                  distributeEvent(eventTarget, handlers, event);
                 };
                 distributor.type = navigator.isFirefox ? 'DOMMouseScroll' : 'mousewheel';
                 break;
@@ -4607,10 +4634,10 @@
               case 'mouseleave':
                 // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
                 distributor = function(e) {
-                  distributeEvent($target, handlers, new DOMEvent(type, e), function(event) {
-                    var $relatedTarget = event.relatedTarget;
+                  distributeEvent(eventTarget, handlers, new DOMEvent(type, e), function(event) {
+                    var relatedTarget = event.relatedTarget;
                     // 加入 this.contains 的判断，避免 window 和一些浏览器的 document 对象调用出错。
-                    return !$relatedTarget || this.contains && !this.contains($relatedTarget);
+                    return !relatedTarget || this.contains && !this.contains(relatedTarget);
                   });
                 };
                 distributor.type = type === 'mouseenter' ? 'mouseover' : 'mouseout';
@@ -4618,12 +4645,12 @@
               default:
                 // 通用分发器。
                 distributor = function(e) {
-                  distributeEvent($target, handlers, new DOMEvent(type, e));
+                  distributeEvent(eventTarget, handlers, new DOMEvent(type, e));
                 };
                 distributor.type = type;
             }
             // 将分发器作为指定类型的原生事件的监听器。
-            addEventListener($target, distributor.type, distributor);
+            addEventListener(eventTarget, distributor.type, distributor);
             handlers.distributor = distributor;
           }
         }
@@ -4637,7 +4664,7 @@
         // 仅能被调用一次的监听器，调用后即被自动删除（根据添加时的监听器名称）。如果有重名的监听器则这些监听器将全部被删除。
         handler.listener = function(event) {
           var result = listener.call(this, event);
-          $target.off(name);
+          eventTarget.off(name);
           return result;
         };
       } else if (idle) {
@@ -4702,7 +4729,7 @@
         handlers.push(handler);
       }
     });
-    return $target;
+    return eventTarget;
   };
 
 //--------------------------------------------------[DOMEventTarget.prototype.off]
@@ -4722,11 +4749,11 @@
    *   // 为 $element 删除名为 click:relay(a) 的监听器。
    */
   DOMEventTarget.prototype.off = function(name) {
-    var $target = this;
-    var uid = $target.uid;
+    var eventTarget = this;
+    var uid = eventTarget.uid;
     var item = eventHandlers[uid];
     if (!item) {
-      return $target;
+      return eventTarget;
     }
     // 同时删除该对象上的多个监听器。
     name.split(separator).forEach(function(name) {
@@ -4757,14 +4784,14 @@
         if (EVENT_CODES.hasOwnProperty(type)) {
           if (triggers[type]) {
             // 删除触发器。
-            if (triggers[type].remove($target) === false) {
+            if (triggers[type].remove(eventTarget) === false) {
               // 拖拽的三个关联事件的触发器会自己管理它们的处理器组，返回 false 避免其中某个事件的处理器组被删除。
               return;
             }
           } else {
             // 删除分发器。
             var distributor = handlers.distributor;
-            removeEventListener($target, distributor.type, distributor);
+            removeEventListener(eventTarget, distributor.type, distributor);
           }
         }
         // 删除处理器组。
@@ -4775,7 +4802,7 @@
     if (Object.keys(item).length === 0) {
       delete eventHandlers[uid];
     }
-    return $target;
+    return eventTarget;
   };
 
 //--------------------------------------------------[DOMEventTarget.prototype.fire]
@@ -4796,25 +4823,25 @@
     // 内部使用时，type 可能被传入 INTERNAL_IDENTIFIER_EVENT，此时的 data 已经是一个 DOMEvent 对象。
     var event = type === INTERNAL_IDENTIFIER_EVENT ? data : new DOMEvent(type, {type: '', target: this}, data);
     // 传播事件并返回传播后的事件对象。
-    var $target = this;
+    var eventTarget = this;
     var item;
     var handlers;
-    while ($target) {
-      if (handlers = (item = eventHandlers[$target.uid]) && item[event.type]) {
-        distributeEvent($target, handlers, event);
+    while (eventTarget) {
+      if (handlers = (item = eventHandlers[eventTarget.uid]) && item[event.type]) {
+        distributeEvent(eventTarget, handlers, event);
       }
-      // IE6 中即便 $target 就是 window，表达式 $target == window 也返回 false。
-      if (!event.bubbles || event.isPropagationStopped() || $target.uid === 'window') {
+      // IE6 中即便 eventTarget 就是 window，表达式 eventTarget == window 也返回 false。
+      if (!event.bubbles || event.isPropagationStopped() || eventTarget.uid === 'window') {
         break;
       }
-      $target = $target === document ? window : $target.getParent() || $target === html && document || null;
+      eventTarget = eventTarget === document && window || eventTarget === html && document || eventTarget.getParent();
     }
     return event;
   };
 
 //==================================================[DOM 事件模型 - 应用]
   /*
-   * 使 window 对象、document 对象和所有的 Element 对象都具备 DOMEventTarget 对象提供的实例方法。
+   * 使 window 对象、document 对象和所有的 Element 对象都具备 DOMEventTarget 提供的实例方法。
    */
 
   window.on = document.on = Element.prototype.on = DOMEventTarget.prototype.on;
@@ -4874,9 +4901,9 @@
    *   }
    *
    * 提供实例方法：
-   *   JSEventTarget.on
-   *   JSEventTarget.off
-   *   JSEventTarget.fire
+   *   JSEventTarget.prototype.on
+   *   JSEventTarget.prototype.off
+   *   JSEventTarget.prototype.fire
    */
 
   var separator = /\s*,\s*/;
@@ -4885,7 +4912,7 @@
   var getEventType = function(name) {
     var match = name.match(eventNamePattern);
     if (match === null) {
-      throw new SyntaxError('Invalid event name "' + name + '"');
+      throw new SyntaxError('Invalid listener name "' + name + '"');
     }
     return match[1];
   };
@@ -4921,12 +4948,11 @@
 
 //--------------------------------------------------[JSEventTarget]
   /**
-   * 通过调用 new JSEventTarget() 获得的新对象，或经过 JSEventTarget.create(object) 处理后的 object 对象，都将具备处理事件的能力，它们都可以被叫做一个 JSEventTarget 对象。
+   * 所有的 JSEventTarget 对象都具备处理事件的能力，通过调用 new JSEventTarget() 获得的新对象，或经过 JSEventTarget.create(object) 处理后的 object 对象都是 JSEventTarget 对象。
    * @name JSEventTarget
    * @constructor
    * @description
    *   JSEventTarget 对象在处理事件时，是工作在 JS 事件模型中的。
-   *   window、document 和 Element 对象也都具备处理事件的能力，但它们是工作在 DOM 事件模型中的。
    */
   var JSEventTarget = window.JSEventTarget = function() {
     this.eventHandlers = {};
@@ -4938,7 +4964,7 @@
    * @name JSEventTarget.create
    * @function
    * @param {Object} target 目标对象。
-   *   目标对象不应该是 window、document 或 Element 对象，因为这些对象已经具备处理事件的能力，并且使用的是 DOM 事件模型。
+   *   目标对象不应该是 window 对象、document 对象或 Element 的实例对象，因为这些对象是 DOMEventTarget 对象，使用的是 DOM 事件模型。
    * @returns {Object} 目标对象。
    * @description
    *   <ul>

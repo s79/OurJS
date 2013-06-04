@@ -18,20 +18,14 @@
    *   {Element} cell 已更新的单元格。
    *   {Date} date 已更新的日期。
    *   日期单元格更新后触发。每次调用 update 方法时，每个日期单元格都会更新一次。
-   * @description
-   *   <strong>启用方式：</strong>
+   * @description 启用方式
    *   为一个 DIV 元素添加 'widget-calendar' 类，即可使该元素成为“月历”。
-   *   <strong>结构约定：</strong>
-   *   <ul>
-   *     <li>“月历”初始化时，会在其内部自动追加一个表格元素，以显示指定月份的日期。</li>
-   *     <li>当“月历”列出了一个月份的日期时，在上述表格元素中，每个单元格都会被添加用于表示星期几的类名 'sun'、'mon'、'tues'、'wed'、'thurs'、'fri'、'sat'，其中上一个月和下一个月的日期所在的单元格还会额外被添加类名 'prev' 和 'next'，今天的日期所在的单元格还会额外被添加类名 'today'。</li>
-   *   </ul>
-   *   <strong>新增行为：</strong>
-   *   <ul>
-   *     <li>如果“月历”在文档可用后即被解析完毕，且其 data-month 属性的值不为 '0000-00'，则其 update 方法会被自动调用。</li>
-   *   </ul>
-   *   <strong>默认样式：</strong>
-   *   <pre class="lang-css">
+   * @description 结构约定
+   * * “月历”初始化时，会在其内部自动追加一个表格元素，以显示指定月份的日期。
+   * * 当“月历”列出了一个月份的日期时，在上述表格元素中，每个单元格都会被添加用于表示星期几的类名 'sun'、'mon'、'tues'、'wed'、'thurs'、'fri'、'sat'，其中上一个月和下一个月的日期所在的单元格还会额外被添加类名 'prev' 和 'next'，今天的日期所在的单元格还会额外被添加类名 'today'。
+   * @description 新增行为
+   * * 如果“月历”在文档可用后即被解析完毕，且其 data-month 属性的值不为 '0000-00'，则其 update 方法会被自动调用。
+   * @description 默认样式
    *   div.widget-calendar { visibility: hidden; }
    *   div.widget-calendar table { table-layout: fixed; border-collapse: separate; border-spacing: 1px; width: 218px; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
    *   div.widget-calendar table td { padding: 0; border: 1px solid silver; border-radius: 2px; text-align: center; }
@@ -39,7 +33,6 @@
    *   div.widget-calendar tbody td { color: black; }
    *   div.widget-calendar tbody td.prev, div.widget-calendar tbody td.next { color: silver; }
    *   div.widget-calendar tbody td.today { font-weight: bold; text-decoration: underline; }
-   *   </pre>
    * @description 可配置项
    *   data-month
    *     指定要显示哪一个月的“月历”，格式为 YYYY-MM。

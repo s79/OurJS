@@ -7,8 +7,8 @@ a:link,
 a:visited { color: #666; }
 fieldset { display: block; margin-top: 0; padding: 5px; border: 1px solid #AAA; border-radius: 5px; }
 fieldset:hover { border-color: #888; }
-fieldset.optional { border-color: #DDD; }
-fieldset.optional:hover { border-color: #BBB; }
+fieldset.widget { border-color: #DDD; }
+fieldset.widget:hover { border-color: #BBB; }
 legend { padding: 2px 5px; font-weight: bold; font-size: 14px; line-height: 14px; }
 legend dfn { color: steelblue; }
 legend span { margin-left: 5px; font-weight: normal; color: gray; }
@@ -84,8 +84,10 @@ var { color: sienna; font-style: italic; }
 #details th,
 #details td { padding: 0 5px; border: none; vertical-align: top; }
 
+#details blockquote dl { margin: 10px 0; padding-left: 2em; }
+#details blockquote dt { font-weight: normal; }
 #details blockquote table,
-#details table table { margin: 10px 0; background: white; }
+#details table table { margin: 10px 0; }
 #details blockquote table tr:nth-child(even),
 #details table table tr:nth-child(even) { background: transparent; }
 #details blockquote th,
@@ -94,6 +96,8 @@ var { color: sienna; font-style: italic; }
 #details table table td { padding: 2px 5px; border: 1px solid silver; }
 #details blockquote th,
 #details table table th { white-space: nowrap; }
+#details dd table { width: 100%; width: auto\9; }
+#details dd td:last-child { width: 100%; }
 #details table dl { margin: 0; }
 #details table dd { padding: 0; }
 #details table kbd,

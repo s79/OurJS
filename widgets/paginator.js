@@ -82,28 +82,23 @@
    *     <li>对于服务端输出的静态页，应将当前页码和总页数输出为 <dfn>data-current-page</dfn> 和 <dfn>data-total-pages</dfn> 属性的值，以直接生成“导航链接”。此外，还应指定 <dfn>data-target-url</dfn>，以使每个“导航链接”都可以像普通链接一样被点击。<br>在这种情况下，不必编写任何 JS 代码来做其他处理。</li>
    *     <li>对于一个富应用页面，上述三个属性均不必指定。<br>当使用脚本获得了当前页码和总页数后，应通过调用 update 方法来创建“导航链接”。<br>当一个“导航链接”被点击时，会自动调用 turn 方法并触发 turn 事件，对于本次点击行为的处理可以在该事件的监听器中进行。</li>
    *   </ul>
-   *   <strong>启用方式：</strong>
+   * @description 启用方式
    *   为一个 DIV 元素添加 'widget-paginator' 类，即可使该元素成为“分页导航条”。
-   *   <strong>结构约定：</strong>
-   *   <ul>
-   *     <li>“分页导航条”会在其内部创建“导航链接”，其中“上一页”的类名为 'prev'，“下一页”的类名为 'next'，“当前页码”的类名为 'current'。</li>
-   *   </ul>
-   *   <strong>新增行为：</strong>
-   *   <ul>
-   *     <li>“分页导航条”在创建“导航链接”之前是不可见的。</li>
-   *     <li>“分页导航条”被解析时，会根据各配置参数决定主动或被动的创建各“导航链接”。</li>
-   *     <li>点击“导航链接”时，会根据 data-target-url 的配置执行相应的操作。<br>如果没有指定 data-target-url，则在“导航链接”上发生的 click 事件的默认行为将被阻止。</li>
-   *     <li>如果“上一页”或“下一页”处于禁用状态，将为其添加类名 'disabled'。</li>
-   *   </ul>
-   *   <strong>默认样式：</strong>
-   *   <pre class="lang-css">
+   * @description 结构约定
+   *   “分页导航条”会在其内部创建“导航链接”，其中“上一页”的类名为 'prev'，“下一页”的类名为 'next'，“当前页码”的类名为 'current'。
+   * @description 新增行为
+   * * “分页导航条”在创建“导航链接”之前是不可见的。
+   * * “分页导航条”被解析时，会根据各配置参数决定主动或被动的创建各“导航链接”。
+   * * 点击“导航链接”时，会根据 data-target-url 的配置执行相应的操作。
+   *   如果没有指定 data-target-url，则在“导航链接”上发生的 click 事件的默认行为将被阻止。
+   * * 如果“上一页”或“下一页”处于禁用状态，将为其添加类名 'disabled'。
+   * @description 默认样式
    *   div.widget-paginator { visibility: hidden; font-size: 14px; line-height: 16px; text-align: center; }
    *   div.widget-paginator a:link, div.widget-paginator a:visited, div.widget-paginator a:hover, div.widget-paginator a:active { display: inline-block; margin: 2px; padding: 2px 5px; border: 1px solid silver; background-color: white; color: black; text-decoration: none; }
    *   div.widget-paginator a:hover { border-color: gray; background-color: gainsboro; }
    *   div.widget-paginator a:active { border-color: dimgray; background-color: silver; }
    *   div.widget-paginator a.current:link, div.widget-paginator a.current:visited, div.widget-paginator a.current:hover, div.widget-paginator a.current:active { border-color: black; background-color: steelblue; color: white; }
    *   div.widget-paginator a.disabled:link, div.widget-paginator a.disabled:visited, div.widget-paginator a.disabled:hover, div.widget-paginator a.disabled:active { border-color: gainsboro; background-color: white; color: gainsboro; cursor: default; }
-   *   </pre>
    * @description 可配置项
    *   data-current-page
    *     当前页码。

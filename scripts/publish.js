@@ -137,27 +137,17 @@ String.prototype.endsWith = function(subString) {
   var lastIndex = this.lastIndexOf(subString);
   return lastIndex >= 0 && lastIndex === this.length - subString.length;
 };
+
 function parseDescription(string) {
   return string.split(/[\r\n]+/)
       .map(function(line) {
-        var newLine = line.trim();
-        if (!(newLine.startsWith('<') || newLine.endsWith('>'))) {
-          newLine = '<p>' + newLine + '</p>';
-        }
-        return newLine;
+        return line.trim();
       })
-      .join('');
-}
-function parseExample(string) {
-  return string.split(/[\r\n]+/)
-      .map(function(line) {
-        return line.startsWith('  ') ? line.slice(2) : line;
-      })
-      .join('\r');
+      .join('\n');
 }
 
 /** Get a symbol's raw data. */
-function filterSymbol(source) {
+function parseSymbol(source) {
   var name = source.alias;
   symbols[name] = {
 //    author: source.author,
@@ -166,46 +156,34 @@ function filterSymbol(source) {
     type: source.type,
     isFunction: (source.isa === 'CONSTRUCTOR' || source.isa === 'FUNCTION'),
     parameters: source.params.map(function(item) {
-      var newItem = {};
-      newItem.type = item.type;
-      newItem.name = item.name;
-      newItem.description = parseDescription(item.desc);
-      newItem.isOptional = item.isOptional;
-      return newItem;
+      return {
+        type: item.type,
+        name: item.name,
+        description: parseDescription(item.desc),
+        isOptional: item.isOptional
+      };
     }),
     returns: source.returns.map(function(item) {
-      var newItem = {};
-      newItem.type = item.type;
-      newItem.description = parseDescription(item.desc);
-      return newItem;
+      return {
+        type: item.type,
+        description: parseDescription(item.desc)
+      };
     }),
-    // 这种自定义的 tag 将被解析到 comment.tags 中，并且内容在其 desc 属性内，也仅为字符串。
-//    attributes: source.comment.tags
-//        .filter(function(item) {
-//          return item.title === 'attribute';
-//        })
-//        .map(function(item) {
-//          var match = parseDescription(item.desc).match(/<p>(.*?)<\/p>(.*)/);
-//          var mame = match && match[1] || '';
-//          var description = match && match[2] || '';
-//          return {
-//            name: mame,
-//            description: description
-//          };
-//        }),
     // fires 仅为字符串，因此在写注释文档时约定：第一行为事件名，其后为描述。
     fires: source.fires.map(function(item) {
-      var match = parseDescription(item).match(/<p>(.*?)<\/p>(.*)/);
-      var mame = match && match[1] || '';
-      var description = match && match[2] || '';
+      var items = parseDescription(item).split('\n');
       return {
-        name: mame,
-        description: description
+        name: items.shift() || '',
+        description: items.join('\n') || ''
       };
     }),
     description: parseDescription(source.desc),
     examples: source.example.map(function(item) {
-      return parseExample(item.desc);
+      return item.desc.split(/[\r\n]+/)
+          .map(function(line) {
+            return line.startsWith('  ') ? line.slice(2) : line;
+          })
+          .join('\n');
     }),
     requires: source.requires,
     since: source.since,
@@ -214,11 +192,11 @@ function filterSymbol(source) {
   };
 
   source.properties.forEach(function(property) {
-    filterSymbol(property);
+    parseSymbol(property);
   });
 
   source.methods.forEach(function(method) {
-    filterSymbol(method);
+    parseSymbol(method);
   });
 
 }
@@ -226,29 +204,25 @@ function filterSymbol(source) {
 /** Called automatically by JsDoc Toolkit. */
 var symbols = {};
 function publish(symbolSet) {
-  // Config.
-  publish.conf = {
-    outDir: JSDOC.opt.d || SYS.pwd + '../out/jsdoc/'
-  };
-
   // Get a list of all the classes in the symbolset.
   var classes = symbolSet.toArray().filter(function(symbol) {
     return (symbol.is('CONSTRUCTOR') || symbol.isNamespace)
   });
 
-  // Output data.
+  // Parse symbols.
   classes.forEach(function(symbol) {
     symbol.methods = symbol.getMethods();
     // Handle a symbol.
     if (symbol.name === '_global_') {
       return;
     }
-    filterSymbol(symbol);
+    parseSymbol(symbol);
   });
 
+  // Output data.
   var replacer = function(key, value) {
     return value.length === 0 ? undefined : value;
   };
-  IO.saveFile(publish.conf.outDir, 'api_data.js', 'var apiData = ' + JSON.stringify(symbols, replacer) + ';');
+  IO.saveFile(JSDOC.opt.d, 'api_data.js', 'var apiData = ' + JSON.stringify(symbols, replacer) + ';');
 
 }

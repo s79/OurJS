@@ -17,26 +17,21 @@
    *   {Element} inactiveTab 上一个激活的“标签”。
    *   {Element} inactivePanel 上一个激活的“面板”。
    *   成功调用 activate 方法后触发。
-   * @description
-   *   <strong>启用方式：</strong>
+   * @description 启用方式
    *   为一个 DIV 元素添加 'widget-tabpanel' 类，即可使该元素成为“标签面板”。
-   *   <strong>结构约定：</strong>
-   *   <ul>
-   *     <li>“标签面板”的后代元素中，类名包含 'tab' 的为“标签”，类名包含 'panel' 的为“面板”。<br>“标签”和“面板”应按照顺序一一对应。</li>
-   *   </ul>
-   *   <strong>新增行为：</strong>
-   *   <ul>
-   *     <li>“标签”都是可见的，“面板”则只有处于激活状态时才可见。<br>同一时刻只有一组“标签”和“面板”能够被激活（默认是第一组），被激活的“标签”和“面板”会被加入 'active' 类。</li>
-   *     <li>如果“标签面板”在文档可用后即被解析完毕，则默认第一组“标签”和“面板”会被激活。</li>
-   *     <li>通过点击或鼠标指向（如果指定了 data-hover-delay 的值）一个“标签”即可激活这个“标签”和与之对应的“面板”。</li>
-   *     <li>在“标签”上发生的 click 事件的默认行为将被阻止。</li>
-   *   </ul>
-   *   <strong>默认样式：</strong>
-   *   <pre class="lang-css">
+   * @description 结构约定
+   * * “标签面板”的后代元素中，类名包含 'tab' 的为“标签”，类名包含 'panel' 的为“面板”。
+   *   “标签”和“面板”应按照顺序一一对应。
+   * @description 新增行为
+   * * “标签”都是可见的，“面板”则只有处于激活状态时才可见。
+   *   同一时刻只有一组“标签”和“面板”能够被激活（默认是第一组），被激活的“标签”和“面板”会被加入 'active' 类。
+   * * 如果“标签面板”在文档可用后即被解析完毕，则默认第一组“标签”和“面板”会被激活。
+   * * 通过点击或鼠标指向（如果指定了 data-hover-delay 的值）一个“标签”即可激活这个“标签”和与之对应的“面板”。
+   * * 在“标签”上发生的 click 事件的默认行为将被阻止。
+   * @description 默认样式
    *   div.widget-tabpanel { display: block; }
    *   div.widget-tabpanel .panel { display: none; }
    *   div.widget-tabpanel .active { display: block; }
-   *   </pre>
    * @description 可配置项
    *   data-hover-delay
    *     指定以毫秒为单位的“标签”鼠标悬停激活延时（建议设置为 '200' - '400' 之间的数值）。

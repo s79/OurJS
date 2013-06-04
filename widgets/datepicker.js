@@ -263,23 +263,18 @@
    *   选定的值改变时触发。
    *   本事件用于模拟真实发生在表单域元素上的 change 事件。
    * @requires Calendar
-   * @description
-   *   <strong>启用方式：</strong>
+   * @description 启用方式
    *   为一个 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为“日期选择器”。
-   *   <strong>结构约定：</strong>
-   *   <ul>
-   *     <li>“日期选择器”会自动在文档中创建一个“日期选择面板”（其中包含一个“月历”），并利用它来进行日期的点选。<br>所有的“日期选择器”共用一个“日期选择面板”。</li>
-   *     <li>在“日期选择面板”中，类名包含 'btn' 的为按钮，类名包含 'prev_year' 的为“上一年”按钮，类名包含 'prev_month' 的为“上一月”按钮，类名包含 'next_month' 的为“下一月”按钮，类名包含 'next_year' 的为“下一年”按钮，类名包含 'clear' 的为“清除”按钮，类名包含 'today' 的为“今天”按钮。另外如果一个按钮处于禁用状态，将为其添加类名 'disabled'。</li>
-   *   </ul>
-   *   <strong>新增行为：</strong>
-   *   <ul>
-   *     <li>“日期选择器”将不再能由键盘输入值。点击该元素时，将弹出“日期选择面板”，在面板中选中的日期会被回填到该元素中。</li>
-   *     <li>如果“日期选择器”已经有选定值，点击“日期选择面板”的“清除”按钮可以清除该值。</li>
-   *     <li>如果今天在可选日期范围（取决于 data-min-date 和 data-max-date 的设定值）内，点击“今天”按钮可以将今天的日期作为选定值。</li>
-   *     <li>在“日期选择面板”中，可以通过点击“上一年”和“下一年”按钮或使用鼠标滚轮翻年，通过点击“上一月”和“下一月”按钮或使用 Shift + 鼠标滚轮翻月。</li>
-   *   </ul>
-   *   <strong>默认样式：</strong>
-   *   <pre class="lang-css">
+   * @description 结构约定
+   * * “日期选择器”会自动在文档中创建一个“日期选择面板”（其中包含一个“月历”），并利用它来进行日期的点选。
+   *   所有的“日期选择器”共用一个“日期选择面板”。
+   * * 在“日期选择面板”中，类名包含 'btn' 的为按钮，类名包含 'prev_year' 的为“上一年”按钮，类名包含 'prev_month' 的为“上一月”按钮，类名包含 'next_month' 的为“下一月”按钮，类名包含 'next_year' 的为“下一年”按钮，类名包含 'clear' 的为“清除”按钮，类名包含 'today' 的为“今天”按钮。另外如果一个按钮处于禁用状态，将为其添加类名 'disabled'。
+   * @description 新增行为
+   * * “日期选择器”将不再能由键盘输入值。点击该元素时，将弹出“日期选择面板”，在面板中选中的日期会被回填到该元素中。
+   * * 如果“日期选择器”已经有选定值，点击“日期选择面板”的“清除”按钮可以清除该值。
+   * * 如果今天在可选日期范围（取决于 data-min-date 和 data-max-date 的设定值）内，点击“今天”按钮可以将今天的日期作为选定值。
+   * * 在“日期选择面板”中，可以通过点击“上一年”和“下一年”按钮或使用鼠标滚轮翻年，通过点击“上一月”和“下一月”按钮或使用 Shift + 鼠标滚轮翻月。
+   * @description 默认样式
    *   div.datepicker-panel { display: none; position: absolute; left: 0; top: 0; width: 218px; padding: 6px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); border: 1px solid silver; border-radius: 3px; background: whitesmoke; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }
    *   div.datepicker-panel div.control_set { position: relative; height: 22px; line-height: 22px; text-align: center; }
    *   div.datepicker-panel span.btn { position: absolute; top: 0; width: 28px; height: 20px; border: 1px solid silver; border-radius: 2px; background: white; color: black; line-height: 20px; }
@@ -295,7 +290,6 @@
    *   div.datepicker-panel tbody td.selected, div.datepicker-panel tbody td.selected:hover { box-shadow: none; border-color: firebrick; background: crimson; color: white; font-weight: bold; }
    *   div.datepicker-panel span.clear { left: 1px; width: 61px; }
    *   div.datepicker-panel span.today { right: 1px; width: 61px; }'
-   *   </pre>
    * @description 可配置项
    *   data-min-date
    *     指定允许选择的最小日期，格式为 YYYY-MM-DD。
