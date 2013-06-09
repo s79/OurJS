@@ -7,28 +7,28 @@
 <script src="../../scripts/common_loader.js"></script>
 <script src="../../scripts/widget-demobutton.js"></script>
 <style>
-caption { color: gray; font-size: 12px; }
-textarea { width: 120px; resize: none; }
-.clone_event_test span { display: inline-block; height: 20px; padding: 0 5px; background: yellowgreen; font-size: 12px; line-height: 20px; text-align: center; vertical-align: bottom; cursor: default; }
-.clone_test { color: white; }
-
 fieldset { display: inline-block; width: 460px; margin: 0 5px 10px 0; *display: inline; }
-div.simple_container { float: left; width: 160px; height: 80px; }
+div.simple_container { float: left; width: 160px; height: 80px; background: gold; }
 div.target_container { float: right; }
-#i_target { width: 160px; height: auto; margin: 0; overflow: hidden; }
-#s_targets,
-#r_targets { background: gainsboro; }
 div.sample,
 div.target,
 div.child { width: 150px; height: 20px; margin: 5px; line-height: 20px; text-align: center; }
-blockquote { margin: 120px 0 0; padding: 10px; border: 1px solid gainsboro; }
-div.simple_container { background: gold; }
 div.sample { background: tomato; }
 div.target { background: mediumseagreen; }
 div.child { background: gainsboro; }
+blockquote { margin: 120px 0 0; padding: 10px; border: 1px solid gainsboro; }
 button .simple_container { color: gold; font-weight: bold; }
 button .sample { color: tomato; font-weight: bold; }
 button .target { color: mediumseagreen; font-weight: bold; }
+
+#clone { width: 940px; }
+#clone caption { color: gray; font-size: 12px; }
+#clone textarea { width: 120px; resize: none; }
+#clone span { display: inline-block; height: 20px; padding: 0 5px; background: yellowgreen; font-size: 12px; line-height: 20px; text-align: center; vertical-align: bottom; cursor: default; }
+#clone .hover { color: white; }
+#insert_to .target { width: 160px; height: auto; margin: 0; overflow: hidden; }
+#swap .target_container,
+#replace .target_container { background: gainsboro; }
 </style>
 </head>
 <body>
@@ -37,7 +37,7 @@ button .target { color: mediumseagreen; font-weight: bold; }
 
 <h2>克隆元素</h2>
 <!-- clone { -->
-<fieldset style="width: 940px;">
+<fieldset id="clone">
   <legend>Element.prototype.clone</legend>
   <table style="table-layout: fixed; width: 940px;">
     <caption>每次点击“clone”按钮，都将清除右侧区域（便于测试效果），并克隆左侧区域的内容到右侧区域内。</caption>
@@ -48,7 +48,7 @@ button .target { color: mediumseagreen; font-weight: bold; }
           <div id="c_sample">
             <!-- 注释也会被克隆 -->
             克隆的表单元素将以这些元素的<em>默认状态</em>为<strong>当前状态</strong>
-            <div id="c_event" class="clone_event_test">
+            <div id="c_event">
               <span>这些元素添加了事件监听器</span>
               <span>监听器也可以被克隆</span>
               <span>指向它们以测试</span>
@@ -105,10 +105,10 @@ button .target { color: mediumseagreen; font-weight: bold; }
         this.setStyle('backgroundColor', 'yellowgreen');
       })
       .on('mouseover:relay(span)', function() {
-        this.addClass('clone_test');
+        this.addClass('hover');
       })
       .on('mouseout:relay(span)', function() {
-        this.removeClass('clone_test');
+        this.removeClass('hover');
       });
   $('#c_data')
       .setData('value', 'data-value')
@@ -128,7 +128,7 @@ button .target { color: mediumseagreen; font-weight: bold; }
 
 <h2>修改位置</h2>
 <!-- Element.prototype.insertTo { -->
-<fieldset>
+<fieldset id="insert_to">
   <legend>Element.prototype.insertTo</legend>
   <div class="simple_container">
     <div id="i_sample" class="sample">$sampleA</div>
@@ -162,7 +162,7 @@ var $simpleContainer = $sampleA.getParent();
 <br>
 
 <!-- Element.prototype.swap { -->
-<fieldset>
+<fieldset id="swap">
   <legend>Element.prototype.swap</legend>
   <div class="simple_container">
     <div id="s_sample" class="sample">$sampleB</div>
@@ -191,7 +191,7 @@ var $targetB3 = targetsB[2];
 <!-- } Element.prototype.swap -->
 
 <!-- Element.prototype.replace { -->
-<fieldset>
+<fieldset id="replace">
   <legend>Element.prototype.replace</legend>
   <div class="simple_container">
     <div id="r_sample" class="sample">$sampleC</div>

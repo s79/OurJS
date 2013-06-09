@@ -37,6 +37,7 @@ var { color: sienna; font-style: italic; }
 
 .column { clear: right; float: left; width: 310px; padding: 5px; cursor: default; }
 .column h1 { margin: 0 0 10px; background: gray; color: white; font-size: 14px; }
+.column dd { width: 294px; overflow: hidden; text-overflow: ellipsis; }
 .constructor { border-left: 2px solid red; }
 .static { border-left: 2px solid limegreen; }
 .instance { border-left: 2px solid mediumorchid; }
@@ -66,7 +67,7 @@ var { color: sienna; font-style: italic; }
 
 /* symbols description/example/params/deprecated/since/exceptions/returns/requires/see */
 #details p { margin: 10px 0; }
-#details kbd { font-style: italic; }
+#details kbd { font-style: italic; white-space: nowrap; }
 #details cite { color: #333; }
 #details samp { color: gray; font-style: italic; }
 #details dfn { color: steelblue; white-space: nowrap; }

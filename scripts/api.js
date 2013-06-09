@@ -125,7 +125,10 @@ document.on('domready', function() {
       text.forEach(
           function(line, index) {
             if (line.startsWith('*')) {
-              hasList = true;
+              if (!hasList) {
+                result += '<ul>';
+                hasList = true;
+              }
               result += (index ? '</li>' : '') + '<li>' + line.slice(2);
             } else {
               if (hasList) {
@@ -137,7 +140,7 @@ document.on('domready', function() {
           }
       );
       if (hasList) {
-        result = '<ul>' + result + '</li></ul>';
+        result += '</li></ul>';
       }
       return result;
     };
@@ -233,28 +236,39 @@ document.on('domready', function() {
             target.push(line);
           }
         });
-        description = '<blockquote>' + parseParagraphs(description) + '</blockquote>';
-        var howToEnable = additional[0].length ? '<dl><dt>启用方式</dt><dd>' + parseParagraphs(additional[0]) + '</dd></dl>' : '';
-        var structure = additional[1].length ? '<dl><dt>结构约定</dt><dd>' + parseParagraphs(additional[1]) + '</dd></dl>' : '';
-        var behaviors = additional[2].length ? '<dl><dt>新增行为</dt><dd>' + parseParagraphs(additional[2]) + '</dd></dl>' : '';
-        var styleRules = additional[3].length ? '<dl><dt>默认样式</dt><dd><pre class="lang-css">' + additional[3].join('\n') + '</pre></dd></dl>' : '';
-        var configs = additional[4].length ? '<dl><dt>可配置项</dt><dd>' +
-            (function() {
-              var text = '';
-              additional[4].forEach(
-                  function(line, index) {
-                    if (/^[\w-]+$/.test(line)) {
-                      text += (index ? '</td></tr>' : '') + '<tr><td><dfn>' + line + '</dfn></td><td>';
-                    } else {
-                      text += '<p>' + line + '</p>';
-                    }
-                  }
-              );
-              return '<table>' + text + '</td></tr></table>';
-            })() +
-            '</dd></dl>' : '';
+        return '<blockquote>' + parseParagraphs(description) + '</blockquote>'
+            .concat(
+                additional[0].length ? '<dl><dt>启用方式</dt><dd>' + parseParagraphs(additional[0]) + '</dd></dl>' : ''
+            )
+            .concat(
+                additional[1].length ? '<dl><dt>结构约定</dt><dd>' + parseParagraphs(additional[1]) + '</dd></dl>' : ''
+            )
+            .concat(
+                additional[2].length ? '<dl><dt>新增行为</dt><dd>' + parseParagraphs(additional[2]) + '</dd></dl>' : ''
+            )
+            .concat(
+                additional[3].length ? '<dl><dt>默认样式</dt><dd><pre class="lang-css">' + additional[3].join('\n') + '</pre></dd></dl>' : ''
+            )
+            .concat(
+                additional[4].length ? '<dl><dt>可配置项</dt><dd>' +
+                    (function() {
+                      var text = '';
+                      additional[4].forEach(
+                          function(line, index) {
+                            if (/^[\w-]+$/.test(line)) {
+                              text += (index ? '</td></tr>' : '') + '<tr><td><dfn>' + line + '</dfn></td><td>';
+                            } else {
+                              text += '<p>' + line + '</p>';
+                            }
+                          }
+                      );
+                      return '<table>' + text + '</td></tr></table>';
+                    })() +
+                    '</dd></dl>' : ''
+            );
+      } else {
+        return '<blockquote><p>-</p></blockquote>';
       }
-      return description.concat(howToEnable).concat(structure).concat(behaviors).concat(styleRules).concat(configs);
     }
 
     // 获取参数。
@@ -396,12 +410,8 @@ document.on('domready', function() {
     };
 
     // 分三列注入。
-    var columns = {
-      a: $('#column_a'),
-      b: $('#column_b'),
-      c: $('#column_c')
-    };
-    $('<h1>JS Native Objects</h1>').insertTo(columns.a);
+    var columns = $content.findAll('div.column');
+    $('<h1>JS Native Objects</h1>').insertTo(columns[0]);
     [
       'Global',
       'Object',
@@ -416,9 +426,9 @@ document.on('domready', function() {
       'JSON'
     ]
         .forEach(function(name) {
-          buildSymbol(columns.a, name);
+          buildSymbol(columns[0], name);
         });
-    $('<h1>Browser Built-in Objects</h1>').insertTo(columns.a);
+    $('<h1>Browser Built-in Objects</h1>').insertTo(columns[0]);
     [
       'navigator',
       'location',
@@ -426,9 +436,9 @@ document.on('domready', function() {
       'localStorage'
     ]
         .forEach(function(name) {
-          buildSymbol(columns.a, name);
+          buildSymbol(columns[0], name);
         });
-    $('<h1>DOM Objects</h1>').insertTo(columns.b);
+    $('<h1>DOM Objects</h1>').insertTo(columns[1]);
     [
       'window',
       'document',
@@ -436,29 +446,29 @@ document.on('domready', function() {
       'HTMLFormElement'
     ]
         .forEach(function(name) {
-          buildSymbol(columns.b, name);
+          buildSymbol(columns[1], name);
         });
-    $('<h1>DOM Event Module</h1>').insertTo(columns.b);
+    $('<h1>DOM Event Module</h1>').insertTo(columns[1]);
     [
       'DOMEventTarget',
       'DOMEvent'
     ]
         .forEach(function(name) {
-          buildSymbol(columns.b, name);
+          buildSymbol(columns[1], name);
         });
-    $('<h1>JS Event Module</h1>').insertTo(columns.c);
+    $('<h1>JS Event Module</h1>').insertTo(columns[2]);
     [
       'JSEventTarget',
       'JSEvent'
     ]
         .forEach(function(name) {
-          buildSymbol(columns.c, name);
+          buildSymbol(columns[2], name);
         });
-    $('<h1>Animation</h1>').insertTo(columns.c);
-    buildSymbol(columns.c, 'Animation');
-    $('<h1>Request</h1>').insertTo(columns.c);
-    buildSymbol(columns.c, 'Request');
-    $('<h1>Widgets</h1>').insertTo(columns.c);
+    $('<h1>Animation</h1>').insertTo(columns[2]);
+    buildSymbol(columns[2], 'Animation');
+    $('<h1>Request</h1>').insertTo(columns[2]);
+    buildSymbol(columns[2], 'Request');
+    $('<h1>Widgets</h1>').insertTo(columns[2]);
     [
       'Widget',
       '标签面板',
@@ -472,7 +482,7 @@ document.on('domready', function() {
       '表单验证器'
     ]
         .forEach(function(name) {
-          buildSymbol(columns.c, name);
+          buildSymbol(columns[2], name);
         });
 
   })();

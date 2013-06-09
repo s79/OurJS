@@ -202,13 +202,13 @@
    *     <li>{string} <dfn>statusText</dfn> 状态描述。</li>
    *     <li>{Object} <dfn>headers</dfn> 响应头。</li>
    *     <li>{string} <dfn>text</dfn> 响应文本。</li>
-   *     <li>{XMLDocument} <dfn>xml</dfn> 响应 XML 文档。</li>
+   *     <li>{?XMLDocument} <dfn>xml</dfn> 响应 XML 文档。</li>
    *   </ul>
    *   JSONP 模式的请求结果中包含以下属性：
    *   <ul>
    *     <li>{number} <dfn>status</dfn> 状态码。</li>
    *     <li>{string} <dfn>statusText</dfn> 状态描述。</li>
-   *     <li>{Object} <dfn>data</dfn> 请求结果。</li>
+   *     <li>{*} <dfn>data</dfn> 请求结果。</li>
    *   </ul>
    */
   var Request = window.Request = function(url, options) {

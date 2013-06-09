@@ -26,7 +26,7 @@ tr:hover { background: aliceblue; }
 <div id="content">
 <h1>可用选择符列表</h1>
 
-<p>以下列表中的选择符均可以作为任何需要 selector 的值的一部分，如：</p>
+<p>以下列表中的选择符（其含义与 CSS3 选择符完全一致）均可以在任何需要 selector 类型的值中使用，如：</p>
 <pre><dfn>$</dfn>('<var><strong>li&gt;p:first-child</strong></var>').empty();</pre>
 <pre>var elements = <samp>document</samp>.<dfn>findAll</dfn>('<var><strong>div.foo</strong></var>');</pre>
 <pre><samp>$element</samp>.<dfn>on</dfn>('<var>input:relay(<strong>input[type=text]</strong>)</var>', function(e) {...});</pre>
@@ -226,7 +226,7 @@ tr:hover { background: aliceblue; }
 </tbody>
 </table>
 
-<p class="referral">以上选择符的含义与 CSS3 选择符的含义是一致的。在 OurJS 中可以使用除下列选择符外的所有 CSS3 选择符：</p>
+<h4>在 OurJS 中可以使用除下列选择符外的所有 CSS3 选择符：</h4>
 <ul>
   <li>
     <dfn>:link</dfn> <dfn>:visited</dfn> <dfn>:hover</dfn> <dfn>:active</dfn>
@@ -242,7 +242,9 @@ tr:hover { background: aliceblue; }
   </li>
 </ul>
 
-<p>在 OurJS 中，与选择符相关的功能均借助 Sizzle 实现。Sizzle 除支持绝大多数的 CSS3 选择符外，还扩展了一些自定义的选择符，但在 OurJS 中并不建议使用，因此没有列出在上表中。</p>
+<h4>致敬 Sizzle：</h4>
+<p>在 OurJS 中，与选择符相关的功能均借助 Sizzle 实现。</p>
+<p>Sizzle 除支持绝大多数的 CSS3 选择符外，还扩展了一些自定义的选择符，但在 OurJS 中并不建议使用，因此没有在上表中列出。</p>
 
 <blockquote>
   <p><label><input id="show_extended" type="checkbox">显示 Sizzle 自定义的选择符</label></p>

@@ -14,8 +14,8 @@
    * @fires show
    *   {Element} activeSlide 当前播放的“幻灯片”。
    *   {Element} activePointer 当前播放的“指示器”。
-   *   {Element} inactiveSlide 上一个播放的“幻灯片”。
-   *   {Element} inactivePointer 上一个播放的“指示器”。
+   *   {?Element} inactiveSlide 上一个播放的“幻灯片”。
+   *   {?Element} inactivePointer 上一个播放的“指示器”。
    *   成功调用 show 方法后触发。
    * @fires showprevious
    *   调用 showPrevious 方法后触发。

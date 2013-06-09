@@ -14,8 +14,8 @@
    * @fires activate
    *   {Element} activeTab 当前的激活的“标签”。
    *   {Element} activePanel 当前的激活的“面板”。
-   *   {Element} inactiveTab 上一个激活的“标签”。
-   *   {Element} inactivePanel 上一个激活的“面板”。
+   *   {?Element} inactiveTab 上一个激活的“标签”。
+   *   {?Element} inactivePanel 上一个激活的“面板”。
    *   成功调用 activate 方法后触发。
    * @description 启用方式
    *   为一个 DIV 元素添加 'widget-tabpanel' 类，即可使该元素成为“标签面板”。

@@ -69,7 +69,7 @@
           Object.forEach(widget.config, function(defaultValue, key) {
             var value = defaultValue;
             var specifiedValue = $element.getData(key);
-            if (specifiedValue !== undefined) {
+            if (specifiedValue !== null) {
               switch (typeof defaultValue) {
                 case 'string':
                   value = specifiedValue;

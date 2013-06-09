@@ -1,5 +1,12 @@
 
 
+>2013-06-05
++ cut copy paste mousedragenter mousedragleave mousedragover mousedrop 事件的支持
+* 修复 Firefox 下当窗口不可见时获取其中的元素的 ComputedStyle 得到 null 的 bug
+* Element.prototype.getData 在取不到数据时的返回值由 undefined 修改为 null
+* 更新 Sizzle 版本
+# 在文档中明确可能返回 null 值的方法或属性
+
 >2013-06-04
 # 整理 Widgets API 文档格式
 

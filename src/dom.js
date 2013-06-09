@@ -58,7 +58,6 @@
 //==================================================[window 扩展]
   /*
    * 为 window 扩展新特性。
-   * 其中 getScrollSize 与 getPageOffset 方法在 document.body 可访问后方可使用。
    *
    * 扩展方法：
    *   window.$
@@ -81,7 +80,7 @@
    * @name window.$
    * @function
    * @param {string|Element} e 不同类型的元素表示。
-   * @returns {Element} 扩展后的元素。
+   * @returns {?Element} 扩展后的元素。
    * @description
    *   在编写应用代码时，可以使用 $ 来代替 document.$。
    */
@@ -113,7 +112,7 @@
    * @returns {Object} 尺寸，包含 width 和 height 两个数字类型的属性，单位为像素。
    */
   window.getScrollSize = function() {
-    var body = document.body;
+    var body = document.body || {scrollWidth: 0, scrollHeight: 0};
     return {
       width: Math.max(html.scrollWidth, body.scrollWidth, html.clientWidth),
       height: Math.max(html.scrollHeight, body.scrollHeight, html.clientHeight)
@@ -126,16 +125,16 @@
    * @name window.getPageOffset
    * @function
    * @returns {Object} 坐标，包含 x 和 y 两个数字类型的属性，单位为像素。
-   * @description
-   *   一些浏览器支持 window.scrollX/window.scrollY 或 window.pageXOffset/window.pageYOffset 直接获取视口的滚动偏移量。
-   *   这里使用通用性更强的方法实现。
-   * @see http://w3help.org/zh-cn/causes/BX9008
    */
-  window.getPageOffset = function() {
-    var body = document.body;
+  window.getPageOffset = 'pageXOffset' in window ? function() {
     return {
-      x: html.scrollLeft || body.scrollLeft,
-      y: html.scrollTop || body.scrollTop
+      x: window.pageXOffset,
+      y: window.pageYOffset
+    };
+  } : function() {
+    return {
+      x: html.scrollLeft,
+      y: html.scrollTop
     };
   };
 
@@ -215,14 +214,14 @@
    * @name document.$
    * @function
    * @param {string|Element} e 不同类型的元素表示。
-   * @returns {Element} 扩展后的元素。
+   * @returns {?Element} 扩展后的元素。
    * @description
-   *   <ul>
-   *     <li>当参数为一个元素（可以包含后代元素）的序列化之后的字符串时，会返回扩展后的、根据这个字符串反序列化的元素。<br>注意：不要使用本方法创建 SCRIPT 元素，对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法。</li>
-   *     <li>当参数为一个 CSS 选择符时，会返回扩展后的、与指定的 CSS 选择符相匹配的<strong>第一个元素</strong>。<br>如果没有找到任何元素，返回 null。</li>
-   *     <li>当参数为一个元素时，会返回扩展后的该元素。</li>
-   *     <li>当参数为其他值（包括 document 和 window）时，均返回 null。</li>
-   *   </ul>
+   * * 当参数为一个元素（可以包含后代元素）的序列化之后的字符串时，会返回扩展后的、根据这个字符串反序列化的元素。
+   *   注意：不要使用本方法创建 SCRIPT 元素，对于动态载入外部脚本文件的需求，应使用 document.loadScript 方法。
+   * * 当参数为一个 CSS 选择符时，会返回扩展后的、与指定的 CSS 选择符相匹配的<strong>第一个元素</strong>。
+   *   如果没有找到任何元素，返回 null。
+   * * 当参数为一个元素时，会返回扩展后的该元素。
+   * * 当参数为其他值（包括 document 和 window）时，均返回 null。
    * @see http://jquery.com/
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
@@ -276,7 +275,7 @@
    * @name document.find
    * @function
    * @param {string} selector 选择符。
-   * @returns {Element} 查找到的元素。
+   * @returns {?Element} 查找到的元素。
    *   如果没有找到任何元素，返回 null。
    * @see http://www.w3.org/TR/selectors-api2/
    * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
@@ -409,8 +408,9 @@
    * @function
    * @private
    * @param {Element} element 要扩展的元素。
-   *   内部调用时，只可能传入 Element、document（事件对象的 target 属性）或 null。
-   * @returns {Element} 扩展后的元素。
+   *   内部调用时，可能传入 Element、document（事件对象的 target 属性）或 null。
+   * @returns {?Element} 扩展后的元素。
+   *   如果传入 document 或 null，也会返回 document 或 null。
    */
   // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值将作为该元素的 key 使用。
   var uid = 0;
@@ -715,7 +715,7 @@
    * 获取本元素的父元素。
    * @name Element.prototype.getParent
    * @function
-   * @returns {Element} 本元素的父元素。
+   * @returns {?Element} 本元素的父元素。
    */
   Element.prototype.getParent = 'parentElement' in html ? function() {
     return $(this.parentElement);
@@ -730,10 +730,10 @@
 
 //--------------------------------------------------[Element.prototype.getPreviousSibling]
   /**
-   * 获取与本元素相邻的上一个元素。
+   * 获取本元素的上一个兄弟元素。
    * @name Element.prototype.getPreviousSibling
    * @function
-   * @returns {Element} 与本元素相邻的上一个元素。
+   * @returns {?Element} 本元素的上一个兄弟元素。
    */
   Element.prototype.getPreviousSibling = 'previousElementSibling' in html ? function() {
     return $(this.previousElementSibling);
@@ -746,10 +746,10 @@
 
 //--------------------------------------------------[Element.prototype.getNextSibling]
   /**
-   * 获取与本元素相邻的下一个元素。
+   * 获取本元素的下一个兄弟元素。
    * @name Element.prototype.getNextSibling
    * @function
-   * @returns {Element} 与本元素相邻的下一个元素。
+   * @returns {?Element} 本元素的下一个兄弟元素。
    */
   Element.prototype.getNextSibling = 'nextElementSibling' in html ? function() {
     return $(this.nextElementSibling);
@@ -765,7 +765,7 @@
    * 获取本元素的第一个子元素。
    * @name Element.prototype.getFirstChild
    * @function
-   * @returns {Element} 本元素的第一个子元素。
+   * @returns {?Element} 本元素的第一个子元素。
    */
   Element.prototype.getFirstChild = 'firstElementChild' in html ? function() {
     return $(this.firstElementChild);
@@ -781,7 +781,7 @@
    * 获取本元素的最后一个子元素。
    * @name Element.prototype.getLastChild
    * @function
-   * @returns {Element} 本元素的最后一个子元素。
+   * @returns {?Element} 本元素的最后一个子元素。
    */
   Element.prototype.getLastChild = 'lastElementChild' in html ? function() {
     return $(this.lastElementChild);
@@ -836,7 +836,7 @@
    * @name Element.prototype.find
    * @function
    * @param {string} selector 选择符。
-   * @returns {Element} 查找到的元素。
+   * @returns {?Element} 查找到的元素。
    *   如果没有找到任何元素，返回 null。
    * @see http://www.w3.org/TR/selectors-api2/
    * @see https://github.com/jquery/sizzle/wiki/Sizzle-Home
@@ -1044,10 +1044,12 @@
 
 //--------------------------------------------------[Element.prototype.empty]
   /**
-   * 将本元素的内容清空，并删除本元素及后代元素上的所有事件监听器。
+   * 将本元素的内容清空。
    * @name Element.prototype.empty
    * @function
    * @returns {Element} 本元素。
+   * @description
+   *   在本元素的所有后代元素上添加的事件监听器也将被删除。
    */
   Element.prototype.empty = function() {
     Array.from(this.getElementsByTagName('*')).forEach(removeAllListeners);
@@ -1476,7 +1478,8 @@
    *   注意：不要尝试获取未插入文档树的元素的“计算后的样式”，它们存在兼容性问题。
    */
   Element.prototype.getStyle = 'getComputedStyle' in window ? function(propertyName) {
-    return window.getComputedStyle(this, null).getPropertyValue(propertyName.dasherize()) || '';
+    var computedStyle = window.getComputedStyle(this, null);
+    return computedStyle && computedStyle.getPropertyValue(propertyName.dasherize()) || '';
   } : function(propertyName) {
     var getSpecialCSSProperty = specialCSSPropertyGetter[propertyName];
     return (getSpecialCSSProperty ? getSpecialCSSProperty(this) : this.currentStyle[propertyName]) || '';
@@ -1559,16 +1562,17 @@
    * @name Element.prototype.getData
    * @function
    * @param {string} key 数据名。
-   * @returns {string} 数据值。
-   *   如果指定的数据名不存在，返回 undefined。
+   * @returns {?string} 数据值。
+   *   如果指定的数据名不存在，返回 null。
    * @see http://www.w3.org/TR/html5/dom.html#embedding-custom-non-visible-data-with-the-data-*-attributes
    */
   Element.prototype.getData = 'dataset' in html ? function(key) {
-    return this.dataset[key];
+    var value = this.dataset[key];
+    return value === undefined ? null : value;
   } : function(key) {
     key = parseDataKey(key);
     var value = this.getAttribute(key);
-    return typeof value === 'string' ? value : undefined;
+    return typeof value === 'string' ? value : null;
   };
 
 //--------------------------------------------------[Element.prototype.setData]
@@ -1820,11 +1824,8 @@
    * }
    */
   var eventHandlers = {};
-
-  // 供内部调用的标记值。
-  var INTERNAL_IDENTIFIER_EVENT = {};
-
-  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 5, mouseleave: 5, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforedomready: 0, domready: 0, afterdomready: 0};
+  var EVENT_CODES = {mousedown: 5, mouseup: 5, click: 5, dblclick: 5, contextmenu: 5, mousemove: 5, mouseover: 5, mouseout: 5, mouseenter: 1, mouseleave: 1, mousewheel: 5, mousedragstart: 5, mousedrag: 5, mousedragend: 5, mousedragenter: 5, mousedragleave: 5, mousedragover: 5, mousedrop: 5, keydown: 6, keypress: 6, keyup: 6, focus: 0, blur: 0, focusin: 4, focusout: 4, input: 4, change: 4, select: 0, cut: 4, copy: 4, paste: 4, submit: 0, reset: 0, scroll: 0, resize: 0, load: 0, unload: 0, error: 0, beforedomready: 0, domready: 0, afterdomready: 0};
+  var DELEGATEABLE_EVENTS = {mouseenter: true, mouseleave: true};
   var returnTrue = function() {
     return true;
   };
@@ -1917,7 +1918,7 @@
   // 只支持鼠标左键的拖拽，拖拽过程中松开左键、按下其他键、或当前窗口失去焦点都将导致拖拽事件结束。
   // 应避免在拖拽进行时删除本组事件的监听器，否则可能导致拖拽动作无法正常完成。
   triggers.mousedragstart = triggers.mousedrag = triggers.mousedragend = function() {
-    var dragState;
+    // 三个关联事件。
     var relatedTypes = ['mousedragstart', 'mousedrag', 'mousedragend'];
     // 在 Chrome 25 和 Safari 5.1.7 下，如果一个页面是在 frame 中被载入的，那么在该页面中，一旦有一个传递到 document 的 mousedown 事件被阻止了默认行为，则在 document 上后续发生的 mousemove 事件在鼠标指针离开该文档的区域后无法被自动捕获。因此使用以下监听器来避免在拖动过程中选中页面的内容。
     // http://www.w3help.org/zh-cn/causes/BX2050
@@ -1927,65 +1928,140 @@
     if ((navigator.isChrome || navigator.isSafari) && window !== top) {
       unselectableForWebKit.enabled = true;
     }
-    var mouseDragStartTrigger = function(e) {
-      if (!dragState) {
-        var event = new DOMEvent('mousedragstart', e);
+    // 触发 mousedragstart、mousedrag 和 mousedragend 事件的对象。
+    var target = null;
+    // 拖拽开始时鼠标的坐标。
+    var startX = 0;
+    var startY = 0;
+    // 是否以正在被拖拽的元素的中心点为取样点，来获取触发 mousedragenter、mousedragleave、mousedragover 和 mousedrop 事件的对象。
+    // 其值只能在 mousedragstart 事件的监听器中，通过事件对象的属性来指定（在此之前必须首先指定 relatedTarget 属性的值）。
+    var aimRelatedTarget = false;
+    // 拖过的元素和上一个拖过的元素。
+    var dragOverTarget = null;
+    var lastDragOverTarget = null;
+    // 保存最后一个事件对象的数据。
+    var data = {};
+    var eventProperties = ['timeStamp', 'ctrlKey', 'altKey', 'shiftKey', 'metaKey', 'clientX', 'clientY', 'screenX', 'screenY', 'pageX', 'pageY', 'leftButton', 'middleButton', 'rightButton', 'which'];
+    var saveData = function(event) {
+      eventProperties.forEach(function(key) {
+        data[key] = event[key];
+      });
+    };
+    var dragStart = function(e) {
+      if (!target) {
+        // 获取事件包装对象。
+        var event = new DOMEvent(e.type, e);
         if (event.leftButton) {
-          event.offsetX = event.offsetY = 0;
-          var eventTarget = event.target;
-          if (eventTarget.setCapture) {
-            eventTarget.setCapture();
-          }
+          target = event.target;
           // 避免在拖动过程中选中页面的内容。
+          if (target.setCapture) {
+            target.setCapture();
+          }
           if (unselectableForWebKit.enabled) {
             addEventListener(document, 'selectstart', unselectableForWebKit);
           } else {
             event.preventDefault();
           }
-          dragState = {target: eventTarget, startX: event.pageX, startY: event.pageY};
-          dragState.lastEvent = event;
-          eventTarget.fire(INTERNAL_IDENTIFIER_EVENT, event);
+          // 初始化本次拖拽状态。
+          startX = event.pageX;
+          startY = event.pageY;
+          // 保存事件对象的属性。
+          saveData(event);
+          data.offsetX = data.offsetY = 0;
+          // 触发 mousedragstart 事件。
+          var mouseDragStartEvent = target.fire('mousedragstart', data);
+          // 保存在 mousedragstart 事件的监听器中的设置。
+          data.relatedTarget = $(mouseDragStartEvent.relatedTarget || null);
+          aimRelatedTarget = !!mouseDragStartEvent.aimRelatedTarget;
+          // 添加原生监听器。
           setTimeout(function() {
-            addEventListener(document, 'mousemove', mouseDragTrigger);
-            addEventListener(document, 'mousedown', mouseDragEndTrigger);
-            addEventListener(document, 'mouseup', mouseDragEndTrigger);
-            addEventListener(window, 'blur', mouseDragEndTrigger);
+            addEventListener(document, 'mousemove', dragging);
+            addEventListener(document, 'mousedown', dragEnd);
+            addEventListener(document, 'mouseup', dragEnd);
+            addEventListener(window, 'blur', dragEnd);
           }, 0);
         }
       }
     };
-    var mouseDragTrigger = function(e) {
-      var event = new DOMEvent('mousedrag', e);
-      event.target = dragState.target;
-      event.offsetX = event.pageX - dragState.startX;
-      event.offsetY = event.pageY - dragState.startY;
-      dragState.lastEvent = event;
-      dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
-    };
-    var mouseDragEndTrigger = function() {
-      var eventTarget = dragState.target;
-      if (eventTarget.releaseCapture) {
-        eventTarget.releaseCapture();
+    var dragging = function(e) {
+      // 获取事件包装对象。
+      var event = new DOMEvent(e.type, e);
+      // 保存事件对象的属性。
+      saveData(event);
+      data.offsetX = event.pageX - startX;
+      data.offsetY = event.pageY - startY;
+      // 触发 mousedrag 事件。
+      target.fire('mousedrag', data);
+      // 触发 mousedragenter、mousedragleave 和 mousedragover 事件。
+      var x = event.clientX;
+      var y = event.clientY;
+      var relatedTarget = data.relatedTarget;
+      if (relatedTarget) {
+        if (aimRelatedTarget) {
+          var clientRect = relatedTarget.getClientRect();
+          x = clientRect.left + Math.floor(clientRect.width / 2);
+          y = clientRect.top + Math.floor(clientRect.height / 2);
+        }
+        var style = relatedTarget.style;
+        var left = style.left;
+        var top = style.top;
+        style.left = '-50000px';
+        style.top = '0';
       }
-      // 使用上一个拖拽相关事件作为 mousedragend 的事件对象，以确保任何情况下都有鼠标坐标相关信息。
-      var event = dragState.lastEvent;
-      // 避免上一个拖拽相关事件的传播或默认行为被阻止。
-      event.isPropagationStopped = event.isDefaultPrevented = event.isImmediatePropagationStopped = returnFalse;
-      event.type = 'mousedragend';
-      dragState.target.fire(INTERNAL_IDENTIFIER_EVENT, event);
-      dragState = null;
+      dragOverTarget = $(document.elementFromPoint(x, y));
+      if (relatedTarget) {
+        style.left = left;
+        style.top = top;
+      }
+      if (dragOverTarget !== lastDragOverTarget) {
+        if (lastDragOverTarget) {
+          lastDragOverTarget.fire('mousedragleave', data);
+        }
+        if (dragOverTarget) {
+          dragOverTarget.fire('mousedragenter', data);
+        }
+      }
+      if (dragOverTarget) {
+        dragOverTarget.fire('mousedragover', data);
+      }
+      lastDragOverTarget = dragOverTarget;
+    };
+    var dragEnd = function(e) {
+      if (e.type.startsWith('mouse')) {
+        // 获取事件包装对象。
+        var event = new DOMEvent(e.type, e);
+        // 保存事件对象的属性。
+        saveData(event);
+      }
+      // 触发 mousedrop 事件。
+      data.timeStamp = Date.now();
+      if (dragOverTarget) {
+        dragOverTarget.fire('mousedrop', data);
+      }
+      // 触发 mousedragend 事件。
+      target.fire('mousedragend', data);
+      // 取消阻止选中页面的内容。
+      if (target.releaseCapture) {
+        target.releaseCapture();
+      }
       if (unselectableForWebKit.enabled) {
         removeEventListener(document, 'selectstart', unselectableForWebKit);
       }
-      removeEventListener(document, 'mousemove', mouseDragTrigger);
-      removeEventListener(document, 'mousedown', mouseDragEndTrigger);
-      removeEventListener(document, 'mouseup', mouseDragEndTrigger);
-      removeEventListener(window, 'blur', mouseDragEndTrigger);
+      // 清理本次拖拽状态。
+      target = dragOverTarget = lastDragOverTarget = null;
+      startX = startY = 0;
+      aimRelatedTarget = false;
+      data = {};
+      // 删除原生监听器。
+      removeEventListener(document, 'mousemove', dragging);
+      removeEventListener(document, 'mousedown', dragEnd);
+      removeEventListener(document, 'mouseup', dragEnd);
+      removeEventListener(window, 'blur', dragEnd);
     };
     return {
       add: function(eventTarget) {
         // 向这三个关联事件中添加第一个监听器时，即创建 mousedragstart 触发器，该触发器会动态添加/删除另外两个事件的触发器。
-        addEventListener(eventTarget, 'mousedown', mouseDragStartTrigger);
+        addEventListener(eventTarget, 'mousedown', dragStart);
         // 创建另外两个事件的处理器组。
         var item = eventHandlers[eventTarget.uid];
         relatedTypes.forEach(function(relatedType) {
@@ -2004,7 +2080,7 @@
           handlerCount += item[relatedType].length;
         });
         if (handlerCount === 0) {
-          removeEventListener(eventTarget, 'mousedown', mouseDragStartTrigger);
+          removeEventListener(eventTarget, 'mousedown', dragStart);
           // 删除三个关联事件的处理器组。
           relatedTypes.forEach(function(type) {
             delete item[type];
@@ -2298,49 +2374,53 @@
     this.timeStamp = e.timeStamp || Date.now();
     // 是否可冒泡。
     this.bubbles = !!(code & 4);
-    // 鼠标和键盘事件，由 fire 方法产生的事件对象可能没有以下信息。
-    if (code & 3) {
-      this.ctrlKey = e.ctrlKey;
-      this.altKey = e.altKey;
-      this.shiftKey = e.shiftKey;
-      this.metaKey = e.metaKey;
-      if (code & 1) {
-        // 坐标。
-        this.clientX = e.clientX || 0;
-        this.clientY = e.clientY || 0;
-        this.screenX = e.screenX || 0;
-        this.screenY = e.screenY || 0;
-        if ('pageX' in e) {
-          this.pageX = e.pageX;
-          this.pageY = e.pageY;
+    // 通过调用 fire 方法产生的事件对象没有以下信息（此时 e.type 必为空字符串）。
+    if (e.type) {
+      // 鼠标和键盘事件。
+      if (code & 3) {
+        this.ctrlKey = e.ctrlKey;
+        this.altKey = e.altKey;
+        this.shiftKey = e.shiftKey;
+        this.metaKey = e.metaKey;
+        if (code & 1) {
+          // 坐标。
+          this.clientX = e.clientX || 0;
+          this.clientY = e.clientY || 0;
+          this.screenX = e.screenX || 0;
+          this.screenY = e.screenY || 0;
+          if ('pageX' in e) {
+            this.pageX = e.pageX;
+            this.pageY = e.pageY;
+          } else {
+            var pageOffset = window.getPageOffset();
+            this.pageX = this.clientX + pageOffset.x;
+            this.pageY = this.clientY + pageOffset.y;
+          }
+          // 按键。非按键类事件（以及 contextmenu 事件）的按键值在各浏览器中有差异。
+          if ('which' in e) {
+            var which = e.which;
+            this.leftButton = which === 1;
+            this.middleButton = which === 2;
+            this.rightButton = which === 3;
+            this.which = which;
+          } else {
+            var button = e.button;
+            this.leftButton = !!(button & 1);
+            this.middleButton = !!(button & 4);
+            this.rightButton = !!(button & 2);
+            this.which = this.leftButton ? 1 : this.middleButton ? 2 : this.rightButton ? 3 : 0;
+          }
+          // 与本次事件相关的对象。
+          this.relatedTarget = $('relatedTarget' in e ? e.relatedTarget : ('fromElement' in e ? (e.fromElement === target ? e.toElement : e.fromElement) : null));
         } else {
-          var pageOffset = window.getPageOffset();
-          this.pageX = this.clientX + pageOffset.x;
-          this.pageY = this.clientY + pageOffset.y;
+          this.which = e.which || e.charCode || e.keyCode || 0;
         }
-        // 按键。非按键类事件（以及 contextmenu 事件）的按键值在各浏览器中有差异。
-        if ('which' in e) {
-          var which = e.which;
-          this.leftButton = which === 1;
-          this.middleButton = which === 2;
-          this.rightButton = which === 3;
-          this.which = which;
-        } else {
-          var button = e.button;
-          this.leftButton = !!(button & 1);
-          this.middleButton = !!(button & 4);
-          this.rightButton = !!(button & 2);
-          this.which = this.leftButton ? 1 : this.middleButton ? 2 : this.rightButton ? 3 : 0;
-        }
-        // 与本次事件相关的对象。
-        this.relatedTarget = $('relatedTarget' in e ? e.relatedTarget : ('fromElement' in e ? (e.fromElement === target ? e.toElement : e.fromElement) : null));
-      } else {
-        this.which = e.which || e.charCode || e.keyCode || 0;
       }
-    }
-    // 加入附加数据。
-    if (data) {
-      Object.mixin(this, data, {blackList: ['originalEvent', 'type', 'target']})
+    } else {
+      // 由 fire 方法调用，若有附加数据则合并到事件对象中。
+      if (data) {
+        Object.mixin(this, data, {blackList: ['originalEvent', 'type', 'target']})
+      }
     }
   }
 
@@ -2362,6 +2442,8 @@
    * 触发事件的对象。
    * @name DOMEvent#target
    * @type Element
+   * @description
+   *   本属性的值也可能是 document 对象。
    */
 
   /**
@@ -2437,13 +2519,13 @@
    */
 
   /**
-   * 事件发生时鼠标在横向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
+   * 事件发生时鼠标在横向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend/mousedragenter/mousedragleave/mousedragover/mousedrop 类型的事件对象上有效。
    * @name DOMEvent#offsetX
    * @type number
    */
 
   /**
-   * 事件发生时鼠标在纵向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend 类型的事件对象上有效。
+   * 事件发生时鼠标在纵向移动的偏移量，仅在 mousedragstart/mousedrag/mousedragend/mousedragenter/mousedragleave/mousedragover/mousedrop 类型的事件对象上有效。
    * @name DOMEvent#offsetY
    * @type number
    */
@@ -2467,9 +2549,12 @@
    */
 
   /**
-   * 事件被触发时的相关对象，仅在 mouseover/mouseout 类型的事件对象上有效。
+   * 事件被触发时的相关对象，仅在 mouseover/mouseout/mousedrag/mousedragend/mousedragenter/mousedragleave/mousedragover/mousedrop 类型的事件对象上有效。
    * @name DOMEvent#relatedTarget
    * @type ?Element
+   * @description
+   *   对于 mouseover/mouseout 事件，其值为发生此类事件之前，鼠标指向的对象。
+   *   对于其他拖拽类型的事件，其值为正在被拖拽的元素。这个元素应在 mousedragstart 事件的监听器中，通过事件对象的本属性来指定。
    */
 
   /**
@@ -2670,7 +2755,7 @@
                 break;
               case 'mouseenter':
               case 'mouseleave':
-                // 鼠标进入/离开事件，目前仅 IE 支持，但不能冒泡。此处使用 mouseover/mouseout 模拟。
+                // 鼠标进入/离开事件，目前仅 IE 支持，但不能被代理。此处使用 mouseover/mouseout 模拟。
                 distributor = function(e) {
                   distributeEvent(eventTarget, handlers, new DOMEvent(type, e), function(event) {
                     var relatedTarget = event.relatedTarget;
@@ -2759,7 +2844,7 @@
         }
         handlers.splice(handlers.delegateCount++, 0, handler);
         // 为不保证所有浏览器均可以冒泡的事件类型指定代理监听时，给出警告信息。
-        if (!(EVENT_CODES[type] & 4)) {
+        if (!(DELEGATEABLE_EVENTS.hasOwnProperty(type) || EVENT_CODES[type] & 4)) {
           console.warn('OurJS: Incompatible event delegation type "' + name + '".');
         }
       } else {
@@ -2858,8 +2943,7 @@
    *   如果需要执行此类事件的默认行为，可以直接在本对象上调用对应的方法（如 click、reset 等）。
    */
   DOMEventTarget.prototype.fire = function(type, data) {
-    // 内部使用时，type 可能被传入 INTERNAL_IDENTIFIER_EVENT，此时的 data 已经是一个 DOMEvent 对象。
-    var event = type === INTERNAL_IDENTIFIER_EVENT ? data : new DOMEvent(type, {type: '', target: this}, data);
+    var event = new DOMEvent(type, {type: '', target: this}, data);
     // 传播事件并返回传播后的事件对象。
     var eventTarget = this;
     var item;

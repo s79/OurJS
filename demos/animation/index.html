@@ -14,6 +14,16 @@ div.notice { margin: 30px 0; padding: 5px; border: 1px solid #EEE8AA; border-rad
 div.notice p { margin: 0; }
 div.notice ul { list-style: circle; }
 blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
+
+#menu_sample { list-style: none; padding: 0; cursor: default; }
+#menu_sample li { width: 200px; height: 30px; margin: 2px 0; padding-left: 10px; border-left: 0 solid white; background: mediumseagreen; line-height: 30px; }
+#animation { position: relative; }
+#timing_functions { text-align: center; }
+#timing_functions legend { text-align: left; }
+#timing_functions_canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; border: 1px solid silver; background: #252525; }
+#timing_functions_canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
+#timing_functions_controls button { width: 100px; margin: 1px; padding: 3px 5px; border: 1px solid gray; overflow: visible; font-weight: bold; font-size: 14px; opacity: .8; filter: alpha(opacity=80); }
+#timing_functions_controls button:hover { opacity: 1; filter: alpha(opacity=100); }
 </style>
 </head>
 <body>
@@ -34,7 +44,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   <li>如果本元素的动画播放列表中已经存在一个 morph 动画，则停止旧的，播放新的。</li>
 </ul>
 <!-- morph { -->
-<fieldset>
+<fieldset id="morph">
   <legend>Element.prototype.morph</legend>
   <div id="morph_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
@@ -105,7 +115,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   <li>虽然高亮动画使用了不同的属性，但在连续播放时，旧的动画也将被停止。</li>
 </ul>
 <!-- highlight { -->
-<fieldset>
+<fieldset id="highlight">
   <legend>Element.prototype.highlight</legend>
   <div id="highlight_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
@@ -159,7 +169,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   <li>否则若本元素的 display 不为 none 则不能播放淡入动画，display 为 none 则不能播放淡出动画。</li>
 </ul>
 <!-- fade { -->
-<fieldset>
+<fieldset id="fade">
   <legend>Element.prototype.fade</legend>
   <div id="fade_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
@@ -265,7 +275,7 @@ document.on('domready', function() {
   <li>如果在 HTML 或 BODY 元素上调用本方法，则滚动整个视口。</li>
 </ul>
 <!-- smoothScroll { -->
-<fieldset>
+<fieldset id="smooth_scroll">
   <legend>Element.prototype.smoothScroll</legend>
   <div id="scroll_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
@@ -329,15 +339,11 @@ document.on('domready', function() {
 
 <h2>Animation</h2>
 <!-- play/reverse { -->
-<style>
-#sample_menu { list-style: none; padding: 0; cursor: default; }
-#sample_menu li { width: 200px; height: 30px; margin: 2px 0; padding-left: 10px; border-left: 0 solid white; background: mediumseagreen; line-height: 30px; }
-</style>
-<fieldset>
+<fieldset id="play_reverse">
   <legend>播放过程中可以随时倒放</legend>
   <div id="menu_logger" class="widget-logger" data-clearable></div>
   <div class="demo">
-    <ul id="sample_menu">
+    <ul id="menu_sample">
       <li>菜单一</li>
       <li>菜单二</li>
       <li>菜单三</li>
@@ -350,7 +356,7 @@ document.on('domready', function() {
 document.on('domready', function() {
   var $logger = $('#menu_logger');
 
-  $('#sample_menu').getChildren().forEach(function($menu) {
+  $('#menu_sample').getChildren().forEach(function($menu) {
     var animation = new Animation().addClip(Animation.createStyleRenderer($menu, {borderLeftWidth: 10, backgroundColor: 'mediumorchid', color: 'white'}), 0, 200, 'ease');
     $menu
         .on('mouseenter', function() {
@@ -366,15 +372,16 @@ document.on('domready', function() {
 });
 </script>
 <!-- } play/reverse -->
-
-<!-- complex { -->
-<fieldset style="position: relative;">
-  <legend style="text-align: left;">支持多个影片剪辑和多种事件</legend>
-  <div id="complex_logger" class="widget-logger" data-clearable></div>
+<!-- animation { -->
+<fieldset id="animation">
+  <legend>支持多个影片剪辑和多种事件</legend>
+  <div id="animation_logger" class="widget-logger" data-clearable></div>
   <div class="demo" style="text-align: center;">
-    <div style="position: relative; width: 200px; height: 50px; margin: auto;">
-      <div id="foo" style="display: none; position: absolute; z-index: 2; left: 0; top: 30px; width: 200px; height: 20px; border: 0 solid greenyellow; background: silver; color: red; font: 12px/20px Verdana; text-align: center; overflow: hidden;">FOO</div>
-      <div id="bar" style="position: absolute; left: 0; top: 45px; width: 200px; height: 5px; background: gray;"></div>
+    <div style="position: relative; height: 50px; z-index: 100;">
+      <div id="animation_sample" style="position: absolute; left: 0; top: 0; width: 300px; height: 20px; border: 1px solid black; background: silver; color: black; font: 12px/20px Verdana; text-align: center; overflow: hidden;">
+        <div style="position: absolute; left: -300px; top: 80px; width: 300px; height: 20px; color: darkred; font-size: 16px; line-height: 20px;">test test test test test</div>
+        <span>TEST</span>
+      </div>
     </div>
     <div style="position: relative; width: 500px; margin: auto;">
       <div id="number" style="position: absolute; left: 0; top: 0; width: 150px; margin-bottom: 5px; background: whitesmoke; font-size: 12px; line-height: 1; text-align: right;"></div>
@@ -392,48 +399,39 @@ document.on('domready', function() {
 <script>
 document.on('domready', function() {
 //--------------------------------------------------[animation]
-  var $foo = $('#foo').setStyle('opacity', 0);
-  var $bar = $('#bar').setStyle('opacity', 0);
+  var $sample = $('#animation_sample').setStyle('opacity', 0);
+  var $inner = $sample.getFirstChild();
   window.animation = new Animation()
-      .addClip(Animation.createStyleRenderer($foo, {opacity: 1}), 0, 700, 'easeOut')
-      .addClip(Animation.createStyleRenderer($foo, {
-        backgroundColor: 'steelblue',
-        borderTopColor: 'silver',
-        borderRightColor: 'dimgray',
-        borderBottomColor: 'dimgray',
-        borderLeftColor: 'silver'
-      }), 600, 400)
-      .addClip(Animation.createStyleRenderer($foo, {
-        left: '-=160',
-        width: '+=300',
-        borderWidth: 10
-      }), 300, 400, 'cubicBezier(.6,0,.6,1.35)')
-      .addClip(Animation.createBasicRenderer(function(x, y) {
-        $logger.log('x=<var>' + x + '</var> y=<var>' + y + '</var>');
-      }), 500, 0, 'linear')
-      .addClip(Animation.createStyleRenderer($foo, {
-        top: '-=150',
+      .addClip(Animation.createStyleRenderer($sample, {
+        opacity: .75
+      }), 0, 600, 'easeOut')
+      .addClip(Animation.createStyleRenderer($sample, {
+        left: '+=160'
+      }), 0, 350, 'cubicBezier(.6,0,.6,1.35)')
+      .addClip(Animation.createStyleRenderer($sample, {
         height: '+=100',
+        borderTopWidth: 5,
+        borderBottomWidth: 5,
         color: 'yellow',
         fontSize: 50,
-        lineHeight: '+=99'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
-      }), 0, 1000, 'cubicBezier(.6,0,.6,1.35)')
-      .addClip(Animation.createStyleRenderer($bar, {
-        backgroundColor: 'gold',
-        opacity: 1
-      }), 0, 500, 'ease')
-      .addClip(Animation.createStyleRenderer($bar, {
-        top: 20,
-        left: '-=160',
-        width: 520,
-        height: 15,
-        backgroundColor: 'crimson'
-      }), 700, 300, 'ease')
+        lineHeight: '+=80'  // Firefox 在 CSS 设置该值（或 font-size?）为 0 时取值有 bug。
+      }), 400, 400, 'cubicBezier(.6,0,.6,1.35)')
+      .addClip(Animation.createStyleRenderer($sample, {
+        backgroundColor: 'steelblue'
+      }), 600, 400)
+      .addClip(Animation.createBasicRenderer(function(x, y) {
+        $logger.log('x=<var>' + x + '</var> y=<var>' + y + '</var>');
+      }), 800, 0, 'linear')
+      .addClip(Animation.createStyleRenderer($inner, {
+        left: 0
+      }), 800, 400, 'ease')
+      .addClip(Animation.createStyleRenderer($inner, {
+        color: 'crimson'
+      }), 1000, 200, 'ease')
       .on('play', function() {
         $logger.log('<strong>play</strong>');
       })
       .on('playstart', function() {
-        $foo.setStyle('display', 'block');
         $logger.log('<strong>playstart</strong>');
 //        this.reverse();
       })
@@ -478,7 +476,7 @@ document.on('domready', function() {
     if (!$clipPanlel.offsetWidth) {
       $clipPanlel.setStyles({width: 1, marginLeft: parseInt($clipPanlel.getStyle('marginLeft')) - 1});
     }
-    var $canvas = $('#canvas');
+    var $canvas = $('#timing_functions_canvas');
     $clipPanlel.on('click', function() {
       for (var i = 0; i < 299; i++) {
         $('<div style="left: ' + i + 'px; bottom: ' + Math.floor(clip.timingFunction(i / 299) * 299) + 'px; background: ' + color + '"></div>').insertTo($canvas);
@@ -505,25 +503,18 @@ document.on('domready', function() {
   });
 
 //--------------------------------------------------[logger]
-  var $logger = $('#complex_logger');
+  var $logger = $('#animation_logger');
   $logger.setStyle('height', $logger.getNextSibling().offsetHeight - 2);
 
 });
 </script>
-<!-- complex { -->
-
+<!-- animation { -->
 <!-- timing_functions { -->
-<style>
-#canvas { position: relative; width: 300px; height: 300px; margin: 0 auto; border: 1px solid silver; background: #252525; }
-#canvas div { position: absolute; width: 2px; height: 2px; background: white; overflow: hidden; }
-#timing_controls button { width: 100px; margin: 1px; padding: 3px 5px; border: 1px solid gray; overflow: visible; font-weight: bold; font-size: 14px; opacity: .8; filter: alpha(opacity=80); }
-#timing_controls button:hover { opacity: 1; filter: alpha(opacity=100); }
-</style>
-<fieldset style="text-align: center;">
-  <legend style="text-align: left;">100% 兼容 CSS3 transition-timing-function 的控速函数</legend>
-  <div id="canvas"></div>
+<fieldset id="timing_functions">
+  <legend>100% 兼容 CSS3 transition-timing-function 的控速函数</legend>
+  <div id="timing_functions_canvas"></div>
   <p>点击 = 清除，Ctrl + 点击 = 一起画，Shift + 点击 = 分别画。</p>
-  <blockquote id="timing_controls">
+  <blockquote id="timing_functions_controls">
     <button style="background-color: white;"><code>linear</code></button>
     <button style="background-color: silver;"><code>bounceIn</code></button>
     <button style="background-color: gold;"><code>bounceOut</code></button>
@@ -546,8 +537,8 @@ document.on('domready', function() {
 </fieldset>
 <script>
 (function() {
-  var $canvas = $('#canvas');
-  var $controls = $('#timing_controls');
+  var $canvas = $('#timing_functions_canvas');
+  var $controls = $('#timing_functions_controls');
   var buttons = $controls.findAll('button');
 
   $controls.on('click:relay(button)', function() {

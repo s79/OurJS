@@ -70,9 +70,9 @@ document.on('domready', function() {
   $l2.assert('!$y.contains($html)');
   $l2.assert('!$x.contains($y)');
 
-  $l2.assert('$y.getData(\'MyData\') === undefined');
+  $l2.assert('$y.getData(\'MyData\') === null');
   $l2.assert('$y.getData(\'myData\') === \'myData\'');
-  $l2.assert('$y.getData(\'A\') === undefined');
+  $l2.assert('$y.getData(\'A\') === null');
   $l2.assert('$y.getData(\'a\') === \'a\'');
 
   $y.removeData('MyData');
@@ -81,7 +81,7 @@ document.on('domready', function() {
 
   $y.removeData('myData');
   $l2.log('$y.removeData(\'myData\')');
-  $l2.assert('$y.getData(\'myData\') === undefined');
+  $l2.assert('$y.getData(\'myData\') === null');
 
   $y.setData('whatData', 'WHAT>"');
   $l2.log('$y.setData(\'whatData\', \'WHAT>"\')');
@@ -90,7 +90,7 @@ document.on('domready', function() {
 // This test will be true in all browsers.
   $l2.assert('document.createElement(\'var\').ownerDocument === window.document');
 
-  document.loadScript('dom-createElement.js', {
+  document.loadScript('createElement.js', {
     charset: 'utf-8',
     onLoad: function() {
       $l2.assert("'" + this.nodeName + "' === 'SCRIPT' && '" + this.charset + "' === 'utf-8'");
@@ -105,7 +105,7 @@ console.log($x.style.cssText);
 console.log($x.style.fontSize);
 console.log($x.style.display);
 $x.setStyle('fontSize', '22px');
-$x.setStyle('display', 'table');
+$x.setStyle('display', 'block');
 console.log($x.style.fontSize);
 console.log($x.style.display);
 $x.setStyle('fontSize', '');

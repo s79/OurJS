@@ -27,7 +27,7 @@ iframe { display: block; width: 958px; height: 220px; border: 1px solid black; }
 </fieldset>
 <fieldset>
   <legend>cookie.setItem</legend>
-  <form id="form_cookie_set">
+  <form id="c_set_item">
     <table>
       <tr>
         <th>name:</th>
@@ -61,7 +61,7 @@ iframe { display: block; width: 958px; height: 220px; border: 1px solid black; }
 </fieldset>
 <fieldset>
   <legend>cookie.getItem</legend>
-  <form id="form_cookie_get">
+  <form id="c_get_item">
     <table>
       <tbody>
         <tr>
@@ -81,7 +81,7 @@ iframe { display: block; width: 958px; height: 220px; border: 1px solid black; }
 </fieldset>
 <fieldset>
   <legend>cookie.removeItem</legend>
-  <form id="form_cookie_remove">
+  <form id="c_remove_item">
     <table>
       <tbody>
         <tr>
@@ -123,17 +123,17 @@ document.on('domready', function() {
 
   window.cookieTest = {
     setItem: function() {
-      var $form = $('#form_cookie_set');
+      var $form = $('#c_set_item');
       cookie.setItem($form.name.value, $form.value.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value, expires: $form.expires.value});
       showAllCookies();
     },
     getItem: function() {
-      var $form = $('#form_cookie_get');
+      var $form = $('#c_get_item');
       var value = cookie.getItem($form.name.value);
       $form.value.value = value || '';
     },
     removeItem: function() {
-      var $form = $('#form_cookie_remove');
+      var $form = $('#c_remove_item');
       cookie.removeItem($form.name.value, {path: $form.path.value, domain: $form.domain.value, secure: $form.secure.value});
       showAllCookies();
     }
@@ -147,7 +147,7 @@ document.on('domready', function() {
 <h2>使 IE6 IE7 支持 localStorage</h2>
 <fieldset>
   <legend>localStorage.setItem</legend>
-  <form id="form_local_storage_set">
+  <form id="l_set_item">
     <table>
       <tbody>
         <tr>
@@ -167,7 +167,7 @@ document.on('domready', function() {
 </fieldset>
 <fieldset>
   <legend>localStorage.getItem</legend>
-  <form id="form_local_storage_get">
+  <form id="l_get_item">
     <table>
       <tbody>
         <tr>
@@ -187,7 +187,7 @@ document.on('domready', function() {
 </fieldset>
 <fieldset>
   <legend>localStorage.removeItem</legend>
-  <form id="form_local_storage_remove">
+  <form id="l_remove_item">
     <table>
       <tr>
         <th>key:</th>
@@ -208,16 +208,16 @@ document.on('domready', function() {
 <script>
 var localStorageTest = {
   setItem: function() {
-    var $form = $('#form_local_storage_set');
+    var $form = $('#l_set_item');
     localStorage.setItem($form.key.value, $form.value.value);
   },
   getItem: function() {
-    var $form = $('#form_local_storage_get');
+    var $form = $('#l_get_item');
     var value = localStorage.getItem($form.key.value);
     $form.value.value = value || '';
   },
   removeItem: function() {
-    var $form = $('#form_local_storage_remove');
+    var $form = $('#l_remove_item');
     localStorage.removeItem($form.key.value);
   },
   clear: function() {

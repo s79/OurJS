@@ -116,12 +116,10 @@
    *   目标对象不应该是 window 对象、document 对象或 Element 的实例对象，因为这些对象是 DOMEventTarget 对象，使用的是 DOM 事件模型。
    * @returns {Object} 目标对象。
    * @description
-   *   <ul>
-   *     <li>目标对象将被添加实例属性 eventHandlers 用于保存处理事件所必需的数据。</li>
-   *     <li>目标对象将被添加实例方法 on 用于添加事件监听器。</li>
-   *     <li>目标对象将被添加实例方法 off 用于删除事件监听器。</li>
-   *     <li>目标对象将被添加实例方法 fire 用于触发某类事件。</li>
-   *   </ul>
+   * * 目标对象将被添加实例属性 eventHandlers 用于保存处理事件所必需的数据。
+   * * 目标对象将被添加实例方法 on 用于添加事件监听器。
+   * * 目标对象将被添加实例方法 off 用于删除事件监听器。
+   * * 目标对象将被添加实例方法 fire 用于触发某类事件。
    */
   JSEventTarget.create = function(target) {
     this.call(target);

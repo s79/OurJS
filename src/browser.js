@@ -81,21 +81,21 @@
    */
 
   /**
-   * 浏览器渲染引擎的类型，值为以下之一：Trident|WebKit|Gecko|Presto。
+   * 浏览器渲染引擎的类型，值为以下之一：Trident|WebKit|Gecko|Presto|Unknown。
    * @name userAgentInfo.engine
    * @memberOf navigator
    * @type string
    */
 
   /**
-   * 浏览器的名称，值为以下之一：IE|Firefox|Chrome|Safari|Opera。
+   * 浏览器的名称，值为以下之一：IE|Firefox|Chrome|Safari|Opera|Unknown。
    * @name userAgentInfo.name
    * @memberOf navigator
    * @type string
    */
 
   /**
-   * 浏览器的版本号。
+   * 浏览器的版本号，如果取不到版本号，则为 NaN。
    * @name userAgentInfo.version
    * @memberOf navigator
    * @type string
@@ -203,7 +203,7 @@
     // 从 navigator.userAgent 中分离信息。
     var engine = 'Unknown';
     var name = 'Unknown';
-    var version = 0;
+    var version = NaN;
     var userAgent = navigator.userAgent;
     if (/Trident|MSIE/.test(userAgent)) {
       engine = 'Trident';
@@ -351,8 +351,8 @@
    * @name cookie.getItem
    * @function
    * @param {string} key 数据名。
-   * @returns {string} 数据值。
-   *   如果没有对应的值，返回 null。
+   * @returns {?string} 数据值。
+   *   如果指定的数据名不存在或无法访问，返回 null。
    */
   cookie.getItem = function(key) {
     var matchs = document.cookie.match(new RegExp('(?:^|;)\\s*' + RegExp.escape(key) + '=([^;]*)'));
@@ -470,8 +470,8 @@
    * @name localStorage.getItem
    * @function
    * @param {string} key 数据名。
-   * @returns {string} 数据值。
-   *   如果没有对应的值，返回 null。
+   * @returns {?string} 数据值。
+   *   如果指定的数据名不存在，返回 null。
    */
   localStorage.getItem = function(key) {
     storeElement.load(STORE_NAME);

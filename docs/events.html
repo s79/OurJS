@@ -47,7 +47,7 @@ td.satisfied em.false { color: silver; }
       <th>事件类型</th>
       <th>鼠标事件</th>
       <th>键盘事件</th>
-      <th>可以冒泡<br>(可以代理)</th>
+      <th>可以冒泡</th>
       <th>可以阻止<br>默认行为</th>
       <th>应用于</th>
     </tr>
@@ -55,23 +55,36 @@ td.satisfied em.false { color: silver; }
   <tbody id="list"></tbody>
 </table>
 
-<p>以上事件类型中，<var><strong>自定义事件类型</strong></var><sup>1</sup>只能通过 fire 方法触发，其他事件类型除可以由 fire 方法触发外，还可以被用户的操作触发，一些元素还可以通过调用其 click、focus、blur、reset 等方法来触发同名事件。</p>
-<ol class="comment">
-  <li>
-    对于不是所有的浏览器都支持的事件类型（如 beforeactivate 事件），OurJS 在使用 on 方法添加监听器的时候，也会将其视为<var><strong>自定义事件类型</strong></var>，并不会真正在文档中监听此类型的 DOM 事件。因此即便在支持此类型事件的浏览器中，此事件也不会被用户的操作触发。这样设计是为了确保事件监听行为在各浏览器中的一致性。<br>
-    如果必须使用上述事件类型来实现某些功能，则不应使用 OurJS 提供的 on 方法来添加监听器，开发者应自行处理可能出现的兼容性问题。
-  </li>
-</ol>
+<h4>事件代理：</h4>
+<p>所有标记为“可以冒泡”的事件类型，均可以被代理。</p>
+<p>类型为 <dfn>mouseenter</dfn>、<dfn>mouseleave</dfn> 的事件虽然不会冒泡，但仍可以被代理。</p>
 
-<p class="referral">下列事件类型的一些细节行为仍不能兼容所有浏览器：</p>
+<h4>事件的触发：</h4>
+<p>类型为 <dfn>mousedragover</dfn>、<dfn>mousedragenter</dfn>、<dfn>mousedragleave</dfn> 和 <dfn>mousedrop</dfn> 的事件，仅当文档或任意元素添加了至少一个 <dfn>mousedragstart</dfn>、<dfn>mousedrag</dfn> 或 <dfn>mousedragend</dfn> 类型的事件监听器（添加了这些监听器的文档或元素的内容将不能被选中），并且在 <dfn>mousedragstart</dfn> 事件被触发之后， <dfn>mousedragend</dfn> 事件被触发之前，才可能被用户的操作触发。</p>
+<p>其他类型的事件，除<var><strong>自定义事件类型</strong></var>外，均可能被用户的操作触发。</p>
+<p>一些元素还可以通过调用其 click、focus、blur、reset 等方法来触发同名事件。</p>
+<p>任何类型的事件，都可以通过调用相应对象的 fire 方法来手动触发。</p>
+<p>
+  对于不是所有的浏览器都支持的事件类型（如 beforeactivate 事件），OurJS 也会将其视为<var><strong>自定义事件类型</strong></var>，因此即便在支持此类型事件的浏览器中，此类型的事件也不会被用户的操作触发。这样的设计是为了使 DOM 事件模型的监听行为在各浏览器中保持一致。<br>
+  如果必须使用上述事件类型来实现某些功能，则不应使用 OurJS 提供的 DOM 事件模型，开发者应自行处理可能出现的兼容性问题。
+</p>
+
+<h4>下列事件的一些细节行为仍不能兼容所有浏览器：</h4>
 <ul>
   <li>
     <dfn>contextmenu</dfn>
-    <p class="comment">IE8 只要添加了该类事件的监听器，即自动取消默认行为。</p>
+    <p class="comment">IE8 只要添加了该类事件的监听器，即自动取消此类事件的默认行为。</p>
   </li>
   <li>
     <dfn>keydown</dfn> & <dfn>keypress</dfn>
     <p class="comment">大部分浏览器都禁止取消特殊按键（如 F5 和 Backspace 等）的默认行为。</p>
+  </li>
+  <li>
+    <dfn>cut</dfn> & <dfn>copy</dfn> & <dfn>paste</dfn>
+    <p class="comment">
+      Chrome Safari Opera 在按下相应的快捷键后，即便没有发生任何事情（如在没有选中任何文本的情况下进行剪切和复制操作，或当剪贴板为空时或在一个无法粘贴内容的区域进行粘贴操作），也会触发这些事件。<br>
+      在 Safari 中，如果阻止了 <dfn>cut</dfn> 和 <dfn>copy</dfn> 事件的默认行为，则在相应的事件发生后，系统剪贴板会被重置为空字符串。
+    </p>
   </li>
   <li>
     <dfn>unload</dfn>
@@ -99,16 +112,16 @@ var events = [
   ['mousemove', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
   ['mouseover', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
   ['mouseout', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
-  ['mouseenter', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
-  ['mouseleave', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mouseenter', 1, 0, 0, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mouseleave', 1, 0, 0, 0, '<dfn>document</dfn>, <var>Element</var>'],
   ['mousewheel', 1, 0, 1, 1, '<dfn>document</dfn>, <var>Element</var>'],
   ['mousedragstart', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
   ['mousedrag', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
   ['mousedragend', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
-//  ['mousedragenter', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
-//  ['mousedragover', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
-//  ['mousedragleave', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
-//  ['mousedrop', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mousedragenter', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mousedragleave', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mousedragover', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
+  ['mousedrop', 1, 0, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
   ['keydown', 0, 1, 1, 1, '<dfn>document</dfn>, <var>Element</var>'],
   ['keypress', 0, 1, 1, 1, '<dfn>document</dfn>, <var>Element</var>'],
   ['keyup', 0, 1, 1, 0, '<dfn>document</dfn>, <var>Element</var>'],
@@ -119,6 +132,9 @@ var events = [
   ['input', 0, 0, 1, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>'],
   ['change', 0, 0, 1, 0, '<dfn>window</dfn>, <dfn>document</dfn>, <var>Element</var>'],
   ['select', 0, 0, 0, 0, '<var>INPUT[type=text|password]</var>, <var>TEXTAREA</var>'],
+  ['cut', 0, 0, 1, 1, '<var>Element</var>'],
+  ['copy', 0, 0, 1, 1, '<var>Element</var>'],
+  ['paste', 0, 0, 1, 1, '<var>Element</var>'],
   ['submit', 0, 0, 0, 1, '<var>FORM</var>'],
   ['reset', 0, 0, 0, 1, '<var>FORM</var>'],
   ['scroll', 0, 0, 0, 0, '<dfn>window</dfn>, <var>Element</var>'],

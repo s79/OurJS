@@ -8,6 +8,8 @@
 <script src="../../scripts/widget-logger.js"></script>
 <script src="../../scripts/widget-demobutton.js"></script>
 <style>
+blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
+button samp { color: darkseagreen; font-weight: bold; }
 div.widget-logger { float: right; width: 407px; }
 div.demo { float: left; width: 534px; }
 .sample { height: 30px; background: darkseagreen; line-height: 30px; text-align: center; cursor: default; }
@@ -21,6 +23,18 @@ div.demo { float: left; width: 534px; }
 .container p { clear: both; height: 30px; margin: 0 5px 0 0; background: darkseagreen; font: 12px/30px Verdana; text-align: center; cursor: default; }
 .sample:hover,
 .container *:hover { font-weight: bold; }
+
+.draggable { position: absolute; left: 0; top: 0; width: 160px; height: 80px; padding: 3px; border: 2px solid lightslategray; background: lightsteelblue; cursor: default; }
+.dragging { z-index: 10; background: skyblue; border-color: dodgerblue; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
+#mousedrop .draggable { width: 120px; height: 50px; line-height: 50px; text-align: center; }
+#mousedrop .dropzone { float: right; width: 150px; height: 146px; margin: 5px 5px 5px 0; border: 2px solid silver; background: gainsboro; line-height: 146px; text-align: center; }
+#mousedrop .dragenter { border-color: yellowgreen; background: greenyellow; }
+#mousedrop .not_allow { border-color: crimson; background: tomato; }
+
+#idle_element,
+#throttle_element { float: left; width: 265px; height: 200px; line-height: 200px; }
+#idle_element { margin: 0 4px 0 0; }
+
 dl { float: left; width: 230px; margin: 0 5px 5px 0; border: 1px solid silver; background: url(../../images/logger.png); color: #8CC; -display: inline; *margin-bottom: 0; }
 dt { height: 16px; padding: 5px; border-bottom: 1px solid silver; background: whitesmoke; color: #333; text-align: center; line-height: 16px; }
 dd { height: 128px; padding: 5px; font: 12px/12px Consolas, 'Lucida Console', Courier, SimSun, monospace; }
@@ -29,12 +43,6 @@ dd var { color: white; }
 dd em { display: inline-block; padding: 0 1px; font-weight: bold; text-decoration: underline; border-radius: 3px; }
 dd em.true { color: yellowgreen; }
 dd em.false { color: tomato; }
-blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
-button samp { color: darkseagreen; font-weight: bold; }
-#idle_element,
-#throttle_element { float: left; width: 265px; height: 200px; line-height: 200px; }
-#idle_element { margin: 0 4px 0 0; }
-.single blockquote { margin-top: 0; }
 </style>
 </head>
 <body>
@@ -43,13 +51,13 @@ button samp { color: darkseagreen; font-weight: bold; }
 
 <h2>添加和删除事件监听器</h2>
 <!-- DOMEventTarget.prototype.on/off/fire { -->
-<fieldset>
+<fieldset id="dom_event_module">
   <legend>DOMEventTarget.prototype.on/off/fire</legend>
-  <div id="on_off_logger" class="widget-logger" data-clearable></div>
+  <div class="widget-logger" data-clearable></div>
   <div class="demo">
-    <div id="on_off_element" class="sample">$element</div>
+    <div class="sample">$element</div>
     <blockquote>
-      <button class="widget-demobutton"><code><samp>$element</samp>.on(<em>'click'</em>, <strong>logId</strong>).on(<em>'click.text'</em>, <strong>logText</strong>);</code></button>
+      <button class="widget-demobutton"><code><samp>$element</samp>.on(<em>'click'</em>, <strong>logNodeName</strong>).on(<em>'click.text'</em>, <strong>logText</strong>);</code></button>
       <br>
       <button class="widget-demobutton"><code><samp>$element</samp>.off(<em>'click'</em>);</code></button>
       <br>
@@ -60,29 +68,31 @@ button samp { color: darkseagreen; font-weight: bold; }
   </div>
 </fieldset>
 <script>
-var $element = $('#on_off_element');
-var $onOffLogger = $('#on_off_logger');
-var logId = function() {
-  $onOffLogger.log('<strong>id</strong> = <var>' + this.id + '</var>');
-};
-var logText = function() {
-  $onOffLogger.log('<em>text</em> = <var>' + this.innerText + '</var>');
-};
+document.on('domready', function() {
+  var $fieldset = $('#dom_event_module');
+  var $logger = $fieldset.find('.widget-logger');
+  window.$element = $fieldset.find('.sample');
+  window.logNodeName = function() {
+    $logger.log('<strong>nodeName</strong> = <var>' + this.nodeName + '</var>');
+  };
+  window.logText = function() {
+    $logger.log('<em>innerText</em> = <var>' + this.innerText + '</var>');
+  };
+});
 </script>
 <!-- } DOMEventTarget.prototype.on/off/fire -->
 
 <h2>事件的兼容处理</h2>
 <!-- focusin/focusout/input/change { -->
-<fieldset>
+<fieldset id="form_events">
   <legend>focusin/focusout/input/change</legend>
-  <div id="form_events_logger" class="widget-logger" data-clearable></div>
+  <div class="widget-logger" data-clearable></div>
   <div class="demo">
-    <form id="form" method="get" action="." style="padding: 5px; border: 1px solid silver; background: whitesmoke;">
-      <input id="labeled" type="checkbox" value="checkbox_1" checked> <label for="labeled">labeled</label><br>
-      <input id="default_prevented" type="checkbox" value="checkbox_2"> <label for="default_prevented">&lt;- change 事件的默认行为被阻止（change 事件没有默认行为）</label><br>
+    <form method="get" action="." style="padding: 5px; border: 1px solid silver; background: whitesmoke;">
+      <input id="default_prevented" type="checkbox" value="checkbox"> <label for="default_prevented">&lt;- change 事件的默认行为被阻止（change 事件没有默认行为）</label><br>
+      <input type="checkbox" value="checkbox_1">
+      <input type="checkbox" value="checkbox_2">
       <input type="checkbox" value="checkbox_3">
-      <input type="checkbox" value="checkbox_4">
-      <input type="checkbox" value="checkbox_5">
       <input name="state" type="radio" value="radio_1" checked>
       <input name="state" type="radio" value="radio_2">
       <input name="state" type="radio" value="radio_3"><br>
@@ -98,11 +108,11 @@ var logText = function() {
       </select>
       <button type="submit">提交表单 (测试自动完成功能)</button>
       <br>
-      <input id="stop" name="account" type="text" value="" class="input" style="width: 250px; border: 1px solid silver;"> <label for="stop">&lt;- focusin/focusout 事件的传播被阻止</label><br>
+      <input id="propagation_stopped" name="account" type="text" value="" class="input" style="width: 250px; border: 1px solid silver;"> <label for="propagation_stopped">&lt;- focusin/focusout 事件的传播被阻止</label><br>
       <input name="email" type="text" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
       <input name="password" type="password" value="" class="input" style="width: 250px; border: 1px solid silver;"><br>
       <textarea name="info" class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;"></textarea>
-      <textarea id="textarea" name="info" class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;">textarea</textarea>
+      <textarea name="info" class="input" style="width: 250px; height: 50px; border: 1px solid silver; resize: none;">textarea</textarea>
     </form>
     <blockquote>
       <button class="widget-demobutton" data-code="setAValueInOneSecond();">一秒钟后使用脚本给 TEXTAREA 赋值 (不应该触发 input 事件)</button>
@@ -115,9 +125,10 @@ var logText = function() {
 </fieldset>
 <script>
 document.on('domready', function() {
-  var $logger = $('#form_events_logger');
+  var $fieldset = $('#form_events');
+  var $logger = $fieldset.find('.widget-logger');
 
-  $('#form')
+  $fieldset.find('form')
       .on('focusin, focusout', function(e) {
         var $target = e.target;
         if (/text|password|textarea/.test($target.type)) {
@@ -141,14 +152,13 @@ document.on('domready', function() {
   $('#default_prevented').on('change', function(e) {
     e.preventDefault();
   });
-  $('#stop').on('focusin, focusout', function(e) {
+  $('#stop_propagation').on('focusin, focusout', function(e) {
     e.stopPropagation();
   });
 
-  var $textarea = $('#textarea');
   window.setAValueInOneSecond = function() {
     setTimeout(function() {
-      $logger.log('$textarea.value=<var>' + ($textarea.value = '使用脚本赋的新值') + '</var>');
+      $fieldset.find('textarea:last-of-type').value = '使用脚本赋的新值';
     }, 1000);
   };
 
@@ -167,10 +177,10 @@ document.on('domready', function() {
 <!-- } focusin/focusout/input/change -->
 
 <!-- mouseenter/mouseleave { -->
-<fieldset>
+<fieldset id="hover_events">
   <legend>mouseenter/mouseleave</legend>
-  <div id="hover_logger" class="widget-logger" style="width: 200px;" data-clearable></div>
-  <div id="over_logger" class="widget-logger" style="width: 200px; margin-right: 5px; display: inline;" data-clearable></div>
+  <div id="over_logger" class="widget-logger" style="width: 200px;" data-clearable></div>
+  <div id="hover_logger" class="widget-logger" style="width: 200px; margin-right: 5px; display: inline;" data-clearable></div>
   <div class="demo">
     <div id="hover_outer" class="container" style="border-color: darkseagreen;">
       <bdo>bdo</bdo><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><span>span</span><var>var</var>
@@ -200,33 +210,33 @@ document.on('domready', function() {
 <!-- } mouseenter/mouseleave -->
 
 <!-- mousedragstart/mousedrag/mousedragend { -->
-<style>
-.draggable { position: absolute; left: 0; top: 0; width: 160px; height: 80px; padding: 3px; border: 2px solid lightslategray; background: lightsteelblue; cursor: default; }
-.dragging { z-index: 10; background: skyblue; border-color: dodgerblue; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
-</style>
-<fieldset>
+<fieldset id="mousedrag">
   <legend>mousedragstart/mousedrag/mousedragend</legend>
-  <div id="container" style="position: relative; height: 160px; border: 2px solid lightslategray; background: whitesmoke;">
-    <div id="drag_msg" style="position: absolute; left: 0; bottom: 0; padding: 5px;">[偏移量] 0 : 0</div>
+  <div style="position: relative; height: 160px; border: 2px solid lightslategray; background: whitesmoke;">
+    <div style="position: absolute; left: 0; bottom: 0; padding: 5px;">[偏移量]</div>
     <div style="left: 0;" class="draggable">Draggable</div>
     <div style="left: 200px;" class="draggable">Draggable (只能纵向)</div>
     <div style="left: 400px;" class="draggable">Draggable (步长为 35)</div>
   </div>
   <blockquote>
-    <button id="clear" class="widget-demobutton" data-code="cancelDelegate();">解除拖动代理</button>
+    <button id="cancel_delegate" class="widget-demobutton" data-code="cancelDelegate();">解除拖动代理</button>
   </blockquote>
 </fieldset>
 <script>
 (function() {
-  var $container = $('#container');
+  var $container = $('#mousedrag>div:only-of-type');
   var $sample = $container.getLastChild();
+  var $msg = $container.find('div:first-child');
   var currentX = 0;
   var currentY = 0;
   var maxX = $container.clientWidth - $sample.offsetWidth;
   var maxY = $container.clientHeight - $sample.offsetHeight;
   $container
       .on('mousedrag', function(e) {
-        $('#drag_msg').innerHTML = '[偏移量] ' + e.offsetX + ' : ' + e.offsetY;
+        $msg.innerHTML = '[偏移量] ' + e.offsetX + ' : ' + e.offsetY;
+      })
+      .on('mousedragend', function() {
+        $msg.innerHTML = '[偏移量]';
       })
       .on('mousedragstart:relay(.draggable)', function() {
         currentX = parseInt(this.getStyle('left'), 10);
@@ -254,8 +264,105 @@ document.on('domready', function() {
 
   window.cancelDelegate = function() {
     $container.off('mousedragstart:relay(.draggable), mousedrag:relay(.draggable), mousedragend:relay(.draggable)');
-    $('#clear').disabled = true;
+    $('#cancel_delegate').disabled = true;
   };
+
+})();
+</script>
+<fieldset id="mousedrop">
+  <legend>mousedragenter/mousedragleave/mousedragover/mousedrop</legend>
+  <p class="comment">默认情况下会以鼠标指针的位置为取样点，来获取触发 mousedragenter、mousedragleave、mousedragover 和 mousedrop 事件的对象。如果在 mousedragstart 事件的监听器中设置事件对象的 aimRelatedTarget 为 true，即可将取样点设置为拖拽元素的中心点。</p>
+  <div style="position: relative; height: 160px; border: 2px solid lightslategray; background: whitesmoke;">
+    <div style="left: 5px; top:5px;" class="draggable" data-type="A">A</div>
+    <div style="left: 140px; top:5px;" class="draggable" data-type="B">B</div>
+    <div style="left: 275px; top:5px;" class="draggable" data-type="C">C</div>
+    <div class="dropzone" data-type="B">B</div>
+    <div class="dropzone" data-type="A">A</div>
+  </div>
+  <blockquote>
+    <label><input id="highlight" type="checkbox" style="vertical-align: text-bottom;"> 使触发 mousedragover 事件的对象高亮</label><br>
+    <label><input id="aim" type="checkbox" style="vertical-align: text-bottom;"> 指定 aimRelatedTarget 为 true</label>
+  </blockquote>
+</fieldset>
+<script>
+(function() {
+  var $container = $('#mousedrop>div:only-of-type');
+  var $highlight = $('#highlight');
+  var $aim = $('#aim');
+  var $sample = $container.getFirstChild();
+  var currentX = 0;
+  var currentY = 0;
+  var maxX = $container.clientWidth - $sample.offsetWidth;
+  var maxY = $container.clientHeight - $sample.offsetHeight;
+
+  $container.findAll('.draggable').forEach(function($draggable) {
+    var left = parseInt($draggable.getStyle('left'), 10);
+    var top = parseInt($draggable.getStyle('top'), 10);
+    $draggable.goBack = function() {
+      this.insertTo($container).morph({left: left, top: top}, {duration: 200});
+    };
+  });
+
+  $container
+      .on('mousedragstart:relay(.draggable)', function(e) {
+        currentX = parseInt(this.getStyle('left'), 10);
+        currentY = parseInt(this.getStyle('top'), 10);
+        this.addClass('dragging');
+        e.relatedTarget = this;
+        e.aimRelatedTarget = $aim.checked;
+        this.dropped = false;
+      })
+      .on('mousedrag:relay(.draggable)', function(e) {
+        this.setStyles({
+          left: Math.limit(currentX + e.offsetX, 0, maxX),
+          top: Math.limit(currentY + e.offsetY, 0, maxY)
+        });
+      })
+      .on('mousedragend:relay(.draggable)', function() {
+        this.removeClass('dragging');
+      })
+      .on('mousedragenter:relay(.dropzone), mousedragleave:relay(.dropzone), mousedrop:relay(.dropzone)', function(e) {
+        if (e.relatedTarget) {
+          this[e.type === 'mousedragenter' ? 'addClass' : 'removeClass'](this.getData('type') === e.relatedTarget.getData('type') ? 'dragenter' : 'not_allow');
+        }
+      })
+      .on('mousedrop:relay(.dropzone)', function(e) {
+        var relatedTarget = e.relatedTarget;
+        if (relatedTarget) {
+          if (this.getData('type') === relatedTarget.getData('type')) {
+            var clientRect = this.getClientRect();
+            var relatedTargetClientRect = relatedTarget.getClientRect();
+            var offsetX = (clientRect.left + clientRect.width / 2 - relatedTargetClientRect.width / 2) - relatedTargetClientRect.left;
+            var offsetY = (clientRect.top + clientRect.height / 2 - relatedTargetClientRect.height / 2) - relatedTargetClientRect.top;
+            relatedTarget.morph({left: (offsetX > 0 ? '+=' : '-=') + Math.abs(offsetX), top: (offsetY > 0 ? '+=' : '-=') + Math.abs(offsetY)});
+            relatedTarget.insertTo(this);
+          } else {
+            relatedTarget.morph({left: currentX, top: currentY}, {duration: 200});
+          }
+          relatedTarget.dropped = true;
+          e.stopPropagation();
+        }
+      })
+      .on('mousedragover', function(e) {
+        if ($highlight.checked) {
+          e.target.highlight();
+        }
+      })
+      .on('mousedrop', function(e) {
+        var relatedTarget = e.relatedTarget;
+        if (relatedTarget) {
+          relatedTarget.goBack();
+          relatedTarget.dropped = true;
+        }
+      })
+      .on('mousedragend', function(e) {
+        var relatedTarget = e.relatedTarget;
+        if (relatedTarget) {
+          if (relatedTarget.dropped === false) {
+            relatedTarget.highlight('lightslategray').goBack();
+          }
+        }
+      });
 
 })();
 </script>
@@ -263,76 +370,83 @@ document.on('domready', function() {
 
 <h2>代理事件监听</h2>
 <!-- :relay(selector) { -->
-<fieldset>
+<fieldset id="relay">
   <legend>:relay(selector)</legend>
   <p class="comment">红色边框的元素为其所有的后代 DFN 元素代理监听 mouseenter 和 mouseleave 事件。</p>
-  <div id="relay" class="container" style="padding-bottom: 0; *padding-bottom: 5px;">
-    <bdo>bdo</bdo><dfn id="stop_mouseleave" title="mouseenter 事件传播被阻止">dfn</dfn><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><dfn>dfn</dfn><span>span</span><dfn>dfn</dfn>
+  <div class="container" style="padding-bottom: 0; *padding-bottom: 5px;">
+    <bdo>bdo</bdo><dfn id="stop_mouseleave" title="mouseenter 事件的传播被阻止">dfn</dfn><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><dfn>dfn</dfn><span>span</span><dfn>dfn</dfn>
   </div>
 </fieldset>
 <script>
 (function() {
-  $('#relay')
+  $('#relay').getLastChild()
       .on('mouseenter:relay(dfn)', function() {
         this.morph({width: 150}).highlight();
       })
       .on('mouseleave:relay(dfn)', function() {
         this.morph({width: 100}).highlight('red', 'color');
       });
+
   $('#stop_mouseleave').on('mouseenter', function(e) {
     e.stopPropagation();
   });
+
 })();
 </script>
 <!-- } :relay(selector) -->
 
 <h2>只能被调用一次的监听器</h2>
 <!-- :once { -->
-<fieldset>
+<fieldset id="once">
   <legend>:once</legend>
-  <div id="once_logger" class="widget-logger" data-clearable></div>
+  <div class="widget-logger" data-clearable></div>
   <div class="demo">
-    <div id="once_element" class="sample">$once</div>
+    <div class="sample">$once</div>
     <blockquote>
       <button class="widget-demobutton"><code><samp>$once</samp>.on(<em>'click:once'</em>, <strong>onClick</strong>);</code></button>
     </blockquote>
   </div>
 </fieldset>
 <script>
-var $once = $('#once_element');
-var $onceLogger = $('#once_logger');
-var onClick = function() {
-  $onceLogger.log('<strong>clicked</strong>');
-};
+document.on('domready', function() {
+  var $fieldset = $('#once');
+  var $logger = $fieldset.find('.widget-logger');
+  window.$once = $fieldset.find('.sample');
+  window.onClick = function() {
+    $logger.log('<strong>clicked</strong>');
+  };
+});
 </script>
 <!-- } :once -->
 
 <h2>限定监听器被调用的频率</h2>
 <!-- :idle(n)/:throttle(n) { -->
-<fieldset>
+<fieldset id="frequency">
   <legend>:idle(n)/:throttle(n)</legend>
-  <div id="frequency_logger" class="widget-logger" data-clearable></div>
+  <div class="widget-logger" data-clearable></div>
   <div class="demo">
     <div id="idle_element" class="sample">mousemove:idle(200)</div>
     <div id="throttle_element" class="sample">mousemove:throttle(500)</div>
   </div>
 </fieldset>
 <script>
-var $frequencyLogger = $('#frequency_logger');
-$('#idle_element').on('mousemove:idle(200)', function() {
-  $frequencyLogger.log('<strong>idle</strong>');
-});
-$('#throttle_element').on('mousemove:throttle(500)', function() {
-  $frequencyLogger.log('<em>throttle</em> 当前时间(秒) = <var>' + new Date().getSeconds().padZero(2) + '</var>');
+document.on('domready', function() {
+  var $logger = $('#frequency>.widget-logger');
+  $('#idle_element').on('mousemove:idle(200)', function() {
+    $logger.log('<strong>idle</strong>');
+  });
+  $('#throttle_element').on('mousemove:throttle(500)', function() {
+    $logger.log('<em>throttle</em> 当前时间(秒) = <var>' + new Date().getSeconds().padZero(2) + '</var>');
+  });
 });
 </script>
 <!-- } :idle(n)/:throttle(n) -->
 
 <h2>事件的默认行为</h2>
 <!-- DOMEvent.prototype.preventDefault { -->
-<fieldset>
+<fieldset id="prevent_default">
   <legend>DOMEvent.prototype.preventDefault</legend>
-  <div id="prevent_default_logger" class="widget-logger" data-clearable></div>
+  <div class="widget-logger" data-clearable></div>
   <div class="demo">
     <a id="prevent_default_link" href="javascript:alert('链接被点击');">测试链接</a>
     <blockquote>
@@ -342,7 +456,7 @@ $('#throttle_element').on('mousemove:throttle(500)', function() {
 </fieldset>
 <script>
 document.on('domready', function() {
-  var $logger = $('#prevent_default_logger');
+  var $logger = $('#prevent_default .widget-logger');
 
   $('#prevent_default_link')
       .on('click', function(e) {
@@ -364,14 +478,14 @@ document.on('domready', function() {
 
 <h2>事件的传播</h2>
 <!-- DOMEvent.prototype.stopPropagation { -->
-<fieldset>
+<fieldset id="stop_propagation">
   <legend>DOMEvent.prototype.stopPropagation</legend>
   <p class="comment">红色边框的元素上添加了 click 事件监听器。</p>
-  <div id="stop_propagation_logger" class="widget-logger" data-clearable></div>
+  <div class="widget-logger" data-clearable></div>
   <div class="demo">
-    <div id="stop_propagation" class="container">
+    <div class="container">
       <bdo>bdo</bdo><cite>cite</cite><dfn>dfn</dfn><kbd>kbd</kbd><span>span</span><var>var</var>
-      <p id="propagation_stopped">p</p>
+      <p>p</p>
     </div>
     <blockquote>
       <label><input id="stop_propagation_checkbox" type="checkbox" style="vertical-align: text-bottom;"> 取消 P 元素的事件传播</label>
@@ -380,13 +494,15 @@ document.on('domready', function() {
 </fieldset>
 <script>
 document.on('domready', function() {
-  var $logger = $('#stop_propagation_logger');
+  var $fieldset = $('#stop_propagation');
+  var $container = $fieldset.find('.container');
+  var $logger = $fieldset.find('.widget-logger');
 
-  $('#stop_propagation').on('click', function(e) {
+  $container.on('click', function(e) {
     $logger.log('<strong>' + e.target.nodeName + '</strong> &gt; <em>' + this.nodeName + '</em>');
   });
 
-  $('#propagation_stopped').on('click', function(e) {
+  $container.find('p').on('click', function(e) {
     if ($stopPropagation.checked) {
       e.stopPropagation();
     }
@@ -401,11 +517,11 @@ document.on('domready', function() {
 <!-- } DOMEvent.prototype.stopPropagation -->
 
 <!-- DOMEvent.prototype.stopImmediatePropagation { -->
-<fieldset>
+<fieldset id="stop_immediate_propagation">
   <legend>DOMEvent.prototype.stopImmediatePropagation</legend>
-  <div id="stop_immediate_propagation_logger" class="widget-logger" data-clearable></div>
+  <div class="widget-logger" data-clearable></div>
   <div class="demo">
-    <div id="stop_immediate_propagation_element" class="sample">本元素添加了三个 click 事件监听器</div>
+    <div class="sample">本元素添加了三个 click 事件监听器</div>
     <blockquote>
       <label><input id="stop_immediate_propagation_checkbox" type="checkbox" style="vertical-align: text-bottom;"> 在第一个事件监听器中立即阻止事件的传播</label>（后续的监听器将不会被调用）
     </blockquote>
@@ -413,8 +529,10 @@ document.on('domready', function() {
 </fieldset>
 <script>
 document.on('domready', function() {
-  var $logger = $('#stop_immediate_propagation_logger');
-  $('#stop_immediate_propagation_element')
+  var $fieldset = $('#stop_immediate_propagation');
+  var $logger = $fieldset.find('.widget-logger');
+
+  $fieldset.find('.sample')
       .on('click', function(e) {
         if ($stopImmediatePropagation.checked) {
           e.stopImmediatePropagation();
@@ -427,37 +545,39 @@ document.on('domready', function() {
       .on('click', function(e) {
         $logger.log('<em>' + e.type + '</em>第三个监听器已被调用。');
       });
+
   var $stopImmediatePropagation = $('#stop_immediate_propagation_checkbox').on('change', function() {
     $logger.log(this.getParent().innerText.trim() + ': <dfn class="' + this.checked + '">' + this.checked + '</dfn>');
   });
+
 });
 </script>
 <!-- } DOMEvent.prototype.stopImmediatePropagation -->
 
 <h2>事件对象的属性</h2>
 <!-- domEvent.* { -->
-<fieldset>
+<fieldset id="dom_event_properties">
   <legend>domEvent.*</legend>
   <p class="comment">以下信息由在 document 对象上添加的 mouseover, mousedown, keydown 和 mousewheel 事件的监听器生成。</p>
   <dl>
     <dt>所有事件对象共有</dt>
-    <dd id="dom_all"></dd>
+    <dd class="all"></dd>
   </dl>
   <dl>
     <dt>鼠标和键盘事件对象共有</dt>
-    <dd id="dom_keyboard_mouse"></dd>
+    <dd class="keyboard_and_mouse"></dd>
   </dl>
   <dl>
     <dt>鼠标事件对象特有</dt>
-    <dd id="dom_mouse"></dd>
+    <dd class="mouse"></dd>
   </dl>
   <dl>
     <dt>鼠标按键事件对象特有</dt>
-    <dd id="dom_mouse_press"></dd>
+    <dd class="mouse_press"></dd>
   </dl>
   <blockquote style="clear: both;">
-    <button id="dom_fire" class="widget-demobutton" data-code="fireADOMEventInOneSecond();">一秒钟后触发一个自定义的 mousedown 事件</button>
-    <span id="dom_timer" style="display: inline-block; width: 0; height: 5px; overflow: hidden; vertical-align: bottom;"></span>
+    <button id="fire_in_one_second" class="widget-demobutton" data-code="fireADOMEventInOneSecond();">一秒钟后触发一个自定义的 mousedown 事件</button>
+    <span style="display: inline-block; width: 0; height: 5px; overflow: hidden; vertical-align: bottom;"></span>
   </blockquote>
 </fieldset>
 <script>
@@ -481,10 +601,12 @@ var getText = function(event, properties) {
 };
 
 (function() {
-  var $all = $('#dom_all');
-  var $keyboardAndMouse = $('#dom_keyboard_mouse');
-  var $mouse = $('#dom_mouse');
-  var $mousePress = $('#dom_mouse_press');
+  var $fieldset = $('#dom_event_properties');
+  var $all = $fieldset.find('dd.all');
+  var $keyboardAndMouse = $fieldset.find('dd.keyboard_and_mouse');
+  var $mouse = $fieldset.find('dd.mouse');
+  var $mousePress = $fieldset.find('dd.mouse_press');
+
   document
       .on('mouseover, mousedown, keydown, mousewheel', function(e) {
         $all.innerHTML = getText(e, 'originalEvent type target timeStamp bubbles'.split(' '));
@@ -499,8 +621,8 @@ var getText = function(event, properties) {
         $mousePress.innerHTML = getText(e, 'leftButton middleButton rightButton'.split(' '));
       });
 
-  var $fire = $('#dom_fire');
-  var $timer = $('#dom_timer');
+  var $fire = $('#fire_in_one_second');
+  var $timer = $fire.getNextSibling();
   window.fireADOMEventInOneSecond = function() {
     $fire.disabled = true;
     $timer
@@ -546,11 +668,11 @@ var getText = function(event, properties) {
 
 <h2>添加和删除事件监听器</h2>
 <!-- JSEventTarget.prototype.on/off/fire { -->
-<fieldset>
+<fieldset id="js_event_module">
   <legend>JSEventTarget.prototype.on/off/fire</legend>
-  <div id="js_event_logger" class="widget-logger" data-clearable></div>
-  <div class="demo single">
-    <blockquote>
+  <div class="widget-logger" data-clearable></div>
+  <div class="demo">
+    <blockquote style="margin-top: 0;">
       <button class="widget-demobutton"><code><strong>obj</strong>.on(<em>'foo'</em>, <strong>logProperty</strong>).on(<em>'bar.logEvent'</em>, <strong>logEvent</strong>);</code></button>
       <br>
       <button class="widget-demobutton"><code><strong>obj</strong>.off(<em>'foo'</em>);</code></button>
@@ -564,31 +686,32 @@ var getText = function(event, properties) {
   </div>
 </fieldset>
 <script>
-var obj = new JSEventTarget();
-obj.text = 'Hello World!';
-
-var $jsEventLogger = $('#js_event_logger');
-var logProperty = function() {
-  $jsEventLogger.log('<strong>obj.text</strong> = <var>' + this.text + '</var>');
-};
-var logEvent = function(e) {
-  $jsEventLogger.log('<em>Event keys</em> = <var>' + JSON.stringify(Object.keys(e)) + '</var>');
-};
+document.on('domready', function() {
+  var $fieldset = $('#js_event_module');
+  var $logger = $fieldset.find('.widget-logger');
+  window.obj = JSEventTarget.create({text: 'Hello World!'});
+  window.logProperty = function() {
+    $logger.log('<strong>obj.text</strong> = <var>' + this.text + '</var>');
+  };
+  window.logEvent = function(e) {
+    $logger.log('<em>Event keys</em> = <var>' + JSON.stringify(Object.keys(e)) + '</var>');
+  };
+});
 </script>
 <!-- } JSEventTarget.prototype.on/off/fire -->
 
 <h2>事件对象的属性</h2>
 <!-- jsEvent.* { -->
-<fieldset>
+<fieldset id="js_event_properties">
   <legend>jsEvent.*</legend>
   <p class="comment">以下信息由在 jsEventTarget 对象上添加的 update 事件的监听器生成。</p>
   <dl>
     <dt>所有事件对象共有</dt>
-    <dd id="js_all"></dd>
+    <dd class="all"></dd>
   </dl>
   <dl>
     <dt>自定义</dt>
-    <dd id="js_custom"></dd>
+    <dd class="custom"></dd>
   </dl>
   <blockquote style="clear: both;">
     <button class="widget-demobutton"><code><strong>jsEventTarget</strong>.fire(<em>'update'</em>, {foo: '^3^'});</code></button>
@@ -598,12 +721,15 @@ var logEvent = function(e) {
 </fieldset>
 <script>
 (function() {
-  var $all = $('#js_all');
-  var $custom = $('#js_custom');
+  var $fieldset = $('#js_event_properties');
+  var $all = $fieldset.find('dd.all');
+  var $custom = $fieldset.find('dd.custom');
+
   window.jsEventTarget = new JSEventTarget().on('update', function(e) {
     $all.innerHTML = getText(e, 'type target'.split(' '));
     $custom.innerHTML = getText(e, 'foo bar'.split(' '));
   });
+
 })();
 </script>
 <!-- } jsEvent.* -->
