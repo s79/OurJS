@@ -32,7 +32,7 @@
    */
 
   var styleRules = [
-    'button.widget-demobutton { margin: 1px 0; padding: 6px 12px; overflow: visible; border: none; background: #323232; color: gainsboro; font: bold 14px/14px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }',
+    'button.widget-demobutton { margin: 1px 0; padding: 6px 12px; overflow: visible; border: none; background: #323232; color: gainsboro; font: bold 14px/14px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; text-align: left; }',
     'button.widget-demobutton:hover { background: black; }',
     'button.widget-demobutton:active { color: white; }',
     'button.widget-demobutton code { font-weight: normal; font-family: Consolas, "Lucida Console", Courier, "Microsoft YaHei", SimSun, monospace; }',

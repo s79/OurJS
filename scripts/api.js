@@ -443,7 +443,8 @@ document.on('domready', function() {
       'window',
       'document',
       'Element',
-      'HTMLFormElement'
+      'HTMLFormElement',
+      'HTMLSelectElement'
     ]
         .forEach(function(name) {
           buildSymbol(columns[1], name);

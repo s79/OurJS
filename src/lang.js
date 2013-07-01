@@ -1347,6 +1347,7 @@
 
     // 转换为日期类型。
     return new Date(Date.UTC(dateValues.YYYY, dateValues.MM, dateValues.DD, dateValues.hh, dateValues.mm, dateValues.ss, dateValues.s) + dateValues.TZD);
+
   };
 
 //--------------------------------------------------[Date.prototype.format]

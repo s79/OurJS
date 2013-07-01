@@ -385,21 +385,31 @@
   };
 
 //==================================================[Element 补缺 - 解决 IE6 IE7 没有元素构造器的问题]
+  // 各类元素的构造器的原型，供 IE6 IE7 使用。
+  var prototypes = {};
+
+//--------------------------------------------------[fixElementConstructor]
+  /**
+   * 修复某一类元素的构造器，以便于扩展此类元素的原型方法。
+   * @name fixElementConstructor
+   * @function
+   * @param {string} nodeName 此类元素的类型名称。
+   * @param {string} constructorName 此类元素的标准构造器名称。
+   * @returns {Function|Object} 修复后的此类元素的构造器，可以通过扩展其 prototype 为此类元素增加实例方法。
+   */
+  window.fixElementConstructor = function(nodeName, constructorName) {
+    var Constructor = window[constructorName] || (window[constructorName] = {prototype: {}});
+    prototypes[nodeName] = Constructor.prototype;
+    return Constructor;
+  };
+
 //--------------------------------------------------[Element]
   /**
    * 确保 Element.prototype 可访问。
    * @name Element
    * @namespace
    */
-  var Element = window.Element || (window.Element = {prototype: {}});
-
-//--------------------------------------------------[HTMLFormElement]
-  /**
-   * 确保 HTMLFormElement.prototype 可访问。
-   * @name HTMLFormElement
-   * @namespace
-   */
-  var HTMLFormElement = window.HTMLFormElement || (window.HTMLFormElement = {prototype: {}});
+  var Element = fixElementConstructor('*', 'Element');
 
 //--------------------------------------------------[$ <内部方法>]
   /**
@@ -414,23 +424,21 @@
    */
   // 唯一识别码，元素上有 uid 属性表示该元素已被扩展，uid 属性的值将作为该元素的 key 使用。
   var uid = 0;
-  var prototypeOfElement = Element.prototype;
-  var prototypeOfHTMLFormElement = HTMLFormElement.prototype;
+  var universalPrototype = Element.prototype;
   var $ = navigator.isIElt8 ? function(element) {
     if (element && !element.uid) {
       element.uid = ++uid;
-      // Object.mixin(element, prototypeOfElement);
-      // 使用以下方式附加新属性以降低开销。此处不必判断 hasOwnProperty，也无需考虑 hasDontEnumBug 的问题。
       var property;
-      for (property in prototypeOfElement) {
-        element[property] = prototypeOfElement[property];
+      // 附加通用原型属性，使用以下方式而不是 Object.mixin 可以降低开销。此处不必判断 hasOwnProperty，也无需考虑 hasDontEnumBug 的问题。
+      for (property in universalPrototype) {
+        element[property] = universalPrototype[property];
       }
-      switch (element.nodeName) {
-        case 'FORM':
-          for (property in prototypeOfHTMLFormElement) {
-            element[property] = prototypeOfHTMLFormElement[property];
-          }
-          break;
+      // 附加此类元素的特有原型属性。
+      var particularPrototype = prototypes[element.nodeName];
+      if (particularPrototype) {
+        for (property in particularPrototype) {
+          element[property] = particularPrototype[property];
+        }
       }
     }
     return element;
@@ -1610,7 +1618,7 @@
     return this;
   };
 
-//==================================================[Element 扩展 - 表单]
+//==================================================[Element 扩展 - HTMLFormElement]
   /*
    * 为表单元素扩展新特性。
    *
@@ -1618,6 +1626,14 @@
    *   HTMLFormElement.prototype.getFieldValue
    *   HTMLFormElement.prototype.serialize  // TODO
    */
+
+//--------------------------------------------------[HTMLFormElement]
+  /**
+   * 确保 HTMLFormElement.prototype 可访问。
+   * @name HTMLFormElement
+   * @namespace
+   */
+  var HTMLFormElement = fixElementConstructor('FORM', 'HTMLFormElement');
 
 //--------------------------------------------------[HTMLFormElement.prototype.getFieldValue]
   /*
@@ -1711,6 +1727,61 @@
       throw new Error('Invalid field name "' + name + '"');
     }
     return getCurrentValue(control);
+  };
+
+//==================================================[Element 扩展 - HTMLSelectElement]
+  /*
+   * 为下拉选单元素扩展新特性。
+   *
+   * 扩展方法：
+   *   HTMLSelectElement.prototype.insertOption
+   *   HTMLSelectElement.prototype.deleteOption
+   */
+
+//--------------------------------------------------[HTMLSelectElement]
+  /**
+   * 确保 HTMLSelectElement.prototype 可访问。
+   * @name HTMLSelectElement
+   * @namespace
+   */
+  var HTMLSelectElement = fixElementConstructor('SELECT', 'HTMLSelectElement');
+
+  // 使各元素的 remove 方法表现一致。目前各浏览器的 HTMLSelectElement.prototype.remove 方法的作用为删除指定的 OPTION 元素。
+  if (HTMLSelectElement.prototype.remove) {
+    HTMLSelectElement.prototype.remove = Element.prototype.remove;
+  }
+
+//--------------------------------------------------[HTMLSelectElement.prototype.insertOption]
+  /**
+   * 在本下拉选单中插入一个新的选项。
+   * @name HTMLSelectElement.prototype.insertOption
+   * @function
+   * @param {number} index 在指定的索引之前插入新选项。索引从 0 开始，如果指定的索引大于当前选项的数目或为 -1，则在所有选项之后插入新选项。
+   * @param {string} text 新选项的文本。
+   * @param {string} value 新选项的值。
+   * @param {boolean} [defaultSelected] 新选项是否为默认选中。如果指定为 true，则在本下拉选单所属的表单被重置后，这个选项将被选中。
+   * @param {boolean} [selected] 新选项的当前状态是否为选中。
+   * @returns {Element} 本元素。
+   */
+  HTMLSelectElement.prototype.insertOption = function(index, text, value, defaultSelected, selected) {
+    this.options.add(new Option(text, value, defaultSelected, selected), index);
+    return this;
+  };
+
+//--------------------------------------------------[HTMLSelectElement.prototype.deleteOption]
+  /**
+   * 删除本下拉选单中的一个指定选项。
+   * @name HTMLSelectElement.prototype.deleteOption
+   * @function
+   * @param {number} index 要删除的选项的索引。索引从 0 开始，如果指定的索引大于当前选项的数目或为 -1，则不会删除任何选项。
+   * @returns {Element} 本元素。
+   */
+  HTMLSelectElement.prototype.deleteOption = function(index) {
+    var $option = index > -1 ? $(this.options[index]) : null;
+    if ($option) {
+      $option.remove();
+    }
+    return this;
   };
 
 //==================================================[DOM 事件模型]
@@ -2644,6 +2715,7 @@
    * @name DOMEventTarget
    * @constructor
    * @description
+   *   本构造器仅供内部实现使用，外部无法访问。
    *   DOMEventTarget 对象在处理事件时，是工作在 DOM 事件模型中的。
    */
   var DOMEventTarget = function() {

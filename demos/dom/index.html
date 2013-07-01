@@ -29,6 +29,11 @@ button .target { color: mediumseagreen; font-weight: bold; }
 #insert_to .target { width: 160px; height: auto; margin: 0; overflow: hidden; }
 #swap .target_container,
 #replace .target_container { background: gainsboro; }
+
+#options { width: 940px; }
+#options form { float: left; }
+#options select { width: 300px; background: tomato; }
+#options button { vertical-align: bottom; }
 </style>
 </head>
 <body>
@@ -139,7 +144,7 @@ button .target { color: mediumseagreen; font-weight: bold; }
       <div class="child"></div>
     </div>
   </div>
-  <blockquote id="i_controls">
+  <blockquote>
     <button class="widget-demobutton"><code><samp class="sample">$sampleA</samp>.insertTo(<samp class="target">$targetA</samp>, <em>'beforeBegin'</em>);</code></button>
     <br>
     <button class="widget-demobutton"><code><samp class="sample">$sampleA</samp>.insertTo(<samp class="target">$targetA</samp>, <em>'afterBegin'</em>);</code></button>
@@ -149,7 +154,6 @@ button .target { color: mediumseagreen; font-weight: bold; }
     <button class="widget-demobutton"><code><samp class="sample">$sampleA</samp>.insertTo(<samp class="target">$targetA</samp>, <em>'afterEnd'</em>);</code></button>
     <br>
     <button class="widget-demobutton"><code><samp class="sample">$sampleA</samp>.insertTo(<samp class="simple_container">$simpleContainer</samp>);</code></button>
-    <br>
   </blockquote>
 </fieldset>
 <script>
@@ -172,13 +176,12 @@ var $simpleContainer = $sampleA.getParent();
     <div class="target">$targetB2</div>
     <div class="target">$targetB3</div>
   </div>
-  <blockquote id="s_controls">
+  <blockquote>
     <button class="widget-demobutton"><code><samp class="sample">$sampleB</samp>.swap(<samp class="target">$targetB1</samp>);</code></button>
     <br>
     <button class="widget-demobutton"><code><samp class="sample">$sampleB</samp>.swap(<samp class="target">$targetB2</samp>);</code></button>
     <br>
     <button class="widget-demobutton"><code><samp class="sample">$sampleB</samp>.swap(<samp class="target">$targetB3</samp>);</code></button>
-    <br>
   </blockquote>
 </fieldset>
 <script>
@@ -201,13 +204,12 @@ var $targetB3 = targetsB[2];
     <div class="target">$targetC2</div>
     <div class="target">$targetC3</div>
   </div>
-  <blockquote id="r_controls">
+  <blockquote>
     <button class="widget-demobutton"><code><samp class="sample">$sampleC</samp>.replace(<samp class="target">$targetC1</samp>);</code></button>
     <br>
     <button class="widget-demobutton"><code><samp class="sample">$sampleC</samp>.replace(<samp class="target">$targetC2</samp>);</code></button>
     <br>
     <button class="widget-demobutton"><code><samp class="sample">$sampleC</samp>.replace(<samp class="target">$targetC3</samp>);</code></button>
-    <br>
   </blockquote>
 </fieldset>
 <script>
@@ -218,6 +220,40 @@ var $targetC2 = targetsC[1];
 var $targetC3 = targetsC[2];
 </script>
 <!-- } Element.prototype.replace -->
+
+<h2>操作下拉选单元素</h2>
+<!-- HTMLSelectElement.prototype.insertOption & HTMLSelectElement.prototype.deleteOption { -->
+<fieldset id="options">
+  <legend>HTMLSelectElement.prototype.insertOption & HTMLSelectElement.prototype.deleteOption</legend>
+  <form>
+    <select id="select" size="5" multiple>
+      <option value="1">一</option>
+      <option value="2">二</option>
+      <option value="3">三</option>
+    </select>
+    <button type="reset">RESET</button>
+  </form>
+  <blockquote>
+    <button class="widget-demobutton"><code><samp class="sample">$select</samp>.insertOption(<var>0</var>, <em>'text'</em>, <em>'value'</em>, <strong>true</strong>, <strong>false</strong>);</code></button>
+    <br>
+    <button class="widget-demobutton"><code><samp class="sample">$select</samp>.deleteOption(<samp class="sample">$select</samp>.length - <var>1</var>);</code></button>
+    <br>
+    <button class="widget-demobutton"><code><samp class="sample">$select</samp>.selectedIndex = -1;</code></button>
+    <br>
+    <button class="widget-demobutton"><code><samp class="sample">$select</samp>.length = 0;</code></button>
+    <br>
+    <button class="widget-demobutton"><code><samp class="sample">$select</samp>.remove();</code></button>
+  </blockquote>
+</fieldset>
+<script>
+var $select = $('#select').on('change', function() {
+  var option = this.options[this.selectedIndex];
+  if (option) {
+    alert(option.text + '\n' + option.value);
+  }
+});
+</script>
+<!-- } HTMLSelectElement.prototype.insertOption & HTMLSelectElement.prototype.deleteOption -->
 
 </div>
 </body>

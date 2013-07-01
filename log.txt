@@ -1,5 +1,10 @@
 
 
+>2013-07-01
++ fixElementConstructor
++ HTMLSelectElement.prototype.insertOption
++ HTMLSelectElement.prototype.deleteOption
+
 >2013-06-05
 + cut copy paste mousedragenter mousedragleave mousedragover mousedrop 事件的支持
 * 修复 Firefox 下当窗口不可见时获取其中的元素的 ComputedStyle 得到 null 的 bug

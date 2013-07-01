@@ -120,7 +120,7 @@ var apiList = {
     'window.$',
     'window.getClientSize',
     'window.getScrollSize',
-    'window.getPageOffset',
+    'window.getPageOffset'
   ],
   'document': [
     'document.$',
@@ -187,6 +187,10 @@ var apiList = {
   'HTMLFormElement': [
     'HTMLFormElement#getFieldValue',
     'HTMLFormElement#serialize'
+  ],
+  'HTMLSelectElement': [
+    'HTMLSelectElement#insertOption',
+    'HTMLSelectElement#deleteOption'
   ],
   'DOMEventTarget': [
     'DOMEventTarget',
