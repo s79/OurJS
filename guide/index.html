@@ -88,7 +88,7 @@ var username = localStorage.getItem('username');
 
 <h2>获取、创建和处理 DOM 对象</h2>
 <p>OurJS 可以处理的 DOM 对象有<strong>窗口</strong>、<strong>文档</strong>和<strong>元素</strong>三种类型<sup>1</sup>。</p>
-<p>其中窗口和文档对象也是特殊的浏览器内置对象，它们在页面中也是唯一的<sup>2</sup>实例，可以通过访问 window 和 document 来直接获取。</p>
+<p>其中窗口和文档对象也是特殊的浏览器内置对象，它们在页面中都是唯一的<sup>2</sup>实例，可以通过访问 window 和 document 来直接获取。</p>
 <p>元素对象有多个实例，它们通常都是 DOM 树上的节点。可以创建新的元素对象，也可以对现有的元素对象进行修改或删除。</p>
 <ol class="comment">
   <li>OurJS 并没有针对除文档和元素外的其他节点类型进行扩展，因为极少需要直接操作这些类型的数据。</li>
@@ -111,7 +111,7 @@ var pageOffset = window.getPageOffset();
 </pre>
 
 <h3>为文档对象扩充的方法</h3>
-<p>可以通过 document.$ 来获取和创建<strong>一个（而不是多个）</strong>元素：</p>
+<p>可以通过 document.$ 来获取或创建<strong>一个（而不是多个）</strong>元素：</p>
 <pre>
 var $container = document.$('#container');
 // 获取 id 为 container 的元素。这相当于 document.getElementById('container')。
@@ -640,7 +640,7 @@ var $notice = $('#notice').on('close', function() {
 $notice.open();
 ...
 $notice.close();
-// 执行该元素的 close 方法时，会自动触发 close 事件（这个事件是可以冒泡和被代理的）。
+// 执行该元素的 close 方法时，会自动触发 close 事件。
 </pre>
 
 <h3>设计新的 Widget</h3>

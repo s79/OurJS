@@ -1,4 +1,9 @@
+﻿
 
+>2013-07-11
+# 修改一些注释和文档
+* 注册 Widget 时 selector 的格式限制为 <nodeName>.<className>
+* 使代码可以在 Strict Mode 正常运行
 
 >2013-07-01
 + fixElementConstructor

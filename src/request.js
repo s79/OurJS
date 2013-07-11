@@ -4,7 +4,7 @@
  * @version 20120921
  */
 
-(function() {
+(function(window) {
 //==================================================[远程请求]
   /*
    * W3C 的 XMLHttpRequest Level 2 草案中提及的，不能被 IE6 IE7 IE8 IE9 支持的相关内容暂不予提供。
@@ -364,4 +364,4 @@
     return false;
   };
 
-})();
+})(window);

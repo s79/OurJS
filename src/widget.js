@@ -4,7 +4,7 @@
  * @version 20121008
  */
 
-(function() {
+(function(window) {
 //==================================================[Widget]
   /*
    * 一个 Widget 本身仍是一个元素。当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。
@@ -49,7 +49,7 @@
    * @function
    * @param {Object} widget 要注册的 Widget 的相关信息。
    * @param {string} widget.type Widget 的类型。
-   * @param {string} widget.selector Widget 的选择符，能被此选择符选中的元素即可被本 Widget 的解析器解析。
+   * @param {string} widget.selector Widget 的选择符（要求格式为 <var>nodeName</var>.<var>className</var>），能被此选择符选中的元素即可被本 Widget 的解析器解析。
    * @param {Array} [widget.styleRules] 包含要应用到此类 Widget 的 CSS 规则集的数组。
    * @param {Object} [widget.config] 包含此类 Widget 的默认配置的对象。
    * @param {Object} [widget.methods] 包含此类 Widget 的实例方法的对象。
@@ -143,4 +143,4 @@
     Widget.parse(document.body, true);
   });
 
-})();
+})(window);

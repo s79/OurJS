@@ -264,7 +264,7 @@
    *   本事件用于模拟真实发生在表单域元素上的 change 事件。
    * @requires Calendar
    * @description 启用方式
-   *   为一个 INPUT[type=text] 元素添加 'widget-datepicker' 类，即可使该元素成为“日期选择器”。
+   *   为一个 INPUT 元素添加 'widget-datepicker' 类，即可使该元素成为“日期选择器”。
    * @description 结构约定
    * * “日期选择器”会自动在文档中创建一个“日期选择面板”（其中包含一个“月历”），并利用它来进行日期的点选。
    *   所有的“日期选择器”共用一个“日期选择面板”。
@@ -303,7 +303,7 @@
 
   Widget.register({
     type: 'datepicker',
-    selector: 'input[type=text].widget-datepicker',
+    selector: 'input.widget-datepicker',
     styleRules: [
       'div.datepicker-panel { display: none; position: absolute; left: 0; top: 0; width: 218px; padding: 6px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); border: 1px solid silver; border-radius: 3px; background: whitesmoke; color: navy; font: 14px/20px Verdana, Helvetica, Arial, SimSun, serif; cursor: default; }',
       'div.datepicker-panel div.control_set { position: relative; height: 22px; line-height: 22px; text-align: center; }',

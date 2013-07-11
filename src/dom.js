@@ -4,9 +4,8 @@
  * @version 20130508
  */
 
-(function() {
+(function(window) {
   // 内部变量。
-  var window = this;
   var document = window.document;
   var html = document.documentElement;
 
@@ -1461,10 +1460,10 @@
     document.fixIE6Styles = function(element) {
 //      window.fixCount++;
       if (element.currentStyle.position === 'fixed') {
-        element.currentStyleDisplayValue = element.currentStyle.display;
+        var currentDisplay = element.currentStyle.display;
         element.style.display = 'none';
         setTimeout(function() {
-          element.style.display = element.currentStyleDisplayValue;
+          element.style.display = currentDisplay;
           if (element.currentStyle.position === 'fixed') {
             $(element).setStyle('position', 'fixed');
           }
@@ -1762,6 +1761,8 @@
    * @param {boolean} [defaultSelected] 新选项是否为默认选中。如果指定为 true，则在本下拉选单所属的表单被重置后，这个选项将被选中。
    * @param {boolean} [selected] 新选项的当前状态是否为选中。
    * @returns {Element} 本元素。
+   * @description
+   *   如果 SELECT 元素中含有 OPTGROUP 则不适合使用本方法。
    */
   HTMLSelectElement.prototype.insertOption = function(index, text, value, defaultSelected, selected) {
     this.options.add(new Option(text, value, defaultSelected, selected), index);
@@ -3042,4 +3043,4 @@
   window.off = document.off = Element.prototype.off = DOMEventTarget.prototype.off;
   window.fire = document.fire = Element.prototype.fire = DOMEventTarget.prototype.fire;
 
-})();
+})(window);

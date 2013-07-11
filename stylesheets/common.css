@@ -119,7 +119,7 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 /* 文章提纲 */
 #outline { position: fixed; z-index: 10000; top: 120px; width: 32px; }
 #outline a.control { display: block; position: relative; z-index: 10; width: 14px; padding: 12px 9px; background: #323232; color: gainsboro; font-weight: bold; line-height: 16px; text-decoration: none; cursor: default; }
-#outline div { display: none; position: absolute; right: -10px; top: -16px; z-index: 5; width: 800px; background: #323232; opacity: 0.95; filter: alpha(opacity = 95); }
+#outline div { display: none; position: absolute; right: -10px; top: -16px; z-index: 5; width: 800px; background: #323232; opacity: 0.95; filter: alpha(opacity=95); }
 #outline ul { height: 100%; margin: 16px 50px 16px 16px; padding: 0; overflow-y: auto; line-height: 1.7; }
 #outline ul .h1 { list-style: none; text-align: center; font-weight: bold; }
 #outline ul .h2 { padding-left: 16px; font-weight: bold; }

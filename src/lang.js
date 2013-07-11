@@ -4,7 +4,7 @@
  * @author: sundongguo@gmail.com
  */
 
-(function() {
+(function(window) {
   // 将提供的值转化为整数。
   // http://es5.github.com/#x9.4
   var toInteger = function(value) {
@@ -112,7 +112,7 @@
    * 生成一个 this 及其参数均被绑定到指定的值的新函数。
    * @name Function.prototype.bind
    * @function
-   * @param {Object} thisObject 绑定到本函数的 this 的值。
+   * @param {Object} thisArg 绑定到本函数的 this 的值。
    * @param {*} [arg1] 绑定到本函数的第一个参数的值。
    * @param {*} [arg2] 绑定到本函数的第二个参数的值。
    * @param {*} […] 绑定到本函数的第 n 个参数的值。
@@ -134,7 +134,7 @@
    */
   if (!Function.prototype.bind) {
     var slice = Array.prototype.slice;
-    Function.prototype.bind = function bind(thisObject) {
+    Function.prototype.bind = function bind(thisArg) {
       var target = this;
       if (typeof target !== 'function') {
         throw new TypeError('Bind must be called on a function');
@@ -149,7 +149,7 @@
           var result = target.apply(selfObject, boundArguments.concat(slice.call(arguments)));
           return (Object(result) === result) ? result : selfObject;
         } else {
-          return target.apply(thisObject, boundArguments.concat(slice.call(arguments)));
+          return target.apply(thisArg, boundArguments.concat(slice.call(arguments)));
         }
       };
       return boundFunction;
@@ -275,7 +275,7 @@
    * @param {Function} callback 用来检查的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
    *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
-   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisArg] callback 被调用时 this 的值。
    * @returns {boolean} 检查结果。
    * @example
    *   [1, 2, 3].every(function(item) {
@@ -288,14 +288,14 @@
   if (!Array.prototype.every) {
     Array.prototype.every = function(callback) {
       var object = toObject(this);
-      var thisObject = arguments[1];
+      var thisArg = arguments[1];
       var length = object.length >>> 0;
       if (typeof callback !== 'function') {
         throw new TypeError('Array.prototype.every');
       }
       var i = 0;
       while (i < length) {
-        if (i in object && !callback.call(thisObject, object[i], i, object)) {
+        if (i in object && !callback.call(thisArg, object[i], i, object)) {
           return false;
         }
         i++;
@@ -312,7 +312,7 @@
    * @param {Function} callback 用来检查的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
    *   回调函数返回 true 表示当前元素通过检查，反之表示未通过检查。
-   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisArg] callback 被调用时 this 的值。
    * @returns {boolean} 检查结果。
    * @example
    *   [1, 2, 3].some(function(item) {
@@ -325,14 +325,14 @@
   if (!Array.prototype.some) {
     Array.prototype.some = function(callback) {
       var object = toObject(this);
-      var thisObject = arguments[1];
+      var thisArg = arguments[1];
       var length = object.length >>> 0;
       if (typeof callback !== 'function') {
         throw new TypeError('Array.prototype.some');
       }
       var i = 0;
       while (i < length) {
-        if (i in object && callback.call(thisObject, object[i], i, object)) {
+        if (i in object && callback.call(thisArg, object[i], i, object)) {
           return true;
         }
         i++;
@@ -348,7 +348,7 @@
    * @function
    * @param {Function} callback 对数组中的每个元素都调用一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
-   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisArg] callback 被调用时 this 的值。
    * @example
    *   var s = '';
    *   [1, 2, 3].forEach(function(item) {
@@ -362,7 +362,7 @@
   if (!Array.prototype.forEach) {
     Array.prototype.forEach = function(callback) {
       var object = toObject(this);
-      var thisObject = arguments[1];
+      var thisArg = arguments[1];
       var length = object.length >>> 0;
       if (typeof callback !== 'function') {
         throw new TypeError('Array.prototype.forEach');
@@ -370,7 +370,7 @@
       var i = 0;
       while (i < length) {
         if (i in object) {
-          callback.call(thisObject, object[i], i, object);
+          callback.call(thisArg, object[i], i, object);
         }
         i++;
       }
@@ -384,7 +384,7 @@
    * @function
    * @param {Function} callback 对数组中的每个元素都调用一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
-   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisArg] callback 被调用时 this 的值。
    * @returns {Array} 包含 callback 的每次调用后的返回值的新数组。
    * @example
    *   var a = [1, 2, 3].map(function(item) {
@@ -398,7 +398,7 @@
   if (!Array.prototype.map) {
     Array.prototype.map = function(callback) {
       var object = toObject(this);
-      var thisObject = arguments[1];
+      var thisArg = arguments[1];
       var length = object.length >>> 0;
       if (typeof callback !== 'function') {
         throw new TypeError('Array.prototype.map');
@@ -407,7 +407,7 @@
       var i = 0;
       while (i < length) {
         if (i in object) {
-          result[i] = callback.call(thisObject, object[i], i, object);
+          result[i] = callback.call(thisArg, object[i], i, object);
         }
         i++;
       }
@@ -422,7 +422,7 @@
    * @function
    * @param {Function} callback 对数组中的每个元素都调用一次的回调函数。
    *   回调函数有三个参数：当前元素，当前元素的索引和调用该方法的数组对象。
-   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisArg] callback 被调用时 this 的值。
    * @returns {Array} 包含所有调用 callback 后返回值为 true 时对应的原数组元素的新数组。
    * @example
    *   var a = [1, 2, 3].filter(function(item) {
@@ -436,7 +436,7 @@
   if (!Array.prototype.filter) {
     Array.prototype.filter = function(callback) {
       var object = toObject(this);
-      var thisObject = arguments[1];
+      var thisArg = arguments[1];
       var length = object.length >>> 0;
       if (typeof callback !== 'function') {
         throw new TypeError('Array.prototype.filter');
@@ -447,7 +447,7 @@
       while (i < length) {
         if (i in object) {
           item = object[i];
-          if (callback.call(thisObject, item, i, object)) {
+          if (callback.call(thisArg, item, i, object)) {
             result.push(item);
           }
         }
@@ -830,11 +830,11 @@
    * @function
    * @param {Object} object 要遍历的对象。
    * @param {Function} callback 用来遍历的函数，参数为 value，key，object。
-   * @param {Object} [thisObject] callback 被调用时 this 的值，如果省略或指定为 null，则使用全局对象 window。
+   * @param {Object} [thisArg] callback 被调用时 this 的值。
    */
-  Object.forEach = function(object, callback, thisObject) {
+  Object.forEach = function(object, callback, thisArg) {
     Object.keys(object).forEach(function(key) {
-      callback.call(thisObject, object[key], key, object);
+      callback.call(thisArg, object[key], key, object);
     });
   };
 
@@ -1428,4 +1428,4 @@
     return String(string).replace(regularExpressionMetacharactersPattern, '\\$1');
   };
 
-})();
+})(window);

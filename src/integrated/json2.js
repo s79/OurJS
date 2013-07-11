@@ -167,7 +167,7 @@
   test, toJSON, toString, valueOf
 */
 
-(function() {
+(function(window) {
   'use strict';
 
 //==================================================[JSON 补缺]
@@ -581,4 +581,4 @@
     };
   }
 
-})();
+})(window);
