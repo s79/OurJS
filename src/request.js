@@ -57,7 +57,7 @@
 
   // 数据传输已完成，应用最短时间设置。
   var transferComplete = function(request) {
-    if (request.async && Number.isFinite(request.minTime)) {
+    if (!request.sync && Number.isFinite(request.minTime)) {
       var delayTime = request.minTime - (Date.now() - request.timestamp);
       if (delayTime > 0) {
         request.minTimeTimer = setTimeout(function() {
@@ -166,18 +166,21 @@
    * @constructor
    * @param {string} url 请求地址。
    * @param {Object} [options] 可选参数。
-   * @param {string} [options.mode] 请求模式，使用 'xhr' 则为 XHR 模式，使用 'jsonp' 则为 JSONP 模式，默认为 'xhr'，大小写不敏感。
-   * @param {string} [options.method] 请求方法，在 XHR 模式下可以使用 'get' 和 'post'，默认为 'get'，在 JSONP 模式下永远为 'get'，大小写不敏感。
-   *   如果使用 'get' 方式，应将整个 URL 的长度控制在 2048 个字符以内。
-   * @param {boolean} [options.useCache] 是否允许浏览器的缓存生效，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 false。
-   * @param {boolean} [options.async] 是否使用异步方式，在 XHR 模式下可以使用 true 和 false，默认为 true，在 JSONP 模式下永远为 true。
-   * @param {number} [options.minTime] 请求最短时间，单位为毫秒，默认为 NaN，即无最短时间限制，async 为 true 时有效。
-   * @param {number} [options.maxTime] 请求超时时间，单位为毫秒，默认为 NaN，即无超时时间限制，async 为 true 时有效。
+   * @param {string} [options.mode] 请求模式，可选值为 'xhr'（启用 XHR 模式）和 'jsonp'（启用 JSONP 模式），大小写不敏感，默认为 'xhr'。
+   * @param {string} [options.method] 请求方法，仅在 XHR 模式下有效，可以使用 'get' 和 'post'，大小写不敏感，默认为 'get'。
+   *   在 JSONP 模式下，永远使用 'get' 方法进行请求。
+   *   当使用 'get' 方法进行请求时，应将整个 URL 的长度控制在 2048 个字符以内。
+   * @param {boolean} [options.noCache] 是否禁用浏览器的缓存，仅在 XHR 模式下有效，默认启用浏览器的缓存。
+   *   在 JSONP 模式下，永远禁用浏览器的缓存。
+   * @param {boolean} [options.sync] 是否使用同步方式进行请求，仅在 XHR 模式下有效，默认使用异步方式进行请求。
+   *   在 JSONP 模式下，永远使用异步方式进行请求。
+   * @param {number} [options.minTime] 请求最短时间，仅在使用异步方式进行请求时有效，单位为毫秒，默认为 NaN，即无最短时间限制。
+   * @param {number} [options.maxTime] 请求超时时间，仅在使用异步方式进行请求时有效，单位为毫秒，默认为 NaN，即无超时时间限制。
    * @param {string} [options.username] 用户名，仅在 XHR 模式下有效，默认为空字符串，即不指定用户名。
    * @param {string} [options.password] 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
-   * @param {Object} [options.headers] 要设置的 request headers，仅在 XHR 模式下有效，格式为 {key: value, ...} 的对象，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
-   * @param {string} [options.contentType] 发送数据的内容类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
-   * @param {string} [options.callbackName] 指定服务端获取 JSONP 前缀的参数名，仅在 JSONP 模式下有效，默认为 'callback'，大小写敏感。
+   * @param {Object} [options.headers] 请求头的内容，仅在 XHR 模式下有效，格式为 {key: value, ...}，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
+   * @param {string} [options.contentType] 发送的数据类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
+   * @param {string} [options.callbackName] 保存 JSONP 前缀的参数名，服务端应将该参数的值作为输出 JSONP 时的前缀使用，仅在 JSONP 模式下有效，大小写敏感，默认为 'callback'。
    * @fires start
    *   请求开始时触发。
    * @fires abort
@@ -219,13 +222,13 @@
     switch (options.mode = options.mode.toLowerCase()) {
       case 'xhr':
         options.method = options.method.toLowerCase();
-        Object.mixin(this, options, {whiteList: ['mode', 'method', 'useCache', 'async', 'minTime', 'maxTime', 'username', 'password', 'headers', 'contentType']});
+        Object.mixin(this, options, {whiteList: ['mode', 'method', 'noCache', 'sync', 'minTime', 'maxTime', 'username', 'password', 'headers', 'contentType']});
         break;
       case 'jsonp':
         options.method = 'get';
-        options.useCache = false;
-        options.async = true;
-        Object.mixin(this, options, {whiteList: ['mode', 'method', 'useCache', 'async', 'minTime', 'maxTime', 'callbackName']});
+        options.noCache = true;
+        options.sync = false;
+        Object.mixin(this, options, {whiteList: ['mode', 'method', 'noCache', 'sync', 'minTime', 'maxTime', 'callbackName']});
         break;
     }
     /**
@@ -248,8 +251,8 @@
   Request.options = {
     mode: 'xhr',
     method: 'get',
-    useCache: true,
-    async: true,
+    noCache: false,
+    sync: false,
     minTime: NaN,
     maxTime: NaN,
     username: '',
@@ -292,15 +295,15 @@
         url += (url.contains('?') ? '&' : '?') + requestData;
         requestData = null;
       }
-      var async = request.async;
+      var inSync = request.sync;
       switch (request.mode) {
         case 'xhr':
-          if (!request.useCache) {
+          if (request.noCache) {
             url += (url.contains('?') ? '&' : '?') + '_=' + (++uid).toString(36);
           }
           var xhr = request.xhr = getXHRObject();
           // 准备请求。
-          xhr.open(method, url, async, request.username, request.password);
+          xhr.open(method, url, !inSync, request.username, request.password);
           // 设置请求头。
           Object.forEach(request.headers, function(value, key) {
             xhr.setRequestHeader(key, value);
@@ -312,7 +315,7 @@
           xhr.send(requestData);
           activeXHRModeRequests.push(request);
           // 检查请求状态。
-          if (!async || xhr.readyState === 4) {
+          if (inSync || xhr.readyState === 4) {
             // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
             transferComplete(request);
           } else {
@@ -337,7 +340,7 @@
           break;
       }
       // 超时时间设置。
-      if (async && Number.isFinite(request.maxTime)) {
+      if (!inSync && Number.isFinite(request.maxTime)) {
         request.maxTimeTimer = setTimeout(function() {
           requestComplete(request, TIMEOUT);
         }, Math.max(0, request.maxTime));

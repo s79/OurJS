@@ -34,7 +34,7 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
   (function() {
     var $logger = $('#logger_xhr');
 
-    window.txtRequest = new Request('data.txt', {useCache: false})
+    window.txtRequest = new Request('data.txt', {noCache: true})
         .on('start', function(e) {
           $logger.log('<strong>' + e.type + '</strong> (txtRequest)');
         })

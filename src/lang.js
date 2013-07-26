@@ -1168,7 +1168,7 @@
    * 以 camelize 的形式重组字符串。
    * @name String.prototype.camelize
    * @function
-   * @param {boolean} [useUpperCamelCase] 是否使用大驼峰式命名法（又名 Pascal 命名法），默认为 false，即使用小驼峰式命名法。
+   * @param {boolean} [useUpperCamelCase] 是否使用大驼峰式命名法（又名 Pascal 命名法）。
    * @returns {string} 重组后的字符串。
    * @example
    *   'foo-bar'.camelize();

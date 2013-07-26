@@ -1,50 +1,41 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-source-code="../dialog.js">
 <head>
 <meta charset="utf-8">
 <title>模态对话框</title>
 <script src="../../our.js"></script>
-<script src="../../scripts/common_loader.js"></script>
-<script src="../../scripts/widget-demoarea.js"></script>
-<script src="../../widgets/tabpanel.js"></script>
+<script src="../../scripts/widgets_loader.js"></script>
 </head>
 <body>
 <div id="content" data-outline="enabled">
   <h1>模态对话框</h1>
-  <blockquote>
-    <p>
-      注意：<br>
-      一个 Widget 本身仍是一个元素。<br>
-      当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
-      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
-    </p>
-  </blockquote>
 
-  <h2>遮盖层</h2>
+  <h2>示例</h2>
+  <h3>遮盖层</h3>
   <p>
     当对话框打开时，将自动生成一个遮盖层，遮盖层遮盖的范围为对话框的父元素的渲染范围。被遮盖的部分将无法使用键盘或鼠标进行操作。<br>
     如果对话框的父元素是 BODY，则遮盖层会遮盖整个视口。
   </p>
   <p>当前打开的对话框会在遮盖层上方显示。</p>
 
-  <h3>遮盖整个视口</h3>
+  <h4>遮盖整个视口</h4>
   <p>
     本例新建了一个对话框，对话框的父元素是 BODY，当对话框打开时，整个视口都将被遮盖。<br>
     当遮盖层出现时，“$dialog.close();”按钮是不能点击的，也无法使用 tab 键使其获得焦点：
   </p>
   <div class="widget-demoarea" data-src="overlay/parent_is_body.html"></div>
 
-  <h3>遮盖一个元素</h3>
+  <h4>遮盖一个元素</h4>
   <p>
     本例在上例的基础上，修改了对话框在 DOM 树中的位置，现在对话框的父元素是绿色边框的元素，当对话框打开时，只有对话框的父元素会被遮盖。<br>
     当遮盖层出现时，“$dialog.close();”按钮并不会被遮盖，因此可以正常对其进行操作：
   </p>
   <div class="widget-demoarea" data-src="overlay/parent_is_not_body.html"></div>
 
-  <h2>定位</h2>
+  <h3>定位</h3>
   <p>对话框的显示的位置取决于其定位参考元素和定位偏移量的设置。</p>
 
-  <h3>定位参考元素</h3>
+  <h4>定位参考元素</h4>
   <p>
     当对话框打开时，会根据其定位参考元素来定位。<br>
     可以通过配置 data-pinned-target 来指定其他的定位参考元素，但只能指定为对话框的父元素或其父元素的后代元素，且不能是对话框自身。
@@ -57,7 +48,7 @@
   <p>本例在上例的基础上，将 data-pinned-target 设置为红色边框的元素：</p>
   <div class="widget-demoarea" data-src="positioning/pinned_target_is_not_body.html"></div>
 
-  <h3>定位偏移量</h3>
+  <h4>定位偏移量</h4>
   <p>
     默认情况下对话框的中心点与其定位参考元素的中心点重合，如果其定位参考元素为 BODY，则对话框的中心点与视口的中心点重合。<br>
     可以通过配置 data-left、data-right、data-top 和 data-bottom 来指定对话框的左、右、顶和底边与其定位参考元素的左、右、顶和底边的差值，指定的差值的单位是像素，可以为负数。
@@ -66,18 +57,18 @@
   <p>本例在上例的基础上，将 data-right 和 data-bottom 设置为 0：</p>
   <div class="widget-demoarea" data-src="positioning/offset_specified.html"></div>
 
-  <h3>重新定位</h3>
+  <h4>重新定位</h4>
   <p>如果对话框的尺寸发生了变化，可以通过调用其 repositon 方法来重新定位。</p>
   <p>本例在上例的基础上，在对话框内添加了“扩大”和“缩小”按钮，点击这些按钮时，如果对话框的尺寸发生了变化，会自动调用对话框的 repositon 方法：</p>
   <div class="widget-demoarea" data-src="positioning/repositon.html"></div>
 
-  <h2>动画效果</h2>
+  <h3>动画效果</h3>
   <p>可以通过配置 data-animation 来指定打开和关闭对话框时使用的动画效果，可选项有 'none'，'fade' 和 'slide'。</p>
   <p>如果没有指定 data-animation，则关闭动画效果（相当于使用 'none' 作为默认值）。</p>
   <p>本例新建了一个对话框，并将对话框的 data-animation 设置为 'slide'：</p>
   <div class="widget-demoarea" data-src="animation/slide.html"></div>
 
-  <h2>分组及层叠显示</h2>
+  <h3>分组及层叠显示</h3>
   <p>
     当多个对话框有相同的父元素时，则视这些对话框为一组，一组对话框可以重叠显示。<br>
     当一组对话框重叠显示时，遮盖层只有一个，只有最后打开的对话框才不会被遮盖。
@@ -85,7 +76,7 @@
   <p>本例新建了一组对话框 dialogA 和 dialogB：</p>
   <div class="widget-demoarea" data-src="grouping/"></div>
 
-  <h2>升级对话框</h2>
+  <h3>升级对话框</h3>
   <p>在一个应用中，通常对话框的外观和行为都是一致的。因此可以通过封装的方式升级对话框，以满足本应用的特定需要。</p>
   <p class="referral">假设某应用有以下需求：</p>
   <ul>

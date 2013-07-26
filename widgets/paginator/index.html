@@ -1,29 +1,20 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-source-code="../paginator.js">
 <head>
 <meta charset="utf-8">
 <title>分页导航条</title>
 <script src="../../our.js"></script>
-<script src="../../scripts/common_loader.js"></script>
-<script src="../../scripts/widget-demoarea.js"></script>
-<script src="../../widgets/tabpanel.js"></script>
+<script src="../../scripts/widgets_loader.js"></script>
 </head>
 <body>
 <div id="content" data-outline="enabled">
   <h1>分页导航条</h1>
-  <blockquote>
-    <p>
-      注意：<br>
-      一个 Widget 本身仍是一个元素。<br>
-      当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
-      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
-    </p>
-  </blockquote>
 
-  <h2>工作模式</h2>
+  <h2>示例</h2>
+  <h3>工作模式</h3>
   <p>分页导航条可以工作在两种模式下。</p>
 
-  <h3>静态模式</h3>
+  <h4>静态模式</h4>
   <p>对于服务端输出的静态页，应将当前页码和总页数输出为 data-current-page 和 data-total-pages 属性的值，以直接生成导航链接。此外，还应指定 data-target-url，以使每个导航链接都可以像普通链接一样被点击。</p>
   <p>在这种情况下，不必使用任何 JS 代码来做其他处理，分页导航条的 update 方法和 turn 方法也将失效。</p>
   <p>
@@ -32,14 +23,14 @@
   </p>
   <div class="widget-demoarea" data-src="static/" data-content-height="200"></div>
 
-  <h3>动态模式</h3>
+  <h4>动态模式</h4>
   <p>对于一个富应用页面，data-current-page、data-total-pages 和 data-target-url 均不必指定。</p>
   <p>当使用脚本获得了当前页码和总页数后，或需要更新当前页码和总页数时，应通过调用 update 方法来创建或更新导航链接。</p>
   <p>当一个导航链接被点击时，会自动调用 turn 方法并触发 turn 事件，对于本次点击行为的处理可以在该事件的监听器中进行。</p>
   <p>本例新建了一个分页导航条，在获得服务端的分页数据后，将动态创建导航链接。当点击导航链接时，将自动调用 turn 方法：</p>
   <div class="widget-demoarea" data-src="dynamic/" data-content-height="200"></div>
 
-  <h2>导航链接的数量</h2>
+  <h3>导航链接的数量</h3>
   <p>当分页导航条创建导航链接时，会根据 data-endpoint-pages 和 data-adjacent-pages 来确定要创建的链接数量，它们分别表示在导航条的两端和当前页码的两侧最多要创建的导航链接数。</p>
   <p>如果没有指定 data-endpoint-pages，则使用 1 作为默认值，如果没有指定 data-adjacent-pages，则使用 2 作为默认值。</p>
   <p>本例新建了一个“静态模式”的分页导航条，并将上述两个属性分别指定为 3 和 5：</p>

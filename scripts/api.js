@@ -305,7 +305,7 @@ document.on('domready', function() {
                       e.description.split('\n').forEach(
                           function(line, index) {
                             var match;
-                            if (match = line.match(/^\{([\w\|]+)\}\s(\w+)\s(.*)$/)) {
+                            if (match = line.match(/^\{([\?\w\|]+)\}\s(\w+)\s(.*)$/)) {
                               propertiesList += '<tr><td><kbd>&lt;' + match[1] + '&gt;</kbd></td><td><dfn><var>event</var>.' + match[2] + '</dfn></td><td>' + match[3] + '</td></tr>';
                             } else {
                               description += '<p>' + line + '</p>';
@@ -471,16 +471,7 @@ document.on('domready', function() {
     buildSymbol(columns[2], 'Request');
     $('<h1>Widgets</h1>').insertTo(columns[2]);
     [
-      'Widget',
-      '标签面板',
-      '模态对话框',
-      '幻灯片播放器',
-      '自动提词机',
-      '滚动框',
-      '分页导航条',
-      '月历',
-      '日期选择器',
-      '表单验证器'
+      'Widget'
     ]
         .forEach(function(name) {
           buildSymbol(columns[2], name);

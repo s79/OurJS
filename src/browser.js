@@ -369,7 +369,7 @@
    * @param {Object} [options] 可选参数。
    * @param {string} [options.path] 限定生效的路径，默认为当前路径。
    * @param {string} [options.domain] 限定生效的域名，默认为当前域名。
-   * @param {boolean} [options.secure] 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   * @param {boolean} [options.secure] 是否仅通过 SSL 连接 (HTTPS) 传输本条数据。
    * @param {string|Date} [options.expires] 过期时间，默认为会话结束。
    *   如果使用字符串类型，其表示时间的格式应为 'YYYY-MM-DD hh:mm:ss'。
    */
@@ -400,7 +400,7 @@
    * @param {Object} [options] 可选参数。
    * @param {string} [options.path] 限定生效的路径，默认为当前路径。
    * @param {string} [options.domain] 限定生效的域名，默认为当前域名。
-   * @param {boolean} [options.secure] 是否仅通过 SSL 连接 (HTTPS) 传输本条数据，默认为否。
+   * @param {boolean} [options.secure] 是否仅通过 SSL 连接 (HTTPS) 传输本条数据。
    */
   cookie.removeItem = function(key, options) {
     options = options || {};

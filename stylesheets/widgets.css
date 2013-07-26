@@ -1,0 +1,34 @@
+/* --------------------------------------------------[Widgets] */
+h4 { margin: 15px 0 0; }
+
+#api { margin-top: 50px; }
+#api li { margin: 10px 0; }
+#api table { width: 932px; margin-left: 2em; border-collapse: collapse; }
+#api table tr:nth-child(even) { background: whitesmoke; }
+#api table th { background: gainsboro; }
+#api table th,
+#api table td { border: 0 none; vertical-align: top; }
+#api table td:last-child { width: 100%; }
+#api kbd,
+#api samp { font-style: italic; font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; white-space: nowrap; }
+#api kbd { color: #666; font-weight: normal; }
+#api samp { color: gray; }
+#api dfn { color: steelblue; white-space: nowrap; }
+#api var { color: sienna; font-style: italic; }
+#api var em { margin-left: 5px; padding: 0 2px; border-radius: 5px 0; background: gold; color: maroon; font: italic 12px Arial; }
+#api table kbd,
+#api table samp,
+#api table dfn,
+#api table var { display: inline-block; margin: 10px 0; }
+#api table p dfn,
+#api table p var,
+#api table table dfn,
+#api table table var { display: inline; margin: 0; }
+#api table table { width: auto; margin-left: 0; }
+#api table table th,
+#api table table td { padding: 2px 5px; border: 1px solid silver; }
+#api .list { overflow: hidden; }
+#api .list div { margin-bottom: -1px; padding: 0 0 10px; border-bottom: 1px solid gainsboro; -border-bottom-width: 0; }
+
+#api .list .anchor { color: #666; font-weight: bold; font-size: 16px; }
+#api .list .anchor kbd { padding-right: 5px; }

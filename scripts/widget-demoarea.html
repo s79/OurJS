@@ -16,7 +16,7 @@ body { padding: 5px; -display: inline; }
 <script>
 var src = location.parameters.src;
 if (src) {
-  new Request(src, {async: false})
+  new Request(src, {sync: true})
       .on('finish', function(e) {
         document.write('<pre class="prettyprint">' + e.text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>');
         prettyPrint();

@@ -1,50 +1,41 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-source-code="../validator.js">
 <head>
 <meta charset="utf-8">
 <title>表单验证器</title>
 <script src="../../our.js"></script>
-<script src="../../scripts/common_loader.js"></script>
-<script src="../../scripts/widget-demoarea.js"></script>
-<script src="../../widgets/tabpanel.js"></script>
+<script src="../../scripts/widgets_loader.js"></script>
 </head>
 <body>
 <div id="content" data-outline="enabled">
   <h1>表单验证器</h1>
-  <blockquote>
-    <p>
-      注意：<br>
-      一个 Widget 本身仍是一个元素。<br>
-      当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
-      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
-    </p>
-  </blockquote>
 
-  <h2>添加验证规则</h2>
+  <h2>示例</h2>
+  <h3>添加验证规则</h3>
   <p>表单验证器只会对配置了验证规则的表单域进行验证。</p>
 
-  <h3>客户端验证</h3>
+  <h4>客户端验证</h4>
   <p>如果所有的验证规则均可以在客户端完成，则表单验证器在触发 validate 事件之后，将同步触发 validated 事件。</p>
   <p>本例新建了一个表单验证器，并为各表单域均配置了多条客户端验证规则，其中账号要求必填，最少 3 个字符，最多 20 个字符，且只能由英文字母、数字和下划线组成；密码要求必填，最少 6 个字符，最多 20 个字符：</p>
   <div class="widget-demoarea" data-src="rules/add_client.html" data-content-height="200"></div>
 
-  <h3>服务端验证</h3>
+  <h4>服务端验证</h4>
   <p>服务端验证只会在必要时进行，表单验证器在触发 validate 事件之后，validated 事件将在所有的服务端验证结束后异步触发。</p>
   <p>本例在上例的基础上，添加了一个验证码字段，并为其添加了一条服务端验证规则：</p>
   <div class="widget-demoarea" data-src="rules/add_remote.html" data-content-height="200"></div>
 
 
-  <h2>删除验证规则</h2>
+  <h3>删除验证规则</h3>
   <p>删除某个表单域的验证规则时，该表单域已显示的提示信息也将被清除。</p>
   <p>本例新建了一个表单验证器，仅当选中“订阅更新”复选框时，“订阅邮箱”字段才需要被验证：</p>
   <div class="widget-demoarea" data-src="rules/remove.html" data-content-height="200"></div>
 
-  <h2>灵活使用自定义规则</h2>
+  <h3>灵活使用自定义规则</h3>
   <p>为一个字段配置的自定义规则 custom 不仅可以用来校验该字段的值，还可以将其他任何信息关联进来。</p>
   <p>本例新建了一个表单验证器，其中“电子邮箱”和“手机号码”两者只要正确填写一个即可：</p>
   <div class="widget-demoarea" data-src="custom/" data-content-height="200"></div>
 
-  <h2>事件监听</h2>
+  <h3>事件监听</h3>
   <p>表单验证器在一个表单域开始和结束验证时，以及本表单开始和结束验证时会依次触发 fieldvalidate、fieldvalidated、validate 和 validated 事件。</p>
   <p>本例新建了一个表单验证器，并能在右侧的信息记录面板中，即时显示当前发生的事件及状态：</p>
   <div class="widget-demoarea" data-src="events/" data-content-height="560"></div>

@@ -1,34 +1,25 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-source-code="../tabpanel.js">
 <head>
 <meta charset="utf-8">
 <title>标签面板</title>
 <script src="../../our.js"></script>
-<script src="../../scripts/common_loader.js"></script>
-<script src="../../scripts/widget-demoarea.js"></script>
-<script src="../../widgets/tabpanel.js"></script>
+<script src="../../scripts/widgets_loader.js"></script>
 </head>
 <body>
 <div id="content" data-outline="enabled">
   <h1>标签面板（选项卡）</h1>
-  <blockquote>
-    <p>
-      注意：<br>
-      一个 Widget 本身仍是一个元素。<br>
-      当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
-      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
-    </p>
-  </blockquote>
 
-  <h2>激活方式</h2>
+  <h2>示例</h2>
+  <h3>激活方式</h3>
   <p>激活选项卡的方式共有三种，这三种方式是可以共存的。</p>
 
-  <h3>点击激活</h3>
+  <h4>点击激活</h4>
   <p>点击选项卡的标签即可切换活动选项卡。</p>
   <p>本例新建了一个标签面板：</p>
   <div class="widget-demoarea" data-src="activate/by_click.html"></div>
 
-  <h3>悬停激活</h3>
+  <h4>悬停激活</h4>
   <p>
     如果指定了“鼠标悬停激活延时”，则还可以通过鼠标指向选项卡的标签来切换活动面板。<br>
     通过配置 data-hover-delay 来指定鼠标悬停激活延时。
@@ -36,7 +27,7 @@
   <p>本例在上例的基础上，将 data-hover-delay 设置为 200：</p>
   <div class="widget-demoarea" data-src="activate/by_hover.html"></div>
 
-  <h3>脚本激活</h3>
+  <h4>脚本激活</h4>
   <p>通过调用标签面板的 activate 方法，也能激活指定的选项卡。</p>
   <p>本例在上例的基础上，增加了调用该方法的测试按钮：</p>
   <div class="widget-demoarea" data-src="activate/by_script.html"></div>

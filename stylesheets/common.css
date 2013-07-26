@@ -123,7 +123,8 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 #outline ul { height: 100%; margin: 16px 50px 16px 16px; padding: 0; overflow-y: auto; line-height: 1.7; }
 #outline ul .h1 { list-style: none; text-align: center; font-weight: bold; }
 #outline ul .h2 { padding-left: 16px; font-weight: bold; }
-#outline ul .h3 { padding-left: 32px; }
+#outline ul .h3,
+#outline ul .anchor { padding-left: 32px; }
 #outline ul .dt { padding-left: 60px; }
 #outline li a,
 #outline li a:visited { color: gainsboro; }

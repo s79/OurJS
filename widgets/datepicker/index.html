@@ -1,29 +1,20 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-source-code="../datepicker.js">
 <head>
 <meta charset="utf-8">
 <title>日期选择器</title>
 <script src="../../our.js"></script>
-<script src="../../scripts/common_loader.js"></script>
-<script src="../../scripts/widget-demoarea.js"></script>
-<script src="../../widgets/tabpanel.js"></script>
+<script src="../../scripts/widgets_loader.js"></script>
 </head>
 <body>
 <div id="content" data-outline="enabled">
   <h1>日期选择器</h1>
-  <blockquote>
-    <p>
-      注意：<br>
-      一个 Widget 本身仍是一个元素。<br>
-      当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
-      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
-    </p>
-  </blockquote>
 
-  <h2>依赖关系</h2>
+  <h2>示例</h2>
+  <h3>依赖关系</h3>
   <p>日期选择器的“日期选择面板”中包含了一个“月历” Widget，因此在使用日期选择器时，还要引入月历的解析器。</p>
 
-  <h2>选择日期</h2>
+  <h3>选择日期</h3>
   <p>日期选择器仍是一个表单控件（INPUT[type=text]），可对其进行的操作如下：</p>
   <ul>
     <li>点击本控件即可弹出日期选择面板。</li>
@@ -35,14 +26,14 @@
   <p>本例新建了一个日期选择器：</p>
   <div class="widget-demoarea" data-src="date_range/no_limit.html"></div>
 
-  <h2>可选日期范围</h2>
+  <h3>可选日期范围</h3>
   <p>可以通过配置 data-min-date 和 data-max-date 来限定可选日期的范围。</p>
 
-  <h3>固定限定</h3>
+  <h4>固定限定</h4>
   <p>本例在上例的基础上，将 data-min-date 设置为 '2010-09-10'，将 data-max-date 设置为 '2012-10-20'：</p>
   <div class="widget-demoarea" data-src="date_range/limit.html"></div>
 
-  <h3>动态限定</h3>
+  <h4>动态限定</h4>
   <p>本例在上例的基础上，使用脚本自动将 data-min-date 和 data-max-date 设置为本周的日期范围内：</p>
   <div class="widget-demoarea" data-src="date_range/automatically.html"></div>
 

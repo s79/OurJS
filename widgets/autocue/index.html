@@ -1,26 +1,17 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-source-code="../autocue.js">
 <head>
 <meta charset="utf-8">
 <title>自动提词机</title>
 <script src="../../our.js"></script>
-<script src="../../scripts/common_loader.js"></script>
-<script src="../../scripts/widget-demoarea.js"></script>
-<script src="../../widgets/tabpanel.js"></script>
+<script src="../../scripts/widgets_loader.js"></script>
 </head>
 <body>
 <div id="content" data-outline="enabled">
   <h1>自动提词机</h1>
-  <blockquote>
-    <p>
-      注意：<br>
-      一个 Widget 本身仍是一个元素。<br>
-      当一个元素成为 Widget 时，将具备新的行为，获得新的属性、方法，并能触发新的事件。<br>
-      这些新增的特性并不妨碍将一个 Widget 视为一个普通元素来对其进行操作（如修改某部分的内容、结构、表现或行为）。
-    </p>
-  </blockquote>
 
-  <h2>信息队列</h2>
+  <h2>示例</h2>
+  <h3>信息队列</h3>
   <p>
     自动提词机会以滚动字幕的形式展示信息队列中的信息。<br>
     信息队列最初是空的，通过调用自动提词机的 addMessages 方法，可以将新信息添加到信息队列。
@@ -38,23 +29,23 @@
   </p>
   <div class="widget-demoarea" data-src="message_queue/add_more.html" data-content-height="100"></div>
 
-  <h2>更新展示的信息</h2>
+  <h3>更新展示的信息</h3>
   <p>每隔一定的时间，自动提词机都会以纵向（可以指定滚动的方向）滚动的形式更新当前展示的信息。<p>
 
-  <h3>滚动间隔时间</h3>
+  <h4>滚动间隔时间</h4>
   <p>可以通过配置 data-interval 来指定信息自动滚动的间隔时间。</p>
   <p>如果没有指定 data-interval，则使用 5000（毫秒）作为默认值。</p>
   <p>当鼠标指针进入自动提词机的区域后，自动滚动将停止，当鼠标指针离开自动提词机的区域后，自动滚动将继续进行。</p>
   <p>本例新建了一个自动提词机，添加了五条信息，并将 data-interval 设置为 1000：</p>
   <div class="widget-demoarea" data-src="scrolling/up.html" data-content-height="100"></div>
 
-  <h3>滚动方向</h3>
+  <h4>滚动方向</h4>
   <p>可以通过配置 data-direction 来指定滚动方向，有效值为 'up' 和 'down'。</p>
   <p>如果没有指定 data-direction，则使用 'up' 作为默认值。</p>
   <p>本例在上例的基础上，将 data-direction 设置为 'down'：</p>
   <div class="widget-demoarea" data-src="scrolling/down.html" data-content-height="100"></div>
 
-  <h2>同时展示多条信息</h2>
+  <h3>同时展示多条信息</h3>
   <p>自动提词机还可以同时展示多条信息。</p>
   <p>可以通过配置 data-visible-items 来指定同时展示的信息条目数。</p>
   <p>在指定 data-visible-items 的数目时，应注意为自动提词机添加足够多的信息（不少于指定的同时展示条目数），以免有相同的信息条目被重复展示。</p>

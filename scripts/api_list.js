@@ -263,58 +263,5 @@ var apiList = {
   'Widget': [
     'Widget.register',
     'Widget.parse'
-  ],
-  '标签面板': [
-    'TabPanel',
-    'TabPanel#tabs',
-    'TabPanel#panels',
-    'TabPanel#activeTab',
-    'TabPanel#activePanel',
-    'TabPanel#activate'
-  ],
-  '模态对话框': [
-    'Dialog',
-    'Dialog#isOpen',
-    'Dialog#open',
-    'Dialog#close',
-    'Dialog#reposition'
-  ],
-  '幻灯片播放器': [
-    'Slideshow',
-    'Slideshow#slides',
-    'Slideshow#pointers',
-    'Slideshow#activeSlide',
-    'Slideshow#activePointer',
-    'Slideshow#show',
-    'Slideshow#showPrevious',
-    'Slideshow#showNext'
-  ],
-  '自动提词机': [
-    'Autocue',
-    'Autocue#addMessages'
-  ],
-  '滚动框': [
-    'ScrollBox',
-    'ScrollBox#update'
-  ],
-  '分页导航条': [
-    'Paginator',
-    'Paginator#currentPage',
-    'Paginator#totalPages',
-    'Paginator#update',
-    'Paginator#turn'
-  ],
-  '月历': [
-    'Calendar',
-    'Calendar#month',
-    'Calendar#update'
-  ],
-  '日期选择器': [
-    'DatePicker'
-  ],
-  '表单验证器': [
-    'Validator',
-    'Validator#addValidationRules',
-    'Validator#removeValidationRules'
   ]
 };

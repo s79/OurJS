@@ -9,38 +9,19 @@
 //--------------------------------------------------[Slideshow]
   /**
    * “幻灯片播放器”可以自动轮播一组“幻灯片”。
-   * @name Slideshow
-   * @constructor
-   * @fires show
-   *   {Element} activeSlide 当前播放的“幻灯片”。
-   *   {Element} activePointer 当前播放的“指示器”。
-   *   {?Element} inactiveSlide 上一个播放的“幻灯片”。
-   *   {?Element} inactivePointer 上一个播放的“指示器”。
-   *   成功调用 show 方法后触发。
-   * @fires showprevious
-   *   调用 showPrevious 方法后触发。
-   * @fires shownext
-   *   调用 showNext 方法后触发。
-   * @description 启用方式
+   * @启用方式
    *   为一个 DIV 元素添加 'widget-slideshow' 类，即可使该元素成为“幻灯片播放器”。
-   * @description 结构约定
+   * @结构约定
    * * “幻灯片播放器”的后代元素中，类名包含 'slides' 的为“幻灯片”的容器，类名包含 'slide' 的为“幻灯片”，类名包含 'pointers' 的为“指示器”的容器，类名包含 'pointer' 的为“指示器”，类名包含 'prev' 的为“播放上一张”按钮，类名包含 'next' 的为“播放下一张”按钮。
    *   上述内容中，只有“幻灯片”和“幻灯片”的容器是必选的，其他均可以省略。如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，它们也将不可见。
    * * 所有“幻灯片”都应有共同的父元素，并且它们的渲染尺寸也应与其父元素的渲染尺寸一致。
    * * 如果需要“指示器”，则所有“指示器”也应有共同的父元素，它们的数量也应和“幻灯片”的数量一致。
-   * @description 新增行为
-   * * 当前播放的“幻灯片”和“指示器”（如果有）会被加入 'active' 类。
-   * * 如果“幻灯片播放器”在文档可用后即被解析完毕，则默认播放第一张“幻灯片”，并且每隔一定的时间后（取决于 data-interval 的设定值），即自动播放下一张“幻灯片”。
-   * * 如果自动播放正在进行，则当鼠标移入本元素时，自动播放会被暂时禁用；当鼠标移出本元素时，自动播放会被重新启用。
-   * * 如果有“指示器”，则通过点击或鼠标指向（如果指定了 data-hover-delay 的值）一个“指示器”即可播放与之对应的“幻灯片”。
-   * * 如果有“播放上一张”和“播放下一张”按钮，则通过点击这些按钮即可播放上一张或下一张“幻灯片”。
-   *   当“播放上一张”或“播放下一张”按钮的类名中包含 'disabled' 时，点击它们无效。
-   * @description 默认样式
+   * @默认样式
    *   div.widget-slideshow { display: block; }
    *   div.widget-slideshow .slides { display: block; position: relative; }
    *   div.widget-slideshow .slide { display: block; position: absolute; left: 0; top: 0; z-index: auto; }
    *   div.slideshow-single .pointers, div.slideshow-single .prev, div.slideshow-single .next { display: none !important; }
-   * @description 可配置项
+   * @可配置项
    *   data-interval
    *     以毫秒为单位的“幻灯片”自动播放间隔时间。
    *     如果不指定本属性，则使用 '5000'，即每 5 秒更换一张“幻灯片”。
@@ -51,58 +32,48 @@
    *     “幻灯片”切换时使用的动画效果，可选项有 'none'，'fade', 'cover' 和 'slide'。
    *     如果不指定本属性，则使用 'fade'。
    *     当动画效果为 'slide' 时，所有“幻灯片”将被从左到右浮动排列；其他情况下所有“幻灯片”将绝对定位在其容器的左上角。
-   */
-
-  /**
-   * 包含所有“幻灯片”元素的数组。
-   * @name Slideshow#slides
-   * @type Array
-   */
-
-  /**
-   * 包含所有“指示器”元素的数组。
-   * @name Slideshow#pointers
-   * @type Array
-   */
-
-  /**
-   * 当前播放的“幻灯片”元素。
-   * @name Slideshow#activeSlide
-   * @type Element
-   */
-
-  /**
-   * 当前播放的“指示器”元素。
-   * @name Slideshow#activePointer
-   * @type Element
-   */
-
-  /**
-   * 播放指定的“幻灯片”。
-   * @name Slideshow#show
-   * @function
-   * @param {number} index 要播放的“幻灯片”在所有“幻灯片”中的索引值。
-   * @returns {Element} 本元素。
-   * @description
-   *   如果指定的索引值不在有效范围内或与当前播放的索引值相同，则调用本方法无效。
-   */
-
-  /**
-   * 播放上一张“幻灯片”。
-   * @name Slideshow#showPrevious
-   * @function
-   * @returns {Element} 本元素。
-   * @description
-   *   播放完第一张后，将开始播放最后一张。
-   */
-
-  /**
-   * 播放下一张“幻灯片”。
-   * @name Slideshow#showNext
-   * @function
-   * @returns {Element} 本元素。
-   * @description
-   *   播放完最后一张后，将开始播放第一张。
+   * @新增行为
+   * * 当前播放的“幻灯片”和“指示器”（如果有）会被加入 'active' 类。
+   * * 如果“幻灯片播放器”在文档可用后即被解析完毕，则默认播放第一张“幻灯片”，并且每隔一定的时间后（取决于 data-interval 的设定值），即自动播放下一张“幻灯片”。
+   * * 如果自动播放正在进行，则当鼠标移入本元素时，自动播放会被暂时禁用；当鼠标移出本元素时，自动播放会被重新启用。
+   * * 如果有“指示器”，则通过点击或鼠标指向（如果指定了 data-hover-delay 的值）一个“指示器”即可播放与之对应的“幻灯片”。
+   * * 如果有“播放上一张”和“播放下一张”按钮，则通过点击这些按钮即可播放上一张或下一张“幻灯片”。
+   *   当“播放上一张”或“播放下一张”按钮的类名中包含 'disabled' 时，点击它们无效。
+   * @新增属性
+   *   {Array} slides 包含所有“幻灯片”的数组。
+   *   {Array} pointers 包含所有“指示器”的数组。
+   *   {Element} activeSlide 当前播放的“幻灯片”元素。
+   *   {Element} activePointer 当前播放的“指示器”元素。
+   * @新增方法
+   *   show
+   *     播放指定的“幻灯片”。
+   *     如果指定的索引值不在有效范围内或与当前播放的索引值相同，则调用本方法无效。
+   *     参数：
+   *       {number} index 要播放的“幻灯片”在所有“幻灯片”中的索引值。
+   *     返回值：
+   *       {Element} 本元素。
+   *   showPrevious
+   *     播放上一张“幻灯片”。
+   *     播放完第一张后，将开始播放最后一张。
+   *     返回值：
+   *       {Element} 本元素。
+   *   showNext
+   *     播放下一张“幻灯片”。
+   *     播放完最后一张后，将开始播放第一张。
+   *     返回值：
+   *       {Element} 本元素。
+   * @新增事件
+   *   show
+   *     成功调用 show 方法后触发。
+   *     属性：
+   *       {Element} activeSlide 当前播放的“幻灯片”。
+   *       {Element} activePointer 当前播放的“指示器”。
+   *       {?Element} inactiveSlide 上一个播放的“幻灯片”。
+   *       {?Element} inactivePointer 上一个播放的“指示器”。
+   *   showprevious
+   *     调用 showPrevious 方法后触发。
+   *   showNext
+   *     调用 showNext 方法后触发。
    */
 
   Widget.register({

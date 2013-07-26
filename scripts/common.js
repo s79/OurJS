@@ -178,11 +178,12 @@ document.on('domready', function() {
     var $outlineList = $outline.getLastChild().getFirstChild();
     // 若标题没有 id 则为其指定一个 id，注意此 id 与标题的位置有关，因此不宜作为书签使用。
     var uid = 12960;
-    $content.findAll('h1, h2 ,h3, dt').forEach(function($heading) {
-      if (!$heading.id) {
-        $heading.id = (uid++).toString(36);
-      }
-      $('<li class="' + $heading.nodeName.toLowerCase() + '"><a href="#' + $heading.id + '">' + $heading.innerText + '</a></li>').insertTo($outlineList);
+    $content.findAll('h1, h2 ,h3, dt, .anchor').forEach(function($heading) {
+      var isEmbedded = $heading.hasClass('anchor');
+      var id = $heading.id || ($heading.id = (uid++).toString(36));
+      var className = isEmbedded ? 'anchor' : $heading.nodeName.toLowerCase();
+      var text = isEmbedded ? $heading.getData('title') : $heading.innerText;
+      $('<li class="' + className + '"><a href="#' + id + '">' + text + '</a></li>').insertTo($outlineList);
     });
 
     // 定位及显示。

@@ -6,7 +6,7 @@
 document.on('beforedomready', function() {
   function include(target) {
     var $target = $(target);
-    new Request($target.getData('src'), {useCache: false, async: false})
+    new Request($target.getData('src'), {noCache: true, sync: true})
         .on('finish', function(e) {
           var scripts = [];
           var text = e.text.replace(/(?:<script[^>]*?>)([\s\S]*?)(?:<\/script>)/ig, function(script, scriptText) {

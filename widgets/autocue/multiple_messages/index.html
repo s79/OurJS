@@ -16,7 +16,7 @@ body { margin: 0; padding: 10px; }
 <div id="autocue" class="widget-autocue" data-direction="down" data-visible-items="5" data-cache-size="25" data-interval="3000"></div>
 <script>
 document.on('domready', function() {
-  var request = new Request('messages.txt', {useCache: false}).on('finish', function(e) {
+  var request = new Request('messages.txt', {noCache: true}).on('finish', function(e) {
     var data = JSON.parse(e.text);
     if (data.state === 1) {
       autocue.addMessages(data.value.map(function(value) {

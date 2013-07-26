@@ -1,5 +1,9 @@
 ﻿
 
+>2013-07-24
+* 将 Request 的 useCache 和 async 选项修改为相反的含义
+* 将 Widgets 的 API 文档放到各自的介绍页面中
+
 >2013-07-11
 # 修改一些注释和文档
 * 注册 Widget 时 selector 的格式限制为 <nodeName>.<className>

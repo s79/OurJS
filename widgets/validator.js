@@ -99,30 +99,14 @@
 //--------------------------------------------------[Validator]
   /**
    * “表单验证器”可以在表单提交的时候根据配置的“验证规则”对表单域的值（而不是某一个控件的值）进行验证，并能在不同的状态下显示相应的提示信息。
-   * @name Validator
-   * @constructor
-   * @fires fieldvalidate
-   *   {string} name 验证的表单域的名称。
-   *   {string|Array} value 验证的表单域的值。
-   *   当开始验证一个表单域时触发。
-   * @fires fieldvalidated
-   *   {string} name 验证的表单域的名称。
-   *   {string|Array} value 验证的表单域的值。
-   *   {boolean} passed 本表单域的值是否已通过验证。
-   *   {string} errorMessage “提示信息”字符串，若验证通过则为空字符串。
-   *   在一个表单域验证结束后触发。
-   * @fires validate
-   *   当表单验证开始时（即表单的 submit 事件发生时）触发。
-   * @fires validated
-   *   {boolean} passed 本表单所有已配置验证规则的域的值是否已全部通过验证。
-   *   {Array} invalidFields 尚未通过验证的字段，若验证通过则为空数组。
-   *   在表单验证结束后触发。
-   * @description 启用方式
+   * @启用方式
    *   为一个 FORM 元素添加 'widget-validator' 类，即可使该元素成为“表单验证器”。
-   * @description 结构约定
+   * @结构约定
    * * “表单验证器”的后代元素中，类名包含 'state' 的为“状态指示器”，类名包含 'message' 的为“提示信息容器”。这些元素还应指定 data-for="<var>name</var>" 属性，<var>name</var> 为这些元素对应的表单域的名称。
    * * 一个表单域最多只能有一个“状态指示器”和一个“提示信息容器”（如果指定了多个则只有第一个生效），并且它们必须在对应的表单域“验证规则”被解析时可访问。
-   * @description 新增行为
+   * @默认样式
+   * @可配置项
+   * @新增行为
    * * 如果一个表单域配置了“验证规则”，当其中包含的任何控件的值被用户改变时，都将对该表单域进行验证，并触发 fieldvalidate 事件，验证结束后会触发 fieldvalidated 事件。
    *   如果一个表单域未能通过验证，提示信息会被注入为该表单域指定的“提示信息容器”中。
    *   要手动验证某一个表单域，触发其中任一控件的 change 事件即可。
@@ -131,39 +115,59 @@
    *   如果没有需要服务端验证的表单域，validated 事件将同步触发，否则 validated 事件将在所有的服务端验证结束后异步触发。
    *   如果用户在可能存在的服务端验证尚未全部结束之前修改了任一控件的值，则会立即取消当前的服务端验证，并触发 validated 事件，本次验证按失败处理。
    * * 当该表单触发 reset 事件时，当前的验证结果和所有已显示的提示信息也会随之重置。
-   */
-
-  /**
-   * 添加“验证规则”。
-   * @name Validator#addValidationRules
-   * @function
-   * @param {Object} rules 要验证的表单域的名称及规则，格式为 <dfn>{<var>name</var>: <var>ruleSet</var>, ...}</dfn>。
-   *   属性名 <var>name</var> 为要验证的表单域的名称。
-   *   属性值 <var>ruleSet</var> 为定义“验证规则”的对象，包括 5 种预置规则和 2 种自定规则。按照验证进行的顺序排列如下：
-   *   <table>
-   *     <tr><th>规则名称</th><th>值类型</th><th>详细描述</th><th>提示信息</th></tr>
-   *     <tr><td><dfn>required</dfn></td><td>boolean</td><td>限定该表单域是否为必填或必选的。</td><td>当该表单域只包含一个控件时为 '<strong>必填</strong>'，否则为 '<strong>必选</strong>'</td></tr>
-   *     <tr><td><dfn>equals</dfn></td><td>string</td><td>指定相关表单域的名称，以限定该表单域的值与相关表单域的值一致。仅应在这两个表单域均只包含一个控件时指定，且相关表单域不能为该表单域自身。</td><td>'<strong>两次输入的密码不一致</strong>'</td></tr>
-   *     <tr><td><dfn>minLength</dfn></td><td>number</td><td>当该表单域只包含一个控件时，限定该控件的值的最小长度，否则限定选择项的最少数目。</td><td>当该表单域只包含一个控件时为 '<strong>不能少于 <dfn>minLength</dfn> 个字符</strong>'，否则为 '<strong>至少选择 <dfn>minLength</dfn> 项</strong>'。</td></tr>
-   *     <tr><td><dfn>maxLength</dfn></td><td>number</td><td>当该表单域只包含一个控件时，限定该控件的值的最大长度，否则限定选择项的最多数目。</td><td>当该表单域只包含一个控件时为 '<strong>不能超过 <dfn>maxLength</dfn> 个字符</strong>'，否则为 '<strong>最多选择 <dfn>maxLength</dfn> 项</strong>'。</td></tr>
-   *     <tr><td><dfn>type</dfn></td><td>Array</td><td>限定数据的类型，值可以为 'number'、'date'、'email'、'phone' 中的任一个。</td><td>'<strong>格式错误</strong>'</td></tr>
-   *     <tr><td><dfn>custom</dfn></td><td>Function</td><td>用来对该表单域的值进行进一步验证的函数，该函数被调用时会被传入该表单域的值，其 this 的值为本表单元素，返回值应为一个“提示信息”字符串（若为空字符串则表示验证通过）。</td><td>提示信息为 <dfn>custom</dfn> 函数的返回值。</td></tr>
-   *     <tr><td><dfn>remote</dfn></td><td>Object</td><td>指定对该表单域的值进行服务端验证，包含四个属性：url、options、keyName、validateResult。<br>其中前两个属性为创建远程请求时使用的 Request 的参数（细节请参考 Request 的同名参数），keyName 是将该表单域的值（value）以 <var>keyName=value</var> 的形式发送到服务端时使用的字段名，validateResult 是处理服务端返回信息的函数，该函数被调用时传入的参数与 Request 的 finish 事件监听器被调用时传入的参数一致，其 this 的值为“表单验证器”，该函数应该返回“提示信息”字符串（若为空字符串则表示验证通过）。</td><td>提示信息为 validateResult 函数的返回值。</td></tr>
-   *   </table>
-   *   若不需要某种类型的验证，在 <var>ruleSet</var> 中省略对应的规则即可。
-   * @returns {Element} 本元素。
-   * @description
-   *   新的配置将在下次使用到这些“验证规则”的时候生效。
-   */
-
-  /**
-   * 删除“验证规则”。
-   * @name Validator#removeValidationRules
-   * @function
-   * @param {Array} names 包含要删除“验证规则”的表单域的名称的数组。
-   * @returns {Element} 本元素。
-   * @description
-   *   删除某个表单域的“验证规则”时，该表单域已显示的提示信息也将被清除。
+   * @新增属性
+   * @新增方法
+   *   addValidationRules
+   *     添加“验证规则”。
+   *     新的配置将在下次使用到这些“验证规则”的时候生效。
+   *     参数：
+   *       {Object} rules 要验证的表单域的名称及规则，格式为 <dfn>{<var>name</var>: <var>ruleSet</var>, ...}</dfn>。
+   *       属性名 <var>name</var> 为要验证的表单域的名称。
+   *       属性值 <var>ruleSet</var> 为定义“验证规则”的对象，包括 5 种预置规则和 2 种自定规则。按照验证进行的顺序排列如下：
+   *       <table>
+   *         <thead>
+   *         <tr><th>规则名称</th><th>值类型</th><th>详细描述</th><th>提示信息</th></tr>
+   *         </thead>
+   *         <tbody>
+   *         <tr><td><dfn>required</dfn></td><td>boolean</td><td>限定该表单域是否为必填或必选的。</td><td>当该表单域只包含一个控件时为 '<strong>必填</strong>'，否则为 '<strong>必选</strong>'。</td></tr>
+   *         <tr><td><dfn>equals</dfn></td><td>string</td><td>指定相关表单域的名称，以限定该表单域的值与相关表单域的值一致。仅应在这两个表单域均只包含一个控件时指定，且相关表单域不能为该表单域自身。</td><td>'<strong>两次输入的密码不一致</strong>'。</td></tr>
+   *         <tr><td><dfn>minLength</dfn></td><td>number</td><td>当该表单域只包含一个控件时，限定该控件的值的最小长度，否则限定选择项的最少数目。</td><td>当该表单域只包含一个控件时为 '<strong>不能少于 <dfn>minLength</dfn> 个字符</strong>'，否则为 '<strong>至少选择 <dfn>minLength</dfn> 项</strong>'。</td></tr>
+   *         <tr><td><dfn>maxLength</dfn></td><td>number</td><td>当该表单域只包含一个控件时，限定该控件的值的最大长度，否则限定选择项的最多数目。</td><td>当该表单域只包含一个控件时为 '<strong>不能超过 <dfn>maxLength</dfn> 个字符</strong>'，否则为 '<strong>最多选择 <dfn>maxLength</dfn> 项</strong>'。</td></tr>
+   *         <tr><td><dfn>type</dfn></td><td>Array</td><td>限定数据的类型，值可以为 'number'、'date'、'email'、'phone' 中的任一个。</td><td>'<strong>格式错误</strong>'。</td></tr>
+   *         <tr><td><dfn>custom</dfn></td><td>Function</td><td>用来对该表单域的值进行进一步验证的函数，该函数被调用时会被传入该表单域的值，其 this 的值为本表单元素，返回值应为一个“提示信息”字符串（若为空字符串则表示验证通过）。</td><td>提示信息为 <dfn>custom</dfn> 函数的返回值。</td></tr>
+   *         <tr><td><dfn>remote</dfn></td><td>Object</td><td>指定对该表单域的值进行服务端验证，包含四个属性：url、options、keyName、validateResult。<br>其中前两个属性为创建远程请求时使用的 Request 的参数（细节请参考 Request 的同名参数），keyName 是将该表单域的值（value）以 <var>keyName=value</var> 的形式发送到服务端时使用的字段名，validateResult 是处理服务端返回信息的函数，该函数被调用时传入的参数与 Request 的 finish 事件监听器被调用时传入的参数一致，其 this 的值为“表单验证器”，该函数应该返回“提示信息”字符串（若为空字符串则表示验证通过）。</td><td>提示信息为 validateResult 函数的返回值。</td></tr>
+   *         </tbody>
+   *       </table>
+   *       若不需要某种类型的验证，在 <var>ruleSet</var> 中省略对应的规则即可。
+   *     返回值：
+   *       {Element} 本元素。
+   *   removeValidationRules
+   *     删除“验证规则”。
+   *     删除某个表单域的“验证规则”时，该表单域已显示的提示信息也将被清除。
+   *     参数：
+   *       {Array} names 包含要删除“验证规则”的表单域的名称的数组。
+   *     返回值：
+   *       {Element} 本元素。
+   * @新增事件
+   *   fieldvalidate
+   *     当开始验证一个表单域时触发。
+   *     属性：
+   *       {string} name 验证的表单域的名称。
+   *       {string|Array} value 验证的表单域的值。
+   *   fieldvalidated
+   *     在一个表单域验证结束后触发。
+   *     属性：
+   *       {string} name 验证的表单域的名称。
+   *       {string|Array} value 验证的表单域的值。
+   *       {boolean} passed 本表单域的值是否已通过验证。
+   *       {string} errorMessage “提示信息”字符串，若验证通过则为空字符串。
+   *   validate
+   *     当表单验证开始时（即表单的 submit 事件发生时）触发。
+   *   validated
+   *     在表单验证结束后触发。
+   *     属性：
+   *       {boolean} passed 本表单所有已配置验证规则的域的值是否已全部通过验证。
+   *       {Array} invalidFields 尚未通过验证的字段，若验证通过则为空数组。
    */
 
   Widget.register({

@@ -49,23 +49,14 @@
 //--------------------------------------------------[Autocue]
   /**
    * “自动提词机”会以滚动字幕的形式展示“信息队列”中的信息。
-   * @name Autocue
-   * @constructor
-   * @fires addmessages
-   *   调用 addMessages 方法后触发。
-   * @description 启用方式
+   * @启用方式
    *   为一个 DIV 元素添加 'widget-autocue' 类，即可使该元素成为“自动提词机”。
-   * @description 结构约定
+   * @结构约定
    * * 当“自动提词机”初始化时，会自动在其内部创建一个 UL 和多个 LI 元素（数量取决于 data-visible-items 的设置），其中每一个 LI 元素都会用来容纳一条信息。
-   * @description 新增行为
-   * * 可以随时通过调用 addMessages 方法来添加要展示的信息，信息会保存在“信息队列”中。
-   *   当“信息队列”的长度超过 data-cache-size 的值时，已展示过的信息将被从队列中删除（尚未展示过的信息不会被删除）。
-   * * 每隔一定的时间（取决于 data-interval 的设定值），“自动提词机”都会纵向滚动其信息内容，以展示“信息队列”中的下一条信息。
-   *   当鼠标移入本元素时，会暂时停止信息的滚动；当鼠标移出本元素时，会重新开始信息的滚动。
-   * @description 默认样式
+   * @默认样式
    *   div.widget-autocue { position: relative; overflow: hidden; }
    *   div.widget-autocue ul { position: absolute; left: 0; top: 0; list-style: none; margin: 0; padding: 0; }
-   * @description 可配置项
+   * @可配置项
    *   data-cache-size
    *     缓存信息的总条目数。
    *     如果不指定本属性，则使用 10 作为默认值。
@@ -78,16 +69,28 @@
    *   data-visible-items
    *     同时展示的信息条目数。
    *     如果不指定本属性，则使用 1 作为默认值。
-   */
-
-  /**
-   * 添加新信息到“信息队列”。
-   * @name Autocue#addMessages
-   * @function
-   * @param {Array} newMessages 包含新信息的数组。
-   * @returns {Element} 本元素。
-   * @description
-   *   如果当前的“信息队列”中包含了某条新信息，则这条新信息不会被再次添加到“信息队列”中。
+   * @新增行为
+   * * 可以随时通过调用 addMessages 方法来添加要展示的信息，信息会保存在“信息队列”中。
+   *   当“信息队列”的长度超过 data-cache-size 的值时，已展示过的信息将被从队列中删除（尚未展示过的信息不会被删除）。
+   * * 每隔一定的时间（取决于 data-interval 的设定值），“自动提词机”都会纵向滚动其信息内容，以展示“信息队列”中的下一条信息。
+   *   当鼠标移入本元素时，会暂时停止信息的滚动；当鼠标移出本元素时，会重新开始信息的滚动。
+   * @新增属性
+   * @新增方法
+   *   addMessages
+   *     添加新信息到“信息队列”。
+   *     如果当前的“信息队列”中包含了某条新信息，则这条新信息不会被再次添加到“信息队列”中。
+   *     参数：
+   *       {Array} newMessages 包含新信息的数组。
+   *     返回值：
+   *       {Element} 本元素。
+   * @新增事件
+   *   activate
+   *     成功调用 activate 方法后触发。
+   *     属性：
+   *       {Element} activeTab 当前的激活的“标签”。
+   *       {Element} activePanel 当前的激活的“面板”。
+   *       {?Element} inactiveTab 上一个激活的“标签”。
+   *       {?Element} inactivePanel 上一个激活的“面板”。
    */
 
   Widget.register({
