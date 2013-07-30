@@ -3,7 +3,7 @@ h4 { margin: 15px 0 0; }
 
 #api { margin-top: 50px; }
 #api li { margin: 10px 0; }
-#api table { width: 932px; margin-left: 2em; border-collapse: collapse; }
+#api table { width: 932px; border-collapse: collapse; }
 #api table tr:nth-child(even) { background: whitesmoke; }
 #api table th { background: gainsboro; }
 #api table th,

@@ -75,7 +75,8 @@
    * @启用方式
    *   为一个 DIV 元素添加 'widget-paginator' 类，即可使该元素成为“分页导航条”。
    * @结构约定
-   *   “分页导航条”会在其内部创建“导航链接”，其中“上一页”的类名为 'prev'，“下一页”的类名为 'next'，“当前页码”的类名为 'current'。
+   *   <div class="widget-paginator"></div>
+   *   * “分页导航条”会在其内部<strong>自动创建</strong>“导航链接”，其中“上一页”的类名为 'prev'，“下一页”的类名为 'next'，“当前页码”的类名为 'current'。
    * @默认样式
    *   div.widget-paginator { visibility: hidden; font-size: 14px; line-height: 16px; text-align: center; }
    *   div.widget-paginator a:link, div.widget-paginator a:visited, div.widget-paginator a:hover, div.widget-paginator a:active { display: inline-block; margin: 2px; padding: 2px 5px; border: 1px solid silver; background-color: white; color: black; text-decoration: none; }

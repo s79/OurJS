@@ -102,6 +102,16 @@
    * @启用方式
    *   为一个 FORM 元素添加 'widget-validator' 类，即可使该元素成为“表单验证器”。
    * @结构约定
+   *   <form method="get" action="." class="widget-validator">
+   *     <p class="state" data-for="account">
+   *       <input name="account" type="text" value="">
+   *       <span class="message" data-for="account"></span>
+   *     </p>
+   *     <p class="state" data-for="password">
+   *       <input name="password" type="password">
+   *       <span class="message" data-for="password"></span>
+   *     </p>
+   *   </form>
    * * “表单验证器”的后代元素中，类名包含 'state' 的为“状态指示器”，类名包含 'message' 的为“提示信息容器”。这些元素还应指定 data-for="<var>name</var>" 属性，<var>name</var> 为这些元素对应的表单域的名称。
    * * 一个表单域最多只能有一个“状态指示器”和一个“提示信息容器”（如果指定了多个则只有第一个生效），并且它们必须在对应的表单域“验证规则”被解析时可访问。
    * @默认样式

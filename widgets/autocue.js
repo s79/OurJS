@@ -52,7 +52,8 @@
    * @启用方式
    *   为一个 DIV 元素添加 'widget-autocue' 类，即可使该元素成为“自动提词机”。
    * @结构约定
-   * * 当“自动提词机”初始化时，会自动在其内部创建一个 UL 和多个 LI 元素（数量取决于 data-visible-items 的设置），其中每一个 LI 元素都会用来容纳一条信息。
+   *   <div class="widget-autocue"></div>
+   * * 当“自动提词机”初始化时，会自动在其内部<strong>自动创建</strong>一个 UL 和多个 LI 元素（数量取决于 data-visible-items 的设置），其中每一个 LI 元素都会用来容纳一条信息。
    * @默认样式
    *   div.widget-autocue { position: relative; overflow: hidden; }
    *   div.widget-autocue ul { position: absolute; left: 0; top: 0; list-style: none; margin: 0; padding: 0; }

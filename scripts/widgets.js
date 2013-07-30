@@ -21,6 +21,7 @@ document.on('beforedomready', function() {
     var commentStartPattern = /\/\*\*/;
     var commentEndPattern = /\*\//;
     var commentPattern = /\s*\*\s*(?:@([\S]+)\s*)?(.*)/;
+    var codeCommentPaddingPattern = /\s*\*\s{3}/;
     var configNamePattern = /^[a-z0-9-]+$/;
     var methodNamePattern = /^[a-zA-Z0-9]+$/;
     var argumentDescriptionPattern = /^\{([a-zA-Z\?\|]+)\}\s+([a-zA-Z0-9\[\]]+)+\s+(.*)$/;
@@ -51,11 +52,21 @@ document.on('beforedomready', function() {
           switch (tagName) {
             case '基本描述':
             case '启用方式':
-            case '结构约定':
             case '默认样式':
             case '新增行为':
-              // 基本描述/启用方式/结构约定/默认样式/新增行为[名称, 描述]
+              // 基本描述/启用方式/默认样式/新增行为[描述]
               data[tagName].push(tagValue);
+              break;
+            case '结构约定':
+              // 结构约定[代码, 描述]
+              if (data[tagName].length === 0) {
+                data[tagName].push([], []);
+              }
+              if (data[tagName][1].length || tagValue.startsWith('*')) {
+                data[tagName][1].push(tagValue);
+              } else {
+                data[tagName][0].push(line.replace(codeCommentPaddingPattern, ''));
+              }
               break;
             case '可配置项':
               if (configNamePattern.test(tagValue)) {
@@ -133,6 +144,13 @@ document.on('beforedomready', function() {
     return text;
   };
 
+  // 获取结构约定。
+  var getConvention = function(convention) {
+    var code = convention[0];
+    var text = code.length ? '<pre class="lang-html">' + code.join('\n').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>' : '';
+    return text + getDescription(convention[1]);
+  };
+
   // 获取默认样式。
   var getStyles = function(styles) {
     return styles.length ? '<pre class="lang-css">' + styles.join('\n') + '</pre>' : '';
@@ -196,8 +214,7 @@ document.on('beforedomready', function() {
     var text = methods
         .map(function(method) {
           var syntax = getSyntax(method);
-          var structuredSyntax = '<kbd>&lt;' + method[3][0] + '&gt;</kbd>'+syntax.replace(methodAndEventNamePattern, '<dfn>$&</dfn>').replace(argumentPattern, '<var>$&</var>');
-
+          var structuredSyntax = '<kbd>&lt;' + method[3][0] + '&gt;</kbd>' + syntax.replace(methodAndEventNamePattern, '<dfn>$&</dfn>').replace(argumentPattern, '<var>$&</var>');
           return '<div><p class="anchor" data-title="' + syntax + '">' + structuredSyntax + '</p>' + getDescription(method[1]) + getParameters(method[2]) + '<h4>返回值：</h4>' + getReturns(method[3]) + '</div>';
         })
         .join('');
@@ -228,7 +245,7 @@ document.on('beforedomready', function() {
     var $api = $('#api');
     $api.insertAdjacentHTML('beforeend', getDescription(data['基本描述']));
     $api.insertAdjacentHTML('beforeend', '<h2>启用方式</h2>' + getDescription(data['启用方式']));
-    $api.insertAdjacentHTML('beforeend', '<h2>结构约定</h2>' + getDescription(data['结构约定']));
+    $api.insertAdjacentHTML('beforeend', '<h2>结构约定</h2>' + getConvention(data['结构约定']));
     $api.insertAdjacentHTML('beforeend', '<h2>默认样式</h2>' + getStyles(data['默认样式']));
     $api.insertAdjacentHTML('beforeend', '<h2>可配置项</h2>' + getConfigs(data['可配置项']));
     $api.insertAdjacentHTML('beforeend', '<h2>新增行为</h2>' + getDescription(data['新增行为']));

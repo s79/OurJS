@@ -137,13 +137,16 @@
    * @启用方式
    *   为一个 DIV 元素添加 'widget-dialog' 类，即可使该元素成为“对话框”。
    * @结构约定
-   * * “对话框”的一些数据保存在其父元素中，因此不要修改“对话框”在文档树中的位置。
+   *   <div class="widget-dialog">
+   *     <a href="javascript:void('close');" class="close">关闭</a>
+   *   </div>
+   * * “对话框”的后代元素中，类名包含 'close' 的为“关闭按钮”。
+   *   “关闭按钮”是可选的。
+   * * “对话框”的一些数据保存在其父元素中，因此不要在“对话框”被解析后修改其在文档树中的位置。
    *   “对话框”的父元素一定要创建 stacking context，必要时会自动将其父元素的 position 设置为 'relative'。
    *   如果“对话框”的父元素不是 BODY，应避免其父元素出现滚动条，以免“对话框”和“遮盖层”随其父元素的内容一起滚动。
    * * “对话框”的 position 在其“定位参考元素”为 BODY 时将被设置为 'fixed'，其余情况均会被设置为 'absolute'。
    *   “对话框”的 z-index 值会被自动指定。
-   * * “对话框”的后代元素中，类名包含 'close' 的为“关闭按钮”。
-   *   “关闭按钮”是可选的。
    * @默认样式
    *   div.widget-overlay { display: none; left: 0; top: 0; background-color: black; opacity: 0.2; filter: alpha(opacity=20); }
    *   div.widget-dialog { display: none; outline: none; }

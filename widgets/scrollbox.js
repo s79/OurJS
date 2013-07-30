@@ -31,8 +31,11 @@
    * @启用方式
    *   为一个 DIV 元素添加 'widget-scrollbox' 类，即可使该元素成为“滚动框”。
    * @结构约定
-   * * “滚动框”必须包含一个子元素作为“内容区域”。该元素必须是块级元素，其 width、height、margin、padding、border-width、overflow 的设置都将被忽略并重置为特定的值。
-   * * 当“滚动框”初始化时，会在其内部自动创建“轨道” 'div.track'，并在“轨道”内创建“滚动条” 'div.scrollbar'。
+   *   <div class="widget-scrollbox">
+   *     <div>内容区域</div>
+   *   </div>
+   * * “滚动框”必须包含至少一个子元素，并且其中第一个子元素将被作为“内容区域”。“内容区域”必须是块级元素，其 width、height、margin、padding、border-width、overflow 的设置都将被忽略并重置为特定的值。
+   * * 当“滚动框”初始化时，会在其内部<strong>自动创建</strong>“轨道” 'div.track'，并在“轨道”内创建“滚动条” 'div.scrollbar'。
    *   为便于定制“滚动条”的样式，在“滚动条”内还创建了三个元素 'div.top'，'div.middle' 和 'div.bottom'。
    * @默认样式
    *   div.widget-scrollbox { visibility: hidden; position: relative; overflow: hidden; }

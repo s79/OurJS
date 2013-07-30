@@ -12,6 +12,20 @@
    * @启用方式
    *   为一个 DIV 元素添加 'widget-slideshow' 类，即可使该元素成为“幻灯片播放器”。
    * @结构约定
+   *   <div class="widget-slideshow">
+   *     <ul class="slides">
+   *       <li class="slide">第一张</li>
+   *       <li class="slide">第二张</li>
+   *     </ul>
+   *     <ul class="pointers">
+   *       <li class="pointer">1</li>
+   *       <li class="pointer">2</li>
+   *     </ul>
+   *     <div>
+   *       <a href="javascript:void('prev');" class="prev">上一张</a>
+   *       <a href="javascript:void('next');" class="next">下一张</a>
+   *     </div>
+   *   </div>
    * * “幻灯片播放器”的后代元素中，类名包含 'slides' 的为“幻灯片”的容器，类名包含 'slide' 的为“幻灯片”，类名包含 'pointers' 的为“指示器”的容器，类名包含 'pointer' 的为“指示器”，类名包含 'prev' 的为“播放上一张”按钮，类名包含 'next' 的为“播放下一张”按钮。
    *   上述内容中，只有“幻灯片”和“幻灯片”的容器是必选的，其他均可以省略。如果“幻灯片”小于两个，则即便有“指示器”、“播放上一张”和“播放下一张”按钮，它们也将不可见。
    * * 所有“幻灯片”都应有共同的父元素，并且它们的渲染尺寸也应与其父元素的渲染尺寸一致。
