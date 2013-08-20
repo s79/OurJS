@@ -20,7 +20,7 @@
   <div class="widget-demoarea" data-src="rules/add_client.html" data-content-height="200"></div>
 
   <h4>服务端验证</h4>
-  <p>服务端验证只会在必要时进行，表单验证器在触发 validate 事件之后，validated 事件将在所有的服务端验证结束后异步触发。</p>
+  <p>服务端验证只会在必要时进行，表单验证器在触发 validate 事件之后，将在所有的服务端验证结束后异步触发 validated 事件。</p>
   <p>本例在上例的基础上，添加了一个验证码字段，并为其添加了一条服务端验证规则：</p>
   <div class="widget-demoarea" data-src="rules/add_remote.html" data-content-height="200"></div>
 
@@ -30,8 +30,8 @@
   <p>本例新建了一个表单验证器，仅当选中“订阅更新”复选框时，“订阅邮箱”字段才需要被验证：</p>
   <div class="widget-demoarea" data-src="rules/remove.html" data-content-height="200"></div>
 
-  <h3>灵活使用自定义规则</h3>
-  <p>为一个字段配置的自定义规则 custom 不仅可以用来校验该字段的值，还可以将其他任何信息关联进来。</p>
+  <h3>指定关联表单域</h3>
+  <p>如果为某个表单域指定了关联表单域，则在验证本表单域的值时，还会对指定的关联表单域进行验证。</p>
   <p>本例新建了一个表单验证器，其中“电子邮箱”和“手机号码”两者只要正确填写一个即可：</p>
   <div class="widget-demoarea" data-src="custom/" data-content-height="200"></div>
 

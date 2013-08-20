@@ -62,7 +62,7 @@ body { margin: 0; padding: 10px; font: 14px/20px Tahoma, Verdana, Helvetica, Ari
       <tr>
         <th></th>
         <td>
-          <button id="btn_submit" type="submit">登　陆</button>
+          <button id="btn_submit" type="submit">登　录</button>
         </td>
         <td></td>
       </tr>
@@ -76,28 +76,25 @@ document.on('domready', function() {
   $('#login')
       .addValidationRules({
         account: {
-          required: true,
-          minLength: 3,
-          maxLength: 20,
-          custom: function(value) {
-            return /^\w+$/.test(value) ? '' : '帐号只能由英文字母、数字和下划线组成';
+          local: function(value) {
+            return /^\w{3,20}$/.test(value) ? '' : '帐号应由 3 - 20 位英文字母、数字和下划线组成';
           }
         },
         password: {
-          required: true,
-          minLength: 6,
-          maxLength: 20
+          local: function(value) {
+            return /^.{6,20}$/.test(value) ? '' : '密码应由 6 - 20 位字符组成';
+          }
         },
         captcha: {
-          required: true,
+          local: function(value) {
+            return value ? '' : '请输入验证码';
+          },
           remote: {
-            url: 'captcha.txt',
-            options: {
-              noCache: true,
-              minTime: 1000
+            request: new Request('captcha.txt', {noCache: true, minTime: 1000}),
+            getData: function(value) {
+              return {value: value};
             },
-            keyName: 'value',
-            validateResult: function(e) {
+            getResult: function(e) {
               // 本例使用的 captcha.png 和 captcha.txt 均为静态文件，此处使用脚本模拟服务端的校验过程。
               var value = this.elements.captcha.value;
               return value === 'captcha' ? '' : JSON.parse(e.text).errorMessage;
@@ -108,9 +105,9 @@ document.on('domready', function() {
       .on('validate', function() {
         $submit.disabled = true;
       })
-      .on('validated', function(e) {
+      .on('validated, reset', function(e) {
         $submit.disabled = false;
-        if (e.passed) {
+        if (e.type === 'validated' && e.passed) {
           alert('验证通过');
         }
       });

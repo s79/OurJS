@@ -2,7 +2,7 @@
  * OurJS
  *  sundongguo
  *  http://s79.github.com/OurJS/
- *  2013-07-26
+ *  2013-08-20
  *  Released under the MIT License.
  */
 /**
@@ -1793,8 +1793,8 @@
    *   如果指定的数据名不存在或无法访问，返回 null。
    */
   cookie.getItem = function(key) {
-    var matchs = document.cookie.match(new RegExp('(?:^|;)\\s*' + RegExp.escape(key) + '=([^;]*)'));
-    return matchs ? decodeURIComponent(matchs[1]) : null;
+    var match = document.cookie.match(new RegExp('(?:^|;)\\s*' + RegExp.escape(key) + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
   };
 
 //--------------------------------------------------[cookie.setItem]

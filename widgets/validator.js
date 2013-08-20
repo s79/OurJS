@@ -1,97 +1,59 @@
 /**
  * @fileOverview Widget - 表单验证器
  * @author sundongguo@gmail.com
- * @version 20121008
+ * @version 20130812
  */
 
 (function() {
 //==================================================[Widget - 表单验证器]
-//--------------------------------------------------[buildInValidators]
-  var buildInValidators = {
-    required: function(control, value, ruleValue) {
-      return ruleValue && value.length > 0 ? '' : (control.nodeType ? '必填' : '必选');
-    },
-    equals: function(control, value, ruleValue) {
-      return value === control.form.getFieldValue(ruleValue) ? '' : '两次输入的密码不一致';
-    },
-    minLength: function(control, value, ruleValue) {
-      return value.length === 0 || value.length >= ruleValue ? '' : (control.nodeType ? '不能少于 ' + ruleValue + ' 个字符' : '至少选择 ' + ruleValue + ' 项');
-    },
-    maxLength: function(control, value, ruleValue) {
-      return value.length === 0 || value.length <= ruleValue ? '' : (control.nodeType ? '不能超过 ' + ruleValue + ' 个字符' : '最多选择 ' + ruleValue + ' 项');
-    },
-    type: function(_, value, ruleValue) {
-      var passed = true;
-      if (value.length) {
-        passed = false;
-        switch (ruleValue) {
-          case 'number':
-            passed = /^([+-]?\d+)(\.\d+)?$/.test(value);
-            break;
-          case 'date':
-            passed = value === Date.parseExact(value).format();
-            break;
-          case 'email':
-            passed = /^([\w-])+@([\w-])+((\.[\w-]+){1,3})$/.test(value);
-            break;
-          case 'phone':
-            passed = /^\d{11}?$/.test(value);
-        }
-      }
-      return passed ? '' : '格式错误';
-    }
-  };
+//--------------------------------------------------[states]
+  var NOT_VERIFIED = 0;
+  var VERIFYING = 1;
+  var VALID = 2;
+  var INVALID = 3;
 
 //--------------------------------------------------[validateField]
   var validateField = function($form, name) {
-    // 获取指定表单域的控件和值。
-    var control = $form.elements[name];
+    // 获取指定表单域的值及其验证数据。
     var value = $form.getFieldValue(name);
+    var data = $form.validationData[name];
+    var local = data.local;
+    var remote = data.remote;
 
-    // 取出验证相关的数据。
-    var validationData = $form.validationData;
-    var ruleSet = validationData.rules[name];
-    var flags = validationData.flags;
-    var requests = validationData.requests;
-
-    // 开始验证表单域。
-    flags[name] = undefined;
-    $form.fire('fieldvalidate', {name: name, value: value});
-
-    // 先进行 5 种内置规则的验证。
-    var buildInRuleNames = ['required', 'equals', 'minLength', 'maxLength', 'type'];
-    var buildInRuleName;
-    var errorMessage = '';
-    while (!errorMessage && (buildInRuleName = buildInRuleNames.shift())) {
-      if (ruleSet.hasOwnProperty(buildInRuleName)) {
-        errorMessage = buildInValidators[buildInRuleName](control, value, ruleSet[buildInRuleName]);
-      }
+    // 如果上一次的服务端验证没有完成则取消之（此处状态若为验证中则必有 request 对象存在）。
+    if (data.state === VERIFYING) {
+      remote.request.abort();
     }
 
-    // 再进行 2 种自定规则的验证。
-    var custom = ruleSet.custom;
-    var remote = ruleSet.remote;
-    if (!errorMessage && custom) {
-      errorMessage = custom.call($form, value);
+    // 开始验证表单域。
+    data.state = VERIFYING;
+    $form.fire('fieldvalidate', {name: name, value: value});
+
+    var errorMessage = '';
+    if (local) {
+      errorMessage = local.call($form, value);
     }
     if (!errorMessage && remote) {
       // 需要服务端验证，在验证结束后异步触发 fieldvalidated 事件。
-      if (requests.hasOwnProperty(name)) {
-        requests[name].off('finish').abort();
-      }
-      var requestData = {};
-      requestData[remote.keyName] = value;
-      requests[name] = new Request(remote.url, remote.options)
-          .on('finish', function(e) {
-            delete requests[name];
-            var errorMessage = remote.validateResult.call($form, e);
-            var passed = flags[name] = !errorMessage;
+      remote.request
+          .on('abort.validatefield, timeout.validatefield', function(e) {
+            data.state = INVALID;
+            $form.fire('fieldvalidated', {name: name, value: value, passed: false, errorMessage: e.type.toUpperCase()});
+          })
+          .on('complete.validatefield', function(e) {
+            var errorMessage = remote.getResult.call($form, e);
+            var passed = !errorMessage;
+            data.state = passed ? VALID : INVALID;
             $form.fire('fieldvalidated', {name: name, value: value, passed: passed, errorMessage: errorMessage});
           })
-          .send(requestData);
+          .on('finish.validatefield', function() {
+            this.off('abort.validatefield, timeout.validatefield, complete.validatefield, finish.validatefield');
+          })
+          .send(remote.getData(value));
     } else {
       // 不需要服务端验证，同步触发 fieldvalidated 事件。
-      var passed = flags[name] = !errorMessage;
+      var passed = !errorMessage;
+      data.state = passed ? VALID : INVALID;
       $form.fire('fieldvalidated', {name: name, value: value, passed: passed, errorMessage: errorMessage});
     }
   };
@@ -117,38 +79,33 @@
    * @默认样式
    * @可配置项
    * @新增行为
-   * * 如果一个表单域配置了“验证规则”，当其中包含的任何控件的值被用户改变时，都将对该表单域进行验证，并触发 fieldvalidate 事件，验证结束后会触发 fieldvalidated 事件。
+   * * 如果一个表单域配置了“验证规则”，当其中包含的任何控件的值被用户改变时，都将对该表单域进行验证并触发 fieldvalidate 事件，验证结束后会触发 fieldvalidated 事件。
    *   如果一个表单域未能通过验证，提示信息会被注入为该表单域指定的“提示信息容器”中。
    *   要手动验证某一个表单域，触发其中任一控件的 change 事件即可。
-   * * 当某个表单域的输入或验证状态发生变化时，“状态指示器”和“提示信息容器”的类名也会随之改变（输入中=input && 验证中=validating || 通过验证=valid || 未通过验证=invalid），可以利用此特性在各种状态下显示不同的内容。
-   * * 该表单的 submit 事件的默认行为将被阻止，当表单的 submit 事件发生时，会对所有已配置的“验证规则”涉及到的、且尚未验证的表单域进行验证，并触发 validate 事件，验证结束后会触发 validated 事件。
+   * * 当某个表单域的输入或验证状态发生变化时，“状态指示器”也会被加入对应的类名，类名可能是 input（输入中）、validating（验证中）、valid （通过验证）或 invalid（未通过验证）的组合，可以利用此特性在各种状态下显示不同的内容。
+   * * 该表单的 submit 事件的默认行为将被阻止，当该表单触发 submit 事件时，会对所有已配置的“验证规则”涉及到的、且尚未验证的表单域进行验证，并触发 validate 事件，验证结束后会触发 validated 事件。
    *   如果没有需要服务端验证的表单域，validated 事件将同步触发，否则 validated 事件将在所有的服务端验证结束后异步触发。
-   *   如果用户在可能存在的服务端验证尚未全部结束之前修改了任一控件的值，则会立即取消当前的服务端验证，并触发 validated 事件，本次验证按失败处理。
-   * * 当该表单触发 reset 事件时，当前的验证结果和所有已显示的提示信息也会随之重置。
+   *   如果用户在验证开始后、可能存在的服务端验证尚未全部结束之前修改了任一正在验证中的控件的值，则会立即取消当前的服务端验证，并触发 validated 事件，本次验证按失败处理。
+   * * 当该表单触发 reset 事件时，当前的验证状态和所有已显示的提示信息也会随之重置。
    * @新增属性
    * @新增方法
    *   addValidationRules
    *     添加“验证规则”。
-   *     新的配置将在下次使用到这些“验证规则”的时候生效。
+   *     这些“验证规则”将在下次被使用的时候生效。
    *     参数：
    *       {Object} rules 要验证的表单域的名称及规则，格式为 <dfn>{<var>name</var>: <var>ruleSet</var>, ...}</dfn>。
    *       属性名 <var>name</var> 为要验证的表单域的名称。
-   *       属性值 <var>ruleSet</var> 为定义“验证规则”的对象，包括 5 种预置规则和 2 种自定规则。按照验证进行的顺序排列如下：
+   *       属性值 <var>ruleSet</var> 为定义“验证规则”的对象，该对象可以指定的规则有以下三个，它们都是可选的：
    *       <table>
    *         <thead>
-   *         <tr><th>规则名称</th><th>值类型</th><th>详细描述</th><th>提示信息</th></tr>
+   *         <tr><th>规则名称</th><th>值类型</th><th>详细描述</th></tr>
    *         </thead>
    *         <tbody>
-   *         <tr><td><dfn>required</dfn></td><td>boolean</td><td>限定该表单域是否为必填或必选的。</td><td>当该表单域只包含一个控件时为 '<strong>必填</strong>'，否则为 '<strong>必选</strong>'。</td></tr>
-   *         <tr><td><dfn>equals</dfn></td><td>string</td><td>指定相关表单域的名称，以限定该表单域的值与相关表单域的值一致。仅应在这两个表单域均只包含一个控件时指定，且相关表单域不能为该表单域自身。</td><td>'<strong>两次输入的密码不一致</strong>'。</td></tr>
-   *         <tr><td><dfn>minLength</dfn></td><td>number</td><td>当该表单域只包含一个控件时，限定该控件的值的最小长度，否则限定选择项的最少数目。</td><td>当该表单域只包含一个控件时为 '<strong>不能少于 <dfn>minLength</dfn> 个字符</strong>'，否则为 '<strong>至少选择 <dfn>minLength</dfn> 项</strong>'。</td></tr>
-   *         <tr><td><dfn>maxLength</dfn></td><td>number</td><td>当该表单域只包含一个控件时，限定该控件的值的最大长度，否则限定选择项的最多数目。</td><td>当该表单域只包含一个控件时为 '<strong>不能超过 <dfn>maxLength</dfn> 个字符</strong>'，否则为 '<strong>最多选择 <dfn>maxLength</dfn> 项</strong>'。</td></tr>
-   *         <tr><td><dfn>type</dfn></td><td>Array</td><td>限定数据的类型，值可以为 'number'、'date'、'email'、'phone' 中的任一个。</td><td>'<strong>格式错误</strong>'。</td></tr>
-   *         <tr><td><dfn>custom</dfn></td><td>Function</td><td>用来对该表单域的值进行进一步验证的函数，该函数被调用时会被传入该表单域的值，其 this 的值为本表单元素，返回值应为一个“提示信息”字符串（若为空字符串则表示验证通过）。</td><td>提示信息为 <dfn>custom</dfn> 函数的返回值。</td></tr>
-   *         <tr><td><dfn>remote</dfn></td><td>Object</td><td>指定对该表单域的值进行服务端验证，包含四个属性：url、options、keyName、validateResult。<br>其中前两个属性为创建远程请求时使用的 Request 的参数（细节请参考 Request 的同名参数），keyName 是将该表单域的值（value）以 <var>keyName=value</var> 的形式发送到服务端时使用的字段名，validateResult 是处理服务端返回信息的函数，该函数被调用时传入的参数与 Request 的 finish 事件监听器被调用时传入的参数一致，其 this 的值为“表单验证器”，该函数应该返回“提示信息”字符串（若为空字符串则表示验证通过）。</td><td>提示信息为 validateResult 函数的返回值。</td></tr>
+   *         <tr><td><dfn>related</dfn></td><td>Array</td><td>在验证本表单域的值时，也会对指定的关联表单域（可以为多个）进行验证。</td></tr>
+   *         <tr><td><dfn>local</dfn></td><td>Function</td><td>指定对该表单域的值进行客户端验证时使用的函数。该函数被调用时会传入该表单域的值，其 this 的值为本表单元素，其返回值应为一个“提示信息”字符串，若该字符串为空则表示验证通过。</td></tr>
+   *         <tr><td><dfn>remote</dfn></td><td>Object</td><td>指定对该表单域的值进行服务端验证时使用的配置。该对象必须包含三个属性：<dfn>request</dfn>、<dfn>getData</dfn> 和 <dfn>getResult</dfn>。<br><dfn>request</dfn> 为 Request 的实例（细节请参考 Request 的说明文档）。<br><dfn>getData</dfn> 是获取待验证的数据的函数，该函数被调用时会传入该表单域的值，其 this 的值为本表单元素，其返回值将作为 <dfn>request</dfn> 对象的 send 方法的参数使用。<br><dfn>getResult</dfn> 是获取验证结果的函数，该函数被调用时传入的参数与 <dfn>request</dfn> 的 complete 事件监听器被调用时传入的参数一致，其 this 的值为本表单元素，其返回值应为一个“提示信息”字符串，若该字符串为空则表示验证通过。</td></tr>
    *         </tbody>
    *       </table>
-   *       若不需要某种类型的验证，在 <var>ruleSet</var> 中省略对应的规则即可。
    *     返回值：
    *       {Element} 本元素。
    *   removeValidationRules
@@ -187,37 +144,23 @@
       addValidationRules: function(rules) {
         var $validator = this;
         var validationData = $validator.validationData;
-        var associatedFields = validationData.associatedFields;
-        var stateIndicators = validationData.stateIndicators;
-        var messageContainers = validationData.messageContainers;
-        // 清空关联表单域列表、“状态指示器”列表和“提示信息容器”列表。
-        Object.forEach(associatedFields, function(_, name) {
-          delete associatedFields[name];
-        });
-        Object.forEach(stateIndicators, function(_, name) {
-          delete stateIndicators[name];
-        });
-        Object.forEach(messageContainers, function(_, name) {
-          delete messageContainers[name];
-        });
-        // 添加“验证规则”，并根据 equals 规则生成关联表单域列表。
-        Object.forEach(Object.mixin(validationData.rules, rules), function(ruleSet, name) {
-          var associatedName = ruleSet.equals;
-          if (associatedName) {
-            associatedFields[associatedName] = name;
-          }
+        // 删除已存在的“验证规则”。
+        $validator.removeValidationRules(Object.keys(rules));
+        // 添加新的“验证规则”。
+        Object.forEach(rules, function(rule, name) {
+          Object.mixin(validationData[name] = {state: NOT_VERIFIED}, rule, {whiteList: ['related', 'local', 'remote']});
         });
         // 重新查找 DOM 树，生成新的“状态指示器”列表和“提示信息容器”列表。
         $validator.findAll('.state').forEach(function($stateIndicator) {
           var name = $stateIndicator.getData('for');
-          if (validationData.rules.hasOwnProperty(name) && !stateIndicators.hasOwnProperty(name)) {
-            stateIndicators[name] = $stateIndicator;
+          if (validationData.hasOwnProperty(name) && !validationData[name].stateIndicator) {
+            validationData[name].stateIndicator = $stateIndicator;
           }
         });
         $validator.findAll('.message').forEach(function($messageContainer) {
           var name = $messageContainer.getData('for');
-          if (validationData.rules.hasOwnProperty(name) && !messageContainers.hasOwnProperty(name)) {
-            messageContainers[name] = $messageContainer;
+          if (validationData.hasOwnProperty(name) && !validationData[name].messageContainer) {
+            validationData[name].messageContainer = $messageContainer;
           }
         });
         return $validator;
@@ -225,24 +168,20 @@
       removeValidationRules: function(names) {
         var $validator = this;
         var validationData = $validator.validationData;
-        var rules = validationData.rules;
-        var associatedFields = validationData.associatedFields;
-        var stateIndicators = validationData.stateIndicators;
-        var messageContainers = validationData.messageContainers;
+        // 删除“验证规则”。
         names.forEach(function(name) {
-          if (rules.hasOwnProperty(name)) {
-            var associatedName = rules[name].equals;
-            if (associatedName) {
-              delete associatedFields[associatedName];
+          if (validationData.hasOwnProperty(name)) {
+            var data = validationData[name];
+            if (data.state === VERIFYING) {
+              data.remote.request.abort();
             }
-            if (stateIndicators.hasOwnProperty(name)) {
-              stateIndicators[name].removeClass('input, validating, valid, invalid');
+            if (data.stateIndicator) {
+              data.stateIndicator.removeClass('input, validating, valid, invalid');
             }
-            if (messageContainers.hasOwnProperty(name)) {
-              messageContainers[name].innerHTML = '';
+            if (data.messageContainer) {
+              data.messageContainer.innerHTML = '';
             }
-            delete rules[name];
-            delete validationData.flags[name];
+            delete validationData[name];
           }
         });
         return $validator;
@@ -251,33 +190,21 @@
     initialize: function() {
       var $validator = this;
 
-      // 保存属性。
-      var validationData = $validator.validationData = {
-        rules: {},
-        flags: {},
-        associatedFields: {},
-        requests: {},
-        stateIndicators: {},
-        messageContainers: {}
-      };
+      // 保存验证数据。
+      var validationData = $validator.validationData = {};
 
-      // 验证配置了“验证规则”的表单域。
-      var rules = validationData.rules;
-      var flags = validationData.flags;
-      var associatedFields = validationData.associatedFields;
-      var requests = validationData.requests;
-      var stateIndicators = validationData.stateIndicators;
-      var messageContainers = validationData.messageContainers;
+      // 添加新行为。
       var isValidating = false;
       $validator
           .on('focusin.validator, focusout.validator', function(e) {
             // 表单控件获取或失去焦点时更改“状态指示器”的类名。
             var name = e.target.name;
-            if (rules.hasOwnProperty(name)) {
-              if (stateIndicators.hasOwnProperty(name)) {
+            if (validationData.hasOwnProperty(name)) {
+              var $stateIndicator = validationData[name].stateIndicator;
+              if ($stateIndicator) {
                 // 以下 submit.validator 事件监听器中使用了延时，此处也应使用，以避免提示信息闪烁。
                 setTimeout(function() {
-                  stateIndicators[name][e.type === 'focusin' ? 'addClass' : 'removeClass']('input');
+                  $stateIndicator[e.type === 'focusin' ? 'addClass' : 'removeClass']('input');
                 }, 0);
               }
             }
@@ -285,18 +212,20 @@
           .on('change.validator', function(e) {
             // 表单控件的值发生改变时触发的验证。
             var name = e.target.name;
-            if (rules.hasOwnProperty(name)) {
+            if (validationData.hasOwnProperty(name)) {
+              // 对本表单域进行验证。
               validateField($validator, name);
-            }
-            // 如果有关联的表单域，则同时对该关联表单域进行验证。
-            var associatedName = associatedFields[name];
-            if (associatedName) {
-              validateField($validator, associatedName);
+              // 如果有关联的表单域，则同时对该关联表单域进行验证。
+              var relatedFields = validationData[name].related;
+              if (relatedFields) {
+                relatedFields.forEach(function(relatedFieldName) {
+                  validateField($validator, relatedFieldName);
+                });
+              }
             }
           })
           .on('submit.validator', function(e) {
-            // 使表单内的活动元素触发 change 事件。
-            // 单独添加一个监听器，以免验证过程发生异常时导致表单被提交。
+            // 使表单内的活动控件触发 change 事件。单独添加一个监听器，以免验证过程发生异常时导致表单被提交。
             var activeElement = document.activeElement;
             if ($validator.contains(activeElement)) {
               activeElement.blur();
@@ -310,46 +239,47 @@
               if (!isValidating) {
                 isValidating = true;
                 $validator.fire('validate');
-                // 对尚未验证的表单域进行验证（flag 的含义：true = 通过验证 / false = 未通过验证 / undefined = 验证中 / 无 = 尚未验证）。
-                Object.forEach(rules, function(_, name) {
-                  if (!flags.hasOwnProperty(name)) {
+                // 对尚未验证的表单域进行验证。
+                Object.forEach(validationData, function(data, name) {
+                  if (data.state === NOT_VERIFIED) {
                     validateField($validator, name);
                   }
                 });
-                // 所有配置了“验证规则”的表单域都已有其对应的 flag，分析验证结果。
-                var validatingFields = [];
+                // 分析验证状态。
+                var verifyingFields = [];
                 var invalidFields = [];
                 var allFieldsAreValid = true;
-                Object.forEach(flags, function(flag, name) {
-                  if (flag === undefined) {
-                    validatingFields.push(name);
-                  } else {
-                    if (flag === false) {
+                Object.forEach(validationData, function(data, name) {
+                  switch (data.state) {
+                    case VERIFYING:
+                      verifyingFields.push(name);
+                      break;
+                    case INVALID:
                       invalidFields.push(name);
-                    }
-                    allFieldsAreValid = allFieldsAreValid && flag;
+                      allFieldsAreValid = false;
+                      break;
                   }
                 });
-                if (validatingFields.length) {
+                if (verifyingFields.length) {
                   // 有验证仍在进行。
                   $validator
-                      .on('fieldvalidate.validatorTemp', function(e) {
+                      .on('fieldvalidate.checkRemote', function(e) {
                         var name = e.name;
                         if (!invalidFields.contains(name)) {
                           invalidFields.push(name);
                         }
                         $validator.fire('validated', {passed: false, invalidFields: invalidFields});
                       })
-                      .on('fieldvalidated.validatorTemp', function(e) {
+                      .on('fieldvalidated.checkRemote', function(e) {
                         var name = e.name;
                         var passed = e.passed;
-                        if (validatingFields.contains(name)) {
-                          validatingFields.remove(name);
+                        if (verifyingFields.contains(name)) {
+                          verifyingFields.remove(name);
                           if (passed === false) {
                             invalidFields.push(name);
                           }
                           allFieldsAreValid = allFieldsAreValid && passed;
-                          if (!validatingFields.length) {
+                          if (!verifyingFields.length) {
                             $validator.fire('validated', {passed: allFieldsAreValid, invalidFields: invalidFields});
                           }
                         }
@@ -363,34 +293,36 @@
           })
           .on('reset.validator, validated.validator', function() {
             // 复位表单或验证完毕时，重置临时设定的状态。
-            $validator.off('fieldvalidate.validatorTemp, fieldvalidated.validatorTemp');
+            $validator.off('fieldvalidate.checkRemote, fieldvalidated.checkRemote');
             isValidating = false;
           })
           .on('reset.validator', function() {
-            // 复位表单时清理验证结果，取消可能正在进行中的远程请求，并恢复原始状态、清空提示信息。
-            Object.forEach(flags, function(_, name) {
-              delete flags[name];
-            });
-            Object.forEach(requests, function(request, name) {
-              request.off('finish').abort();
-              delete request[name];
-            });
-            Object.forEach(stateIndicators, function($stateIndicator) {
-              $stateIndicator.removeClass('validating, valid, invalid');
-            });
-            Object.forEach(messageContainers, function($messageContainer) {
-              $messageContainer.innerHTML = '';
+            // 复位表单时取消可能正在进行中的远程请求，复位各表单域的验证状态，并清空提示信息。
+            Object.forEach(validationData, function(data) {
+              if (data.state === VERIFYING) {
+                data.remote.request.abort();
+              }
+              data.state = NOT_VERIFIED;
+              if (data.stateIndicator) {
+                data.stateIndicator.removeClass('validating, valid, invalid');
+              }
+              if (data.messageContainer) {
+                data.messageContainer.innerHTML = '';
+              }
             });
           })
           .on('fieldvalidate.validator, fieldvalidated.validator', function(e) {
             // 表单域开始验证及验证完毕时更改提示信息。
             var name = e.name;
-            if (rules.hasOwnProperty(name)) {
-              if (stateIndicators.hasOwnProperty(name)) {
-                stateIndicators[name].removeClass('validating, valid, invalid').addClass(e.type === 'fieldvalidate' ? 'validating' : (e.passed ? 'valid' : 'invalid'));
+            if (validationData.hasOwnProperty(name)) {
+              var data = validationData[name];
+              var $stateIndicator = data.stateIndicator;
+              var $messageContainer = data.messageContainer;
+              if ($stateIndicator) {
+                $stateIndicator.removeClass('validating, valid, invalid').addClass(e.type === 'fieldvalidate' ? 'validating' : (e.passed ? 'valid' : 'invalid'));
               }
-              if (messageContainers.hasOwnProperty(name)) {
-                messageContainers[name].innerHTML = e.errorMessage;
+              if ($messageContainer && e.type === 'fieldvalidated') {
+                $messageContainer.innerHTML = e.errorMessage;
               }
             }
           });

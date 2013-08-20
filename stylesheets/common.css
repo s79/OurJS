@@ -111,7 +111,7 @@ sup { display: inline-block; top: -6px; padding: 0 3px 1px; border-radius: 8px; 
 
 /* 页脚 */
 #footer { clear: both; min-width: 1000px; margin-top: -42px; padding: 10px 0; overflow: hidden; background: #323232; opacity: 0.95; color: gainsboro; text-align: center; }
-#footer span { font-size: 12px; }
+#footer span { display: block; width: 960px; margin: auto; font-size: 12px; }
 #footer a:link,
 #footer a:visited { color: gainsboro; font-weight: bold; }
 #footer a:hover { color: white; }
