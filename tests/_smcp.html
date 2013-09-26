@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>四型性格测试</title>
+<script src="../our.js"></script>
+<style>
+/* --------------------------------------------------[Reset] */
+body, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, p, blockquote, pre, form, fieldset, legend, button, input, textarea, th, td { margin: 0; padding: 0; }
+ul, ol { list-style: outside none; }
+fieldset, img { border: 0; }
+table { border-collapse: collapse; border-spacing: 0; }
+body, small, sup, sub, button, input, textarea, select { font: 12px/1 Arial, Helvetica, Verdana, SimSun, sans-serif; }
+body { line-height: 1.5; }
+h1, h2, h3, h4, h5, h6 { font-size: 100%; }
+address, cite, dfn, em, var { font-style: normal; }
+code, kbd, pre, samp { font-family: Consolas, "Lucida Console", Courier, SimSun, monospace; }
+sup, sub { position: relative; vertical-align: baseline; }
+sup { top: -3px; }
+sub { bottom: -3px; }
+button { padding: 5px 10px; overflow: visible; }
+
+/* --------------------------------------------------[Theme] */
+/* 字体（在 reset 的基础上加大字号并加入微软雅黑） */
+body,
+small,
+sup,
+sub,
+button,
+input,
+textarea,
+select { font-size: 14px; font-family: Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; }
+code,
+kbd,
+pre,
+samp { font-family: Consolas, "Lucida Console", Courier, "Microsoft YaHei", SimSun, monospace; }
+
+/* 链接 */
+a { display: inline-block; width: 45%; min-width: 330px; height: 120px; padding: 10px; background: royalblue; font-size: 22px; text-decoration: none; vertical-align: top; }
+a:link { color: whitesmoke; }
+a:visited { color: whitesmoke; }
+a:hover { background: dodgerblue; color: white; }
+a:active { background: deepskyblue; color: white; }
+
+/* 标题 */
+h1 { margin: 30px; font-size: 32px; text-align: center; }
+h2 { margin: 50px 0 20px; font-size: 18px; text-align: center; }
+h3 { margin: 30px 0 10px; font-size: 16px; }
+
+/* --------------------------------------------------[Layout] */
+html { height: 100%; overflow: hidden; }
+body { background: silver; min-width: 830px; height: 100%; overflow: hidden; }
+blockquote { display: none; margin-top: -30px; }
+
+a.btn { display: block; margin: -20px auto 0; height: 150px; line-height: 150px; font-size: 80px; text-align: center; opacity: 0; filter: alpha(opacity=0); }
+
+a.option { position: absolute; left: 1000px; opacity: 0; filter: alpha(opacity=0); }
+a.selected { background: deepskyblue; }
+#progress { position: relative; margin: 10px 20px; height: 5px; overflow: hidden; background: whitesmoke; text-align: right; }
+#progress div { position: absolute; left: 0; top: 0; height: 5px; background: royalblue; transition: width 1s; -webkit-transition: width 1s; }
+#progress span { position: relative; top: 8px; }
+#questions { margin-top: 20px; }
+#mask { position: absolute; left: 0; top: 0; z-index: 100; width: 100%; height: 100%; background: black; opacity: 0; filter: alpha(opacity=0); }
+
+ul { width: 60%; margin: auto; }
+ul li { float: left; position: relative; width: 20%; height: 200px; margin: auto; }
+ul li span { position: absolute; left: 20%; bottom: 0; width: 60%; height: 0; background: greenyellow; }
+table { width: 60%; margin: auto; }
+th,
+td { width: 20%; }
+tbody th,
+tbody td { border-top: 1px solid dimgray; text-align: center; }
+</style>
+</head>
+<body>
+<h1>四型性格测试</h1>
+
+<blockquote id="welcome">
+  <h2>本测试共40题，每题四个选项，请选出你认为最符合自己的描述，均为单选、必选。</h2>
+  <a href="javascript:void('start');" class="btn">开始测试</a>
+</blockquote>
+
+<blockquote id="answer_sheet">
+  <div id="progress">
+    <div></div>
+    <span></span>
+  </div>
+  <div id="questions">
+    <a href="javascript:void('start');" class="option"></a>
+    <a href="javascript:void('start');" class="option"></a>
+    <a href="javascript:void('start');" class="option"></a>
+    <a href="javascript:void('start');" class="option"></a>
+  </div>
+  <div id="mask"></div>
+</blockquote>
+
+<blockquote id="result">
+  <ul>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ul>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>S</th>
+        <th>M</th>
+        <th>C</th>
+        <th>P</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>第 1 - 20 题</th>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>第 21 - 40 题</th>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <th>总计</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+
+<script>
+var questions = [];
+var answers = [];
+
+//==================================================[Init Scenes]
+var $welcome = $('#welcome');
+var $answerSheet = $('#answer_sheet');
+var $result = $('#result');
+
+(function() {
+  var sceneMethods = {
+    enter: function() {
+      this.fade('in').morph({marginTop: 0}, {
+        onFinish: function() {
+          this.fire('enter');
+        }
+      });
+    },
+    exit: function() {
+      this.fade('out').morph({marginTop: 100}, {
+        onFinish: function() {
+          this.fire('exit');
+        }
+      });
+    }
+  };
+
+  [$welcome, $answerSheet, $result].forEach(function($scene) {
+    Object.mixin($scene, sceneMethods);
+  });
+
+})();
+
+//==================================================[Scene - Welcome]
+(function() {
+  var $start = $welcome.find('a.btn').on('click', function() {
+    $welcome.exit();
+  });
+
+//--------------------------------------------------[actions]
+  $welcome.on('enter', function() {
+    $start.getPreviousSibling().highlight('royalblue', 'color');
+    $start.morph({marginTop: 0, opacity: 1});
+  });
+
+})();
+
+//==================================================[Scene - AnswerSheet]
+var $questions = $('#questions');
+var options = $questions.getChildren();
+var n = 0;
+var total = 0;
+
+var getLayout = function() {
+  var viewPortSize = window.getClientSize();
+  var top = $questions.getClientRect().top;
+  var totalWidth = viewPortSize.width * .8;
+  var optionLeft = Math.round(totalWidth * .1);
+  var optionWidth = Math.max(totalWidth / 2 - 20, 330);
+  var optionHeight = 140;
+  return [
+    {left: optionLeft, top: top, width: optionWidth},
+    {left: optionLeft + optionWidth + 30, top: top, width: optionWidth},
+    {left: optionLeft, top: top + optionHeight + 10, width: optionWidth},
+    {left: optionLeft + optionWidth + 30, top: top + optionHeight + 10, width: optionWidth}
+  ];
+};
+
+var showProgress = function() {
+  var $progressBar = $('#progress>div');
+
+  return function(increment) {
+    n += increment;
+    $progressBar.style.width = (n / total) * 100 + '%';
+  };
+
+}();
+
+//--------------------------------------------------[$questions.reflow]
+$questions.reflow = function() {
+  var reflow = function() {
+    var layout = getLayout();
+    options.forEach(function($option, index) {
+      $option.morph(layout[index]);
+    });
+  };
+
+  return function() {
+    if ($questions.isBusy) {
+      if (!$questions.reflowIsStandingBy) {
+        $questions.reflowIsStandingBy = true;
+        $questions.on('idle:once', function() {
+          delete $questions.reflowIsStandingBy;
+          reflow();
+        });
+      }
+    } else {
+      reflow();
+    }
+  };
+
+}();
+
+//--------------------------------------------------[$questions.getNext]
+var $progressNum = $('#progress>span');
+$questions.getNext = function() {
+  var question = questions[n].shuffle();
+  options.forEach(function($option, index) {
+    var option = question[index];
+    $option.setData('type', option.slice(1, 2)).innerHTML = option.slice(3);
+    setTimeout(function() {
+      $option.morph({marginLeft: 0, opacity: 1}, {
+        duration: 500,
+        onFinish: function() {
+          if (index === 3) {
+            $questions.isBusy = false;
+            $questions.fire('idle');
+          }
+        }
+      });
+    }, index * 50);
+  });
+
+  $progressNum.innerHTML = (n + 1) + '/' + total;
+
+};
+
+//--------------------------------------------------[$questions.pickOption]
+$questions.pickAnOption = function($selected) {
+  $questions.isBusy = true;
+  $questions.fire('busy');
+
+  $selected.addClass('selected').blur();
+  answers.push($selected.getData('type'));
+
+  showProgress(1);
+
+  var i = 0;
+  options.forEach(function($option) {
+    if ($option !== $selected) {
+      setTimeout(function() {
+        $option.morph({marginLeft: -0, opacity: 0}, {duration: 500});
+      }, i++ * 75);
+    }
+  });
+  setTimeout(function() {
+    $selected.morph({marginLeft: 0, opacity: 0}, {
+      duration: 200,
+      onFinish: function() {
+        $selected.removeClass('selected');
+        if (n < total) {
+          $questions.getNext();
+        } else {
+          $questions.isBusy = false;
+          $answerSheet.exit();
+        }
+      }
+    });
+  }, 500);
+
+};
+
+//--------------------------------------------------[actions]
+$answerSheet
+    .on('enter', function() {
+      // 初始化事件。
+      var $mask = $('#mask');
+      $questions
+          .on('click:relay(a.option)', function(e) {
+            $questions.pickAnOption(e.target);
+          })
+          .on('busy', function() {
+            $mask.setStyle('display', 'block');
+          })
+          .on('idle', function() {
+            $mask.setStyle('display', 'none');
+          });
+      window.on('resize:throttle(200).answerSheet', function() {
+        $questions.reflow();
+      });
+
+      // 初始化选项布局。
+      var layout = getLayout();
+      options.forEach(function($option, index) {
+        $option.setStyles(layout[index]);
+      });
+
+      // 获取第一个问题。
+      $questions.getNext();
+
+    })
+    .on('exit', function() {
+      // 取消重布局。
+      window.off('resize:throttle(200).answerSheet');
+    });
+
+//==================================================[Scene - Result]
+//--------------------------------------------------[actions]
+$result.on('enter', function() {
+//  for (var i = 0; i < 40; i++) {
+//    answers[i] = ['S', 'M', 'C', 'P'][Math.randomRange(0, 3)];
+//  }
+  console.log(answers.join(''));
+
+  var result = {s1: 0, m1: 0, c1: 0, p1: 0, s2: 0, m2: 0, c2: 0, p2: 0};
+  answers.forEach(function(answer, index) {
+    result[answer.toLowerCase() + (index < 20 ? 1 : 2)]++;
+  });
+
+  var $list = $('#result tbody');
+  var s = result.s1 + result.s2;
+  var m = result.m1 + result.m2;
+  var c = result.c1 + result.c2;
+  var p = result.p1 + result.p2;
+  $list.rows[0].cells[1].innerHTML = result.s1;
+  $list.rows[0].cells[2].innerHTML = result.m1;
+  $list.rows[0].cells[3].innerHTML = result.c1;
+  $list.rows[0].cells[4].innerHTML = result.p1;
+  $list.rows[1].cells[1].innerHTML = result.s2;
+  $list.rows[1].cells[2].innerHTML = result.m2;
+  $list.rows[1].cells[3].innerHTML = result.c2;
+  $list.rows[1].cells[4].innerHTML = result.p2;
+  $list.rows[2].cells[1].innerHTML = s;
+  $list.rows[2].cells[2].innerHTML = m;
+  $list.rows[2].cells[3].innerHTML = c;
+  $list.rows[2].cells[4].innerHTML = p;
+
+  var hists = $('#result ul').getChildren();
+  $('<span></span>').insertTo(hists[1]).morph({height: s * 10}, {duration: 600});
+  $('<span></span>').insertTo(hists[2]).morph({height: m * 10}, {duration: 600});
+  $('<span></span>').insertTo(hists[3]).morph({height: c * 10}, {duration: 600});
+  $('<span></span>').insertTo(hists[4]).morph({height: p * 10}, {duration: 600});
+
+});
+
+//==================================================[Director]
+new Request('_smcp.txt')
+    .on('complete', function(e) {
+      var question;
+      e.text.split(/[\r\n]+/).forEach(function(line, index) {
+        if (index % 5 === 0) {
+          if (question) {
+            questions.push(question);
+          }
+          question = [];
+        } else {
+          question.push(line);
+        }
+      });
+
+      total = questions.length;
+
+      $welcome.enter();
+
+    })
+    .send();
+
+$welcome.on('exit', function() {
+  $answerSheet.enter();
+});
+
+$answerSheet.on('exit', function() {
+  $result.enter();
+});
+
+</script>
+</body>
+</html>
