@@ -281,13 +281,13 @@
     var request = this;
     // 如果请求正在进行中，则需等待此次请求完成后才能再次发起请求（若设置了 minTime 则请求完成的时间可能比交互完成的时间长）。
     if (!request.ongoing) {
-      // 序列化请求数据。如果请求数据为空，则统一使用 null 表示。
-      requestData = requestData ? Object.toQueryString(requestData) : null;
-      // 触发 start 事件。
-      request.fire('start');
       // 请求开始进行。
       request.ongoing = true;
       request.timestamp = Date.now();
+      // 触发 start 事件。
+      request.fire('start');
+      // 序列化请求数据。如果请求数据为空，则统一使用 null 表示。
+      requestData = requestData ? Object.toQueryString(requestData) : null;
       // 发送 XHR 或 JSONP 模式的请求。
       var url = request.url;
       var method = request.method;

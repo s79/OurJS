@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Countdown</title>
+<script src="../our.js"></script>
+<style>
+body { margin: 0; padding: 0; background-color: #514938; font: 12px/1 Tahoma, Arial, Helvetica, Verdana, "Microsoft YaHei", SimSun, sans-serif; }
+p { margin: 0; padding: 5px 12px; height: 15px; color: white; line-height: 15px; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75); }
+p span { margin: 0 3px; color: #FFBA00; }
+</style>
+</head>
+<body>
+<p id="notice"></p>
+<script>
+(function(window) {
+//==================================================[倒计时器]
+  var checkRemainingTime = function(countdown) {
+    var now = new Date();
+    var remaining = Math.floor((countdown.remainingTime - (now.getTime() - countdown.startTime)) / 1000);
+    if (remaining >= 0) {
+      var seconds = Math.floor(remaining % 60);
+      if (countdown.lastSecond !== seconds) {
+        countdown.lastSecond = seconds;
+        var miniutes = Math.floor((remaining / 60) % 60);
+        var hours = Math.floor((remaining / 3600) % 24);
+        var days = Math.floor(remaining / 86400);
+        var time = {days: days, hours: hours, miniutes: miniutes, seconds: seconds};
+        countdown.fire('tick', {time: time});
+      }
+      setTimeout(function() {
+        checkRemainingTime(countdown);
+      }, 200);
+    } else {
+      countdown.ongoing = false;
+      delete countdown.remainingTime;
+      delete countdown.startTime;
+      delete countdown.lastSecond;
+      countdown.fire('end');
+    }
+  };
+
+//--------------------------------------------------[Countdown]
+  /**
+   * 倒计时器。
+   * @name Countdown
+   * @constructor
+   * @fires start
+   *   成功调用 start 方法后，倒计时开始时触发。
+   * @fires tick
+   *   倒计时过程中，每秒触发。
+   * @fires end
+   *   倒计时结束后触发。
+   * @description
+   *   所有 Countdown 的实例也都是一个 JSEventTarget 对象。
+   */
+  var Countdown = window.Countdown = function() {
+    this.ongoing = false;
+    JSEventTarget.create(this);
+  };
+
+//--------------------------------------------------[Countdown.prototype.start]
+  /**
+   * 开始倒计时。
+   * @name Countdown.prototype.start
+   * @function
+   * @param {number} remainingTime 本次倒计时的时长，单位为毫秒。
+   * @returns {boolean} 本方法是否已被成功调用。
+   * @description
+   *   成功调用本方法后，即开始倒计时。
+   */
+  Countdown.prototype.start = function(remainingTime) {
+    if (!this.ongoing) {
+      this.ongoing = true;
+      this.remainingTime = remainingTime;
+      this.startTime = Date.now();
+      this.fire('start');
+      checkRemainingTime(this);
+      return true;
+    }
+    return false;
+  };
+
+})(window);
+
+//==================================================[Test]
+var $notice = $('#notice');
+new Countdown()
+    .on('tick', function(e) {
+      console.log(e.time.seconds);
+      var time = e.time;
+      $notice.innerText = (time.days ? time.days + '天' : '') + (time.hours ? time.hours + '小时' : '') + (time.miniutes ? time.miniutes + '分' : '') + (time.seconds ? time.seconds + '秒' : '') || '时间到';
+    })
+    .on('end', function() {
+      console.log('END');
+      $notice.innerText = '倒计时结束';
+    })
+    .start(Date.parseExact('2013-10-18 20:00:03', 'YYYY-MM-DD hh:mm:ss').getTime() - Date.parseExact('2013-10-18 20:00:00', 'YYYY-MM-DD hh:mm:ss').getTime());
+</script>
+</body>
+</html>

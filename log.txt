@@ -1,5 +1,9 @@
 ﻿
 
+>2013-10-17
+* 修复 jsEventTarget.on 方法解析带括号的选择符出错的 bug
+* 修复 Request 的 start 事件触发时 ongoing 未更新的 bug
+
 >2013-08-19
 * 简化 widget-validator 的设计使其更灵活
 

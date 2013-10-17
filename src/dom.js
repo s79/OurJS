@@ -1907,12 +1907,45 @@
 
   // 解析监听器名称，取出相关的属性。
   var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
+  var bracePattern = /({)|}/g;
   var getEventAttributes = function(name) {
-    var match = name.match(eventNamePattern);
+    // JS 的正则表达式不支持平衡组，因此将选择符部分的括号替换，以正确的匹配各属性。
+    var parsedName = '';
+    var pair = 0;
+    var i = 0;
+    var character;
+    while (character = name.charAt(i++)) {
+      if (character === '{' || character === '}') {
+        parsedName = '';
+        break;
+      }
+      if (character === '(') {
+        if (pair > 0) {
+          character = '{';
+        }
+        ++pair;
+      } else if (character === ')') {
+        --pair;
+        if (pair > 0) {
+          character = '}';
+        }
+      }
+      parsedName += character;
+    }
+    // 取得各属性。
+    var match = parsedName.match(eventNamePattern);
     if (match === null) {
       throw new SyntaxError('Invalid listener name "' + name + '"');
     }
-    return {type: match[1], selector: match[2] || '', once: !!match[3], idle: parseInt(match[4], 10), throttle: parseInt(match[5], 10)};
+    return {
+      type: match[1],
+      selector: match[2] ? match[2].replace(bracePattern, function(_, leftBrace) {
+        return leftBrace ? '(' : ')';
+      }) : '',
+      once: !!match[3],
+      idle: parseInt(match[4], 10),
+      throttle: parseInt(match[5], 10)
+    };
   };
 
   // 添加和删除原生事件监听器。

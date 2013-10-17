@@ -32,19 +32,56 @@ $('#ul').on('click:relay(a).test', function(e) {
   console.log('● CLICKED: a');
   e.preventDefault();
 });
-$('#ul').on('click:relay(li>span a), click:relay(li:nth-child(even) span).test', function(e) {
+$('#ul').on('click:relay(li>span a), mouseenter:relay(li:nth-child(even) span).test', function(e) {
   console.log('● -> ' + this.nodeName);
   e.preventDefault();
 });
+$('#ul').findAll('li:nth-child(even) span').forEach(function($span) {
+  $span.setStyle('backgroundColor', 'lightsteelblue')
+});
 
 //--------------------------------------------------[getEventAttributes]
+// 解析监听器名称，取出相关的属性。
 var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
+var bracePattern = /({)|}/g;
 var getEventAttributes = function(name) {
-  var match = name.match(eventNamePattern);
+  // JS 的正则表达式不支持平衡组，因此将选择符部分的括号替换，以正确的匹配各属性。
+  var parsedName = '';
+  var pair = 0;
+  var i = 0;
+  var character;
+  while (character = name.charAt(i++)) {
+    if (character === '{' || character === '}') {
+      parsedName = '';
+      break;
+    }
+    if (character === '(') {
+      if (pair > 0) {
+        character = '{';
+      }
+      ++pair;
+    } else if (character === ')') {
+      --pair;
+      if (pair > 0) {
+        character = '}';
+      }
+    }
+    parsedName += character;
+  }
+  // 取得各属性。
+  var match = parsedName.match(eventNamePattern);
   if (match === null) {
     throw new SyntaxError('Invalid listener name "' + name + '"');
   }
-  return {type: match[1], selector: match[2] || '', once: !!match[3], idle: parseInt(match[4], 10), throttle: parseInt(match[5], 10)};
+  return {
+    type: match[1],
+    selector: match[2] ? match[2].replace(bracePattern, function(_, leftBrace) {
+      return leftBrace ? '(' : ')';
+    }) : '',
+    once: !!match[3],
+    idle: parseInt(match[4], 10),
+    throttle: parseInt(match[5], 10)
+  };
 };
 
 //--------------------------------------------------[TEST]
@@ -66,9 +103,12 @@ var getEventAttributes = function(name) {
   'click:throttle(500)',
   'click:relay(li.item):throttle(500).test',
   'click:throttle(500):once',
+  'click:throttle(200).foo',
   'click:once:throttle(500)',
   'click:throttle(500):relay(btn)',
   'click:relay(btn):throttle(500).test',
+  'click:relay(tr:not(:nth-child(2))>td:nth-child(even)):throttle(200).foo',
+  'click:relay(tr:not{:nth-child(2)}>td:nth-child(even)):throttle(200).foo',
   '~click'
 ]
     .forEach(function(item) {
@@ -115,8 +155,6 @@ document.on('keydown', function(e) {
       break;
   }
 });
-
-
 </script>
 </body>
 </html>
