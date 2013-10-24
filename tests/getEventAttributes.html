@@ -42,8 +42,8 @@ $('#ul').findAll('li:nth-child(even) span').forEach(function($span) {
 
 //--------------------------------------------------[getEventAttributes]
 // 解析监听器名称，取出相关的属性。
-var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
-var bracePattern = /({)|}/g;
+var reEventName = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
+var reBrace = /({)|}/g;
 var getEventAttributes = function(name) {
   // JS 的正则表达式不支持平衡组，因此将选择符部分的括号替换，以正确的匹配各属性。
   var parsedName = '';
@@ -69,13 +69,13 @@ var getEventAttributes = function(name) {
     parsedName += character;
   }
   // 取得各属性。
-  var match = parsedName.match(eventNamePattern);
+  var match = parsedName.match(reEventName);
   if (match === null) {
     throw new SyntaxError('Invalid listener name "' + name + '"');
   }
   return {
     type: match[1],
-    selector: match[2] ? match[2].replace(bracePattern, function(_, leftBrace) {
+    selector: match[2] ? match[2].replace(reBrace, function(_, leftBrace) {
       return leftBrace ? '(' : ')';
     }) : '',
     once: !!match[3],

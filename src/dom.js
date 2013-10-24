@@ -225,7 +225,7 @@
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
    */
-  var tagNamePattern = /(?!<)\w*/;
+  var reTagName = /(?!<)\w*/;
   // 为解决“IE 可能会自动添加 TBODY 元素”的问题，在相应的 wrappers 里预置了一个 TBODY。
   var wrappers = {
     area: ['<map>', '</map>'],
@@ -250,7 +250,7 @@
     var element = null;
     if (typeof e === 'string') {
       if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
-        var tagName = tagNamePattern.exec(e)[0].toLowerCase();
+        var tagName = reTagName.exec(e)[0].toLowerCase();
         var wrapper = wrappers[tagName] || defaultWrapper;
         element = document.createElement('div');
         element.innerHTML = wrapper[0] + e + wrapper[1];
@@ -495,9 +495,9 @@
    *   注意：getter 在处理空标签及特殊字符时，各浏览器的行为不一致。
    */
 //  if (!('outerHTML' in html)) {
-//    var emptyElementPattern = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
+//    var reEmptyElement = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
 //    var isEmptyElement = function(nodeName) {
-//      return emptyElementPattern.test(nodeName);
+//      return reEmptyElement.test(nodeName);
 //    };
 //
 //    HTMLElement.prototype.__defineGetter__('outerHTML', function() {
@@ -1558,9 +1558,9 @@
    *   Element.prototype.removeData
    */
 
-  var validNamePattern = /^[a-z][a-zA-Z]*$/;
+  var reValidName = /^[a-z][a-zA-Z]*$/;
   var parseDataKey = function(key) {
-    return validNamePattern.test(key) ? 'data-' + key.dasherize() : '';
+    return reValidName.test(key) ? 'data-' + key.dasherize() : '';
   };
 
 //--------------------------------------------------[Element.prototype.getData]
@@ -1906,8 +1906,8 @@
   };
 
   // 解析监听器名称，取出相关的属性。
-  var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
-  var bracePattern = /({)|}/g;
+  var reEventName = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
+  var reBrace = /({)|}/g;
   var getEventAttributes = function(name) {
     // JS 的正则表达式不支持平衡组，因此将选择符部分的括号替换，以正确的匹配各属性。
     var parsedName = '';
@@ -1933,13 +1933,13 @@
       parsedName += character;
     }
     // 取得各属性。
-    var match = parsedName.match(eventNamePattern);
+    var match = parsedName.match(reEventName);
     if (match === null) {
       throw new SyntaxError('Invalid listener name "' + name + '"');
     }
     return {
       type: match[1],
-      selector: match[2] ? match[2].replace(bracePattern, function(_, leftBrace) {
+      selector: match[2] ? match[2].replace(reBrace, function(_, leftBrace) {
         return leftBrace ? '(' : ')';
       }) : '',
       once: !!match[3],
@@ -2819,7 +2819,7 @@
    * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
    */
-  var simpleSelectorPattern = /^(\w*)(?:\.([\w\-]+))?$/;
+  var reSimpleSelector = /^(\w*)(?:\.([\w\-]+))?$/;
   DOMEventTarget.prototype.on = function(name, listener) {
     // 自动扩展元素，以便于在控制台进行调试。
     var eventTarget = $(this);
@@ -2940,7 +2940,7 @@
         // 代理监听器。
         handler.selector = selector;
         var match;
-        if (match = selector.match(simpleSelectorPattern)) {
+        if (match = selector.match(reSimpleSelector)) {
           // 保存简单选择器以在执行过滤时使用效率更高的方式。
           handler.simpleSelector = {
             // tagName 必为字符串，className 可能为 undefined。

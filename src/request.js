@@ -45,11 +45,11 @@
   };
 
   // 获取响应头信息。
-  var headersPattern = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg;
+  var reHeaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg;
   var parseXHRHeaders = function(rawHeaders) {
     var headers = {};
     var match;
-    while (match = headersPattern.exec(rawHeaders)) {
+    while (match = reHeaders.exec(rawHeaders)) {
       headers[match[1]] = match[2];
     }
     return headers;

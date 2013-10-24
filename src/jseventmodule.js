@@ -57,9 +57,9 @@
 
   var separator = /\s*,\s*/;
 
-  var eventNamePattern = /^([a-zA-Z]+)(?:\.\w+)?$/;
+  var reEventName = /^([a-zA-Z]+)(?:\.\w+)?$/;
   var getEventType = function(name) {
-    var match = name.match(eventNamePattern);
+    var match = name.match(reEventName);
     if (match === null) {
       throw new SyntaxError('Invalid listener name "' + name + '"');
     }

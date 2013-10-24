@@ -1,5 +1,10 @@
 ﻿
 
+>2013-10-24
+* 修改 String.prorotype.camelize 的转换方式
+* 将正则表达式对象的变量名修改为 re 前缀的形式
+
+
 >2013-10-17
 * 修复 jsEventTarget.on 方法解析带括号的选择符出错的 bug
 * 修复 Request 的 start 事件触发时 ongoing 未更新的 bug
@@ -74,7 +79,7 @@
 * 限定 Widget 的启用方式
   现在每一类 Widget 都限定了标签名（如 DIV.widget-???）以提高明确性。
   大部分 Widget 的标签名都被限定为 DIV，DIV 本身无特别的语义，可以更容易的被赋予新的语义。
-  这个修改包括 widget.js 和所有的 widget 解析器。
+  这个修改包括 widget.js 和所有的 widget 解析器
 * 文档注释不再支持 @attribute 标签
 
 >2013-05-04
@@ -458,7 +463,7 @@
 >2012-08-07
 * get/setStyle 方法不再接受 Hyphenate 格式的参数
 * 修复由于 IE9- 的 replace 方法被嵌套调用导致的正则表达式对象的 lastIndex 属性不归零的问题
-* 将正则表达式对象的常量命名修改为变量命名 xxxPattern。
+* 将正则表达式对象的变量名修改为 xxxPattern
 
 >2012-08-06
 + document.addStyleRules
@@ -696,7 +701,7 @@
 + getAnimationQueue
 
 >2012-03-23
-+ 生成细节页。
++ 生成细节页
 
 >2012-03-22
 + 生成索引页
@@ -914,7 +919,7 @@
 >2012-01-15
 * 将 traversal 方法拆分和扩展为 getParent getPrevious getNext getFirstChild getLastChild getChildren 六个方法
 * getChildElementCount -> getChildrenCount
-# 为了向后兼容和简化功能，本框架处理 Node 时仅关注 Element，因此上述 API 均未直接体现具体 Node 类型，因为涉及的类型全部为 Element。
+  为了向后兼容和简化功能，本框架处理 Node 时仅关注 Element，因此上述 API 均未直接体现具体 Node 类型，因为涉及的类型全部为 Element。
 * __uid__ -> uid
 * 1201 -> 1
 - 取消跨 Frame 的支持并去掉 document 参数（参见 2011-11-14）
@@ -998,7 +1003,7 @@
 >2011-11-14
 + comparePosition
 + Event(part)
-* $ 方法仍只支持传入 Element 或 null，因此需要扩充 typeOf 方法。
+* $ 方法仍只支持传入 Element 或 null（需要扩充 typeOf 方法）
 * 是否支持跨 Frame？
   现在的版本支持该功能，但有个问题：frame 中的 window/document 默认没有 addListener 属性，如果支持，为保持 API 的一致性，要么
   页面内的 window/document 不做预处理（这样的话用起来会显得很奇怪），要么在 frame 页面载入后马上为其扩充（这个代价太大）。

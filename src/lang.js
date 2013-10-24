@@ -470,10 +470,10 @@
    * @see http://es5.github.com/#x15.5.4.20
    */
   if (!String.prototype.trim || WHITESPACES.trim()) {
-    var startWhitespacesPattern = new RegExp('^[' + WHITESPACES + ']+');
-    var endWhitespacesPattern = new RegExp('[' + WHITESPACES + ']+$');
+    var reStartWhitespaces = new RegExp('^[' + WHITESPACES + ']+');
+    var reEndWhitespaces = new RegExp('[' + WHITESPACES + ']+$');
     String.prototype.trim = function() {
-      return String(this).replace(startWhitespacesPattern, '').replace(endWhitespacesPattern, '');
+      return String(this).replace(reStartWhitespaces, '').replace(reEndWhitespaces, '');
     };
   }
 
@@ -704,19 +704,20 @@
    */
 
   // 将字符串中的单词分隔符压缩或转换为一个空格字符。
-  var wordSeparatorsPattern = /(-(?=\D|$)|_)+/g;
-  var camelizedLettersPattern = /[^A-Z\s]([A-Z])|[A-Z][^A-Z\s]/g;
+  var reWordSeparators = /(-|_)+/g;
+  var reCamelizedLetters = /[^A-Z\s]([A-Z])|[A-Z][^A-Z\s]/g;
   var segmentWords = function(string) {
     return string
-        .replace(wordSeparatorsPattern, ' ')
-        .replace(camelizedLettersPattern, function(letters, capitalLetterInTheBack) {
+        .replace(reWordSeparators, ' ')
+        .replace(reCamelizedLetters, function(letters, capitalLetterInTheBack) {
           return capitalLetterInTheBack ? letters.charAt(0) + ' ' + letters.charAt(1) : ' ' + letters;
         })
-        .clean();
+        .clean()
+        .split(' ');
   };
 
   // 日期标识符。
-  var dateFormatPattern = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
+  var reDateFormat = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
 
 //--------------------------------------------------[typeOf]
   /**
@@ -761,7 +762,7 @@
   ['Boolean', 'Number', 'String', 'Array', 'Date', 'RegExp', 'Error', 'Math', 'JSON', 'Arguments'].forEach(function(type) {
     types['[object ' + type + ']'] = 'object.' + type;
   });
-  var nativeFunctionPattern = /^\s+function .+\s+\[native code\]\s+\}\s+$/;
+  var reNativeFunction = /^\s+function .+\s+\[native code\]\s+\}\s+$/;
   window.typeOf = function(value) {
     var type = typeof value;
     if (type === 'function' && typeof value.item === 'function') {
@@ -781,7 +782,7 @@
             type = 'object.Global';
           } else if (string === '[object JSON]') {
             type = 'object.JSON';
-          } else if (nativeFunctionPattern.test(string)) {
+          } else if (reNativeFunction.test(string)) {
             type = 'function';
           } else {
             // 使用特性判断。
@@ -1158,9 +1159,9 @@
    *   ' a b  c   d    e     f      g       '.clean();
    *   // 'a b c d e f g'
    */
-  var whitespacesPattern = new RegExp('[' + WHITESPACES + ']+', 'g');
+  var reWhitespaces = new RegExp('[' + WHITESPACES + ']+', 'g');
   String.prototype.clean = function() {
-    return this.replace(whitespacesPattern, ' ').trim();
+    return this.replace(reWhitespaces, ' ').trim();
   };
 
 //--------------------------------------------------[String.prototype.camelize]
@@ -1178,21 +1179,12 @@
    *   'HTMLFormElement'.camelize();
    *   // 'htmlFormElement'
    */
-  var firstWordLeadingLowercaseLetterPattern = /^[a-z]/;
-  var firstWordLeadingUppercaseLettersPattern = /^[A-Z]*/;
-  var followingWordsFirstLetterPattern = /(?:\s)(\S)/g;
   String.prototype.camelize = function(useUpperCamelCase) {
-    var result = segmentWords(this);
-    result = useUpperCamelCase ?
-        result.replace(firstWordLeadingLowercaseLetterPattern, function(lowercaseLetter) {
-          return lowercaseLetter.toUpperCase();
-        }) :
-        result.replace(firstWordLeadingUppercaseLettersPattern, function(uppercaseLetter) {
-          return uppercaseLetter.toLowerCase();
-        });
-    return result.replace(followingWordsFirstLetterPattern, function(_, firstLetter) {
-      return firstLetter.toUpperCase();
-    });
+    return segmentWords(this)
+        .map(function(word, index) {
+          return (index || useUpperCamelCase) ? word.slice(0, 1).toUpperCase() + word.slice(1).toLowerCase() : word.toLowerCase();
+        })
+        .join('');
   };
 
 //--------------------------------------------------[String.prototype.dasherize]
@@ -1207,9 +1199,8 @@
    *   'FooBar'.dasherize();
    *   // 'foo-bar'
    */
-  var whitespacePattern = / /g;
   String.prototype.dasherize = function() {
-    return segmentWords(this).replace(whitespacePattern, '-').toLowerCase();
+    return segmentWords(this).join('-').toLowerCase();
   };
 
 //--------------------------------------------------[Number.prototype.padZero]
@@ -1314,7 +1305,7 @@
     var start;
     var currentCorrectedValue;
     var totalCorrectedValue = 0;
-    while (match = dateFormatPattern.exec(format)) {
+    while (match = reDateFormat.exec(format)) {
       key = match[0];
       index = match.index;
       start = index + totalCorrectedValue;
@@ -1403,11 +1394,11 @@
       TZD: (toUTC || timezoneOffset === 0) ? 'Z' : (timezoneOffsetSign + timezoneOffsetHours + ':' + timezoneOffsetMinutes)
     };
 
-    var date = format.replace(dateFormatPattern, function(key) {
+    var date = format.replace(reDateFormat, function(key) {
       return keys[key];
     });
     // IE6 IE7 IE8 对 RegExp 进行操作后，未能立即将其 lastIndex 属性复位。此处手动复位，以免执行 Date.parseExact(new Date().format()) 时出错。
-    dateFormatPattern.lastIndex = 0;
+    reDateFormat.lastIndex = 0;
     return date;
 
   };
@@ -1423,9 +1414,9 @@
    *   转以后的字符串可以安全的作为正则表达式的一部分使用。
    * @see http://prototypejs.org/
    */
-  var regularExpressionMetacharactersPattern = /([.*+?^${}()|\[\]\/\\])/g;
+  var reMetacharacters = /([.*+?^${}()|\[\]\/\\])/g;
   RegExp.escape = function(string) {
-    return String(string).replace(regularExpressionMetacharactersPattern, '\\$1');
+    return String(string).replace(reMetacharacters, '\\$1');
   };
 
 })(window);

@@ -2,7 +2,7 @@
  * OurJS
  *  sundongguo
  *  http://s79.github.com/OurJS/
- *  2013-10-17
+ *  2013-10-24
  *  Released under the MIT License.
  */
 /**
@@ -477,10 +477,10 @@
    * @see http://es5.github.com/#x15.5.4.20
    */
   if (!String.prototype.trim || WHITESPACES.trim()) {
-    var startWhitespacesPattern = new RegExp('^[' + WHITESPACES + ']+');
-    var endWhitespacesPattern = new RegExp('[' + WHITESPACES + ']+$');
+    var reStartWhitespaces = new RegExp('^[' + WHITESPACES + ']+');
+    var reEndWhitespaces = new RegExp('[' + WHITESPACES + ']+$');
     String.prototype.trim = function() {
-      return String(this).replace(startWhitespacesPattern, '').replace(endWhitespacesPattern, '');
+      return String(this).replace(reStartWhitespaces, '').replace(reEndWhitespaces, '');
     };
   }
 
@@ -711,19 +711,20 @@
    */
 
   // 将字符串中的单词分隔符压缩或转换为一个空格字符。
-  var wordSeparatorsPattern = /(-(?=\D|$)|_)+/g;
-  var camelizedLettersPattern = /[^A-Z\s]([A-Z])|[A-Z][^A-Z\s]/g;
+  var reWordSeparators = /(-|_)+/g;
+  var reCamelizedLetters = /[^A-Z\s]([A-Z])|[A-Z][^A-Z\s]/g;
   var segmentWords = function(string) {
     return string
-        .replace(wordSeparatorsPattern, ' ')
-        .replace(camelizedLettersPattern, function(letters, capitalLetterInTheBack) {
+        .replace(reWordSeparators, ' ')
+        .replace(reCamelizedLetters, function(letters, capitalLetterInTheBack) {
           return capitalLetterInTheBack ? letters.charAt(0) + ' ' + letters.charAt(1) : ' ' + letters;
         })
-        .clean();
+        .clean()
+        .split(' ');
   };
 
   // 日期标识符。
-  var dateFormatPattern = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
+  var reDateFormat = /YYYY|MM|DD|hh|mm|ss|s|TZD/g;
 
 //--------------------------------------------------[typeOf]
   /**
@@ -768,7 +769,7 @@
   ['Boolean', 'Number', 'String', 'Array', 'Date', 'RegExp', 'Error', 'Math', 'JSON', 'Arguments'].forEach(function(type) {
     types['[object ' + type + ']'] = 'object.' + type;
   });
-  var nativeFunctionPattern = /^\s+function .+\s+\[native code\]\s+\}\s+$/;
+  var reNativeFunction = /^\s+function .+\s+\[native code\]\s+\}\s+$/;
   window.typeOf = function(value) {
     var type = typeof value;
     if (type === 'function' && typeof value.item === 'function') {
@@ -788,7 +789,7 @@
             type = 'object.Global';
           } else if (string === '[object JSON]') {
             type = 'object.JSON';
-          } else if (nativeFunctionPattern.test(string)) {
+          } else if (reNativeFunction.test(string)) {
             type = 'function';
           } else {
             // 使用特性判断。
@@ -1165,9 +1166,9 @@
    *   ' a b  c   d    e     f      g       '.clean();
    *   // 'a b c d e f g'
    */
-  var whitespacesPattern = new RegExp('[' + WHITESPACES + ']+', 'g');
+  var reWhitespaces = new RegExp('[' + WHITESPACES + ']+', 'g');
   String.prototype.clean = function() {
-    return this.replace(whitespacesPattern, ' ').trim();
+    return this.replace(reWhitespaces, ' ').trim();
   };
 
 //--------------------------------------------------[String.prototype.camelize]
@@ -1185,21 +1186,12 @@
    *   'HTMLFormElement'.camelize();
    *   // 'htmlFormElement'
    */
-  var firstWordLeadingLowercaseLetterPattern = /^[a-z]/;
-  var firstWordLeadingUppercaseLettersPattern = /^[A-Z]*/;
-  var followingWordsFirstLetterPattern = /(?:\s)(\S)/g;
   String.prototype.camelize = function(useUpperCamelCase) {
-    var result = segmentWords(this);
-    result = useUpperCamelCase ?
-        result.replace(firstWordLeadingLowercaseLetterPattern, function(lowercaseLetter) {
-          return lowercaseLetter.toUpperCase();
-        }) :
-        result.replace(firstWordLeadingUppercaseLettersPattern, function(uppercaseLetter) {
-          return uppercaseLetter.toLowerCase();
-        });
-    return result.replace(followingWordsFirstLetterPattern, function(_, firstLetter) {
-      return firstLetter.toUpperCase();
-    });
+    return segmentWords(this)
+        .map(function(word, index) {
+          return (index || useUpperCamelCase) ? word.slice(0, 1).toUpperCase() + word.slice(1).toLowerCase() : word.toLowerCase();
+        })
+        .join('');
   };
 
 //--------------------------------------------------[String.prototype.dasherize]
@@ -1214,9 +1206,8 @@
    *   'FooBar'.dasherize();
    *   // 'foo-bar'
    */
-  var whitespacePattern = / /g;
   String.prototype.dasherize = function() {
-    return segmentWords(this).replace(whitespacePattern, '-').toLowerCase();
+    return segmentWords(this).join('-').toLowerCase();
   };
 
 //--------------------------------------------------[Number.prototype.padZero]
@@ -1321,7 +1312,7 @@
     var start;
     var currentCorrectedValue;
     var totalCorrectedValue = 0;
-    while (match = dateFormatPattern.exec(format)) {
+    while (match = reDateFormat.exec(format)) {
       key = match[0];
       index = match.index;
       start = index + totalCorrectedValue;
@@ -1410,11 +1401,11 @@
       TZD: (toUTC || timezoneOffset === 0) ? 'Z' : (timezoneOffsetSign + timezoneOffsetHours + ':' + timezoneOffsetMinutes)
     };
 
-    var date = format.replace(dateFormatPattern, function(key) {
+    var date = format.replace(reDateFormat, function(key) {
       return keys[key];
     });
     // IE6 IE7 IE8 对 RegExp 进行操作后，未能立即将其 lastIndex 属性复位。此处手动复位，以免执行 Date.parseExact(new Date().format()) 时出错。
-    dateFormatPattern.lastIndex = 0;
+    reDateFormat.lastIndex = 0;
     return date;
 
   };
@@ -1430,9 +1421,9 @@
    *   转以后的字符串可以安全的作为正则表达式的一部分使用。
    * @see http://prototypejs.org/
    */
-  var regularExpressionMetacharactersPattern = /([.*+?^${}()|\[\]\/\\])/g;
+  var reMetacharacters = /([.*+?^${}()|\[\]\/\\])/g;
   RegExp.escape = function(string) {
-    return String(string).replace(regularExpressionMetacharactersPattern, '\\$1');
+    return String(string).replace(reMetacharacters, '\\$1');
   };
 
 })(window);
@@ -2188,7 +2179,7 @@
    * @see http://mootools.net/
    * @see http://w3help.org/zh-cn/causes/SD9003
    */
-  var tagNamePattern = /(?!<)\w*/;
+  var reTagName = /(?!<)\w*/;
   // 为解决“IE 可能会自动添加 TBODY 元素”的问题，在相应的 wrappers 里预置了一个 TBODY。
   var wrappers = {
     area: ['<map>', '</map>'],
@@ -2213,7 +2204,7 @@
     var element = null;
     if (typeof e === 'string') {
       if (e.charAt(0) === '<' && e.charAt(e.length - 1) === '>') {
-        var tagName = tagNamePattern.exec(e)[0].toLowerCase();
+        var tagName = reTagName.exec(e)[0].toLowerCase();
         var wrapper = wrappers[tagName] || defaultWrapper;
         element = document.createElement('div');
         element.innerHTML = wrapper[0] + e + wrapper[1];
@@ -2458,9 +2449,9 @@
    *   注意：getter 在处理空标签及特殊字符时，各浏览器的行为不一致。
    */
 //  if (!('outerHTML' in html)) {
-//    var emptyElementPattern = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
+//    var reEmptyElement = /^(area|base|br|col|embed|hr|img|input|link|meta|param|command|keygen|source|track|wbr)$/;
 //    var isEmptyElement = function(nodeName) {
-//      return emptyElementPattern.test(nodeName);
+//      return reEmptyElement.test(nodeName);
 //    };
 //
 //    HTMLElement.prototype.__defineGetter__('outerHTML', function() {
@@ -3521,9 +3512,9 @@
    *   Element.prototype.removeData
    */
 
-  var validNamePattern = /^[a-z][a-zA-Z]*$/;
+  var reValidName = /^[a-z][a-zA-Z]*$/;
   var parseDataKey = function(key) {
-    return validNamePattern.test(key) ? 'data-' + key.dasherize() : '';
+    return reValidName.test(key) ? 'data-' + key.dasherize() : '';
   };
 
 //--------------------------------------------------[Element.prototype.getData]
@@ -3869,8 +3860,8 @@
   };
 
   // 解析监听器名称，取出相关的属性。
-  var eventNamePattern = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
-  var bracePattern = /({)|}/g;
+  var reEventName = /^([a-zA-Z]+)(?::relay\(([^\)]+)\))?(?::(once)|:idle\((\d+)\)|:throttle\((\d+)\))?(?:\.\w+)?$/;
+  var reBrace = /({)|}/g;
   var getEventAttributes = function(name) {
     // JS 的正则表达式不支持平衡组，因此将选择符部分的括号替换，以正确的匹配各属性。
     var parsedName = '';
@@ -3896,13 +3887,13 @@
       parsedName += character;
     }
     // 取得各属性。
-    var match = parsedName.match(eventNamePattern);
+    var match = parsedName.match(reEventName);
     if (match === null) {
       throw new SyntaxError('Invalid listener name "' + name + '"');
     }
     return {
       type: match[1],
-      selector: match[2] ? match[2].replace(bracePattern, function(_, leftBrace) {
+      selector: match[2] ? match[2].replace(reBrace, function(_, leftBrace) {
         return leftBrace ? '(' : ')';
       }) : '',
       once: !!match[3],
@@ -4782,7 +4773,7 @@
    * @see http://mootools.net/
    * @see http://www.quirksmode.org/dom/events/index.html
    */
-  var simpleSelectorPattern = /^(\w*)(?:\.([\w\-]+))?$/;
+  var reSimpleSelector = /^(\w*)(?:\.([\w\-]+))?$/;
   DOMEventTarget.prototype.on = function(name, listener) {
     // 自动扩展元素，以便于在控制台进行调试。
     var eventTarget = $(this);
@@ -4903,7 +4894,7 @@
         // 代理监听器。
         handler.selector = selector;
         var match;
-        if (match = selector.match(simpleSelectorPattern)) {
+        if (match = selector.match(reSimpleSelector)) {
           // 保存简单选择器以在执行过滤时使用效率更高的方式。
           handler.simpleSelector = {
             // tagName 必为字符串，className 可能为 undefined。
@@ -5099,9 +5090,9 @@
 
   var separator = /\s*,\s*/;
 
-  var eventNamePattern = /^([a-zA-Z]+)(?:\.\w+)?$/;
+  var reEventName = /^([a-zA-Z]+)(?:\.\w+)?$/;
   var getEventType = function(name) {
-    var match = name.match(eventNamePattern);
+    var match = name.match(reEventName);
     if (match === null) {
       throw new SyntaxError('Invalid listener name "' + name + '"');
     }
@@ -5709,24 +5700,24 @@
 
   // 提取颜色值为一个包含 RGB 整数表示的数组。
   var NAMED_COLORS = {aliceblue: '#F0F8FF', antiquewhite: '#FAEBD7', aqua: '#00FFFF', aquamarine: '#7FFFD4', azure: '#F0FFFF', beige: '#F5F5DC', bisque: '#FFE4C4', black: '#000000', blanchedalmond: '#FFEBCD', blue: '#0000FF', blueviolet: '#8A2BE2', brown: '#A52A2A', burlywood: '#DEB887', cadetblue: '#5F9EA0', chartreuse: '#7FFF00', chocolate: '#D2691E', coral: '#FF7F50', cornflowerblue: '#6495ED', cornsilk: '#FFF8DC', crimson: '#DC143C', cyan: '#00FFFF', darkblue: '#00008B', darkcyan: '#008B8B', darkgoldenrod: '#B8860B', darkgray: '#A9A9A9', darkgreen: '#006400', darkkhaki: '#BDB76B', darkmagenta: '#8B008B', darkolivegreen: '#556B2F', darkorange: '#FF8C00', darkorchid: '#9932CC', darkred: '#8B0000', darksalmon: '#E9967A', darkseagreen: '#8FBC8B', darkslateblue: '#483D8B', darkslategray: '#2F4F4F', darkturquoise: '#00CED1', darkviolet: '#9400D3', deeppink: '#FF1493', deepskyblue: '#00BFFF', dimgray: '#696969', dodgerblue: '#1E90FF', firebrick: '#B22222', floralwhite: '#FFFAF0', forestgreen: '#228B22', fuchsia: '#FF00FF', gainsboro: '#DCDCDC', ghostwhite: '#F8F8FF', gold: '#FFD700', goldenrod: '#DAA520', gray: '#808080', green: '#008000', greenyellow: '#ADFF2F', honeydew: '#F0FFF0', hotpink: '#FF69B4', indianred: '#CD5C5C', indigo: '#4B0082', ivory: '#FFFFF0', khaki: '#F0E68C', lavender: '#E6E6FA', lavenderblush: '#FFF0F5', lawngreen: '#7CFC00', lemonchiffon: '#FFFACD', lightblue: '#ADD8E6', lightcoral: '#F08080', lightcyan: '#E0FFFF', lightgoldenrodyellow: '#FAFAD2', lightgreen: '#90EE90', lightgrey: '#D3D3D3', lightpink: '#FFB6C1', lightsalmon: '#FFA07A', lightseagreen: '#20B2AA', lightskyblue: '#87CEFA', lightslategray: '#778899', lightsteelblue: '#B0C4DE', lightyellow: '#FFFFE0', lime: '#00FF00', limegreen: '#32CD32', linen: '#FAF0E6', magenta: '#FF00FF', maroon: '#800000', mediumaquamarine: '#66CDAA', mediumblue: '#0000CD', mediumorchid: '#BA55D3', mediumpurple: '#9370DB', mediumseagreen: '#3CB371', mediumslateblue: '#7B68EE', mediumspringgreen: '#00FA9A', mediumturquoise: '#48D1CC', mediumvioletred: '#C71585', midnightblue: '#191970', mintcream: '#F5FFFA', mistyrose: '#FFE4E1', moccasin: '#FFE4B5', navajowhite: '#FFDEAD', navy: '#000080', oldlace: '#FDF5E6', olive: '#808000', olivedrab: '#6B8E23', orange: '#FFA500', orangered: '#FF4500', orchid: '#DA70D6', palegoldenrod: '#EEE8AA', palegreen: '#98FB98', paleturquoise: '#AFEEEE', palevioletred: '#DB7093', papayawhip: '#FFEFD5', peachpuff: '#FFDAB9', peru: '#CD853F', pink: '#FFC0CB', plum: '#DDA0DD', powderblue: '#B0E0E6', purple: '#800080', red: '#FF0000', rosybrown: '#BC8F8F', royalblue: '#4169E1', saddlebrown: '#8B4513', salmon: '#FA8072', sandybrown: '#F4A460', seagreen: '#2E8B57', seashell: '#FFF5EE', sienna: '#A0522D', silver: '#C0C0C0', skyblue: '#87CEEB', slateblue: '#6A5ACD', slategray: '#708090', snow: '#FFFAFA', springgreen: '#00FF7F', steelblue: '#4682B4', tan: '#D2B48C', teal: '#008080', thistle: '#D8BFD8', tomato: '#FF6347', turquoise: '#40E0D0', violet: '#EE82EE', wheat: '#F5DEB3', white: '#FFFFFF', whitesmoke: '#F5F5F5', yellow: '#FFFF00', yellowgreen: '#9ACD32'};
-  var hexColorPattern = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i;
-  var shortHexColorPattern = /^#([\da-f])([\da-f])([\da-f])$/i;
-  var rgbColorPattern = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
+  var reHexColor = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i;
+  var reShortHexColor = /^#([\da-f])([\da-f])([\da-f])$/i;
+  var reRgbColor = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
   var extractColorValue = function(value) {
     var extractedValue = [255, 255, 255];
     if (NAMED_COLORS.hasOwnProperty(value)) {
       value = NAMED_COLORS[value];
     }
     var match;
-    if (match = value.match(hexColorPattern)) {
+    if (match = value.match(reHexColor)) {
       extractedValue = Array.from(match).slice(1).map(function(hexadecimal) {
         return parseInt(hexadecimal, 16);
       });
-    } else if (match = value.match(shortHexColorPattern)) {
+    } else if (match = value.match(reShortHexColor)) {
       extractedValue = Array.from(match).slice(1).map(function(hexadecimal) {
         return parseInt(hexadecimal + hexadecimal, 16);
       });
-    } else if (match = value.match(rgbColorPattern)) {
+    } else if (match = value.match(reRgbColor)) {
       extractedValue = Array.from(match).slice(1).map(function(decimal) {
         return +decimal;
       });
@@ -5735,9 +5726,9 @@
   };
 
   // 计算新数字，支持相对数值变化。
-  var relativeValuePattern = /^[+\-]=\d+$/;
+  var reRelativeValue = /^[+\-]=\d+$/;
   var calculateNewValue = function(valueBefore, newValue) {
-    return typeof newValue === 'string' && relativeValuePattern.test(newValue) ? valueBefore + (+(newValue.slice(0, 1) + '1') * newValue.slice(2)) : extractNumberValue(newValue);
+    return typeof newValue === 'string' && reRelativeValue.test(newValue) ? valueBefore + (+(newValue.slice(0, 1) + '1') * newValue.slice(2)) : extractNumberValue(newValue);
   };
 
   // 获取可变样式的映射表。
@@ -6197,11 +6188,11 @@
   };
 
   // 获取响应头信息。
-  var headersPattern = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg;
+  var reHeaders = /^(.*?):[ \t]*([^\r\n]*)\r?$/mg;
   var parseXHRHeaders = function(rawHeaders) {
     var headers = {};
     var match;
-    while (match = headersPattern.exec(rawHeaders)) {
+    while (match = reHeaders.exec(rawHeaders)) {
       headers[match[1]] = match[2];
     }
     return headers;
@@ -6634,11 +6625,11 @@
    * @description
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为 Widget，因此仅应在必要时调用本方法。
    */
-  var widgetTypePattern = /\bwidget-([a-z][a-z0-9-]*)\b/;
+  var reWidgetType = /\bwidget-([a-z][a-z0-9-]*)\b/;
   Widget.parse = function(element, recursively) {
     var $element = document.$(element);
     if (!$element.widgetType) {
-      var match = $element.className.match(widgetTypePattern);
+      var match = $element.className.match(reWidgetType);
       if (match) {
         var type = match[1];
         var parser = Widget.parsers[type];

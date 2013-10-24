@@ -112,11 +112,11 @@
    * @description
    *   在 DOM 树解析完成后会自动将页面内的全部符合条件的元素解析为 Widget，因此仅应在必要时调用本方法。
    */
-  var widgetTypePattern = /\bwidget-([a-z][a-z0-9-]*)\b/;
+  var reWidgetType = /\bwidget-([a-z][a-z0-9-]*)\b/;
   Widget.parse = function(element, recursively) {
     var $element = document.$(element);
     if (!$element.widgetType) {
-      var match = $element.className.match(widgetTypePattern);
+      var match = $element.className.match(reWidgetType);
       if (match) {
         var type = match[1];
         var parser = Widget.parsers[type];

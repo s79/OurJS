@@ -18,15 +18,15 @@ document.on('beforedomready', function() {
 
 //--------------------------------------------------[分析源文件并提取数据]
   function parseAPIData(lines) {
-    var commentStartPattern = /\/\*\*/;
-    var commentEndPattern = /\*\//;
-    var commentPattern = /\s*\*\s*(?:@([\S]+)\s*)?(.*)/;
-    var codeCommentPaddingPattern = /\s*\*\s{3}/;
-    var configNamePattern = /^[a-z0-9-]+$/;
-    var methodNamePattern = /^[a-zA-Z0-9]+$/;
-    var argumentDescriptionPattern = /^\{([a-zA-Z\?\|]+)\}\s+([a-zA-Z0-9\[\]]+)+\s+(.*)$/;
-    var propertyDescriptionPattern = /^\{([a-zA-Z\?\|]+)\}\s+([a-zA-Z0-9]+)+\s+(.*)$/;
-    var returnValueDescriptionPattern = /^\{([a-zA-Z\?\|]+)\}\s+(.*)$/;
+    var reCommentStart = /\/\*\*/;
+    var reCommentEnd = /\*\//;
+    var reComment = /\s*\*\s*(?:@([\S]+)\s*)?(.*)/;
+    var reCodeCommentPadding = /\s*\*\s{3}/;
+    var reConfigName = /^[a-z0-9-]+$/;
+    var reMethodName = /^[a-zA-Z0-9]+$/;
+    var reArgumentDescription = /^\{([a-zA-Z\?\|]+)\}\s+([a-zA-Z0-9\[\]]+)+\s+(.*)$/;
+    var rePropertyDescription = /^\{([a-zA-Z\?\|]+)\}\s+([a-zA-Z0-9]+)+\s+(.*)$/;
+    var reReturnValueDescription = /^\{([a-zA-Z\?\|]+)\}\s+(.*)$/;
 
     var reading = false;
     // 当前处理的注释类型。
@@ -36,15 +36,15 @@ document.on('beforedomready', function() {
     var match;
 
     lines.forEach(function(line) {
-      if (!reading && commentStartPattern.test(line)) {
+      if (!reading && reCommentStart.test(line)) {
         // 本段注释开始。
         reading = true;
         tagName = '基本描述';
-      } else if (reading && commentEndPattern.test(line)) {
+      } else if (reading && reCommentEnd.test(line)) {
         // 本段注释结束。
         reading = false;
         tagName = '';
-      } else if (reading && (match = line.match(commentPattern))) {
+      } else if (reading && (match = line.match(reComment))) {
         // 分析本段注释。
         tagName = match[1] || tagName;
         var tagValue = match[2];
@@ -65,11 +65,11 @@ document.on('beforedomready', function() {
               if (data[tagName][1].length || tagValue.startsWith('*')) {
                 data[tagName][1].push(tagValue);
               } else {
-                data[tagName][0].push(line.replace(codeCommentPaddingPattern, ''));
+                data[tagName][0].push(line.replace(reCodeCommentPadding, ''));
               }
               break;
             case '可配置项':
-              if (configNamePattern.test(tagValue)) {
+              if (reConfigName.test(tagValue)) {
                 // 可配置项[名称, 描述]
                 data[tagName].push([tagValue, lastDescription = []]);
               } else {
@@ -77,7 +77,7 @@ document.on('beforedomready', function() {
               }
               break;
             case '新增属性':
-              if (match = tagValue.match(propertyDescriptionPattern)) {
+              if (match = tagValue.match(rePropertyDescription)) {
                 // 新增属性[类型, 名称, 描述]
                 data[tagName].push([match[1], match[2], lastDescription = [match[3]]]);
               } else {
@@ -85,13 +85,13 @@ document.on('beforedomready', function() {
               }
               break;
             case '新增方法':
-              if (methodNamePattern.test(tagValue)) {
+              if (reMethodName.test(tagValue)) {
                 // 新增方法[名称, 描述, 参数, 返回值]
                 data[tagName].push(lastItem = [tagValue, lastDescription = [], [], []]);
-              } else if (match = tagValue.match(argumentDescriptionPattern)) {
+              } else if (match = tagValue.match(reArgumentDescription)) {
                 // 参数[类型, 名称, 描述]
                 lastItem[2].push([match[1], match[2], lastDescription = [match[3]]]);
-              } else if (match = tagValue.match(returnValueDescriptionPattern)) {
+              } else if (match = tagValue.match(reReturnValueDescription)) {
                 // 参数[类型, 描述]
                 lastItem[3].push(match[1], lastDescription = [match[2]]);
               } else if (tagValue !== '参数：' && tagValue !== '返回值：') {
@@ -99,10 +99,10 @@ document.on('beforedomready', function() {
               }
               break;
             case '新增事件':
-              if (methodNamePattern.test(tagValue)) {
+              if (reMethodName.test(tagValue)) {
                 // 新增事件[类型, 描述, 属性]
                 data[tagName].push(lastItem = [tagValue, lastDescription = [], []]);
-              } else if (match = tagValue.match(propertyDescriptionPattern)) {
+              } else if (match = tagValue.match(rePropertyDescription)) {
                 // 属性[类型, 名称, 描述]
                 lastItem[2].push([match[1], match[2], lastDescription = [match[3]]]);
               } else if (tagValue !== '属性：') {
@@ -177,9 +177,9 @@ document.on('beforedomready', function() {
   };
 
   // 获取方法。
-  var methodAndEventNamePattern = /^[a-zA-Z0-9]+/;
-  var argumentPattern = /[^,\[\]\(\)]+(?=,|\[|\]|\))/g;
-  var optionalArgumentPattern = /^\[[a-zA-Z0-9]+\]$/;
+  var reMethodAndEventName = /^[a-zA-Z0-9]+/;
+  var reArgument = /[^,\[\]\(\)]+(?=,|\[|\]|\))/g;
+  var reOptionalArgument = /^\[[a-zA-Z0-9]+\]$/;
   var getSyntax = function(method) {
     var syntax = method[0];
     var optionalCount = 0;
@@ -187,7 +187,7 @@ document.on('beforedomready', function() {
         function(parameter, index) {
           var name = parameter[1];
           var separator = index ? ', ' : '';
-          if (optionalArgumentPattern.test(name)) {
+          if (reOptionalArgument.test(name)) {
             name = '[' + separator + name.slice(1, -1);
             optionalCount++;
           } else {
@@ -202,7 +202,7 @@ document.on('beforedomready', function() {
     var text = parameters
         .map(function(parameter) {
           var name = parameter[1];
-          return '<tr><td><kbd>&lt;' + parameter[0] + '&gt;</kbd></td><td><var>' + (optionalArgumentPattern.test(name) ? name.slice(1, -1) + '<em>Optional</em>' : name) + '</var></td><td>' + getDescription(parameter[2]) + '</td></tr>';
+          return '<tr><td><kbd>&lt;' + parameter[0] + '&gt;</kbd></td><td><var>' + (reOptionalArgument.test(name) ? name.slice(1, -1) + '<em>Optional</em>' : name) + '</var></td><td>' + getDescription(parameter[2]) + '</td></tr>';
         })
         .join('');
     return text ? '<h4>参数：</h4><table>' + text + '</table>' : '';
@@ -214,7 +214,7 @@ document.on('beforedomready', function() {
     var text = methods
         .map(function(method) {
           var syntax = getSyntax(method);
-          var structuredSyntax = '<kbd>&lt;' + method[3][0] + '&gt;</kbd>' + syntax.replace(methodAndEventNamePattern, '<dfn>$&</dfn>').replace(argumentPattern, '<var>$&</var>');
+          var structuredSyntax = '<kbd>&lt;' + method[3][0] + '&gt;</kbd>' + syntax.replace(reMethodAndEventName, '<dfn>$&</dfn>').replace(reArgument, '<var>$&</var>');
           return '<div><p class="anchor" data-title="' + syntax + '">' + structuredSyntax + '</p>' + getDescription(method[1]) + getParameters(method[2]) + '<h4>返回值：</h4>' + getReturns(method[3]) + '</div>';
         })
         .join('');

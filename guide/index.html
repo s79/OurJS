@@ -349,7 +349,7 @@ $element.on('<strong>input:relay(input[type=text]):idle(100).bar</strong>', list
 $element.off('<strong>input:relay(input[type=text]):idle(100).bar</strong>');
 // 删除代理监听器 listener2。
 </pre>
-<p>OurJS 没有提直接供删除一个 DOMEventTarget 对象上的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器的名称。</p>
+<p>OurJS 没有直接提供删除一个 DOMEventTarget 对象上的所有监听器的功能<sup>1</sup>，开发者每次删除监听器时都应明确指定要删除的监听器的名称。</p>
 <ol class="comment">
   <li>在调用一个元素的 replace 或 remove 方法时，可以通过设置参数 keepListeners 为 false 来清除为该元素添加的所有监听器（默认即为 false）。</li>
 </ol>
@@ -480,7 +480,7 @@ jsEventTarget.on('active', listener3);
 jsEventTarget.off('active');
 // 删除 jsEventTarget 上的所有名称为 'active' 的监听器，即 listener1 和 listener3，此时名称为 'active<strong>.foo</strong>' 的 listener2 仍然有效。
 </pre>
-<p>OurJS 没有提直接供删除一个 JSEventTarget 对象上的所有监听器的功能，开发者每次删除监听器时都应明确指定要删除的监听器的名称。</p>
+<p>OurJS 没有直接提供删除一个 JSEventTarget 对象上的所有监听器的功能，开发者每次删除监听器时都应明确指定要删除的监听器的名称。</p>
 
 <h4>触发某类事件</h4>
 <p>使用 fire 方法来触发某类事件：</p>
