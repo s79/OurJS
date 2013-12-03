@@ -28,7 +28,7 @@
           });
 
       // 使其具备 Dialog 的特性。
-      Widget.parsers.dialog.parse(this);
+      Widget.parseAs(this, 'dialog');
 
     }
   });

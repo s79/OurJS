@@ -48,7 +48,8 @@
   var $today = controls[7];
 
   // 解析月历。
-  Widget.parsers.calendar.parse($calendar.on('cellupdate', function(e) {
+  Widget.parseAs($calendar, 'calendar');
+  $calendar.on('cellupdate', function(e) {
     var $cell = e.cell;
     var date = e.date;
     // 禁用超出范围的日期。
@@ -63,7 +64,7 @@
     if (selectedDate && selectedDate.getTime() === date.getTime()) {
       $cell.addClass('selected');
     }
-  }));
+  });
 
   // 为“日期选择面板”添加新方法。
   Object.mixin($panel, {

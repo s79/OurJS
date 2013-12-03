@@ -1,8 +1,9 @@
-﻿
+﻿>2013-12-03
+* 使用 Widget.parseAs 代替以前的内部方法 Widget.parsers.parse
 
 >2013-10-24
 * 修改 String.prorotype.camelize 的转换方式
-* 将正则表达式对象的变量名修改为 re 前缀的形式
+# 将正则表达式对象的变量名修改为 re 前缀的形式
 
 
 >2013-10-17

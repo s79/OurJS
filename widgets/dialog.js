@@ -376,7 +376,7 @@
         }
         // 为 $context 添加“遮盖层”和“对话框”公用的属性。
         $context.dialogs = [];
-        Widget.parsers.overlay.parse($context.overlay = document.$('<div class="widget-overlay"></div>').insertTo($context));
+        Widget.parse($context.overlay = document.$('<div class="widget-overlay"></div>').insertTo($context));
       }
 
       // 使本元素可获得焦点。

@@ -10,9 +10,29 @@
 <div id="content">
   <h1>更新日志</h1>
 
-  <h2>1.0</h2>
-  <h3>...</h3>
-  <p>1.0 版本发布前不必记录更新日志。</p>
+  <h2>2013-12-03</h2>
+  <h3>增加 Widget.parseAs 方法</h3>
+  <p>使用此方法代替以前的内部方法 Widget.parsers.parse，Widget.parsers 属性现在不存在了。</p>
+
+  <h2>2013-10-24</h2>
+  <h3>修改 String.prorotype.camelize 的转换方式</h3>
+
+  <h2>2013-10-17</h2>
+  <h3>修复 jsEventTarget.on 方法解析带括号的选择符出错的 bug</h3>
+  <p>现在可以正常的使用如 <code>click:relay(tr:not(:nth-child(2))>td:nth-child(even))</code> 的选择符了。</p>
+  <h3>修复 Request 的 start 事件触发时 ongoing 未更新的 bug</h3>
+
+  <h2>2013-08-19</h2>
+  <h3>简化 widget-validator 的设计使其更灵活</h3>
+  <p>不再支持内置的类型判断，这样可以简化使用方式，并可以更灵活的进行验证。</p>
+
+  <h2>2013-07-24</h2>
+  <h3>将 Request 的 useCache 和 async 选项修改为相反的含义</h3>
+  <p>useCache 修改为 noCache，async 修改为 sync，当省略这些选项时，将直接取 false 值。</p>
+
+  <h2>2013-07-11</h2>
+  <h3>注册 Widget 时 selector 的格式限制为 &lt;nodeName&gt;.&lt;className&gt;</h3>
+  <h3>使代码可以在 Strict Mode 正常运行</h3>
 
 </div>
 </body>

@@ -74,7 +74,7 @@
       });
 
       // 使用 TabPanel 实现切换功能。
-      Widget.parsers.tabpanel.parse($demoarea);
+      Widget.parseAs($demoarea, 'tabpanel');
 
       // “查看源码”功能。
       document.on('afterdomready', function() {

@@ -1,7 +1,7 @@
 /**
  * @fileOverview Widget - 自动提词机
  * @author sundongguo@gmail.com
- * @version 20120905
+ * @version 20131105
  */
 
 (function() {
@@ -44,6 +44,7 @@
         });
       }
     }
+    $autocue.fire('show', {message: $message});
   };
 
 //--------------------------------------------------[Autocue]
@@ -85,13 +86,12 @@
    *     返回值：
    *       {Element} 本元素。
    * @新增事件
-   *   activate
-   *     成功调用 activate 方法后触发。
+   *   addmessages
+   *     每次调用 addMessages 方法后触发。
+   *   show
+   *     显示一条消息时触发。
    *     属性：
-   *       {Element} activeTab 当前的激活的“标签”。
-   *       {Element} activePanel 当前的激活的“面板”。
-   *       {?Element} inactiveTab 上一个激活的“标签”。
-   *       {?Element} inactivePanel 上一个激活的“面板”。
+   *       {Element} message 容纳本条消息的元素。
    */
 
   Widget.register({

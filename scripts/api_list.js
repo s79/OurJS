@@ -262,6 +262,7 @@ var apiList = {
   ],
   'Widget': [
     'Widget.register',
-    'Widget.parse'
+    'Widget.parse',
+    'Widget.parseAs'
   ]
 };

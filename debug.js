@@ -2,7 +2,7 @@
  * OurJS
  *  sundongguo
  *  http://s79.github.com/OurJS/
- *  2013-10-24
+ *  2013-12-03
  *  Released under the MIT License.
  */
 /**
@@ -6530,7 +6530,7 @@
    * 其中 type 为 Widget 的类型，config/value 为 Widget 的配置信息，element 为目标元素。
    *
    * 为了使相同类型的 Widget 必定具备相同的新特性，本实现并未提供直接手段对现有的 Widget 进行扩展。
-   * 必须要扩展时，应注册一个新的 Widget，并在其初始化函数中调用现有的解析器 Widget.parsers.<type>.parse($element) 来赋予目标元素 <type> 类 Widget 的新特性，即对已有的 Widget 类型进行包装。
+   * 必须要扩展时，应注册一个新的 Widget，并在其初始化函数中调用 Widget.parseAs($element, type) 来赋予目标元素 <type> 类 Widget 的新特性，即对已有的 Widget 类型进行包装。
    *
    * 一些 Widget 如果在 beforedomready 事件发生时初始化完毕，但没有在 domready 事件发生时主动调用其重建界面的方法 M，则方法 M 会在 afterdomready 事件发生时自动被调用。
    * 这种处理方式是为了确保在 domready 事件发生时为该 Widget 添加的监听器可以被正常调用。
@@ -6539,13 +6539,14 @@
    * 提供对象：
    *   Widget
    *
-   * 提供命名空间：
-   *   Widget.parsers
-   *
    * 提供静态方法：
    *   Widget.register
    *   Widget.parse
+   *   Widget.parseAs
    */
+
+  // 已注册的解析器。
+  var parsers = {};
 
 //--------------------------------------------------[Widget]
   /**
@@ -6553,7 +6554,7 @@
    * @name Widget
    * @namespace
    */
-  var Widget = window.Widget = {parsers: {}};
+  var Widget = window.Widget = {};
 
 //--------------------------------------------------[Widget.register]
   /**
@@ -6573,7 +6574,7 @@
       document.addStyleRules(widget.styleRules);
     }
 
-    Widget.parsers[widget.type] = {
+    parsers[widget.type] = {
       selector: widget.selector,
       nodeName: widget.selector.substring(0, widget.selector.indexOf('.')).toUpperCase(),
       parse: function($element) {
@@ -6631,23 +6632,37 @@
     if (!$element.widgetType) {
       var match = $element.className.match(reWidgetType);
       if (match) {
-        var type = match[1];
-        var parser = Widget.parsers[type];
-        if (parser && parser.parse) {
-          if ($element.nodeName === parser.nodeName) {
-            parser.parse($element);
-          } else {
-            console.warn('OurJS: Widget "' + type + '" can not be applied on ' + $element.nodeName + ' elements.');
-          }
-        } else {
-          console.warn('OurJS: Widget parser "' + type + '" is not found.');
-        }
+        Widget.parseAs($element, match[1]);
       }
     }
     if (recursively) {
       $element.findAll('[class*=widget-]').forEach(function($element) {
         Widget.parse($element);
       });
+    }
+  };
+
+//--------------------------------------------------[Widget.parseAs]
+  /**
+   * 将一个元素解析为指定类型的 Widget。
+   * @name Widget.parseAs
+   * @function
+   * @param {Element} element 要解析的元素。
+   * @param {string} type Widget 的类型。
+   * @description
+   *   如果指定的元素的标签名不符合此 Widget 的要求，则解析会失败。
+   */
+  Widget.parseAs = function(element, type) {
+    var $element = document.$(element);
+    var parser = parsers[type];
+    if (parser && parser.parse) {
+      if ($element.nodeName === parser.nodeName) {
+        parser.parse($element);
+      } else {
+        console.warn('OurJS: Widget "' + type + '" can not be applied on ' + $element.nodeName + ' elements.');
+      }
+    } else {
+      console.warn('OurJS: Widget parser "' + type + '" is not found.');
     }
   };
 
