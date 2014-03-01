@@ -10,7 +10,7 @@
   var html = document.documentElement;
 
   // 参数分隔符。
-  var separator = /\s*,\s*/;
+  var reSeparator = /\s*,\s*/;
 
 //==================================================[DOM 对象补缺及扩展]
   /*
@@ -322,7 +322,7 @@
         var rBraceIndex = rule.indexOf('}');
         var selectors = rule.slice(0, lBraceIndex);
         var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
-        selectors.split(separator).forEach(function(selector) {
+        selectors.split(reSeparator).forEach(function(selector) {
           dynamicStyleSheet.addRule(selector, declarations);
         });
       }
@@ -1151,7 +1151,7 @@
    */
   Element.prototype.hasClass = function(className) {
     var elementClassName = ' ' + this.className.clean() + ' ';
-    return className.split(separator).every(function(className) {
+    return className.split(reSeparator).every(function(className) {
       return elementClassName.contains(' ' + className.trim() + ' ');
     });
   };
@@ -1166,7 +1166,7 @@
    */
   Element.prototype.addClass = function(className) {
     var $element = this;
-    className.split(separator).forEach(function(className) {
+    className.split(reSeparator).forEach(function(className) {
       if (!$element.hasClass(className)) {
         $element.className = ($element.className + ' ' + className).clean();
       }
@@ -1185,7 +1185,7 @@
   Element.prototype.removeClass = function(className) {
     var $element = this;
     var elementClassName = ' ' + $element.className.clean() + ' ';
-    className.split(separator).forEach(function(className) {
+    className.split(reSeparator).forEach(function(className) {
       elementClassName = elementClassName.replace(' ' + className.trim() + ' ', ' ');
     });
     $element.className = elementClassName.trim();
@@ -1202,7 +1202,7 @@
    */
   Element.prototype.toggleClass = function(className) {
     var $element = this;
-    className.split(separator).forEach(function(className) {
+    className.split(reSeparator).forEach(function(className) {
       $element[$element.hasClass(className) ? 'removeClass' : 'addClass'](className);
     });
     return $element;
@@ -2826,7 +2826,7 @@
     var uid = eventTarget.uid;
     var item = eventHandlers[uid] || (eventHandlers[uid] = {});
     // 使用一个监听器监听该对象上的多个事件。
-    name.split(separator).forEach(function(name) {
+    name.split(reSeparator).forEach(function(name) {
       // 取出事件名中携带的各种属性。
       var attributes = getEventAttributes(name);
       var type = attributes.type;
@@ -2985,7 +2985,7 @@
       return eventTarget;
     }
     // 同时删除该对象上的多个监听器。
-    name.split(separator).forEach(function(name) {
+    name.split(reSeparator).forEach(function(name) {
       // 取出事件类型。
       var type = getEventAttributes(name).type;
       // 尝试获取对应的处理器组，以删除处理器。

@@ -899,20 +899,20 @@
 
 //--------------------------------------------------[Object.mixin]
   /**
-   * 将源对象（不包含原型链）上的 properties 添加到目标对象中。
+   * 将目标对象（不包含原型链）上的 properties 添加到源对象中。
    * @name Object.mixin
    * @function
-   * @param {Object} destination 目标对象。
-   * @param {Object} source 源对象，其 properties 会被复制到 destination 中。
-   * @param {Object} [filter] 过滤要添加的 source 中的 properties 的名单。
-   * @param {Array} [filter.whiteList] 仅当 source 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 destination 中。
-   * @param {Array} [filter.blackList] 如果 source 中的 key 包含于 blackList，则对应的 property 不会被复制到 destination 中。
+   * @param {Object} source 源对象。
+   * @param {Object} destination 目标对象，其 properties 会被复制到 source 中。
+   * @param {Object} [filter] 过滤要添加的 destination 中的 properties 的名单。
+   * @param {Array} [filter.whiteList] 仅当 destination 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 source 中。
+   * @param {Array} [filter.blackList] 如果 destination 中的 key 包含于 blackList，则对应的 property 不会被复制到 source 中。
    *   如果 blackList 与 whiteList 有重复的值，则 whiteList 中的将被忽略。
-   * @returns {Object} 目标对象。
+   * @returns {Object} 源对象。
    * @description
-   *   source 中的 property 会覆盖 destination 中的同名 property。
+   *   destination 中的 property 会覆盖 source 中的同名 property。
    *   <table>
-   *     <tr><th>destination (before)</th><th>source</th><th>destination (after)</th></tr>
+   *     <tr><th>source (before)</th><th>destination</th><th>source (after)</th></tr>
    *     <tr><td>a: 0</td><td></td><td>a: 0</td></tr>
    *     <tr><td>b: 0</td><td>b: 1</td><td>b: 1</td></tr>
    *     <tr><td></td><td>c: 1</td><td>c: 1</td></tr>
@@ -926,8 +926,8 @@
    *   Object.mixin({a: 0, b: 0}, {a: 1, b: 1}, {whiteList: ['a', 'b'], blackList: ['a']});
    *   // {a: 0, b: 1}
    */
-  Object.mixin = function(destination, source, filter) {
-    var keys = Object.keys(source);
+  Object.mixin = function(source, destination, filter) {
+    var keys = Object.keys(destination);
     if (filter) {
       var whiteList = filter.whiteList;
       var blackList = filter.blackList;
@@ -943,9 +943,9 @@
       }
     }
     keys.forEach(function(item) {
-      destination[item] = source[item];
+      source[item] = destination[item];
     });
-    return destination;
+    return source;
   };
 
 //--------------------------------------------------[Object.toQueryString]

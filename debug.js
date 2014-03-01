@@ -2,7 +2,7 @@
  * OurJS
  *  sundongguo
  *  http://s79.github.com/OurJS/
- *  2013-12-03
+ *  2014-03-02
  *  Released under the MIT License.
  */
 /**
@@ -906,20 +906,20 @@
 
 //--------------------------------------------------[Object.mixin]
   /**
-   * 将源对象（不包含原型链）上的 properties 添加到目标对象中。
+   * 将目标对象（不包含原型链）上的 properties 添加到源对象中。
    * @name Object.mixin
    * @function
-   * @param {Object} destination 目标对象。
-   * @param {Object} source 源对象，其 properties 会被复制到 destination 中。
-   * @param {Object} [filter] 过滤要添加的 source 中的 properties 的名单。
-   * @param {Array} [filter.whiteList] 仅当 source 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 destination 中。
-   * @param {Array} [filter.blackList] 如果 source 中的 key 包含于 blackList，则对应的 property 不会被复制到 destination 中。
+   * @param {Object} source 源对象。
+   * @param {Object} destination 目标对象，其 properties 会被复制到 source 中。
+   * @param {Object} [filter] 过滤要添加的 destination 中的 properties 的名单。
+   * @param {Array} [filter.whiteList] 仅当 destination 中的 key 包含于 whiteList 时，对应的 property 才会被复制到 source 中。
+   * @param {Array} [filter.blackList] 如果 destination 中的 key 包含于 blackList，则对应的 property 不会被复制到 source 中。
    *   如果 blackList 与 whiteList 有重复的值，则 whiteList 中的将被忽略。
-   * @returns {Object} 目标对象。
+   * @returns {Object} 源对象。
    * @description
-   *   source 中的 property 会覆盖 destination 中的同名 property。
+   *   destination 中的 property 会覆盖 source 中的同名 property。
    *   <table>
-   *     <tr><th>destination (before)</th><th>source</th><th>destination (after)</th></tr>
+   *     <tr><th>source (before)</th><th>destination</th><th>source (after)</th></tr>
    *     <tr><td>a: 0</td><td></td><td>a: 0</td></tr>
    *     <tr><td>b: 0</td><td>b: 1</td><td>b: 1</td></tr>
    *     <tr><td></td><td>c: 1</td><td>c: 1</td></tr>
@@ -933,8 +933,8 @@
    *   Object.mixin({a: 0, b: 0}, {a: 1, b: 1}, {whiteList: ['a', 'b'], blackList: ['a']});
    *   // {a: 0, b: 1}
    */
-  Object.mixin = function(destination, source, filter) {
-    var keys = Object.keys(source);
+  Object.mixin = function(source, destination, filter) {
+    var keys = Object.keys(destination);
     if (filter) {
       var whiteList = filter.whiteList;
       var blackList = filter.blackList;
@@ -950,9 +950,9 @@
       }
     }
     keys.forEach(function(item) {
-      destination[item] = source[item];
+      source[item] = destination[item];
     });
-    return destination;
+    return source;
   };
 
 //--------------------------------------------------[Object.toQueryString]
@@ -1964,7 +1964,7 @@
   var html = document.documentElement;
 
   // 参数分隔符。
-  var separator = /\s*,\s*/;
+  var reSeparator = /\s*,\s*/;
 
 //==================================================[DOM 对象补缺及扩展]
   /*
@@ -2276,7 +2276,7 @@
         var rBraceIndex = rule.indexOf('}');
         var selectors = rule.slice(0, lBraceIndex);
         var declarations = rule.slice(lBraceIndex + 1, rBraceIndex);
-        selectors.split(separator).forEach(function(selector) {
+        selectors.split(reSeparator).forEach(function(selector) {
           dynamicStyleSheet.addRule(selector, declarations);
         });
       }
@@ -3105,7 +3105,7 @@
    */
   Element.prototype.hasClass = function(className) {
     var elementClassName = ' ' + this.className.clean() + ' ';
-    return className.split(separator).every(function(className) {
+    return className.split(reSeparator).every(function(className) {
       return elementClassName.contains(' ' + className.trim() + ' ');
     });
   };
@@ -3120,7 +3120,7 @@
    */
   Element.prototype.addClass = function(className) {
     var $element = this;
-    className.split(separator).forEach(function(className) {
+    className.split(reSeparator).forEach(function(className) {
       if (!$element.hasClass(className)) {
         $element.className = ($element.className + ' ' + className).clean();
       }
@@ -3139,7 +3139,7 @@
   Element.prototype.removeClass = function(className) {
     var $element = this;
     var elementClassName = ' ' + $element.className.clean() + ' ';
-    className.split(separator).forEach(function(className) {
+    className.split(reSeparator).forEach(function(className) {
       elementClassName = elementClassName.replace(' ' + className.trim() + ' ', ' ');
     });
     $element.className = elementClassName.trim();
@@ -3156,7 +3156,7 @@
    */
   Element.prototype.toggleClass = function(className) {
     var $element = this;
-    className.split(separator).forEach(function(className) {
+    className.split(reSeparator).forEach(function(className) {
       $element[$element.hasClass(className) ? 'removeClass' : 'addClass'](className);
     });
     return $element;
@@ -4780,7 +4780,7 @@
     var uid = eventTarget.uid;
     var item = eventHandlers[uid] || (eventHandlers[uid] = {});
     // 使用一个监听器监听该对象上的多个事件。
-    name.split(separator).forEach(function(name) {
+    name.split(reSeparator).forEach(function(name) {
       // 取出事件名中携带的各种属性。
       var attributes = getEventAttributes(name);
       var type = attributes.type;
@@ -4939,7 +4939,7 @@
       return eventTarget;
     }
     // 同时删除该对象上的多个监听器。
-    name.split(separator).forEach(function(name) {
+    name.split(reSeparator).forEach(function(name) {
       // 取出事件类型。
       var type = getEventAttributes(name).type;
       // 尝试获取对应的处理器组，以删除处理器。
@@ -5088,7 +5088,7 @@
    *   JSEventTarget.prototype.fire
    */
 
-  var separator = /\s*,\s*/;
+  var reSeparator = /\s*,\s*/;
 
   var reEventName = /^([a-zA-Z]+)(?:\.\w+)?$/;
   var getEventType = function(name) {
@@ -5188,7 +5188,7 @@
    */
   JSEventTarget.prototype.on = function(name, listener) {
     var eventHandlers = this.eventHandlers;
-    name.split(separator).forEach(function(name) {
+    name.split(reSeparator).forEach(function(name) {
       var type = getEventType(name);
       var handlers = eventHandlers[type] || (eventHandlers[type] = []);
       handlers.push({name: name, listener: listener});
@@ -5208,7 +5208,7 @@
    */
   JSEventTarget.prototype.off = function(name) {
     var eventHandlers = this.eventHandlers;
-    name.split(separator).forEach(function(name) {
+    name.split(reSeparator).forEach(function(name) {
       var type = getEventType(name);
       var handlers = eventHandlers[type];
       if (handlers) {
@@ -5855,7 +5855,7 @@
    */
 
   // 参数分隔符。
-  var separator = /\s*,\s*/;
+  var reSeparator = /\s*,\s*/;
 
   // 空函数。
   var empty = function() {
@@ -6118,7 +6118,7 @@
   Element.prototype.cancelAnimation = function(type) {
     var $element = this;
     var animations = getAnimations($element);
-    var types = type ? type.split(separator) : null;
+    var types = type ? type.split(reSeparator) : null;
     Object.forEach(animations, function(animation, type) {
       if (types === null || types.contains(type)) {
         animation.pause();

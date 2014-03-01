@@ -600,7 +600,7 @@
    */
 
   // 参数分隔符。
-  var separator = /\s*,\s*/;
+  var reSeparator = /\s*,\s*/;
 
   // 空函数。
   var empty = function() {
@@ -863,7 +863,7 @@
   Element.prototype.cancelAnimation = function(type) {
     var $element = this;
     var animations = getAnimations($element);
-    var types = type ? type.split(separator) : null;
+    var types = type ? type.split(reSeparator) : null;
     Object.forEach(animations, function(animation, type) {
       if (types === null || types.contains(type)) {
         animation.pause();

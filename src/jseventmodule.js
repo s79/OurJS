@@ -55,7 +55,7 @@
    *   JSEventTarget.prototype.fire
    */
 
-  var separator = /\s*,\s*/;
+  var reSeparator = /\s*,\s*/;
 
   var reEventName = /^([a-zA-Z]+)(?:\.\w+)?$/;
   var getEventType = function(name) {
@@ -155,7 +155,7 @@
    */
   JSEventTarget.prototype.on = function(name, listener) {
     var eventHandlers = this.eventHandlers;
-    name.split(separator).forEach(function(name) {
+    name.split(reSeparator).forEach(function(name) {
       var type = getEventType(name);
       var handlers = eventHandlers[type] || (eventHandlers[type] = []);
       handlers.push({name: name, listener: listener});
@@ -175,7 +175,7 @@
    */
   JSEventTarget.prototype.off = function(name) {
     var eventHandlers = this.eventHandlers;
-    name.split(separator).forEach(function(name) {
+    name.split(reSeparator).forEach(function(name) {
       var type = getEventType(name);
       var handlers = eventHandlers[type];
       if (handlers) {

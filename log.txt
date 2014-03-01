@@ -1,4 +1,7 @@
-﻿>2013-12-03
+﻿>2013-12-11
+# 修改 Object.mixin 的参数名
+
+>2013-12-03
 * 使用 Widget.parseAs 代替以前的内部方法 Widget.parsers.parse
 
 >2013-10-24
