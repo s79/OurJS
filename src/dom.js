@@ -1997,7 +1997,7 @@
             var elements = eventTarget.findAll(selector);
             return function(currentTarget) {
               return elements.contains(currentTarget);
-            }
+            };
           }
         }(handler.simpleSelector)))(currentTarget)) {
           if (!isTriggered || isTriggered.call(currentTarget, event)) {
