@@ -64,6 +64,10 @@ document.on('domready', function() {
           url: '/OurJS/widgets/slideshow/'
         },
         {
+          text: '无缝轮播器',
+          url: '/OurJS/widgets/carousel/'
+        },
+        {
           text: '自动提词机',
           url: '/OurJS/widgets/autocue/'
         },

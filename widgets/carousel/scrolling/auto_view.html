@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Carousel</title>
+<link rel="stylesheet" href="/stylesheets/reset.css">
+<script src="../../../our.js"></script>
+<script src="../../../widgets/carousel.js"></script>
+<style>
+body { padding: 10px; }
+
+#carousel { width: 590px; padding: 15px; background: #262F43; }
+#carousel .container { width: 590px; height: 100px; }
+#carousel .items { height: 100px; }
+#carousel .item { width: 110px; height: 100px; }
+#carousel .item a { display: block; width: 90px; height: 90px; padding: 5px 10px; background: #262C3A url(bg.png) no-repeat; color: gold; font: 50px/90px Verdana, serif; text-decoration: none; text-align: center; }
+#carousel .item a:hover { background-position: 0 -100px; color: white; }
+</style>
+</head>
+<body>
+<div id="carousel" class="widget-carousel" data-interval="2000" data-item-spacing="10">
+  <div class="container">
+    <ul class="items">
+      <li class="item"><a href="javascript:void('demo');">1</a></li>
+      <li class="item"><a href="javascript:void('demo');">2</a></li>
+      <li class="item"><a href="javascript:void('demo');">3</a></li>
+      <li class="item"><a href="javascript:void('demo');">4</a></li>
+      <li class="item"><a href="javascript:void('demo');">5</a></li>
+      <li class="item"><a href="javascript:void('demo');">6</a></li>
+      <li class="item"><a href="javascript:void('demo');">7</a></li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
