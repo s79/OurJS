@@ -2,7 +2,7 @@
  * Sizzle CSS Selector Engine
  *  Copyright 2013 jQuery Foundation, Inc. and other contributors
  *  http://sizzlejs.com/
- *  1.9.3
+ *  1.10.18
  *  Released under the MIT license.
  */
 
@@ -10,7 +10,7 @@
  * @fileOverview CSS 选择器
  */
 
-(function(window, undefined) {
+(function(window) {
 //==================================================[CSS 选择器]
   /*
    * 根据 CSS 选择符查找符合条件的元素。
@@ -21,13 +21,16 @@
 
 //--------------------------------------------------[Sizzle]
   var i,
-      cachedruns,
+      support,
       Expr,
       getText,
       isXML,
+      tokenize,
       compile,
+      select,
       outermostContext,
       sortInput,
+      hasDuplicate,
 
   // Local document vars
       setDocument,
@@ -42,14 +45,15 @@
   // Instance-specific data
       expando = "sizzle" + -(new Date()),
       preferredDoc = window.document,
-      support = {},
       dirruns = 0,
       done = 0,
       classCache = createCache(),
       tokenCache = createCache(),
       compilerCache = createCache(),
-      hasDuplicate = false,
-      sortOrder = function() {
+      sortOrder = function(a, b) {
+        if (a === b) {
+          hasDuplicate = true;
+        }
         return 0;
       },
 
@@ -57,7 +61,8 @@
       strundefined = typeof undefined,
       MAX_NEGATIVE = 1 << 31,
 
-  // Array methods
+  // Instance methods
+      hasOwn = ({}).hasOwnProperty,
       arr = [],
       pop = arr.pop,
       push_native = arr.push,
@@ -89,17 +94,23 @@
   // Proper syntax: http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
       identifier = characterEncoding.replace("w", "w#"),
 
-  // Acceptable operators http://www.w3.org/TR/selectors/#attribute-selectors
-      attributes = "\\[" + whitespace + "*(" + characterEncoding + ")" + whitespace +
-          "*(?:([*^$|!~]?=)" + whitespace + "*(?:(['\"])((?:\\\\.|[^\\\\])*?)\\3|(" + identifier + ")|)|)" + whitespace + "*\\]",
+  // Attribute selectors: http://www.w3.org/TR/selectors/#attribute-selectors
+      attributes = "\\[" + whitespace + "*(" + characterEncoding + ")(?:" + whitespace +
+        // Operator (capture 2)
+          "*([*^$|!~]?=)" + whitespace +
+        // "Attribute values must be CSS identifiers [capture 5] or strings [capture 3 or capture 4]"
+          "*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" + whitespace +
+          "*\\]",
 
-  // Prefer arguments quoted,
-  //   then not containing pseudos/brackets,
-  //   then attribute selectors/non-parenthetical expressions,
-  //   then anything else
-  // These preferences are here to reduce the number of selectors
-  //   needing tokenize in the PSEUDO preFilter
-      pseudos = ":(" + characterEncoding + ")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|" + attributes.replace(3, 8) + ")*)|.*)\\)|)",
+      pseudos = ":(" + characterEncoding + ")(?:\\((" +
+        // To reduce the number of selectors needing tokenize in the preFilter, prefer arguments:
+        // 1. quoted (capture 3; capture 4 or capture 5)
+          "('((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\")|" +
+        // 2. simple (capture 6)
+          "((?:\\\\.|[^\\\\()[\\]]|" + attributes + ")*)|" +
+        // 3. anything else (capture 2)
+          ".*" +
+          ")\\)|)",
 
   // Leading and non-escaped trailing whitespace, capturing some non-whitespace characters preceding the latter
       rtrim = new RegExp("^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g"),
@@ -107,8 +118,7 @@
       rcomma = new RegExp("^" + whitespace + "*," + whitespace + "*"),
       rcombinators = new RegExp("^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace + "*"),
 
-      rsibling = new RegExp(whitespace + "*[+~]"),
-      rattributeQuotes = new RegExp("=" + whitespace + "*([^\\]'\"]*)" + whitespace + "*\\]", "g"),
+      rattributeQuotes = new RegExp("=" + whitespace + "*([^\\]'\"]*?)" + whitespace + "*\\]", "g"),
 
       rpseudo = new RegExp(pseudos),
       ridentifier = new RegExp("^" + identifier + "$"),
@@ -122,35 +132,38 @@
         "CHILD": new RegExp("^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" + whitespace +
             "*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" + whitespace +
             "*(\\d+)|))" + whitespace + "*\\)|)", "i"),
-        "boolean": new RegExp("^(?:" + booleans + ")$", "i"),
+        "bool": new RegExp("^(?:" + booleans + ")$", "i"),
         // For use in libraries implementing .is()
         // We use this for POS matching in `select`
         "needsContext": new RegExp("^" + whitespace + "*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" +
             whitespace + "*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i")
       },
 
+      rinputs = /^(?:input|select|textarea|button)$/i,
+      rheader = /^h\d$/i,
+
       rnative = /^[^{]+\{\s*\[native \w/,
 
   // Easily-parseable/retrievable ID or TAG or CLASS selectors
       rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,
 
-      rinputs = /^(?:input|select|textarea|button)$/i,
-      rheader = /^h\d$/i,
-
+      rsibling = /[+~]/,
       rescape = /'|\\/g,
 
   // CSS escapes http://www.w3.org/TR/CSS21/syndata.html#escaped-characters
-      runescape = /\\([\da-fA-F]{1,6}[\x20\t\r\n\f]?|.)/g,
-      funescape = function(_, escaped) {
+      runescape = new RegExp("\\\\([\\da-f]{1,6}" + whitespace + "?|(" + whitespace + ")|.)", "ig"),
+      funescape = function(_, escaped, escapedWhitespace) {
         var high = "0x" + escaped - 0x10000;
         // NaN means non-codepoint
-        return high !== high ?
+        // Support: Firefox<24
+        // Workaround erroneous numeric interpretation of +"0x"
+        return high !== high || escapedWhitespace ?
             escaped :
+                high < 0 ?
           // BMP codepoint
-            high < 0 ?
-                String.fromCharCode(high + 0x10000) :
-              // Supplemental Plane codepoint (surrogate pair)
-                String.fromCharCode(high >> 10 | 0xD800, high & 0x3FF | 0xDC00);
+            String.fromCharCode(high + 0x10000) :
+          // Supplemental Plane codepoint (surrogate pair)
+            String.fromCharCode(high >> 10 | 0xD800, high & 0x3FF | 0xDC00);
       };
 
 // Optimize for push.apply( _, NodeList )
@@ -183,64 +196,6 @@
     };
   }
 
-  /**
-   * For feature detection
-   * @param {Function} fn The function to test for native support
-   */
-  function isNative(fn) {
-    return rnative.test(fn + "");
-  }
-
-  /**
-   * Create key-value caches of limited size
-   * @returns {Function(string, Object)} Returns the Object data after storing it on itself with
-   *  property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
-   *  deleting the oldest entry
-   */
-  function createCache() {
-    var cache,
-        keys = [];
-
-    return (cache = function(key, value) {
-      // Use (key + " ") to avoid collision with native prototype properties (see Issue #157)
-      if (keys.push(key += " ") > Expr.cacheLength) {
-        // Only keep the most recent entries
-        delete cache[ keys.shift() ];
-      }
-      return (cache[ key ] = value);
-    });
-  }
-
-  /**
-   * Mark a function for special use by Sizzle
-   * @param {Function} fn The function to mark
-   */
-  function markFunction(fn) {
-    fn[ expando ] = true;
-    return fn;
-  }
-
-  /**
-   * Support testing using an element
-   * @param {Function} fn Passed the created div and expects a boolean result
-   */
-  function assert(fn) {
-    var div = document.createElement("div");
-
-    try {
-      return !!fn(div);
-    } catch (e) {
-      return false;
-    } finally {
-      if (div.parentNode) {
-        div.parentNode.removeChild(div);
-      }
-
-      // release memory in IE
-      div = null;
-    }
-  }
-
   function Sizzle(selector, context, results, seed) {
     var match, elem, m, nodeType,
     // QSA vars
@@ -270,7 +225,7 @@
           if (nodeType === 9) {
             elem = context.getElementById(m);
             // Check parentNode to catch when Blackberry 4.6 returns
-            // nodes that are no longer in the document #6963
+            // nodes that are no longer in the document (jQuery #6963)
             if (elem && elem.parentNode) {
               // Handle the case where IE, Opera, and Webkit return items
               // by name instead of ID
@@ -326,7 +281,7 @@
           while (i--) {
             groups[i] = nid + toSelector(groups[i]);
           }
-          newContext = rsibling.test(selector) && context.parentNode || context;
+          newContext = rsibling.test(selector) && testContext(context.parentNode) || context;
           newSelector = groups.join(",");
         }
 
@@ -351,8 +306,159 @@
   }
 
   /**
-   * Detect xml
+   * Create key-value caches of limited size
+   * @returns {Function(string, Object)} Returns the Object data after storing it on itself with
+   *  property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
+   *  deleting the oldest entry
+   */
+  function createCache() {
+    var keys = [];
+
+    function cache(key, value) {
+      // Use (key + " ") to avoid collision with native prototype properties (see Issue #157)
+      if (keys.push(key + " ") > Expr.cacheLength) {
+        // Only keep the most recent entries
+        delete cache[ keys.shift() ];
+      }
+      return (cache[ key + " " ] = value);
+    }
+
+    return cache;
+  }
+
+  /**
+   * Mark a function for special use by Sizzle
+   * @param {Function} fn The function to mark
+   */
+  function markFunction(fn) {
+    fn[ expando ] = true;
+    return fn;
+  }
+
+  /**
+   * Support testing using an element
+   * @param {Function} fn Passed the created div and expects a boolean result
+   */
+  function assert(fn) {
+    var div = document.createElement("div");
+
+    try {
+      return !!fn(div);
+    } catch (e) {
+      return false;
+    } finally {
+      // Remove from its parent by default
+      if (div.parentNode) {
+        div.parentNode.removeChild(div);
+      }
+      // release memory in IE
+      div = null;
+    }
+  }
+
+  /**
+   * Adds the same handler for all of the specified attrs
+   * @param {String} attrs Pipe-separated list of attributes
+   * @param {Function} handler The method that will be applied
+   */
+  function addHandle(attrs, handler) {
+    var arr = attrs.split("|"),
+        i = attrs.length;
+
+    while (i--) {
+      Expr.attrHandle[ arr[i] ] = handler;
+    }
+  }
+
+  /**
+   * Checks document order of two siblings
+   * @param {Element} a
+   * @param {Element} b
+   * @returns {Number} Returns less than 0 if a precedes b, greater than 0 if a follows b
+   */
+  function siblingCheck(a, b) {
+    var cur = b && a,
+        diff = cur && a.nodeType === 1 && b.nodeType === 1 &&
+            ( ~b.sourceIndex || MAX_NEGATIVE ) -
+            ( ~a.sourceIndex || MAX_NEGATIVE );
+
+    // Use IE sourceIndex if available on both nodes
+    if (diff) {
+      return diff;
+    }
+
+    // Check if b follows a
+    if (cur) {
+      while ((cur = cur.nextSibling)) {
+        if (cur === b) {
+          return -1;
+        }
+      }
+    }
+
+    return a ? 1 : -1;
+  }
+
+  /**
+   * Returns a function to use in pseudos for input types
+   * @param {String} type
+   */
+  function createInputPseudo(type) {
+    return function(elem) {
+      var name = elem.nodeName.toLowerCase();
+      return name === "input" && elem.type === type;
+    };
+  }
+
+  /**
+   * Returns a function to use in pseudos for buttons
+   * @param {String} type
+   */
+  function createButtonPseudo(type) {
+    return function(elem) {
+      var name = elem.nodeName.toLowerCase();
+      return (name === "input" || name === "button") && elem.type === type;
+    };
+  }
+
+  /**
+   * Returns a function to use in pseudos for positionals
+   * @param {Function} fn
+   */
+  function createPositionalPseudo(fn) {
+    return markFunction(function(argument) {
+      argument = +argument;
+      return markFunction(function(seed, matches) {
+        var j,
+            matchIndexes = fn([], seed.length, argument),
+            i = matchIndexes.length;
+
+        // Match elements found at the specified indexes
+        while (i--) {
+          if (seed[ (j = matchIndexes[i]) ]) {
+            seed[j] = !(matches[j] = seed[j]);
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Checks a node for validity as a Sizzle context
+   * @param {Element|Object=} context
+   * @returns {Element|Object|Boolean} The input node if acceptable, otherwise a falsy value
+   */
+  function testContext(context) {
+    return context && typeof context.getElementsByTagName !== strundefined && context;
+  }
+
+// Expose support vars for convenience
+  support = Sizzle.support = {};
+
+  /**
+   * Detects XML nodes
    * @param {Element|Object} elem An element or a document
+   * @returns {Boolean} True iff elem is a non-HTML XML node
    */
   isXML = Sizzle.isXML = function(elem) {
     // documentElement is verified for cases where it doesn't yet exist
@@ -367,7 +473,9 @@
    * @returns {Object} Returns the current document
    */
   setDocument = Sizzle.setDocument = function(node) {
-    var doc = node ? node.ownerDocument || node : preferredDoc;
+    var hasCompare,
+        doc = node ? node.ownerDocument || node : preferredDoc,
+        parent = doc.defaultView;
 
     // If no document and documentElement is available, return
     if (doc === document || doc.nodeType !== 9 || !doc.documentElement) {
@@ -381,11 +489,25 @@
     // Support tests
     documentIsHTML = !isXML(doc);
 
-    // Check if getElementsByTagName("*") returns only elements
-    support.getElementsByTagName = assert(function(div) {
-      div.appendChild(doc.createComment(""));
-      return !div.getElementsByTagName("*").length;
-    });
+    // Support: IE>8
+    // If iframe document is assigned to "document" variable and if iframe has been reloaded,
+    // IE will throw "permission denied" error when accessing "document" variable, see jQuery #13936
+    // IE6-8 do not support the defaultView property so parent will be undefined
+    if (parent && parent !== parent.top) {
+      // IE11 does not have attachEvent, so all must suffer
+      if (parent.addEventListener) {
+        parent.addEventListener("unload", function() {
+          setDocument();
+        }, false);
+      } else if (parent.attachEvent) {
+        parent.attachEvent("onunload", function() {
+          setDocument();
+        });
+      }
+    }
+
+    /* Attributes
+     ---------------------------------------------------------------------- */
 
     // Support: IE<8
     // Verify that getAttribute really returns attributes and not properties (excepting IE8 booleans)
@@ -394,8 +516,17 @@
       return !div.getAttribute("className");
     });
 
+    /* getElement(s)By*
+     ---------------------------------------------------------------------- */
+
+    // Check if getElementsByTagName("*") returns only elements
+    support.getElementsByTagName = assert(function(div) {
+      div.appendChild(doc.createComment(""));
+      return !div.getElementsByTagName("*").length;
+    });
+
     // Check if getElementsByClassName can be trusted
-    support.getElementsByClassName = assert(function(div) {
+    support.getElementsByClassName = rnative.test(doc.getElementsByClassName) && assert(function(div) {
       div.innerHTML = "<div class='a'></div><div class='a i'></div>";
 
       // Support: Safari<4
@@ -406,19 +537,9 @@
       return div.getElementsByClassName("i").length === 2;
     });
 
-    // Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
-    // Detached nodes confoundingly follow *each other*
-    support.sortDetached = assert(function(div1) {
-      // Should return 1, but returns 4 (following)
-      return div1.compareDocumentPosition(document.createElement("div")) & 1;
-    });
-
     // Support: IE<10
     // Check if getElementById returns elements by name
-    // Support: Windows 8 Native Apps
-    // Assigning innerHTML with "name" attributes throws uncatchable exceptions
-    // (http://msdn.microsoft.com/en-us/library/ie/hh465388.aspx)
-    // and the broken getElementById methods don't pick up programatically-set names,
+    // The broken getElementById methods don't pick up programatically-set names,
     // so use a roundabout getElementsByName test
     support.getById = assert(function(div) {
       docElem.appendChild(div).id = expando;
@@ -432,7 +553,7 @@
           var m = context.getElementById(id);
           // Check parentNode to catch when Blackberry 4.6 returns
           // nodes that are no longer in the document #6963
-          return m && m.parentNode ? [m] : [];
+          return m && m.parentNode ? [ m ] : [];
         }
       };
       Expr.filter["ID"] = function(id) {
@@ -442,17 +563,10 @@
         };
       };
     } else {
-      Expr.find["ID"] = function(id, context) {
-        if (typeof context.getElementById !== strundefined && documentIsHTML) {
-          var m = context.getElementById(id);
+      // Support: IE6/7
+      // getElementById is not reliable as a find shortcut
+      delete Expr.find["ID"];
 
-          return m ?
-              m.id === id || typeof m.getAttributeNode !== strundefined && m.getAttributeNode("id").value === id ?
-                  [m] :
-                  undefined :
-              [];
-        }
-      };
       Expr.filter["ID"] = function(id) {
         var attrId = id.replace(runescape, funescape);
         return function(elem) {
@@ -495,6 +609,9 @@
       }
     };
 
+    /* QSA/matchesSelector
+     ---------------------------------------------------------------------- */
+
     // QSA and matchesSelector support
 
     // matchesSelector(:active) reports false when true (IE9/Opera 11.5)
@@ -507,7 +624,7 @@
     // See http://bugs.jquery.com/ticket/13378
     rbuggyQSA = [];
 
-    if ((support.qsa = isNative(doc.querySelectorAll))) {
+    if ((support.qsa = rnative.test(doc.querySelectorAll))) {
       // Build QSA regex
       // Regex strategy adopted from Diego Perini
       assert(function(div) {
@@ -516,7 +633,15 @@
         // setting a boolean content attribute,
         // since its presence should be enough
         // http://bugs.jquery.com/ticket/12359
-        div.innerHTML = "<select><option selected=''></option></select>";
+        div.innerHTML = "<select msallowclip=''><option selected=''></option></select>";
+
+        // Support: IE8, Opera 11-12.16
+        // Nothing should be selected when empty strings follow ^= or $= or *=
+        // The test attribute must be unknown in Opera but "safe" for WinRT
+        // http://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
+        if (div.querySelectorAll("[msallowclip^='']").length) {
+          rbuggyQSA.push("[*^$]=" + whitespace + "*(?:''|\"\")");
+        }
 
         // Support: IE8
         // Boolean attributes and "value" are not treated correctly
@@ -533,18 +658,16 @@
       });
 
       assert(function(div) {
-
-        // Support: Opera 10-12/IE8
-        // ^= $= *= and empty values
-        // Should not select anything
         // Support: Windows 8 Native Apps
-        // The type attribute is restricted during .innerHTML assignment
-        var input = document.createElement("input");
+        // The type and name attributes are restricted during .innerHTML assignment
+        var input = doc.createElement("input");
         input.setAttribute("type", "hidden");
-        div.appendChild(input).setAttribute("t", "");
+        div.appendChild(input).setAttribute("name", "D");
 
-        if (div.querySelectorAll("[t^='']").length) {
-          rbuggyQSA.push("[*^$]=" + whitespace + "*(?:''|\"\")");
+        // Support: IE8
+        // Enforce case-sensitivity of name attribute
+        if (div.querySelectorAll("[name=d]").length) {
+          rbuggyQSA.push("name" + whitespace + "*[*^$|!~]?=");
         }
 
         // FF 3.5 - :enabled/:disabled and hidden elements (hidden elements are still enabled)
@@ -559,7 +682,8 @@
       });
     }
 
-    if ((support.matchesSelector = isNative((matches = docElem.webkitMatchesSelector ||
+    if ((support.matchesSelector = rnative.test((matches = docElem.matches ||
+        docElem.webkitMatchesSelector ||
         docElem.mozMatchesSelector ||
         docElem.oMatchesSelector ||
         docElem.msMatchesSelector)))) {
@@ -579,10 +703,14 @@
     rbuggyQSA = rbuggyQSA.length && new RegExp(rbuggyQSA.join("|"));
     rbuggyMatches = rbuggyMatches.length && new RegExp(rbuggyMatches.join("|"));
 
+    /* Contains
+     ---------------------------------------------------------------------- */
+    hasCompare = rnative.test(docElem.compareDocumentPosition);
+
     // Element contains another
     // Purposefully does not implement inclusive descendent
     // As in, an element does not contain itself
-    contains = isNative(docElem.contains) || docElem.compareDocumentPosition ?
+    contains = hasCompare || rnative.test(docElem.contains) ?
         function(a, b) {
           var adown = a.nodeType === 9 ? a.documentElement : a,
               bup = b && b.parentNode;
@@ -603,8 +731,11 @@
           return false;
         };
 
+    /* Sorting
+     ---------------------------------------------------------------------- */
+
     // Document order sorting
-    sortOrder = docElem.compareDocumentPosition ?
+    sortOrder = hasCompare ?
         function(a, b) {
 
           // Flag for duplicate removal
@@ -613,34 +744,46 @@
             return 0;
           }
 
-          var compare = b.compareDocumentPosition && a.compareDocumentPosition && a.compareDocumentPosition(b);
-
+          // Sort on method existence if only one input has compareDocumentPosition
+          var compare = !a.compareDocumentPosition - !b.compareDocumentPosition;
           if (compare) {
-            // Disconnected nodes
-            if (compare & 1 ||
-                (!support.sortDetached && b.compareDocumentPosition(a) === compare)) {
-
-              // Choose the first element that is related to our preferred document
-              if (a === doc || contains(preferredDoc, a)) {
-                return -1;
-              }
-              if (b === doc || contains(preferredDoc, b)) {
-                return 1;
-              }
-
-              // Maintain original order
-              return sortInput ?
-                  ( indexOf.call(sortInput, a) - indexOf.call(sortInput, b) ) :
-                  0;
-            }
-
-            return compare & 4 ? -1 : 1;
+            return compare;
           }
 
-          // Not directly comparable, sort on existence of method
-          return a.compareDocumentPosition ? -1 : 1;
+          // Calculate position if both inputs belong to the same document
+          compare = ( a.ownerDocument || a ) === ( b.ownerDocument || b ) ?
+              a.compareDocumentPosition(b) :
+
+            // Otherwise we know they are disconnected
+              1;
+
+          // Disconnected nodes
+          if (compare & 1 ||
+              (!support.sortDetached && b.compareDocumentPosition(a) === compare)) {
+
+            // Choose the first element that is related to our preferred document
+            if (a === doc || a.ownerDocument === preferredDoc && contains(preferredDoc, a)) {
+              return -1;
+            }
+            if (b === doc || b.ownerDocument === preferredDoc && contains(preferredDoc, b)) {
+              return 1;
+            }
+
+            // Maintain original order
+            return sortInput ?
+                ( indexOf.call(sortInput, a) - indexOf.call(sortInput, b) ) :
+                0;
+          }
+
+          return compare & 4 ? -1 : 1;
         } :
         function(a, b) {
+          // Exit early if the nodes are identical
+          if (a === b) {
+            hasDuplicate = true;
+            return 0;
+          }
+
           var cur,
               i = 0,
               aup = a.parentNode,
@@ -648,20 +791,15 @@
               ap = [ a ],
               bp = [ b ];
 
-          // Exit early if the nodes are identical
-          if (a === b) {
-            hasDuplicate = true;
-            return 0;
-
-            // Parentless nodes are either documents or disconnected
-          } else if (!aup || !bup) {
+          // Parentless nodes are either documents or disconnected
+          if (!aup || !bup) {
             return a === doc ? -1 :
-                b === doc ? 1 :
-                    aup ? -1 :
-                        bup ? 1 :
-                            sortInput ?
-                                ( indexOf.call(sortInput, a) - indexOf.call(sortInput, b) ) :
-                                0;
+                    b === doc ? 1 :
+                aup ? -1 :
+                    bup ? 1 :
+                        sortInput ?
+                            ( indexOf.call(sortInput, a) - indexOf.call(sortInput, b) ) :
+                            0;
 
             // If the nodes are siblings, we can do a quick check
           } else if (aup === bup) {
@@ -688,12 +826,12 @@
               siblingCheck(ap[i], bp[i]) :
 
             // Otherwise nodes in our document sort first
-              ap[i] === preferredDoc ? -1 :
+                  ap[i] === preferredDoc ? -1 :
                   bp[i] === preferredDoc ? 1 :
-                      0;
+              0;
         };
 
-    return document;
+    return doc;
   };
 
   Sizzle.matches = function(expr, elements) {
@@ -709,10 +847,9 @@
     // Make sure that attribute selectors are quoted
     expr = expr.replace(rattributeQuotes, "='$1']");
 
-    // rbuggyQSA always contains :focus, so no need for an existence check
     if (support.matchesSelector && documentIsHTML &&
-        (!rbuggyMatches || !rbuggyMatches.test(expr)) &&
-        (!rbuggyQSA || !rbuggyQSA.test(expr))) {
+        ( !rbuggyMatches || !rbuggyMatches.test(expr) ) &&
+        ( !rbuggyQSA || !rbuggyQSA.test(expr) )) {
 
       try {
         var ret = matches.call(elem, expr);
@@ -728,7 +865,7 @@
       }
     }
 
-    return Sizzle(expr, document, null, [elem]).length > 0;
+    return Sizzle(expr, document, null, [ elem ]).length > 0;
   };
 
   Sizzle.contains = function(context, elem) {
@@ -746,22 +883,28 @@
     }
 
     var fn = Expr.attrHandle[ name.toLowerCase() ],
-        val = fn && fn(elem, name, !documentIsHTML);
+    // Don't get fooled by Object.prototype properties (jQuery #13807)
+        val = fn && hasOwn.call(Expr.attrHandle, name.toLowerCase()) ?
+            fn(elem, name, !documentIsHTML) :
+            undefined;
 
-    return val === undefined ?
-        support.attributes || !documentIsHTML ?
-            elem.getAttribute(name) :
+    return val !== undefined ?
+        val :
+            support.attributes || !documentIsHTML ?
+        elem.getAttribute(name) :
             (val = elem.getAttributeNode(name)) && val.specified ?
-                val.value :
-                null :
-        val;
+        val.value :
+        null;
   };
 
   Sizzle.error = function(msg) {
     throw new Error("Syntax error, unrecognized expression: " + msg);
   };
 
-// Document sorting and removing duplicates
+  /**
+   * Document sorting and removing duplicates
+   * @param {ArrayLike} results
+   */
   Sizzle.uniqueSort = function(results) {
     var elem,
         duplicates = [],
@@ -784,89 +927,12 @@
       }
     }
 
+    // Clear input after sorting to release objects
+    // See https://github.com/jquery/sizzle/pull/225
+    sortInput = null;
+
     return results;
   };
-
-  /**
-   * Checks document order of two siblings
-   * @param {Element} a
-   * @param {Element} b
-   * @returns Returns -1 if a precedes b, 1 if a follows b
-   */
-  function siblingCheck(a, b) {
-    var cur = b && a,
-        diff = cur && ( ~b.sourceIndex || MAX_NEGATIVE ) - ( ~a.sourceIndex || MAX_NEGATIVE );
-
-    // Use IE sourceIndex if available on both nodes
-    if (diff) {
-      return diff;
-    }
-
-    // Check if b follows a
-    if (cur) {
-      while ((cur = cur.nextSibling)) {
-        if (cur === b) {
-          return -1;
-        }
-      }
-    }
-
-    return a ? 1 : -1;
-  }
-
-// Fetches boolean attributes by node
-  function boolHandler(elem, name, isXML) {
-    var val;
-    return isXML ?
-        undefined :
-        (val = elem.getAttributeNode(name)) && val.specified ?
-            val.value :
-            elem[ name ] === true ? name.toLowerCase() : null;
-  }
-
-// Fetches attributes without interpolation
-// http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-  function interpolationHandler(elem, name, isXML) {
-    var val;
-    return isXML ?
-        undefined :
-        (val = elem.getAttribute(name, name.toLowerCase() === "type" ? 1 : 2));
-  }
-
-// Returns a function to use in pseudos for input types
-  function createInputPseudo(type) {
-    return function(elem) {
-      var name = elem.nodeName.toLowerCase();
-      return name === "input" && elem.type === type;
-    };
-  }
-
-// Returns a function to use in pseudos for buttons
-  function createButtonPseudo(type) {
-    return function(elem) {
-      var name = elem.nodeName.toLowerCase();
-      return (name === "input" || name === "button") && elem.type === type;
-    };
-  }
-
-// Returns a function to use in pseudos for positionals
-  function createPositionalPseudo(fn) {
-    return markFunction(function(argument) {
-      argument = +argument;
-      return markFunction(function(seed, matches) {
-        var j,
-            matchIndexes = fn([], seed.length, argument),
-            i = matchIndexes.length;
-
-        // Match elements found at the specified indexes
-        while (i--) {
-          if (seed[ (j = matchIndexes[i]) ]) {
-            seed[j] = !(matches[j] = seed[j]);
-          }
-        }
-      });
-    });
-  }
 
   /**
    * Utility function for retrieving the text value of an array of DOM nodes
@@ -880,13 +946,13 @@
 
     if (!nodeType) {
       // If no nodeType, this is expected to be an array
-      for (; (node = elem[i]); i++) {
+      while ((node = elem[i++])) {
         // Do not traverse comment nodes
         ret += getText(node);
       }
     } else if (nodeType === 1 || nodeType === 9 || nodeType === 11) {
       // Use textContent for elements
-      // innerText usage removed for consistency of new lines (see #11153)
+      // innerText usage removed for consistency of new lines (jQuery #11153)
       if (typeof elem.textContent === "string") {
         return elem.textContent;
       } else {
@@ -928,7 +994,7 @@
         match[1] = match[1].replace(runescape, funescape);
 
         // Move the given value to match[3] whether quoted or unquoted
-        match[3] = ( match[4] || match[5] || "" ).replace(runescape, funescape);
+        match[3] = ( match[3] || match[4] || match[5] || "" ).replace(runescape, funescape);
 
         if (match[2] === "~=") {
           match[3] = " " + match[3] + " ";
@@ -971,15 +1037,15 @@
 
       "PSEUDO": function(match) {
         var excess,
-            unquoted = !match[5] && match[2];
+            unquoted = !match[6] && match[2];
 
         if (matchExpr["CHILD"].test(match[0])) {
           return null;
         }
 
         // Accept quoted arguments as-is
-        if (match[4]) {
-          match[2] = match[4];
+        if (match[3]) {
+          match[2] = match[4] || match[5] || "";
 
           // Strip excess characters from unquoted arguments
         } else if (unquoted && rpseudo.test(unquoted) &&
@@ -1016,9 +1082,9 @@
 
         return pattern ||
             (pattern = new RegExp("(^|" + whitespace + ")" + className + "(" + whitespace + "|$)")) &&
-                classCache(className, function(elem) {
-                  return pattern.test(typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== strundefined && elem.getAttribute("class") || "");
-                });
+            classCache(className, function(elem) {
+              return pattern.test(typeof elem.className === "string" && elem.className || typeof elem.getAttribute !== strundefined && elem.getAttribute("class") || "");
+            });
       },
 
       "ATTR": function(name, operator, check) {
@@ -1035,13 +1101,13 @@
           result += "";
 
           return operator === "=" ? result === check :
-              operator === "!=" ? result !== check :
+                  operator === "!=" ? result !== check :
                   operator === "^=" ? check && result.indexOf(check) === 0 :
-                      operator === "*=" ? check && result.indexOf(check) > -1 :
-                          operator === "$=" ? check && result.slice(-check.length) === check :
-                              operator === "~=" ? ( " " + result + " " ).indexOf(check) > -1 :
-                                  operator === "|=" ? result === check || result.slice(0, check.length + 1) === check + "-" :
-                                      false;
+                  operator === "*=" ? check && result.indexOf(check) > -1 :
+                  operator === "$=" ? check && result.slice(-check.length) === check :
+                  operator === "~=" ? ( " " + result + " " ).indexOf(check) > -1 :
+                  operator === "|=" ? result === check || result.slice(0, check.length + 1) === check + "-" :
+              false;
         };
       },
 
@@ -1285,12 +1351,11 @@
       // Contents
       "empty": function(elem) {
         // http://www.w3.org/TR/selectors/#empty-pseudo
-        // :empty is only affected by element nodes and content nodes(including text(3), cdata(4)),
-        //   not comment, processing instructions, or others
-        // Thanks to Diego Perini for the nodeName shortcut
-        //   Greater than "@" means alpha characters (specifically not starting with "#" or "?")
+        // :empty is negated by element (1) or content nodes (text: 3; cdata: 4; entity ref: 5),
+        //   but not by others (comment: 8; processing instruction: 7; etc.)
+        // nodeType < 6 works because attributes (2) do not appear as children
         for (elem = elem.firstChild; elem; elem = elem.nextSibling) {
-          if (elem.nodeName > "@" || elem.nodeType === 3 || elem.nodeType === 4) {
+          if (elem.nodeType < 6) {
             return false;
           }
         }
@@ -1317,11 +1382,12 @@
 
       "text": function(elem) {
         var attr;
-        // IE6 and 7 will map elem.type to 'text' for new HTML5 types (search, etc)
-        // use getAttribute instead to test this case
         return elem.nodeName.toLowerCase() === "input" &&
             elem.type === "text" &&
-            ( (attr = elem.getAttribute("type")) == null || attr.toLowerCase() === elem.type );
+
+          // Support: IE<8
+          // New HTML5 attribute values (e.g., "search") appear with elem.type === "text"
+            ( (attr = elem.getAttribute("type")) == null || attr.toLowerCase() === "text" );
       },
 
       // Position-in-collection
@@ -1371,6 +1437,8 @@
     }
   };
 
+  Expr.pseudos["nth"] = Expr.pseudos["eq"];
+
 // Add button/input type pseudos
   for (i in { radio: true, checkbox: true, file: true, password: true, image: true }) {
     Expr.pseudos[ i ] = createInputPseudo(i);
@@ -1379,7 +1447,14 @@
     Expr.pseudos[ i ] = createButtonPseudo(i);
   }
 
-  function tokenize(selector, parseOnly) {
+// Easy API for creating new setFilters
+  function setFilters() {
+  }
+
+  setFilters.prototype = Expr.filters = Expr.pseudos;
+  Expr.setFilters = new setFilters();
+
+  tokenize = Sizzle.tokenize = function(selector, parseOnly) {
     var matched, match, tokens, type,
         soFar, groups, preFilters,
         cached = tokenCache[ selector + " " ];
@@ -1400,7 +1475,7 @@
           // Don't consume trailing commas as valid
           soFar = soFar.slice(match[0].length) || soFar;
         }
-        groups.push(tokens = []);
+        groups.push((tokens = []));
       }
 
       matched = false;
@@ -1444,7 +1519,7 @@
             Sizzle.error(selector) :
           // Cache the tokens
             tokenCache(selector, groups).slice(0);
-  }
+  };
 
   function toSelector(tokens) {
     var i = 0,
@@ -1473,8 +1548,8 @@
 
       // Check against all ancestor/preceding elements
         function(elem, context, xml) {
-          var data, cache, outerCache,
-              dirkey = dirruns + " " + doneName;
+          var oldCache, outerCache,
+              newCache = [ dirruns, doneName ];
 
           // We can't set arbitrary data on XML nodes, so they don't benefit from dir caching
           if (xml) {
@@ -1489,14 +1564,17 @@
             while ((elem = elem[ dir ])) {
               if (elem.nodeType === 1 || checkNonElements) {
                 outerCache = elem[ expando ] || (elem[ expando ] = {});
-                if ((cache = outerCache[ dir ]) && cache[0] === dirkey) {
-                  if ((data = cache[1]) === true || data === cachedruns) {
-                    return data === true;
-                  }
+                if ((oldCache = outerCache[ dir ]) &&
+                    oldCache[ 0 ] === dirruns && oldCache[ 1 ] === doneName) {
+
+                  // Assign to newCache so results back-propagate to previous elements
+                  return (newCache[ 2 ] = oldCache[ 2 ]);
                 } else {
-                  cache = outerCache[ dir ] = [ dirkey ];
-                  cache[1] = matcher(elem, context, xml) || cachedruns;
-                  if (cache[1] === true) {
+                  // Reuse newcache so results back-propagate to previous elements
+                  outerCache[ dir ] = newCache;
+
+                  // A match means we're done; a fail means we have to keep checking
+                  if ((newCache[ 2 ] = matcher(elem, context, xml))) {
                     return true;
                   }
                 }
@@ -1518,6 +1596,15 @@
           return true;
         } :
         matchers[0];
+  }
+
+  function multipleContexts(selector, contexts, results) {
+    var i = 0,
+        len = contexts.length;
+    for (; i < len; i++) {
+      Sizzle(selector, contexts[i], results);
+    }
+    return results;
   }
 
   function condense(unmatched, map, filter, context, xml) {
@@ -1564,13 +1651,13 @@
 
           matcherOut = matcher ?
             // If we have a postFinder, or filtered seed, or non-seed postFilter or preexisting results,
-              postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
+                  postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
 
-                // ...intermediate processing is necessary
-                  [] :
+            // ...intermediate processing is necessary
+              [] :
 
-                // ...otherwise use results directly
-                  results :
+            // ...otherwise use results directly
+              results :
               matcherIn;
 
       // Find primary matches
@@ -1621,7 +1708,7 @@
         // Add elements to results, through postFinder if defined
       } else {
         matcherOut = condense(
-            matcherOut === results ?
+                matcherOut === results ?
                 matcherOut.splice(preexisting, matcherOut.length) :
                 matcherOut
         );
@@ -1671,12 +1758,15 @@
             }
           }
           return setMatcher(
-              i > 1 && elementMatcher(matchers),
-              i > 1 && toSelector(tokens.slice(0, i - 1)).replace(rtrim, "$1"),
+                  i > 1 && elementMatcher(matchers),
+                  i > 1 && toSelector(
+                  // If the preceding token was a descendant combinator, insert an implicit any-element `*`
+                  tokens.slice(0, i - 1).concat({ value: tokens[ i - 2 ].type === " " ? "*" : "" })
+              ).replace(rtrim, "$1"),
               matcher,
-              i < j && matcherFromTokens(tokens.slice(i, j)),
-              j < len && matcherFromTokens((tokens = tokens.slice(j))),
-              j < len && toSelector(tokens)
+                  i < j && matcherFromTokens(tokens.slice(i, j)),
+                  j < len && matcherFromTokens((tokens = tokens.slice(j))),
+                  j < len && toSelector(tokens)
           );
         }
         matchers.push(matcher);
@@ -1687,31 +1777,30 @@
   }
 
   function matcherFromGroupMatchers(elementMatchers, setMatchers) {
-    // A counter to specify which element is currently being matched
-    var matcherCachedRuns = 0,
-        bySet = setMatchers.length > 0,
+    var bySet = setMatchers.length > 0,
         byElement = elementMatchers.length > 0,
-        superMatcher = function(seed, context, xml, results, expandContext) {
+        superMatcher = function(seed, context, xml, results, outermost) {
           var elem, j, matcher,
-              setMatched = [],
               matchedCount = 0,
               i = "0",
               unmatched = seed && [],
-              outermost = expandContext != null,
+              setMatched = [],
               contextBackup = outermostContext,
-          // We must always have either seed elements or context
-              elems = seed || byElement && Expr.find["TAG"]("*", expandContext && context.parentNode || context),
+          // We must always have either seed elements or outermost context
+              elems = seed || byElement && Expr.find["TAG"]("*", outermost),
           // Use integer dirruns iff this is the outermost matcher
-              dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1);
+              dirrunsUnique = (dirruns += contextBackup == null ? 1 : Math.random() || 0.1),
+              len = elems.length;
 
           if (outermost) {
             outermostContext = context !== document && context;
-            cachedruns = matcherCachedRuns;
           }
 
           // Add elements passing elementMatchers directly to results
           // Keep `i` a string if there are no elements so `matchedCount` will be "00" below
-          for (; (elem = elems[i]) != null; i++) {
+          // Support: IE<9, Safari
+          // Tolerate NodeList properties (IE: "length"; Safari: <number>) matching elements by id
+          for (; i !== len && (elem = elems[i]) != null; i++) {
             if (byElement && elem) {
               j = 0;
               while ((matcher = elementMatchers[j++])) {
@@ -1722,7 +1811,6 @@
               }
               if (outermost) {
                 dirruns = dirrunsUnique;
-                cachedruns = ++matcherCachedRuns;
               }
             }
 
@@ -1787,7 +1875,7 @@
         superMatcher;
   }
 
-  compile = Sizzle.compile = function(selector, group /* Internal Use Only */) {
+  compile = Sizzle.compile = function(selector, match /* Internal Use Only */) {
     var i,
         setMatchers = [],
         elementMatchers = [],
@@ -1795,12 +1883,12 @@
 
     if (!cached) {
       // Generate a function of recursive functions that can be used to check each element
-      if (!group) {
-        group = tokenize(selector);
+      if (!match) {
+        match = tokenize(selector);
       }
-      i = group.length;
+      i = match.length;
       while (i--) {
-        cached = matcherFromTokens(group[i]);
+        cached = matcherFromTokens(match[i]);
         if (cached[ expando ]) {
           setMatchers.push(cached);
         } else {
@@ -1810,137 +1898,163 @@
 
       // Cache the compiled function
       cached = compilerCache(selector, matcherFromGroupMatchers(elementMatchers, setMatchers));
+
+      // Save selector and tokenization
+      cached.selector = selector;
     }
     return cached;
   };
 
-  function multipleContexts(selector, contexts, results) {
-    var i = 0,
-        len = contexts.length;
-    for (; i < len; i++) {
-      Sizzle(selector, contexts[i], results);
-    }
-    return results;
-  }
-
-  function select(selector, context, results, seed) {
+  /**
+   * A low-level selection function that works with Sizzle's compiled
+   *  selector functions
+   * @param {String|Function} selector A selector or a pre-compiled
+   *  selector function built with Sizzle.compile
+   * @param {Element} context
+   * @param {Array} [results]
+   * @param {Array} [seed] A set of elements to match against
+   */
+  select = Sizzle.select = function(selector, context, results, seed) {
     var i, tokens, token, type, find,
-        match = tokenize(selector);
+        compiled = typeof selector === "function" && selector,
+        match = !seed && tokenize((selector = compiled.selector || selector));
 
-    if (!seed) {
-      // Try to minimize operations if there is only one group
-      if (match.length === 1) {
+    results = results || [];
 
-        // Take a shortcut and set the context if the root selector is an ID
-        tokens = match[0] = match[0].slice(0);
-        if (tokens.length > 2 && (token = tokens[0]).type === "ID" &&
-            context.nodeType === 9 && documentIsHTML &&
-            Expr.relative[ tokens[1].type ]) {
+    // Try to minimize operations if there is no seed and only one group
+    if (match.length === 1) {
 
-          context = ( Expr.find["ID"](token.matches[0].replace(runescape, funescape), context) || [] )[0];
-          if (!context) {
-            return results;
-          }
+      // Take a shortcut and set the context if the root selector is an ID
+      tokens = match[0] = match[0].slice(0);
+      if (tokens.length > 2 && (token = tokens[0]).type === "ID" &&
+          support.getById && context.nodeType === 9 && documentIsHTML &&
+          Expr.relative[ tokens[1].type ]) {
 
-          selector = selector.slice(tokens.shift().value.length);
+        context = ( Expr.find["ID"](token.matches[0].replace(runescape, funescape), context) || [] )[0];
+        if (!context) {
+          return results;
+
+          // Precompiled matchers will still verify ancestry, so step up a level
+        } else if (compiled) {
+          context = context.parentNode;
         }
 
-        // Fetch a seed set for right-to-left matching
-        i = matchExpr["needsContext"].test(selector) ? 0 : tokens.length;
-        while (i--) {
-          token = tokens[i];
+        selector = selector.slice(tokens.shift().value.length);
+      }
 
-          // Abort if we hit a combinator
-          if (Expr.relative[ (type = token.type) ]) {
-            break;
-          }
-          if ((find = Expr.find[ type ])) {
-            // Search, expanding context for leading sibling combinators
-            if ((seed = find(
-                token.matches[0].replace(runescape, funescape),
-                rsibling.test(tokens[0].type) && context.parentNode || context
-            ))) {
+      // Fetch a seed set for right-to-left matching
+      i = matchExpr["needsContext"].test(selector) ? 0 : tokens.length;
+      while (i--) {
+        token = tokens[i];
 
-              // If seed is empty or no tokens remain, we can return early
-              tokens.splice(i, 1);
-              selector = seed.length && toSelector(tokens);
-              if (!selector) {
-                push.apply(results, seed);
-                return results;
-              }
+        // Abort if we hit a combinator
+        if (Expr.relative[ (type = token.type) ]) {
+          break;
+        }
+        if ((find = Expr.find[ type ])) {
+          // Search, expanding context for leading sibling combinators
+          if ((seed = find(
+              token.matches[0].replace(runescape, funescape),
+                  rsibling.test(tokens[0].type) && testContext(context.parentNode) || context
+          ))) {
 
-              break;
+            // If seed is empty or no tokens remain, we can return early
+            tokens.splice(i, 1);
+            selector = seed.length && toSelector(tokens);
+            if (!selector) {
+              push.apply(results, seed);
+              return results;
             }
+
+            break;
           }
         }
       }
     }
 
-    // Compile and execute a filtering function
+    // Compile and execute a filtering function if one is not provided
     // Provide `match` to avoid retokenization if we modified the selector above
-    compile(selector, match)(
+    ( compiled || compile(selector, match) )(
         seed,
         context,
         !documentIsHTML,
         results,
-        rsibling.test(selector)
+            rsibling.test(selector) && testContext(context.parentNode) || context
     );
     return results;
-  }
-
-// Deprecated
-  Expr.pseudos["nth"] = Expr.pseudos["eq"];
-
-// Easy API for creating new setFilters
-  function setFilters() {
-  }
-
-  setFilters.prototype = Expr.filters = Expr.pseudos;
-  Expr.setFilters = new setFilters();
+  };
 
 // One-time assignments
 
 // Sort stability
   support.sortStable = expando.split("").sort(sortOrder).join("") === expando;
 
+// Support: Chrome<14
+// Always assume duplicates if they aren't passed to the comparison function
+  support.detectDuplicates = !!hasDuplicate;
+
 // Initialize against the default document
   setDocument();
 
-// Support: Chrome<<14
-// Always assume duplicates if they aren't passed to the comparison function
-  [0, 0].sort(sortOrder);
-  support.detectDuplicates = hasDuplicate;
+// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
+// Detached nodes confoundingly follow *each other*
+  support.sortDetached = assert(function(div1) {
+    // Should return 1, but returns 4 (following)
+    return div1.compareDocumentPosition(document.createElement("div")) & 1;
+  });
 
 // Support: IE<8
 // Prevent attribute/property "interpolation"
-  assert(function(div) {
+// http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
+  if (!assert(function(div) {
     div.innerHTML = "<a href='#'></a>";
-    if (div.firstChild.getAttribute("href") !== "#") {
-      var attrs = "type|href|height|width".split("|"),
-          i = attrs.length;
-      while (i--) {
-        Expr.attrHandle[ attrs[i] ] = interpolationHandler;
+    return div.firstChild.getAttribute("href") === "#";
+  })) {
+    addHandle("type|href|height|width", function(elem, name, isXML) {
+      if (!isXML) {
+        return elem.getAttribute(name, name.toLowerCase() === "type" ? 1 : 2);
       }
-    }
-  });
+    });
+  }
+
+// Support: IE<9
+// Use defaultValue in place of getAttribute("value")
+  if (!support.attributes || !assert(function(div) {
+    div.innerHTML = "<input/>";
+    div.firstChild.setAttribute("value", "");
+    return div.firstChild.getAttribute("value") === "";
+  })) {
+    addHandle("value", function(elem, name, isXML) {
+      if (!isXML && elem.nodeName.toLowerCase() === "input") {
+        return elem.defaultValue;
+      }
+    });
+  }
 
 // Support: IE<9
 // Use getAttributeNode to fetch booleans when getAttribute lies
-  assert(function(div) {
-    if (div.getAttribute("disabled") != null) {
-      var attrs = booleans.split("|"),
-          i = attrs.length;
-      while (i--) {
-        Expr.attrHandle[ attrs[i] ] = boolHandler;
+  if (!assert(function(div) {
+    return div.getAttribute("disabled") == null;
+  })) {
+    addHandle(booleans, function(elem, name, isXML) {
+      var val;
+      if (!isXML) {
+        return elem[ name ] === true ? name.toLowerCase() :
+                (val = elem.getAttributeNode(name)) && val.specified ?
+            val.value :
+            null;
       }
-    }
-  });
+    });
+  }
 
 // EXPOSE
   if (typeof define === "function" && define.amd) {
     define(function() {
       return Sizzle;
     });
+// Sizzle requires that there be a global window in Common-JS like environments
+  } else if (typeof module !== "undefined" && module.exports) {
+    module.exports = Sizzle;
   } else {
     window.Sizzle = Sizzle;
   }

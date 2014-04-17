@@ -260,7 +260,7 @@
           element = null;
         }
       } else {
-        element = Sizzle(e)[0];
+        element = Sizzle(e)[0] || null;
       }
     } else if (e && e.nodeType === 1) {
       element = e;
