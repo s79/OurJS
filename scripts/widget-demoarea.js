@@ -77,7 +77,7 @@
       Widget.parseAs($demoarea, 'tabpanel');
 
       // “查看源码”功能。
-      document.on('afterdomready', function() {
+      document.on('afterdomready:once.demoarea', function() {
         $demoarea.on('activate', function(e) {
           if (e.activeTab.innerText === '查看源码') {
             var $iframe = e.activePanel;

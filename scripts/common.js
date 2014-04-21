@@ -68,6 +68,10 @@ document.on('domready', function() {
           url: '/OurJS/widgets/carousel/'
         },
         {
+          text: '照片墙',
+          url: '/OurJS/widgets/photowall/'
+        },
+        {
           text: '自动提词机',
           url: '/OurJS/widgets/autocue/'
         },

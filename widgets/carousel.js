@@ -28,7 +28,8 @@
    * * “无缝轮播器”的后代元素中，类名包含 'container' 的为“条目”的滚动框，类名包含 'items' 的为“条目”的容器，类名包含 'item' 的为“条目”，类名包含 'backward' 的为“向左滚动”按钮，类名包含 'forward' 的为“向右滚动”按钮。
    * * 所有“条目”的宽度可以不同，但高度必须一致。
    * @默认样式
-   *   div.widget-carousel, div.widget-carousel .container, div.widget-carousel .items { display: block; position: relative; overflow: hidden; }
+   *   div.widget-carousel .container { display: block; position: relative; overflow: hidden; }
+   *   div.widget-carousel .items { display: block; position: relative; }
    *   div.widget-carousel .item { float: left; }
    * @可配置项
    *   data-item-spacing
@@ -49,8 +50,6 @@
    * * 当鼠标移入本元素时，自动轮播会被暂时禁用；当鼠标移出本元素时，自动轮播会被重新启用。
    * * 如果有“向左滚动”和“向右滚动”按钮，则通过按下这些按钮即可使“无缝轮播器”向左和向右滚动，此时如果按下按钮不放，则在第一次滚动后，会以 2 倍速连续的向此方向滚动。
    * @新增属性
-   *   {Element} container “条目”的滚动框。
-   *   {Element} items “条目”的容器。
    * @新增方法
    *   backward
    *     向左滚动一个“条目”。
@@ -75,7 +74,8 @@
     type: 'carousel',
     selector: 'div.widget-carousel',
     styleRules: [
-      'div.widget-carousel, div.widget-carousel .container, div.widget-carousel .items { display: block; position: relative; overflow: hidden; }',
+      'div.widget-carousel .container { display: block; position: relative; overflow: hidden; }',
+      'div.widget-carousel .items { display: block; position: relative; }',
       'div.widget-carousel .item { float: left; }'
     ],
     config: {
@@ -150,7 +150,7 @@
       });
       $items.setStyle('width', containerWidth);
 
-      // 通过点击“向左滚动”和“向右滚动”按钮滚动“条目”。
+      // 通过按下“向左滚动”和“向右滚动”按钮滚动“条目”。
       var backwardIsHolding = false;
       var forwardIsHolding = false;
       $carousel

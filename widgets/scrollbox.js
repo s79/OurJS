@@ -197,7 +197,7 @@
 
       // 如果“滚动框”可见则自动更新“滚动条”。
       if ($scrollbox.offsetWidth) {
-        document.on('afterdomready', function() {
+        document.on('afterdomready:once.scrollbox', function() {
           if ($scrollbox.style.visibility !== 'visible') {
             $scrollbox.update();
           }

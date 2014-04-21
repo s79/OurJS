@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Photowall</title>
+<link rel="stylesheet" href="/stylesheets/reset.css">
+<script src="../../../our.js"></script>
+<script src="../../../widgets/photowall.js"></script>
+<style>
+body { padding: 10px; }
+
+#photowall { position: relative; width: 590px; padding: 15px 45px; background: #262F43; }
+#photowall .container { width: 590px; height: 110px; }
+#photowall .wall { height: 110px; }
+#photowall .photo { width: 100px; height: 100px; background: #262C3A; border: 5px solid #0B121C; color: silver; font: 50px/90px Verdana, serif; text-decoration: none; text-align: center; cursor: default; }
+#photowall .photo.active { border-color: #6993D2; color: white; }
+#photowall .controls { position: absolute; left: 0; top: 0; width: 680px; }
+#photowall .controls a { position: absolute; top: 44px; width: 20px; height: 50px; border: 1px solid #1E2738; background: #36405C; color: gainsboro; font-size: 30px; line-height: 46px; text-decoration: none; text-align: center; cursor: default; }
+#photowall .controls a.backward { left: 15px; }
+#photowall .controls a.forward { right: 15px; }
+#photowall .controls a:hover { color: white; }
+#photowall .controls a.disabled,
+#photowall .controls a.disabled:hover { color: #1E2738; }
+</style>
+</head>
+<body>
+<div id="photowall" class="widget-photowall" data-item-spacing="10">
+  <div class="container">
+    <ul class="wall">
+      <li class="photo">1</li>
+      <li class="photo">2</li>
+      <li class="photo">3</li>
+      <li class="photo">4</li>
+      <li class="photo">5</li>
+      <li class="photo">6</li>
+      <li class="photo">7</li>
+    </ul>
+  </div>
+  <div class="controls">
+    <a href="javascript:void('backward');" class="backward">‹</a>
+    <a href="javascript:void('forward');" class="forward">›</a>
+  </div>
+</div>
+<script>
+document.on('domready', function() {
+  $('#photowall').on('activate', function(e) {
+//    console.log(e);
+  });
+});
+</script>
+</body>
+</html>

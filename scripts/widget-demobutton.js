@@ -8,7 +8,7 @@
 //==================================================[Widget - 演示按钮]
 //--------------------------------------------------[ExecuteCode]
   // 在页面内所有的 domready 监听器被调用之后才启用点击“演示按钮”执行代码的功能。
-  document.on('afterdomready', function() {
+  document.on('afterdomready:once.demobutton', function() {
     document.$('body').on('click:relay(button.widget-demobutton).demobutton', function() {
       if (!this.disabled) {
         eval(this.code || this.innerText);

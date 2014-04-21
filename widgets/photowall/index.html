@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html data-source-code="../photowall.js">
+<head>
+<meta charset="utf-8">
+<title>照片墙</title>
+<script src="../../our.js"></script>
+<script src="../../scripts/widgets_loader.js"></script>
+</head>
+<body>
+<div id="content" data-outline="enabled">
+  <h1>照片墙</h1>
+
+  <h2>示例</h2>
+  <h3>手动滚动</h3>
+  <p>照片墙的向左滚动和向右滚动按钮虽然不是必需的，但通常都应该指定它们，以便于操作。</p>
+  <p>本例新建了一个包含了上述两个按钮的照片墙：</p>
+  <div class="widget-demoarea" data-src="scrolling/static.html" data-content-height="180"></div>
+
+  <h3>自动滚动</h3>
+  <p>通过配置 data-interval，可以指定照片墙自动滚动的时间间隔。</p>
+  <p>本例在上例的基础上，将配置项 data-interval 设置为 2000：</p>
+  <div class="widget-demoarea" data-src="scrolling/auto_loop.html" data-content-height="180"></div>
+
+  <h3>活动照片</h3>
+  <p>通过配置 data-active-index，可以指定活动照片。</p>
+  <p>本例在上例的基础上，将配置项 data-active-index 设置为 5：</p>
+  <div class="widget-demoarea" data-src="scrolling/active_photo.html" data-content-height="180"></div>
+
+</div>
+</body>
+</html>
