@@ -29,7 +29,7 @@ tr:hover { background: aliceblue; }
 <p>以下列表中的选择符（其含义与 CSS3 选择符完全一致）均可以在任何需要 selector 类型的值中使用，如：</p>
 <pre><dfn>$</dfn>('<var><strong>li&gt;p:first-child</strong></var>').empty();</pre>
 <pre>var elements = <samp>document</samp>.<dfn>findAll</dfn>('<var><strong>div.foo</strong></var>');</pre>
-<pre><samp>$element</samp>.<dfn>on</dfn>('<var>input:relay(<strong>input[type=text]</strong>)</var>', function(e) {...});</pre>
+<pre><samp>$element</samp>.<dfn>on</dfn>('<var>input:relay(<strong>input[type="text"]</strong>)</var>', function(e) {...});</pre>
 
 <table>
 <colgroup>
@@ -61,7 +61,7 @@ tr:hover { background: aliceblue; }
 <tr>
   <td><dfn><var>E</var>[<var>attr</var>="<var>val</var>"]</dfn></td>
   <td>匹配 <var>attr</var> 属性的值等于 <var>val</var> 的元素。</td>
-  <td>input[type=text]</td>
+  <td>input[type="text"]</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>[<var>attr</var>~="<var>val</var>"]</dfn></td>
@@ -91,7 +91,7 @@ tr:hover { background: aliceblue; }
 <tr>
   <td><dfn><var>E</var>[<var>attr1</var>...][<var>attr2</var>...]</dfn></td>
   <td>匹配能够被所有指定的属性选择符选中的元素。</td>
-  <td>input[type=text][name^=user]</td>
+  <td>input[type="text"][name^="user"]</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:root</dfn></td>
@@ -180,12 +180,12 @@ tr:hover { background: aliceblue; }
 </tr>
 <tr>
   <td><dfn><var>E</var>:checked</dfn></td>
-  <td>匹配 checked 属性为 true 的 INPUT[type=radio] 或 INPUT[type=checkbox] 元素。</td>
+  <td>匹配 checked 属性为 true 的 INPUT[type="radio"] 或 INPUT[type="checkbox"] 元素。</td>
   <td>input:checked</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:not(<var>selector</var>)</dfn></td>
-  <td>匹配不能被 <var>selector</var> 选中的元素。</td>
+  <td>匹配不能被简单选择符 <var>selector</var> 选中的元素。</td>
   <td>input:not(:checked)</td>
 </tr>
 <tr>
@@ -221,7 +221,7 @@ tr:hover { background: aliceblue; }
 <tr>
   <td><dfn><var>selector1</var>, <var>selector2</var>, ...</dfn></td>
   <td>匹配能够被所有指定的选择符选中的元素。</td>
-  <td>textarea, input[type=text]</td>
+  <td>textarea, input[type="text"]</td>
 </tr>
 </tbody>
 </table>
@@ -322,39 +322,39 @@ tr:hover { background: aliceblue; }
 </tr>
 <tr>
   <td><dfn><var>E</var>:text</dfn></td>
-  <td>匹配 [type=text] 的元素（以及没有指定 type 的 INPUT 元素）。</td>
+  <td>匹配 [type="text"] 的元素（以及没有指定 type 的 INPUT 元素）。</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:password</dfn></td>
-  <td>匹配 [type=password] 的元素。</td>
+  <td>匹配 [type="password"] 的元素。</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:radio</dfn></td>
-  <td>匹配 [type=radio] 的元素。</td>
+  <td>匹配 [type="radio"] 的元素。</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:checkbox</dfn></td>
-  <td>匹配 [type=checkbox] 的元素。</td>
+  <td>匹配 [type="checkbox"] 的元素。</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:file</dfn></td>
-  <td>匹配 [type=file] 的元素。</td>
+  <td>匹配 [type="file"] 的元素。</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:image</dfn></td>
-  <td>匹配 [type=image] 的元素。</td>
+  <td>匹配 [type="image"] 的元素。</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:submit</dfn></td>
-  <td>匹配 [type=submit] 的元素。</td>
+  <td>匹配 [type="submit"] 的元素。</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:reset</dfn></td>
-  <td>匹配 [type=reset] 的元素。</td>
+  <td>匹配 [type="reset"] 的元素。</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:button</dfn></td>
-  <td>匹配 BUTTON 元素和 INPUT[type=button] 元素。</td>
+  <td>匹配 BUTTON 元素和 INPUT[type="button"] 元素。</td>
 </tr>
 <tr>
   <td><dfn><var>E</var>:selected</dfn></td>

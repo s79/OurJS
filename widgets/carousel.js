@@ -37,7 +37,7 @@
    *     如果不指定本属性，则使用 '0'。
    *   data-interval
    *     以毫秒为单位的自动轮播间隔时间。
-   *     如果不指定本属性，则使用 '3000'，即每 3 秒滚动一次。
+   *     如果不指定本属性，则自动轮播功能将被关闭。
    *   data-duration
    *     每次滚动使用的时间，单位为毫秒。
    *     如果不指定本属性，则使用 '400'。
@@ -46,9 +46,10 @@
    *     如果不指定本属性，则使用 'ease'。
    * @新增行为
    * * “条目”是首尾相连显示的，即最后一个“条目”的右侧是第一个“条目”。
-   * * “无缝轮播器”每隔一定的时间后（取决于 data-interval 的设定值），会自动轮播各“条目”，即向左滑动隐藏一个“条目”，同时右侧会滑出新的“条目”。
-   * * 当鼠标移入本元素时，自动轮播会被暂时禁用；当鼠标移出本元素时，自动轮播会被重新启用。
-   * * 如果有“向左滚动”和“向右滚动”按钮，则通过按下这些按钮即可使“无缝轮播器”向左和向右滚动，此时如果按下按钮不放，则在第一次滚动后，会以 2 倍速连续的向此方向滚动。
+   * * 如果指定了 data-interval，则“无缝轮播器”每隔一定的时间后，会自动轮播各“条目”。
+   *   如果自动轮播正在进行，则当鼠标移入本元素时，自动轮播会被暂时禁用；当鼠标移出本元素时，自动轮播会被重新启用。
+   * * 如果有“向左滚动”和“向右滚动”按钮，则通过按下这些按钮即可使“无缝轮播器”向左和向右滚动。
+   *   此时如果按下按钮不放，则在第一次滚动后，会以 2 倍速连续的向此方向滚动。
    * @新增属性
    * @新增方法
    *   backward
@@ -80,7 +81,7 @@
     ],
     config: {
       itemSpacing: 0,
-      interval: 3000,
+      interval: NaN,
       duration: 400,
       timingFunction: 'ease'
     },
@@ -180,22 +181,24 @@
           });
 
       // 自动显示下一个条目。
-      var autoPlayTimer;
-      $carousel
-          .on('mouseenter.carousel', function() {
-            if (autoPlayTimer) {
-              clearInterval(autoPlayTimer);
-              autoPlayTimer = undefined;
-            }
-          })
-          .on('mouseleave.carousel', function() {
-            if (!autoPlayTimer) {
-              autoPlayTimer = setInterval(function() {
-                $carousel.forward();
-              }, $carousel.interval);
-            }
-          })
-          .fire('mouseleave');
+      if (!isNaN($carousel.interval)) {
+        var autoPlayTimer;
+        $carousel
+            .on('mouseenter.carousel', function() {
+              if (autoPlayTimer) {
+                clearInterval(autoPlayTimer);
+                autoPlayTimer = undefined;
+              }
+            })
+            .on('mouseleave.carousel', function() {
+              if (!autoPlayTimer) {
+                autoPlayTimer = setInterval(function() {
+                  $carousel.forward();
+                }, $carousel.interval);
+              }
+            })
+            .fire('mouseleave');
+      }
 
     }
   });

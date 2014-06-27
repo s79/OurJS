@@ -28,6 +28,8 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
       <button class="widget-demobutton"><code><strong>xmlRequest</strong>.send();</code></button>
       <br>
       <button class="widget-demobutton"><code><strong>xmlRequest</strong>.abort();</code></button>
+      <br>
+      <button class="widget-demobutton"><code><strong>jsonRequest</strong>.send({type: <em>'JSON'</em>, data: [1, 2, 3]});</code></button>
     </blockquote>
   </fieldset>
   <script>
@@ -54,6 +56,17 @@ blockquote { margin: 5px 0 0; padding: 5px; border: 1px solid gainsboro; }
         })
         .on('finish', function(e) {
           $logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var>' + (e.xml ? ' nodeName=<var>' + e.xml.documentElement.nodeName + '</var>' : ''));
+        });
+
+    window.jsonRequest = new Request('data.txt', {method: 'post', minTime: 500, contentType: 'application/json'})
+        .on('start', function(e) {
+          $logger.log('<strong>' + e.type + '</strong> (jsonRequest)');
+        })
+        .on('abort, timeout, complete', function(e) {
+          $logger.log('<em>' + e.type + '</em>');
+        })
+        .on('finish', function(e) {
+          $logger.log('<strong>' + e.type + '</strong>status=<var>' + e.status + '</var> statusText=<var>' + e.statusText + '</var> text=<var>' + e.text + '</var>');
         });
 
   })();

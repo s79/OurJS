@@ -167,9 +167,9 @@
    * @param {string} url 请求地址。
    * @param {Object} [options] 可选参数。
    * @param {string} [options.mode] 请求模式，可选值为 'xhr'（启用 XHR 模式）和 'jsonp'（启用 JSONP 模式），大小写不敏感，默认为 'xhr'。
-   * @param {string} [options.method] 请求方法，仅在 XHR 模式下有效，可以使用 'get' 和 'post'，大小写不敏感，默认为 'get'。
-   *   在 JSONP 模式下，永远使用 'get' 方法进行请求。
-   *   当使用 'get' 方法进行请求时，应将整个 URL 的长度控制在 2048 个字符以内。
+   * @param {string} [options.method] 请求方法，仅在 XHR 模式下有效，可用的值有 'OPTIONS'，'HEAD'，'GET'，'POST'，'PUT'，'PATCH' 和 'DELETE'，大小写不敏感，默认为 'GET'。
+   *   在 JSONP 模式下，永远使用 'GET' 方法进行请求。
+   *   当使用 'GET' 方法进行请求时，应将整个 URL 的长度控制在 2048 个字符以内。
    * @param {boolean} [options.noCache] 是否禁用浏览器的缓存，仅在 XHR 模式下有效，默认启用浏览器的缓存。
    *   在 JSONP 模式下，永远禁用浏览器的缓存。
    * @param {boolean} [options.sync] 是否使用同步方式进行请求，仅在 XHR 模式下有效，默认使用异步方式进行请求。
@@ -179,7 +179,7 @@
    * @param {string} [options.username] 用户名，仅在 XHR 模式下有效，默认为空字符串，即不指定用户名。
    * @param {string} [options.password] 密码，仅在 XHR 模式下有效，默认为空字符串，即不指定密码。
    * @param {Object} [options.headers] 请求头的内容，仅在 XHR 模式下有效，格式为 {key: value, ...}，默认为 {'X-Requested-With': 'XMLHttpRequest', 'Accept': '*&#47;*'}。
-   * @param {string} [options.contentType] 发送的数据类型，仅在 XHR 模式下且 method 为 'post' 时有效，默认为 'application/x-www-form-urlencoded'。
+   * @param {string} [options.contentType] 要发送的数据类型，仅在 XHR 模式下且 method 为 'POST'，'PUT' 或 'PATCH' 时有效，默认为 'application/x-www-form-urlencoded'，可选项还有 'application/json'。
    * @param {string} [options.callbackName] 保存 JSONP 前缀的参数名，服务端应将该参数的值作为输出 JSONP 时的前缀使用，仅在 JSONP 模式下有效，大小写敏感，默认为 'callback'。
    * @fires start
    *   请求开始时触发。
@@ -222,6 +222,7 @@
     switch (options.mode = options.mode.toLowerCase()) {
       case 'xhr':
         options.method = options.method.toLowerCase();
+        options.contentType = options.contentType.toLowerCase();
         Object.mixin(this, options, {whiteList: ['mode', 'method', 'noCache', 'sync', 'minTime', 'maxTime', 'username', 'password', 'headers', 'contentType']});
         break;
       case 'jsonp':
@@ -270,32 +271,49 @@
    * 发送请求。
    * @name Request.prototype.send
    * @function
-   * @param {Object} [requestData] 要发送的数据。
+   * @param {Object} [data] 要发送的数据。
    *   数据格式为 {key1: value1, key2: [value21, value22, ...], ...}，其中所有 value 都可以为任意基本类型的数据（在发送时它们都将被强制转换为字符串类型），另外 key 和 value 均不必做百分比编码。
    *   本方法的参数不允许使用字符串类型的数据，因为无法判断指定的字符串值是否需要做百分比编码。
    * @returns {boolean} 本方法是否已被成功调用。
    * @description
    *   如果上一次发送的请求尚未完成，则调用本方法无效。
    */
-  Request.prototype.send = function(requestData) {
+  Request.prototype.send = function(data) {
     var request = this;
     // 如果请求正在进行中，则需等待此次请求完成后才能再次发起请求（若设置了 minTime 则请求完成的时间可能比交互完成的时间长）。
     if (!request.ongoing) {
-      // 请求开始进行。
+      // 准备发起请求。
       request.ongoing = true;
       request.timestamp = Date.now();
-      // 触发 start 事件。
-      request.fire('start');
       // 序列化请求数据。如果请求数据为空，则统一使用 null 表示。
-      requestData = requestData ? Object.toQueryString(requestData) : null;
-      // 发送 XHR 或 JSONP 模式的请求。
       var url = request.url;
       var method = request.method;
-      if (method === 'get' && requestData) {
-        url += (url.contains('?') ? '&' : '?') + requestData;
-        requestData = null;
+      var useAsyncMode = !request.sync;
+      var contentType = undefined;
+      var requestData = null;
+      if (data) {
+        switch (method) {
+          case 'options':
+          case 'head':
+          case 'get':
+          case 'delete':
+            url += (url.contains('?') ? '&' : '?') + Object.toQueryString(data);
+            break;
+          case 'post':
+          case 'put':
+          case 'patch':
+            contentType = request.contentType;
+            if (contentType.startsWith('application/x-www-form-urlencoded')) {
+              requestData = Object.toQueryString(data);
+            } else if (contentType.startsWith('application/json')) {
+              requestData = JSON.stringify(data);
+            }
+            break;
+        }
       }
-      var inSync = request.sync;
+      // 触发 start 事件。
+      request.fire('start');
+      // 发送 XHR 或 JSONP 模式的请求。
       switch (request.mode) {
         case 'xhr':
           if (request.noCache) {
@@ -303,19 +321,19 @@
           }
           var xhr = request.xhr = getXHRObject();
           // 准备请求。
-          xhr.open(method, url, !inSync, request.username, request.password);
+          xhr.open(method, url, useAsyncMode, request.username, request.password);
           // 设置请求头。
           Object.forEach(request.headers, function(value, key) {
             xhr.setRequestHeader(key, value);
           });
-          if (method === 'post') {
-            xhr.setRequestHeader('Content-Type', request.contentType);
+          if (contentType) {
+            xhr.setRequestHeader('Content-Type', contentType);
           }
           // 发送请求。
           xhr.send(requestData);
           activeXHRModeRequests.push(request);
           // 检查请求状态。
-          if (inSync || xhr.readyState === 4) {
+          if (!useAsyncMode || xhr.readyState === 4) {
             // IE 使用 ActiveXObject 创建的 XHR 对象即便在异步模式下，如果访问地址已被浏览器缓存，将直接改变 readyState 为 4，并且不会触发 onreadystatechange 事件。
             transferComplete(request);
           } else {
@@ -340,7 +358,7 @@
           break;
       }
       // 超时时间设置。
-      if (!inSync && Number.isFinite(request.maxTime)) {
+      if (useAsyncMode && Number.isFinite(request.maxTime)) {
         request.maxTimeTimer = setTimeout(function() {
           requestComplete(request, TIMEOUT);
         }, Math.max(0, request.maxTime));

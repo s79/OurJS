@@ -55,8 +55,8 @@
    * * 如果有“向左滚动”和“向右滚动”按钮，则：
    *   如果没有指定“活动照片”，通过按下这些按钮即可使“照片墙”向左和向右滚动。
    *   如果指定了“活动照片”，，通过按下这些按钮即可切换“活动照片”，为确保“活动照片”永远可见，“照片墙”可能会进行横向滚动。
-   *   如果“照片墙”已经滚动到最左侧，则“向左滚动”会被添加 'disabled' 类，并且点击此按钮无效。
-   *   如果“照片墙”已经滚动到最右侧，则“向右滚动”会被添加 'disabled' 类，并且点击此按钮无效。
+   *   如果“照片墙”已经滚动到最左侧，则“照片墙”会被添加 'first' 类，“向左滚动”会被添加 'disabled' 类，并且点击此按钮无效。
+   *   如果“照片墙”已经滚动到最右侧，则“照片墙”会被添加 'last' 类，“向右滚动”会被添加 'disabled' 类，并且点击此按钮无效。
    * @新增属性
    *   {Array} photos 包含所有“照片”的数组。
    *   {Number} before 当前位于“照片墙”左侧的不可见“照片”数。
@@ -235,15 +235,19 @@
             .on('forwardstart.photowall, backwardstart.photowall', function() {
               if ($backward) {
                 if (this.before === 0) {
+                  $photowall.addClass('first');
                   $backward.addClass('disabled');
                 } else if (this.before === 1) {
+                  $photowall.removeClass('first');
                   $backward.removeClass('disabled');
                 }
               }
               if ($forward) {
                 if (this.after === 0) {
+                  $photowall.addClass('last');
                   $forward.addClass('disabled');
                 } else if (this.after === 1) {
+                  $photowall.removeClass('last');
                   $forward.removeClass('disabled');
                 }
               }
@@ -267,7 +271,6 @@
               } while (photos.length - 1 - activeIndex - $photowall.after < 0);
             }
           }
-          return false;
         });
 
         // 通过点击“向左滚动”和“向右滚动”按钮切换“活动照片”。
@@ -308,15 +311,19 @@
               var activeIndex = $photowall.activeIndex;
               if ($backward) {
                 if (activeIndex === 0) {
+                  $photowall.addClass('first');
                   $backward.addClass('disabled');
                 } else {
+                  $photowall.removeClass('first');
                   $backward.removeClass('disabled');
                 }
               }
               if ($forward) {
                 if (activeIndex === photos.length - 1) {
+                  $photowall.addClass('last');
                   $forward.addClass('disabled');
                 } else {
+                  $photowall.removeClass('last');
                   $forward.removeClass('disabled');
                 }
               }

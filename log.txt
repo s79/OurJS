@@ -1,4 +1,11 @@
-﻿>2014-04-21
+﻿>2014-06-27
+* 仅当 Request 的 contentType 以 application/x-www-form-urlencoded 开始时才将要发送的数据自动转换为 queryString
+* 修改部分文档中的说明文字
+
+>2014-04-28
+* 当 widget-slideshow 和 widget-carousel 的可配置项 data-interval 未指定时自动轮播功能将被禁用
+
+>2014-04-21
 + widget-photowall (从项目中提取并整理)
 
 >2014-04-17
