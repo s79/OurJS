@@ -95,17 +95,24 @@
     initialize: function() {
       var $tabPanel = this;
 
+      var $tabs = $tabPanel.find('.tab').getParent();
+      var $panels = $tabPanel.find('.panel').getParent();
+
       // 保存属性。
       Object.mixin($tabPanel, {
-        tabs: $tabPanel.findAll('.tab'),
-        panels: $tabPanel.findAll('.panel'),
+        tabs: $tabs ? $tabs.getChildren().filter(function($element) {
+          return $element.hasClass('tab');
+        }) : [],
+        panels: $panels ? $panels.getChildren().filter(function($element) {
+          return $element.hasClass('panel');
+        }) : [],
         activeTab: null,
         activePanel: null
       });
 
       // 通过点击或指向“标签”来激活这个“标签”及与其对应的“面板”。
       var timer;
-      $tabPanel
+      $tabs
           .on('click:relay(.tab).tabpanel', function(e) {
             $tabPanel.activate($tabPanel.tabs.indexOf(this));
             // 避免在 IE 中触发 beforeunload 事件，以及链接点击成功后可能出现的音效。
@@ -130,7 +137,7 @@
 
       // 默认激活第一组。
       document.on('afterdomready:once.tabpanel', function() {
-        if ($tabPanel.activeTab === $tabPanel.activePanel) {
+        if (!$tabPanel.activeTab) {
           $tabPanel.activate(0);
         }
       });

@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TabPanel</title>
+<script src="../../../our.js"></script>
+<script src="../../../widgets/tabpanel.js"></script>
+<script src="../../../scripts/widget-demobutton.js"></script>
+<style>
+body { margin: 0; padding: 10px; }
+div.widget-tabpanel { width: 400px; }
+div.widget-tabpanel .tabs { list-style: none; margin: 0; padding: 0; height: 31px; }
+div.widget-tabpanel .tab { float: left; margin-right: -1px; border: 1px solid silver; border-bottom: none; }
+div.widget-tabpanel .tab a { position: relative; float: left; height: 20px; padding: 5px 10px; background: whitesmoke; color: dimgray; font: 14px/20px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; text-decoration: none; white-space: nowrap; text-align: center; cursor: default; outline: none; }
+div.widget-tabpanel .tab a:hover { background: white; }
+div.widget-tabpanel .tabs .active a,
+div.widget-tabpanel .tabs .active a:hover { top: 1px; padding: 4px 10px 6px; background: white; color: black; }
+div.widget-tabpanel .panels { border: 1px solid silver; }
+div.widget-tabpanel .panel { height: 200px; background: white; font: 100px/200px Verdana, Helvetica, Arial, "Microsoft YaHei", SimSun, sans-serif; text-align: center; }
+</style>
+</head>
+<body>
+<div id="tabpanel" class="widget-tabpanel" data-hover-delay="200">
+  <ul class="tabs">
+    <li class="tab"><a href="javascript:void('switchTab');" hidefocus>第 1 个（默认激活）</a></li>
+    <li class="tab"><a href="javascript:void('switchTab');" hidefocus>第 2 个</a></li>
+    <li class="tab"><a href="javascript:void('switchTab');" hidefocus>第 3 个</a></li>
+  </ul>
+  <div class="panels">
+    <div class="panel">一</div>
+    <div class="panel">
+      <div id="tabpanel_inner" class="widget-tabpanel" data-hover-delay="200">
+        <ul class="tabs">
+          <li class="tab"><a href="javascript:void('switchTab');" hidefocus>第 1 个（默认激活）</a></li>
+          <li class="tab"><a href="javascript:void('switchTab');" hidefocus>第 2 个</a></li>
+          <li class="tab"><a href="javascript:void('switchTab');" hidefocus>第 3 个</a></li>
+        </ul>
+        <div class="panels">
+          <div class="panel">一</div>
+          <div class="panel">二</div>
+          <div class="panel">三</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">三</div>
+  </div>
+</div>
+<div style="padding: 10px 0;">
+  <button class="widget-demobutton"><code><strong>$tabpanel</strong>.activate(<var>0</var>);</code></button>
+  <br>
+  <button class="widget-demobutton"><code><strong>$tabpanel</strong>.activate(<var>2</var>);</code></button>
+</div>
+<script>
+var $tabpanel = $('#tabpanel');
+</script>
+</body>
+</html>

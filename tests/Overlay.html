@@ -70,17 +70,27 @@ var test = function($overlay, element) {
 };
 
 var $span = $('#span').setStyle('opacity', .75);
-var length = window.getPageOffset().y + $span.getClientRect().top - parseInt($span.getStyle('marginTop'), 10);
+var originalStyles = {
+  position: $span.getStyle('position'),
+  left: $span.getStyle('left'),
+  top: $span.getStyle('top')
+};
+var clientRect = $span.getClientRect();
+var pageOffset = window.getPageOffset();
+var offsetLeft = clientRect.left + pageOffset.x;
+var offsetTop = clientRect.top + pageOffset.y;
+var marginLeft = parseInt($span.getStyle('marginLeft'), 10);
+var marginTop = parseInt($span.getStyle('marginTop'), 10);
+
 window.on('scroll', function() {
-  var position = $span.getStyle('position');
-  if (window.getPageOffset().y >= length) {
-    if (position !== 'fixed') {
-      $span.setStyles({position: 'fixed', top: 0});
+  var pageOffset = window.getPageOffset();
+  if (pageOffset.y >= offsetTop) {
+    if (originalStyles.position !== 'fixed') {
+      $span.setStyles({position: 'fixed', left: 0, top: 0});
     }
+    $span.setStyles({left: offsetLeft - pageOffset.x - marginLeft, top: 0 - marginTop});
   } else {
-    if (position !== 'absolute') {
-      $span.setStyles({position: 'absolute', top: length});
-    }
+    $span.setStyles(originalStyles);
   }
 });
 </script>
